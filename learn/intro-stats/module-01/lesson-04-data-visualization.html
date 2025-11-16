@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Data Visualization - Learn to create and interpret charts, graphs, and identify misleading visualizations">
+  <title>Lesson 4: Data Visualization – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .lesson-objectives h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .chart-type-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      transition: var(--transition);
+    }
+
+    .chart-type-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    .chart-type-card h3 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .chart-visual-placeholder {
+      background: var(--background-alt);
+      border: 2px dashed var(--border-color);
+      padding: var(--spacing-xl);
+      text-align: center;
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .misleading-examples {
+      background: #fff9e6;
+      border: 3px solid var(--warning);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .misleading-examples h3 {
+      color: #996300;
+      margin-top: 0;
+    }
+
+    .misleading-card {
+      background: white;
+      border: 2px solid var(--danger);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .misleading-card h4 {
+      color: var(--danger);
+      margin-top: 0;
+    }
+
+    .best-practices {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .best-practices h4 {
+      color: var(--success);
+      margin-top: 0;
+    }
+
+    .when-to-use-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .when-card {
+      background: var(--info-light);
+      border: 2px solid var(--info);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+    }
+
+    .when-card h5 {
+      color: var(--info);
+      margin-top: 0;
+      font-size: 1rem;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--spacing-md) 0;
+      background: white;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .comparison-table th {
+      background: var(--primary-color);
+      color: white;
+      padding: var(--spacing-md);
+      text-align: left;
+    }
+
+    .comparison-table td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: var(--background-alt);
+    }
+
+    .interactive-quiz {
+      background: white;
+      border: 2px solid var(--accent-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .interactive-quiz h3 {
+      color: var(--accent-color);
+      margin-top: 0;
+    }
+
+    .quiz-item {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      margin-top: var(--spacing-sm);
+    }
+
+    .quiz-option {
+      padding: var(--spacing-sm);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      background: white;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--primary-color);
+      background: var(--background-alt);
+    }
+
+    .quiz-option.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct {
+      background: var(--success-light);
+      border-left: 3px solid var(--success);
+    }
+
+    .quiz-feedback.incorrect {
+      background: #ffebee;
+      border-left: 3px solid var(--danger);
+    }
+
+    @media (max-width: 768px) {
+      .when-to-use-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-03-data-collection.html" class="back-link">← Previous Lesson</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems →</a>
+    </div>
+
+    <h1>Lesson 4: Introduction to Data Visualization</h1>
+    <p class="text-muted">⏱️ Estimated time: 25-30 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>📚 Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain why data visualization is important</li>
+        <li>Identify the appropriate graph type for different data types</li>
+        <li>Interpret common data visualizations (bar charts, histograms, pie charts, line graphs, scatterplots)</li>
+        <li>Recognize misleading visualizations and explain why they're problematic</li>
+        <li>Apply best practices for creating effective, honest visualizations</li>
+      </ul>
+    </div>
+
+    <!-- Introduction -->
+    <section class="content-section">
+      <h2>Why Visualize Data?</h2>
+
+      <p>
+        "A picture is worth a thousand words" — and in statistics, a good graph can reveal patterns that would take pages of numbers to describe!
+      </p>
+
+      <div class="highlight-box mt-2">
+        <h3>The Power of Visualization</h3>
+        <p>
+          Humans are visual creatures. Our brains process images <strong>60,000 times faster</strong> than text. Data visualization helps us:
+        </p>
+        <ul class="icon-list mt-1">
+          <li><strong>Spot patterns and trends</strong> instantly</li>
+          <li><strong>Compare groups</strong> at a glance</li>
+          <li><strong>Identify outliers</strong> (unusual data points)</li>
+          <li><strong>Tell stories</strong> with data</li>
+          <li><strong>Communicate findings</strong> to non-experts</li>
+          <li><strong>Make data memorable</strong> and engaging</li>
+        </ul>
+      </div>
+
+      <div class="example-box mt-2">
+        <h4>Example: Same Data, Different Impact</h4>
+        <p><strong>Table format:</strong></p>
+        <p class="text-muted">Month | Temperature<br>Jan: 45°F, Feb: 48°F, Mar: 55°F, Apr: 65°F, May: 75°F, Jun: 85°F, Jul: 92°F...</p>
+        <p class="mt-2"><strong>Line graph:</strong> Instantly shows smooth upward trend, peak in summer, gradual decline.</p>
+        <p class="mt-1"><em>The graph communicates in seconds what the table requires minutes to understand!</em></p>
+      </div>
+    </section>
+
+    <!-- Common Graph Types -->
+    <section class="content-section">
+      <h2>Common Graph Types & When to Use Them</h2>
+
+      <div class="chart-type-card">
+        <h3>📊 Bar Chart</h3>
+        <p><strong>Best for:</strong> Comparing quantities across different CATEGORIES (qualitative data)</p>
+        <p class="mt-1"><strong>Key features:</strong></p>
+        <ul>
+          <li>Categories on x-axis, frequency/count on y-axis</li>
+          <li>Bars don't touch each other (distinct categories)</li>
+          <li>Can be horizontal or vertical</li>
+          <li>Easy to compare heights/lengths</li>
+        </ul>
+        <div class="chart-visual-placeholder">
+          <p class="text-muted">📈 [Visual example: Bar chart showing favorite ice cream flavors:<br>Chocolate: 45, Vanilla: 32, Strawberry: 28, Mint: 15]</p>
+        </div>
+        <div class="when-to-use-grid">
+          <div class="when-card">
+            <h5>✅ Use When:</h5>
+            <ul>
+              <li>Comparing categories</li>
+              <li>Showing survey results</li>
+              <li>Displaying counts/frequencies</li>
+            </ul>
+          </div>
+          <div class="when-card">
+            <h5>❌ Don't Use When:</h5>
+            <ul>
+              <li>Data is continuous</li>
+              <li>Showing trends over time</li>
+              <li>Data has too many categories (hard to read)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-type-card">
+        <h3>📊 Histogram</h3>
+        <p><strong>Best for:</strong> Showing the DISTRIBUTION of continuous, numerical data</p>
+        <p class="mt-1"><strong>Key features:</strong></p>
+        <ul>
+          <li>Looks like a bar chart, but bars TOUCH (continuous data!)</li>
+          <li>X-axis shows bins/ranges (e.g., 0-10, 10-20, 20-30)</li>
+          <li>Y-axis shows frequency (how many values fall in each range)</li>
+          <li>Shows shape of distribution (normal, skewed, uniform)</li>
+        </ul>
+        <div class="chart-visual-placeholder">
+          <p class="text-muted">📊 [Visual example: Histogram of test scores:<br>50-60: 3 students, 60-70: 8 students, 70-80: 15 students, 80-90: 20 students, 90-100: 9 students]</p>
+        </div>
+        <div class="when-to-use-grid">
+          <div class="when-card">
+            <h5>✅ Use When:</h5>
+            <ul>
+              <li>Data is quantitative and continuous</li>
+              <li>Want to see distribution shape</li>
+              <li>Identifying outliers</li>
+            </ul>
+          </div>
+          <div class="when-card">
+            <h5>❌ Don't Use When:</h5>
+            <ul>
+              <li>Data is categorical</li>
+              <li>Comparing different groups</li>
+              <li>Too few data points (< 30)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="info-box mt-2">
+          <p><strong>Bar Chart vs. Histogram:</strong> This confuses everyone! Remember:</p>
+          <ul>
+            <li><strong>Bar chart:</strong> Categories (ice cream flavors), bars don't touch</li>
+            <li><strong>Histogram:</strong> Continuous numerical data (test scores), bars DO touch</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chart-type-card">
+        <h3>🥧 Pie Chart</h3>
+        <p><strong>Best for:</strong> Showing parts of a whole (percentages that add to 100%)</p>
+        <p class="mt-1"><strong>Key features:</strong></p>
+        <ul>
+          <li>Circle divided into slices</li>
+          <li>Each slice represents a proportion of the total</li>
+          <li>All slices must add to 100%</li>
+          <li>Good for showing relative sizes at a glance</li>
+        </ul>
+        <div class="chart-visual-placeholder">
+          <p class="text-muted">🥧 [Visual example: Student transportation pie chart:<br>Drive: 40%, Public transit: 30%, Walk/bike: 20%, Carpool: 10%]</p>
+        </div>
+        <div class="when-to-use-grid">
+          <div class="when-card">
+            <h5>✅ Use When:</h5>
+            <ul>
+              <li>Showing percentages/proportions</li>
+              <li>Few categories (3-6 max)</li>
+              <li>Parts add to a meaningful whole</li>
+            </ul>
+          </div>
+          <div class="when-card">
+            <h5>❌ Don't Use When:</h5>
+            <ul>
+              <li>Too many categories (hard to read)</li>
+              <li>Values don't add to 100%</li>
+              <li>Precise comparison needed (bar chart better)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-type-card">
+        <h3>📈 Line Graph</h3>
+        <p><strong>Best for:</strong> Showing trends or changes OVER TIME</p>
+        <p class="mt-1"><strong>Key features:</strong></p>
+        <ul>
+          <li>Time on x-axis, measurement on y-axis</li>
+          <li>Points connected by lines to show continuity</li>
+          <li>Shows trends: increasing, decreasing, fluctuating</li>
+          <li>Can display multiple lines for comparison</li>
+        </ul>
+        <div class="chart-visual-placeholder">
+          <p class="text-muted">📈 [Visual example: Line graph of temperature over a year, showing seasonal pattern]</p>
+        </div>
+        <div class="when-to-use-grid">
+          <div class="when-card">
+            <h5>✅ Use When:</h5>
+            <ul>
+              <li>Data collected over time</li>
+              <li>Want to show trends</li>
+              <li>Continuous change over time</li>
+            </ul>
+          </div>
+          <div class="when-card">
+            <h5>❌ Don't Use When:</h5>
+            <ul>
+              <li>Data isn't time-based</li>
+              <li>Categories are unordered</li>
+              <li>Too many lines (confusing)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-type-card">
+        <h3>📉 Scatterplot</h3>
+        <p><strong>Best for:</strong> Showing the RELATIONSHIP between two numerical variables</p>
+        <p class="mt-1"><strong>Key features:</strong></p>
+        <ul>
+          <li>Each point represents one observation</li>
+          <li>One variable on x-axis, another on y-axis</li>
+          <li>Pattern of points shows relationship</li>
+          <li>Can reveal correlation (positive, negative, or none)</li>
+        </ul>
+        <div class="chart-visual-placeholder">
+          <p class="text-muted">📉 [Visual example: Scatterplot of study hours (x) vs. test score (y), showing positive correlation]</p>
+        </div>
+        <div class="when-to-use-grid">
+          <div class="when-card">
+            <h5>✅ Use When:</h5>
+            <ul>
+              <li>Investigating relationships</li>
+              <li>Both variables are quantitative</li>
+              <li>Looking for correlation patterns</li>
+            </ul>
+          </div>
+          <div class="when-card">
+            <h5>❌ Don't Use When:</h5>
+            <ul>
+              <li>One or both variables are categorical</li>
+              <li>Too many points (cloud is unreadable)</li>
+              <li>Only showing one variable</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Reference Table -->
+    <section class="content-section">
+      <h2>Quick Reference: Choosing the Right Graph</h2>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Graph Type</th>
+            <th>Data Type</th>
+            <th>Purpose</th>
+            <th>Example Question</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bar Chart</strong></td>
+            <td>Categorical (qualitative)</td>
+            <td>Compare categories</td>
+            <td>"Which major is most popular?"</td>
+          </tr>
+          <tr>
+            <td><strong>Histogram</strong></td>
+            <td>Continuous (quantitative)</td>
+            <td>Show distribution</td>
+            <td>"What's the distribution of test scores?"</td>
+          </tr>
+          <tr>
+            <td><strong>Pie Chart</strong></td>
+            <td>Categorical (percentages)</td>
+            <td>Show parts of whole</td>
+            <td>"What percentage uses each transportation method?"</td>
+          </tr>
+          <tr>
+            <td><strong>Line Graph</strong></td>
+            <td>Time series</td>
+            <td>Show trends over time</td>
+            <td>"How has enrollment changed over 10 years?"</td>
+          </tr>
+          <tr>
+            <td><strong>Scatterplot</strong></td>
+            <td>Two quantitative variables</td>
+            <td>Show relationship</td>
+            <td>"Is there a relationship between hours studied and GPA?"</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Misleading Visualizations -->
+    <div class="misleading-examples">
+      <h3>🚨 Watch Out: Misleading Visualizations</h3>
+      <p>
+        Data visualizations can be powerful tools for communication—but they can also be used to mislead (intentionally or accidentally)!
+      </p>
+
+      <div class="misleading-card">
+        <h4>❌ Trick #1: Truncated Y-Axis</h4>
+        <p>
+          <strong>What it is:</strong> Y-axis doesn't start at zero, exaggerating small differences
+        </p>
+        <p class="mt-1">
+          <strong>Example:</strong> A graph showing "Sales Skyrocket!" goes from 98 to 102 units—looks like a huge jump, but it's only 4 units (4% increase)!
+        </p>
+        <p class="mt-1"><strong>Why it's misleading:</strong> Visual difference appears much larger than actual difference</p>
+        <p class="mt-1 text-muted"><em>Rule: Bar charts should always start at zero. Line graphs sometimes have exceptions, but be careful!</em></p>
+      </div>
+
+      <div class="misleading-card">
+        <h4>❌ Trick #2: Cherry-Picking Time Periods</h4>
+        <p>
+          <strong>What it is:</strong> Selectively showing only part of the data to tell a specific story
+        </p>
+        <p class="mt-1">
+          <strong>Example:</strong> "Stock prices doubled!" (showing only March-April 2020 rebound, ignoring February-March crash)
+        </p>
+        <p class="mt-1"><strong>Why it's misleading:</strong> Hides the full context and overall pattern</p>
+      </div>
+
+      <div class="misleading-card">
+        <h4>❌ Trick #3: Inappropriate Graph Type</h4>
+        <p>
+          <strong>What it is:</strong> Using the wrong graph makes comparisons impossible or misleading
+        </p>
+        <p class="mt-1">
+          <strong>Example:</strong> Using a pie chart with 15 slices (can't distinguish similar-sized slices)
+        </p>
+        <p class="mt-1"><strong>Why it's misleading:</strong> Wrong tool for the job obscures the truth</p>
+      </div>
+
+      <div class="misleading-card">
+        <h4>❌ Trick #4: 3D Effects and Distortions</h4>
+        <p>
+          <strong>What it is:</strong> Adding 3D effects or using images instead of bars distorts proportions
+        </p>
+        <p class="mt-1">
+          <strong>Example:</strong> Using coin images where doubling the diameter quadruples the visual area
+        </p>
+        <p class="mt-1"><strong>Why it's misleading:</strong> Visual representation doesn't match actual proportions</p>
+      </div>
+
+      <div class="misleading-card">
+        <h4>❌ Trick #5: Dual Y-Axes Manipulation</h4>
+        <p>
+          <strong>What it is:</strong> Using two different scales on left and right y-axes to create false correlations
+        </p>
+        <p class="mt-1">
+          <strong>Example:</strong> Scaling axes so two unrelated trends appear perfectly aligned
+        </p>
+        <p class="mt-1"><strong>Why it's misleading:</strong> Can make any two variables appear related</p>
+      </div>
+    </div>
+
+    <!-- Best Practices -->
+    <div class="best-practices">
+      <h4>✅ Best Practices for Honest, Effective Visualizations</h4>
+      <ol>
+        <li><strong>Choose the right graph type</strong> for your data and message</li>
+        <li><strong>Start bar charts at zero</strong> to show true proportions</li>
+        <li><strong>Label everything clearly:</strong> axes, units, title, legend</li>
+        <li><strong>Use consistent scales</strong> when comparing multiple graphs</li>
+        <li><strong>Avoid 3D effects</strong> and unnecessary decorations</li>
+        <li><strong>Show the full context</strong>—don't cherry-pick data</li>
+        <li><strong>Use color purposefully,</strong> not just for decoration</li>
+        <li><strong>Include data sources</strong> and sample size</li>
+        <li><strong>Keep it simple</strong>—clarity over complexity</li>
+        <li><strong>Ask: "Does this visualization tell the truth?"</strong></li>
+      </ol>
+    </div>
+
+    <!-- Interactive Quiz -->
+    <div class="interactive-quiz">
+      <h3>📊 Interactive Practice: Match the Graph!</h3>
+      <p>For each scenario, choose the best graph type:</p>
+
+      <div class="quiz-item">
+        <p><strong>1. You want to show how average temperature changes throughout the year (January to December).</strong></p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectQuizAnswer(1, 'bar', false)">Bar Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(1, 'line', true)">Line Graph</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(1, 'pie', false)">Pie Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(1, 'scatter', false)">Scatterplot</div>
+        </div>
+        <div class="quiz-feedback" id="feedback1"></div>
+      </div>
+
+      <div class="quiz-item">
+        <p><strong>2. You surveyed students about their favorite type of music. You want to show what percentage prefer each genre.</strong></p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectQuizAnswer(2, 'histogram', false)">Histogram</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(2, 'pie', true)">Pie Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(2, 'line', false)">Line Graph</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(2, 'scatter', false)">Scatterplot</div>
+        </div>
+        <div class="quiz-feedback" id="feedback2"></div>
+      </div>
+
+      <div class="quiz-item">
+        <p><strong>3. You want to see if there's a relationship between hours of sleep and exam performance.</strong></p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectQuizAnswer(3, 'bar', false)">Bar Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(3, 'histogram', false)">Histogram</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(3, 'pie', false)">Pie Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(3, 'scatter', true)">Scatterplot</div>
+        </div>
+        <div class="quiz-feedback" id="feedback3"></div>
+      </div>
+
+      <div class="quiz-item">
+        <p><strong>4. You want to show the distribution of ages of all students in your school.</strong></p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectQuizAnswer(4, 'bar', false)">Bar Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(4, 'histogram', true)">Histogram</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(4, 'pie', false)">Pie Chart</div>
+          <div class="quiz-option" onclick="selectQuizAnswer(4, 'line', false)">Line Graph</div>
+        </div>
+        <div class="quiz-feedback" id="feedback4"></div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>🎯 Key Takeaways</h3>
+      <ul>
+        <li><strong>Visualizations make data accessible</strong> and reveal patterns quickly</li>
+        <li><strong>Choose graph type based on data type and purpose:</strong>
+          <ul>
+            <li>Bar chart → compare categories</li>
+            <li>Histogram → show distribution of continuous data</li>
+            <li>Pie chart → parts of whole (percentages)</li>
+            <li>Line graph → trends over time</li>
+            <li>Scatterplot → relationship between two variables</li>
+          </ul>
+        </li>
+        <li><strong>Misleading graphs</strong> often use truncated axes, cherry-picked data, or inappropriate graph types</li>
+        <li><strong>Always ask:</strong> "What story is this graph trying to tell, and is it true?"</li>
+        <li><strong>Good visualizations</strong> are clear, honest, properly labeled, and use appropriate scales</li>
+      </ul>
+    </div>
+
+    <!-- Module Complete -->
+    <section class="content-section">
+      <h2>🎉 Module 1 Complete!</h2>
+
+      <div class="highlight-box">
+        <h3>Congratulations!</h3>
+        <p>
+          You've completed all four lessons in Module 1! You now understand:
+        </p>
+        <ul class="icon-list">
+          <li>✅ What statistics is and why it matters</li>
+          <li>✅ Different types of data (quantitative, qualitative, discrete, continuous)</li>
+          <li>✅ How to collect data and identify bias</li>
+          <li>✅ How to create and interpret data visualizations</li>
+        </ul>
+        <p class="mt-2">
+          <strong>Next steps:</strong> Practice what you've learned, take the module quiz, and see your progress!
+        </p>
+      </div>
+
+      <div class="course-grid mt-3">
+        <div class="card">
+          <h3>📝 Practice Problems</h3>
+          <p>Reinforce your learning with 15 practice problems covering all module topics!</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Start Practice</a>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Module Quiz</h3>
+          <p>Test your knowledge with a 12-question quiz. Pass with 70% to earn your Module 1 badge!</p>
+          <a href="quiz.html" class="btn btn-accent mt-2">Take Quiz</a>
+        </div>
+
+        <div class="card">
+          <h3>📊 Post-Assessment</h3>
+          <p>Retake the same assessment from the beginning and see how much you've learned!</p>
+          <a href="post-assessment.html" class="btn btn-outline mt-2">Take Post-Assessment</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    const quizAnswers = {
+      1: {
+        correct: 'line',
+        explanation: {
+          correct: "Perfect! ✅ Line graphs are ideal for showing trends over time. Temperature changes throughout the year is a classic time-series that benefits from seeing the continuous trend.",
+          incorrect: "Not quite. ❌ Since we're showing how something changes over TIME (month by month), a LINE GRAPH is best. It clearly shows the seasonal temperature pattern."
+        }
+      },
+      2: {
+        correct: 'pie',
+        explanation: {
+          correct: "Excellent! ✅ Pie charts are perfect for showing parts of a whole when you have percentages that add to 100%. Each music genre is a slice of the pie!",
+          incorrect: "Not quite. ❌ When showing what PERCENTAGE prefers each category (parts of a whole adding to 100%), a PIE CHART works best. Bar charts are also acceptable here!"
+        }
+      },
+      3: {
+        correct: 'scatter',
+        explanation: {
+          correct: "Great thinking! ✅ Scatterplots show the relationship between two quantitative variables. Each point represents one student's sleep hours and exam score, revealing any correlation.",
+          incorrect: "Not quite. ❌ To see if there's a RELATIONSHIP between two numerical variables, use a SCATTERPLOT. Each dot represents one student with their sleep hours and exam score."
+        }
+      },
+      4: {
+        correct: 'histogram',
+        explanation: {
+          correct: "Spot on! ✅ Histograms show the distribution of continuous numerical data. Age is quantitative and continuous, and a histogram will show how ages are spread across ranges (14-15, 15-16, etc.).",
+          incorrect: "Not quite. ❌ Age is continuous numerical data, so we use a HISTOGRAM to show the distribution. The x-axis would have age ranges (bins) and the y-axis would show how many students fall in each range."
+        }
+      }
+    };
+
+    function selectQuizAnswer(questionNum, selected, isCorrect) {
+      const quizItem = document.querySelector(`#feedback${questionNum}`).closest('.quiz-item');
+      const options = quizItem.querySelectorAll('.quiz-option');
+      const feedback = document.getElementById(`feedback${questionNum}`);
+
+      // Clear previous selections
+      options.forEach(opt => opt.classList.remove('selected'));
+
+      // Mark selected
+      event.target.classList.add('selected');
+
+      // Show feedback
+      feedback.classList.add('show');
+      if (isCorrect) {
+        feedback.classList.remove('incorrect');
+        feedback.classList.add('correct');
+        feedback.textContent = quizAnswers[questionNum].explanation.correct;
+      } else {
+        feedback.classList.remove('correct');
+        feedback.classList.add('incorrect');
+        feedback.textContent = quizAnswers[questionNum].explanation.incorrect;
+      }
+    }
+  </script>
+
+</body>
+</html>
