@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-Powered Statistics Tutor Demo - Cognitive Scaffolding System">
+  <title>AI Statistics Tutor Demo – Safaa Dabagh Research</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Additional styles specific to chat interface */
+    .chat-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+      color: white;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .scaffold-level-indicator {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.2);
+      margin-left: var(--spacing-sm);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-lg);
+      background: var(--background-alt);
+    }
+
+    .message {
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message.assistant {
+      justify-content: flex-start;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .message.user .message-avatar {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .message.assistant .message-avatar {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      line-height: 1.6;
+    }
+
+    .message.user .message-content {
+      background: var(--accent-color);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .message-content {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .chat-input-container {
+      padding: var(--spacing-md);
+      border-top: 1px solid var(--border-color);
+      background: white;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: var(--font-primary);
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 44px;
+      max-height: 120px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .send-button {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .send-button:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .scaffold-controls {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+
+    .scaffold-button {
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--primary-color);
+      background: white;
+      color: var(--primary-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .scaffold-button.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .scaffold-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .typing-indicator {
+      display: none;
+      padding: var(--spacing-sm);
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .typing-indicator.active {
+      display: block;
+    }
+
+    .demo-warning {
+      background: #FFF3CD;
+      border: 1px solid #FFE69C;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .demo-warning strong {
+      color: #856404;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: calc(100vh - 4rem);
+        margin: 1rem;
+      }
+
+      .message-content {
+        max-width: 85%;
+      }
+
+      .scaffold-controls {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="research.html">Research</a>
+      <a href="math54.html">Math 54</a>
+      <a href="math4.html">Math 4/4C</a>
+      <a href="ai-education.html">AI Journey</a>
+      <a href="publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <h1>AI Statistics Tutor Demo</h1>
+
+    <div class="demo-warning">
+      <strong>⚠️ Research Prototype</strong><br>
+      This is a demonstration of the AI-powered cognitive scaffolding system being developed for my dissertation research. This prototype simulates the system behavior - the full version with Claude API integration will be available in the research platform (launching 2026).
+    </div>
+
+    <div class="info-box">
+      <h3>What is Cognitive Scaffolding?</h3>
+      <p>
+        Unlike typical AI tutors that simply give answers, this system provides <strong>adaptive support</strong> that adjusts to your needs. It uses four scaffolding levels:
+      </p>
+      <ul class="icon-list mt-2">
+        <li><strong>Level 1 (Minimal):</strong> Asks guiding questions to help you think independently</li>
+        <li><strong>Level 2 (Moderate):</strong> Breaks problems into steps with hints</li>
+        <li><strong>Level 3 (Extensive):</strong> Shows worked examples with detailed explanations</li>
+        <li><strong>Level 4 (Direct):</strong> Provides complete solutions when you're stuck</li>
+      </ul>
+      <p class="mt-2">
+        <a href="research.html">Learn more about this research →</a>
+      </p>
+    </div>
+
+    <section>
+      <h2>Try the AI Tutor</h2>
+
+      <div class="card">
+        <p><strong>Scaffold Level Control</strong> (for demonstration purposes)</p>
+        <div class="scaffold-controls">
+          <button class="scaffold-button active" data-level="1">Level 1: Minimal</button>
+          <button class="scaffold-button" data-level="2">Level 2: Moderate</button>
+          <button class="scaffold-button" data-level="3">Level 3: Extensive</button>
+          <button class="scaffold-button" data-level="4">Level 4: Direct</button>
+        </div>
+        <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.5rem;">
+          In the real system, the AI automatically adjusts scaffolding based on your progress. Here, you can manually select levels to see the difference.
+        </p>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-header">
+          <h3 style="margin: 0; color: white;">Statistics Tutor Chat</h3>
+          <span class="scaffold-level-indicator" id="currentLevel">Scaffolding: Level 1</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message assistant">
+            <div class="message-avatar">AI</div>
+            <div>
+              <div class="message-content">
+                Hi! I'm your statistics tutor. I'm here to help you learn, not just give you answers. Ask me about any statistics topic, and I'll guide you through understanding it!
+                <br><br>
+                Try asking me something like:
+                <ul style="margin-top: 0.5rem;">
+                  <li>"How do I calculate standard deviation?"</li>
+                  <li>"What's the difference between mean and median?"</li>
+                  <li>"When do I use a t-test?"</li>
+                </ul>
+              </div>
+              <div class="message-meta">AI Tutor • Just now</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          AI is thinking...
+        </div>
+
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <textarea
+              class="chat-input"
+              id="userInput"
+              placeholder="Type your statistics question here..."
+              rows="1"
+            ></textarea>
+            <button class="send-button" id="sendButton">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Example Conversations</h2>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>Level 1: Socratic</h3>
+          <p class="text-muted">Student: "How do I calculate variance?"</p>
+          <p class="mt-2">
+            <strong>AI:</strong> "Great question! Before we calculate variance, let's think about what it measures. If you have two datasets with the same mean, what might be different about them? How might the data points be arranged differently?"
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Level 2: Guided</h3>
+          <p class="text-muted">Student: "I'm confused about the steps"</p>
+          <p class="mt-2">
+            <strong>AI:</strong> "Let's break variance into clear steps:<br>
+            1. Find the mean<br>
+            2. Subtract mean from each value<br>
+            3. Square those differences<br>
+            4. Average the squared differences<br>
+            Can you try step 1 with your data?"
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Level 3: Worked Example</h3>
+          <p class="text-muted">Student: "I'm still stuck"</p>
+          <p class="mt-2">
+            <strong>AI:</strong> "Let me show you with example data [2, 4, 6]:<br>
+            Mean = (2+4+6)/3 = 4<br>
+            Deviations: -2, 0, 2<br>
+            Squared: 4, 0, 4<br>
+            Variance = (4+0+4)/3 = 2.67<br>
+            Now try with your data!"
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Level 4: Complete Solution</h3>
+          <p class="text-muted">Student: "I really can't figure this out"</p>
+          <p class="mt-2">
+            <strong>AI:</strong> "I understand you're struggling. Here's the complete solution for your data [5, 7, 9]...<br>
+            [Detailed solution]<br>
+            This concept is challenging! Would you like practice problems or a video explanation?"
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>About This Demo</h2>
+
+      <div class="highlight-box">
+        <h3>Research Purpose</h3>
+        <p>
+          This demo showcases the scaffolding framework for my dissertation research on AI-powered cognitive scaffolding in statistics education. The full system will:
+        </p>
+        <ul class="icon-list mt-2">
+          <li>Automatically detect when students need more or less support</li>
+          <li>Track learning progress and adapt in real-time</li>
+          <li>Collect research data on scaffolding effectiveness</li>
+          <li>Integrate with a complete statistics course curriculum</li>
+          <li>Provide certificates and progress tracking</li>
+        </ul>
+
+        <div class="cta-group mt-2">
+          <a href="participate.html" class="btn btn-primary">Participate in Research Study</a>
+          <a href="research.html" class="btn btn-outline">Learn About the Research</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="research.html" class="back-link">← Back to Research Overview</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="research.html">Research</a>
+      <a href="publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">UCLA Statistics PhD Candidate • Santa Monica College Instructor</p>
+  </footer>
+
+  <script>
+    // Simulated AI Tutor Demo - Prototype for Demonstration
+    // Full version will use Claude API
+
+    let currentScaffoldLevel = 1;
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const currentLevelDisplay = document.getElementById('currentLevel');
+
+    // Scaffold level buttons
+    const scaffoldButtons = document.querySelectorAll('.scaffold-button');
+    scaffoldButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        scaffoldButtons.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        currentScaffoldLevel = parseInt(button.dataset.level);
+        currentLevelDisplay.textContent = `Scaffolding: ${button.textContent}`;
+      });
+    });
+
+    // Example responses for different scaffold levels
+    const responseTemplates = {
+      'standard deviation': {
+        1: "Great question about standard deviation! Before we dive into calculations, let's think conceptually. What does the word 'deviation' suggest to you? And if you have data that's very spread out versus data that's tightly clustered, which would have a larger standard deviation?",
+        2: "Standard deviation measures how spread out data is from the mean. Let me break this into steps:\n\nStep 1: Find the mean (average) of your data\nStep 2: Find how far each data point is from the mean (deviations)\nStep 3: Square those deviations (this makes them positive)\nStep 4: Find the average of those squared deviations (that's variance)\nStep 5: Take the square root (to get back to original units)\n\nCan you try Step 1 with your data and tell me what mean you get?",
+        3: "Let me show you with an example, then you can apply it to your data.\n\nExample data: [2, 4, 6, 8, 10]\n\nStep 1 - Mean: (2+4+6+8+10)/5 = 30/5 = 6\n\nStep 2 - Deviations from mean:\n• 2-6 = -4\n• 4-6 = -2\n• 6-6 = 0\n• 8-6 = 2\n• 10-6 = 4\n\nStep 3 - Square the deviations:\n• (-4)² = 16\n• (-2)² = 4\n• (0)² = 0\n• (2)² = 4\n• (4)² = 16\n\nStep 4 - Average of squared deviations:\n(16+4+0+4+16)/5 = 40/5 = 8 (this is the variance)\n\nStep 5 - Square root:\n√8 ≈ 2.83\n\nNow try these same steps with your data!",
+        4: "I see you're working hard on this concept. Standard deviation can be tricky! Let me explain it thoroughly:\n\nStandard deviation measures the typical distance of data points from the mean. Think of it as 'how far, on average, do the data points stray from the center?'\n\nHere's why we use it:\n• Larger SD = data is more spread out\n• Smaller SD = data is more clustered\n• SD of 0 = all values are identical\n\nThe formula: SD = √[Σ(x - μ)² / N]\n\nWhere:\n• x = each data point\n• μ = mean\n• N = number of data points\n• Σ = sum\n\nWould you like to:\n1. Try a practice problem together?\n2. See a real-world example (like comparing test scores)?\n3. Watch a video explanation?\n\nRemember, this is a challenging concept and it's totally normal to need multiple exposures before it clicks!"
+      },
+      'mean median': {
+        1: "Good question! Let's think about this conceptually first. Imagine you have five people's heights. What would the 'mean' tell you versus what the 'median' tells you? How might they be different?",
+        2: "Mean and median are both measures of center, but they work differently:\n\nMEAN: Add all values and divide by how many there are\nMEDIAN: Arrange values in order and find the middle value\n\nThey're most different when you have outliers (extreme values).\n\nTry this: For the data [2, 3, 4, 5, 100], what do you think happens to the mean versus the median?",
+        3: "Let me show you the difference with an example:\n\nData: [10, 20, 30, 40, 500]\n\nMEAN:\n(10+20+30+40+500)/5 = 600/5 = 120\n\nMEDIAN:\nAlready in order: 10, 20, 30, 40, 500\nMiddle value (3rd position) = 30\n\nNotice: The mean (120) is much higher than most values because of the outlier (500). The median (30) better represents the 'typical' value.\n\nThis is why median is often used for things like house prices or incomes - a few very high values don't skew it!",
+        4: "Mean and median are both measures of central tendency, but they handle data differently:\n\nMEAN (average):\n• Formula: Sum of all values ÷ Number of values\n• Affected by every value\n• Skewed by outliers\n• Use when: Data is roughly symmetric\n• Example: Test scores without outliers\n\nMEDIAN (middle value):\n• Formula: Middle value when arranged in order\n• Not affected much by outliers\n• Robust measure\n• Use when: Data has outliers or is skewed\n• Example: Home prices, incomes\n\nMode is the third measure (most frequent value).\n\nReal example:\nSalaries: [$40k, $45k, $47k, $50k, $2M]\n• Mean = $436k (misleading!)\n• Median = $47k (more representative)\n\nWould you like to practice identifying which to use in different scenarios?"
+      },
+      'default': {
+        1: "That's a great statistics question! Let me help you think through this. What do you already know about this topic? What specific part is confusing you?",
+        2: "Good question! Let's break this down into manageable steps and work through it together. First, can you tell me what you've tried so far?",
+        3: "I can help with that! Let me show you a worked example, and then you can try applying it to your specific problem.",
+        4: "I understand this concept can be challenging. Let me provide a complete explanation with examples and walk you through the solution step-by-step."
+      }
+    };
+
+    // Handle sending messages
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage('user', message);
+      userInput.value = '';
+
+      // Show typing indicator
+      typingIndicator.classList.add('active');
+      sendButton.disabled = true;
+
+      // Simulate AI thinking delay
+      setTimeout(() => {
+        const response = generateResponse(message);
+        addMessage('assistant', response);
+        typingIndicator.classList.remove('active');
+        sendButton.disabled = false;
+        userInput.focus();
+      }, 1500);
+    }
+
+    // Generate response based on scaffold level
+    function generateResponse(userMessage) {
+      const lowerMessage = userMessage.toLowerCase();
+
+      // Check for keywords to give relevant responses
+      if (lowerMessage.includes('standard deviation') || lowerMessage.includes('std dev')) {
+        return responseTemplates['standard deviation'][currentScaffoldLevel];
+      } else if (lowerMessage.includes('mean') && lowerMessage.includes('median')) {
+        return responseTemplates['mean median'][currentScaffoldLevel];
+      } else {
+        return responseTemplates['default'][currentScaffoldLevel];
+      }
+    }
+
+    // Add message to chat
+    function addMessage(role, content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = role === 'user' ? 'You' : 'AI';
+
+      const contentWrapper = document.createElement('div');
+
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+      messageContent.textContent = content;
+
+      const messageMeta = document.createElement('div');
+      messageMeta.className = 'message-meta';
+      messageMeta.textContent = `${role === 'user' ? 'You' : 'AI Tutor'} • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      contentWrapper.appendChild(messageContent);
+      contentWrapper.appendChild(messageMeta);
+
+      if (role === 'user') {
+        messageDiv.appendChild(contentWrapper);
+        messageDiv.appendChild(avatar);
+      } else {
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentWrapper);
+      }
+
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  </script>
+
+</body>
+</html>
