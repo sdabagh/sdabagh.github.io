@@ -364,6 +364,125 @@ function createScatterplot(containerId) {
   container.innerHTML = svg;
 }
 
+// Misleading Graph Comparison
+let showMisleading = false;
+
+function createMisleadingComparison(containerId) {
+  const data = [
+    { year: '2023', sales: 98000 },
+    { year: '2024', sales: 102000 }
+  ];
+
+  const container = document.getElementById(containerId);
+  const width = Math.min(container.offsetWidth, 700);
+  const height = 400;
+  const chartWidth = (width - 60) / 2;
+  const chartHeight = 280;
+  const padding = { top: 60, bottom: 60, left: 10, right: 10 };
+
+  let html = `<div style="text-align: center; margin-bottom: 1rem;">
+    <button onclick="toggleMisleadingGraph()" style="padding: 0.75rem 2rem; background: #D97D54; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+      ${showMisleading ? '👁️ Show Honest Graph' : '⚠️ Show Misleading Graph'}
+    </button>
+    <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">Click to toggle between honest and misleading versions</p>
+  </div>`;
+
+  html += `<svg width="${width}" height="${height}" style="background: white; border-radius: 8px;">`;
+
+  if (showMisleading) {
+    // MISLEADING VERSION - Truncated Y-axis
+    const yMin = 95000;
+    const yMax = 105000;
+    const yRange = yMax - yMin;
+
+    // Title
+    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#D9534F">⚠️ MISLEADING: Truncated Y-Axis</text>`;
+    html += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">Y-axis starts at $95,000 instead of $0</text>`;
+
+    // Y-axis
+    const xStart = 80;
+    html += `<line x1="${xStart}" y1="${padding.top}" x2="${xStart}" y2="${padding.top + chartHeight}" stroke="#666" stroke-width="2"/>`;
+
+    // Y-axis zigzag to show break
+    html += `<path d="M ${xStart-15} ${padding.top + chartHeight + 15} L ${xStart-10} ${padding.top + chartHeight + 20} L ${xStart-5} ${padding.top + chartHeight + 15} L ${xStart} ${padding.top + chartHeight + 20}" stroke="#D9534F" stroke-width="3" fill="none"/>`;
+
+    // Y-axis labels
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + chartHeight - (chartHeight * i / 4);
+      const value = yMin + (yRange * i / 4);
+      html += `<text x="${xStart - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#666">$${(value/1000).toFixed(0)}k</text>`;
+      html += `<line x1="${xStart}" y1="${y}" x2="${width - 20}" y2="${y}" stroke="#E0E0E0" stroke-width="1" stroke-dasharray="2,2"/>`;
+    }
+
+    // X-axis
+    html += `<line x1="${xStart}" y1="${padding.top + chartHeight}" x2="${width - 20}" y2="${padding.top + chartHeight}" stroke="#666" stroke-width="2"/>`;
+
+    // Bars
+    data.forEach((d, i) => {
+      const barWidth = 100;
+      const x = xStart + 50 + (i * 200);
+      const barHeight = ((d.sales - yMin) / yRange) * chartHeight;
+      const y = padding.top + chartHeight - barHeight;
+
+      html += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#D9534F" stroke="#C9302C" stroke-width="2" opacity="0.9"/>`;
+      html += `<text x="${x + barWidth/2}" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="700" fill="#333">$${(d.sales/1000).toFixed(0)}k</text>`;
+      html += `<text x="${x + barWidth/2}" y="${padding.top + chartHeight + 25}" text-anchor="middle" font-size="12" font-weight="600" fill="#666">${d.year}</text>`;
+    });
+
+    // Warning annotation
+    html += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" font-size="11" font-weight="600" fill="#D9534F">Visual impression: Sales MORE THAN DOUBLED! 📈</text>`;
+    html += `<text x="${width/2}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#666">(But actually only increased 4%)</text>`;
+
+  } else {
+    // HONEST VERSION - Starts at zero
+    const yMax = 120000;
+
+    // Title
+    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#28A745">✅ HONEST: Y-Axis Starts at Zero</text>`;
+    html += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">Shows true proportions</text>`;
+
+    // Y-axis
+    const xStart = 80;
+    html += `<line x1="${xStart}" y1="${padding.top}" x2="${xStart}" y2="${padding.top + chartHeight}" stroke="#666" stroke-width="2"/>`;
+
+    // Y-axis labels
+    for (let i = 0; i <= 6; i++) {
+      const y = padding.top + chartHeight - (chartHeight * i / 6);
+      const value = (yMax * i / 6);
+      html += `<text x="${xStart - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#666">$${(value/1000).toFixed(0)}k</text>`;
+      html += `<line x1="${xStart}" y1="${y}" x2="${width - 20}" y2="${y}" stroke="#E0E0E0" stroke-width="1" stroke-dasharray="2,2"/>`;
+    }
+
+    // X-axis
+    html += `<line x1="${xStart}" y1="${padding.top + chartHeight}" x2="${width - 20}" y2="${padding.top + chartHeight}" stroke="#666" stroke-width="2"/>`;
+
+    // Bars
+    data.forEach((d, i) => {
+      const barWidth = 100;
+      const x = xStart + 50 + (i * 200);
+      const barHeight = (d.sales / yMax) * chartHeight;
+      const y = padding.top + chartHeight - barHeight;
+
+      html += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#28A745" stroke="#218838" stroke-width="2" opacity="0.9"/>`;
+      html += `<text x="${x + barWidth/2}" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="700" fill="#333">$${(d.sales/1000).toFixed(0)}k</text>`;
+      html += `<text x="${x + barWidth/2}" y="${padding.top + chartHeight + 25}" text-anchor="middle" font-size="12" font-weight="600" fill="#666">${d.year}</text>`;
+    });
+
+    // Honest annotation
+    html += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" font-size="11" font-weight="600" fill="#28A745">Visual impression: Small, modest growth</text>`;
+    html += `<text x="${width/2}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#666">Actual increase: $4,000 (4.1%)</text>`;
+  }
+
+  html += `</svg>`;
+
+  container.innerHTML = html;
+}
+
+function toggleMisleadingGraph() {
+  showMisleading = !showMisleading;
+  createMisleadingComparison('misleadingDemo');
+}
+
 // Initialize all charts when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('barChart')) createBarChart('barChart');
@@ -371,6 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('pieChart')) createPieChart('pieChart');
   if (document.getElementById('lineGraph')) createLineGraph('lineGraph');
   if (document.getElementById('scatterplot')) createScatterplot('scatterplot');
+  if (document.getElementById('misleadingDemo')) createMisleadingComparison('misleadingDemo');
 });
 
 // Make responsive
@@ -380,4 +500,5 @@ window.addEventListener('resize', function() {
   if (document.getElementById('pieChart')) createPieChart('pieChart');
   if (document.getElementById('lineGraph')) createLineGraph('lineGraph');
   if (document.getElementById('scatterplot')) createScatterplot('scatterplot');
+  if (document.getElementById('misleadingDemo')) createMisleadingComparison('misleadingDemo');
 });
