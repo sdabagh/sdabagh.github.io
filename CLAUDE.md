@@ -36,6 +36,21 @@ sdabagh.github.io/
 ├── style.css                           # NEW: External stylesheet (professional design)
 ├── 25Spring-Math4-4C-Syllabus.pdf     # Course syllabus PDF
 ├── 25Summer-Math54-4026.pdf           # Course syllabus PDF
+├── learn/                              # NEW: Free statistics learning platform
+│   └── intro-stats/                    # Introductory Statistics course
+│       └── module-01/                  # Module 1: Introduction to Statistics & Data
+│           ├── index.html              # Module overview and navigation
+│           ├── pre-assessment.html     # 5-question baseline assessment
+│           ├── lesson-01-what-is-statistics.html
+│           ├── lesson-02-types-of-data.html
+│           ├── lesson-03-data-collection.html
+│           ├── lesson-04-data-visualization.html
+│           ├── visualizations.js       # Interactive SVG chart library
+│           ├── practice.html           # 15 comprehensive practice problems
+│           ├── quiz.html               # 12-question module quiz (70% passing)
+│           ├── post-assessment.html    # Measures learning gains
+│           ├── study-guide.html        # Printable comprehensive study guide
+│           └── quick-reference.html    # 1-page quick reference card
 ├── printables/                         # Educational printables for coding camp
 │   ├── reward-chart.pdf
 │   ├── camp-badge-template.pdf
@@ -82,6 +97,61 @@ sdabagh.github.io/
 - **math54.html & math4.html**: Modern styling, better structure
 - **ai-education.html**: Links to dissertation research
 - **mommy-camp.html**: Updated with new CSS, preserves playful pink theme
+
+### Free Learning Platform (NEW)
+**Status**: Module 1 Production-Ready ✅
+
+The `/learn/intro-stats/` directory contains the free statistics learning platform that serves as both an educational resource AND the research instrument for the dissertation.
+
+**Module 1: Introduction to Statistics & Data** - COMPLETE
+- **Pre-assessment** (5 questions): Baseline knowledge measurement
+- **4 Comprehensive Lessons** (20-35 min each):
+  1. What is Statistics? - Descriptive vs. Inferential
+  2. Types of Data - Quantitative/Qualitative, Discrete/Continuous, Levels of Measurement
+  3. Data Collection Methods - Observational, Survey, Experiment, Sampling methods
+  4. Data Visualization - Graph types, misleading techniques, best practices
+- **Interactive Practice** (15 problems): Comprehensive practice with detailed solutions
+- **Module Quiz** (12 questions): 70% passing threshold, auto-grading with explanations
+- **Post-assessment** (5 questions): Measures learning gains for research
+- **Study Materials**:
+  - Comprehensive printable study guide (6 pages)
+  - Quick reference card (1 page cheat sheet)
+
+**Key Features**:
+- **Interactive Visualizations**: Pure JavaScript SVG charts (no external dependencies)
+  - Bar charts, histograms, pie charts, line graphs, scatterplots
+  - Hover tooltips with exact values
+  - Educational annotations
+  - Responsive design with window resize handling
+  - Interactive misleading graph demonstration with toggle button
+- **Check-Your-Understanding**: Interactive quizzes throughout lessons
+- **Progressive Disclosure**: Expandable solution boxes
+- **Research Data Logging**: Console.log placeholders ready for Firebase integration
+- **Badge System**: Visual completion badges for motivation
+- **Print-Optimized**: Study materials with proper page breaks and print CSS
+
+**Technology Stack**:
+- Pure HTML/CSS/JavaScript (no framework dependencies)
+- SVG for interactive visualizations
+- Client-side auto-grading
+- Responsive design using CSS Grid and Flexbox
+- GitHub Pages static hosting
+
+**Module 1 Pedagogical Design**:
+- Scaffolded learning progression (simple → complex)
+- Real-world examples relatable to community college students
+- Multiple practice opportunities with immediate feedback
+- Visual, textual, and interactive learning modalities
+- Emphasis on critical thinking and statistical reasoning
+- Addresses common misconceptions (correlation ≠ causation)
+
+**Future Modules** (Planned):
+- Module 2: Descriptive Statistics (measures of center and spread)
+- Module 3: Probability Basics
+- Module 4: Normal Distribution
+- Module 5: Sampling Distributions
+- Module 6: Confidence Intervals
+- Module 7: Hypothesis Testing
 
 ---
 
