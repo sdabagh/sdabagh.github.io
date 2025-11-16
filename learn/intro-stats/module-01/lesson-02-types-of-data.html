@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Types of Data - Learn to classify data as quantitative, qualitative, discrete, and continuous">
+  <title>Lesson 2: Types of Data – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .lesson-objectives h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .data-type-card {
+      background: white;
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      transition: var(--transition);
+    }
+
+    .data-type-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    .data-type-card h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .type-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .badge-quantitative {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .badge-qualitative {
+      background: #fce4ec;
+      color: #c2185b;
+    }
+
+    .badge-discrete {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .badge-continuous {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--spacing-md) 0;
+      background: white;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .comparison-table th {
+      background: var(--primary-color);
+      color: white;
+      padding: var(--spacing-md);
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .comparison-table td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: var(--background-alt);
+    }
+
+    .interactive-practice {
+      background: white;
+      border: 2px solid var(--accent-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .interactive-practice h3 {
+      color: var(--accent-color);
+      margin-top: 0;
+    }
+
+    .practice-item {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .practice-item.correct {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .practice-item.incorrect {
+      border-color: var(--danger);
+      background: #ffebee;
+    }
+
+    .practice-options {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+
+    .practice-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 2px solid var(--border-color);
+      background: white;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.875rem;
+    }
+
+    .practice-btn:hover {
+      border-color: var(--primary-color);
+      background: var(--background-alt);
+    }
+
+    .practice-btn.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: var(--success-light);
+      color: var(--success);
+      border-left: 3px solid var(--success);
+    }
+
+    .feedback.incorrect {
+      background: #ffebee;
+      color: var(--danger);
+      border-left: 3px solid var(--danger);
+    }
+
+    .flowchart {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .flowchart-step {
+      background: var(--info-light);
+      border: 2px solid var(--info);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin: var(--spacing-sm) auto;
+      max-width: 500px;
+    }
+
+    .flowchart-arrow {
+      color: var(--primary-color);
+      font-size: 2rem;
+      margin: var(--spacing-xs) 0;
+    }
+
+    @media (max-width: 768px) {
+      .comparison-table {
+        font-size: 0.875rem;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: var(--spacing-sm);
+      }
+
+      .practice-options {
+        flex-direction: column;
+      }
+
+      .practice-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-01-what-is-stats.html" class="back-link">← Previous Lesson</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-data-collection.html" class="btn btn-outline">Next Lesson →</a>
+    </div>
+
+    <h1>Lesson 2: Types of Data</h1>
+    <p class="text-muted">⏱️ Estimated time: 25-30 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>📚 Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Distinguish between quantitative (numerical) and qualitative (categorical) data</li>
+        <li>Classify quantitative data as discrete or continuous</li>
+        <li>Identify the four levels of measurement (nominal, ordinal, interval, ratio)</li>
+        <li>Explain why data types matter for choosing statistical methods</li>
+        <li>Correctly classify data from real-world examples</li>
+      </ul>
+    </div>
+
+    <!-- Introduction -->
+    <section class="content-section">
+      <h2>Why Data Types Matter</h2>
+
+      <p>
+        Imagine you're a chef choosing cooking methods. You wouldn't <em>boil</em> a steak or <em>grill</em> soup, right? Different ingredients require different techniques!
+      </p>
+
+      <p class="mt-2">
+        The same principle applies to statistics: <strong>different types of data require different statistical methods</strong>. Before you can analyze data, you need to understand what type of data you're working with.
+      </p>
+
+      <div class="highlight-box mt-2">
+        <h3>Why This Matters</h3>
+        <ul class="icon-list">
+          <li><strong>Choose the right statistical test:</strong> You can't calculate a mean for "favorite color"!</li>
+          <li><strong>Create appropriate visualizations:</strong> Pie charts work for categories, not continuous measurements</li>
+          <li><strong>Avoid analysis mistakes:</strong> Using the wrong method can lead to nonsensical results</li>
+          <li><strong>Communicate findings correctly:</strong> Knowing your data type helps you explain results accurately</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Main Categories -->
+    <section class="content-section">
+      <h2>The Big Picture: Two Main Types</h2>
+
+      <p>
+        All data can be classified into two broad categories:
+      </p>
+
+      <div class="course-grid mt-2">
+        <div class="data-type-card">
+          <h3>
+            <span style="font-size: 2rem;">🔢</span>
+            Quantitative Data
+          </h3>
+          <p class="type-badge badge-quantitative">NUMERICAL</p>
+          <p class="mt-2">
+            <strong>Definition:</strong> Data that can be measured with numbers and has mathematical meaning.
+          </p>
+          <p class="mt-1">
+            <strong>Can you:</strong> Add, subtract, find averages? <strong>YES!</strong>
+          </p>
+          <p class="mt-2"><strong>Examples:</strong></p>
+          <ul>
+            <li>Height: 5 feet 8 inches, 172 cm</li>
+            <li>Age: 22 years old</li>
+            <li>Test score: 85 out of 100</li>
+            <li>Temperature: 75°F</li>
+            <li>Income: $45,000 per year</li>
+            <li>Number of siblings: 2</li>
+          </ul>
+        </div>
+
+        <div class="data-type-card">
+          <h3>
+            <span style="font-size: 2rem;">🏷️</span>
+            Qualitative Data
+          </h3>
+          <p class="type-badge badge-qualitative">CATEGORICAL</p>
+          <p class="mt-2">
+            <strong>Definition:</strong> Data that describes characteristics or qualities; placed into categories.
+          </p>
+          <p class="mt-1">
+            <strong>Can you:</strong> Add, subtract, find averages? <strong>NO!</strong>
+          </p>
+          <p class="mt-2"><strong>Examples:</strong></p>
+          <ul>
+            <li>Eye color: blue, brown, green, hazel</li>
+            <li>Major: Biology, English, Math, Art</li>
+            <li>Gender: Male, Female, Non-binary</li>
+            <li>Zip code: 90405 (it's a label, not a number to calculate with!)</li>
+            <li>Satisfaction: Satisfied, Neutral, Dissatisfied</li>
+            <li>Type of car: Sedan, SUV, Truck</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box mt-2">
+        <h4>🤔 Quick Test: Is it Quantitative or Qualitative?</h4>
+        <p>
+          Ask yourself: <strong>"Can I do math with these values in a meaningful way?"</strong>
+        </p>
+        <ul class="mt-1">
+          <li>Can you calculate an average? (Quantitative)</li>
+          <li>Or does it just sort things into groups? (Qualitative)</li>
+        </ul>
+        <p class="mt-2">
+          <strong>Tricky example:</strong> Phone numbers are written with digits, but they're <strong>qualitative</strong>! You can't meaningfully average phone numbers or say one phone number is "greater than" another. They're just labels!
+        </p>
+      </div>
+    </section>
+
+    <!-- Subcategories of Quantitative -->
+    <section class="content-section">
+      <h2>Breaking Down Quantitative Data</h2>
+
+      <p>
+        Quantitative data can be further divided into two types:
+      </p>
+
+      <div class="course-grid mt-2">
+        <div class="data-type-card">
+          <h3>
+            <span style="font-size: 2rem;">🎯</span>
+            Discrete Data
+          </h3>
+          <p class="type-badge badge-discrete">COUNTABLE</p>
+          <p class="mt-2">
+            <strong>Definition:</strong> Data that can only take specific, separate values (usually whole numbers). You can <strong>count</strong> it but not measure it infinitely precisely.
+          </p>
+          <p class="mt-2"><strong>Key feature:</strong> There are gaps between possible values. You can't have 2.5 children!</p>
+          <p class="mt-2"><strong>Examples:</strong></p>
+          <ul>
+            <li>Number of students in a class: 25, 26, 27 (not 25.7!)</li>
+            <li>Cars in a parking lot: 0, 1, 2, 3...</li>
+            <li>Dice roll result: 1, 2, 3, 4, 5, 6</li>
+            <li>Correct answers on a quiz: 0, 1, 2,...,  10</li>
+            <li>Pets owned: 0, 1, 2, 3...</li>
+          </ul>
+        </div>
+
+        <div class="data-type-card">
+          <h3>
+            <span style="font-size: 2rem;">📏</span>
+            Continuous Data
+          </h3>
+          <p class="type-badge badge-continuous">MEASURABLE</p>
+          <p class="mt-2">
+            <strong>Definition:</strong> Data that can take <strong>any value</strong> within a range, including decimals. You <strong>measure</strong> it with instruments.
+          </p>
+          <p class="mt-2"><strong>Key feature:</strong> Infinite possible values between any two points. Can always be more precise!</p>
+          <p class="mt-2"><strong>Examples:</strong></p>
+          <ul>
+            <li>Height: 5'8", 5'8.2", 5'8.247"... (can always measure more precisely)</li>
+            <li>Weight: 150 lbs, 150.3 lbs, 150.32 lbs...</li>
+            <li>Temperature: 72.5°F, 72.53°F...</li>
+            <li>Time to complete a race: 12.45 seconds, 12.453 seconds...</li>
+            <li>Distance traveled: 5.2 miles, 5.24 miles...</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flowchart mt-3">
+        <h4>Decision Flowchart: Discrete or Continuous?</h4>
+        <div class="flowchart-step">
+          Is the data quantitative (numerical)?
+        </div>
+        <div class="flowchart-arrow">↓</div>
+        <div class="flowchart-step">
+          Can it take ANY value in a range (including decimals)?
+          <br><br>
+          <strong>YES →</strong> CONTINUOUS
+          <br>
+          <strong>NO (only specific values) →</strong> DISCRETE
+        </div>
+        <div class="mt-2 text-muted" style="font-size: 0.875rem;">
+          <em>Tip: If you're COUNTING → discrete. If you're MEASURING → continuous.</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- Levels of Measurement -->
+    <section class="content-section">
+      <h2>Advanced: Levels of Measurement</h2>
+
+      <p>
+        Statisticians classify data into four levels of measurement, from simplest to most complex. Each level determines which mathematical operations are meaningful.
+      </p>
+
+      <table class="comparison-table mt-2">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>Description</th>
+            <th>Examples</th>
+            <th>What You CAN Do</th>
+            <th>What You CAN'T Do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nominal</strong><br>(Names)</td>
+            <td>Categories with no order or ranking</td>
+            <td>
+              • Eye color<br>
+              • Zip codes<br>
+              • Student ID<br>
+              • Type of car
+            </td>
+            <td>
+              Count frequencies<br>
+              Find mode (most common)
+            </td>
+            <td>
+              Order them<br>
+              Calculate mean<br>
+              Rank them
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ordinal</strong><br>(Ranked)</td>
+            <td>Categories WITH meaningful order, but gaps between ranks aren't equal</td>
+            <td>
+              • Class rank (1st, 2nd, 3rd)<br>
+              • Satisfaction rating (Low, Medium, High)<br>
+              • Education level (HS, BA, MA, PhD)
+            </td>
+            <td>
+              Order/rank them<br>
+              Find median<br>
+              Calculate mode
+            </td>
+            <td>
+              Calculate mean (gaps aren't equal!)<br>
+              Say "how much more"
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Interval</strong><br>(Equal Intervals)</td>
+            <td>Numerical with equal intervals, but NO true zero</td>
+            <td>
+              • Temperature (°F, °C)<br>
+              • IQ scores<br>
+              • Calendar years
+            </td>
+            <td>
+              Add and subtract<br>
+              Calculate mean<br>
+              Find differences
+            </td>
+            <td>
+              Multiply/divide<br>
+              Say "twice as hot"<br>
+              (No true zero!)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ratio</strong><br>(True Zero)</td>
+            <td>Numerical with equal intervals AND a true zero (zero = absence of quantity)</td>
+            <td>
+              • Height, weight<br>
+              • Age<br>
+              • Income<br>
+              • Test scores
+            </td>
+            <td>
+              ALL math operations!<br>
+              Multiply, divide<br>
+              Say "twice as tall"
+            </td>
+            <td>
+              Nothing! This is the most flexible level.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example-box mt-2">
+        <h4>💡 Why the Difference Between Interval and Ratio Matters</h4>
+        <p>
+          <strong>Temperature (Interval):</strong> 80°F is NOT "twice as hot" as 40°F. Why? Because 0°F doesn't mean "no temperature"—it's just an arbitrary point on the scale. If you convert to Celsius, the numbers change completely!
+        </p>
+        <p class="mt-1">
+          <strong>Height (Ratio):</strong> Someone who is 6 feet tall <em>is</em> twice as tall as someone who is 3 feet tall. Why? Because 0 feet truly means "no height." The ratio stays the same in any unit (meters, inches, etc.).
+        </p>
+      </div>
+    </section>
+
+    <!-- Interactive Practice -->
+    <div class="interactive-practice">
+      <h3>🎮 Interactive Practice: Classify the Data!</h3>
+      <p>Click on the correct data type for each example. Get instant feedback!</p>
+
+      <div class="practice-item" id="practice1">
+        <p><strong>1. The number of pets owned by students in a class</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(1, 'qualitative', false)">Qualitative</button>
+          <button class="practice-btn" onclick="checkAnswer(1, 'discrete', true)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(1, 'continuous', false)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback1"></div>
+      </div>
+
+      <div class="practice-item" id="practice2">
+        <p><strong>2. The weight of apples in pounds</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(2, 'qualitative', false)">Qualitative</button>
+          <button class="practice-btn" onclick="checkAnswer(2, 'discrete', false)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(2, 'continuous', true)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback2"></div>
+      </div>
+
+      <div class="practice-item" id="practice3">
+        <p><strong>3. Customer satisfaction ratings: Very Dissatisfied, Dissatisfied, Neutral, Satisfied, Very Satisfied</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(3, 'qualitative', true)">Qualitative (Ordinal)</button>
+          <button class="practice-btn" onclick="checkAnswer(3, 'discrete', false)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(3, 'continuous', false)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback3"></div>
+      </div>
+
+      <div class="practice-item" id="practice4">
+        <p><strong>4. Zip codes</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(4, 'qualitative', true)">Qualitative (Nominal)</button>
+          <button class="practice-btn" onclick="checkAnswer(4, 'discrete', false)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(4, 'continuous', false)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback4"></div>
+      </div>
+
+      <div class="practice-item" id="practice5">
+        <p><strong>5. Time to run a marathon (in hours and minutes)</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(5, 'qualitative', false)">Qualitative</button>
+          <button class="practice-btn" onclick="checkAnswer(5, 'discrete', false)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(5, 'continuous', true)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback5"></div>
+      </div>
+
+      <div class="practice-item" id="practice6">
+        <p><strong>6. Student's letter grade: A, B, C, D, F</strong></p>
+        <div class="practice-options">
+          <button class="practice-btn" onclick="checkAnswer(6, 'qualitative', true)">Qualitative (Ordinal)</button>
+          <button class="practice-btn" onclick="checkAnswer(6, 'discrete', false)">Quantitative - Discrete</button>
+          <button class="practice-btn" onclick="checkAnswer(6, 'continuous', false)">Quantitative - Continuous</button>
+        </div>
+        <div class="feedback" id="feedback6"></div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>🎯 Key Takeaways</h3>
+      <ul>
+        <li><strong>Quantitative (numerical)</strong> data can be measured and calculated; <strong>Qualitative (categorical)</strong> data describes characteristics</li>
+        <li><strong>Discrete</strong> data can only take specific values (you count it); <strong>Continuous</strong> data can take any value in a range (you measure it)</li>
+        <li>The <strong>four levels of measurement</strong> are: Nominal (categories), Ordinal (ranked), Interval (equal intervals, no true zero), Ratio (equal intervals + true zero)</li>
+        <li>Data type determines which statistical methods and visualizations are appropriate</li>
+        <li>Numbers aren't always quantitative—phone numbers and zip codes are qualitative labels!</li>
+      </ul>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>➡️ Next Lesson</h3>
+          <p>In Lesson 3, you'll learn about <strong>data collection methods</strong>—surveys, experiments, observational studies—and how to identify bias.</p>
+          <a href="lesson-03-data-collection.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+
+        <div class="card">
+          <h3>🤖 Need Help?</h3>
+          <p>Confused about discrete vs. continuous? Not sure about levels of measurement? Ask the AI tutor!</p>
+          <a href="../../../ai-tutor-demo.html" class="btn btn-outline mt-2">Ask AI Tutor</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    const answers = {
+      1: {
+        correct: 'discrete',
+        explanation: {
+          correct: "Correct! ✅ The number of pets is quantitative (you can count and calculate with it) and discrete because you can only have whole numbers (0, 1, 2, 3 pets... not 2.5 pets!).",
+          incorrect: "Not quite. ❌ The number of pets is numerical data (quantitative), and you can only have whole numbers of pets, so it's discrete. You can't have 2.5 pets!"
+        }
+      },
+      2: {
+        correct: 'continuous',
+        explanation: {
+          correct: "Perfect! ✅ Weight is quantitative (numerical) and continuous because it can take any value in a range—1.2 lbs, 1.23 lbs, 1.234 lbs, etc. You can always measure more precisely!",
+          incorrect: "Not quite. ❌ Weight is quantitative (numerical), but it's continuous, not discrete. You can have 1.5 pounds, 1.523 pounds, etc.—any value in a range!"
+        }
+      },
+      3: {
+        correct: 'qualitative',
+        explanation: {
+          correct: "Excellent! ✅ This is qualitative (categorical) data. Specifically, it's ORDINAL because the categories have a meaningful order (very dissatisfied < neutral < very satisfied), but the gaps between them aren't numerically equal.",
+          incorrect: "Not quite. ❌ These satisfaction ratings are categories (qualitative data), not numbers. Even though there's an order to them, you can't do math with 'Satisfied.' It's ordinal qualitative data."
+        }
+      },
+      4: {
+        correct: 'qualitative',
+        explanation: {
+          correct: "Exactly right! ✅ Zip codes are qualitative (categorical) data—specifically NOMINAL. Even though they're written with numbers, you can't do meaningful math with them. They're just labels for locations!",
+          incorrect: "Not quite. ❌ Zip codes might look like numbers, but they're actually qualitative (categorical) labels. You can't meaningfully average zip codes or say one is 'greater than' another. They're nominal data."
+        }
+      },
+      5: {
+        correct: 'continuous',
+        explanation: {
+          correct: "Great work! ✅ Marathon time is quantitative (numerical) and continuous because it can take any value—3.5 hours, 3.52 hours, 3.523 hours, etc. Time can always be measured more precisely!",
+          incorrect: "Not quite. ❌ Time is quantitative (numerical), but it's continuous, not discrete. You can finish in 3.5 hours, 3.523 hours, etc.—any value in a range!"
+        }
+      },
+      6: {
+        correct: 'qualitative',
+        explanation: {
+          correct: "Perfect! ✅ Letter grades are qualitative (categorical) data—specifically ORDINAL because the categories have a meaningful order (F < D < C < B < A), even though the gaps between grades aren't numerically equal.",
+          incorrect: "Not quite. ❌ Letter grades are categories (qualitative data), not numbers. Even though A > B > C, you can't do math with letters! They're ordinal qualitative data."
+        }
+      }
+    };
+
+    function checkAnswer(questionNum, selected, isCorrect) {
+      const practiceItem = document.getElementById(`practice${questionNum}`);
+      const feedback = document.getElementById(`feedback${questionNum}`);
+      const buttons = practiceItem.querySelectorAll('.practice-btn');
+
+      // Clear previous selections
+      buttons.forEach(btn => btn.classList.remove('selected'));
+
+      // Mark selected button
+      event.target.classList.add('selected');
+
+      // Show feedback
+      feedback.classList.add('show');
+      if (isCorrect) {
+        feedback.classList.remove('incorrect');
+        feedback.classList.add('correct');
+        feedback.textContent = answers[questionNum].explanation.correct;
+        practiceItem.classList.remove('incorrect');
+        practiceItem.classList.add('correct');
+      } else {
+        feedback.classList.remove('correct');
+        feedback.classList.add('incorrect');
+        feedback.textContent = answers[questionNum].explanation.incorrect;
+        practiceItem.classList.remove('correct');
+        practiceItem.classList.add('incorrect');
+      }
+    }
+  </script>
+
+</body>
+</html>
