@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 4: Probability Distributions – Module 3</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .nav-btn { padding: var(--spacing-sm) var(--spacing-md); }
+    .formula-box { background: #e8f5e9; border: 2px solid #28A745; border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .formula { font-family: 'Courier New', monospace; font-size: 1.1rem; margin: var(--spacing-sm) 0; text-align: center; font-weight: 600; }
+    .example-box { background: var(--background-alt); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); margin: var(--spacing-md) 0; border-radius: var(--radius-sm); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-lg); margin: var(--spacing-md) 0; border-radius: var(--radius-sm); }
+    .key-point { background: #fff9e6; border: 2px solid #FFC107; border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .practice-question { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .show-answer-btn { margin-top: var(--spacing-sm); }
+    .answer { display: none; background: #e8f5e9; border-left: 4px solid #28A745; padding: var(--spacing-md); margin-top: var(--spacing-sm); border-radius: var(--radius-sm); }
+    .answer.visible { display: block; }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    tr:nth-child(even) { background: var(--background-alt); }
+    .dist-table { max-width: 400px; margin: var(--spacing-md) auto; }
+    .calculation-table { max-width: 600px; margin: var(--spacing-md) auto; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="index.html" class="back-link">← Back to Module 3 Home</a>
+
+    <h1>Lesson 4: Probability Distributions</h1>
+    <p class="text-muted">Module 3: Probability Basics • Lesson 4 of 4 • ~30-35 minutes</p>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-conditional-probability.html" class="btn btn-outline nav-btn">← Previous: Conditional Probability</a>
+      <span style="color: var(--text-secondary); font-weight: 500;">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-primary nav-btn">Practice Problems →</a>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this lesson, you will be able to:</p>
+        <ul>
+          <li>Define random variables and distinguish between discrete and continuous</li>
+          <li>Create and interpret probability distributions</li>
+          <li>Verify that a distribution is valid</li>
+          <li>Calculate expected value (mean) of a probability distribution</li>
+          <li>Calculate variance and standard deviation of a probability distribution</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Random Variables</h2>
+
+      <div class="definition-box">
+        <h3>Random Variable</h3>
+        <p>A <strong>random variable</strong> is a variable whose value is determined by the outcome of a random experiment. We usually denote random variables with capital letters like X, Y, Z.</p>
+      </div>
+
+      <div class="example-box">
+        <h3>Examples of Random Variables:</h3>
+        <ul>
+          <li><strong>X</strong> = number of heads when flipping 3 coins</li>
+          <li><strong>Y</strong> = sum when rolling two dice</li>
+          <li><strong>Z</strong> = number of customers who enter a store in an hour</li>
+          <li><strong>W</strong> = height of a randomly selected student</li>
+        </ul>
+      </div>
+
+      <h3>Types of Random Variables</h3>
+
+      <div class="definition-box">
+        <h3>Discrete Random Variable</h3>
+        <p>A <strong>discrete random variable</strong> can only take on specific, countable values (usually whole numbers).</p>
+        <p><strong>Examples:</strong> Number of heads (0, 1, 2, 3), dice sum (2, 3, ..., 12), number of customers (0, 1, 2, ...)</p>
+      </div>
+
+      <div class="definition-box">
+        <h3>Continuous Random Variable</h3>
+        <p>A <strong>continuous random variable</strong> can take on any value within a range (infinite possible values).</p>
+        <p><strong>Examples:</strong> Height (5.1", 5.7", 5.93", ...), time (3.5 sec, 3.52 sec, ...), temperature</p>
+      </div>
+
+      <div class="key-point">
+        <p><strong>In this lesson</strong>, we'll focus on <strong>discrete random variables</strong> and their probability distributions.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Probability Distributions</h2>
+
+      <div class="definition-box">
+        <h3>Probability Distribution</h3>
+        <p>A <strong>probability distribution</strong> lists all possible values of a random variable along with their probabilities.</p>
+        <p>It shows the complete picture of what outcomes are possible and how likely each one is.</p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 1: Flipping Two Coins</h3>
+        <p>Let X = number of heads when flipping two fair coins</p>
+        <p><strong>Sample space:</strong> {HH, HT, TH, TT}</p>
+        <p><strong>Possible values of X:</strong> 0, 1, 2</p>
+        
+        <table class="dist-table">
+          <tr>
+            <th>X (# heads)</th>
+            <th>Outcomes</th>
+            <th>P(X)</th>
+          </tr>
+          <tr>
+            <td>0</td>
+            <td>TT</td>
+            <td>1/4 = 0.25</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>HT, TH</td>
+            <td>2/4 = 0.50</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>HH</td>
+            <td>1/4 = 0.25</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td colspan="2">Total</td>
+            <td>1.00</td>
+          </tr>
+        </table>
+
+        <p class="mt-2">This table is the <strong>probability distribution</strong> of X!</p>
+      </div>
+
+      <h3>Requirements for a Valid Probability Distribution</h3>
+
+      <div class="formula-box">
+        <p style="text-align: center; margin: 0;"><strong>For a valid probability distribution:</strong></p>
+        <ol style="margin: var(--spacing-md) 0; text-align: left;">
+          <li><strong>All probabilities must be between 0 and 1:</strong> 0 ≤ P(X = x) ≤ 1</li>
+          <li><strong>All probabilities must sum to 1:</strong> ΣP(X = x) = 1</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 2: Is This a Valid Distribution?</h3>
+        
+        <table class="dist-table">
+          <tr>
+            <th>X</th>
+            <th>P(X)</th>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0.2</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>0.3</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>0.5</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td>Sum:</td>
+            <td>1.0 ✓</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Answer: YES!</strong></p>
+        <ul>
+          <li>✓ All probabilities between 0 and 1</li>
+          <li>✓ Sum = 0.2 + 0.3 + 0.5 = 1.0</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 3: Is This Valid?</h3>
+        
+        <table class="dist-table">
+          <tr>
+            <th>X</th>
+            <th>P(X)</th>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0.3</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>0.4</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>0.5</td>
+          </tr>
+          <tr style="background: #FFE5E5; font-weight: 600;">
+            <td>Sum:</td>
+            <td>1.2 ✗</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Answer: NO!</strong></p>
+        <ul>
+          <li>✓ All probabilities between 0 and 1</li>
+          <li>✗ Sum = 0.3 + 0.4 + 0.5 = 1.2 ≠ 1.0</li>
+        </ul>
+        <p><em>This violates the requirement that probabilities sum to exactly 1!</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Expected Value (Mean)</h2>
+
+      <div class="definition-box">
+        <h3>Expected Value</h3>
+        <p>The <strong>expected value</strong> (or <strong>mean</strong>) of a random variable X is the long-run average value if the experiment were repeated many times.</p>
+        <p>It's denoted as <strong>E(X)</strong>, <strong>μ</strong>, or <strong>μ_X</strong>.</p>
+      </div>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Expected Value Formula</h3>
+        <p class="formula">E(X) = μ = Σ[x · P(X = x)]</p>
+        <p style="text-align: center; margin-top: var(--spacing-sm); color: #666;">
+          <strong>In words:</strong> Multiply each value by its probability, then add them all up
+        </p>
+      </div>
+
+      <div class="key-point">
+        <h3>💡 Understanding Expected Value</h3>
+        <p>The expected value is like a weighted average:</p>
+        <ul>
+          <li>Values with higher probabilities "pull" the average toward them</li>
+          <li>It's the theoretical mean if you repeated the experiment infinitely many times</li>
+          <li><strong>Important:</strong> E(X) doesn't have to be a possible value of X!</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 4: Expected Number of Heads</h3>
+        <p>Using our coin-flipping distribution from earlier:</p>
+        
+        <table class="calculation-table">
+          <tr>
+            <th>X</th>
+            <th>P(X)</th>
+            <th>x · P(X)</th>
+          </tr>
+          <tr>
+            <td>0</td>
+            <td>0.25</td>
+            <td>0 × 0.25 = 0.00</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0.50</td>
+            <td>1 × 0.50 = 0.50</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>0.25</td>
+            <td>2 × 0.25 = 0.50</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td colspan="2">E(X) = Sum:</td>
+            <td>1.00</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Answer: E(X) = 1.00 head</strong></p>
+        <p><em>On average, we expect to get 1 head when flipping 2 coins (makes sense - it's the middle value!)</em></p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 5: Expected Winnings (Game)</h3>
+        <p><strong>Game:</strong> Roll a die. Win $10 for rolling a 6, lose $2 otherwise.</p>
+        <p>Let X = winnings</p>
+        
+        <table class="calculation-table">
+          <tr>
+            <th>X (winnings)</th>
+            <th>P(X)</th>
+            <th>x · P(X)</th>
+          </tr>
+          <tr>
+            <td>−$2</td>
+            <td>5/6 ≈ 0.833</td>
+            <td>−2 × (5/6) = −10/6</td>
+          </tr>
+          <tr>
+            <td>$10</td>
+            <td>1/6 ≈ 0.167</td>
+            <td>10 × (1/6) = 10/6</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td colspan="2">E(X) = Sum:</td>
+            <td>0/6 = $0.00</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Answer: E(X) = $0</strong></p>
+        <p><strong>Interpretation:</strong> This is a "fair game" - on average, you neither win nor lose money in the long run!</p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 6: Insurance Expected Value</h3>
+        <p><strong>Scenario:</strong> An insurance company sells a $100,000 life insurance policy for $500. Actuaries estimate a 0.002 probability the policyholder will die this year.</p>
+        <p>Let X = company's profit</p>
+        
+        <table class="calculation-table">
+          <tr>
+            <th>Outcome</th>
+            <th>Profit X</th>
+            <th>P(X)</th>
+            <th>x · P(X)</th>
+          </tr>
+          <tr>
+            <td>No claim</td>
+            <td>$500</td>
+            <td>0.998</td>
+            <td>500 × 0.998 = 499</td>
+          </tr>
+          <tr>
+            <td>Claim filed</td>
+            <td>500 − 100,000 = −$99,500</td>
+            <td>0.002</td>
+            <td>−99,500 × 0.002 = −199</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td colspan="3">E(X) = Sum:</td>
+            <td>$300</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Answer: E(X) = $300 profit per policy</strong></p>
+        <p><strong>Business decision:</strong> On average, the company expects to make $300 per policy sold!</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Variance and Standard Deviation</h2>
+
+      <div class="definition-box">
+        <h3>Variance and Standard Deviation</h3>
+        <p>The <strong>variance</strong> (σ² or Var(X)) measures the spread or variability of the distribution around the mean.</p>
+        <p>The <strong>standard deviation</strong> (σ or SD(X)) is the square root of variance, giving spread in the original units.</p>
+      </div>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Variance Formula</h3>
+        <p class="formula">Var(X) = σ² = Σ[(x − μ)² · P(X = x)]</p>
+        <p style="text-align: center; margin-top: var(--spacing-sm); color: #666;">
+          <strong>In words:</strong> For each value, find (value − mean)², multiply by probability, sum them up
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Standard Deviation Formula</h3>
+        <p class="formula">SD(X) = σ = √Var(X)</p>
+      </div>
+
+      <div class="key-point">
+        <h3>💡 Connection to Module 2</h3>
+        <p>These formulas are similar to variance and SD from Module 2!</p>
+        <ul>
+          <li><strong>Module 2:</strong> Calculated from actual data values</li>
+          <li><strong>Module 3:</strong> Calculated from probability distribution (theoretical)</li>
+          <li>Both measure spread around the mean!</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 7: Variance of Coin Flips</h3>
+        <p>Using our coin-flipping distribution (recall E(X) = 1):</p>
+        
+        <table class="calculation-table">
+          <tr>
+            <th>X</th>
+            <th>P(X)</th>
+            <th>(x − μ)</th>
+            <th>(x − μ)²</th>
+            <th>(x − μ)² · P(X)</th>
+          </tr>
+          <tr>
+            <td>0</td>
+            <td>0.25</td>
+            <td>0 − 1 = −1</td>
+            <td>1</td>
+            <td>1 × 0.25 = 0.25</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0.50</td>
+            <td>1 − 1 = 0</td>
+            <td>0</td>
+            <td>0 × 0.50 = 0.00</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>0.25</td>
+            <td>2 − 1 = 1</td>
+            <td>1</td>
+            <td>1 × 0.25 = 0.25</td>
+          </tr>
+          <tr style="background: #E8F5E9; font-weight: 600;">
+            <td colspan="4">Var(X) = Sum:</td>
+            <td>0.50</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Variance: σ² = 0.50</strong></p>
+        <p><strong>Standard Deviation: σ = √0.50 ≈ 0.71</strong></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Check Your Understanding</h2>
+
+      <div class="practice-question">
+        <h3>Practice Question 1</h3>
+        <p>Is X = "height of a student" discrete or continuous?</p>
+        <button onclick="toggleAnswer('answer1')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer1" class="answer">
+          <p><strong>Answer: Continuous</strong></p>
+          <p>Height can take on any value within a range (5'7.3", 5'7.31", etc.), not just specific countable values.</p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 2</h3>
+        <p>Is this a valid probability distribution?</p>
+        <table class="dist-table">
+          <tr><th>X</th><th>P(X)</th></tr>
+          <tr><td>0</td><td>0.1</td></tr>
+          <tr><td>1</td><td>0.4</td></tr>
+          <tr><td>2</td><td>0.3</td></tr>
+          <tr><td>3</td><td>0.2</td></tr>
+        </table>
+        <button onclick="toggleAnswer('answer2')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer2" class="answer">
+          <p><strong>Answer: YES, it's valid</strong></p>
+          <p>✓ All probabilities between 0 and 1</p>
+          <p>✓ Sum = 0.1 + 0.4 + 0.3 + 0.2 = 1.0</p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 3</h3>
+        <p>Calculate E(X) for this distribution:</p>
+        <table class="dist-table">
+          <tr><th>X</th><th>P(X)</th></tr>
+          <tr><td>1</td><td>0.2</td></tr>
+          <tr><td>2</td><td>0.5</td></tr>
+          <tr><td>3</td><td>0.3</td></tr>
+        </table>
+        <button onclick="toggleAnswer('answer3')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer3" class="answer">
+          <p><strong>Solution:</strong></p>
+          <p>E(X) = Σ[x · P(X)]</p>
+          <p>= (1 × 0.2) + (2 × 0.5) + (3 × 0.3)</p>
+          <p>= 0.2 + 1.0 + 0.9</p>
+          <p>= <strong>2.1</strong></p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 4</h3>
+        <p>True or False: The expected value must be one of the possible values of X.</p>
+        <button onclick="toggleAnswer('answer4')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer4" class="answer">
+          <p><strong>Answer: FALSE</strong></p>
+          <p><strong>Explanation:</strong></p>
+          <p>Expected value is a weighted average and doesn't have to be a possible value!</p>
+          <p><strong>Example:</strong> When flipping 2 coins, E(X) = 1.0 head, but you can't get exactly 1.0 heads - only 0, 1, or 2!</p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 5</h3>
+        <p>If a game has E(X) = −$2, what does this mean?</p>
+        <button onclick="toggleAnswer('answer5')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer5" class="answer">
+          <p><strong>Answer:</strong></p>
+          <p>On average, you expect to LOSE $2 per game in the long run.</p>
+          <p>This is not a favorable game for the player! The negative expected value means the game is biased against you.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Takeaways</h2>
+      <div class="card">
+        <ul>
+          <li><strong>Random variable (X):</strong> Variable whose value depends on chance</li>
+          <li><strong>Discrete:</strong> Countable values; <strong>Continuous:</strong> Any value in a range</li>
+          <li><strong>Probability distribution:</strong> Lists all values of X with their probabilities</li>
+          <li><strong>Valid distribution:</strong> All P(X) between 0 and 1, sum = 1</li>
+          <li><strong>Expected value E(X) = μ:</strong> Long-run average, weighted by probabilities</li>
+          <li><strong>Variance σ²:</strong> Measures spread around the mean</li>
+          <li><strong>Standard deviation σ:</strong> Square root of variance, same units as X</li>
+          <li><strong>Connection to Module 2:</strong> Same concepts (mean, variance, SD), but calculated from probabilities instead of data!</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Congratulations! 🎉</h2>
+      <div class="info-box">
+        <p>
+          You've completed all four lessons in <strong>Module 3: Probability Basics</strong>! You now understand:
+        </p>
+        <ul>
+          <li>✓ Basic probability and probability rules</li>
+          <li>✓ Counting methods (permutations and combinations)</li>
+          <li>✓ Conditional probability and independence</li>
+          <li>✓ Probability distributions and expected value</li>
+        </ul>
+        <p class="mt-2">
+          <strong>Next steps:</strong> Practice your skills with comprehensive problems, then take the Module 3 Quiz!
+        </p>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-conditional-probability.html" class="btn btn-outline nav-btn">← Previous: Conditional Probability</a>
+      <a href="index.html" class="btn btn-outline nav-btn">Module Home</a>
+      <a href="practice.html" class="btn btn-primary nav-btn">Practice Problems →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('visible');
+    }
+  </script>
+</body>
+</html>

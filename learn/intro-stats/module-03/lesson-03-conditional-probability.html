@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 3: Conditional Probability & Independence – Module 3</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .nav-btn { padding: var(--spacing-sm) var(--spacing-md); }
+    .formula-box { background: #e8f5e9; border: 2px solid #28A745; border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .formula { font-family: 'Courier New', monospace; font-size: 1.1rem; margin: var(--spacing-sm) 0; text-align: center; font-weight: 600; }
+    .example-box { background: var(--background-alt); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); margin: var(--spacing-md) 0; border-radius: var(--radius-sm); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-lg); margin: var(--spacing-md) 0; border-radius: var(--radius-sm); }
+    .key-point { background: #fff9e6; border: 2px solid #FFC107; border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .practice-question { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .show-answer-btn { margin-top: var(--spacing-sm); }
+    .answer { display: none; background: #e8f5e9; border-left: 4px solid #28A745; padding: var(--spacing-md); margin-top: var(--spacing-sm); border-radius: var(--radius-sm); }
+    .answer.visible { display: block; }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    tr:nth-child(even) { background: var(--background-alt); }
+    .two-way-table { margin: var(--spacing-md) auto; max-width: 500px; }
+    .two-way-table th { background: var(--primary-light); }
+    .two-way-table .total-row { background: #E8F5E9; font-weight: 600; }
+    .two-way-table .total-col { background: #FFF3CD; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="index.html" class="back-link">← Back to Module 3 Home</a>
+
+    <h1>Lesson 3: Conditional Probability & Independence</h1>
+    <p class="text-muted">Module 3: Probability Basics • Lesson 3 of 4 • ~30-35 minutes</p>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-counting-methods.html" class="btn btn-outline nav-btn">← Previous: Counting Methods</a>
+      <span style="color: var(--text-secondary); font-weight: 500;">Lesson 3 of 4</span>
+      <a href="lesson-04-probability-distributions.html" class="btn btn-primary nav-btn">Next: Probability Distributions →</a>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this lesson, you will be able to:</p>
+        <ul>
+          <li>Calculate conditional probabilities P(A|B)</li>
+          <li>Use two-way tables to organize and calculate probabilities</li>
+          <li>Apply the multiplication rule for probability</li>
+          <li>Determine if two events are independent</li>
+          <li>Distinguish between independent and dependent events</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>What is Conditional Probability?</h2>
+
+      <p>
+        Often, probabilities change when we have additional information. Conditional probability measures the likelihood of an event <strong>given that</strong> another event has occurred.
+      </p>
+
+      <div class="example-box">
+        <h3>Real-World Example:</h3>
+        <p><strong>Scenario:</strong> What's the probability a student passes a statistics exam?</p>
+        <ul>
+          <li><strong>Without information:</strong> P(pass) might be 0.75</li>
+          <li><strong>Given they studied 10+ hours:</strong> P(pass | studied) might be 0.92</li>
+          <li><strong>Given they didn't study:</strong> P(pass | didn't study) might be 0.40</li>
+        </ul>
+        <p class="mt-2">The additional information (whether they studied) <strong>changes</strong> the probability!</p>
+      </div>
+
+      <div class="definition-box">
+        <h3>Conditional Probability</h3>
+        <p>The <strong>conditional probability of A given B</strong>, written as <strong>P(A|B)</strong>, is the probability that event A occurs given that event B has already occurred.</p>
+        <p style="margin-top: var(--spacing-sm);"><strong>Read as:</strong> "The probability of A given B"</p>
+      </div>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Conditional Probability Formula</h3>
+        <p class="formula">P(A|B) = P(A and B) / P(B)</p>
+        <p style="text-align: center; margin-top: var(--spacing-sm); color: #666;">
+          <strong>Where:</strong> P(B) > 0 (B must be possible)
+        </p>
+      </div>
+
+      <div class="key-point">
+        <h3>💡 Understanding the Formula</h3>
+        <p><strong>P(A|B)</strong> = "What fraction of times B occurs does A also occur?"</p>
+        <p>We're restricting our sample space to only outcomes where B happens, then seeing how often A happens within that restricted space.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Calculating Conditional Probability</h2>
+
+      <div class="example-box">
+        <h3>Example 1: Drawing Cards</h3>
+        <p><strong>Question:</strong> You draw one card from a standard deck. Given that the card is red, what is the probability it's a heart?</p>
+        <p><strong>Solution:</strong></p>
+        <ol>
+          <li>Let A = "card is a heart"</li>
+          <li>Let B = "card is red"</li>
+          <li>We want P(A|B) = P(heart | red)</li>
+          <li>There are 26 red cards total (13 hearts + 13 diamonds)</li>
+          <li>Of these 26 red cards, 13 are hearts</li>
+          <li>P(heart | red) = 13/26 = <strong>1/2</strong></li>
+        </ol>
+        <p><strong>Alternative approach using formula:</strong></p>
+        <ul>
+          <li>P(heart and red) = P(heart) = 13/52 = 1/4 (all hearts are red)</li>
+          <li>P(red) = 26/52 = 1/2</li>
+          <li>P(heart | red) = (1/4) / (1/2) = 1/2 ✓</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 2: Rolling Dice</h3>
+        <p><strong>Question:</strong> You roll a fair die. Given that you rolled an even number, what's the probability you rolled a number greater than 3?</p>
+        <p><strong>Solution:</strong></p>
+        <ol>
+          <li>Let A = "number > 3" = {4, 5, 6}</li>
+          <li>Let B = "even number" = {2, 4, 6}</li>
+          <li>A and B = {4, 6} (even numbers greater than 3)</li>
+          <li>Given B occurred, our restricted sample space is {2, 4, 6}</li>
+          <li>Of these 3 outcomes, 2 satisfy A (the 4 and 6)</li>
+          <li>P(A|B) = 2/3</li>
+        </ol>
+        <p><strong>Using formula:</strong></p>
+        <ul>
+          <li>P(A and B) = 2/6 = 1/3</li>
+          <li>P(B) = 3/6 = 1/2</li>
+          <li>P(A|B) = (1/3) / (1/2) = 2/3 ✓</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Two-Way Tables</h2>
+
+      <p>
+        <strong>Two-way tables</strong> (also called contingency tables) organize data for two categorical variables. They're excellent for calculating conditional probabilities!
+      </p>
+
+      <div class="example-box">
+        <h3>Example 3: Student Survey</h3>
+        <p>A survey of 200 students asked about their year (Freshman/Sophomore) and whether they have a job.</p>
+        
+        <table class="two-way-table">
+          <tr>
+            <th></th>
+            <th>Has Job</th>
+            <th>No Job</th>
+            <th class="total-col">Total</th>
+          </tr>
+          <tr>
+            <td><strong>Freshman</strong></td>
+            <td>30</td>
+            <td>70</td>
+            <td class="total-col">100</td>
+          </tr>
+          <tr>
+            <td><strong>Sophomore</strong></td>
+            <td>60</td>
+            <td>40</td>
+            <td class="total-col">100</td>
+          </tr>
+          <tr class="total-row">
+            <td><strong>Total</strong></td>
+            <td>90</td>
+            <td>110</td>
+            <td>200</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Question 1:</strong> What is P(has job)?</p>
+        <p><strong>Solution:</strong> P(has job) = 90/200 = 0.45 or 45%</p>
+
+        <p class="mt-2"><strong>Question 2:</strong> What is P(has job | Freshman)?</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Given: Student is a Freshman (restrict to that row)</li>
+          <li>Total Freshmen: 100</li>
+          <li>Freshmen with jobs: 30</li>
+          <li>P(has job | Freshman) = 30/100 = <strong>0.30 or 30%</strong></li>
+        </ul>
+
+        <p class="mt-2"><strong>Question 3:</strong> What is P(has job | Sophomore)?</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Given: Student is a Sophomore (restrict to that row)</li>
+          <li>Total Sophomores: 100</li>
+          <li>Sophomores with jobs: 60</li>
+          <li>P(has job | Sophomore) = 60/100 = <strong>0.60 or 60%</strong></li>
+        </ul>
+
+        <p class="mt-2"><strong>Observation:</strong> Sophomores are twice as likely to have a job as Freshmen! (60% vs 30%)</p>
+      </div>
+
+      <div class="key-point">
+        <h3>💡 Using Two-Way Tables for Conditional Probability</h3>
+        <p><strong>To find P(A|B):</strong></p>
+        <ol>
+          <li>Restrict to the row or column representing B (the "given" event)</li>
+          <li>Find how many of those satisfy A</li>
+          <li>Divide: (outcomes with A and B) / (total outcomes with B)</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>The Multiplication Rule</h2>
+
+      <p>
+        Sometimes we need to find P(A and B). The multiplication rule connects this to conditional probability.
+      </p>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Multiplication Rule (General)</h3>
+        <p class="formula">P(A and B) = P(A) × P(B|A)</p>
+        <p class="formula">OR</p>
+        <p class="formula">P(A and B) = P(B) × P(A|B)</p>
+        <p style="text-align: center; margin-top: var(--spacing-sm); color: #666;">
+          <strong>Both forms are equivalent - use whichever is easier to calculate!</strong>
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 4: Drawing Without Replacement</h3>
+        <p><strong>Question:</strong> You draw 2 cards from a deck without replacement. What's the probability both are aces?</p>
+        <p><strong>Solution:</strong></p>
+        <ol>
+          <li>Let A₁ = "first card is an ace"</li>
+          <li>Let A₂ = "second card is an ace"</li>
+          <li>We want P(A₁ and A₂)</li>
+          <li>P(A₁) = 4/52 (4 aces in 52 cards)</li>
+          <li>P(A₂|A₁) = 3/51 (after drawing one ace, 3 aces left in 51 cards)</li>
+          <li>P(A₁ and A₂) = (4/52) × (3/51) = 12/2652 = 1/221 ≈ <strong>0.0045 or 0.45%</strong></li>
+        </ol>
+        <p class="mt-2"><em>Notice: The second probability depends on what happened first (without replacement = dependent events)</em></p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 5: Multiple Events</h3>
+        <p><strong>Question:</strong> A box contains 5 red and 3 blue marbles. You draw 3 marbles without replacement. What's the probability all 3 are red?</p>
+        <p><strong>Solution:</strong></p>
+        <ol>
+          <li>P(R₁) = 5/8 (first is red)</li>
+          <li>P(R₂|R₁) = 4/7 (second is red, given first was red)</li>
+          <li>P(R₃|R₁ and R₂) = 3/6 = 1/2 (third is red, given first two were red)</li>
+          <li>P(all 3 red) = (5/8) × (4/7) × (1/2) = 20/112 = 5/28 ≈ <strong>0.179 or 17.9%</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>Independent Events</h2>
+
+      <div class="definition-box">
+        <h3>Independent Events</h3>
+        <p>Two events A and B are <strong>independent</strong> if the occurrence of one does NOT affect the probability of the other.</p>
+        <p style="margin-top: var(--spacing-sm);"><strong>In other words:</strong> A and B are independent if P(A|B) = P(A)</p>
+        <p><strong>Equivalently:</strong> P(B|A) = P(B)</p>
+      </div>
+
+      <div class="key-point">
+        <h3>💡 Independent vs. Dependent</h3>
+        <table>
+          <tr>
+            <th>Independent Events</th>
+            <th>Dependent Events</th>
+          </tr>
+          <tr>
+            <td>One event doesn't affect the other</td>
+            <td>One event affects the probability of the other</td>
+          </tr>
+          <tr>
+            <td>P(A|B) = P(A)</td>
+            <td>P(A|B) ≠ P(A)</td>
+          </tr>
+          <tr>
+            <td><strong>Examples:</strong> Flipping two coins, rolling two dice, drawing with replacement</td>
+            <td><strong>Examples:</strong> Drawing without replacement, weather on consecutive days</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="formula-box">
+        <h3 style="text-align: center; margin-top: 0;">Multiplication Rule for Independent Events</h3>
+        <p style="text-align: center; margin-bottom: var(--spacing-sm);">If A and B are independent:</p>
+        <p class="formula">P(A and B) = P(A) × P(B)</p>
+        <p style="text-align: center; margin-top: var(--spacing-sm); color: #666;">
+          <strong>No conditional probability needed - just multiply!</strong>
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 6: Flipping Coins (Independent)</h3>
+        <p><strong>Question:</strong> You flip a fair coin twice. What's the probability of getting heads both times?</p>
+        <p><strong>Solution:</strong></p>
+        <p>The flips are independent (first flip doesn't affect second)</p>
+        <ul>
+          <li>P(H₁) = 1/2</li>
+          <li>P(H₂) = 1/2</li>
+          <li>P(H₁ and H₂) = (1/2) × (1/2) = <strong>1/4 or 0.25</strong></li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h3>Example 7: Testing Independence with Data</h3>
+        <p>Using our student survey from earlier:</p>
+        
+        <table class="two-way-table">
+          <tr>
+            <th></th>
+            <th>Has Job</th>
+            <th>No Job</th>
+            <th class="total-col">Total</th>
+          </tr>
+          <tr>
+            <td><strong>Freshman</strong></td>
+            <td>30</td>
+            <td>70</td>
+            <td class="total-col">100</td>
+          </tr>
+          <tr>
+            <td><strong>Sophomore</strong></td>
+            <td>60</td>
+            <td>40</td>
+            <td class="total-col">100</td>
+          </tr>
+          <tr class="total-row">
+            <td><strong>Total</strong></td>
+            <td>90</td>
+            <td>110</td>
+            <td>200</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Question:</strong> Are "Year" and "Has Job" independent?</p>
+        <p><strong>Solution:</strong></p>
+        <p>Check if P(has job | Freshman) = P(has job)</p>
+        <ul>
+          <li>P(has job) = 90/200 = 0.45</li>
+          <li>P(has job | Freshman) = 30/100 = 0.30</li>
+          <li>0.30 ≠ 0.45, so events are <strong>NOT independent</strong></li>
+        </ul>
+        <p class="mt-2"><strong>Conclusion:</strong> Year in school and having a job are <strong>dependent</strong> - being a sophomore makes you more likely to have a job!</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Check Your Understanding</h2>
+
+      <div class="practice-question">
+        <h3>Practice Question 1</h3>
+        <p>You roll a die. Given that you rolled a number less than 5, what's the probability you rolled a 2?</p>
+        <button onclick="toggleAnswer('answer1')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer1" class="answer">
+          <p><strong>Solution:</strong></p>
+          <p>Given: Rolled less than 5, so outcomes are {1, 2, 3, 4}</p>
+          <p>Of these 4 outcomes, one is a 2</p>
+          <p>P(2 | less than 5) = 1/4 = <strong>0.25 or 25%</strong></p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 2</h3>
+        <p>If P(A) = 0.6 and P(B|A) = 0.4, what is P(A and B)?</p>
+        <button onclick="toggleAnswer('answer2')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer2" class="answer">
+          <p><strong>Solution:</strong></p>
+          <p>Use multiplication rule: P(A and B) = P(A) × P(B|A)</p>
+          <p>P(A and B) = 0.6 × 0.4 = <strong>0.24</strong></p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 3</h3>
+        <p>Are flipping a coin and rolling a die independent events? Why or why not?</p>
+        <button onclick="toggleAnswer('answer3')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer3" class="answer">
+          <p><strong>Answer: YES, they are independent</strong></p>
+          <p><strong>Reasoning:</strong></p>
+          <p>The outcome of the coin flip has no effect on the die roll, and vice versa. They are completely separate physical events with no connection.</p>
+          <p>P(any die outcome | any coin outcome) = P(any die outcome)</p>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 4</h3>
+        <p>You draw 2 cards from a deck WITH replacement. What's the probability both are kings?</p>
+        <button onclick="toggleAnswer('answer4')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer4" class="answer">
+          <p><strong>Solution:</strong></p>
+          <p>With replacement means the draws are independent</p>
+          <ul>
+            <li>P(K₁) = 4/52 = 1/13</li>
+            <li>P(K₂) = 4/52 = 1/13 (card is replaced, so same probability)</li>
+            <li>P(K₁ and K₂) = (1/13) × (1/13) = 1/169 ≈ <strong>0.0059 or 0.59%</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="practice-question">
+        <h3>Practice Question 5</h3>
+        <p>In a class, 60% of students are female. Among females, 80% passed the exam. Among males, 70% passed. What is P(passed | female)?</p>
+        <button onclick="toggleAnswer('answer5')" class="btn btn-outline show-answer-btn">Show Answer</button>
+        <div id="answer5" class="answer">
+          <p><strong>Answer: 0.80 or 80%</strong></p>
+          <p><strong>Explanation:</strong></p>
+          <p>This is directly stated: "Among females, 80% passed the exam"</p>
+          <p>P(passed | female) = <strong>0.80</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Takeaways</h2>
+      <div class="card">
+        <ul>
+          <li><strong>Conditional probability P(A|B):</strong> Probability of A given that B occurred</li>
+          <li><strong>Formula:</strong> P(A|B) = P(A and B) / P(B)</li>
+          <li><strong>Two-way tables:</strong> Excellent tool for organizing and calculating conditional probabilities</li>
+          <li><strong>Multiplication rule:</strong> P(A and B) = P(A) × P(B|A) = P(B) × P(A|B)</li>
+          <li><strong>Independent events:</strong> P(A|B) = P(A), meaning B doesn't affect A</li>
+          <li><strong>For independent events:</strong> P(A and B) = P(A) × P(B) (simplified!)</li>
+          <li><strong>Without replacement → dependent</strong>; <strong>with replacement → independent</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>What's Next?</h2>
+      <div class="info-box">
+        <p>
+          You now understand how probabilities change with information! In <strong>Lesson 4: Probability Distributions</strong>, you'll learn how to organize all possible outcomes and their probabilities into a distribution, and calculate expected values.
+        </p>
+        <p class="mt-2">
+          <strong>Coming up:</strong> Random variables, probability distributions, expected value (mean), variance
+        </p>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-counting-methods.html" class="btn btn-outline nav-btn">← Previous: Counting Methods</a>
+      <a href="index.html" class="btn btn-outline nav-btn">Module Home</a>
+      <a href="lesson-04-probability-distributions.html" class="btn btn-primary nav-btn">Next: Probability Distributions →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('visible');
+    }
+  </script>
+</body>
+</html>
