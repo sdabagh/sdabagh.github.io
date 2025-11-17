@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: The Binomial Distribution - Learn to identify binomial experiments and calculate binomial probabilities">
+  <title>Lesson 3: The Binomial Distribution – Module 4</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .checklist { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .checklist li { margin: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 4</a> →
+        Lesson 3
+      </div>
+      <h1>The Binomial Distribution</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn to identify binomial experiments and calculate binomial probabilities
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Identify the four conditions that define a binomial experiment</li>
+        <li>Determine whether a given situation is binomial</li>
+        <li>Use the binomial probability formula: P(X = k) = C(n,k) × p^k × (1-p)^(n-k)</li>
+        <li>Calculate binomial probabilities for specific scenarios</li>
+        <li>Find the mean μ = np and standard deviation σ = √(np(1-p)) for binomial distributions</li>
+        <li>Apply binomial distribution to real-world problems</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. What is a Binomial Experiment?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Binomial Experiment</h4>
+        <p>
+          A <strong>binomial experiment</strong> (or binomial setting) is a probability experiment
+          that satisfies four specific conditions. When these conditions are met, the random variable
+          X (number of successes) follows a <strong>binomial distribution</strong>.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Four Conditions for a Binomial Experiment</h4>
+        <ol style="text-align: left; margin-left: var(--spacing-lg); line-height: 1.8;">
+          <li><strong>Fixed Number of Trials (n):</strong> The experiment consists of a fixed number of identical trials</li>
+          <li><strong>Two Outcomes:</strong> Each trial has only two possible outcomes: "success" or "failure"</li>
+          <li><strong>Independent Trials:</strong> The trials are independent (outcome of one doesn't affect others)</li>
+          <li><strong>Constant Probability (p):</strong> The probability of success (p) is the same for each trial</li>
+        </ol>
+      </div>
+
+      <div class="key-point">
+        <strong>💡 Remember with "FTIC":</strong>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li><strong>F</strong>ixed number of trials</li>
+          <li><strong>T</strong>wo outcomes (success/failure)</li>
+          <li><strong>I</strong>ndependent trials</li>
+          <li><strong>C</strong>onstant probability</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Identifying Binomial Experiments</h4>
+
+        <p><strong>Scenario A:</strong> Flip a fair coin 20 times and count the number of heads.</p>
+        <ul>
+          <li>✓ Fixed n = 20 trials</li>
+          <li>✓ Two outcomes: heads (success) or tails (failure)</li>
+          <li>✓ Independent: each flip doesn't affect the next</li>
+          <li>✓ Constant p = 0.5 for each flip</li>
+          <li><strong>BINOMIAL!</strong> ✓</li>
+        </ul>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Scenario B:</strong> Draw 5 cards from a deck
+        WITHOUT replacement and count the number of aces.</p>
+        <ul>
+          <li>✓ Fixed n = 5 trials</li>
+          <li>✓ Two outcomes: ace (success) or not ace (failure)</li>
+          <li>✗ NOT independent: removing cards changes probabilities</li>
+          <li>✗ NOT constant p: P(ace) changes after each draw</li>
+          <li><strong>NOT BINOMIAL</strong> ✗</li>
+        </ul>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Scenario C:</strong> A student guesses on 10
+        multiple-choice questions, each with 4 choices. Count correct answers.</p>
+        <ul>
+          <li>✓ Fixed n = 10 trials</li>
+          <li>✓ Two outcomes: correct (success) or incorrect (failure)</li>
+          <li>✓ Independent: answering one question doesn't affect others</li>
+          <li>✓ Constant p = 0.25 for each question</li>
+          <li><strong>BINOMIAL!</strong> ✓</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Binomial Probability Formula</h2>
+
+      <p>
+        If X follows a binomial distribution with n trials and success probability p, we can calculate
+        the probability of exactly k successes using the binomial formula.
+      </p>
+
+      <div class="formula-box">
+        <h4>Binomial Probability Formula</h4>
+        <div class="formula">P(X = k) = C(n, k) × p^k × (1-p)^(n-k)</div>
+        <p style="text-align: center; margin-top: var(--spacing-md);">Where:</p>
+        <ul style="text-align: left; max-width: 600px; margin: var(--spacing-sm) auto;">
+          <li><strong>n</strong> = number of trials</li>
+          <li><strong>k</strong> = number of successes we want</li>
+          <li><strong>p</strong> = probability of success on each trial</li>
+          <li><strong>(1-p)</strong> = probability of failure on each trial (sometimes written as q)</li>
+          <li><strong>C(n,k)</strong> = combination formula = n! / (k!(n-k)!)</li>
+        </ul>
+      </div>
+
+      <div class="key-point">
+        <strong>Understanding the Formula:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          The formula has three parts:
+        </p>
+        <ul>
+          <li><strong>C(n,k):</strong> Number of ways to arrange k successes in n trials</li>
+          <li><strong>p^k:</strong> Probability of k successes</li>
+          <li><strong>(1-p)^(n-k):</strong> Probability of (n-k) failures</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Using the Binomial Formula</h4>
+        <p><strong>Problem:</strong> You flip a fair coin 5 times. What is the probability of getting exactly 3 heads?</p>
+
+        <p><strong>Step 1: Verify binomial conditions</strong></p>
+        <ul>
+          <li>✓ n = 5 (fixed trials)</li>
+          <li>✓ Two outcomes (heads/tails)</li>
+          <li>✓ Independent flips</li>
+          <li>✓ p = 0.5 (constant)</li>
+        </ul>
+
+        <p><strong>Step 2: Identify values</strong></p>
+        <ul>
+          <li>n = 5, k = 3, p = 0.5</li>
+        </ul>
+
+        <p><strong>Step 3: Calculate C(5,3)</strong></p>
+        <p>C(5,3) = 5! / (3!(5-3)!) = 5! / (3!2!) = (5×4×3×2×1) / ((3×2×1)(2×1)) = 120 / 12 = 10</p>
+
+        <p><strong>Step 4: Apply the formula</strong></p>
+        <p>P(X = 3) = C(5,3) × (0.5)³ × (0.5)²</p>
+        <p>= 10 × 0.125 × 0.25</p>
+        <p>= 10 × 0.03125</p>
+        <p>= <strong>0.3125 or 31.25%</strong></p>
+
+        <p><strong>Interpretation:</strong> There's a 31.25% chance of getting exactly 3 heads in 5 coin flips.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Multiple-Choice Test</h4>
+        <p><strong>Problem:</strong> A student guesses on a 10-question multiple-choice test. Each question
+        has 4 choices. What's the probability of guessing exactly 4 questions correctly?</p>
+
+        <p><strong>Setup:</strong> n = 10, k = 4, p = 0.25 (1/4 chance of guessing correctly)</p>
+
+        <p><strong>Calculate C(10,4):</strong></p>
+        <p>C(10,4) = 10! / (4!6!) = 210</p>
+
+        <p><strong>Apply formula:</strong></p>
+        <p>P(X = 4) = 210 × (0.25)⁴ × (0.75)⁶</p>
+        <p>= 210 × 0.00390625 × 0.17798</p>
+        <p>= 210 × 0.000695</p>
+        <p>≈ <strong>0.146 or 14.6%</strong></p>
+
+        <p><strong>Interpretation:</strong> There's about a 14.6% chance of guessing exactly 4 out of 10 correctly.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Mean and Standard Deviation of Binomial Distribution</h2>
+
+      <p>
+        For binomial distributions, there are simple formulas to find the mean and standard deviation
+        without using the general formulas from Lesson 2.
+      </p>
+
+      <div class="formula-box">
+        <h4>Binomial Mean (Expected Value)</h4>
+        <div class="formula">μ = E(X) = np</div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>Interpretation:</strong> On average, expect np successes in n trials
+        </p>
+
+        <h4 style="margin-top: var(--spacing-lg);">Binomial Standard Deviation</h4>
+        <div class="formula">σ = √(np(1-p)) = √(npq)</div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>Note:</strong> q = 1 - p is the probability of failure
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Mean and SD for Coin Flips</h4>
+        <p><strong>Scenario:</strong> Flip a fair coin 100 times. Find the mean and standard deviation
+        of the number of heads.</p>
+
+        <p><strong>Given:</strong> n = 100, p = 0.5</p>
+
+        <p><strong>Mean:</strong></p>
+        <p>μ = np = 100 × 0.5 = <strong>50 heads</strong></p>
+
+        <p><strong>Standard Deviation:</strong></p>
+        <p>σ = √(np(1-p)) = √(100 × 0.5 × 0.5) = √25 = <strong>5 heads</strong></p>
+
+        <p><strong>Interpretation:</strong> If you flip a coin 100 times, you expect about 50 heads on average,
+        with typical variation of about 5 heads. Most of the time, you'll get between 45 and 55 heads.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Quality Control</h4>
+        <p><strong>Scenario:</strong> A factory produces light bulbs, 2% of which are defective. If we
+        randomly select 500 bulbs, how many defects do we expect, and what's the standard deviation?</p>
+
+        <p><strong>Given:</strong> n = 500, p = 0.02 (2% defect rate)</p>
+
+        <p><strong>Mean:</strong></p>
+        <p>μ = np = 500 × 0.02 = <strong>10 defective bulbs</strong></p>
+
+        <p><strong>Standard Deviation:</strong></p>
+        <p>σ = √(np(1-p)) = √(500 × 0.02 × 0.98) = √9.8 ≈ <strong>3.13 defective bulbs</strong></p>
+
+        <p><strong>Interpretation:</strong> We expect about 10 defective bulbs on average, with typical
+        variation of about 3 bulbs. Finding 7-13 defects would be fairly normal.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Common Binomial Scenarios</h2>
+
+      <div class="key-point">
+        <strong>Typical Applications of Binomial Distribution:</strong>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li><strong>Coin flips:</strong> Counting heads (or tails) in n flips</li>
+          <li><strong>Multiple-choice tests:</strong> Counting correct guesses</li>
+          <li><strong>Quality control:</strong> Counting defective items in a batch</li>
+          <li><strong>Free throws:</strong> Counting made shots out of n attempts</li>
+          <li><strong>Survey responses:</strong> Counting "yes" responses in n responses (if sampling with replacement)</li>
+          <li><strong>Medical trials:</strong> Counting patients who improve out of n patients</li>
+        </ul>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ When NOT to Use Binomial:</strong>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li><strong>Sampling without replacement:</strong> Probabilities change (use hypergeometric instead)</li>
+          <li><strong>More than two outcomes:</strong> Use multinomial distribution</li>
+          <li><strong>Variable number of trials:</strong> Number of trials must be fixed</li>
+          <li><strong>Non-constant probability:</strong> Success probability must stay the same</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="check-understanding">
+      <h2>✓ Check Your Understanding</h2>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A basketball player makes 70% of free throws. She takes 20 shots.
+        Is this binomial? If yes, what are n and p?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu1')">Show Answer</button>
+        <div id="cu1" class="answer">
+          <p><strong>Answer:</strong> <strong>Yes, it's binomial.</strong></p>
+          <ul>
+            <li>✓ Fixed n = 20 trials</li>
+            <li>✓ Two outcomes: make or miss</li>
+            <li>✓ Independent: each shot doesn't affect the next</li>
+            <li>✓ Constant p = 0.70</li>
+          </ul>
+          <p><strong>n = 20, p = 0.70</strong></p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> You roll a die until you get a 6. Is this binomial? Why or why not?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu2')">Show Answer</button>
+        <div id="cu2" class="answer">
+          <p><strong>Answer:</strong> <strong>No, not binomial.</strong> The number of trials is NOT
+          fixed—you keep rolling until you get a 6, which could be 1 roll, 10 rolls, or 100 rolls.
+          This violates the "fixed n" condition. (This follows a geometric distribution instead.)</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> For a binomial distribution with n = 50 and p = 0.4, what is μ?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu3')">Show Answer</button>
+        <div id="cu3" class="answer">
+          <p><strong>Answer:</strong> μ = np = 50 × 0.4 = <strong>20</strong></p>
+          <p>On average, we expect 20 successes out of 50 trials when p = 0.4.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> If you flip a coin 16 times, what is the standard deviation of the
+        number of heads?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu4')">Show Answer</button>
+        <div id="cu4" class="answer">
+          <p><strong>Answer:</strong></p>
+          <p>σ = √(np(1-p)) = √(16 × 0.5 × 0.5) = √4 = <strong>2 heads</strong></p>
+          <p>The number of heads typically varies by about 2 from the expected value of 8.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> Why is C(n,k) needed in the binomial formula?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu5')">Show Answer</button>
+        <div id="cu5" class="answer">
+          <p><strong>Answer:</strong> C(n,k) counts the <strong>number of different ways</strong> to arrange
+          k successes among n trials. For example, getting 3 heads in 5 flips can happen in C(5,3) = 10
+          different sequences (HHHTT, HHTHT, HTHHT, etc.). We multiply by this to account for all
+          possible arrangements that give us exactly k successes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📚 Summary</h2>
+      <div class="key-point">
+        <strong>Key Takeaways:</strong>
+        <ul>
+          <li>Binomial experiments have 4 conditions: <strong>F</strong>ixed n, <strong>T</strong>wo outcomes, <strong>I</strong>ndependent, <strong>C</strong>onstant p</li>
+          <li>Binomial probability formula: <strong>P(X = k) = C(n,k) × p^k × (1-p)^(n-k)</strong></li>
+          <li>Mean of binomial: <strong>μ = np</strong></li>
+          <li>Standard deviation: <strong>σ = √(np(1-p))</strong></li>
+          <li>Common applications: coin flips, quality control, guessing on tests</li>
+          <li>Not binomial if: sampling without replacement, variable trials, or non-constant probability</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-discrete-probability-distributions.html" class="btn btn-outline">← Previous: Probability Distributions</a>
+      <a href="lesson-04-applications.html" class="btn btn-primary">Next: Applications →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+      console.log('Answer revealed:', id, new Date().toISOString());
+    }
+  </script>
+</body>
+</html>
