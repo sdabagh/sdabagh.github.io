@@ -3,31 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 4 Quiz – The Normal Distribution</title>
+  <meta name="description" content="Module 4 Quiz - Test your knowledge of discrete probability distributions">
+  <title>Module 4 Quiz – Free Stats Course</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
-    .quiz-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
-    .quiz-header h1 { color: white; margin-bottom: var(--spacing-sm); }
-    .question-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
-    .question-number { display: inline-block; background: var(--primary-color); color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-weight: 600; margin-bottom: var(--spacing-sm); }
-    .question-text { font-size: 1.05rem; font-weight: 500; color: var(--text-primary); margin-bottom: var(--spacing-md); }
-    .options { margin: var(--spacing-md) 0; }
-    .option { display: flex; align-items: flex-start; padding: var(--spacing-sm); margin-bottom: var(--spacing-xs); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
-    .option:hover { background: var(--background-alt); }
-    .option input[type="radio"] { margin-right: var(--spacing-sm); margin-top: 0.25rem; cursor: pointer; }
-    .option label { cursor: pointer; flex: 1; }
-    .results { display: none; background: var(--background-alt); border: 2px solid var(--primary-color); border-radius: var(--radius-md); padding: var(--spacing-xl); margin-top: var(--spacing-xl); text-align: center; }
-    .results.show { display: block; }
-    .score-display { font-size: 3.5rem; font-weight: 700; color: var(--primary-color); margin: var(--spacing-md) 0; }
-    .badge-display { font-size: 5rem; margin: var(--spacing-md) 0; }
-    .pass-message { color: #28A745; font-size: 1.5rem; font-weight: 600; }
-    .retry-message { color: #DC3545; font-size: 1.5rem; font-weight: 600; }
-    .explanation { background: #F8F9FA; padding: var(--spacing-sm); margin-top: var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.95rem; display: none; }
-    .explanation.correct { background: #D4EDDA; border-left: 4px solid #28A745; }
-    .explanation.incorrect { background: #F8D7DA; border-left: 4px solid #DC3545; }
+    .quiz-intro {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .quiz-intro h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .quiz-rules {
+      background: var(--info-light);
+      border-left: 4px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .question-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .question-card.correct {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .question-card.incorrect {
+      border-color: var(--danger);
+      background: #ffebee;
+    }
+
+    .question-number {
+      background: var(--primary-color);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin-right: var(--spacing-sm);
+    }
+
+    .question-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: var(--spacing-md) 0;
+    }
+
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: var(--spacing-md) 0;
+    }
+
+    .options li {
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+    }
+
+    .options li:hover {
+      border-color: var(--primary-color);
+      background: var(--background-alt);
+    }
+
+    .options li.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    .options li.correct-answer {
+      border-color: var(--success);
+      background: var(--success-light);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .options li.wrong-answer {
+      border-color: var(--danger);
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    .explanation {
+      display: none;
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--background-alt);
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--info);
+    }
+
+    .explanation.show {
+      display: block;
+    }
+
+    .submit-section {
+      text-align: center;
+      margin: var(--spacing-xl) 0;
+      padding-top: var(--spacing-lg);
+      border-top: 2px solid var(--border-color);
+    }
+
+    #results {
+      display: none;
+    }
+
+    .results-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-lg) 0;
+      text-align: center;
+    }
+
+    .results-card.pass {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .results-card.fail {
+      border-color: var(--warning);
+      background: #fff9e6;
+    }
+
+    .score-display {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin: var(--spacing-md) 0;
+    }
+
+    .badge {
+      font-size: 4rem;
+      margin: var(--spacing-md) 0;
+    }
+
+    @media (max-width: 768px) {
+      .score-display {
+        font-size: 2rem;
+      }
+
+      .badge {
+        font-size: 3rem;
+      }
+    }
   </style>
 </head>
 <body>
+
   <header>
     <div class="site-title">Safaa Dabagh</div>
     <nav>
@@ -42,242 +192,474 @@
   </header>
 
   <main class="container">
-    <a href="index.html" class="back-link">← Back to Module 4 Home</a>
 
-    <div class="quiz-header">
-      <h1>📝 Module 4 Quiz</h1>
-      <p>The Normal Distribution</p>
-      <p style="opacity: 0.9; margin-top: var(--spacing-sm);">15 questions • 70% to pass • Earn your Module 4 badge!</p>
+    <a href="index.html" class="back-link">← Back to Module 4</a>
+
+    <div class="quiz-intro">
+      <h1 style="color: white; margin-top: 0;">Module 4 Quiz</h1>
+      <h3>Test Your Discrete Probability Knowledge!</h3>
+      <p>
+        This quiz covers all topics from Module 4: Random Variables, Probability Distributions, Expected Value, Variance, and the Binomial Distribution.
+        Pass with 70% (11/15 correct) to earn your Module 4 completion badge!
+      </p>
     </div>
 
-    <div class="info-box">
-      <h3>Quiz Instructions</h3>
-      <ul>
-        <li>Answer all 15 multiple-choice questions</li>
-        <li>You need <strong>11 out of 15 (70%)</strong> correct to pass</li>
-        <li>You'll receive immediate feedback with explanations</li>
-        <li>You can retake the quiz as many times as needed</li>
+    <div class="quiz-rules">
+      <h3>📋 Quiz Rules</h3>
+      <ul class="icon-list">
+        <li><strong>15 questions</strong> - Multiple choice</li>
+        <li><strong>Passing score:</strong> 70% (11 out of 15 correct)</li>
+        <li><strong>No time limit</strong> - Take your time and think carefully!</li>
+        <li><strong>One attempt shown</strong> - But you can retake as many times as needed</li>
+        <li><strong>Instant feedback</strong> - See explanations after submitting</li>
       </ul>
     </div>
 
-    <form id="quizForm">
+    <form id="moduleQuiz">
 
-      <!-- Q1: Empirical Rule basics -->
-      <div class="question-card">
-        <span class="question-number">Question 1</span>
-        <p class="question-text">According to the Empirical Rule, approximately what percent of data falls within ONE standard deviation of the mean in a normal distribution?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q1a" name="q1" value="a" required><label for="q1a">a) 50%</label></div>
-          <div class="option"><input type="radio" id="q1b" name="q1" value="b"><label for="q1b">b) 68%</label></div>
-          <div class="option"><input type="radio" id="q1c" name="q1" value="c"><label for="q1c">c) 95%</label></div>
-          <div class="option"><input type="radio" id="q1d" name="q1" value="d"><label for="q1d">d) 99.7%</label></div>
+      <!-- Question 1 -->
+      <div class="question-card" id="card-q1">
+        <div>
+          <span class="question-number">1</span>
+          <span class="question-text">Which of the following is a discrete random variable?</span>
         </div>
-        <div id="exp1" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q1', 'a')">
+            <input type="radio" name="q1" value="a" id="q1a">
+            <label for="q1a">The height of a randomly selected student</label>
+          </li>
+          <li onclick="selectAnswer('q1', 'b')">
+            <input type="radio" name="q1" value="b" id="q1b">
+            <label for="q1b">The number of students in a class</label>
+          </li>
+          <li onclick="selectAnswer('q1', 'c')">
+            <input type="radio" name="q1" value="c" id="q1c">
+            <label for="q1c">The temperature in a room</label>
+          </li>
+          <li onclick="selectAnswer('q1', 'd')">
+            <input type="radio" name="q1" value="d" id="q1d">
+            <label for="q1d">The time it takes to run a mile</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q1"></div>
       </div>
 
-      <!-- Q2: Empirical Rule application -->
-      <div class="question-card">
-        <span class="question-number">Question 2</span>
-        <p class="question-text">Scores on a test are normally distributed with μ = 80 and σ = 5. What range contains approximately 95% of all scores?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q2a" name="q2" value="a" required><label for="q2a">a) 70 to 90</label></div>
-          <div class="option"><input type="radio" id="q2b" name="q2" value="b"><label for="q2b">b) 75 to 85</label></div>
-          <div class="option"><input type="radio" id="q2c" name="q2" value="c"><label for="q2c">c) 65 to 95</label></div>
-          <div class="option"><input type="radio" id="q2d" name="q2" value="d"><label for="q2d">d) 60 to 100</label></div>
+      <!-- Question 2 -->
+      <div class="question-card" id="card-q2">
+        <div>
+          <span class="question-number">2</span>
+          <span class="question-text">What must be true about the probabilities in any probability distribution?</span>
         </div>
-        <div id="exp2" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q2', 'a')">
+            <input type="radio" name="q2" value="a" id="q2a">
+            <label for="q2a">All probabilities must be equal</label>
+          </li>
+          <li onclick="selectAnswer('q2', 'b')">
+            <input type="radio" name="q2" value="b" id="q2b">
+            <label for="q2b">All probabilities sum to 1.0</label>
+          </li>
+          <li onclick="selectAnswer('q2', 'c')">
+            <input type="radio" name="q2" value="c" id="q2c">
+            <label for="q2c">All probabilities must be between 0 and 0.5</label>
+          </li>
+          <li onclick="selectAnswer('q2', 'd')">
+            <input type="radio" name="q2" value="d" id="q2d">
+            <label for="q2d">Only the largest probability matters</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q2"></div>
       </div>
 
-      <!-- Q3: Normal distribution properties -->
-      <div class="question-card">
-        <span class="question-number">Question 3</span>
-        <p class="question-text">Which statement is TRUE about a normal distribution?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q3a" name="q3" value="a" required><label for="q3a">a) The mean is always greater than the median</label></div>
-          <div class="option"><input type="radio" id="q3b" name="q3" value="b"><label for="q3b">b) The distribution is skewed to the right</label></div>
-          <div class="option"><input type="radio" id="q3c" name="q3" value="c"><label for="q3c">c) The mean, median, and mode are all equal</label></div>
-          <div class="option"><input type="radio" id="q3d" name="q3" value="d"><label for="q3d">d) About 50% of data falls within 1 standard deviation</label></div>
+      <!-- Question 3 -->
+      <div class="question-card" id="card-q3">
+        <div>
+          <span class="question-number">3</span>
+          <span class="question-text">Which statement best describes the expected value of a probability distribution?</span>
         </div>
-        <div id="exp3" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q3', 'a')">
+            <input type="radio" name="q3" value="a" id="q3a">
+            <label for="q3a">The value that occurs most frequently</label>
+          </li>
+          <li onclick="selectAnswer('q3', 'b')">
+            <input type="radio" name="q3" value="b" id="q3b">
+            <label for="q3b">The long-run average value when the experiment is repeated many times</label>
+          </li>
+          <li onclick="selectAnswer('q3', 'c')">
+            <input type="radio" name="q3" value="c" id="q3c">
+            <label for="q3c">The spread or variability of the distribution</label>
+          </li>
+          <li onclick="selectAnswer('q3', 'd')">
+            <input type="radio" name="q3" value="d" id="q3d">
+            <label for="q3d">The same as the variance</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q3"></div>
       </div>
 
-      <!-- Q4: Z-score calculation -->
-      <div class="question-card">
-        <span class="question-number">Question 4</span>
-        <p class="question-text">Calculate the z-score for x = 130 when μ = 100 and σ = 15.</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q4a" name="q4" value="a" required><label for="q4a">a) z = 1.5</label></div>
-          <div class="option"><input type="radio" id="q4b" name="q4" value="b"><label for="q4b">b) z = 2.0</label></div>
-          <div class="option"><input type="radio" id="q4c" name="q4" value="c"><label for="q4c">c) z = 2.5</label></div>
-          <div class="option"><input type="radio" id="q4d" name="q4" value="d"><label for="q4d">d) z = 3.0</label></div>
+      <!-- Question 4 -->
+      <div class="question-card" id="card-q4">
+        <div>
+          <span class="question-number">4</span>
+          <span class="question-text">Let X be the number of heads in two coin flips. What is E(X)?</span>
         </div>
-        <div id="exp4" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q4', 'a')">
+            <input type="radio" name="q4" value="a" id="q4a">
+            <label for="q4a">0</label>
+          </li>
+          <li onclick="selectAnswer('q4', 'b')">
+            <input type="radio" name="q4" value="b" id="q4b">
+            <label for="q4b">0.5</label>
+          </li>
+          <li onclick="selectAnswer('q4', 'c')">
+            <input type="radio" name="q4" value="c" id="q4c">
+            <label for="q4c">1</label>
+          </li>
+          <li onclick="selectAnswer('q4', 'd')">
+            <input type="radio" name="q4" value="d" id="q4d">
+            <label for="q4d">2</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q4"></div>
       </div>
 
-      <!-- Q5: Z-score interpretation -->
-      <div class="question-card">
-        <span class="question-number">Question 5</span>
-        <p class="question-text">A data value has a z-score of −1.8. What does this tell you?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q5a" name="q5" value="a" required><label for="q5a">a) The value is 1.8 units above the mean</label></div>
-          <div class="option"><input type="radio" id="q5b" name="q5" value="b"><label for="q5b">b) The value is 1.8 standard deviations below the mean</label></div>
-          <div class="option"><input type="radio" id="q5c" name="q5" value="c"><label for="q5c">c) The value is unusually high</label></div>
-          <div class="option"><input type="radio" id="q5d" name="q5" value="d"><label for="q5d">d) The value equals the mean</label></div>
+      <!-- Question 5 -->
+      <div class="question-card" id="card-q5">
+        <div>
+          <span class="question-number">5</span>
+          <span class="question-text">What is the relationship between variance and standard deviation?</span>
         </div>
-        <div id="exp5" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q5', 'a')">
+            <input type="radio" name="q5" value="a" id="q5a">
+            <label for="q5a">Variance = SD × SD (variance is the square of standard deviation)</label>
+          </li>
+          <li onclick="selectAnswer('q5', 'b')">
+            <input type="radio" name="q5" value="b" id="q5b">
+            <label for="q5b">SD = Variance × 2</label>
+          </li>
+          <li onclick="selectAnswer('q5', 'c')">
+            <input type="radio" name="q5" value="c" id="q5c">
+            <label for="q5c">They measure the same thing</label>
+          </li>
+          <li onclick="selectAnswer('q5', 'd')">
+            <input type="radio" name="q5" value="d" id="q5d">
+            <label for="q5d">Variance is always larger than SD</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q5"></div>
       </div>
 
-      <!-- Q6: Finding x from z -->
-      <div class="question-card">
-        <span class="question-number">Question 6</span>
-        <p class="question-text">For a normal distribution with μ = 50 and σ = 8, find x when z = 2.5.</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q6a" name="q6" value="a" required><label for="q6a">a) x = 58</label></div>
-          <div class="option"><input type="radio" id="q6b" name="q6" value="b"><label for="q6b">b) x = 62</label></div>
-          <div class="option"><input type="radio" id="q6c" name="q6" value="c"><label for="q6c">c) x = 66</label></div>
-          <div class="option"><input type="radio" id="q6d" name="q6" value="d"><label for="q6d">d) x = 70</label></div>
+      <!-- Question 6 -->
+      <div class="question-card" id="card-q6">
+        <div>
+          <span class="question-number">6</span>
+          <span class="question-text">For a discrete distribution with values: P(X=1)=0.2, P(X=2)=0.5, P(X=3)=0.3, what is E(X)?</span>
         </div>
-        <div id="exp6" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q6', 'a')">
+            <input type="radio" name="q6" value="a" id="q6a">
+            <label for="q6a">1.2</label>
+          </li>
+          <li onclick="selectAnswer('q6', 'b')">
+            <input type="radio" name="q6" value="b" id="q6b">
+            <label for="q6b">2</label>
+          </li>
+          <li onclick="selectAnswer('q6', 'c')">
+            <input type="radio" name="q6" value="c" id="q6c">
+            <label for="q6c">2.1</label>
+          </li>
+          <li onclick="selectAnswer('q6', 'd')">
+            <input type="radio" name="q6" value="d" id="q6d">
+            <label for="q6d">3</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q6"></div>
       </div>
 
-      <!-- Q7: Standard normal probability -->
-      <div class="question-card">
-        <span class="question-number">Question 7</span>
-        <p class="question-text">For a standard normal distribution, P(Z < 1.0) ≈ 0.8413. What is P(Z > 1.0)?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q7a" name="q7" value="a" required><label for="q7a">a) 0.1587</label></div>
-          <div class="option"><input type="radio" id="q7b" name="q7" value="b"><label for="q7b">b) 0.5000</label></div>
-          <div class="option"><input type="radio" id="q7c" name="q7" value="c"><label for="q7c">c) 0.8413</label></div>
-          <div class="option"><input type="radio" id="q7d" name="q7" value="d"><label for="q7d">d) 0.9200</label></div>
+      <!-- Question 7 -->
+      <div class="question-card" id="card-q7">
+        <div>
+          <span class="question-number">7</span>
+          <span class="question-text">Which of the following is NOT a requirement for a binomial distribution?</span>
         </div>
-        <div id="exp7" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q7', 'a')">
+            <input type="radio" name="q7" value="a" id="q7a">
+            <label for="q7a">Each trial has two possible outcomes (success or failure)</label>
+          </li>
+          <li onclick="selectAnswer('q7', 'b')">
+            <input type="radio" name="q7" value="b" id="q7b">
+            <label for="q7b">The probability of success changes from trial to trial</label>
+          </li>
+          <li onclick="selectAnswer('q7', 'c')">
+            <input type="radio" name="q7" value="c" id="q7c">
+            <label for="q7c">Trials are independent</label>
+          </li>
+          <li onclick="selectAnswer('q7', 'd')">
+            <input type="radio" name="q7" value="d" id="q7d">
+            <label for="q7d">The number of trials is fixed</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q7"></div>
       </div>
 
-      <!-- Q8: Between probabilities -->
-      <div class="question-card">
-        <span class="question-number">Question 8</span>
-        <p class="question-text">Given P(Z < 1.5) = 0.9332 and P(Z < 0.5) = 0.6915, find P(0.5 < Z < 1.5).</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q8a" name="q8" value="a" required><label for="q8a">a) 0.2417</label></div>
-          <div class="option"><input type="radio" id="q8b" name="q8" value="b"><label for="q8b">b) 0.3085</label></div>
-          <div class="option"><input type="radio" id="q8c" name="q8" value="c"><label for="q8c">c) 0.6247</label></div>
-          <div class="option"><input type="radio" id="q8d" name="q8" value="d"><label for="q8d">d) 1.6247</label></div>
+      <!-- Question 8 -->
+      <div class="question-card" id="card-q8">
+        <div>
+          <span class="question-number">8</span>
+          <span class="question-text">What is the expected value of a binomial distribution with n=10 trials and p=0.4 success probability?</span>
         </div>
-        <div id="exp8" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q8', 'a')">
+            <input type="radio" name="q8" value="a" id="q8a">
+            <label for="q8a">2.4</label>
+          </li>
+          <li onclick="selectAnswer('q8', 'b')">
+            <input type="radio" name="q8" value="b" id="q8b">
+            <label for="q8b">4</label>
+          </li>
+          <li onclick="selectAnswer('q8', 'c')">
+            <input type="radio" name="q8" value="c" id="q8c">
+            <label for="q8c">6</label>
+          </li>
+          <li onclick="selectAnswer('q8', 'd')">
+            <input type="radio" name="q8" value="d" id="q8d">
+            <label for="q8d">10</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q8"></div>
       </div>
 
-      <!-- Q9: Non-standard normal -->
-      <div class="question-card">
-        <span class="question-number">Question 9</span>
-        <p class="question-text">Heights are normally distributed with μ = 68 inches and σ = 4 inches. What is the first step to find P(X < 72)?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q9a" name="q9" value="a" required><label for="q9a">a) Look up 72 in the z-table</label></div>
-          <div class="option"><input type="radio" id="q9b" name="q9" value="b"><label for="q9b">b) Calculate z = (72 − 68) / 4</label></div>
-          <div class="option"><input type="radio" id="q9c" name="q9" value="c"><label for="q9c">c) Divide 72 by 68</label></div>
-          <div class="option"><input type="radio" id="q9d" name="q9" value="d"><label for="q9d">d) Multiply 68 by 4</label></div>
+      <!-- Question 9 -->
+      <div class="question-card" id="card-q9">
+        <div>
+          <span class="question-number">9</span>
+          <span class="question-text">Which formula gives the variance of a binomial distribution?</span>
         </div>
-        <div id="exp9" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q9', 'a')">
+            <input type="radio" name="q9" value="a" id="q9a">
+            <label for="q9a">Var(X) = n×p</label>
+          </li>
+          <li onclick="selectAnswer('q9', 'b')">
+            <input type="radio" name="q9" value="b" id="q9b">
+            <label for="q9b">Var(X) = n×p×(1-p)</label>
+          </li>
+          <li onclick="selectAnswer('q9', 'c')">
+            <input type="radio" name="q9" value="c" id="q9c">
+            <label for="q9c">Var(X) = n×(1-p)</label>
+          </li>
+          <li onclick="selectAnswer('q9', 'd')">
+            <input type="radio" name="q9" value="d" id="q9d">
+            <label for="q9d">Var(X) = p×(1-p)</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q9"></div>
       </div>
 
-      <!-- Q10: Probability application -->
-      <div class="question-card">
-        <span class="question-number">Question 10</span>
-        <p class="question-text">Test scores are normally distributed with μ = 75 and σ = 10. A score of 95 has z = 2.0. Using the z-table where P(Z < 2.0) = 0.9772, what percent of students scored ABOVE 95?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q10a" name="q10" value="a" required><label for="q10a">a) 2.28%</label></div>
-          <div class="option"><input type="radio" id="q10b" name="q10" value="b"><label for="q10b">b) 50%</label></div>
-          <div class="option"><input type="radio" id="q10c" name="q10" value="c"><label for="q10c">c) 97.72%</label></div>
-          <div class="option"><input type="radio" id="q10d" name="q10" value="d"><label for="q10d">d) Cannot determine</label></div>
+      <!-- Question 10 -->
+      <div class="question-card" id="card-q10">
+        <div>
+          <span class="question-number">10</span>
+          <span class="question-text">A fair coin is flipped 20 times. What is the variance of the number of heads?</span>
         </div>
-        <div id="exp10" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q10', 'a')">
+            <input type="radio" name="q10" value="a" id="q10a">
+            <label for="q10a">5</label>
+          </li>
+          <li onclick="selectAnswer('q10', 'b')">
+            <input type="radio" name="q10" value="b" id="q10b">
+            <label for="q10b">10</label>
+          </li>
+          <li onclick="selectAnswer('q10', 'c')">
+            <input type="radio" name="q10" value="c" id="q10c">
+            <label for="q10c">15</label>
+          </li>
+          <li onclick="selectAnswer('q10', 'd')">
+            <input type="radio" name="q10" value="d" id="q10d">
+            <label for="q10d">20</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q10"></div>
       </div>
 
-      <!-- Q11: Finding percentile -->
-      <div class="question-card">
-        <span class="question-number">Question 11</span>
-        <p class="question-text">The z-score for the 84th percentile is approximately:</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q11a" name="q11" value="a" required><label for="q11a">a) z = 0.5</label></div>
-          <div class="option"><input type="radio" id="q11b" name="q11" value="b"><label for="q11b">b) z = 1.0</label></div>
-          <div class="option"><input type="radio" id="q11c" name="q11" value="c"><label for="q11c">c) z = 1.5</label></div>
-          <div class="option"><input type="radio" id="q11d" name="q11" value="d"><label for="q11d">d) z = 2.0</label></div>
+      <!-- Question 11 -->
+      <div class="question-card" id="card-q11">
+        <div>
+          <span class="question-number">11</span>
+          <span class="question-text">What does it mean if a binomial distribution is "symmetric"?</span>
         </div>
-        <div id="exp11" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q11', 'a')">
+            <input type="radio" name="q11" value="a" id="q11a">
+            <label for="q11a">p is very small (less than 0.1)</label>
+          </li>
+          <li onclick="selectAnswer('q11', 'b')">
+            <input type="radio" name="q11" value="b" id="q11b">
+            <label for="q11b">p = 0.5</label>
+          </li>
+          <li onclick="selectAnswer('q11', 'c')">
+            <input type="radio" name="q11" value="c" id="q11c">
+            <label for="q11c">n is very large</label>
+          </li>
+          <li onclick="selectAnswer('q11', 'd')">
+            <input type="radio" name="q11" value="d" id="q11d">
+            <label for="q11d">The distribution shape doesn't matter</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q11"></div>
       </div>
 
-      <!-- Q12: Percentile calculation -->
-      <div class="question-card">
-        <span class="question-number">Question 12</span>
-        <p class="question-text">SAT scores are normally distributed with μ = 1000 and σ = 200. If the z-score for the 75th percentile is 0.67, what SAT score represents the 75th percentile?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q12a" name="q12" value="a" required><label for="q12a">a) 1067</label></div>
-          <div class="option"><input type="radio" id="q12b" name="q12" value="b"><label for="q12b">b) 1100</label></div>
-          <div class="option"><input type="radio" id="q12c" name="q12" value="c"><label for="q12c">c) 1134</label></div>
-          <div class="option"><input type="radio" id="q12d" name="q12" value="d"><label for="q12d">d) 1200</label></div>
+      <!-- Question 12 -->
+      <div class="question-card" id="card-q12">
+        <div>
+          <span class="question-number">12</span>
+          <span class="question-text">When is a binomial distribution approximately normal?</span>
         </div>
-        <div id="exp12" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q12', 'a')">
+            <input type="radio" name="q12" value="a" id="q12a">
+            <label for="q12a">When n is large (typically n ≥ 30)</label>
+          </li>
+          <li onclick="selectAnswer('q12', 'b')">
+            <input type="radio" name="q12" value="b" id="q12b">
+            <label for="q12b">When np ≥ 10 and n(1-p) ≥ 10</label>
+          </li>
+          <li onclick="selectAnswer('q12', 'c')">
+            <input type="radio" name="q12" value="c" id="q12c">
+            <label for="q12c">Always, for any n and p</label>
+          </li>
+          <li onclick="selectAnswer('q12', 'd')">
+            <input type="radio" name="q12" value="d" id="q12d">
+            <label for="q12d">Only when p = 0.5</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q12"></div>
       </div>
 
-      <!-- Q13: Top percent -->
-      <div class="question-card">
-        <span class="question-number">Question 13</span>
-        <p class="question-text">To be in the top 5% of a normal distribution, you need a z-score of approximately:</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q13a" name="q13" value="a" required><label for="q13a">a) z = 1.28</label></div>
-          <div class="option"><input type="radio" id="q13b" name="q13" value="b"><label for="q13b">b) z = 1.65</label></div>
-          <div class="option"><input type="radio" id="q13c" name="q13" value="c"><label for="q13c">c) z = 1.96</label></div>
-          <div class="option"><input type="radio" id="q13d" name="q13" value="d"><label for="q13d">d) z = 2.33</label></div>
+      <!-- Question 13 -->
+      <div class="question-card" id="card-q13">
+        <div>
+          <span class="question-number">13</span>
+          <span class="question-text">A quality control inspector finds that 3% of items are defective. If 50 items are checked, what is the expected number of defective items?</span>
         </div>
-        <div id="exp13" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q13', 'a')">
+            <input type="radio" name="q13" value="a" id="q13a">
+            <label for="q13a">0.03</label>
+          </li>
+          <li onclick="selectAnswer('q13', 'b')">
+            <input type="radio" name="q13" value="b" id="q13b">
+            <label for="q13b">1.5</label>
+          </li>
+          <li onclick="selectAnswer('q13', 'c')">
+            <input type="radio" name="q13" value="c" id="q13c">
+            <label for="q13c">3</label>
+          </li>
+          <li onclick="selectAnswer('q13', 'd')">
+            <input type="radio" name="q13" value="d" id="q13d">
+            <label for="q13d">50</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q13"></div>
       </div>
 
-      <!-- Q14: Application -->
-      <div class="question-card">
-        <span class="question-number">Question 14</span>
-        <p class="question-text">A manufacturing process produces parts with mean length 10.0 cm and standard deviation 0.5 cm (normally distributed). Parts shorter than 9.0 cm or longer than 11.0 cm are defective. What percent are defective?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q14a" name="q14" value="a" required><label for="q14a">a) About 2.5%</label></div>
-          <div class="option"><input type="radio" id="q14b" name="q14" value="b"><label for="q14b">b) About 5%</label></div>
-          <div class="option"><input type="radio" id="q14c" name="q14" value="c"><label for="q14c">c) About 10%</label></div>
-          <div class="option"><input type="radio" id="q14d" name="q14" value="d"><label for="q14d">d) About 32%</label></div>
+      <!-- Question 14 -->
+      <div class="question-card" id="card-q14">
+        <div>
+          <span class="question-number">14</span>
+          <span class="question-text">In the US household size example, if E(X) = 2.6 and Var(X) = 2.9, what is the standard deviation?</span>
         </div>
-        <div id="exp14" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q14', 'a')">
+            <input type="radio" name="q14" value="a" id="q14a">
+            <label for="q14a">1.21</label>
+          </li>
+          <li onclick="selectAnswer('q14', 'b')">
+            <input type="radio" name="q14" value="b" id="q14b">
+            <label for="q14b">1.70</label>
+          </li>
+          <li onclick="selectAnswer('q14', 'c')">
+            <input type="radio" name="q14" value="c" id="q14c">
+            <label for="q14c">2.50</label>
+          </li>
+          <li onclick="selectAnswer('q14', 'd')">
+            <input type="radio" name="q14" value="d" id="q14d">
+            <label for="q14d">5.50</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q14"></div>
       </div>
 
-      <!-- Q15: Comparison using z-scores -->
-      <div class="question-card">
-        <span class="question-number">Question 15</span>
-        <p class="question-text">Anna scored 85 on Test 1 (μ = 75, σ = 5) and 78 on Test 2 (μ = 70, σ = 4). On which test did she perform better relative to her class?</p>
-        <div class="options">
-          <div class="option"><input type="radio" id="q15a" name="q15" value="a" required><label for="q15a">a) Test 1</label></div>
-          <div class="option"><input type="radio" id="q15b" name="q15" value="b"><label for="q15b">b) Test 2</label></div>
-          <div class="option"><input type="radio" id="q15c" name="q15" value="c"><label for="q15c">c) Equal performance on both</label></div>
-          <div class="option"><input type="radio" id="q15d" name="q15" value="d"><label for="q15d">d) Cannot determine without knowing class size</label></div>
+      <!-- Question 15 -->
+      <div class="question-card" id="card-q15">
+        <div>
+          <span class="question-number">15</span>
+          <span class="question-text">Which is the correct interpretation of "E(X) = 2.6 for US household size"?</span>
         </div>
-        <div id="exp15" class="explanation"></div>
+        <ul class="options">
+          <li onclick="selectAnswer('q15', 'a')">
+            <input type="radio" name="q15" value="a" id="q15a">
+            <label for="q15a">The most common household size is 2.6 people</label>
+          </li>
+          <li onclick="selectAnswer('q15', 'b')">
+            <input type="radio" name="q15" value="b" id="q15b">
+            <label for="q15b">All households have exactly 2.6 people</label>
+          </li>
+          <li onclick="selectAnswer('q15', 'c')">
+            <input type="radio" name="q15" value="c" id="q15c">
+            <label for="q15c">On average, a randomly selected household has 2.6 people</label>
+          </li>
+          <li onclick="selectAnswer('q15', 'd')">
+            <input type="radio" name="q15" value="d" id="q15d">
+            <label for="q15d">The minimum household size is 2.6 people</label>
+          </li>
+        </ul>
+        <div class="explanation" id="exp-q15"></div>
       </div>
 
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Submit Quiz</button>
+      <div class="submit-section">
+        <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">
+          Submit Quiz
+        </button>
+        <p class="text-muted mt-2" style="font-size: 0.875rem;">
+          Make sure you've answered all 15 questions!
+        </p>
       </div>
 
     </form>
 
-    <div id="results" class="results">
-      <div class="badge-display" id="badgeDisplay">-</div>
-      <h2 id="resultsTitle">-</h2>
-      <div class="score-display" id="scoreDisplay">-</div>
-      <p id="encouragement" style="font-size: 1.1rem; margin: var(--spacing-md) 0;">-</p>
+    <!-- Results Section -->
+    <div id="results">
+      <div class="results-card" id="results-card">
+        <div class="badge" id="badge-display"></div>
+        <h2 id="results-title"></h2>
+        <div class="score-display">
+          <span id="score-numerator">0</span>/<span id="score-denominator">15</span>
+        </div>
+        <p id="percentage-display" style="font-size: 1.5rem; font-weight: 600;"></p>
+        <p id="results-message" style="font-size: 1.125rem; margin-top: var(--spacing-md);"></p>
 
-      <div class="info-box" style="text-align: left; margin-top: var(--spacing-lg);">
-        <h3>What's Next?</h3>
-        <p id="nextSteps">-</p>
+        <div class="cta-group mt-3">
+          <a href="post-assessment.html" class="btn btn-primary" id="next-btn" style="display:none;">
+            Continue to Post-Assessment →
+          </a>
+          <button onclick="retakeQuiz()" class="btn btn-outline">
+            Review Answers
+          </button>
+          <button onclick="location.reload()" class="btn btn-outline">
+            Retake Quiz
+          </button>
+        </div>
       </div>
 
-      <div class="cta-group mt-3">
-        <a href="post-assessment.html" class="btn btn-primary" id="postAssessBtn" style="display:none;">Take Post-Assessment →</a>
-        <a href="quiz.html" class="btn btn-outline" id="retryBtn">Retry Quiz</a>
-        <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+      <div class="mt-3">
+        <h3>Question Review</h3>
+        <p class="text-muted mb-2">Scroll up to see detailed explanations for each question.</p>
       </div>
     </div>
 
@@ -296,131 +678,195 @@
   </footer>
 
   <script>
+    // Correct answers
     const correctAnswers = {
-      q1: 'b', q2: 'a', q3: 'c', q4: 'b', q5: 'b',
-      q6: 'd', q7: 'a', q8: 'a', q9: 'b', q10: 'a',
-      q11: 'b', q12: 'c', q13: 'b', q14: 'b', q15: 'b'
+      q1: 'b',   // Number of students
+      q2: 'b',   // Probabilities sum to 1
+      q3: 'b',   // Long-run average
+      q4: 'c',   // E(X) = 1 for 2 coin flips
+      q5: 'a',   // Variance = SD²
+      q6: 'c',   // E(X) = 2.1
+      q7: 'b',   // p should NOT change
+      q8: 'b',   // E(X) = 10 × 0.4 = 4
+      q9: 'b',   // Var = np(1-p)
+      q10: 'a',  // Var = 20 × 0.5 × 0.5 = 5
+      q11: 'b',  // p = 0.5 for symmetric
+      q12: 'b',  // When np ≥ 10 and n(1-p) ≥ 10
+      q13: 'b',  // E(X) = 50 × 0.03 = 1.5
+      q14: 'b',  // SD = √2.9 ≈ 1.70
+      q15: 'c'   // On average interpretation
     };
 
+    // Detailed explanations
     const explanations = {
       q1: {
-        correct: "✅ Correct! The Empirical Rule states that approximately 68% of data falls within 1 standard deviation of the mean (μ ± σ).",
-        incorrect: "❌ Not quite. The Empirical Rule: 68% within 1σ, 95% within 2σ, 99.7% within 3σ. Answer is 68%."
+        correct: "✅ Correct! A discrete random variable takes on countable values. The number of students is discrete (0, 1, 2, 3...). Heights and temperatures are continuous (infinite possible values).",
+        incorrect: "❌ A discrete random variable takes on countable, separate values. Height, temperature, and time are continuous (can take any value in a range). The number of students is discrete: you can only have 0, 1, 2, 3... students."
       },
       q2: {
-        correct: "✅ Correct! 95% falls within 2σ: μ ± 2σ = 80 ± 2(5) = 80 ± 10 = 70 to 90",
-        incorrect: "❌ Incorrect. 95% within 2 SDs: 80 ± 2(5) = 80 ± 10 = 70 to 90"
+        correct: "✅ Perfect! All probabilities in a probability distribution must sum to 1.0. This ensures that one of the outcomes definitely occurs.",
+        incorrect: "❌ A fundamental rule of probability: all probabilities in a distribution must sum to exactly 1.0. This is true regardless of whether probabilities are equal or not."
       },
       q3: {
-        correct: "✅ Correct! In a normal distribution, the mean = median = mode, all located at the center of the symmetric distribution.",
-        incorrect: "❌ Not quite. Normal distributions are symmetric, so mean = median = mode at the center."
+        correct: "✅ Excellent! Expected value is the long-run average you'd observe if you repeated the experiment infinitely many times. It's the 'theoretical mean' of the distribution.",
+        incorrect: "❌ Expected value is NOT the mode (most frequent) or variance (spread). It's the long-run average value. If you flipped a coin many times, the expected number of heads approaches n×p."
       },
       q4: {
-        correct: "✅ Correct! z = (130 − 100) / 15 = 30 / 15 = 2.0",
-        incorrect: "❌ Incorrect. Use z = (x − μ) / σ = (130 − 100) / 15 = 30 / 15 = 2.0"
+        correct: "✅ Correct! For 2 fair coin flips: X can be 0, 1, or 2 with probabilities 1/4, 1/2, 1/4. E(X) = 0(1/4) + 1(1/2) + 2(1/4) = 0 + 0.5 + 0.5 = 1.",
+        incorrect: "❌ Calculate using E(X) = Σ(x × P(x)). For 2 flips: 0(0.25) + 1(0.5) + 2(0.25) = 1. Or use the shortcut: E(X) = n×p = 2×0.5 = 1."
       },
       q5: {
-        correct: "✅ Correct! A z-score of −1.8 means the value is 1.8 standard deviations BELOW the mean (negative = below).",
-        incorrect: "❌ Not quite. Negative z-scores indicate values BELOW the mean. z = −1.8 means 1.8 SDs below."
+        correct: "✅ Correct! Variance is the square of standard deviation: Var(X) = SD². Standard deviation is easier to interpret because it's in the same units as the data.",
+        incorrect: "❌ The relationship is: Variance = (Standard Deviation)². If SD = 2, then Var = 4. If Var = 9, then SD = 3."
       },
       q6: {
-        correct: "✅ Correct! x = μ + z·σ = 50 + 2.5(8) = 50 + 20 = 70",
-        incorrect: "❌ Incorrect. Use x = μ + z·σ = 50 + 2.5(8) = 50 + 20 = 70"
+        correct: "✅ Perfect! E(X) = 1(0.2) + 2(0.5) + 3(0.3) = 0.2 + 1.0 + 0.9 = 2.1",
+        incorrect: "❌ Use the formula: E(X) = Σ(x × P(x)). Multiply each value by its probability, then sum: 1(0.2) + 2(0.5) + 3(0.3) = 0.2 + 1.0 + 0.9 = 2.1"
       },
       q7: {
-        correct: "✅ Correct! P(Z > 1.0) = 1 − P(Z < 1.0) = 1 − 0.8413 = 0.1587",
-        incorrect: "❌ Not quite. For right-tail probability: P(Z > 1.0) = 1 − 0.8413 = 0.1587"
+        correct: "✅ Correct! For a binomial distribution, p (probability of success) must be CONSTANT across all trials. The probability should NOT change from trial to trial.",
+        incorrect: "❌ Binomial distributions require: 1) Two outcomes per trial, 2) Constant probability p, 3) Independent trials, 4) Fixed n. Option B violates the requirement that p must stay the same."
       },
       q8: {
-        correct: "✅ Correct! P(0.5 < Z < 1.5) = P(Z < 1.5) − P(Z < 0.5) = 0.9332 − 0.6915 = 0.2417",
-        incorrect: "❌ Incorrect. Subtract the probabilities: 0.9332 − 0.6915 = 0.2417"
+        correct: "✅ Perfect! Use the formula E(X) = n×p = 10 × 0.4 = 4",
+        incorrect: "❌ For a binomial distribution: E(X) = n × p. Here: E(X) = 10 × 0.4 = 4. This is the expected number of successes in 10 trials."
       },
       q9: {
-        correct: "✅ Correct! First convert to standard normal by calculating z = (72 − 68) / 4 = 1.0, then use z-table.",
-        incorrect: "❌ Not quite. Always start by converting to z-score: z = (x − μ) / σ = (72 − 68) / 4"
+        correct: "✅ Correct! The variance of a binomial distribution is Var(X) = n×p×(1-p). This accounts for both the number of trials and the variability of each trial.",
+        incorrect: "❌ The variance formula for binomial: Var(X) = n × p × (1-p). This is NOT just n×p. The factor (1-p) represents the probability of failure."
       },
       q10: {
-        correct: "✅ Correct! P(X > 95) = P(Z > 2.0) = 1 − 0.9772 = 0.0228 = 2.28%",
-        incorrect: "❌ Incorrect. P(above 95) = 1 − P(below 95) = 1 − 0.9772 = 0.0228 = 2.28%"
+        correct: "✅ Perfect! For a binomial with n=20, p=0.5: Var(X) = 20 × 0.5 × 0.5 = 20 × 0.25 = 5",
+        incorrect: "❌ Use Var(X) = n × p × (1-p) = 20 × 0.5 × 0.5 = 5. Notice the variance is half the number of trials because of the 0.5 × 0.5 = 0.25 factor."
       },
       q11: {
-        correct: "✅ Correct! The 84th percentile corresponds to z ≈ 1.0 (since 50% + 34% = 84%, and 34% is half of the 68% within 1σ).",
-        incorrect: "❌ Not quite. 84th percentile ≈ z = 1.0. This is mean + 1 SD, which captures about 84% below."
+        correct: "✅ Exactly! When p = 0.5, the binomial distribution is symmetric (bell-shaped). When p ≠ 0.5, the distribution is skewed.",
+        incorrect: "❌ A binomial distribution is symmetric when p = 0.5 (equal chance of success/failure). For p < 0.5, it's right-skewed; for p > 0.5, it's left-skewed."
       },
       q12: {
-        correct: "✅ Correct! x = μ + z·σ = 1000 + 0.67(200) = 1000 + 134 = 1134",
-        incorrect: "❌ Incorrect. x = 1000 + 0.67(200) = 1000 + 134 = 1134"
+        correct: "✅ Perfect! The normal approximation to binomial works when BOTH np ≥ 10 AND n(1-p) ≥ 10. This ensures enough successes and failures.",
+        incorrect: "❌ The rule is: use normal approximation when BOTH conditions are met: np ≥ 10 and n(1-p) ≥ 10. For example, with n=25, p=0.4: np=10 ✓ and n(1-p)=15 ✓"
       },
       q13: {
-        correct: "✅ Correct! Top 5% = 95th percentile. The z-score is approximately 1.65 (some tables show 1.645).",
-        incorrect: "❌ Not quite. Top 5% means 95th percentile, which corresponds to z ≈ 1.65"
+        correct: "✅ Correct! E(X) = n × p = 50 × 0.03 = 1.5 defective items expected",
+        incorrect: "❌ Use E(X) = n × p = 50 × 0.03 = 1.5. Out of 50 items, we expect 1.5 to be defective on average."
       },
       q14: {
-        correct: "✅ Correct! 9.0 and 11.0 are both 2σ from mean (±2σ). Outside this range = 100% − 95% = 5% defective.",
-        incorrect: "❌ Incorrect. The boundaries are ±2σ from mean. By Empirical Rule, 5% falls outside ±2σ."
+        correct: "✅ Perfect! SD = √(Var) = √2.9 ≈ 1.70. Rounding 1.7033 gives 1.70.",
+        incorrect: "❌ Standard deviation is the square root of variance: SD = √2.9 ≈ 1.7033 ≈ 1.70"
       },
       q15: {
-        correct: "✅ Correct! Test 1: z = (85−75)/5 = 2.0. Test 2: z = (78−70)/4 = 2.0. Equal z-scores, but let me recalculate... Test 2: z = 8/4 = 2.0. They're equal! Wait, the answer key says Test 2. Let me recalculate: Test 1: z=10/5=2.0, Test 2: z=8/4=2.0. Actually they're equal. But reviewing the intended answer, Test 2 had a higher relative performance if we consider she was further above on a smaller SD distribution.",
-        incorrect: "❌ Let's calculate: Test 1: z = (85−75)/5 = 2.0. Test 2: z = (78−70)/4 = 2.0. Both have z = 2.0, so equal performance!"
+        correct: "✅ Excellent! E(X) = 2.6 means if you randomly select many households, the average size is 2.6. It doesn't mean any household has exactly 2.6 people.",
+        incorrect: "❌ Expected value is an AVERAGE, not the mode or minimum. It's the long-run average. Some households have 1 person, some 5, but on average it's 2.6 people."
       }
     };
 
-    document.getElementById('quizForm').addEventListener('submit', function(e) {
+    function selectAnswer(questionId, choice) {
+      const options = document.querySelectorAll(`input[name="${questionId}"]`);
+      options.forEach(opt => {
+        opt.parentElement.classList.remove('selected');
+      });
+
+      const clickedOption = document.getElementById(`${questionId}${choice}`).parentElement;
+      clickedOption.classList.add('selected');
+
+      document.getElementById(`${questionId}${choice}`).checked = true;
+    }
+
+    function retakeQuiz() {
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('moduleQuiz').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      let score = 0;
+      let allAnswered = true;
       for (let i = 1; i <= 15; i++) {
-        const userAnswer = document.querySelector(`input[name="q${i}"]:checked`);
-        const expDiv = document.getElementById(`exp${i}`);
-
-        if (userAnswer && userAnswer.value === correctAnswers[`q${i}`]) {
-          score++;
-          expDiv.textContent = explanations[`q${i}`].correct;
-          expDiv.className = 'explanation correct';
-        } else {
-          expDiv.textContent = explanations[`q${i}`].incorrect;
-          expDiv.className = 'explanation incorrect';
+        const questionName = `q${i}`;
+        const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+        if (!selected) {
+          allAnswered = false;
+          alert(`Please answer Question ${i} before submitting!`);
+          document.getElementById(`card-${questionName}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
         }
-        expDiv.style.display = 'block';
+      }
+
+      let score = 0;
+      const userAnswers = {};
+
+      for (let i = 1; i <= 15; i++) {
+        const questionName = `q${i}`;
+        const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+        const userAnswer = selected.value;
+        userAnswers[questionName] = userAnswer;
+        const isCorrect = userAnswer === correctAnswers[questionName];
+
+        if (isCorrect) score++;
+
+        const card = document.getElementById(`card-${questionName}`);
+        const explanation = document.getElementById(`exp-${questionName}`);
+
+        if (isCorrect) {
+          card.classList.add('correct');
+          explanation.innerHTML = `<strong>${explanations[questionName].correct}</strong>`;
+        } else {
+          card.classList.add('incorrect');
+          explanation.innerHTML = `<strong>${explanations[questionName].incorrect}</strong>`;
+        }
+        explanation.classList.add('show');
+
+        const allOptions = document.querySelectorAll(`input[name="${questionName}"]`);
+        allOptions.forEach(opt => {
+          const li = opt.parentElement;
+          if (opt.value === correctAnswers[questionName]) {
+            li.classList.add('correct-answer');
+          } else if (opt.value === userAnswer && !isCorrect) {
+            li.classList.add('wrong-answer');
+          }
+        });
       }
 
       const percentage = Math.round((score / 15) * 100);
       const passed = percentage >= 70;
 
-      document.getElementById('scoreDisplay').textContent = `${score} / 15 (${percentage}%)`;
-      document.getElementById('badgeDisplay').textContent = passed ? '🏆' : '📚';
-      document.getElementById('resultsTitle').className = passed ? 'pass-message' : 'retry-message';
-      document.getElementById('resultsTitle').textContent = passed ? 'Congratulations! You Passed!' : 'Keep Learning!';
+      document.getElementById('score-numerator').textContent = score;
+      document.getElementById('percentage-display').textContent = `${percentage}%`;
 
-      let encouragement = '';
-      if (score === 15) {
-        encouragement = "Perfect score! You've completely mastered the normal distribution! 🎉";
-      } else if (score >= 13) {
-        encouragement = "Excellent work! You have a strong understanding of normal distributions and z-scores!";
-      } else if (passed) {
-        encouragement = "Great job! You passed the quiz. Review any missed questions to strengthen your understanding.";
+      const resultsCard = document.getElementById('results-card');
+      const badgeDisplay = document.getElementById('badge-display');
+      const resultsTitle = document.getElementById('results-title');
+      const resultsMessage = document.getElementById('results-message');
+      const nextBtn = document.getElementById('next-btn');
+
+      if (passed) {
+        resultsCard.classList.add('pass');
+        badgeDisplay.textContent = '🏆';
+        resultsTitle.textContent = 'Congratulations! You Passed!';
+        resultsMessage.textContent = `You've earned your Module 4 badge with a score of ${percentage}%! You've demonstrated solid understanding of discrete probability distributions.`;
+        nextBtn.style.display = 'inline-block';
       } else {
-        encouragement = "You're getting there! Review the study materials and lessons, then try again. Focus on the topics you missed.";
+        resultsCard.classList.add('fail');
+        badgeDisplay.textContent = '📚';
+        resultsTitle.textContent = 'Keep Learning!';
+        resultsMessage.textContent = `You scored ${percentage}%. You need 70% to pass. Review the explanations below, study the lessons, and try again. You've got this!`;
+        nextBtn.style.display = 'none';
       }
-      document.getElementById('encouragement').textContent = encouragement;
 
-      const nextSteps = passed
-        ? "You've passed Module 4! Next, take the post-assessment to measure your learning gains, then continue to Module 5!"
-        : "Review the study guide and practice problems for topics you struggled with, then retake the quiz. You can do this!";
-      document.getElementById('nextSteps').textContent = nextSteps;
+      document.getElementById('moduleQuiz').style.display = 'none';
+      document.getElementById('results').style.display = 'block';
 
-      document.getElementById('postAssessBtn').style.display = passed ? 'inline-block' : 'none';
-      document.getElementById('results').classList.add('show');
-      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       console.log('Module 4 Quiz completed:', {
-        module: 4,
         score: score,
         percentage: percentage,
         passed: passed,
+        answers: userAnswers,
         timestamp: new Date().toISOString()
       });
     });
   </script>
+
 </body>
 </html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Discrete Probability Distributions - Learn about probability distributions, expected value, and variance">
+  <title>Lesson 2: Discrete Probability Distributions – Module 4</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .calc-table td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 4</a> →
+        Lesson 2
+      </div>
+      <h1>Discrete Probability Distributions</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Master probability distributions, expected value, and variance for discrete random variables
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Define a discrete probability distribution and identify its properties</li>
+        <li>Verify if a given distribution is valid</li>
+        <li>Calculate expected value E(X) = μ using the formula Σ[x · P(X=x)]</li>
+        <li>Calculate variance Var(X) = σ² using the formula Σ[(x - μ)² · P(X=x)]</li>
+        <li>Calculate standard deviation σ = √Var(X)</li>
+        <li>Interpret expected value and standard deviation in context</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. What is a Discrete Probability Distribution?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Discrete Probability Distribution</h4>
+        <p>
+          A <strong>discrete probability distribution</strong> lists all possible values of a discrete
+          random variable along with their probabilities. It shows the complete probability model for
+          the random variable.
+        </p>
+      </div>
+
+      <p>
+        A discrete probability distribution can be represented as a:
+      </p>
+      <ul>
+        <li><strong>Table</strong> showing x values and P(X = x)</li>
+        <li><strong>Graph</strong> (probability histogram or bar chart)</li>
+        <li><strong>Formula</strong> that generates probabilities</li>
+      </ul>
+
+      <div class="formula-box">
+        <h4>Properties of a Valid Discrete Probability Distribution</h4>
+        <p>For a distribution to be valid, it must satisfy TWO conditions:</p>
+        <div class="formula">1. Each probability is between 0 and 1: 0 ≤ P(X = x) ≤ 1</div>
+        <div class="formula">2. All probabilities sum to 1: Σ P(X = x) = 1</div>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Valid vs. Invalid Distributions</h4>
+        <p><strong>Distribution A:</strong></p>
+        <table style="max-width: 300px; margin: var(--spacing-sm) auto;">
+          <tr><th>x</th><th>P(X = x)</th></tr>
+          <tr><td>0</td><td>0.2</td></tr>
+          <tr><td>1</td><td>0.5</td></tr>
+          <tr><td>2</td><td>0.3</td></tr>
+        </table>
+        <p><strong>Is this valid?</strong> Check: All probabilities between 0 and 1 ✓<br>
+        Sum: 0.2 + 0.5 + 0.3 = 1.0 ✓ <strong>VALID!</strong></p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Distribution B:</strong></p>
+        <table style="max-width: 300px; margin: var(--spacing-sm) auto;">
+          <tr><th>x</th><th>P(X = x)</th></tr>
+          <tr><td>1</td><td>0.4</td></tr>
+          <tr><td>2</td><td>0.3</td></tr>
+          <tr><td>3</td><td>0.2</td></tr>
+        </table>
+        <p><strong>Is this valid?</strong> Check: All probabilities between 0 and 1 ✓<br>
+        Sum: 0.4 + 0.3 + 0.2 = 0.9 ✗ <strong>INVALID!</strong> (Doesn't sum to 1)</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. US Household Size Distribution (2020 Data)</h2>
+
+      <p>
+        Let's examine a real-world discrete probability distribution using data from the 2020 US Census.
+        Let X = number of people in a randomly selected US household.
+      </p>
+
+      <div class="definition-box">
+        <h4>📊 US Household Size Distribution (2020)</h4>
+        <table style="max-width: 500px; margin: var(--spacing-md) auto;">
+          <tr>
+            <th>Household Size (x)</th>
+            <th>Probability P(X = x)</th>
+          </tr>
+          <tr><td>1 person</td><td>0.28</td></tr>
+          <tr><td>2 people</td><td>0.35</td></tr>
+          <tr><td>3 people</td><td>0.15</td></tr>
+          <tr><td>4 people</td><td>0.12</td></tr>
+          <tr><td>5 people</td><td>0.06</td></tr>
+          <tr><td>6 people</td><td>0.03</td></tr>
+          <tr><td>7+ people</td><td>0.01</td></tr>
+        </table>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>Check:</strong> Σ P(X = x) = 0.28 + 0.35 + 0.15 + 0.12 + 0.06 + 0.03 + 0.01 = 1.00 ✓
+        </p>
+      </div>
+
+      <p>
+        This distribution tells us, for example:
+      </p>
+      <ul>
+        <li>P(X = 1) = 0.28 → 28% of US households have 1 person</li>
+        <li>P(X = 2) = 0.35 → 35% have 2 people (most common)</li>
+        <li>P(X ≥ 5) = 0.06 + 0.03 + 0.01 = 0.10 → 10% have 5 or more people</li>
+      </ul>
+
+      <div class="key-point">
+        <strong>💡 Interpreting Probabilities:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          If you randomly select a US household, the probability distribution tells you the
+          likelihood of each possible household size. The most common size is 2 people (35%),
+          while larger households are progressively less common.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Expected Value E(X)</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Expected Value</h4>
+        <p>
+          The <strong>expected value</strong> (also called the <strong>mean</strong> or
+          <strong>expectation</strong>) of a discrete random variable X is the long-run average
+          value of X over many repetitions. It represents the "center" of the distribution.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Expected Value Formula</h4>
+        <div class="formula">E(X) = μ = Σ [x · P(X = x)]</div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>In words:</strong> Multiply each value by its probability, then sum all products
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Calculating E(X) for US Household Size</h4>
+        <p>Let's calculate the expected household size using the 2020 data:</p>
+
+        <table class="calc-table" style="max-width: 600px; margin: var(--spacing-md) auto;">
+          <tr>
+            <th>x</th>
+            <th>P(X = x)</th>
+            <th>x · P(X = x)</th>
+          </tr>
+          <tr><td>1</td><td>0.28</td><td>1 × 0.28 = 0.28</td></tr>
+          <tr><td>2</td><td>0.35</td><td>2 × 0.35 = 0.70</td></tr>
+          <tr><td>3</td><td>0.15</td><td>3 × 0.15 = 0.45</td></tr>
+          <tr><td>4</td><td>0.12</td><td>4 × 0.12 = 0.48</td></tr>
+          <tr><td>5</td><td>0.06</td><td>5 × 0.06 = 0.30</td></tr>
+          <tr><td>6</td><td>0.03</td><td>6 × 0.03 = 0.18</td></tr>
+          <tr><td>7</td><td>0.01</td><td>7 × 0.01 = 0.07</td></tr>
+          <tr style="background: #e8f5e9; font-weight: 600;">
+            <td colspan="2">E(X) = Σ [x · P(X = x)] =</td>
+            <td>2.46</td>
+          </tr>
+        </table>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Interpretation:</strong>
+        The expected (average) US household size is <strong>2.46 people</strong>. This doesn't mean
+        any household has exactly 2.46 people (impossible!), but it's the long-run average if you
+        surveyed many households.</p>
+      </div>
+
+      <div class="key-point">
+        <strong>Important Notes about E(X):</strong>
+        <ul>
+          <li>E(X) may not be a possible value of X (like 2.46 people)</li>
+          <li>E(X) is the "balance point" or center of the distribution</li>
+          <li>E(X) is affected by extreme values (like large households)</li>
+          <li>We use μ (mu) to denote E(X), just like population mean</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Variance and Standard Deviation</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Variance and Standard Deviation</h4>
+        <p>
+          The <strong>variance</strong> Var(X) = σ² measures the spread or variability of a
+          probability distribution around its mean. It quantifies how far values typically are
+          from E(X).
+        </p>
+        <p style="margin-top: var(--spacing-sm);">
+          The <strong>standard deviation</strong> σ = √Var(X) is the square root of variance,
+          measured in the same units as X.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Variance Formula</h4>
+        <div class="formula">Var(X) = σ² = Σ [(x - μ)² · P(X = x)]</div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>In words:</strong> For each value, find (x - μ)², multiply by P(X = x), then sum
+        </p>
+
+        <h4 style="margin-top: var(--spacing-md);">Standard Deviation Formula</h4>
+        <div class="formula">σ = √Var(X) = √σ²</div>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Calculating Variance and SD for US Household Size</h4>
+        <p>We already found μ = E(X) = 2.46. Now let's calculate variance:</p>
+
+        <table class="calc-table" style="max-width: 700px; margin: var(--spacing-md) auto;">
+          <tr>
+            <th>x</th>
+            <th>P(X = x)</th>
+            <th>(x - μ)</th>
+            <th>(x - μ)²</th>
+            <th>(x - μ)² · P(X = x)</th>
+          </tr>
+          <tr>
+            <td>1</td><td>0.28</td><td>1 - 2.46 = -1.46</td><td>2.1316</td><td>0.5968</td>
+          </tr>
+          <tr>
+            <td>2</td><td>0.35</td><td>2 - 2.46 = -0.46</td><td>0.2116</td><td>0.0741</td>
+          </tr>
+          <tr>
+            <td>3</td><td>0.15</td><td>3 - 2.46 = 0.54</td><td>0.2916</td><td>0.0437</td>
+          </tr>
+          <tr>
+            <td>4</td><td>0.12</td><td>4 - 2.46 = 1.54</td><td>2.3716</td><td>0.2846</td>
+          </tr>
+          <tr>
+            <td>5</td><td>0.06</td><td>5 - 2.46 = 2.54</td><td>6.4516</td><td>0.3871</td>
+          </tr>
+          <tr>
+            <td>6</td><td>0.03</td><td>6 - 2.46 = 3.54</td><td>12.5316</td><td>0.3759</td>
+          </tr>
+          <tr>
+            <td>7</td><td>0.01</td><td>7 - 2.46 = 4.54</td><td>20.6116</td><td>0.2061</td>
+          </tr>
+          <tr style="background: #e8f5e9; font-weight: 600;">
+            <td colspan="4">Var(X) = σ² = Σ [(x - μ)² · P(X = x)] =</td>
+            <td>1.97</td>
+          </tr>
+        </table>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Now calculate standard deviation:</strong></p>
+        <p style="text-align: center; font-size: 1.1rem;">
+          σ = √Var(X) = √1.97 ≈ <strong>1.40 people</strong>
+        </p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Interpretation:</strong>
+        US household sizes vary by about <strong>1.40 people</strong> from the average of 2.46.
+        This tells us there's moderate variability in household sizes—some households are much
+        smaller or larger than average.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Step-by-Step Process</h2>
+
+      <div class="key-point">
+        <strong>📋 How to Calculate E(X), Var(X), and σ:</strong>
+        <ol style="margin-top: var(--spacing-sm);">
+          <li><strong>Verify the distribution is valid</strong> (probabilities sum to 1)</li>
+          <li><strong>Calculate E(X) = μ:</strong> Multiply each x by P(X=x) and sum</li>
+          <li><strong>Calculate Var(X) = σ²:</strong>
+            <ul>
+              <li>For each x, compute (x - μ)²</li>
+              <li>Multiply by P(X = x)</li>
+              <li>Sum all products</li>
+            </ul>
+          </li>
+          <li><strong>Calculate σ:</strong> Take the square root of Var(X)</li>
+          <li><strong>Interpret in context:</strong> Explain what μ and σ mean for the problem</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Complete Calculation</h4>
+        <p>A student takes a 3-question quiz. Let X = number of correct answers. The distribution is:</p>
+        <table style="max-width: 300px; margin: var(--spacing-sm) auto;">
+          <tr><th>x</th><th>P(X = x)</th></tr>
+          <tr><td>0</td><td>0.1</td></tr>
+          <tr><td>1</td><td>0.3</td></tr>
+          <tr><td>2</td><td>0.4</td></tr>
+          <tr><td>3</td><td>0.2</td></tr>
+        </table>
+
+        <p><strong>Step 1: Expected Value</strong></p>
+        <p>E(X) = 0(0.1) + 1(0.3) + 2(0.4) + 3(0.2) = 0 + 0.3 + 0.8 + 0.6 = <strong>1.7 questions</strong></p>
+
+        <p><strong>Step 2: Variance</strong></p>
+        <p>Var(X) = (0-1.7)²(0.1) + (1-1.7)²(0.3) + (2-1.7)²(0.4) + (3-1.7)²(0.2)</p>
+        <p>= 2.89(0.1) + 0.49(0.3) + 0.09(0.4) + 1.69(0.2)</p>
+        <p>= 0.289 + 0.147 + 0.036 + 0.338 = <strong>0.81</strong></p>
+
+        <p><strong>Step 3: Standard Deviation</strong></p>
+        <p>σ = √0.81 = <strong>0.9 questions</strong></p>
+
+        <p><strong>Interpretation:</strong> On average, students get 1.7 questions correct, with
+        typical variation of about 0.9 questions.</p>
+      </div>
+    </section>
+
+    <section class="check-understanding">
+      <h2>✓ Check Your Understanding</h2>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> What are the two requirements for a valid discrete probability distribution?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu1')">Show Answer</button>
+        <div id="cu1" class="answer">
+          <p><strong>Answer:</strong>
+          1) Each probability must be between 0 and 1: 0 ≤ P(X = x) ≤ 1<br>
+          2) All probabilities must sum to 1: Σ P(X = x) = 1
+          </p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> Why is E(X) = 2.46 for US household size even though no household
+        can have 2.46 people?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu2')">Show Answer</button>
+        <div id="cu2" class="answer">
+          <p><strong>Answer:</strong> E(X) is the <strong>long-run average</strong> over many households,
+          not a value any single household must have. It's the weighted average of all possible values,
+          where weights are the probabilities. Think of it as the "balance point" of the distribution.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> What does a larger standard deviation tell you about a probability distribution?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu3')">Show Answer</button>
+        <div id="cu3" class="answer">
+          <p><strong>Answer:</strong> A larger σ indicates <strong>more variability or spread</strong>
+          in the distribution. Values are more spread out from the mean. A smaller σ means values cluster
+          more tightly around E(X).</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> If all probabilities in a distribution are equal, where will E(X) be located?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu4')">Show Answer</button>
+        <div id="cu4" class="answer">
+          <p><strong>Answer:</strong> E(X) will be at the <strong>midpoint of the possible values</strong>.
+          For example, if X can be 1, 2, or 3 with equal probabilities (1/3 each), then E(X) = 2, the middle value.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> Is this a valid probability distribution? x: 1, 2, 3 with P(X=x): 0.5, 0.3, 0.3</p>
+        <button class="reveal-btn" onclick="toggleAnswer('cu5')">Show Answer</button>
+        <div id="cu5" class="answer">
+          <p><strong>Answer:</strong> <strong>No, it is NOT valid.</strong> While all probabilities are
+          between 0 and 1, they sum to 0.5 + 0.3 + 0.3 = 1.1, which exceeds 1. The sum must equal
+          exactly 1.0 for a valid distribution.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📚 Summary</h2>
+      <div class="key-point">
+        <strong>Key Takeaways:</strong>
+        <ul>
+          <li>A discrete probability distribution must have probabilities between 0 and 1 that sum to 1</li>
+          <li><strong>Expected value:</strong> E(X) = μ = Σ [x · P(X = x)] is the long-run average</li>
+          <li><strong>Variance:</strong> Var(X) = σ² = Σ [(x - μ)² · P(X = x)] measures spread</li>
+          <li><strong>Standard deviation:</strong> σ = √Var(X) is in the same units as X</li>
+          <li>The US household size example shows μ = 2.46 people with σ = 1.40 people</li>
+          <li>E(X) doesn't have to be a possible value—it's the theoretical average</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-random-variables.html" class="btn btn-outline">← Previous: Random Variables</a>
+      <a href="lesson-03-binomial-distribution.html" class="btn btn-primary">Next: Binomial Distribution →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+      console.log('Answer revealed:', id, new Date().toISOString());
+    }
+  </script>
+</body>
+</html>
