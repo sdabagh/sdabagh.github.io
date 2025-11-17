@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 4: Confidence and Prediction Intervals - Module 11</title>
+    <meta name="description" content="Learn to construct confidence intervals for slope and mean response, and prediction intervals for individual responses">
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .learning-objectives {
+            background: #fff9f0;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            background: #e8f4f8;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .formula-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .check-understanding {
+            background: #f0f7ff;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .solution {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .show-solution {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .show-solution:hover {
+            background: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .step-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+
+        .comparison-box {
+            background: #e8f5e9;
+            border: 2px solid #28a745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .interpretation-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-title">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 4: Confidence and Prediction Intervals</h1>
+            <p>Estimating parameters and making predictions with intervals</p>
+        </div>
+
+        <p style="margin-bottom: 2rem;">
+            <a href="../../../index.html">Home</a> &gt;
+            <a href="../index.html">Intro Stats</a> &gt;
+            <a href="index.html">Module 11</a> &gt;
+            Lesson 4
+        </p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Construct and interpret confidence intervals for the slope (β₁)</li>
+                <li>Construct and interpret confidence intervals for mean response</li>
+                <li>Construct and interpret prediction intervals for individual responses</li>
+                <li>Understand the difference between confidence and prediction intervals</li>
+                <li>Explain why prediction intervals are wider than confidence intervals</li>
+                <li>Use intervals to make informed decisions</li>
+            </ul>
+        </div>
+
+        <!-- Section 1: CI for Slope -->
+        <section>
+            <h2>1. Confidence Interval for Slope (β₁)</h2>
+
+            <p>In Lesson 3, we tested whether the slope equals zero (H₀: β₁ = 0). But what if we want to <strong>estimate the actual value</strong> of the population slope? We use a <strong>confidence interval</strong>!</p>
+
+            <div class="key-concept">
+                <h3>Confidence Interval for Slope</h3>
+
+                <div class="formula-box">
+                    <div class="formula">
+                        b₁ ± t* × SE(b₁)
+                    </div>
+                    <p style="margin-top: 1rem;">Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>b₁ = sample slope</li>
+                        <li>t* = critical value from t-distribution with df = n - 2</li>
+                        <li>SE(b₁) = sₑ / √[Σ(x - x̄)²] (standard error of slope)</li>
+                    </ul>
+                </div>
+
+                <p><strong>Interpretation Template:</strong></p>
+                <p>"We are [C]% confident that the true slope (β₁) is between [lower bound] and [upper bound]."</p>
+
+                <p style="margin-top: 1rem;"><strong>More specifically:</strong> "We are [C]% confident that for each 1-[unit of x] increase in [x variable], [y variable] changes by between [lower] and [upper] [units of y] on average."</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Complete Example: CI for Slope</h3>
+
+                <p><strong>Scenario:</strong> Predicting house price (in $1000s) from square footage</p>
+
+                <p><strong>Data:</strong></p>
+                <ul>
+                    <li>n = 25 houses</li>
+                    <li>Regression equation: ŷ = 50 + 0.12x</li>
+                    <li>b₁ = 0.12 (thousand dollars per square foot)</li>
+                    <li>SE(b₁) = 0.035</li>
+                    <li>df = 25 - 2 = 23</li>
+                </ul>
+
+                <p><strong>Construct a 95% confidence interval for β₁:</strong></p>
+
+                <div class="step-box">
+                    <h4>Step 1: Find Critical Value</h4>
+                    <p>For 95% CI with df = 23: t* = 2.069 (from t-table)</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Calculate Margin of Error</h4>
+                    <p>ME = t* × SE(b₁) = 2.069 × 0.035 = 0.072</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Construct Interval</h4>
+                    <p>Lower bound: 0.12 - 0.072 = 0.048</p>
+                    <p>Upper bound: 0.12 + 0.072 = 0.192</p>
+                    <p><strong>95% CI: (0.048, 0.192)</strong></p>
+                </div>
+
+                <div class="interpretation-box">
+                    <h4>Interpretation</h4>
+                    <p><strong>Statistical:</strong> We are 95% confident that the true slope (β₁) is between 0.048 and 0.192 thousand dollars per square foot.</p>
+
+                    <p><strong>In Context:</strong> We are 95% confident that for each additional square foot of house size, the price increases by between <strong>$48 and $192</strong> on average.</p>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Connection to Hypothesis Testing</h4>
+                    <p><strong>Key insight:</strong> If the confidence interval does NOT contain 0, then we would reject H₀: β₁ = 0 at that significance level.</p>
+                    <p>In our example, the interval (0.048, 0.192) does NOT contain 0, so we conclude there IS a significant relationship at α = 0.05.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: CI for Mean Response -->
+        <section>
+            <h2>2. Confidence Interval for Mean Response</h2>
+
+            <p>Suppose we want to estimate the <strong>average</strong> y value for a specific x value. For example, what's the average price of ALL 2000-square-foot houses?</p>
+
+            <p>We use a <strong>confidence interval for mean response</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Confidence Interval for Mean Response</h3>
+
+                <p><strong>Purpose:</strong> Estimate the <strong>average</strong> y value for <strong>all individuals</strong> with a specific x value (x*).</p>
+
+                <div class="formula-box">
+                    <div class="formula">
+                        ŷ ± t* × SE(ŷ<sub>mean</sub>)
+                    </div>
+                    <p style="margin-top: 1rem;">Where:</p>
+                    <div class="formula" style="font-size: 1.1rem;">
+                        SE(ŷ<sub>mean</sub>) = sₑ√[1/n + (x* - x̄)²/Σ(x - x̄)²]
+                    </div>
+                    <ul style="text-align: left; display: inline-block; margin-top: 1rem;">
+                        <li>ŷ = predicted value at x = x*</li>
+                        <li>t* = critical value with df = n - 2</li>
+                        <li>sₑ = standard error of estimate</li>
+                        <li>x* = specific x value of interest</li>
+                        <li>x̄ = mean of x values in data</li>
+                    </ul>
+                </div>
+
+                <p><strong>Interpretation:</strong> "We are [C]% confident that the <strong>average</strong> [y variable] for [x variable] = [x*] is between [lower] and [upper]."</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: CI for Mean Response</h3>
+
+                <p><strong>Question:</strong> What is the average price of all 2000-square-foot houses?</p>
+
+                <p><strong>Given:</strong></p>
+                <ul>
+                    <li>Regression equation: ŷ = 50 + 0.12x</li>
+                    <li>sₑ = 15 (thousand dollars)</li>
+                    <li>n = 25</li>
+                    <li>x̄ = 1800 square feet</li>
+                    <li>Σ(x - x̄)² = 500,000</li>
+                    <li>x* = 2000 square feet</li>
+                    <li>t* = 2.069 (95% CI, df = 23)</li>
+                </ul>
+
+                <div class="step-box">
+                    <h4>Step 1: Calculate Predicted Value</h4>
+                    <p>ŷ = 50 + 0.12(2000) = 50 + 240 = 290 thousand dollars</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Calculate Standard Error</h4>
+                    <p>SE(ŷ<sub>mean</sub>) = 15√[1/25 + (2000-1800)²/500,000]</p>
+                    <p>= 15√[0.04 + 40,000/500,000]</p>
+                    <p>= 15√[0.04 + 0.08]</p>
+                    <p>= 15√0.12</p>
+                    <p>= 15 × 0.346 = 5.19</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Construct Interval</h4>
+                    <p>ME = 2.069 × 5.19 = 10.74</p>
+                    <p>Lower: 290 - 10.74 = 279.26</p>
+                    <p>Upper: 290 + 10.74 = 300.74</p>
+                    <p><strong>95% CI: (279.26, 300.74) thousand dollars</strong></p>
+                </div>
+
+                <div class="interpretation-box">
+                    <h4>Interpretation</h4>
+                    <p>We are 95% confident that the <strong>average price of all 2000-square-foot houses</strong> is between <strong>$279,260 and $300,740</strong>.</p>
+                </div>
+            </div>
+
+            <h3>Width of CI for Mean Response</h3>
+
+            <p>Notice in the formula that the standard error includes the term <strong>(x* - x̄)²</strong>. This means:</p>
+
+            <ul>
+                <li><strong>Narrowest interval:</strong> When x* = x̄ (at the mean of x)</li>
+                <li><strong>Wider intervals:</strong> As x* moves away from x̄ in either direction</li>
+                <li>We have the most precision when predicting at the center of our data</li>
+            </ul>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Confidence Band for Mean Response</h3>
+                <div id="confidenceBandViz"></div>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.95rem;">Notice how the confidence band widens as you move away from x̄</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Prediction Intervals -->
+        <section>
+            <h2>3. Prediction Interval for Individual Response</h2>
+
+            <p>What if we want to predict the price of a <strong>single, specific</strong> 2000-square-foot house (not the average of all such houses)?</p>
+
+            <p>We need a <strong>prediction interval</strong>, which accounts for <strong>individual variation</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Prediction Interval for Individual Response</h3>
+
+                <p><strong>Purpose:</strong> Predict the y value for a <strong>single individual</strong> with a specific x value (x*).</p>
+
+                <div class="formula-box">
+                    <div class="formula">
+                        ŷ ± t* × SE(ŷ<sub>ind</sub>)
+                    </div>
+                    <p style="margin-top: 1rem;">Where:</p>
+                    <div class="formula" style="font-size: 1.1rem;">
+                        SE(ŷ<sub>ind</sub>) = sₑ√[1 + 1/n + (x* - x̄)²/Σ(x - x̄)²]
+                    </div>
+                    <ul style="text-align: left; display: inline-block; margin-top: 1rem;">
+                        <li><strong>Note the "1 +"</strong> at the beginning! This accounts for individual variation.</li>
+                        <li>All other terms are the same as for mean response</li>
+                    </ul>
+                </div>
+
+                <p><strong>Interpretation:</strong> "We are [C]% confident that a <strong>single</strong> [individual/case] with [x variable] = [x*] will have a [y variable] between [lower] and [upper]."</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Prediction Interval</h3>
+
+                <p><strong>Question:</strong> What is the predicted price of a single, specific 2000-square-foot house?</p>
+
+                <p><strong>Using the same data as before:</strong></p>
+
+                <div class="step-box">
+                    <h4>Step 1: Predicted Value (Same)</h4>
+                    <p>ŷ = 290 thousand dollars (from before)</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Calculate Standard Error</h4>
+                    <p>SE(ŷ<sub>ind</sub>) = 15√[<strong>1 +</strong> 1/25 + (2000-1800)²/500,000]</p>
+                    <p>= 15√[1 + 0.04 + 0.08]</p>
+                    <p>= 15√1.12</p>
+                    <p>= 15 × 1.058 = 15.87</p>
+                    <p><strong>Notice:</strong> This is much larger than SE(ŷ<sub>mean</sub>) = 5.19!</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Construct Interval</h4>
+                    <p>ME = 2.069 × 15.87 = 32.83</p>
+                    <p>Lower: 290 - 32.83 = 257.17</p>
+                    <p>Upper: 290 + 32.83 = 322.83</p>
+                    <p><strong>95% Prediction Interval: (257.17, 322.83) thousand dollars</strong></p>
+                </div>
+
+                <div class="interpretation-box">
+                    <h4>Interpretation</h4>
+                    <p>We are 95% confident that a <strong>single 2000-square-foot house</strong> will be priced between <strong>$257,170 and $322,830</strong>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Comparison -->
+        <section>
+            <h2>4. Confidence vs Prediction Intervals: Key Differences</h2>
+
+            <div class="comparison-box">
+                <h3>Comparing the Two Types of Intervals</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Confidence Interval for Mean Response</th>
+                            <th>Prediction Interval for Individual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>What we're estimating</strong></td>
+                            <td>Average y for ALL individuals at x*</td>
+                            <td>y value for ONE individual at x*</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Standard error formula</strong></td>
+                            <td>sₑ√[1/n + (x* - x̄)²/Σ(x - x̄)²]</td>
+                            <td>sₑ√[<strong>1 +</strong> 1/n + (x* - x̄)²/Σ(x - x̄)²]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Width</strong></td>
+                            <td><strong>Narrower</strong> (less uncertainty)</td>
+                            <td><strong>Wider</strong> (more uncertainty)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Why?</strong></td>
+                            <td>Averages are more predictable</td>
+                            <td>Individuals vary more than averages</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example interpretation</strong></td>
+                            <td>"Average price of all 2000-sq-ft houses"</td>
+                            <td>"Price of this specific 2000-sq-ft house"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use when...</strong></td>
+                            <td>Planning, policy decisions, general trends</td>
+                            <td>Predicting for a specific case</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Confidence Band vs Prediction Band</h3>
+                <div id="intervalComparisonViz"></div>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.95rem;">The prediction band (red) is always wider than the confidence band (blue)</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>🔑 Why is the Prediction Interval Wider?</h3>
+
+                <p>The prediction interval must account for <strong>two sources of uncertainty</strong>:</p>
+
+                <ol>
+                    <li><strong>Uncertainty in estimating the mean</strong> (same as confidence interval)</li>
+                    <li><strong>Individual variation around the mean</strong> (the "1 +" in the formula)</li>
+                </ol>
+
+                <p><strong>Analogy:</strong> Predicting the average height of all adult males is easier (narrower interval) than predicting the height of one specific adult male (wider interval). Individuals vary!</p>
+
+                <p><strong>Mathematical note:</strong> As n → ∞, the confidence interval → 0 width (perfect knowledge of the mean), but the prediction interval approaches sₑ (always some individual variation).</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Side-by-Side Comparison: Same Data</h3>
+
+                <p><strong>For a 2000-square-foot house (x* = 2000):</strong></p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Interval Type</th>
+                            <th>Point Estimate</th>
+                            <th>Standard Error</th>
+                            <th>Margin of Error</th>
+                            <th>95% Interval</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Confidence (Mean)</strong></td>
+                            <td>$290,000</td>
+                            <td>5.19</td>
+                            <td>10.74</td>
+                            <td>($279,260, $300,740)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prediction (Individual)</strong></td>
+                            <td>$290,000</td>
+                            <td>15.87</td>
+                            <td>32.83</td>
+                            <td>($257,170, $322,830)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Notice:</strong></p>
+                <ul>
+                    <li>Same point estimate ($290,000)</li>
+                    <li>Prediction SE is about <strong>3 times larger</strong></li>
+                    <li>Prediction interval is <strong>much wider</strong> ($65,660 vs $21,480 range)</li>
+                </ul>
+
+                <p><strong>When to use which?</strong></p>
+                <ul>
+                    <li><strong>Confidence interval:</strong> "What's the average market price for 2000-sq-ft houses?" (for appraisers, policy makers)</li>
+                    <li><strong>Prediction interval:</strong> "What will this particular house sell for?" (for a specific buyer or seller)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+
+            <p><strong>Question 1:</strong> A 95% CI for the slope β₁ is (2.5, 7.8). What conclusion can you make about testing H₀: β₁ = 0 at α = 0.05?</p>
+            <button class="show-solution" onclick="toggleSolution('sol1')">Show Solution</button>
+            <div class="solution" id="sol1">
+                <p><strong>Answer:</strong> We would <strong>reject H₀: β₁ = 0</strong> at α = 0.05.</p>
+
+                <p><strong>Reason:</strong> The confidence interval (2.5, 7.8) does NOT contain 0. This means 0 is not a plausible value for β₁, so we have evidence that the slope is significantly different from 0.</p>
+
+                <p><strong>Conclusion:</strong> There is a significant linear relationship between x and y.</p>
+            </div>
+
+            <p><strong>Question 2:</strong> What's the difference between predicting the average test score for all students who study 5 hours vs predicting the test score for one specific student who studies 5 hours?</p>
+            <button class="show-solution" onclick="toggleSolution('sol2')">Show Solution</button>
+            <div class="solution" id="sol2">
+                <p><strong>Difference:</strong></p>
+
+                <ul>
+                    <li><strong>Average for all students:</strong> Use a <strong>confidence interval for mean response</strong>. This estimates the population mean test score for the subgroup of all students who study 5 hours. The interval is relatively narrow because averages are stable.</li>
+
+                    <li><strong>One specific student:</strong> Use a <strong>prediction interval</strong>. This predicts what this particular student will score. The interval is wider because individuals vary around the average - some will score higher, some lower.</li>
+                </ul>
+
+                <p><strong>Example:</strong></p>
+                <ul>
+                    <li>Confidence interval might be (78, 82) - we're confident the average is around 80</li>
+                    <li>Prediction interval might be (65, 95) - this specific student could score anywhere in a wider range</li>
+                </ul>
+            </div>
+
+            <p><strong>Question 3:</strong> Why is the prediction interval always wider than the confidence interval for the same x* value?</p>
+            <button class="show-solution" onclick="toggleSolution('sol3')">Show Solution</button>
+            <div class="solution" id="sol3">
+                <p><strong>Answer:</strong> The prediction interval is wider because it accounts for <strong>individual variation</strong> in addition to uncertainty in estimating the mean.</p>
+
+                <p><strong>Two sources of uncertainty in prediction interval:</strong></p>
+                <ol>
+                    <li><strong>Uncertainty in the regression line</strong> (same as confidence interval)</li>
+                    <li><strong>Individual variation around the line</strong> (the extra "1 +" in the SE formula)</li>
+                </ol>
+
+                <p><strong>Mathematical evidence:</strong></p>
+                <ul>
+                    <li>CI standard error: sₑ√[1/n + (x* - x̄)²/Σ(x - x̄)²]</li>
+                    <li>PI standard error: sₑ√[<strong>1 +</strong> 1/n + (x* - x̄)²/Σ(x - x̄)²]</li>
+                </ul>
+
+                <p>The "1 +" makes the prediction SE larger, thus the interval is wider.</p>
+
+                <p><strong>Intuition:</strong> It's easier to predict an average than to predict an individual. Individuals are unpredictable!</p>
+            </div>
+
+            <p><strong>Question 4:</strong> At which x value will the confidence interval for mean response be narrowest?</p>
+            <button class="show-solution" onclick="toggleSolution('sol4')">Show Solution</button>
+            <div class="solution" id="sol4">
+                <p><strong>Answer:</strong> At <strong>x* = x̄</strong> (the mean of the x values).</p>
+
+                <p><strong>Reason:</strong> The standard error formula includes the term (x* - x̄)². When x* = x̄, this term equals 0, minimizing the standard error.</p>
+
+                <p>SE(ŷ<sub>mean</sub>) = sₑ√[1/n + <strong>(x* - x̄)²</strong>/Σ(x - x̄)²]</p>
+
+                <p>As x* moves farther from x̄ in either direction, (x* - x̄)² increases, so SE increases, and the interval widens.</p>
+
+                <p><strong>Practical implication:</strong> We have the most precision when predicting near the center of our data. Predictions far from x̄ are less reliable (and extrapolation is even worse!).</p>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <section>
+            <h2>Lesson 4 Summary</h2>
+
+            <div class="key-concept">
+                <h3>Three Types of Intervals in Regression</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Interval Type</th>
+                            <th>What It Estimates</th>
+                            <th>Formula</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CI for Slope</strong></td>
+                            <td>True slope β₁</td>
+                            <td>b₁ ± t* × SE(b₁)</td>
+                            <td>To estimate the rate of change</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CI for Mean Response</strong></td>
+                            <td>Average y at x*</td>
+                            <td>ŷ ± t* × sₑ√[1/n + (x*-x̄)²/Σ(x-x̄)²]</td>
+                            <td>To estimate population mean at x*</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prediction Interval</strong></td>
+                            <td>Individual y at x*</td>
+                            <td>ŷ ± t* × sₑ√[1 + 1/n + (x*-x̄)²/Σ(x-x̄)²]</td>
+                            <td>To predict a specific individual</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 1.5rem;"><strong>Key Takeaway:</strong> Prediction intervals are always wider than confidence intervals because individual values vary more than averages.</p>
+            </div>
+        </section>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-nav">
+            <a href="lesson-03-hypothesis-testing.html" class="btn btn-outline">← Lesson 3: Hypothesis Testing</a>
+            <a href="practice.html" class="btn btn-primary">Next: Practice Problems →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        // Toggle solution visibility
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            const button = event.target;
+
+            if (solution.style.display === 'none' || solution.style.display === '') {
+                solution.style.display = 'block';
+                button.textContent = 'Hide Solution';
+            } else {
+                solution.style.display = 'none';
+                button.textContent = 'Show Solution';
+            }
+        }
+
+        // Initialize visualizations when page loads
+        window.addEventListener('load', function() {
+            if (typeof createConfidenceBandViz === 'function') {
+                createConfidenceBandViz('confidenceBandViz');
+            }
+
+            if (typeof createIntervalComparisonViz === 'function') {
+                createIntervalComparisonViz('intervalComparisonViz');
+            }
+        });
+    </script>
+</body>
+</html>
