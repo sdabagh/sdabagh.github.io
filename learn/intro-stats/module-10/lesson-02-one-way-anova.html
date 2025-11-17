@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: One-Way ANOVA Procedure - Module 10</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .content-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .example-box {
+            background: #F0F7FA;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .formula {
+            background: #F8F9FA;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .check-understanding {
+            background: #E8F5E9;
+            border: 2px solid #28A745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .solution {
+            background: #F8F9FA;
+            border-left: 3px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        .solution.show {
+            display: block;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .step-box {
+            background: white;
+            border: 2px solid #2C5F7C;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .step-number {
+            display: inline-block;
+            background: #2C5F7C;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .anova-table {
+            background: white;
+            border: 3px solid #2C5F7C;
+            margin: 1.5rem 0;
+        }
+        .anova-table th {
+            background-color: #2C5F7C;
+        }
+        .calculation {
+            background: #E8F5E9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 2: One-Way ANOVA Procedure</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Step-by-Step Calculations and the ANOVA Table</p>
+        </div>
+
+        <!-- Section 1: What is One-Way ANOVA? -->
+        <div class="content-section">
+            <h2>What is One-Way ANOVA?</h2>
+            <p><strong>One-way ANOVA</strong> is used when we have:</p>
+            <ul>
+                <li><strong>One categorical independent variable</strong> (called a <strong>factor</strong>) with 3+ levels (groups)</li>
+                <li><strong>One quantitative dependent variable</strong> (the measurement we're comparing)</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>Example</h3>
+                <p><strong>Factor:</strong> Teaching method (Traditional, Flipped, Project-based)</p>
+                <p><strong>Dependent variable:</strong> Final exam score</p>
+                <p>This is "one-way" because we're looking at the effect of ONE factor (teaching method).</p>
+            </div>
+
+            <p><em>Note: There's also two-way ANOVA (two factors) and other variations, but we'll focus on one-way ANOVA in this course.</em></p>
+        </div>
+
+        <!-- Section 2: Sum of Squares -->
+        <div class="content-section">
+            <h2>Understanding Sum of Squares</h2>
+            <p>ANOVA breaks down the <strong>total variation</strong> in the data into two components:</p>
+
+            <h3>1. Total Sum of Squares (SST)</h3>
+            <p>Measures the <strong>total variation</strong> of all observations from the grand mean.</p>
+            <div class="formula">
+                SST = Σ(x<sub>ij</sub> - x̄)²
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>x<sub>ij</sub></strong> = individual observation (i-th observation in j-th group)</li>
+                <li><strong>x̄</strong> = grand mean (mean of ALL observations)</li>
+            </ul>
+
+            <h3>2. Between-Group Sum of Squares (SSB)</h3>
+            <p>Measures the variation <strong>between group means</strong>.</p>
+            <div class="formula">
+                SSB = Σn<sub>j</sub>(x̄<sub>j</sub> - x̄)²
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>n<sub>j</sub></strong> = sample size of group j</li>
+                <li><strong>x̄<sub>j</sub></strong> = mean of group j</li>
+                <li><strong>x̄</strong> = grand mean</li>
+            </ul>
+
+            <h3>3. Within-Group Sum of Squares (SSW)</h3>
+            <p>Measures the variation <strong>within each group</strong> (error/residual).</p>
+            <div class="formula">
+                SSW = Σ(x<sub>ij</sub> - x̄<sub>j</sub>)²
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>x<sub>ij</sub></strong> = individual observation in group j</li>
+                <li><strong>x̄<sub>j</sub></strong> = mean of group j</li>
+            </ul>
+
+            <div class="key-concept">
+                <h3>🎯 Fundamental Relationship</h3>
+                <div class="formula" style="font-size: 1.3rem;">
+                    SST = SSB + SSW
+                </div>
+                <p>Total variation = Variation between groups + Variation within groups</p>
+                <p>This is the key partitioning that makes ANOVA work!</p>
+            </div>
+        </div>
+
+        <!-- Section 3: Degrees of Freedom -->
+        <div class="content-section">
+            <h2>Degrees of Freedom</h2>
+            <p>Each sum of squares has associated <strong>degrees of freedom (df)</strong>:</p>
+
+            <div class="formula">
+                <strong>df<sub>between</sub> = k - 1</strong>
+            </div>
+            <p>Where k = number of groups</p>
+
+            <div class="formula">
+                <strong>df<sub>within</sub> = N - k</strong>
+            </div>
+            <p>Where N = total sample size (all observations)</p>
+
+            <div class="formula">
+                <strong>df<sub>total</sub> = N - 1</strong>
+            </div>
+
+            <div class="key-concept">
+                <h3>Relationship</h3>
+                <div class="formula">
+                    df<sub>total</sub> = df<sub>between</sub> + df<sub>within</sub>
+                </div>
+                <p>(N - 1) = (k - 1) + (N - k) ✓</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example</h3>
+                <p>If we have 4 groups with 10 observations each:</p>
+                <ul>
+                    <li>k = 4 groups</li>
+                    <li>N = 40 total observations</li>
+                    <li>df<sub>between</sub> = 4 - 1 = 3</li>
+                    <li>df<sub>within</sub> = 40 - 4 = 36</li>
+                    <li>df<sub>total</sub> = 40 - 1 = 39</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 4: Mean Squares -->
+        <div class="content-section">
+            <h2>Mean Squares</h2>
+            <p><strong>Mean squares</strong> are the average squared deviations. We calculate them by dividing each sum of squares by its degrees of freedom.</p>
+
+            <h3>Mean Square Between (MSB)</h3>
+            <div class="formula">
+                MSB = SSB / df<sub>between</sub> = SSB / (k - 1)
+            </div>
+            <p>This estimates the <strong>variance between groups</strong>.</p>
+
+            <h3>Mean Square Within (MSW)</h3>
+            <div class="formula">
+                MSW = SSW / df<sub>within</sub> = SSW / (N - k)
+            </div>
+            <p>This estimates the <strong>variance within groups</strong> (pooled error variance).</p>
+
+            <div class="key-concept">
+                <h3>Why Mean Squares?</h3>
+                <p>We divide by degrees of freedom to get an <strong>average</strong> measure of variation that's comparable between different sample sizes. Mean squares are estimates of variance.</p>
+            </div>
+        </div>
+
+        <!-- Section 5: F-Statistic -->
+        <div class="content-section">
+            <h2>The F-Statistic</h2>
+            <p>Finally, we calculate the F-statistic by comparing the two mean squares:</p>
+
+            <div class="formula" style="font-size: 1.3rem;">
+                F = MSB / MSW
+            </div>
+
+            <div class="key-concept">
+                <h3>Interpretation</h3>
+                <ul>
+                    <li>If <strong>MSB >> MSW</strong> (F is large): Between-group differences are large compared to within-group variation → groups likely differ</li>
+                    <li>If <strong>MSB ≈ MSW</strong> (F ≈ 1): Between-group differences are similar to within-group variation → groups likely don't differ</li>
+                </ul>
+            </div>
+
+            <p>The F-statistic follows an <strong>F-distribution</strong> with:</p>
+            <ul>
+                <li><strong>df₁ = df<sub>between</sub></strong> (numerator degrees of freedom)</li>
+                <li><strong>df₂ = df<sub>within</sub></strong> (denominator degrees of freedom)</li>
+            </ul>
+        </div>
+
+        <!-- Section 6: ANOVA Table -->
+        <div class="content-section">
+            <h2>The ANOVA Table</h2>
+            <p>We organize all ANOVA calculations in a standard table format:</p>
+
+            <table class="anova-table">
+                <thead>
+                    <tr>
+                        <th>Source of Variation</th>
+                        <th>Sum of Squares (SS)</th>
+                        <th>Degrees of Freedom (df)</th>
+                        <th>Mean Square (MS)</th>
+                        <th>F-statistic</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Between Groups</strong></td>
+                        <td>SSB</td>
+                        <td>k - 1</td>
+                        <td>MSB = SSB/(k-1)</td>
+                        <td>F = MSB/MSW</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Within Groups</strong></td>
+                        <td>SSW</td>
+                        <td>N - k</td>
+                        <td>MSW = SSW/(N-k)</td>
+                        <td>—</td>
+                    </tr>
+                    <tr style="background-color: #E8F5E9;">
+                        <td><strong>Total</strong></td>
+                        <td>SST</td>
+                        <td>N - 1</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 7: Complete Example -->
+        <div class="content-section">
+            <h2>Complete Step-by-Step Example</h2>
+
+            <div class="example-box">
+                <h3>Scenario</h3>
+                <p>A professor wants to compare the effectiveness of <strong>three study methods</strong> on exam performance. She randomly assigns 15 students to three groups (5 students per group) and records their exam scores:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method 1 (Traditional)</th>
+                            <th>Method 2 (Flashcards)</th>
+                            <th>Method 3 (Practice Tests)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>78</td>
+                            <td>85</td>
+                            <td>92</td>
+                        </tr>
+                        <tr>
+                            <td>82</td>
+                            <td>88</td>
+                            <td>95</td>
+                        </tr>
+                        <tr>
+                            <td>76</td>
+                            <td>84</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>80</td>
+                            <td>86</td>
+                            <td>93</td>
+                        </tr>
+                        <tr>
+                            <td>84</td>
+                            <td>87</td>
+                            <td>90</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Test at α = 0.05:</strong> Do the study methods produce different mean exam scores?</p>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">1</span>State the Hypotheses</h3>
+                <ul>
+                    <li><strong>H₀:</strong> μ₁ = μ₂ = μ₃ (all three methods have equal mean scores)</li>
+                    <li><strong>Hₐ:</strong> At least one method has a different mean score</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">2</span>Calculate Group Means and Grand Mean</h3>
+                <div class="calculation">
+                    Method 1: x̄₁ = (78 + 82 + 76 + 80 + 84) / 5 = 400 / 5 = 80
+                </div>
+                <div class="calculation">
+                    Method 2: x̄₂ = (85 + 88 + 84 + 86 + 87) / 5 = 430 / 5 = 86
+                </div>
+                <div class="calculation">
+                    Method 3: x̄₃ = (92 + 95 + 90 + 93 + 90) / 5 = 460 / 5 = 92
+                </div>
+                <div class="calculation">
+                    Grand Mean: x̄ = (400 + 430 + 460) / 15 = 1290 / 15 = 86
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">3</span>Calculate Sum of Squares Between (SSB)</h3>
+                <p>SSB = Σn<sub>j</sub>(x̄<sub>j</sub> - x̄)²</p>
+                <div class="calculation">
+                    SSB = 5(80-86)² + 5(86-86)² + 5(92-86)²
+                </div>
+                <div class="calculation">
+                    SSB = 5(-6)² + 5(0)² + 5(6)²
+                </div>
+                <div class="calculation">
+                    SSB = 5(36) + 0 + 5(36)
+                </div>
+                <div class="calculation">
+                    SSB = 180 + 0 + 180 = 360
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">4</span>Calculate Sum of Squares Within (SSW)</h3>
+                <p>SSW = Σ(x<sub>ij</sub> - x̄<sub>j</sub>)² for all groups</p>
+
+                <p><strong>Method 1:</strong></p>
+                <div class="calculation">
+                    (78-80)² + (82-80)² + (76-80)² + (80-80)² + (84-80)² = 4 + 4 + 16 + 0 + 16 = 40
+                </div>
+
+                <p><strong>Method 2:</strong></p>
+                <div class="calculation">
+                    (85-86)² + (88-86)² + (84-86)² + (86-86)² + (87-86)² = 1 + 4 + 4 + 0 + 1 = 10
+                </div>
+
+                <p><strong>Method 3:</strong></p>
+                <div class="calculation">
+                    (92-92)² + (95-92)² + (90-92)² + (93-92)² + (90-92)² = 0 + 9 + 4 + 1 + 4 = 18
+                </div>
+
+                <div class="calculation">
+                    SSW = 40 + 10 + 18 = 68
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">5</span>Calculate Total Sum of Squares (SST)</h3>
+                <p>We can verify: SST = SSB + SSW</p>
+                <div class="calculation">
+                    SST = 360 + 68 = 428
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">6</span>Calculate Degrees of Freedom</h3>
+                <div class="calculation">
+                    df<sub>between</sub> = k - 1 = 3 - 1 = 2
+                </div>
+                <div class="calculation">
+                    df<sub>within</sub> = N - k = 15 - 3 = 12
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = N - 1 = 15 - 1 = 14
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">7</span>Calculate Mean Squares</h3>
+                <div class="calculation">
+                    MSB = SSB / df<sub>between</sub> = 360 / 2 = 180
+                </div>
+                <div class="calculation">
+                    MSW = SSW / df<sub>within</sub> = 68 / 12 = 5.67
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">8</span>Calculate F-Statistic</h3>
+                <div class="calculation">
+                    F = MSB / MSW = 180 / 5.67 = 31.75
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">9</span>Complete ANOVA Table</h3>
+                <table class="anova-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>SS</th>
+                            <th>df</th>
+                            <th>MS</th>
+                            <th>F</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Between Groups</td>
+                            <td>360</td>
+                            <td>2</td>
+                            <td>180</td>
+                            <td>31.75</td>
+                        </tr>
+                        <tr>
+                            <td>Within Groups</td>
+                            <td>68</td>
+                            <td>12</td>
+                            <td>5.67</td>
+                            <td>—</td>
+                        </tr>
+                        <tr style="background-color: #E8F5E9;">
+                            <td>Total</td>
+                            <td>428</td>
+                            <td>14</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">10</span>Make Decision</h3>
+                <p>Using an F-table with df₁ = 2, df₂ = 12, and α = 0.05:</p>
+                <p><strong>Critical value: F<sub>critical</sub> = 3.89</strong></p>
+                <div class="calculation">
+                    F = 31.75 > 3.89 → Reject H₀
+                </div>
+                <p>Alternatively, using technology: <strong>p-value < 0.001</strong></p>
+                <p>Since p-value < 0.05, we reject H₀.</p>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">11</span>State Conclusion</h3>
+                <p><strong>Conclusion:</strong> At the 0.05 significance level, there is sufficient evidence to conclude that at least one study method produces a different mean exam score.</p>
+                <p><em>Note: We don't yet know WHICH methods differ. We'll learn about post-hoc tests in Lesson 3!</em></p>
+            </div>
+        </div>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h2>✓ Check Your Understanding</h2>
+
+            <h3>Question 1</h3>
+            <p>If you have 4 groups with sample sizes n₁ = 8, n₂ = 10, n₃ = 12, n₄ = 10, what are the degrees of freedom?</p>
+            <button onclick="document.getElementById('sol1').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol1" class="solution">
+                <ul>
+                    <li>k = 4 groups</li>
+                    <li>N = 8 + 10 + 12 + 10 = 40 total observations</li>
+                    <li><strong>df<sub>between</sub> = k - 1 = 4 - 1 = 3</strong></li>
+                    <li><strong>df<sub>within</sub> = N - k = 40 - 4 = 36</strong></li>
+                    <li><strong>df<sub>total</sub> = N - 1 = 40 - 1 = 39</strong></li>
+                </ul>
+            </div>
+
+            <h3>Question 2</h3>
+            <p>Given SSB = 240, SSW = 160, df<sub>between</sub> = 3, df<sub>within</sub> = 36, calculate the F-statistic.</p>
+            <button onclick="document.getElementById('sol2').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol2" class="solution">
+                <p><strong>Step 1: Calculate MSB</strong></p>
+                <p>MSB = SSB / df<sub>between</sub> = 240 / 3 = 80</p>
+                <p><strong>Step 2: Calculate MSW</strong></p>
+                <p>MSW = SSW / df<sub>within</sub> = 160 / 36 = 4.44</p>
+                <p><strong>Step 3: Calculate F</strong></p>
+                <p>F = MSB / MSW = 80 / 4.44 = <strong>18.02</strong></p>
+                <p>This is a large F-value, suggesting strong evidence of differences among groups!</p>
+            </div>
+
+            <h3>Question 3</h3>
+            <p>Why do we divide sum of squares by degrees of freedom to get mean squares?</p>
+            <button onclick="document.getElementById('sol3').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol3" class="solution">
+                <p><strong>Answer:</strong> We divide by degrees of freedom to get an <strong>average</strong> measure of variation that accounts for sample size.</p>
+                <p>This makes mean squares (which are variance estimates) <strong>comparable</strong> even when groups have different sample sizes. Without this adjustment, larger samples would always have larger sums of squares simply due to having more observations, even if the actual variability is the same.</p>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="content-section">
+            <h2>📝 Lesson Summary</h2>
+            <ul style="line-height: 2;">
+                <li><strong>One-way ANOVA:</strong> One categorical factor, one quantitative dependent variable</li>
+                <li><strong>Sum of Squares:</strong>
+                    <ul>
+                        <li>SST = total variation</li>
+                        <li>SSB = between-group variation</li>
+                        <li>SSW = within-group variation (error)</li>
+                        <li>SST = SSB + SSW</li>
+                    </ul>
+                </li>
+                <li><strong>Degrees of Freedom:</strong> df<sub>between</sub> = k-1, df<sub>within</sub> = N-k</li>
+                <li><strong>Mean Squares:</strong> MS = SS / df (average variation)</li>
+                <li><strong>F-statistic:</strong> F = MSB / MSW</li>
+                <li><strong>ANOVA table</strong> organizes all calculations systematically</li>
+                <li>Large F-values (relative to critical value) lead to rejecting H₀</li>
+            </ul>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="lesson-01-intro-to-anova.html" class="btn btn-outline">← Previous: Introduction to ANOVA</a>
+            <a href="lesson-03-post-hoc-tests.html" class="btn btn-primary">Next: Post-Hoc Tests →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

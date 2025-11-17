@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: Introduction to ANOVA - Module 10</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .content-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .example-box {
+            background: #F0F7FA;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .warning-box {
+            background: #FFEBEE;
+            border-left: 4px solid #DC3545;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .check-understanding {
+            background: #E8F5E9;
+            border: 2px solid #28A745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .solution {
+            background: #F8F9FA;
+            border-left: 3px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        .solution.show {
+            display: block;
+        }
+        .formula {
+            background: #F8F9FA;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .visualization {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #F8F9FA;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 1: Introduction to ANOVA</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Understanding Analysis of Variance and Why We Need It</p>
+        </div>
+
+        <!-- Section 1: What is ANOVA? -->
+        <div class="content-section">
+            <h2>What is ANOVA?</h2>
+            <p><strong>ANOVA</strong> stands for <strong>Analysis of Variance</strong>. It is a statistical method used to compare the means of <strong>three or more groups</strong> simultaneously.</p>
+
+            <div class="key-concept">
+                <h3>🎯 Key Purpose</h3>
+                <p><strong>ANOVA tests whether there are significant differences among group means.</strong></p>
+                <p>Specifically, it tests:</p>
+                <ul>
+                    <li><strong>H₀:</strong> μ₁ = μ₂ = μ₃ = ... (all population means are equal)</li>
+                    <li><strong>Hₐ:</strong> At least one population mean is different</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>📚 Example: Teaching Methods</h3>
+                <p>An educator wants to compare the effectiveness of <strong>four different teaching methods</strong> on student test scores:</p>
+                <ul>
+                    <li><strong>Method 1:</strong> Traditional lecture</li>
+                    <li><strong>Method 2:</strong> Flipped classroom</li>
+                    <li><strong>Method 3:</strong> Project-based learning</li>
+                    <li><strong>Method 4:</strong> Peer instruction</li>
+                </ul>
+                <p>She randomly assigns students to each method and compares their final exam scores. ANOVA will test if the average scores differ significantly across the four methods.</p>
+            </div>
+        </div>
+
+        <!-- Section 2: Why Not Multiple t-tests? -->
+        <div class="content-section">
+            <h2>Why Not Just Use Multiple t-Tests?</h2>
+            <p>You might be thinking: "Why can't we just do several two-sample t-tests to compare each pair of groups?"</p>
+
+            <p><strong>The problem:</strong> Multiple comparisons inflate the <strong>Type I error rate</strong>.</p>
+
+            <h3>The Problem of α Inflation</h3>
+            <p>Recall that α (alpha) is the probability of making a Type I error (rejecting a true null hypothesis). We typically set α = 0.05, meaning we accept a 5% chance of a false positive.</p>
+
+            <p><strong>But what happens when we do multiple tests?</strong></p>
+
+            <div class="warning-box">
+                <h3>⚠️ Multiple Comparisons Problem</h3>
+                <p>When comparing <strong>k groups</strong>, we would need to perform:</p>
+                <div class="formula">
+                    Number of t-tests = k(k-1)/2
+                </div>
+                <p>For example:</p>
+                <ul>
+                    <li><strong>3 groups:</strong> 3(2)/2 = 3 t-tests needed</li>
+                    <li><strong>4 groups:</strong> 4(3)/2 = 6 t-tests needed</li>
+                    <li><strong>5 groups:</strong> 5(4)/2 = 10 t-tests needed</li>
+                </ul>
+                <p><strong>Each test has a 5% chance of a Type I error. With multiple tests, the overall error rate compounds!</strong></p>
+            </div>
+
+            <h3>Calculating the Overall α</h3>
+            <p>If we perform <em>c</em> independent comparisons, each at α = 0.05, the probability of making <strong>at least one Type I error</strong> is:</p>
+            <div class="formula">
+                Overall α = 1 - (1 - 0.05)^c
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Number of Groups</th>
+                        <th>Number of t-tests (c)</th>
+                        <th>Individual α</th>
+                        <th>Overall α</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>0.05</td>
+                        <td>0.05 (5%)</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>3</td>
+                        <td>0.05</td>
+                        <td>0.143 (14.3%)</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>6</td>
+                        <td>0.05</td>
+                        <td>0.265 (26.5%)</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>10</td>
+                        <td>0.05</td>
+                        <td>0.401 (40.1%)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-concept">
+                <h3>💡 The Solution: ANOVA</h3>
+                <p><strong>ANOVA performs a SINGLE test</strong> to compare all groups simultaneously, maintaining the Type I error rate at the desired α level (e.g., 0.05).</p>
+                <p>This is why ANOVA is essential when comparing three or more groups!</p>
+            </div>
+        </div>
+
+        <!-- Section 3: The Basic Idea -->
+        <div class="content-section">
+            <h2>The Basic Idea Behind ANOVA</h2>
+            <p>ANOVA works by comparing <strong>two types of variation</strong>:</p>
+
+            <h3>1. Variation Between Groups (Between-Group Variability)</h3>
+            <p>This measures how much the <strong>group means differ from each other</strong>.</p>
+            <ul>
+                <li>If group means are very different, between-group variation is LARGE</li>
+                <li>If group means are similar, between-group variation is SMALL</li>
+            </ul>
+
+            <h3>2. Variation Within Groups (Within-Group Variability)</h3>
+            <p>This measures how much <strong>individual observations vary within each group</strong> (natural variability/error).</p>
+            <ul>
+                <li>This is the "noise" or random variation that exists regardless of group membership</li>
+                <li>Measured by how spread out observations are around their group mean</li>
+            </ul>
+
+            <div class="visualization">
+                <h3>Visual Representation</h3>
+                <svg id="varianceComparison" width="700" height="300"></svg>
+                <p style="margin-top: 1rem;"><em>This visualization will show how ANOVA compares between-group to within-group variation.</em></p>
+            </div>
+
+            <div class="key-concept">
+                <h3>🎯 The Core Logic</h3>
+                <p><strong>If the between-group variation is much larger than the within-group variation, we have evidence that the groups truly differ.</strong></p>
+                <p>ANOVA compares these two types of variation using the <strong>F-statistic</strong>:</p>
+                <div class="formula">
+                    F = (Variance Between Groups) / (Variance Within Groups)
+                </div>
+                <ul>
+                    <li><strong>Large F:</strong> Between-group differences are large compared to within-group noise → significant result</li>
+                    <li><strong>Small F:</strong> Between-group differences are similar to within-group noise → not significant</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 4: The F-Distribution -->
+        <div class="content-section">
+            <h2>The F-Distribution and F-Statistic</h2>
+
+            <h3>What is the F-Distribution?</h3>
+            <p>The <strong>F-distribution</strong> is a family of continuous probability distributions that are:</p>
+            <ul>
+                <li><strong>Always positive:</strong> F ≥ 0 (can't have negative variance ratios)</li>
+                <li><strong>Right-skewed:</strong> Most F-values are near 0, with a long tail to the right</li>
+                <li><strong>Defined by two degrees of freedom:</strong> df₁ (numerator) and df₂ (denominator)</li>
+            </ul>
+
+            <div class="visualization">
+                <h3>F-Distribution Shape</h3>
+                <svg id="fDistribution" width="700" height="300"></svg>
+                <p style="margin-top: 1rem;"><em>The F-distribution is right-skewed. Larger F-values indicate stronger evidence against H₀.</em></p>
+            </div>
+
+            <h3>The F-Statistic</h3>
+            <p>The F-statistic is calculated as a ratio:</p>
+            <div class="formula">
+                F = MSB / MSW
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>MSB</strong> = Mean Square Between (average variance between groups)</li>
+                <li><strong>MSW</strong> = Mean Square Within (average variance within groups)</li>
+            </ul>
+            <p><em>We'll learn exactly how to calculate these in Lesson 2!</em></p>
+
+            <h3>Interpreting the F-Statistic</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>F-value</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>F ≈ 1</td>
+                        <td>Between-group variance equals within-group variance → groups are similar → fail to reject H₀</td>
+                    </tr>
+                    <tr>
+                        <td>F < 1</td>
+                        <td>Between-group variance is even less than within-group variance → definitely fail to reject H₀</td>
+                    </tr>
+                    <tr>
+                        <td>F >> 1 (much larger)</td>
+                        <td>Between-group variance is much larger than within-group variance → strong evidence groups differ → reject H₀</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-concept">
+                <h3>🎯 Decision Rule</h3>
+                <p>Just like other hypothesis tests:</p>
+                <ul>
+                    <li><strong>If F ≥ critical value</strong> (or <strong>p-value ≤ α</strong>): Reject H₀ → At least one mean differs</li>
+                    <li><strong>If F < critical value</strong> (or <strong>p-value > α</strong>): Fail to reject H₀ → No significant difference</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5: Real-World Examples -->
+        <div class="content-section">
+            <h2>Real-World Applications of ANOVA</h2>
+
+            <div class="example-box">
+                <h3>🏥 Medical Research</h3>
+                <p>Testing if four different drug treatments (A, B, C, placebo) have different effects on reducing blood pressure.</p>
+                <ul>
+                    <li><strong>Groups:</strong> 4 (three drugs + placebo)</li>
+                    <li><strong>Measurement:</strong> Reduction in systolic blood pressure (mmHg)</li>
+                    <li><strong>Question:</strong> Do the treatments have different effectiveness?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>🌾 Agriculture</h3>
+                <p>Comparing crop yields using three different fertilizers.</p>
+                <ul>
+                    <li><strong>Groups:</strong> 3 (Fertilizer A, B, C)</li>
+                    <li><strong>Measurement:</strong> Crop yield (bushels per acre)</li>
+                    <li><strong>Question:</strong> Do the fertilizers produce different yields?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>🏢 Business</h3>
+                <p>Comparing customer satisfaction scores across five different store locations.</p>
+                <ul>
+                    <li><strong>Groups:</strong> 5 (Store locations)</li>
+                    <li><strong>Measurement:</strong> Customer satisfaction score (1-10 scale)</li>
+                    <li><strong>Question:</strong> Do customer satisfaction levels differ by location?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h2>✓ Check Your Understanding</h2>
+
+            <h3>Question 1</h3>
+            <p>A researcher wants to compare the average test scores of students using five different study apps. Why should she use ANOVA instead of performing 10 two-sample t-tests?</p>
+            <button onclick="document.getElementById('sol1').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol1" class="solution">
+                <p><strong>Answer:</strong> Using 10 separate t-tests would inflate the Type I error rate (α inflation).</p>
+                <p><strong>Explanation:</strong></p>
+                <ul>
+                    <li>With 5 groups, we would need 5(4)/2 = 10 pairwise comparisons</li>
+                    <li>If each test uses α = 0.05, the overall probability of making at least one Type I error is: 1 - (0.95)^10 ≈ 0.40 (40%!)</li>
+                    <li>This is much higher than the intended 5% error rate</li>
+                    <li>ANOVA performs a single test and maintains α = 0.05</li>
+                </ul>
+            </div>
+
+            <h3>Question 2</h3>
+            <p>If ANOVA gives F = 12.5 with p = 0.001, what can we conclude?</p>
+            <button onclick="document.getElementById('sol2').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol2" class="solution">
+                <p><strong>Answer:</strong> We reject H₀ and conclude that at least one population mean is significantly different from the others.</p>
+                <p><strong>Explanation:</strong></p>
+                <ul>
+                    <li>F = 12.5 is a large value (much greater than 1), indicating that between-group variation is much larger than within-group variation</li>
+                    <li>p = 0.001 < 0.05, so we reject H₀</li>
+                    <li><strong>Important:</strong> ANOVA tells us "at least one mean differs" but NOT which specific groups differ (we need post-hoc tests for that)</li>
+                </ul>
+            </div>
+
+            <h3>Question 3</h3>
+            <p>What does it mean if F = 0.8?</p>
+            <button onclick="document.getElementById('sol3').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol3" class="solution">
+                <p><strong>Answer:</strong> This suggests the groups do NOT differ significantly. We would fail to reject H₀.</p>
+                <p><strong>Explanation:</strong></p>
+                <ul>
+                    <li>F = 0.8 < 1 means the between-group variance is actually LESS than the within-group variance</li>
+                    <li>This indicates the group means are very similar compared to the natural variability within groups</li>
+                    <li>We would fail to reject H₀ (no significant difference among groups)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="content-section">
+            <h2>📝 Lesson Summary</h2>
+            <ul style="line-height: 2;">
+                <li><strong>ANOVA</strong> (Analysis of Variance) is used to compare the means of <strong>three or more groups</strong></li>
+                <li>We need ANOVA instead of multiple t-tests to avoid <strong>α inflation</strong> (inflated Type I error rate)</li>
+                <li>ANOVA compares <strong>between-group variance to within-group variance</strong></li>
+                <li>The <strong>F-statistic</strong> is the ratio: F = MSB / MSW</li>
+                <li>The <strong>F-distribution</strong> is right-skewed and always positive</li>
+                <li>Large F-values provide evidence that at least one group mean differs</li>
+                <li><strong>Hypotheses:</strong>
+                    <ul>
+                        <li>H₀: μ₁ = μ₂ = μ₃ = ... (all means equal)</li>
+                        <li>Hₐ: At least one mean is different</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-outline">← Back to Module Home</a>
+            <a href="lesson-02-one-way-anova.html" class="btn btn-primary">Next: One-Way ANOVA Procedure →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        // Initialize visualizations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof drawVarianceComparison === 'function') {
+                drawVarianceComparison('varianceComparison');
+            }
+            if (typeof drawFDistribution === 'function') {
+                drawFDistribution('fDistribution');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Quiz - Module 10: ANOVA</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .quiz-header {
+            background: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            color: #333;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .quiz-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .question-card {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .question-number {
+            display: inline-block;
+            background: #FFC107;
+            color: #333;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .options {
+            margin: 1.5rem 0;
+        }
+        .option {
+            display: block;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background: #F8F9FA;
+            border: 2px solid #E8E8E8;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .option:hover {
+            background: #E9ECEF;
+            border-color: #FFC107;
+        }
+        .option input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+        .submit-section {
+            text-align: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: #FFF9E6;
+            border-radius: 8px;
+            border: 2px solid #FFC107;
+        }
+        #results {
+            display: none;
+            background: white;
+            border: 3px solid #2C5F7C;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 1rem 0;
+        }
+        .pass {
+            color: #28A745;
+        }
+        .fail {
+            color: #DC3545;
+        }
+        .explanation {
+            background: #E8F5E9;
+            border-left: 3px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .explanation.show {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        .info-box {
+            background: #D4EDFF;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="quiz-header">
+            <h1>Module Quiz</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Module 10: Analysis of Variance (ANOVA) - 15 Questions</p>
+        </div>
+
+        <div class="info-box">
+            <h3>Quiz Instructions</h3>
+            <ul>
+                <li><strong>15 questions</strong> covering all four lessons</li>
+                <li><strong>Passing score:</strong> 70% (11 out of 15 correct)</li>
+                <li>Mix of conceptual understanding and calculations</li>
+                <li>You can review explanations after submitting</li>
+                <li>Take your time and read each question carefully</li>
+            </ul>
+        </div>
+
+        <form id="quizForm">
+            <!-- Question 1 -->
+            <div class="question-card">
+                <div class="question-number">1</div>
+                <h3>What is the primary purpose of ANOVA?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q1" value="A">
+                        A) To test if two population means are equal
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="B">
+                        B) To test if three or more population means are equal
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="C">
+                        C) To test if two variables are correlated
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="D">
+                        D) To test if two categorical variables are independent
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-card">
+                <div class="question-number">2</div>
+                <h3>Why shouldn't we use multiple t-tests when comparing 5 groups?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q2" value="A">
+                        A) T-tests are too difficult to calculate
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="B">
+                        B) Multiple t-tests inflate the Type I error rate
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="C">
+                        C) T-tests can only be used with normal data
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="D">
+                        D) ANOVA is always more powerful than t-tests
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-card">
+                <div class="question-number">3</div>
+                <h3>The F-statistic in ANOVA is calculated as:</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q3" value="A">
+                        A) F = SSB / SSW
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="B">
+                        B) F = MSB / MSW
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="C">
+                        C) F = (x̄₁ - x̄₂) / s
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="D">
+                        D) F = SST / df<sub>total</sub>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-card">
+                <div class="question-number">4</div>
+                <h3>Given k = 4 groups and N = 48 total observations, what are df<sub>between</sub> and df<sub>within</sub>?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q4" value="A">
+                        A) df<sub>between</sub> = 3, df<sub>within</sub> = 44
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="B">
+                        B) df<sub>between</sub> = 4, df<sub>within</sub> = 44
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="C">
+                        C) df<sub>between</sub> = 3, df<sub>within</sub> = 47
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="D">
+                        D) df<sub>between</sub> = 4, df<sub>within</sub> = 48
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-card">
+                <div class="question-number">5</div>
+                <h3>Which relationship is ALWAYS true in ANOVA?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q5" value="A">
+                        A) SST = SSB - SSW
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="B">
+                        B) SST = SSB + SSW
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="C">
+                        C) MSB = MSW
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="D">
+                        D) F = 1
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-card">
+                <div class="question-number">6</div>
+                <h3>Given SSB = 150, SSW = 250, df<sub>between</sub> = 2, df<sub>within</sub> = 27, calculate F.</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q6" value="A">
+                        A) F = 0.6
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="B">
+                        B) F = 1.67
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="C">
+                        C) F = 8.1
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="D">
+                        D) F = 27.0
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-card">
+                <div class="question-number">7</div>
+                <h3>An ANOVA yields F = 12.5 with p = 0.0002. What can we conclude?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q7" value="A">
+                        A) All group means are significantly different from each other
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="B">
+                        B) At least one group mean is significantly different
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="C">
+                        C) All group means are equal
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="D">
+                        D) Exactly two groups differ significantly
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-card">
+                <div class="question-number">8</div>
+                <h3>When should post-hoc tests be conducted?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q8" value="A">
+                        A) Always, regardless of ANOVA results
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="B">
+                        B) Only when ANOVA is significant AND there are 3+ groups
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="C">
+                        C) Only when ANOVA is not significant
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="D">
+                        D) Before running ANOVA
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-card">
+                <div class="question-number">9</div>
+                <h3>Tukey's HSD = 5.2. Group means are: x̄₁ = 42, x̄₂ = 48, x̄₃ = 45. Which groups differ significantly?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q9" value="A">
+                        A) Only groups 1 and 2
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="B">
+                        B) Only groups 2 and 3
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="C">
+                        C) All three groups differ from each other
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="D">
+                        D) No groups differ significantly
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-card">
+                <div class="question-number">10</div>
+                <h3>If comparing 6 groups with α = 0.05, what is the Bonferroni-adjusted α?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q10" value="A">
+                        A) 0.05
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="B">
+                        B) 0.0083
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="C">
+                        C) 0.0033
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="D">
+                        D) 0.30
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question-card">
+                <div class="question-number">11</div>
+                <h3>Which is NOT an assumption of one-way ANOVA?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q11" value="A">
+                        A) Observations are independent
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="B">
+                        B) Populations are normally distributed
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="C">
+                        C) All groups have equal variances
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="D">
+                        D) All groups must have the same sample size
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question-card">
+                <div class="question-number">12</div>
+                <h3>Three groups have variances: s₁² = 10, s₂² = 15, s₃² = 22. Is equal variance reasonable?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q12" value="A">
+                        A) Yes, because 22/10 = 2.2 < 3
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="B">
+                        B) No, because 22/10 = 2.2 > 2
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="C">
+                        C) Yes, because all variances are positive
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="D">
+                        D) Cannot determine without knowing sample sizes
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question-card">
+                <div class="question-number">13</div>
+                <h3>What is the appropriate test for comparing median incomes across 4 cities when data is highly skewed?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q13" value="A">
+                        A) One-way ANOVA
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="B">
+                        B) Kruskal-Wallis test
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="C">
+                        C) Chi-square test
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="D">
+                        D) Two-sample t-test
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question-card">
+                <div class="question-number">14</div>
+                <h3>ANOVA is most robust to violations of normality when:</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q14" value="A">
+                        A) Sample sizes are small (n < 10 per group)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="B">
+                        B) Sample sizes are large (n ≥ 30 per group)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="C">
+                        C) Variances are very different across groups
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="D">
+                        D) The F-statistic is small
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question-card">
+                <div class="question-number">15</div>
+                <h3>A study compares stress levels of 40 employees at three time points (morning, afternoon, evening). Which test is appropriate?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q15" value="A">
+                        A) One-way ANOVA (independent groups)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="B">
+                        B) Repeated measures ANOVA (dependent groups)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="C">
+                        C) Two-sample t-test
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="D">
+                        D) Kruskal-Wallis test
+                    </label>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="button" onclick="gradeQuiz()" class="btn" style="background: #FFC107; color: #333; font-size: 1.1rem; padding: 1rem 2rem;">Submit Quiz</button>
+            </div>
+        </form>
+
+        <div id="results"></div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+            <a href="index.html" class="btn btn-outline">← Back to Module Home</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const correctAnswers = {
+            q1: 'B',
+            q2: 'B',
+            q3: 'B',
+            q4: 'A',
+            q5: 'B',
+            q6: 'C',
+            q7: 'B',
+            q8: 'B',
+            q9: 'A',
+            q10: 'C',
+            q11: 'D',
+            q12: 'B',
+            q13: 'B',
+            q14: 'B',
+            q15: 'B'
+        };
+
+        const explanations = {
+            q1: "B is correct. ANOVA (Analysis of Variance) is used to test if three or more population means are equal. For only 2 groups, we use a t-test.",
+            q2: "B is correct. Multiple t-tests inflate the Type I error rate (α inflation). With 5 groups, we'd need 10 t-tests, giving an overall α ≈ 40% instead of 5%!",
+            q3: "B is correct. The F-statistic is F = MSB/MSW (Mean Square Between divided by Mean Square Within), not the sum of squares directly.",
+            q4: "A is correct. df_between = k-1 = 4-1 = 3, and df_within = N-k = 48-4 = 44.",
+            q5: "B is correct. SST = SSB + SSW is the fundamental partitioning of variance in ANOVA. Total variation equals between-group plus within-group variation.",
+            q6: "C is correct. MSB = 150/2 = 75, MSW = 250/27 = 9.26, so F = 75/9.26 = 8.1.",
+            q7: "B is correct. A significant ANOVA tells us that at least one group mean differs, but NOT which specific groups differ (need post-hoc tests for that).",
+            q8: "B is correct. Post-hoc tests should only be conducted when (1) ANOVA is significant AND (2) there are 3+ groups. With only 2 groups, we already know which differ.",
+            q9: "A is correct. |42-48| = 6 > 5.2 (significant), |42-45| = 3 < 5.2 (not significant), |48-45| = 3 < 5.2 (not significant). Only groups 1 and 2 differ.",
+            q10: "C is correct. With 6 groups, there are 6(5)/2 = 15 comparisons. Bonferroni α = 0.05/15 = 0.0033.",
+            q11: "D is correct. Equal sample sizes are NOT required for ANOVA. The three assumptions are: independence, normality, and equal variances.",
+            q12: "B is correct. Using the rule of thumb: 22/10 = 2.2 > 2, so equal variance is questionable. However, if sample sizes are equal, ANOVA may still be reasonable.",
+            q13: "B is correct. Kruskal-Wallis test is the non-parametric alternative to ANOVA, appropriate for highly skewed data and comparing medians.",
+            q14: "B is correct. With large sample sizes (n ≥ 30), the Central Limit Theorem ensures sampling distributions are approximately normal, making ANOVA robust to non-normality.",
+            q15: "B is correct. The same 40 employees are measured three times (repeated measures), violating independence. Use repeated measures ANOVA, not regular one-way ANOVA."
+        };
+
+        function gradeQuiz() {
+            const form = document.getElementById('quizForm');
+            let score = 0;
+            let totalQuestions = 15;
+            
+            // Check if all questions answered
+            for (let i = 1; i <= totalQuestions; i++) {
+                const answer = form.querySelector(`input[name="q${i}"]:checked`);
+                if (!answer) {
+                    alert(`Please answer Question ${i} before submitting.`);
+                    return;
+                }
+            }
+
+            // Grade each question
+            for (let i = 1; i <= totalQuestions; i++) {
+                const answer = form.querySelector(`input[name="q${i}"]:checked`).value;
+                if (answer === correctAnswers[`q${i}`]) {
+                    score++;
+                }
+            }
+
+            // Calculate percentage
+            const percentage = Math.round((score / totalQuestions) * 100);
+            const passed = percentage >= 70;
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h2>Quiz Results</h2>
+                <div class="score-display ${passed ? 'pass' : 'fail'}">
+                    ${score} / ${totalQuestions} (${percentage}%)
+                </div>
+                <h3 class="${passed ? 'pass' : 'fail'}">
+                    ${passed ? '✓ PASSED!' : '✗ Not Passed'}
+                </h3>
+                <p>${passed ? 
+                    'Congratulations! You have demonstrated mastery of ANOVA concepts.' : 
+                    'You need 70% to pass. Review the lessons and try again.'}
+                </p>
+                <h3>Answer Key and Explanations:</h3>
+                ${generateAnswerKey(form)}
+            `;
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+            // Log results for research
+            console.log('Quiz Submitted - Module 10');
+            console.log('Score:', score, '/', totalQuestions);
+            console.log('Percentage:', percentage + '%');
+            console.log('Passed:', passed);
+            console.log('Timestamp:', new Date().toISOString());
+        }
+
+        function generateAnswerKey(form) {
+            let html = '';
+            for (let i = 1; i <= 15; i++) {
+                const userAnswer = form.querySelector(`input[name="q${i}"]:checked`)?.value || 'No answer';
+                const correct = correctAnswers[`q${i}`];
+                const isCorrect = userAnswer === correct;
+                
+                html += `
+                    <div style="margin: 1rem 0; padding: 1rem; background: ${isCorrect ? '#E8F5E9' : '#FFEBEE'}; border-radius: 4px;">
+                        <strong>Question ${i}:</strong> 
+                        ${isCorrect ? '✓ Correct' : '✗ Incorrect'}<br>
+                        <strong>Your answer:</strong> ${userAnswer}<br>
+                        <strong>Correct answer:</strong> ${correct}<br>
+                        <em>${explanations[`q${i}`]}</em>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // Log quiz start
+        console.log('Module 10 Quiz Started');
+        console.log('Start time:', new Date().toISOString());
+    </script>
+</body>
+</html>

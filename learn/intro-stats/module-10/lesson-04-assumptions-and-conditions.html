@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 4: ANOVA Assumptions and Conditions - Module 10</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .content-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .assumption-box {
+            background: #F0F7FA;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .warning-box {
+            background: #FFEBEE;
+            border-left: 4px solid #DC3545;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .success-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .check-understanding {
+            background: #E8F5E9;
+            border: 2px solid #28A745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .solution {
+            background: #F8F9FA;
+            border-left: 3px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        .solution.show {
+            display: block;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .checklist {
+            background: white;
+            border: 2px solid #28A745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28A745;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .decision-tree {
+            background: #F8F9FA;
+            border: 2px solid #2C5F7C;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 4: Assumptions and Conditions for ANOVA</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Checking Requirements and Handling Violations</p>
+        </div>
+
+        <!-- Introduction -->
+        <div class="content-section">
+            <h2>Why Assumptions Matter</h2>
+            <p>Like all statistical tests, <strong>ANOVA has assumptions</strong> that must be reasonably satisfied for the results to be valid and trustworthy.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ Important</h3>
+                <p>If assumptions are seriously violated, the F-statistic may not follow an F-distribution, leading to:</p>
+                <ul>
+                    <li>Incorrect p-values</li>
+                    <li>Wrong conclusions</li>
+                    <li>Increased Type I or Type II error rates</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <h3>🎯 The Three Key Assumptions</h3>
+                <ol style="line-height: 2; font-size: 1.1rem;">
+                    <li><strong>Independence</strong> of observations</li>
+                    <li><strong>Normality</strong> of populations</li>
+                    <li><strong>Equal Variances</strong> (Homogeneity of Variance)</li>
+                </ol>
+                <p><em>Let's examine each in detail!</em></p>
+            </div>
+        </div>
+
+        <!-- Assumption 1: Independence -->
+        <div class="content-section">
+            <h2>Assumption 1: Independence</h2>
+
+            <div class="assumption-box">
+                <h3>📋 Requirement</h3>
+                <p><strong>Observations must be independent within and between groups.</strong></p>
+                <p>This means:</p>
+                <ul>
+                    <li>The value of one observation doesn't influence another</li>
+                    <li>Each observation comes from a different, randomly selected subject</li>
+                    <li>No repeated measures (same subject measured multiple times)</li>
+                </ul>
+            </div>
+
+            <h3>How to Check Independence</h3>
+            <div class="checklist">
+                <ul>
+                    <li><strong>Study design:</strong> Were subjects randomly assigned to groups?</li>
+                    <li><strong>Random sampling:</strong> Were subjects randomly selected from populations?</li>
+                    <li><strong>No clustering:</strong> Are observations collected independently (not in batches or groups)?</li>
+                    <li><strong>One observation per subject:</strong> Is each subject measured only once?</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h3>✓ Independence is Met When:</h3>
+                <ul>
+                    <li>Experimental design with random assignment to groups</li>
+                    <li>Random sample from each population</li>
+                    <li>Each subject appears in only one group</li>
+                    <li>Measurements collected independently</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>❌ Independence is Violated When:</h3>
+                <ul>
+                    <li>Same subjects measured multiple times (use <strong>repeated measures ANOVA</strong> instead)</li>
+                    <li>Matched pairs or dependent samples</li>
+                    <li>Clustered data (students within classrooms, patients within hospitals)</li>
+                    <li>Time series data with autocorrelation</li>
+                </ul>
+                <p><strong>If violated:</strong> Results are invalid. Must use different methods (e.g., repeated measures ANOVA, mixed models).</p>
+            </div>
+        </div>
+
+        <!-- Assumption 2: Normality -->
+        <div class="content-section">
+            <h2>Assumption 2: Normality</h2>
+
+            <div class="assumption-box">
+                <h3>📋 Requirement</h3>
+                <p><strong>Each population is normally distributed.</strong></p>
+                <p>More precisely: The residuals (deviations from group means) should be normally distributed.</p>
+            </div>
+
+            <h3>How to Check Normality</h3>
+            <ol>
+                <li><strong>Visual Methods:</strong>
+                    <ul>
+                        <li><strong>Histograms:</strong> Check if data appears bell-shaped</li>
+                        <li><strong>Normal probability plots (Q-Q plots):</strong> Points should fall roughly on a straight line</li>
+                        <li><strong>Boxplots:</strong> Check for symmetry and outliers</li>
+                    </ul>
+                </li>
+                <li><strong>Formal Tests:</strong>
+                    <ul>
+                        <li><strong>Shapiro-Wilk test:</strong> Tests if data comes from normal distribution</li>
+                        <li>H₀: Data is normally distributed</li>
+                        <li>If p > 0.05: normality assumption is reasonable</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="success-box">
+                <h3>✓ Good News: ANOVA is Robust to Moderate Violations!</h3>
+                <p>ANOVA is fairly <strong>robust</strong> to violations of normality, especially when:</p>
+                <ul>
+                    <li><strong>Large sample sizes:</strong> n ≥ 30 per group (Central Limit Theorem applies)</li>
+                    <li><strong>Equal sample sizes:</strong> Groups have similar n values</li>
+                    <li><strong>Mild departures:</strong> Data is slightly skewed but not severely non-normal</li>
+                </ul>
+                <p><strong>Rule of thumb:</strong> With n ≥ 30 per group, moderate departures from normality are acceptable.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>What to Do if Normality is Violated</h3>
+                <ol>
+                    <li><strong>Check for outliers:</strong> Remove or investigate extreme values</li>
+                    <li><strong>Transform the data:</strong> Log, square root, or other transformations may help</li>
+                    <li><strong>Increase sample size:</strong> Larger samples make ANOVA more robust</li>
+                    <li><strong>Use non-parametric alternative:</strong> <strong>Kruskal-Wallis test</strong> (doesn't assume normality)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Assumption 3: Equal Variances -->
+        <div class="content-section">
+            <h2>Assumption 3: Equal Variances (Homogeneity of Variance)</h2>
+
+            <div class="assumption-box">
+                <h3>📋 Requirement</h3>
+                <p><strong>All populations have equal variances:</strong></p>
+                <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0;">σ₁² = σ₂² = σ₃² = ... = σₖ²</p>
+                <p>This is also called <strong>homoscedasticity</strong> or <strong>homogeneity of variance</strong>.</p>
+            </div>
+
+            <h3>How to Check Equal Variances</h3>
+
+            <h4>1. Rule of Thumb (Quick Check)</h4>
+            <div class="key-concept">
+                <p>Calculate the sample variances s₁², s₂², ..., sₖ² for each group.</p>
+                <p><strong>Rule:</strong> If the ratio of largest to smallest variance is less than 2, equal variance assumption is reasonable.</p>
+                <div style="text-align: center; font-size: 1.1rem; margin: 1rem 0;">
+                    <strong>max(s²) / min(s²) < 2  → Acceptable</strong>
+                </div>
+            </div>
+
+            <h4>2. Visual Method: Side-by-Side Boxplots</h4>
+            <ul>
+                <li>Create boxplots for each group</li>
+                <li>Check if boxes (IQR) are similar in height</li>
+                <li>Similar spread suggests equal variances</li>
+            </ul>
+
+            <h4>3. Formal Test: Levene's Test</h4>
+            <ul>
+                <li>Tests H₀: σ₁² = σ₂² = ... = σₖ²</li>
+                <li>If p-value > 0.05: equal variance assumption is reasonable</li>
+                <li>Available in most statistical software</li>
+            </ul>
+
+            <div class="success-box">
+                <h3>✓ ANOVA is Fairly Robust When:</h3>
+                <ul>
+                    <li><strong>Equal sample sizes:</strong> Groups have same or very similar n values</li>
+                    <li><strong>Mild violations:</strong> Variance ratio < 3</li>
+                </ul>
+                <p>With equal sample sizes across groups, ANOVA can tolerate moderate violations of equal variance.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>What to Do if Equal Variance is Violated</h3>
+                <ol>
+                    <li><strong>Check for outliers:</strong> May be inflating variance in some groups</li>
+                    <li><strong>Transform the data:</strong> Log transformation often stabilizes variance</li>
+                    <li><strong>Use Welch's ANOVA:</strong> Modified version that doesn't assume equal variances</li>
+                    <li><strong>Use non-parametric test:</strong> Kruskal-Wallis test</li>
+                </ol>
+            </div>
+
+            <h4>Example: Checking Equal Variance</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Group</th>
+                        <th>Sample Variance (s²)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Group 1</td>
+                        <td>12.5</td>
+                    </tr>
+                    <tr>
+                        <td>Group 2</td>
+                        <td>15.2</td>
+                    </tr>
+                    <tr>
+                        <td>Group 3</td>
+                        <td>10.8</td>
+                    </tr>
+                    <tr>
+                        <td>Group 4</td>
+                        <td>13.1</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Check:</strong> Ratio = 15.2 / 10.8 = 1.41 < 2 ✓</p>
+            <p><strong>Conclusion:</strong> Equal variance assumption is reasonable.</p>
+        </div>
+
+        <!-- When to Use ANOVA -->
+        <div class="content-section">
+            <h2>When to Use ANOVA (Decision Guide)</h2>
+
+            <div class="decision-tree">
+                <h3>✓ Use ANOVA When:</h3>
+                <ul style="line-height: 2;">
+                    <li>Comparing <strong>3 or more independent groups</strong></li>
+                    <li>Dependent variable is <strong>quantitative</strong> (continuous)</li>
+                    <li>Independent variable is <strong>categorical</strong></li>
+                    <li><strong>Independence</strong> assumption is met</li>
+                    <li><strong>Normality</strong> is reasonable (or large samples)</li>
+                    <li><strong>Equal variances</strong> is reasonable (or equal sample sizes)</li>
+                </ul>
+            </div>
+
+            <div class="decision-tree">
+                <h3>❌ Do NOT Use ANOVA When:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Situation</th>
+                            <th>Use Instead</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Only 2 groups</td>
+                            <td><strong>Two-sample t-test</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Dependent variable is categorical</td>
+                            <td><strong>Chi-square test</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Repeated measures (same subjects)</td>
+                            <td><strong>Repeated measures ANOVA</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Severe non-normality + small samples</td>
+                            <td><strong>Kruskal-Wallis test</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Severely unequal variances</td>
+                            <td><strong>Welch's ANOVA</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Two or more factors</td>
+                            <td><strong>Two-way ANOVA</strong> or <strong>factorial ANOVA</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Alternatives to ANOVA -->
+        <div class="content-section">
+            <h2>Non-Parametric Alternative: Kruskal-Wallis Test</h2>
+
+            <div class="key-concept">
+                <h3>When to Use Kruskal-Wallis</h3>
+                <p>The <strong>Kruskal-Wallis test</strong> is the non-parametric alternative to one-way ANOVA. Use it when:</p>
+                <ul>
+                    <li>Normality assumption is severely violated</li>
+                    <li>Small sample sizes with non-normal data</li>
+                    <li>Ordinal data (ranked data)</li>
+                    <li>Extreme outliers that can't be removed</li>
+                </ul>
+            </div>
+
+            <h3>How Kruskal-Wallis Works</h3>
+            <ol>
+                <li>Rank all observations from smallest to largest (ignoring groups)</li>
+                <li>Compare the average ranks across groups</li>
+                <li>If groups have similar distributions, average ranks should be similar</li>
+                <li>Uses a chi-square distribution instead of F-distribution</li>
+            </ol>
+
+            <p><strong>Advantages:</strong></p>
+            <ul>
+                <li>No normality assumption required</li>
+                <li>Robust to outliers</li>
+                <li>Works with ordinal data</li>
+            </ul>
+
+            <p><strong>Disadvantages:</strong></p>
+            <ul>
+                <li>Less powerful than ANOVA when normality holds</li>
+                <li>Tests medians rather than means</li>
+                <li>More difficult to interpret</li>
+            </ul>
+        </div>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h2>✓ Check Your Understanding</h2>
+
+            <h3>Question 1</h3>
+            <p>A researcher collects data from 4 groups with the following sample variances: s₁² = 8, s₂² = 12, s₃² = 15, s₄² = 18. Is the equal variance assumption reasonable?</p>
+            <button onclick="document.getElementById('sol1').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol1" class="solution">
+                <p><strong>Step 1:</strong> Find max and min variances</p>
+                <ul>
+                    <li>Max = 18</li>
+                    <li>Min = 8</li>
+                </ul>
+                <p><strong>Step 2:</strong> Calculate ratio</p>
+                <p>Ratio = 18 / 8 = 2.25</p>
+                <p><strong>Step 3:</strong> Apply rule of thumb</p>
+                <p>2.25 > 2, so the equal variance assumption is <strong>questionable</strong>.</p>
+                <p><strong>Recommendation:</strong> Check with Levene's test or consider using Welch's ANOVA instead. If sample sizes are equal across groups, regular ANOVA may still be acceptable.</p>
+            </div>
+
+            <h3>Question 2</h3>
+            <p>You want to compare customer satisfaction ratings (1-5 scale) across three store locations. You have 15 customers from each location. What assumptions do you need to check?</p>
+            <button onclick="document.getElementById('sol2').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol2" class="solution">
+                <p><strong>Three assumptions to check:</strong></p>
+                <ol>
+                    <li><strong>Independence:</strong>
+                        <ul>
+                            <li>Were customers randomly selected?</li>
+                            <li>Is each customer surveyed only once?</li>
+                            <li>Are responses independent?</li>
+                        </ul>
+                    </li>
+                    <li><strong>Normality:</strong>
+                        <ul>
+                            <li>Check histograms or Q-Q plots for each location</li>
+                            <li>With n = 15 per group, some deviation is acceptable</li>
+                            <li><strong>Note:</strong> Ordinal data (1-5 scale) may violate normality; consider Kruskal-Wallis</li>
+                        </ul>
+                    </li>
+                    <li><strong>Equal Variances:</strong>
+                        <ul>
+                            <li>Calculate sample variance for each location</li>
+                            <li>Check if max/min ratio < 2</li>
+                            <li>Equal sample sizes (n=15 each) makes ANOVA robust</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <h3>Question 3</h3>
+            <p>Which test should you use in each scenario?</p>
+            <p><strong>a)</strong> Comparing mean test scores across 5 different study strategies (random assignment, n = 40 per group, data appears normal)</p>
+            <p><strong>b)</strong> Comparing median income across 3 neighborhoods (n = 12 per group, highly skewed data)</p>
+            <p><strong>c)</strong> Comparing pre-test and post-test scores for the same 50 students</p>
+            <button onclick="document.getElementById('sol3').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol3" class="solution">
+                <p><strong>a) One-way ANOVA</strong></p>
+                <ul>
+                    <li>3+ groups (5 strategies)</li>
+                    <li>Independent groups (random assignment)</li>
+                    <li>Large samples (n = 40)</li>
+                    <li>Normal data</li>
+                    <li>All assumptions met ✓</li>
+                </ul>
+
+                <p><strong>b) Kruskal-Wallis test</strong></p>
+                <ul>
+                    <li>3 groups</li>
+                    <li>Highly skewed data (normality violated)</li>
+                    <li>Small samples (n = 12)</li>
+                    <li>Non-parametric test is appropriate</li>
+                </ul>
+
+                <p><strong>c) Paired t-test</strong></p>
+                <ul>
+                    <li>Same subjects measured twice (not independent)</li>
+                    <li>Only 2 conditions (pre and post)</li>
+                    <li>Dependent/paired samples</li>
+                    <li>NOT appropriate for ANOVA</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="content-section">
+            <h2>📝 Lesson Summary</h2>
+
+            <div class="checklist">
+                <h3>Three Key Assumptions:</h3>
+                <ul>
+                    <li><strong>Independence:</strong> Observations are independent (check study design)</li>
+                    <li><strong>Normality:</strong> Populations are normally distributed (check with plots/tests, robust with large n)</li>
+                    <li><strong>Equal Variances:</strong> σ₁² = σ₂² = ... = σₖ² (check ratio < 2, robust with equal n)</li>
+                </ul>
+            </div>
+
+            <h3>Key Takeaways:</h3>
+            <ul style="line-height: 2;">
+                <li>ANOVA is <strong>robust</strong> to moderate violations when sample sizes are large and equal</li>
+                <li><strong>Independence</strong> is most critical—if violated, results are invalid</li>
+                <li>Use <strong>Kruskal-Wallis test</strong> when normality is severely violated</li>
+                <li>Use <strong>Welch's ANOVA</strong> when variances are unequal</li>
+                <li>Always check assumptions BEFORE interpreting results</li>
+                <li>Choose appropriate test based on data characteristics and assumption violations</li>
+            </ul>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="lesson-03-post-hoc-tests.html" class="btn btn-outline">← Previous: Post-Hoc Tests</a>
+            <a href="practice.html" class="btn btn-primary">Next: Practice Problems →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

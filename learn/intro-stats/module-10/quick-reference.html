@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Reference - Module 10: ANOVA</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        body {
+            font-size: 11pt;
+        }
+        .ref-header {
+            background: linear-gradient(135deg, #D97D54 0%, #E89B7B 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .ref-header h1 {
+            color: white;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .ref-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            page-break-inside: avoid;
+        }
+        .ref-section h2 {
+            background: #D97D54;
+            color: white;
+            padding: 0.5rem;
+            margin: -1rem -1rem 0.75rem -1rem;
+            font-size: 1.2rem;
+        }
+        .formula-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 0.75rem 0;
+        }
+        .formula-item {
+            background: #FFF9E6;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #FFC107;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #D97D54;
+            color: white;
+            font-size: 0.8rem;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .checklist {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .checklist ul {
+            margin: 0.5rem 0;
+            padding-left: 1.2rem;
+        }
+        .checklist li {
+            margin: 0.25rem 0;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                font-size: 10pt;
+            }
+            .ref-section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="no-print">
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="ref-header">
+            <h1>📄 ANOVA Quick Reference Card</h1>
+            <p style="margin: 0.5rem 0 0 0; font-size: 1rem;">Module 10: One-Page Cheat Sheet</p>
+        </div>
+
+        <div class="no-print" style="text-align: center; margin-bottom: 1.5rem;">
+            <button onclick="window.print()" class="btn btn-primary">🖨️ Print Reference Card</button>
+        </div>
+
+        <!-- Purpose and Hypotheses -->
+        <div class="ref-section">
+            <h2>Purpose & Hypotheses</h2>
+            <p><strong>ANOVA:</strong> Compare means of 3+ independent groups simultaneously</p>
+            <p><strong>H₀:</strong> μ₁ = μ₂ = μ₃ = ... (all means equal) | <strong>Hₐ:</strong> At least one mean differs</p>
+            <p><strong>Why not multiple t-tests?</strong> Inflates Type I error (α inflation)</p>
+        </div>
+
+        <!-- All Formulas -->
+        <div class="ref-section">
+            <h2>Essential Formulas</h2>
+
+            <div class="formula-grid">
+                <div class="formula-item">
+                    <strong>Sum of Squares</strong><br>
+                    SST = Σ(x<sub>ij</sub> - x̄)²<br>
+                    SSB = Σn<sub>j</sub>(x̄<sub>j</sub> - x̄)²<br>
+                    SSW = Σ(x<sub>ij</sub> - x̄<sub>j</sub>)²<br>
+                    <strong>SST = SSB + SSW</strong>
+                </div>
+
+                <div class="formula-item">
+                    <strong>Degrees of Freedom</strong><br>
+                    df<sub>between</sub> = k - 1<br>
+                    df<sub>within</sub> = N - k<br>
+                    df<sub>total</sub> = N - 1<br>
+                    <em>(k=groups, N=total n)</em>
+                </div>
+
+                <div class="formula-item">
+                    <strong>Mean Squares</strong><br>
+                    MSB = SSB / (k-1)<br>
+                    MSW = SSW / (N-k)<br>
+                </div>
+
+                <div class="formula-item">
+                    <strong>F-Statistic</strong><br>
+                    F = MSB / MSW<br>
+                    <em>Large F → groups differ</em><br>
+                    <em>F ≈ 1 → groups similar</em>
+                </div>
+
+                <div class="formula-item">
+                    <strong>Tukey's HSD</strong><br>
+                    HSD = q × √(MSW / n)<br>
+                    <em>q from Studentized Range table</em><br>
+                    If |x̄<sub>i</sub>-x̄<sub>j</sub>| > HSD → significant
+                </div>
+
+                <div class="formula-item">
+                    <strong>Bonferroni</strong><br>
+                    α<sub>adj</sub> = α / c<br>
+                    <em>c = k(k-1)/2 comparisons</em><br>
+                    Use α<sub>adj</sub> for each test
+                </div>
+            </div>
+        </div>
+
+        <!-- ANOVA Table -->
+        <div class="ref-section">
+            <h2>ANOVA Table Structure</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>SS</th>
+                        <th>df</th>
+                        <th>MS</th>
+                        <th>F</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Between</td>
+                        <td>SSB</td>
+                        <td>k-1</td>
+                        <td>SSB/(k-1)</td>
+                        <td>MSB/MSW</td>
+                    </tr>
+                    <tr>
+                        <td>Within</td>
+                        <td>SSW</td>
+                        <td>N-k</td>
+                        <td>SSW/(N-k)</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>SST</td>
+                        <td>N-1</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Assumptions and Post-Hoc -->
+        <div class="ref-section">
+            <h2>Assumptions & Post-Hoc Tests</h2>
+            <div class="two-column">
+                <div class="checklist">
+                    <h3 style="margin-top: 0; font-size: 1rem;">Three Assumptions:</h3>
+                    <ul>
+                        <li><strong>Independence:</strong> Random assignment/sampling</li>
+                        <li><strong>Normality:</strong> Check plots, OK if n≥30</li>
+                        <li><strong>Equal Variances:</strong> max(s²)/min(s²) < 2</li>
+                    </ul>
+                    <h3 style="font-size: 1rem;">If Violated:</h3>
+                    <ul>
+                        <li>Independence → Repeated Measures ANOVA</li>
+                        <li>Normality → Kruskal-Wallis test</li>
+                        <li>Equal Variance → Welch's ANOVA</li>
+                    </ul>
+                </div>
+
+                <div class="checklist">
+                    <h3 style="margin-top: 0; font-size: 1rem;">Post-Hoc Tests:</h3>
+                    <ul>
+                        <li><strong>Tukey's HSD:</strong> Standard choice, all pairs</li>
+                        <li><strong>Bonferroni:</strong> Unequal n, conservative</li>
+                        <li><strong>Scheffé:</strong> Most conservative</li>
+                        <li><strong>Dunnett's:</strong> Compare to control only</li>
+                    </ul>
+                    <h3 style="font-size: 1rem;">When to Use Post-Hoc:</h3>
+                    <ul>
+                        <li>✓ ANOVA is significant (p < α)</li>
+                        <li>✓ 3 or more groups</li>
+                        <li>✗ Don't use if ANOVA not significant</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Procedure -->
+        <div class="ref-section">
+            <h2>ANOVA Procedure (11 Steps)</h2>
+            <div class="checklist" style="column-count: 2; column-gap: 1rem;">
+                <ol style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; line-height: 1.4;">
+                    <li>State H₀ and Hₐ</li>
+                    <li>Choose α (usually 0.05)</li>
+                    <li>Check assumptions</li>
+                    <li>Calculate group means (x̄<sub>j</sub>) and grand mean (x̄)</li>
+                    <li>Calculate SSB, SSW, SST</li>
+                    <li>Find df<sub>between</sub>, df<sub>within</sub></li>
+                    <li>Calculate MSB, MSW</li>
+                    <li>Calculate F = MSB/MSW</li>
+                    <li>Find p-value or F<sub>critical</sub></li>
+                    <li>Make decision (reject or fail to reject H₀)</li>
+                    <li>If significant: Conduct post-hoc tests</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Decision Guide -->
+        <div class="ref-section">
+            <h2>Which Test to Use?</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Situation</th>
+                        <th>Test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2 groups, independent</td><td>Two-sample t-test</td></tr>
+                    <tr><td>3+ groups, independent, assumptions met</td><td><strong>One-way ANOVA</strong></td></tr>
+                    <tr><td>3+ groups, severe non-normality</td><td>Kruskal-Wallis</td></tr>
+                    <tr><td>3+ groups, unequal variances</td><td>Welch's ANOVA</td></tr>
+                    <tr><td>Same subjects, multiple times</td><td>Repeated Measures ANOVA</td></tr>
+                    <tr><td>2+ factors</td><td>Two-way/Factorial ANOVA</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Common Mistakes -->
+        <div class="ref-section">
+            <h2>Common Mistakes to Avoid</h2>
+            <div class="two-column">
+                <div class="checklist">
+                    <h3 style="margin-top: 0; font-size: 1rem;">❌ DON'T:</h3>
+                    <ul>
+                        <li>Use multiple t-tests for 3+ groups</li>
+                        <li>Do post-hoc if ANOVA not significant</li>
+                        <li>Confuse SSB and SSW</li>
+                        <li>Forget to divide by df for MS</li>
+                        <li>Use ANOVA with repeated measures</li>
+                        <li>Ignore assumptions</li>
+                    </ul>
+                </div>
+                <div class="checklist">
+                    <h3 style="margin-top: 0; font-size: 1rem;">✓ DO:</h3>
+                    <ul>
+                        <li>Check all assumptions first</li>
+                        <li>Report F with both df: F(df₁, df₂)</li>
+                        <li>Verify SST = SSB + SSW</li>
+                        <li>Use post-hoc only after significant F</li>
+                        <li>Interpret in context</li>
+                        <li>Report effect size</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Points -->
+        <div class="ref-section">
+            <h2>Key Takeaways</h2>
+            <ul style="margin: 0.5rem 0; line-height: 1.6; font-size: 0.9rem;">
+                <li><strong>ANOVA tests:</strong> Are all population means equal? (3+ groups)</li>
+                <li><strong>F-statistic:</strong> Ratio of between-group to within-group variance</li>
+                <li><strong>Large F:</strong> Groups differ significantly</li>
+                <li><strong>Significant ANOVA:</strong> Use post-hoc tests to identify which groups differ</li>
+                <li><strong>Three assumptions:</strong> Independence (critical!), normality, equal variances</li>
+                <li><strong>Robust when:</strong> Large n (≥30), equal sample sizes, moderate violations</li>
+                <li><strong>Report format:</strong> F(df₁, df₂) = value, p = value</li>
+            </ul>
+        </div>
+
+        <div class="no-print" style="text-align: center; margin: 2rem 0;">
+            <a href="index.html" class="btn btn-outline">← Back to Module 10</a>
+            <a href="study-guide.html" class="btn btn-outline">Full Study Guide</a>
+            <button onclick="window.print()" class="btn btn-primary">🖨️ Print</button>
+        </div>
+    </main>
+
+    <footer class="no-print">
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
