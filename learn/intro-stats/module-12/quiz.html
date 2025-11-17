@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Quiz - Module 12: Chi-Square Tests</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .quiz-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .question-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .question-number {
+            display: inline-block;
+            background: #2C5F7C;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .options {
+            margin: 1.5rem 0;
+        }
+        .option {
+            display: block;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background: #F8F9FA;
+            border: 2px solid #E0E0E0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .option:hover {
+            background: #E3F2FD;
+            border-color: #2C5F7C;
+        }
+        .option input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+        .option.correct {
+            background: #D4EDDA;
+            border-color: #28A745;
+        }
+        .option.incorrect {
+            background: #F8D7DA;
+            border-color: #DC3545;
+        }
+        .explanation {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .submit-section {
+            text-align: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: #F0F7FA;
+            border-radius: 8px;
+        }
+        .results-box {
+            background: white;
+            border: 3px solid #2C5F7C;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            display: none;
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 1rem 0;
+        }
+        .pass {
+            color: #28A745;
+        }
+        .fail {
+            color: #DC3545;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #DDD;
+        }
+        th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+        }
+        .total-row {
+            background: #E0E0E0 !important;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container narrow">
+        <div class="quiz-header">
+            <h1>📝 Module 12 Quiz: Chi-Square Tests</h1>
+            <p style="font-size: 1.1rem; margin: 0.5rem 0 0 0; opacity: 0.95;">15 Questions | 70% to Pass</p>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 Quiz Instructions</h3>
+            <ul>
+                <li><strong>Questions:</strong> 15 multiple-choice questions</li>
+                <li><strong>Passing score:</strong> 11/15 correct (70%)</li>
+                <li><strong>Format:</strong> Auto-graded with immediate feedback</li>
+                <li><strong>Coverage:</strong> All lessons from Module 12</li>
+                <li><strong>Time:</strong> No time limit - work at your own pace</li>
+                <li><strong>Retakes:</strong> You may retake the quiz as needed</li>
+            </ul>
+        </div>
+
+        <form id="quizForm">
+            <!-- Question 1 -->
+            <div class="question-card">
+                <div class="question-number">1</div>
+                <h3>What type of data is required for chi-square tests?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q1" value="a" required>
+                        A) Quantitative data (measurements)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="b">
+                        B) Categorical data (counts/frequencies)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="c">
+                        C) Continuous data only
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="d">
+                        D) Paired numerical data
+                    </label>
+                </div>
+                <div class="explanation" id="exp1"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-card">
+                <div class="question-number">2</div>
+                <h3>For a goodness of fit test with 5 categories, what are the degrees of freedom?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q2" value="a" required>
+                        A) 5
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="b">
+                        B) 4
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="c">
+                        C) 6
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="d">
+                        D) 3
+                    </label>
+                </div>
+                <div class="explanation" id="exp2"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-card">
+                <div class="question-number">3</div>
+                <h3>In a goodness of fit test, if the null hypothesis states that all outcomes are equally likely and you have 240 observations across 4 categories, what is the expected frequency for each category?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q3" value="a" required>
+                        A) 240
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="b">
+                        B) 60
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="c">
+                        C) 4
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="d">
+                        D) 80
+                    </label>
+                </div>
+                <div class="explanation" id="exp3"></div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-card">
+                <div class="question-number">4</div>
+                <h3>Which statement about the chi-square distribution is TRUE?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q4" value="a" required>
+                        A) It is symmetric and bell-shaped
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="b">
+                        B) It can have negative values
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="c">
+                        C) It is right-skewed and always positive
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="d">
+                        D) It is uniform across all values
+                    </label>
+                </div>
+                <div class="explanation" id="exp4"></div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-card">
+                <div class="question-number">5</div>
+                <h3>For a contingency table with 3 rows and 4 columns, what are the degrees of freedom?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q5" value="a" required>
+                        A) 7
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="b">
+                        B) 12
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="c">
+                        C) 6
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="d">
+                        D) 11
+                    </label>
+                </div>
+                <div class="explanation" id="exp5"></div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-card">
+                <div class="question-number">6</div>
+                <h3>In a test of independence, the expected frequency for a cell is calculated as:</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q6" value="a" required>
+                        A) (Observed - Expected) / Expected
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="b">
+                        B) (Row Total × Column Total) / Grand Total
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="c">
+                        C) Sample size × proportion
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="d">
+                        D) Observed / Sample size
+                    </label>
+                </div>
+                <div class="explanation" id="exp6"></div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-card">
+                <div class="question-number">7</div>
+                <h3>A researcher surveys 400 people (one sample) and records both their age group and political party preference. Which test should be used?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q7" value="a" required>
+                        A) Goodness of fit
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="b">
+                        B) Test of independence
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="c">
+                        C) Test of homogeneity
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="d">
+                        D) Two-sample t-test
+                    </label>
+                </div>
+                <div class="explanation" id="exp7"></div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-card">
+                <div class="question-number">8</div>
+                <h3>What is the most critical condition that must be met for all chi-square tests?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q8" value="a" required>
+                        A) Sample size must be less than 30
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="b">
+                        B) All expected frequencies must be at least 5
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="c">
+                        C) Data must be normally distributed
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="d">
+                        D) Variables must be quantitative
+                    </label>
+                </div>
+                <div class="explanation" id="exp8"></div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-card">
+                <div class="question-number">9</div>
+                <h3>A company samples 100 employees from Office A, 100 from Office B, and 100 from Office C. Each employee rates job satisfaction (High, Medium, Low). Which test should be used?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q9" value="a" required>
+                        A) Goodness of fit
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="b">
+                        B) Test of independence
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="c">
+                        C) Test of homogeneity
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="d">
+                        D) ANOVA
+                    </label>
+                </div>
+                <div class="explanation" id="exp9"></div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-card">
+                <div class="question-number">10</div>
+                <h3>What is the key difference between a test of independence and a test of homogeneity?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q10" value="a" required>
+                        A) They use different formulas for the test statistic
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="b">
+                        B) Independence has one sample with two variables; homogeneity has multiple samples with one variable
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="c">
+                        C) Independence uses different degrees of freedom
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="d">
+                        D) Homogeneity requires larger sample sizes
+                    </label>
+                </div>
+                <div class="explanation" id="exp10"></div>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question-card">
+                <div class="question-number">11</div>
+                <h3>A chi-square test of independence yields χ² = 12.5 with df = 4. Using α = 0.05 (critical value = 9.488), what should you conclude?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q11" value="a" required>
+                        A) Fail to reject H₀; variables are independent
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="b">
+                        B) Reject H₀; variables are associated
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="c">
+                        C) Accept H₀; variables are definitely independent
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="d">
+                        D) The test is invalid
+                    </label>
+                </div>
+                <div class="explanation" id="exp11"></div>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question-card">
+                <div class="question-number">12</div>
+                <h3>In a 2×2 contingency table, you have observed frequency O = 30 and expected frequency E = 25 for one cell. What is the contribution of this cell to the chi-square statistic?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q12" value="a" required>
+                        A) 5
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="b">
+                        B) 1
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="c">
+                        C) 25
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="d">
+                        D) 0.2
+                    </label>
+                </div>
+                <div class="explanation" id="exp12"></div>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question-card">
+                <div class="question-number">13</div>
+                <h3>Chi-square tests are ALWAYS:</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q13" value="a" required>
+                        A) Two-tailed
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="b">
+                        B) Left-tailed
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="c">
+                        C) Right-tailed
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="d">
+                        D) Can be any tail depending on the hypothesis
+                    </label>
+                </div>
+                <div class="explanation" id="exp13"></div>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question-card">
+                <div class="question-number">14</div>
+                <h3>A researcher tests if a die is fair by rolling it 600 times. What are the null and alternative hypotheses?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q14" value="a" required>
+                        A) H₀: The die is fair; Hₐ: The die is not fair
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="b">
+                        B) H₀: The die is not fair; Hₐ: The die is fair
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="c">
+                        C) H₀: All faces have equal probability; Hₐ: At least one face has different probability
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="d">
+                        D) Both A and C are correct
+                    </label>
+                </div>
+                <div class="explanation" id="exp14"></div>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question-card">
+                <div class="question-number">15</div>
+                <h3>If a chi-square test shows that two variables are associated, what can you conclude?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q15" value="a" required>
+                        A) One variable causes changes in the other
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="b">
+                        B) The variables are related, but causation is not established
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="c">
+                        C) The variables are definitely independent
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="d">
+                        D) The test was conducted incorrectly
+                    </label>
+                </div>
+                <div class="explanation" id="exp15"></div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Submit Quiz</button>
+            </div>
+        </form>
+
+        <div id="results" class="results-box">
+            <h2>Quiz Results</h2>
+            <div class="score-display" id="scoreDisplay"></div>
+            <p id="resultMessage" style="font-size: 1.2rem;"></p>
+            <div id="feedback"></div>
+            <div style="margin-top: 2rem;">
+                <button onclick="location.reload()" class="btn btn-outline">Retake Quiz</button>
+                <a href="post-assessment.html" class="btn btn-primary" id="continueBtn" style="display: none;">Continue to Post-Assessment →</a>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #E0E0E0;">
+            <p><a href="index.html">← Back to Module 12 Overview</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const correctAnswers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'b',
+            q4: 'c',
+            q5: 'c',
+            q6: 'b',
+            q7: 'b',
+            q8: 'b',
+            q9: 'c',
+            q10: 'b',
+            q11: 'b',
+            q12: 'b',
+            q13: 'c',
+            q14: 'd',
+            q15: 'b'
+        };
+
+        const explanations = {
+            q1: "Correct! Chi-square tests analyze categorical data in the form of counts or frequencies, not quantitative measurements.",
+            q2: "Correct! For goodness of fit, df = k - 1 = 5 - 1 = 4, where k is the number of categories.",
+            q3: "Correct! Expected frequency = 240/4 = 60 for each category when all are equally likely.",
+            q4: "Correct! The chi-square distribution is right-skewed, always positive (χ² ≥ 0), and becomes more symmetric as df increases.",
+            q5: "Correct! df = (r-1)(c-1) = (3-1)(4-1) = 2 × 3 = 6.",
+            q6: "Correct! Expected frequency = (Row Total × Column Total) / Grand Total for tests of independence and homogeneity.",
+            q7: "Correct! One sample with two variables (age and party) → test of independence.",
+            q8: "Correct! All expected frequencies must be at least 5 for the chi-square approximation to be valid.",
+            q9: "Correct! Multiple samples (three offices) with one variable (satisfaction) → test of homogeneity.",
+            q10: "Correct! The key difference is study design: independence has one sample classified by two variables, while homogeneity compares multiple samples on one variable.",
+            q11: "Correct! Since 12.5 > 9.488, we reject H₀ and conclude the variables are associated.",
+            q12: "Correct! Contribution = (O-E)²/E = (30-25)²/25 = 25/25 = 1.",
+            q13: "Correct! Chi-square tests are always right-tailed because we square the deviations (O-E)², making all contributions positive.",
+            q14: "Correct! Both A and C express the same hypotheses - the die being fair means all faces have equal probability (1/6 each).",
+            q15: "Correct! Association does NOT imply causation. Chi-square tests only detect relationships, not cause-and-effect."
+        };
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let score = 0;
+            const totalQuestions = 15;
+
+            // Grade each question
+            for (let i = 1; i <= totalQuestions; i++) {
+                const qName = 'q' + i;
+                const selected = document.querySelector(`input[name="${qName}"]:checked`);
+                const options = document.querySelectorAll(`input[name="${qName}"]`);
+
+                if (selected) {
+                    const isCorrect = selected.value === correctAnswers[qName];
+                    if (isCorrect) score++;
+
+                    // Highlight correct/incorrect
+                    options.forEach(option => {
+                        const label = option.parentElement;
+                        if (option.value === correctAnswers[qName]) {
+                            label.classList.add('correct');
+                        } else if (option.checked) {
+                            label.classList.add('incorrect');
+                        }
+                        option.disabled = true;
+                    });
+
+                    // Show explanation
+                    const expDiv = document.getElementById('exp' + i);
+                    expDiv.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect.'}</strong> ${explanations[qName]}`;
+                    expDiv.style.display = 'block';
+                }
+            }
+
+            // Calculate percentage
+            const percentage = (score / totalQuestions * 100).toFixed(1);
+            const passed = percentage >= 70;
+
+            // Display results
+            document.getElementById('scoreDisplay').textContent = `${score}/${totalQuestions} (${percentage}%)`;
+            document.getElementById('scoreDisplay').className = 'score-display ' + (passed ? 'pass' : 'fail');
+
+            const resultMsg = passed
+                ? '🎉 Congratulations! You passed the quiz!'
+                : '📚 You did not pass this time. Review the material and try again!';
+            document.getElementById('resultMessage').textContent = resultMsg;
+            document.getElementById('resultMessage').className = passed ? 'pass' : 'fail';
+
+            // Show continue button if passed
+            if (passed) {
+                document.getElementById('continueBtn').style.display = 'inline-block';
+            }
+
+            // Hide form, show results
+            document.getElementById('quizForm').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+            // Log data
+            console.log('Quiz Results:', {
+                module: 'module-12',
+                score: score,
+                total: totalQuestions,
+                percentage: percentage,
+                passed: passed,
+                timestamp: new Date().toISOString()
+            });
+        });
+    </script>
+</body>
+</html>

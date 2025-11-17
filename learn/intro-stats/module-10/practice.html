@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Problems - Module 10: ANOVA</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .practice-header {
+            background: linear-gradient(135deg, #28A745 0%, #34CE57 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .practice-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .problem-card {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .problem-number {
+            display: inline-block;
+            background: #28A745;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .section-header {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            margin: 2rem 0 1rem 0;
+        }
+        .solution {
+            background: #F8F9FA;
+            border-left: 3px solid #28A745;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .solution.show {
+            display: block;
+        }
+        .solution h4 {
+            color: #28A745;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .calculation {
+            background: #E8F5E9;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="practice-header">
+            <h1>Practice Problems</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Module 10: Analysis of Variance (ANOVA) - 20 Problems</p>
+        </div>
+
+        <!-- PART 1: CONCEPTUAL UNDERSTANDING -->
+        <div class="section-header">
+            <h2>Part 1: Conceptual Understanding (5 problems)</h2>
+            <p>Test your understanding of ANOVA concepts and principles.</p>
+        </div>
+
+        <!-- Problem 1 -->
+        <div class="problem-card">
+            <div class="problem-number">1</div>
+            <h3>Multiple Comparisons and α Inflation</h3>
+            <p>A researcher wants to compare mean test scores across 6 different teaching methods using α = 0.05.</p>
+            <p><strong>a)</strong> How many pairwise comparisons would be needed if using multiple t-tests?</p>
+            <p><strong>b)</strong> What would be the approximate overall Type I error rate if conducting these t-tests?</p>
+            <p><strong>c)</strong> Explain why ANOVA is preferable in this situation.</p>
+            <button onclick="document.getElementById('sol1').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol1" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Number of comparisons:</strong></p>
+                <div class="calculation">
+                    c = k(k-1)/2 = 6(5)/2 = 15 pairwise comparisons
+                </div>
+
+                <p><strong>b) Overall Type I error rate:</strong></p>
+                <div class="calculation">
+                    Overall α = 1 - (1 - 0.05)^15 = 1 - (0.95)^15 ≈ 0.537 or 53.7%
+                </div>
+                <p>With 15 tests, there's more than a 50% chance of making at least one Type I error!</p>
+
+                <p><strong>c) Why ANOVA is better:</strong></p>
+                <ul>
+                    <li>ANOVA performs a single test, maintaining α = 0.05</li>
+                    <li>Controls the family-wise error rate</li>
+                    <li>Avoids the multiple comparisons problem</li>
+                    <li>More powerful and statistically sound approach</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 2 -->
+        <div class="problem-card">
+            <div class="problem-number">2</div>
+            <h3>Interpreting the F-Statistic</h3>
+            <p>Explain what each of the following F-statistics tells you about the data:</p>
+            <p><strong>a)</strong> F = 0.8</p>
+            <p><strong>b)</strong> F = 1.2</p>
+            <p><strong>c)</strong> F = 15.6</p>
+            <button onclick="document.getElementById('sol2').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol2" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) F = 0.8:</strong></p>
+                <ul>
+                    <li>Between-group variance is LESS than within-group variance</li>
+                    <li>Group means are very similar relative to natural variation</li>
+                    <li>Very little evidence of group differences</li>
+                    <li>Will definitely fail to reject H₀</li>
+                </ul>
+
+                <p><strong>b) F = 1.2:</strong></p>
+                <ul>
+                    <li>Between-group variance is slightly larger than within-group variance</li>
+                    <li>Weak evidence of group differences</li>
+                    <li>Likely not statistically significant</li>
+                    <li>Probably fail to reject H₀</li>
+                </ul>
+
+                <p><strong>c) F = 15.6:</strong></p>
+                <ul>
+                    <li>Between-group variance is MUCH larger than within-group variance</li>
+                    <li>Group means differ substantially</li>
+                    <li>Strong evidence that at least one group differs</li>
+                    <li>Very likely to reject H₀ (highly significant)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 3 -->
+        <div class="problem-card">
+            <div class="problem-number">3</div>
+            <h3>ANOVA vs Other Tests</h3>
+            <p>For each scenario, identify the appropriate statistical test and explain why:</p>
+            <p><strong>a)</strong> Comparing mean salaries of employees in two different departments</p>
+            <p><strong>b)</strong> Comparing mean GPAs across four different majors</p>
+            <p><strong>c)</strong> Determining if gender and political party preference are related</p>
+            <p><strong>d)</strong> Comparing median incomes across 5 cities when data is highly skewed</p>
+            <button onclick="document.getElementById('sol3').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol3" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Two-sample t-test</strong></p>
+                <ul>
+                    <li>Only 2 groups (two departments)</li>
+                    <li>Comparing means</li>
+                    <li>Quantitative variable (salary)</li>
+                </ul>
+
+                <p><strong>b) One-way ANOVA</strong></p>
+                <ul>
+                    <li>More than 2 groups (four majors)</li>
+                    <li>Comparing means</li>
+                    <li>One categorical factor (major)</li>
+                    <li>Quantitative variable (GPA)</li>
+                </ul>
+
+                <p><strong>c) Chi-square test of independence</strong></p>
+                <ul>
+                    <li>Both variables are categorical</li>
+                    <li>Testing for association/relationship</li>
+                    <li>Not comparing means</li>
+                </ul>
+
+                <p><strong>d) Kruskal-Wallis test</strong></p>
+                <ul>
+                    <li>More than 2 groups (5 cities)</li>
+                    <li>Highly skewed data (normality violated)</li>
+                    <li>Non-parametric alternative to ANOVA</li>
+                    <li>Compares medians instead of means</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 4 -->
+        <div class="problem-card">
+            <div class="problem-number">4</div>
+            <h3>Understanding ANOVA Results</h3>
+            <p>An ANOVA comparing customer satisfaction scores across 4 store locations yields F(3, 76) = 5.8, p = 0.002.</p>
+            <p><strong>a)</strong> What are the degrees of freedom and what do they represent?</p>
+            <p><strong>b)</strong> What conclusion can you draw at α = 0.05?</p>
+            <p><strong>c)</strong> What does this result NOT tell you?</p>
+            <button onclick="document.getElementById('sol4').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol4" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Degrees of freedom:</strong></p>
+                <ul>
+                    <li>df₁ = 3 = df<sub>between</sub> = k - 1, so k = 4 groups ✓</li>
+                    <li>df₂ = 76 = df<sub>within</sub> = N - k, so N = 80 total observations</li>
+                    <li>This means 4 locations with 80 total customers (average 20 per location)</li>
+                </ul>
+
+                <p><strong>b) Conclusion:</strong></p>
+                <ul>
+                    <li>p = 0.002 < 0.05, so reject H₀</li>
+                    <li>At the 0.05 significance level, there is sufficient evidence to conclude that at least one store location has a different mean customer satisfaction score than the others</li>
+                </ul>
+
+                <p><strong>c) What this does NOT tell us:</strong></p>
+                <ul>
+                    <li>Which specific locations differ from each other</li>
+                    <li>Which location has the highest/lowest satisfaction</li>
+                    <li>How many locations differ significantly</li>
+                    <li><strong>Need post-hoc tests to answer these questions!</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 5 -->
+        <div class="problem-card">
+            <div class="problem-number">5</div>
+            <h3>Between vs Within Variation</h3>
+            <p>Explain in your own words what "between-group variation" and "within-group variation" mean in the context of ANOVA. Why do we compare these two types of variation?</p>
+            <button onclick="document.getElementById('sol5').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol5" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>Between-group variation:</strong></p>
+                <ul>
+                    <li>Measures how much the group means differ from each other</li>
+                    <li>Reflects the effect of the factor/treatment</li>
+                    <li>If groups truly differ, this should be large</li>
+                    <li>Example: Differences in average test scores across different teaching methods</li>
+                </ul>
+
+                <p><strong>Within-group variation:</strong></p>
+                <ul>
+                    <li>Measures how much individuals vary within each group</li>
+                    <li>Represents natural variability/"noise" in the data</li>
+                    <li>Exists regardless of group membership</li>
+                    <li>Example: Students in the same class have different scores due to individual differences</li>
+                </ul>
+
+                <p><strong>Why we compare them:</strong></p>
+                <ul>
+                    <li>If between-group variation is much larger than within-group variation, it suggests real group differences (not just random chance)</li>
+                    <li>The F-statistic is this ratio: F = MSB/MSW</li>
+                    <li>Large F → signal (group differences) >> noise (random variation) → significant result</li>
+                    <li>Small F → signal ≈ noise → no significant difference</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PART 2: ANOVA CALCULATIONS -->
+        <div class="section-header">
+            <h2>Part 2: ANOVA Calculations (5 problems)</h2>
+            <p>Practice calculating sum of squares, degrees of freedom, mean squares, and F-statistics.</p>
+        </div>
+
+        <!-- Problem 6 -->
+        <div class="problem-card">
+            <div class="problem-number">6</div>
+            <h3>Degrees of Freedom</h3>
+            <p>Calculate the degrees of freedom for each ANOVA scenario:</p>
+            <p><strong>a)</strong> 3 groups with 12 observations each</p>
+            <p><strong>b)</strong> 5 groups with sample sizes: 8, 10, 12, 10, 10</p>
+            <p><strong>c)</strong> 4 groups with total N = 60</p>
+            <button onclick="document.getElementById('sol6').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol6" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a)</strong> k = 3, N = 3 × 12 = 36</p>
+                <div class="calculation">
+                    df<sub>between</sub> = k - 1 = 3 - 1 = 2
+                </div>
+                <div class="calculation">
+                    df<sub>within</sub> = N - k = 36 - 3 = 33
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = N - 1 = 36 - 1 = 35
+                </div>
+
+                <p><strong>b)</strong> k = 5, N = 8 + 10 + 12 + 10 + 10 = 50</p>
+                <div class="calculation">
+                    df<sub>between</sub> = 5 - 1 = 4
+                </div>
+                <div class="calculation">
+                    df<sub>within</sub> = 50 - 5 = 45
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = 50 - 1 = 49
+                </div>
+
+                <p><strong>c)</strong> k = 4, N = 60</p>
+                <div class="calculation">
+                    df<sub>between</sub> = 4 - 1 = 3
+                </div>
+                <div class="calculation">
+                    df<sub>within</sub> = 60 - 4 = 56
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = 60 - 1 = 59
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem 7 -->
+        <div class="problem-card">
+            <div class="problem-number">7</div>
+            <h3>Completing an ANOVA Table</h3>
+            <p>Complete the missing values in this ANOVA table:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>SS</th>
+                        <th>df</th>
+                        <th>MS</th>
+                        <th>F</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Between Groups</td>
+                        <td>240</td>
+                        <td>?</td>
+                        <td>?</td>
+                        <td>?</td>
+                    </tr>
+                    <tr>
+                        <td>Within Groups</td>
+                        <td>360</td>
+                        <td>27</td>
+                        <td>?</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>?</td>
+                        <td>?</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Given: k = 4 groups</p>
+            <button onclick="document.getElementById('sol7').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol7" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>Step 1: Find df<sub>between</sub></strong></p>
+                <div class="calculation">
+                    df<sub>between</sub> = k - 1 = 4 - 1 = 3
+                </div>
+
+                <p><strong>Step 2: Find N and df<sub>total</sub></strong></p>
+                <div class="calculation">
+                    df<sub>within</sub> = N - k
+                    27 = N - 4
+                    N = 31
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = N - 1 = 31 - 1 = 30
+                </div>
+
+                <p><strong>Step 3: Calculate SST</strong></p>
+                <div class="calculation">
+                    SST = SSB + SSW = 240 + 360 = 600
+                </div>
+
+                <p><strong>Step 4: Calculate mean squares</strong></p>
+                <div class="calculation">
+                    MSB = SSB / df<sub>between</sub> = 240 / 3 = 80
+                </div>
+                <div class="calculation">
+                    MSW = SSW / df<sub>within</sub> = 360 / 27 = 13.33
+                </div>
+
+                <p><strong>Step 5: Calculate F</strong></p>
+                <div class="calculation">
+                    F = MSB / MSW = 80 / 13.33 = 6.00
+                </div>
+
+                <p><strong>Complete table:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>SS</th>
+                            <th>df</th>
+                            <th>MS</th>
+                            <th>F</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Between</td>
+                            <td>240</td>
+                            <td>3</td>
+                            <td>80</td>
+                            <td>6.00</td>
+                        </tr>
+                        <tr>
+                            <td>Within</td>
+                            <td>360</td>
+                            <td>27</td>
+                            <td>13.33</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            <td>600</td>
+                            <td>30</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Problem 8 -->
+        <div class="problem-card">
+            <div class="problem-number">8</div>
+            <h3>Simple ANOVA Calculation</h3>
+            <p>Three groups have the following data:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Group A</th>
+                        <th>Group B</th>
+                        <th>Group C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>6</td><td>8</td><td>12</td></tr>
+                    <tr><td>8</td><td>10</td><td>14</td></tr>
+                    <tr><td>10</td><td>12</td><td>16</td></tr>
+                </tbody>
+            </table>
+            <p><strong>a)</strong> Calculate the group means and grand mean</p>
+            <p><strong>b)</strong> Calculate SSB (between-group sum of squares)</p>
+            <p><strong>c)</strong> Calculate SSW (within-group sum of squares)</p>
+            <button onclick="document.getElementById('sol8').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol8" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Calculate means:</strong></p>
+                <div class="calculation">
+                    Group A: x̄₁ = (6 + 8 + 10) / 3 = 24 / 3 = 8
+                </div>
+                <div class="calculation">
+                    Group B: x̄₂ = (8 + 10 + 12) / 3 = 30 / 3 = 10
+                </div>
+                <div class="calculation">
+                    Group C: x̄₃ = (12 + 14 + 16) / 3 = 42 / 3 = 14
+                </div>
+                <div class="calculation">
+                    Grand mean: x̄ = (24 + 30 + 42) / 9 = 96 / 9 = 10.67
+                </div>
+
+                <p><strong>b) Calculate SSB:</strong></p>
+                <div class="calculation">
+                    SSB = Σn<sub>j</sub>(x̄<sub>j</sub> - x̄)²
+                </div>
+                <div class="calculation">
+                    SSB = 3(8-10.67)² + 3(10-10.67)² + 3(14-10.67)²
+                </div>
+                <div class="calculation">
+                    SSB = 3(-2.67)² + 3(-0.67)² + 3(3.33)²
+                </div>
+                <div class="calculation">
+                    SSB = 3(7.13) + 3(0.45) + 3(11.09)
+                </div>
+                <div class="calculation">
+                    SSB = 21.39 + 1.35 + 33.27 = 56.01 ≈ 56
+                </div>
+
+                <p><strong>c) Calculate SSW:</strong></p>
+                <p>Group A:</p>
+                <div class="calculation">
+                    (6-8)² + (8-8)² + (10-8)² = 4 + 0 + 4 = 8
+                </div>
+                <p>Group B:</p>
+                <div class="calculation">
+                    (8-10)² + (10-10)² + (12-10)² = 4 + 0 + 4 = 8
+                </div>
+                <p>Group C:</p>
+                <div class="calculation">
+                    (12-14)² + (14-14)² + (16-14)² = 4 + 0 + 4 = 8
+                </div>
+                <div class="calculation">
+                    SSW = 8 + 8 + 8 = 24
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem 9 -->
+        <div class="problem-card">
+            <div class="problem-number">9</div>
+            <h3>Mean Squares and F-Statistic</h3>
+            <p>Using the results from Problem 8:</p>
+            <p>SSB = 56, SSW = 24, k = 3, N = 9</p>
+            <p><strong>a)</strong> Calculate MSB and MSW</p>
+            <p><strong>b)</strong> Calculate the F-statistic</p>
+            <p><strong>c)</strong> If the critical value at α = 0.05 is F<sub>crit</sub> = 5.14, what is your decision?</p>
+            <button onclick="document.getElementById('sol9').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol9" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Calculate mean squares:</strong></p>
+                <p>First find degrees of freedom:</p>
+                <div class="calculation">
+                    df<sub>between</sub> = k - 1 = 3 - 1 = 2
+                </div>
+                <div class="calculation">
+                    df<sub>within</sub> = N - k = 9 - 3 = 6
+                </div>
+                <p>Then calculate MS:</p>
+                <div class="calculation">
+                    MSB = SSB / df<sub>between</sub> = 56 / 2 = 28
+                </div>
+                <div class="calculation">
+                    MSW = SSW / df<sub>within</sub> = 24 / 6 = 4
+                </div>
+
+                <p><strong>b) Calculate F:</strong></p>
+                <div class="calculation">
+                    F = MSB / MSW = 28 / 4 = 7.00
+                </div>
+
+                <p><strong>c) Decision:</strong></p>
+                <div class="calculation">
+                    F = 7.00 > F<sub>crit</sub> = 5.14 → Reject H₀
+                </div>
+                <p><strong>Conclusion:</strong> At the 0.05 significance level, there is sufficient evidence to conclude that at least one group mean is different from the others.</p>
+            </div>
+        </div>
+
+        <!-- Problem 10 -->
+        <div class="problem-card">
+            <div class="problem-number">10</div>
+            <h3>Relationship Between SS, MS, and df</h3>
+            <p>An ANOVA has SSB = 180, MSW = 5, df<sub>between</sub> = 3, and df<sub>total</sub> = 39.</p>
+            <p><strong>a)</strong> Find MSB</p>
+            <p><strong>b)</strong> Find df<sub>within</sub> and N</p>
+            <p><strong>c)</strong> Find SSW</p>
+            <p><strong>d)</strong> Find SST and verify SST = SSB + SSW</p>
+            <button onclick="document.getElementById('sol10').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol10" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Find MSB:</strong></p>
+                <div class="calculation">
+                    MSB = SSB / df<sub>between</sub> = 180 / 3 = 60
+                </div>
+
+                <p><strong>b) Find df<sub>within</sub> and N:</strong></p>
+                <div class="calculation">
+                    df<sub>within</sub> = df<sub>total</sub> - df<sub>between</sub> = 39 - 3 = 36
+                </div>
+                <div class="calculation">
+                    df<sub>total</sub> = N - 1
+                    39 = N - 1
+                    N = 40
+                </div>
+
+                <p><strong>c) Find SSW:</strong></p>
+                <div class="calculation">
+                    MSW = SSW / df<sub>within</sub>
+                    5 = SSW / 36
+                    SSW = 5 × 36 = 180
+                </div>
+
+                <p><strong>d) Find SST and verify:</strong></p>
+                <div class="calculation">
+                    SST = SSB + SSW = 180 + 180 = 360
+                </div>
+                <p>Verification ✓ (alternatively: SST = MST × df<sub>total</sub>, but MST isn't typically calculated)</p>
+            </div>
+        </div>
+
+        <!-- PART 3: POST-HOC TESTS -->
+        <div class="section-header">
+            <h2>Part 3: Post-Hoc Tests (5 problems)</h2>
+            <p>Practice with Tukey's HSD and Bonferroni correction.</p>
+        </div>
+
+        <!-- Problem 11 -->
+        <div class="problem-card">
+            <div class="problem-number">11</div>
+            <h3>Tukey's HSD Calculation</h3>
+            <p>Given: k = 3 groups, n = 6 per group, MSW = 8, q = 3.67 (from table)</p>
+            <p>Group means: x̄₁ = 45, x̄₂ = 50, x̄₃ = 53</p>
+            <p><strong>a)</strong> Calculate Tukey's HSD</p>
+            <p><strong>b)</strong> Determine which pairs of groups differ significantly</p>
+            <button onclick="document.getElementById('sol11').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol11" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Calculate HSD:</strong></p>
+                <div class="calculation">
+                    HSD = q × √(MSW / n)
+                </div>
+                <div class="calculation">
+                    HSD = 3.67 × √(8 / 6)
+                </div>
+                <div class="calculation">
+                    HSD = 3.67 × √1.333
+                </div>
+                <div class="calculation">
+                    HSD = 3.67 × 1.155 = 4.24
+                </div>
+
+                <p><strong>b) Compare all pairs:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>|Difference|</th>
+                            <th>vs HSD = 4.24</th>
+                            <th>Significant?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Group 1 vs 2</td>
+                            <td>|45 - 50| = 5</td>
+                            <td>5 > 4.24</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Group 1 vs 3</td>
+                            <td>|45 - 53| = 8</td>
+                            <td>8 > 4.24</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Group 2 vs 3</td>
+                            <td>|50 - 53| = 3</td>
+                            <td>3 < 4.24</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Conclusion:</strong> Group 1 differs significantly from both Groups 2 and 3, but Groups 2 and 3 do not differ significantly from each other.</p>
+            </div>
+        </div>
+
+        <!-- Problem 12 -->
+        <div class="problem-card">
+            <div class="problem-number">12</div>
+            <h3>Bonferroni Correction</h3>
+            <p>A researcher is comparing mean reaction times across 5 different conditions using α = 0.05.</p>
+            <p><strong>a)</strong> How many pairwise comparisons are there?</p>
+            <p><strong>b)</strong> What is the Bonferroni-adjusted α for each comparison?</p>
+            <p><strong>c)</strong> If a comparison has p = 0.02, is it significant using the Bonferroni correction?</p>
+            <button onclick="document.getElementById('sol12').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol12" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Number of comparisons:</strong></p>
+                <div class="calculation">
+                    c = k(k-1) / 2 = 5(4) / 2 = 10 comparisons
+                </div>
+
+                <p><strong>b) Bonferroni-adjusted α:</strong></p>
+                <div class="calculation">
+                    α<sub>adjusted</sub> = α / c = 0.05 / 10 = 0.005
+                </div>
+
+                <p><strong>c) Is p = 0.02 significant?</strong></p>
+                <div class="calculation">
+                    p = 0.02 > α<sub>adjusted</sub> = 0.005 → NOT significant
+                </div>
+                <p><strong>Explanation:</strong> While 0.02 < 0.05 (would be significant without correction), it's not less than the Bonferroni-adjusted 0.005, so we fail to reject H₀ for this comparison. This is why Bonferroni is considered conservative—it makes it harder to find significance.</p>
+            </div>
+        </div>
+
+        <!-- Problem 13 -->
+        <div class="problem-card">
+            <div class="problem-number">13</div>
+            <h3>When to Conduct Post-Hoc Tests</h3>
+            <p>For each ANOVA result, indicate whether post-hoc tests should be conducted and explain why:</p>
+            <p><strong>a)</strong> F(2, 45) = 1.8, p = 0.18</p>
+            <p><strong>b)</strong> F(3, 96) = 6.2, p = 0.001</p>
+            <p><strong>c)</strong> F(1, 38) = 12.5, p < 0.001</p>
+            <button onclick="document.getElementById('sol13').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol13" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) NO, do not conduct post-hoc tests</strong></p>
+                <ul>
+                    <li>p = 0.18 > 0.05, so ANOVA is not significant</li>
+                    <li>Failed to reject H₀</li>
+                    <li>No evidence of group differences</li>
+                    <li>Post-hoc tests only make sense after significant ANOVA</li>
+                </ul>
+
+                <p><strong>b) YES, conduct post-hoc tests</strong></p>
+                <ul>
+                    <li>p = 0.001 < 0.05, so ANOVA is significant</li>
+                    <li>df₁ = 3 means k = 4 groups (more than 2)</li>
+                    <li>Know at least one group differs, but not which ones</li>
+                    <li>Post-hoc tests will identify specific group differences</li>
+                </ul>
+
+                <p><strong>c) NO, do not conduct post-hoc tests</strong></p>
+                <ul>
+                    <li>Even though p < 0.001 (significant)</li>
+                    <li>df₁ = 1 means k = 2 groups only</li>
+                    <li>With only 2 groups, ANOVA is equivalent to a t-test</li>
+                    <li>Already know which groups differ (the only two!)</li>
+                    <li>Post-hoc tests are only needed with 3+ groups</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 14 -->
+        <div class="problem-card">
+            <div class="problem-number">14</div>
+            <h3>Interpreting Post-Hoc Results</h3>
+            <p>After a significant ANOVA comparing 4 brands of batteries, Tukey's HSD = 3.5 hours. The mean lifespans are:</p>
+            <ul>
+                <li>Brand A: 48 hours</li>
+                <li>Brand B: 52 hours</li>
+                <li>Brand C: 45 hours</li>
+                <li>Brand D: 51 hours</li>
+            </ul>
+            <p>Create a summary table showing which brands differ significantly and interpret the results.</p>
+            <button onclick="document.getElementById('sol14').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol14" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>Pairwise comparisons:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Difference</th>
+                            <th>vs HSD</th>
+                            <th>Significant?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A vs B</td>
+                            <td>|48-52| = 4</td>
+                            <td>4 > 3.5</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>A vs C</td>
+                            <td>|48-45| = 3</td>
+                            <td>3 < 3.5</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td>A vs D</td>
+                            <td>|48-51| = 3</td>
+                            <td>3 < 3.5</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td>B vs C</td>
+                            <td>|52-45| = 7</td>
+                            <td>7 > 3.5</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>B vs D</td>
+                            <td>|52-51| = 1</td>
+                            <td>1 < 3.5</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td>C vs D</td>
+                            <td>|45-51| = 6</td>
+                            <td>6 > 3.5</td>
+                            <td>Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Interpretation:</strong></p>
+                <ul>
+                    <li>Brand C has significantly shorter lifespan than Brands B and D</li>
+                    <li>Brand B has significantly longer lifespan than Brands A and C</li>
+                    <li>Brands B and D perform similarly (no significant difference)</li>
+                    <li>Brands A and D perform similarly</li>
+                    <li>Brands A and C perform similarly</li>
+                </ul>
+                <p><strong>Ranking (from longest to shortest):</strong> B ≈ D > A ≈ C</p>
+                <p><strong>Recommendation:</strong> Brands B or D are best choices; avoid Brand C.</p>
+            </div>
+        </div>
+
+        <!-- Problem 15 -->
+        <div class="problem-card">
+            <div class="problem-number">15</div>
+            <h3>Tukey vs Bonferroni</h3>
+            <p>You're comparing 4 fertilizers with unequal sample sizes: n₁ = 8, n₂ = 12, n₃ = 10, n₄ = 15.</p>
+            <p><strong>a)</strong> Would you use Tukey's HSD or Bonferroni? Explain.</p>
+            <p><strong>b)</strong> If using Bonferroni with α = 0.05, what α would you use for each comparison?</p>
+            <button onclick="document.getElementById('sol15').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol15" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Use Bonferroni</strong></p>
+                <ul>
+                    <li>Sample sizes are <strong>unequal</strong> (8, 12, 10, 15)</li>
+                    <li>Tukey's HSD assumes equal sample sizes</li>
+                    <li>Bonferroni works well with unequal sample sizes</li>
+                    <li>Alternatively, could use modified Tukey with harmonic mean, but Bonferroni is simpler</li>
+                </ul>
+
+                <p><strong>b) Bonferroni-adjusted α:</strong></p>
+                <p>Number of comparisons:</p>
+                <div class="calculation">
+                    c = k(k-1) / 2 = 4(3) / 2 = 6 comparisons
+                </div>
+                <p>Adjusted α:</p>
+                <div class="calculation">
+                    α<sub>adjusted</sub> = 0.05 / 6 = 0.0083
+                </div>
+                <p>Use α = 0.0083 (or approximately 0.008) for each of the 6 pairwise t-tests.</p>
+            </div>
+        </div>
+
+        <!-- PART 4: ASSUMPTIONS AND APPLICATIONS -->
+        <div class="section-header">
+            <h2>Part 4: Assumptions and Applications (5 problems)</h2>
+            <p>Practice checking ANOVA assumptions and choosing appropriate tests.</p>
+        </div>
+
+        <!-- Problem 16 -->
+        <div class="problem-card">
+            <div class="problem-number">16</div>
+            <h3>Checking Equal Variance Assumption</h3>
+            <p>Five groups have the following sample variances:</p>
+            <ul>
+                <li>Group 1: s₁² = 14.2</li>
+                <li>Group 2: s₂² = 18.5</li>
+                <li>Group 3: s₃² = 12.8</li>
+                <li>Group 4: s₄² = 16.1</li>
+                <li>Group 5: s₅² = 20.3</li>
+            </ul>
+            <p>Is the equal variance assumption reasonable? Show your work.</p>
+            <button onclick="document.getElementById('sol16').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol16" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>Step 1: Identify max and min variances</strong></p>
+                <div class="calculation">
+                    Maximum variance = 20.3 (Group 5)
+                </div>
+                <div class="calculation">
+                    Minimum variance = 12.8 (Group 3)
+                </div>
+
+                <p><strong>Step 2: Calculate ratio</strong></p>
+                <div class="calculation">
+                    Ratio = max / min = 20.3 / 12.8 = 1.59
+                </div>
+
+                <p><strong>Step 3: Apply rule of thumb</strong></p>
+                <div class="calculation">
+                    1.59 < 2 ✓
+                </div>
+
+                <p><strong>Conclusion:</strong> Yes, the equal variance assumption is reasonable. The ratio of 1.59 is less than 2, indicating that the variances are similar enough for ANOVA.</p>
+            </div>
+        </div>
+
+        <!-- Problem 17 -->
+        <div class="problem-card">
+            <div class="problem-number">17</div>
+            <h3>Assumption Violations</h3>
+            <p>For each scenario, identify which ANOVA assumption(s) might be violated and suggest an alternative approach:</p>
+            <p><strong>a)</strong> Comparing stress levels of 30 students at three time points: beginning, middle, and end of semester</p>
+            <p><strong>b)</strong> Comparing median home prices across 4 neighborhoods with highly right-skewed data (n = 15 per neighborhood)</p>
+            <p><strong>c)</strong> Comparing test scores of students within the same classroom (groups assigned by classroom)</p>
+            <button onclick="document.getElementById('sol17').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol17" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Violation: Independence</strong></p>
+                <ul>
+                    <li>Same 30 students measured three times (repeated measures)</li>
+                    <li>Observations are NOT independent</li>
+                    <li><strong>Alternative:</strong> Use <strong>Repeated Measures ANOVA</strong> or <strong>Friedman test</strong> (non-parametric)</li>
+                </ul>
+
+                <p><strong>b) Violation: Normality</strong></p>
+                <ul>
+                    <li>Highly right-skewed data violates normality assumption</li>
+                    <li>Small sample sizes (n = 15) means CLT may not apply</li>
+                    <li><strong>Alternatives:</strong>
+                        <ul>
+                            <li>Use <strong>Kruskal-Wallis test</strong> (compares medians, no normality assumption)</li>
+                            <li>Log-transform the data to reduce skewness, then use ANOVA</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p><strong>c) Violation: Independence</strong></p>
+                <ul>
+                    <li>Students within same classroom may not be independent (clustered data)</li>
+                    <li>Classroom effects could influence results</li>
+                    <li><strong>Alternatives:</strong>
+                        <ul>
+                            <li>Use <strong>multilevel/hierarchical models</strong> to account for classroom nesting</li>
+                            <li>Randomly sample students from each classroom (not all students)</li>
+                            <li>Consider classroom as a random effect</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 18 -->
+        <div class="problem-card">
+            <div class="problem-number">18</div>
+            <h3>Choosing the Right Test</h3>
+            <p>Determine the most appropriate statistical test for each research question:</p>
+            <p><strong>a)</strong> Do men and women differ in average commute time?</p>
+            <p><strong>b)</strong> Is there a difference in mean satisfaction scores across 5 different smartphone brands?</p>
+            <p><strong>c)</strong> Is political party preference independent of education level?</p>
+            <p><strong>d)</strong> Do median salaries differ across 3 job sectors when data is extremely skewed?</p>
+            <button onclick="document.getElementById('sol18').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol18" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Two-sample t-test (or independent samples t-test)</strong></p>
+                <ul>
+                    <li>2 groups (men vs women)</li>
+                    <li>Comparing means</li>
+                    <li>Quantitative variable (commute time)</li>
+                </ul>
+
+                <p><strong>b) One-way ANOVA</strong></p>
+                <ul>
+                    <li>More than 2 groups (5 brands)</li>
+                    <li>Comparing means</li>
+                    <li>One categorical factor (brand)</li>
+                    <li>Quantitative variable (satisfaction score)</li>
+                </ul>
+
+                <p><strong>c) Chi-square test of independence</strong></p>
+                <ul>
+                    <li>Two categorical variables (party preference and education level)</li>
+                    <li>Testing for association/relationship</li>
+                    <li>Not comparing means</li>
+                </ul>
+
+                <p><strong>d) Kruskal-Wallis test</strong></p>
+                <ul>
+                    <li>More than 2 groups (3 sectors)</li>
+                    <li>Comparing medians (not means due to extreme skew)</li>
+                    <li>Normality assumption violated</li>
+                    <li>Non-parametric alternative to ANOVA</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Problem 19 -->
+        <div class="problem-card">
+            <div class="problem-number">19</div>
+            <h3>Sample Size and Robustness</h3>
+            <p>A researcher has three groups with sample sizes n₁ = 45, n₂ = 50, n₃ = 48. The data shows moderate skewness and slightly unequal variances (ratio = 2.3).</p>
+            <p><strong>a)</strong> Can the researcher reasonably use ANOVA? Explain why or why not.</p>
+            <p><strong>b)</strong> What features of this design make ANOVA robust to assumption violations?</p>
+            <button onclick="document.getElementById('sol19').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol19" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Yes, ANOVA is reasonable</strong></p>
+                <ul>
+                    <li><strong>Large sample sizes:</strong> All groups have n ≥ 30, so Central Limit Theorem applies</li>
+                    <li><strong>Moderate skewness:</strong> With large n, ANOVA is robust to moderate departures from normality</li>
+                    <li><strong>Equal sample sizes:</strong> Groups are nearly equal (45, 50, 48), making ANOVA robust to unequal variances</li>
+                    <li><strong>Variance ratio:</strong> While 2.3 is slightly above the ideal < 2 threshold, it's not severely violated, and equal sample sizes compensate</li>
+                </ul>
+
+                <p><strong>b) Features promoting robustness:</strong></p>
+                <ol>
+                    <li><strong>Large samples (n ≥ 30):</strong> Sampling distribution of means is approximately normal regardless of population shape</li>
+                    <li><strong>Balanced design:</strong> Similar sample sizes across groups reduce impact of variance inequality</li>
+                    <li><strong>Total sample size (N = 143):</strong> Large overall N increases power and stability</li>
+                </ol>
+
+                <p><strong>Note:</strong> If concerned, could also:
+                    <ul>
+                        <li>Check with Levene's test for formal variance equality test</li>
+                        <li>Use Welch's ANOVA as a sensitivity check</li>
+                        <li>Examine residual plots to assess normality</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+
+        <!-- Problem 20 -->
+        <div class="problem-card">
+            <div class="problem-number">20</div>
+            <h3>Complete ANOVA Analysis</h3>
+            <p>A nutritionist studies the effect of three different diets on weight loss. She randomly assigns 36 participants to three diet groups (12 per group) and measures weight loss (pounds) after 8 weeks:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Diet A</th>
+                        <th>Diet B</th>
+                        <th>Diet C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>x̄₁ = 8.2</td><td>x̄₂ = 12.5</td><td>x̄₃ = 10.8</td></tr>
+                    <tr><td>s₁² = 4.1</td><td>s₂² = 5.2</td><td>s₃² = 4.8</td></tr>
+                </tbody>
+            </table>
+            <p>ANOVA results: F(2, 33) = 8.45, p = 0.001</p>
+            <p>Tukey's HSD = 2.8 pounds</p>
+
+            <p><strong>a)</strong> Check the equal variance assumption</p>
+            <p><strong>b)</strong> State the conclusion from ANOVA (α = 0.05)</p>
+            <p><strong>c)</strong> Use Tukey's HSD to determine which diets differ</p>
+            <p><strong>d)</strong> Write a complete interpretation of the results</p>
+            <button onclick="document.getElementById('sol20').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol20" class="solution">
+                <h4>Solution:</h4>
+                <p><strong>a) Check equal variance:</strong></p>
+                <div class="calculation">
+                    Ratio = max / min = 5.2 / 4.1 = 1.27 < 2 ✓
+                </div>
+                <p>Equal variance assumption is reasonable.</p>
+
+                <p><strong>b) ANOVA conclusion:</strong></p>
+                <ul>
+                    <li>p = 0.001 < 0.05 → Reject H₀</li>
+                    <li>At the 0.05 significance level, there is sufficient evidence to conclude that at least one diet produces a different mean weight loss than the others</li>
+                </ul>
+
+                <p><strong>c) Tukey's HSD comparisons:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Difference</th>
+                            <th>vs HSD = 2.8</th>
+                            <th>Significant?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Diet A vs B</td>
+                            <td>|8.2 - 12.5| = 4.3</td>
+                            <td>4.3 > 2.8</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Diet A vs C</td>
+                            <td>|8.2 - 10.8| = 2.6</td>
+                            <td>2.6 < 2.8</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td>Diet B vs C</td>
+                            <td>|12.5 - 10.8| = 1.7</td>
+                            <td>1.7 < 2.8</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>d) Complete interpretation:</strong></p>
+                <p>A one-way ANOVA was conducted to compare the effectiveness of three diets on weight loss over an 8-week period. Thirty-six participants were randomly assigned to one of three diet groups (n = 12 per group). The equal variance assumption was met (variance ratio = 1.27).</p>
+
+                <p>The ANOVA revealed a statistically significant difference in mean weight loss among the three diets, F(2, 33) = 8.45, p = 0.001. Post-hoc comparisons using Tukey's HSD indicated that Diet B (M = 12.5 lbs) produced significantly more weight loss than Diet A (M = 8.2 lbs), with a difference of 4.3 pounds. However, Diet C (M = 10.8 lbs) was not significantly different from either Diet A or Diet B.</p>
+
+                <p><strong>Practical conclusion:</strong> Diet B appears to be the most effective for weight loss, producing an average of 4.3 more pounds of weight loss than Diet A over 8 weeks. Diet C shows intermediate results that are not statistically distinguishable from the other two diets.</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="lesson-04-assumptions-and-conditions.html" class="btn btn-outline">← Back to Lesson 4</a>
+            <a href="quiz.html" class="btn" style="background: #FFC107; color: #333;">Take the Quiz →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        console.log('Practice Problems - Module 10 ANOVA');
+        console.log('Session start:', new Date().toISOString());
+    </script>
+</body>
+</html>

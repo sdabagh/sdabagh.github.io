@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3: Hypothesis Testing in Regression - Module 11</title>
+    <meta name="description" content="Learn to test for significant linear relationships using correlation and slope tests">
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .learning-objectives {
+            background: #fff9f0;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            background: #e8f4f8;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .formula-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .check-understanding {
+            background: #f0f7ff;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .solution {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .show-solution {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .show-solution:hover {
+            background: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .step-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+
+        .conditions-checklist {
+            background: #e8f5e9;
+            border: 2px solid #28a745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .conditions-checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .conditions-checklist li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .conditions-checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-title">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 3: Hypothesis Testing in Regression</h1>
+            <p>Testing for significant linear relationships and checking regression conditions</p>
+        </div>
+
+        <p style="margin-bottom: 2rem;">
+            <a href="../../../index.html">Home</a> &gt;
+            <a href="../index.html">Intro Stats</a> &gt;
+            <a href="index.html">Module 11</a> &gt;
+            Lesson 3
+        </p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Conduct a hypothesis test for population correlation (ρ)</li>
+                <li>Conduct a hypothesis test for population slope (β₁)</li>
+                <li>Understand the equivalence of testing ρ = 0 and β₁ = 0</li>
+                <li>Check the LINE conditions for regression inference</li>
+                <li>Create and interpret residual plots</li>
+                <li>Identify violations of regression assumptions</li>
+                <li>Make decisions about the significance of linear relationships</li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction to Inference -->
+        <section>
+            <h2>1. Introduction to Regression Inference</h2>
+
+            <p>In Lessons 1-2, we calculated sample statistics (r, b₀, b₁, r²) to describe the relationship in our specific dataset. But we often want to make <strong>inferences about the population</strong>:</p>
+
+            <ul>
+                <li>Is there <strong>really</strong> a linear relationship in the population, or did we just observe one by chance in our sample?</li>
+                <li>Can we conclude that the apparent relationship is <strong>statistically significant</strong>?</li>
+            </ul>
+
+            <p>To answer these questions, we use <strong>hypothesis testing</strong>!</p>
+
+            <div class="key-concept">
+                <h3>Sample vs Population Parameters</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Population (Unknown)</th>
+                            <th>Sample (Known)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Correlation</td>
+                            <td>ρ (rho)</td>
+                            <td>r</td>
+                        </tr>
+                        <tr>
+                            <td>Slope</td>
+                            <td>β₁ (beta-one)</td>
+                            <td>b₁</td>
+                        </tr>
+                        <tr>
+                            <td>Intercept</td>
+                            <td>β₀ (beta-zero)</td>
+                            <td>b₀</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>We use the <strong>sample statistics</strong> (r, b₁) to make inferences about the <strong>population parameters</strong> (ρ, β₁).</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Testing Correlation -->
+        <section>
+            <h2>2. Hypothesis Test for Correlation (ρ)</h2>
+
+            <p>To test whether there's a <strong>significant linear relationship</strong> in the population, we test whether the <strong>population correlation ρ equals zero</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Hypothesis Test for Correlation</h3>
+
+                <p><strong>Hypotheses:</strong></p>
+                <ul>
+                    <li><strong>H₀: ρ = 0</strong> (No linear relationship in the population)</li>
+                    <li><strong>Hₐ: ρ ≠ 0</strong> (There is a linear relationship in the population)</li>
+                </ul>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;"><em>Note: We can also use one-sided tests (Hₐ: ρ > 0 or Hₐ: ρ < 0) if we have prior reason to expect a specific direction.</em></p>
+
+                <div class="formula-box" style="margin-top: 1.5rem;">
+                    <h3>Test Statistic for Correlation</h3>
+                    <div class="formula">
+                        t = r√[(n-2)/(1-r²)]
+                    </div>
+                    <p style="margin-top: 1rem;"><strong>Degrees of freedom:</strong> df = n - 2</p>
+                    <p>Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>r = sample correlation coefficient</li>
+                        <li>n = sample size</li>
+                    </ul>
+                </div>
+
+                <p><strong>Decision:</strong></p>
+                <ul>
+                    <li>Compare t to critical value from t-distribution with df = n - 2, OR</li>
+                    <li>Use p-value: If p-value < α, reject H₀</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>Complete Example: Testing Correlation</h3>
+
+                <p><strong>Research Question:</strong> Is there a significant linear relationship between study hours and test scores?</p>
+
+                <p><strong>Data:</strong> n = 20 students, r = 0.65</p>
+
+                <p><strong>Significance level:</strong> α = 0.05</p>
+
+                <div class="step-box">
+                    <h4>Step 1: State Hypotheses</h4>
+                    <ul>
+                        <li>H₀: ρ = 0 (No linear relationship between study hours and test scores)</li>
+                        <li>Hₐ: ρ ≠ 0 (There is a linear relationship between study hours and test scores)</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Check Conditions (see Section 4 below)</h4>
+                    <p>Assume conditions are met for this example.</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Calculate Test Statistic</h4>
+                    <p>t = r√[(n-2)/(1-r²)]</p>
+                    <p>t = 0.65√[(20-2)/(1-0.65²)]</p>
+                    <p>t = 0.65√[18/(1-0.4225)]</p>
+                    <p>t = 0.65√[18/0.5775]</p>
+                    <p>t = 0.65√31.17</p>
+                    <p>t = 0.65 × 5.58</p>
+                    <p>t ≈ <strong>3.63</strong></p>
+                    <p><strong>Degrees of freedom:</strong> df = 20 - 2 = 18</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 4: Find P-value</h4>
+                    <p>Using t-distribution table or technology with df = 18, two-tailed test:</p>
+                    <p>p-value ≈ 0.002</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 5: Make Decision</h4>
+                    <p>Since p-value (0.002) < α (0.05), we <strong>reject H₀</strong>.</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 6: State Conclusion</h4>
+                    <p><strong>There is sufficient evidence to conclude that there is a significant linear relationship between study hours and test scores</strong> (p = 0.002).</p>
+                    <p>In other words, the correlation we observed (r = 0.65) is statistically significant and unlikely to be due to chance alone.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Testing Slope -->
+        <section>
+            <h2>3. Hypothesis Test for Slope (β₁)</h2>
+
+            <p>An equivalent way to test for a linear relationship is to test whether the <strong>population slope β₁ equals zero</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Hypothesis Test for Slope</h3>
+
+                <p><strong>Hypotheses:</strong></p>
+                <ul>
+                    <li><strong>H₀: β₁ = 0</strong> (Slope is zero; no linear relationship)</li>
+                    <li><strong>Hₐ: β₁ ≠ 0</strong> (Slope is not zero; there is a linear relationship)</li>
+                </ul>
+
+                <div class="formula-box" style="margin-top: 1.5rem;">
+                    <h3>Test Statistic for Slope</h3>
+                    <div class="formula">
+                        t = (b₁ - 0) / SE(b₁)
+                    </div>
+                    <p style="margin-top: 1rem;">Where:</p>
+                    <div class="formula" style="font-size: 1.1rem;">
+                        SE(b₁) = sₑ / √[Σ(x - x̄)²]
+                    </div>
+                    <ul style="text-align: left; display: inline-block; margin-top: 1rem;">
+                        <li>b₁ = sample slope</li>
+                        <li>sₑ = standard error of estimate</li>
+                        <li>Σ(x - x̄)² = sum of squared deviations of x</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Degrees of freedom:</strong> df = n - 2</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>🔑 Key Insight: Equivalent Tests</h3>
+                <p><strong>Testing ρ = 0 is EXACTLY THE SAME as testing β₁ = 0!</strong></p>
+                <ul>
+                    <li>Same t-value (may look different due to rounding)</li>
+                    <li>Same p-value</li>
+                    <li>Same conclusion</li>
+                </ul>
+                <p>Why? If there's no correlation (ρ = 0), the slope must be zero (β₁ = 0), and vice versa. These are two ways of asking the same question: <em>"Is there a linear relationship?"</em></p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Testing Slope</h3>
+
+                <p><strong>Scenario:</strong> Predicting house price (in $1000s) from square footage</p>
+
+                <p><strong>Data:</strong></p>
+                <ul>
+                    <li>n = 25 houses</li>
+                    <li>Regression equation: ŷ = 50 + 0.12x (where x = square feet)</li>
+                    <li>b₁ = 0.12 (thousand $/sq ft)</li>
+                    <li>SE(b₁) = 0.035</li>
+                </ul>
+
+                <p><strong>Test at α = 0.05:</strong></p>
+
+                <div class="step-box">
+                    <h4>Hypotheses</h4>
+                    <ul>
+                        <li>H₀: β₁ = 0 (Square footage has no effect on price)</li>
+                        <li>Hₐ: β₁ ≠ 0 (Square footage affects price)</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Test Statistic</h4>
+                    <p>t = (b₁ - 0) / SE(b₁) = (0.12 - 0) / 0.035 = <strong>3.43</strong></p>
+                    <p>df = 25 - 2 = 23</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>P-value and Decision</h4>
+                    <p>Using t-table with df = 23: p-value ≈ 0.002</p>
+                    <p>Since p < 0.05, <strong>reject H₀</strong></p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Conclusion</h4>
+                    <p><strong>There is sufficient evidence to conclude that square footage is a significant predictor of house price</strong> (t = 3.43, p = 0.002).</p>
+                    <p>The positive slope (b₁ = 0.12) indicates that larger houses tend to have higher prices.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Conditions for Regression Inference -->
+        <section>
+            <h2>4. Conditions for Regression Inference (LINE)</h2>
+
+            <p>Before we can trust the results of regression inference (hypothesis tests or confidence intervals), we must check that certain conditions are met. Remember the acronym <strong>LINE</strong>:</p>
+
+            <div class="conditions-checklist">
+                <h3>LINE Conditions for Regression Inference</h3>
+
+                <ul>
+                    <li><strong>L - Linearity:</strong> The relationship between x and y is linear
+                        <p style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>Check:</strong> Scatter plot shows a roughly linear pattern (not curved)</p>
+                    </li>
+
+                    <li><strong>I - Independence:</strong> Observations are independent of each other
+                        <p style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>Check:</strong> Based on data collection method (random sampling, no time series)</p>
+                    </li>
+
+                    <li><strong>N - Normality:</strong> The residuals (errors) are approximately normally distributed
+                        <p style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>Check:</strong> Histogram or normal probability plot of residuals looks roughly bell-shaped</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>Note:</strong> This condition is less critical for large samples (n ≥ 30) due to Central Limit Theorem</p>
+                    </li>
+
+                    <li><strong>E - Equal variance (Homoscedasticity):</strong> The spread of residuals is constant across all x values
+                        <p style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>Check:</strong> Residual plot shows random scatter with constant vertical spread (no "fan shape")</p>
+                    </li>
+                </ul>
+            </div>
+
+            <h3>Checking Conditions with Residual Plots</h3>
+
+            <p>The most important diagnostic tool is the <strong>residual plot</strong>: a scatter plot of residuals vs x (or vs ŷ).</p>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Good vs Bad Residual Plots</h3>
+                <div id="residualPlotsViz"></div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pattern in Residual Plot</th>
+                        <th>Indication</th>
+                        <th>Condition Violated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Random scatter</strong> around zero with constant spread</td>
+                        <td>✓ Good! Conditions met</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Curved pattern</strong> (U-shape, etc.)</td>
+                        <td>✗ Non-linear relationship</td>
+                        <td>Linearity</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fan shape</strong> (spread increases)</td>
+                        <td>✗ Non-constant variance</td>
+                        <td>Equal Variance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Outliers</strong> or extreme points</td>
+                        <td>⚠️ May affect regression; investigate</td>
+                        <td>Potential issue</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <h3>⚠️ What If Conditions Are Violated?</h3>
+
+                <p>If LINE conditions are not met, the hypothesis test results may be unreliable. Options include:</p>
+                <ul>
+                    <li><strong>Transform variables:</strong> Try log(x), √x, x², etc. to linearize the relationship</li>
+                    <li><strong>Remove outliers:</strong> If there are clear data errors or influential outliers (but be careful - don't remove data just because it doesn't fit!)</li>
+                    <li><strong>Use non-linear regression:</strong> If the relationship is genuinely curved</li>
+                    <li><strong>Collect more data:</strong> Larger samples are more robust to condition violations</li>
+                    <li><strong>Be cautious:</strong> Interpret results with appropriate skepticism</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+
+            <p><strong>Question 1:</strong> A researcher finds r = 0.25 with n = 50. Calculate the test statistic for testing H₀: ρ = 0.</p>
+            <button class="show-solution" onclick="toggleSolution('sol1')">Show Solution</button>
+            <div class="solution" id="sol1">
+                <p><strong>Solution:</strong></p>
+                <p>t = r√[(n-2)/(1-r²)]</p>
+                <p>t = 0.25√[(50-2)/(1-0.25²)]</p>
+                <p>t = 0.25√[48/0.9375]</p>
+                <p>t = 0.25√51.2</p>
+                <p>t = 0.25 × 7.16</p>
+                <p>t ≈ <strong>1.79</strong></p>
+                <p>df = 50 - 2 = 48</p>
+
+                <p style="margin-top: 1rem;"><strong>Critical value (α = 0.05, two-tailed, df = 48):</strong> approximately ±2.01</p>
+                <p>Since |1.79| < 2.01, we <strong>fail to reject H₀</strong>. There is insufficient evidence of a significant linear relationship at α = 0.05.</p>
+            </div>
+
+            <p><strong>Question 2:</strong> Why do we test β₁ = 0 instead of, say, β₁ = 1?</p>
+            <button class="show-solution" onclick="toggleSolution('sol2')">Show Solution</button>
+            <div class="solution" id="sol2">
+                <p><strong>Answer:</strong> We test β₁ = 0 because:</p>
+                <ul>
+                    <li><strong>If β₁ = 0, there is NO relationship</strong> between x and y. The regression line would be horizontal (flat), meaning changes in x don't affect y.</li>
+                    <li>If β₁ ≠ 0, there IS a relationship - positive if β₁ > 0, negative if β₁ < 0.</li>
+                    <li>Testing β₁ = 0 answers the fundamental question: <em>"Is x a useful predictor of y?"</em></li>
+                </ul>
+                <p>We could test β₁ = some other value if we had a specific theory (e.g., H₀: β₁ = 1 if we think the relationship is one-to-one), but usually we start by testing whether there's any relationship at all.</p>
+            </div>
+
+            <p><strong>Question 3:</strong> A residual plot shows a clear U-shaped curve. What does this tell you?</p>
+            <button class="show-solution" onclick="toggleSolution('sol3')">Show Solution</button>
+            <div class="solution" id="sol3">
+                <p><strong>Answer:</strong> A U-shaped curve in the residual plot indicates that the <strong>linearity condition is violated</strong>.</p>
+
+                <p><strong>Interpretation:</strong></p>
+                <ul>
+                    <li>The relationship between x and y is <strong>not linear</strong> - it's curved (quadratic or non-linear)</li>
+                    <li>A straight line is not the best model for this data</li>
+                    <li>Predictions from the linear regression will be systematically too high or too low depending on the x value</li>
+                </ul>
+
+                <p><strong>Solution:</strong> Consider using a curved model (quadratic regression, polynomial regression) or transforming variables to linearize the relationship.</p>
+            </div>
+
+            <p><strong>Question 4:</strong> If you reject H₀: ρ = 0, what will happen when you test H₀: β₁ = 0 with the same data?</p>
+            <button class="show-solution" onclick="toggleSolution('sol4')">Show Solution</button>
+            <div class="solution" id="sol4">
+                <p><strong>Answer:</strong> You will also <strong>reject H₀: β₁ = 0</strong>.</p>
+
+                <p><strong>Reason:</strong> Testing ρ = 0 and testing β₁ = 0 are <strong>equivalent tests</strong>. They:</p>
+                <ul>
+                    <li>Yield the same (or nearly the same) t-statistic</li>
+                    <li>Yield the same p-value</li>
+                    <li>Lead to the same conclusion</li>
+                </ul>
+
+                <p>Both tests answer the same question: "Is there a significant linear relationship?" If one test rejects the null, the other will too.</p>
+            </div>
+        </div>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-nav">
+            <a href="lesson-02-regression-equation.html" class="btn btn-outline">← Lesson 2: Regression Equation</a>
+            <a href="lesson-04-confidence-prediction-intervals.html" class="btn btn-primary">Next: Lesson 4 - Intervals →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        // Toggle solution visibility
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            const button = event.target;
+
+            if (solution.style.display === 'none' || solution.style.display === '') {
+                solution.style.display = 'block';
+                button.textContent = 'Hide Solution';
+            } else {
+                solution.style.display = 'none';
+                button.textContent = 'Show Solution';
+            }
+        }
+
+        // Initialize visualizations when page loads
+        window.addEventListener('load', function() {
+            if (typeof createResidualPlotsViz === 'function') {
+                createResidualPlotsViz('residualPlotsViz');
+            }
+        });
+    </script>
+</body>
+</html>

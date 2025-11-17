@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: Introduction to Linear Regression - Module 11</title>
+    <meta name="description" content="Learn about scatter plots, correlation coefficients, and bivariate relationships">
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .learning-objectives {
+            background: #fff9f0;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            background: #e8f4f8;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .formula-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .check-understanding {
+            background: #f0f7ff;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .solution {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .show-solution {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .show-solution:hover {
+            background: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-title">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 1: Introduction to Linear Regression</h1>
+            <p>Understanding bivariate data, scatter plots, and correlation</p>
+        </div>
+
+        <p style="margin-bottom: 2rem;">
+            <a href="../../../index.html">Home</a> &gt;
+            <a href="../index.html">Intro Stats</a> &gt;
+            <a href="index.html">Module 11</a> &gt;
+            Lesson 1
+        </p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Understand bivariate quantitative data</li>
+                <li>Create and interpret scatter plots</li>
+                <li>Identify patterns in scatter plots (direction, form, strength)</li>
+                <li>Calculate and interpret the correlation coefficient (r)</li>
+                <li>Understand the properties and limitations of correlation</li>
+                <li>Distinguish between correlation and causation</li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Bivariate Data -->
+        <section>
+            <h2>1. Bivariate Quantitative Data</h2>
+
+            <p>So far in this course, we've primarily analyzed <strong>one variable at a time</strong> (univariate data): the distribution of test scores, the average height of students, or the proportion who prefer option A. But many interesting questions involve <strong>two variables</strong>:</p>
+
+            <ul>
+                <li>Does studying more hours lead to higher test scores?</li>
+                <li>Is there a relationship between height and weight?</li>
+                <li>Do older cars tend to have lower resale values?</li>
+                <li>Is there a connection between temperature and ice cream sales?</li>
+            </ul>
+
+            <div class="key-concept">
+                <h3>Bivariate Data</h3>
+                <p><strong>Bivariate data</strong> consists of pairs of observations on <strong>two quantitative variables</strong> for each individual or case.</p>
+                <p><strong>Example:</strong> (height, weight) for each person: (65 inches, 140 lbs), (72 inches, 180 lbs), etc.</p>
+            </div>
+
+            <p>When we have bivariate data, we often want to know:</p>
+            <ol>
+                <li><strong>Is there a relationship</strong> between the two variables?</li>
+                <li><strong>How strong</strong> is that relationship?</li>
+                <li><strong>What direction</strong> is the relationship (positive or negative)?</li>
+                <li>Can we <strong>predict</strong> one variable from the other?</li>
+            </ol>
+
+            <h3>Explanatory vs Response Variable</h3>
+
+            <p>When analyzing relationships, we often have:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable Type</th>
+                        <th>Also Called</th>
+                        <th>Symbol</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Explanatory</strong></td>
+                        <td>Independent, Predictor</td>
+                        <td>x</td>
+                        <td>The variable we use to explain or predict</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Response</strong></td>
+                        <td>Dependent, Outcome</td>
+                        <td>y</td>
+                        <td>The variable we're trying to explain or predict</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Example:</strong> If we want to predict <em>test scores</em> (y) from <em>study hours</em> (x):</p>
+            <ul>
+                <li><strong>x = study hours</strong> (explanatory - we use this to predict)</li>
+                <li><strong>y = test score</strong> (response - this is what we're predicting)</li>
+            </ul>
+        </section>
+
+        <!-- Section 2: Scatter Plots -->
+        <section>
+            <h2>2. Scatter Plots</h2>
+
+            <p>The first step in analyzing bivariate data is to <strong>visualize</strong> it with a <strong>scatter plot</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Scatter Plot</h3>
+                <p>A <strong>scatter plot</strong> is a graph that displays bivariate data as points in a coordinate system:</p>
+                <ul>
+                    <li><strong>x-axis (horizontal)</strong>: Explanatory variable</li>
+                    <li><strong>y-axis (vertical)</strong>: Response variable</li>
+                    <li>Each point represents one individual/case: (x, y)</li>
+                </ul>
+            </div>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Example: Study Hours vs Test Scores</h3>
+                <div id="scatterPlotExample"></div>
+            </div>
+
+            <h3>Describing Patterns in Scatter Plots</h3>
+
+            <p>When examining a scatter plot, we look for three characteristics:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Characteristic</th>
+                        <th>What to Look For</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Direction</strong></td>
+                        <td>Positive, Negative, or No Association</td>
+                        <td>
+                            <strong>Positive:</strong> As x increases, y increases<br>
+                            <strong>Negative:</strong> As x increases, y decreases<br>
+                            <strong>None:</strong> No clear pattern
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Form</strong></td>
+                        <td>Linear or Non-linear</td>
+                        <td>
+                            <strong>Linear:</strong> Points follow a straight-line pattern<br>
+                            <strong>Curved:</strong> Points follow a curved pattern<br>
+                            <strong>No form:</strong> Random scatter
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Strength</strong></td>
+                        <td>How closely points follow the pattern</td>
+                        <td>
+                            <strong>Strong:</strong> Points cluster tightly around pattern<br>
+                            <strong>Moderate:</strong> Points somewhat scattered<br>
+                            <strong>Weak:</strong> Points widely scattered
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Correlation Patterns</h3>
+                <div id="correlationPatterns"></div>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Describing Scatter Plots</h3>
+
+                <p><strong>Scenario 1:</strong> Height (x) vs Weight (y)</p>
+                <p><strong>Description:</strong> The scatter plot shows a <strong>positive</strong>, <strong>linear</strong>, <strong>moderately strong</strong> relationship. As height increases, weight tends to increase. Points follow a roughly straight-line pattern with some scatter.</p>
+
+                <p><strong>Scenario 2:</strong> Age of Car (x) vs Resale Value (y)</p>
+                <p><strong>Description:</strong> The scatter plot shows a <strong>negative</strong>, <strong>linear</strong>, <strong>strong</strong> relationship. As the age of the car increases, its resale value tends to decrease. Points cluster tightly around a downward-sloping pattern.</p>
+
+                <p><strong>Scenario 3:</strong> Shoe Size (x) vs IQ (y)</p>
+                <p><strong>Description:</strong> The scatter plot shows <strong>no association</strong>. There is no clear pattern or relationship between shoe size and IQ. Points are randomly scattered.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Correlation Coefficient -->
+        <section>
+            <h2>3. The Correlation Coefficient (r)</h2>
+
+            <p>While scatter plots let us <em>see</em> relationships, the <strong>correlation coefficient</strong> gives us a <strong>numerical measure</strong> of the strength and direction of a <strong>linear</strong> relationship.</p>
+
+            <div class="key-concept">
+                <h3>Correlation Coefficient (r)</h3>
+                <p>The <strong>correlation coefficient</strong>, denoted <strong>r</strong>, measures the strength and direction of the <strong>linear relationship</strong> between two quantitative variables.</p>
+
+                <p><strong>Properties:</strong></p>
+                <ul>
+                    <li><strong>Range:</strong> -1 ≤ r ≤ 1 (always between -1 and 1)</li>
+                    <li><strong>r = 1:</strong> Perfect positive linear relationship (all points exactly on an upward line)</li>
+                    <li><strong>r = -1:</strong> Perfect negative linear relationship (all points exactly on a downward line)</li>
+                    <li><strong>r = 0:</strong> No linear relationship</li>
+                    <li><strong>Sign:</strong> Positive r = positive association; Negative r = negative association</li>
+                    <li><strong>Magnitude:</strong> |r| closer to 1 = stronger relationship; |r| closer to 0 = weaker relationship</li>
+                </ul>
+            </div>
+
+            <h3>Interpreting r Values</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>r Value</th>
+                        <th>Interpretation</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>r = 1.0</td>
+                        <td>Perfect positive linear relationship</td>
+                        <td>Celsius and Fahrenheit temperature</td>
+                    </tr>
+                    <tr>
+                        <td>0.7 ≤ r < 1.0</td>
+                        <td>Strong positive linear relationship</td>
+                        <td>Height and weight (r ≈ 0.80)</td>
+                    </tr>
+                    <tr>
+                        <td>0.3 ≤ r < 0.7</td>
+                        <td>Moderate positive linear relationship</td>
+                        <td>Study hours and test scores (r ≈ 0.50)</td>
+                    </tr>
+                    <tr>
+                        <td>0 < r < 0.3</td>
+                        <td>Weak positive linear relationship</td>
+                        <td>Age and height in adults (r ≈ 0.10)</td>
+                    </tr>
+                    <tr>
+                        <td>r = 0</td>
+                        <td>No linear relationship</td>
+                        <td>Shoe size and IQ</td>
+                    </tr>
+                    <tr>
+                        <td>-0.3 < r < 0</td>
+                        <td>Weak negative linear relationship</td>
+                        <td>Age and reflexes (r ≈ -0.20)</td>
+                    </tr>
+                    <tr>
+                        <td>-0.7 < r ≤ -0.3</td>
+                        <td>Moderate negative linear relationship</td>
+                        <td>Distance from equator and temperature (r ≈ -0.60)</td>
+                    </tr>
+                    <tr>
+                        <td>-1.0 < r ≤ -0.7</td>
+                        <td>Strong negative linear relationship</td>
+                        <td>Car age and resale value (r ≈ -0.85)</td>
+                    </tr>
+                    <tr>
+                        <td>r = -1.0</td>
+                        <td>Perfect negative linear relationship</td>
+                        <td>Speed and time to destination (fixed distance)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="formula-box">
+                <h3>Formula for Correlation Coefficient</h3>
+                <p>The correlation coefficient is calculated as:</p>
+                <div class="formula">
+                    r = Σ[(x - x̄)(y - ȳ)] / √[Σ(x - x̄)² × Σ(y - ȳ)²]
+                </div>
+                <p style="margin-top: 1rem;">Where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>x̄ = mean of x values</li>
+                    <li>ȳ = mean of y values</li>
+                    <li>Σ = sum across all data points</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Note:</strong> In practice, we use technology (calculators, software) to compute r. The formula helps us understand what r measures: how x and y vary together relative to their individual variations.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Calculating Correlation</h3>
+
+                <p>Let's calculate the correlation between study hours and test scores for 5 students:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Study Hours (x)</th>
+                            <th>Test Score (y)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>A</td><td>2</td><td>65</td></tr>
+                        <tr><td>B</td><td>4</td><td>75</td></tr>
+                        <tr><td>C</td><td>6</td><td>80</td></tr>
+                        <tr><td>D</td><td>8</td><td>90</td></tr>
+                        <tr><td>E</td><td>10</td><td>95</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Step 1:</strong> Calculate means</p>
+                <ul>
+                    <li>x̄ = (2 + 4 + 6 + 8 + 10) / 5 = 30 / 5 = 6 hours</li>
+                    <li>ȳ = (65 + 75 + 80 + 90 + 95) / 5 = 405 / 5 = 81 points</li>
+                </ul>
+
+                <p><strong>Step 2:</strong> Calculate deviations and products</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>x</th>
+                            <th>y</th>
+                            <th>(x - x̄)</th>
+                            <th>(y - ȳ)</th>
+                            <th>(x - x̄)(y - ȳ)</th>
+                            <th>(x - x̄)²</th>
+                            <th>(y - ȳ)²</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2</td><td>65</td><td>-4</td><td>-16</td><td>64</td><td>16</td><td>256</td></tr>
+                        <tr><td>4</td><td>75</td><td>-2</td><td>-6</td><td>12</td><td>4</td><td>36</td></tr>
+                        <tr><td>6</td><td>80</td><td>0</td><td>-1</td><td>0</td><td>0</td><td>1</td></tr>
+                        <tr><td>8</td><td>90</td><td>2</td><td>9</td><td>18</td><td>4</td><td>81</td></tr>
+                        <tr><td>10</td><td>95</td><td>4</td><td>14</td><td>56</td><td>16</td><td>196</td></tr>
+                        <tr style="font-weight: bold;"><td colspan="4">Sums:</td><td>150</td><td>40</td><td>570</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Step 3:</strong> Apply the formula</p>
+                <p>r = 150 / √(40 × 570) = 150 / √22,800 = 150 / 151.0 ≈ <strong>0.993</strong></p>
+
+                <p><strong>Interpretation:</strong> r = 0.993 indicates a very strong positive linear relationship between study hours and test scores. More study hours are strongly associated with higher test scores.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Properties of Correlation -->
+        <section>
+            <h2>4. Properties and Limitations of Correlation</h2>
+
+            <h3>Important Properties of r</h3>
+
+            <div class="key-concept">
+                <h3>Properties of the Correlation Coefficient</h3>
+                <ol>
+                    <li><strong>Unitless:</strong> r has no units (not hours, pounds, etc.). This allows us to compare correlations across different contexts.</li>
+
+                    <li><strong>Symmetric:</strong> The correlation of x with y equals the correlation of y with x. r(x,y) = r(y,x).</li>
+
+                    <li><strong>Measures LINEAR relationships only:</strong> r only detects straight-line patterns. A curved relationship might have r ≈ 0 even if there's a strong non-linear relationship.</li>
+
+                    <li><strong>Sensitive to outliers:</strong> A single extreme point can dramatically change r.</li>
+
+                    <li><strong>Not resistant:</strong> Outliers can inflate or deflate r, giving a misleading picture of the relationship.</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Correlation Measures LINEAR Relationships Only</h3>
+                <p>A correlation close to 0 means <strong>no LINEAR relationship</strong>, but there could still be a strong <strong>non-linear</strong> (curved) relationship!</p>
+                <p><strong>Example:</strong> The relationship between height and age in children (ages 0-18) is strongly curved, but might have a moderate linear correlation.</p>
+            </div>
+
+            <h3>Correlation Does NOT Imply Causation</h3>
+
+            <p>This is perhaps the most important concept in all of statistics:</p>
+
+            <div class="warning-box">
+                <h3>🚨 CORRELATION ≠ CAUSATION</h3>
+                <p><strong>Just because two variables are correlated does NOT mean one causes the other!</strong></p>
+
+                <p><strong>Example 1:</strong> Ice cream sales and drowning deaths are positively correlated. Does ice cream cause drowning? <strong>No!</strong> Both increase in summer due to a third variable: <strong>hot weather</strong> (confounding variable).</p>
+
+                <p><strong>Example 2:</strong> Number of firefighters at a fire and amount of fire damage are positively correlated. Do firefighters cause damage? <strong>No!</strong> Bigger fires require more firefighters AND cause more damage.</p>
+
+                <p><strong>Example 3:</strong> Shoe size and reading ability are positively correlated in children. Do bigger feet cause better reading? <strong>No!</strong> Both increase with <strong>age</strong>.</p>
+            </div>
+
+            <p><strong>Three possible explanations for correlation:</strong></p>
+            <ol>
+                <li><strong>x causes y:</strong> Study hours → higher test scores (plausible)</li>
+                <li><strong>y causes x:</strong> Higher test scores → more studying (reverse causation)</li>
+                <li><strong>Third variable (confounding):</strong> Both x and y are caused by something else (intelligence → more studying AND higher scores)</li>
+            </ol>
+
+            <p><strong>To establish causation, you need:</strong></p>
+            <ul>
+                <li>A well-designed <strong>randomized controlled experiment</strong></li>
+                <li>Random assignment to treatment and control groups</li>
+                <li>Controlled conditions to eliminate confounding</li>
+            </ul>
+        </section>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+
+            <p><strong>Question 1:</strong> A researcher finds r = -0.75 between hours of TV watched per week and GPA. What does this tell us?</p>
+            <button class="show-solution" onclick="toggleSolution('sol1')">Show Solution</button>
+            <div class="solution" id="sol1">
+                <p><strong>Answer:</strong> This indicates a <strong>strong negative linear relationship</strong>. Students who watch more TV tend to have lower GPAs, and vice versa. The relationship is fairly strong (|r| = 0.75 is close to 1).</p>
+                <p><strong>Important:</strong> This does NOT mean watching TV <em>causes</em> lower GPAs! There could be confounding variables (time management skills, interest in academics, etc.).</p>
+            </div>
+
+            <p><strong>Question 2:</strong> If r = 0.40 between height and salary, can we conclude that being taller causes higher salary?</p>
+            <button class="show-solution" onclick="toggleSolution('sol2')">Show Solution</button>
+            <div class="solution" id="sol2">
+                <p><strong>Answer: No!</strong> Correlation does not imply causation. While there's a moderate positive correlation, this could be due to:</p>
+                <ul>
+                    <li><strong>Confounding variables:</strong> Gender (men tend to be taller and historically have earned more)</li>
+                    <li><strong>Confounding variables:</strong> Occupation (certain high-paying jobs may favor taller individuals, like professional basketball)</li>
+                    <li><strong>Coincidence:</strong> Weak correlations (r = 0.40 is moderate) could arise by chance</li>
+                </ul>
+                <p>To establish causation, we'd need experimental evidence, not just correlation.</p>
+            </div>
+
+            <p><strong>Question 3:</strong> A scatter plot shows a strong curved pattern, but r = 0.05. Is there a relationship between the variables?</p>
+            <button class="show-solution" onclick="toggleSolution('sol3')">Show Solution</button>
+            <div class="solution" id="sol3">
+                <p><strong>Answer: Yes, there IS a relationship!</strong> The correlation coefficient r only measures <strong>LINEAR</strong> relationships. A value near 0 means no linear relationship, but there can still be a strong <strong>non-linear</strong> (curved) relationship.</p>
+                <p><strong>Lesson:</strong> Always look at the scatter plot! Don't rely on r alone.</p>
+            </div>
+        </div>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-nav">
+            <a href="index.html" class="btn btn-outline">← Back to Module 11</a>
+            <a href="lesson-02-regression-equation.html" class="btn btn-primary">Next: Lesson 2 - Regression Equation →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        // Toggle solution visibility
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            const button = event.target;
+
+            if (solution.style.display === 'none' || solution.style.display === '') {
+                solution.style.display = 'block';
+                button.textContent = 'Hide Solution';
+            } else {
+                solution.style.display = 'none';
+                button.textContent = 'Show Solution';
+            }
+        }
+
+        // Initialize visualizations when page loads
+        window.addEventListener('load', function() {
+            // Create scatter plot example
+            if (typeof createScatterPlotExample === 'function') {
+                createScatterPlotExample('scatterPlotExample');
+            }
+
+            // Create correlation patterns
+            if (typeof createCorrelationPatterns === 'function') {
+                createCorrelationPatterns('correlationPatterns');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Guide - Module 10: ANOVA</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .guide-header {
+            background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .guide-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .content-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+        .formula-box {
+            background: #F8F9FA;
+            border: 2px solid #6A1B9A;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            page-break-inside: avoid;
+        }
+        .formula-box h4 {
+            color: #6A1B9A;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #6A1B9A;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .checklist {
+            background: #F3E5F5;
+            border-left: 4px solid #6A1B9A;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+        }
+        .checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li:before {
+            content: "✓ ";
+            color: #6A1B9A;
+            font-weight: bold;
+        }
+        .key-point {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1rem;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+        }
+        .warning {
+            background: #FFEBEE;
+            border-left: 4px solid #DC3545;
+            padding: 1rem;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                font-size: 11pt;
+            }
+            .content-section, .formula-box, table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="no-print">
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="guide-header">
+            <h1>📚 Comprehensive Study Guide</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Module 10: Analysis of Variance (ANOVA)</p>
+        </div>
+
+        <div class="content-section no-print">
+            <p><strong>This study guide contains everything you need to master ANOVA:</strong></p>
+            <ul>
+                <li>All key concepts and definitions</li>
+                <li>Complete formulas with explanations</li>
+                <li>Step-by-step procedures</li>
+                <li>Assumptions and when to use ANOVA</li>
+                <li>Common mistakes to avoid</li>
+            </ul>
+            <p><em>Print this guide for exam preparation!</em></p>
+            <button onclick="window.print()" class="btn btn-primary">🖨️ Print Study Guide</button>
+        </div>
+
+        <!-- Section 1: Key Concepts -->
+        <div class="content-section">
+            <h2>1. Key Concepts and Definitions</h2>
+
+            <h3>What is ANOVA?</h3>
+            <p><strong>ANOVA (Analysis of Variance)</strong> is a statistical method used to compare the means of <strong>three or more groups</strong> simultaneously.</p>
+
+            <div class="key-point">
+                <strong>Purpose:</strong> Test if at least one population mean differs from the others<br>
+                <strong>Hypotheses:</strong><br>
+                • H₀: μ₁ = μ₂ = μ₃ = ... (all means are equal)<br>
+                • Hₐ: At least one mean is different
+            </div>
+
+            <h3>Why ANOVA Instead of Multiple t-Tests?</h3>
+            <div class="warning">
+                <strong>⚠️ α Inflation Problem:</strong><br>
+                Multiple t-tests inflate the Type I error rate. With k groups requiring k(k-1)/2 comparisons, the overall α increases dramatically.<br>
+                <strong>Example:</strong> 4 groups = 6 t-tests → overall α ≈ 26.5% (not 5%)!<br>
+                <strong>Solution:</strong> ANOVA performs ONE test, maintaining α = 0.05
+            </div>
+
+            <h3>The Basic Idea</h3>
+            <p>ANOVA compares two types of variation:</p>
+            <ul>
+                <li><strong>Between-group variation:</strong> How much group means differ from each other</li>
+                <li><strong>Within-group variation:</strong> How much individuals vary within each group (error)</li>
+            </ul>
+            <p><strong>If between-group variation >> within-group variation → groups differ significantly</strong></p>
+        </div>
+
+        <!-- Section 2: All Formulas -->
+        <div class="content-section">
+            <h2>2. Complete Formula Reference</h2>
+
+            <div class="formula-box">
+                <h4>Sum of Squares (SS)</h4>
+                <strong>Total Sum of Squares (SST):</strong><br>
+                SST = Σ(x<sub>ij</sub> - x̄)²<br>
+                <em>Total variation of all observations from grand mean</em><br><br>
+
+                <strong>Between-Group Sum of Squares (SSB):</strong><br>
+                SSB = Σn<sub>j</sub>(x̄<sub>j</sub> - x̄)²<br>
+                <em>Variation due to group differences</em><br><br>
+
+                <strong>Within-Group Sum of Squares (SSW):</strong><br>
+                SSW = Σ(x<sub>ij</sub> - x̄<sub>j</sub>)²<br>
+                <em>Variation within groups (error)</em><br><br>
+
+                <strong>Fundamental Relationship:</strong><br>
+                SST = SSB + SSW
+            </div>
+
+            <div class="formula-box">
+                <h4>Degrees of Freedom (df)</h4>
+                df<sub>between</sub> = k - 1 <em>(k = number of groups)</em><br>
+                df<sub>within</sub> = N - k <em>(N = total sample size)</em><br>
+                df<sub>total</sub> = N - 1<br><br>
+                <strong>Verification:</strong> df<sub>total</sub> = df<sub>between</sub> + df<sub>within</sub>
+            </div>
+
+            <div class="formula-box">
+                <h4>Mean Squares (MS)</h4>
+                MSB = SSB / df<sub>between</sub> = SSB / (k-1)<br>
+                <em>Average between-group variance</em><br><br>
+
+                MSW = SSW / df<sub>within</sub> = SSW / (N-k)<br>
+                <em>Average within-group variance (pooled error)</em>
+            </div>
+
+            <div class="formula-box">
+                <h4>F-Statistic</h4>
+                F = MSB / MSW<br><br>
+                <strong>Interpretation:</strong><br>
+                • F ≈ 1: Groups are similar<br>
+                • F >> 1: Strong evidence of group differences<br>
+                • F < 1: Groups very similar (fail to reject H₀)
+            </div>
+
+            <div class="formula-box">
+                <h4>Tukey's HSD (Post-Hoc Test)</h4>
+                HSD = q × √(MSW / n)<br><br>
+                <strong>Where:</strong><br>
+                • q = Studentized Range critical value (from table)<br>
+                • MSW = Mean Square Within<br>
+                • n = sample size per group (assumes equal n)<br><br>
+
+                <strong>Decision Rule:</strong><br>
+                If |x̄<sub>i</sub> - x̄<sub>j</sub>| > HSD → Groups i and j differ significantly
+            </div>
+
+            <div class="formula-box">
+                <h4>Bonferroni Correction</h4>
+                α<sub>adjusted</sub> = α / c<br><br>
+                <strong>Where:</strong><br>
+                • α = original significance level (e.g., 0.05)<br>
+                • c = number of pairwise comparisons = k(k-1)/2<br><br>
+                Use α<sub>adjusted</sub> for each individual comparison
+            </div>
+        </div>
+
+        <!-- Section 3: ANOVA Table Template -->
+        <div class="content-section">
+            <h2>3. ANOVA Table Template</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source of Variation</th>
+                        <th>Sum of Squares (SS)</th>
+                        <th>df</th>
+                        <th>Mean Square (MS)</th>
+                        <th>F</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Between Groups</td>
+                        <td>SSB</td>
+                        <td>k - 1</td>
+                        <td>MSB = SSB/(k-1)</td>
+                        <td>F = MSB/MSW</td>
+                    </tr>
+                    <tr>
+                        <td>Within Groups</td>
+                        <td>SSW</td>
+                        <td>N - k</td>
+                        <td>MSW = SSW/(N-k)</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td>SST</td>
+                        <td>N - 1</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 4: Step-by-Step Procedure -->
+        <div class="content-section">
+            <h2>4. Complete ANOVA Procedure</h2>
+
+            <div class="checklist">
+                <h3>Step-by-Step Guide</h3>
+                <ol style="list-style-position: inside;">
+                    <li><strong>State hypotheses</strong>
+                        <ul>
+                            <li>H₀: μ₁ = μ₂ = ... = μₖ</li>
+                            <li>Hₐ: At least one μ is different</li>
+                        </ul>
+                    </li>
+                    <li><strong>Choose significance level</strong> (usually α = 0.05)</li>
+                    <li><strong>Check assumptions</strong> (independence, normality, equal variances)</li>
+                    <li><strong>Calculate group means</strong> (x̄₁, x̄₂, ..., x̄ₖ) and grand mean (x̄)</li>
+                    <li><strong>Calculate sum of squares</strong> (SSB, SSW, SST)</li>
+                    <li><strong>Calculate degrees of freedom</strong> (df<sub>between</sub>, df<sub>within</sub>)</li>
+                    <li><strong>Calculate mean squares</strong> (MSB, MSW)</li>
+                    <li><strong>Calculate F-statistic</strong> (F = MSB/MSW)</li>
+                    <li><strong>Find p-value or critical value</strong> using F-distribution with (df₁, df₂)</li>
+                    <li><strong>Make decision</strong>
+                        <ul>
+                            <li>If p ≤ α (or F ≥ F<sub>critical</sub>): Reject H₀</li>
+                            <li>If p > α (or F < F<sub>critical</sub>): Fail to reject H₀</li>
+                        </ul>
+                    </li>
+                    <li><strong>State conclusion</strong> in context</li>
+                    <li><strong>If significant:</strong> Conduct post-hoc tests to identify which groups differ</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 5: Assumptions -->
+        <div class="content-section">
+            <h2>5. ANOVA Assumptions</h2>
+
+            <h3>Three Key Assumptions</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Assumption</th>
+                        <th>How to Check</th>
+                        <th>What If Violated?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Independence</strong><br>Observations are independent</td>
+                        <td>• Study design<br>• Random assignment<br>• No repeated measures</td>
+                        <td>• Use Repeated Measures ANOVA<br>• Use mixed models<br>• CRITICAL - must address!</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Normality</strong><br>Populations are normally distributed</td>
+                        <td>• Histograms<br>• Q-Q plots<br>• Shapiro-Wilk test</td>
+                        <td>• Kruskal-Wallis test<br>• Transform data<br>• OK if n ≥ 30 (CLT)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Equal Variances</strong><br>σ₁² = σ₂² = ... = σₖ²</td>
+                        <td>• Rule: max(s²)/min(s²) < 2<br>• Boxplots<br>• Levene's test</td>
+                        <td>• Welch's ANOVA<br>• Kruskal-Wallis test<br>• OK if equal sample sizes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-point">
+                <strong>Robustness:</strong> ANOVA is fairly robust to violations of normality and equal variance when:
+                <ul>
+                    <li>Sample sizes are large (n ≥ 30 per group)</li>
+                    <li>Sample sizes are equal across groups</li>
+                    <li>Violations are moderate (not severe)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: Post-Hoc Tests -->
+        <div class="content-section">
+            <h2>6. Post-Hoc Tests Summary</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>When to Use</th>
+                        <th>Characteristics</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Tukey's HSD</strong></td>
+                        <td>• After significant ANOVA<br>• Equal sample sizes<br>• All pairwise comparisons</td>
+                        <td>• Most common<br>• Good power<br>• Controls family-wise error</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bonferroni</strong></td>
+                        <td>• Unequal sample sizes<br>• Few specific comparisons<br>• Need extra conservative</td>
+                        <td>• Simple to use<br>• Very conservative<br>• Adjusts α for each test</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scheffé</strong></td>
+                        <td>• Complex comparisons<br>• Maximum error protection</td>
+                        <td>• Most conservative<br>• Least powerful</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dunnett's</strong></td>
+                        <td>• Comparing treatments to control<br>• Not comparing treatments to each other</td>
+                        <td>• More powerful than Tukey for this purpose<br>• Common in medical research</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning">
+                <strong>Important Rules:</strong>
+                <ul>
+                    <li>Only do post-hoc tests AFTER significant ANOVA</li>
+                    <li>Don't do post-hoc with only 2 groups</li>
+                    <li>Choose ONE post-hoc method (don't mix)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Decision Flowchart -->
+        <div class="content-section">
+            <h2>7. Which Test Should I Use?</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Situation</th>
+                        <th>Appropriate Test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Comparing 2 groups, means, independent</td>
+                        <td>Two-sample t-test</td>
+                    </tr>
+                    <tr>
+                        <td>Comparing 3+ groups, means, independent, assumptions met</td>
+                        <td><strong>One-way ANOVA</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Comparing 3+ groups, severe non-normality, small n</td>
+                        <td>Kruskal-Wallis test</td>
+                    </tr>
+                    <tr>
+                        <td>Comparing 3+ groups, unequal variances</td>
+                        <td>Welch's ANOVA</td>
+                    </tr>
+                    <tr>
+                        <td>Same subjects measured multiple times</td>
+                        <td>Repeated Measures ANOVA</td>
+                    </tr>
+                    <tr>
+                        <td>Two or more factors/independent variables</td>
+                        <td>Two-way ANOVA (Factorial ANOVA)</td>
+                    </tr>
+                    <tr>
+                        <td>Testing relationship between categorical variables</td>
+                        <td>Chi-square test</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 8: Common Mistakes -->
+        <div class="content-section">
+            <h2>8. Common Mistakes to Avoid</h2>
+
+            <div class="warning">
+                <h3>❌ DON'T:</h3>
+                <ul>
+                    <li>Use multiple t-tests when comparing 3+ groups (α inflation!)</li>
+                    <li>Do post-hoc tests when ANOVA is not significant</li>
+                    <li>Confuse SSB and SSW (between vs. within)</li>
+                    <li>Forget to divide by df when calculating mean squares</li>
+                    <li>Use regular ANOVA with repeated measures data</li>
+                    <li>Assume ANOVA tells you WHICH groups differ (need post-hoc!)</li>
+                    <li>Ignore assumptions - always check them!</li>
+                    <li>Report F-statistic without degrees of freedom</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h3>✓ DO:</h3>
+                <ul>
+                    <li>Check all three assumptions before running ANOVA</li>
+                    <li>Report F-statistic with both degrees of freedom: F(df₁, df₂)</li>
+                    <li>Verify SST = SSB + SSW as a calculation check</li>
+                    <li>Use post-hoc tests only after significant ANOVA</li>
+                    <li>Choose post-hoc method before looking at data</li>
+                    <li>Report effect size (not just significance)</li>
+                    <li>Interpret results in context of the research question</li>
+                    <li>Consider practical significance, not just statistical significance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 9: Example ANOVA Write-Up -->
+        <div class="content-section">
+            <h2>9. Sample ANOVA Report</h2>
+            <p><em>Example of how to report ANOVA results professionally:</em></p>
+
+            <div style="background: #F8F9FA; padding: 1.5rem; border-radius: 4px; border-left: 4px solid #6A1B9A;">
+                <p>A one-way ANOVA was conducted to compare the effectiveness of three study methods (traditional, flashcards, practice tests) on exam performance. Participants (N = 15) were randomly assigned to one of three groups (n = 5 per group). The assumptions of independence, normality, and equal variances were met.</p>
+
+                <p>The ANOVA revealed a statistically significant difference in mean exam scores among the three study methods, F(2, 12) = 31.75, p < .001. Post-hoc comparisons using Tukey's HSD indicated that all three methods produced significantly different mean scores (HSD = 4.01). Practice tests (M = 92, SD = 2.24) yielded the highest scores, followed by flashcards (M = 86, SD = 1.58), and traditional study (M = 80, SD = 3.16).</p>
+
+                <p>These results suggest that active retrieval practice (practice tests and flashcards) is more effective than passive review (traditional study) for exam preparation, with practice testing being the most effective method.</p>
+            </div>
+        </div>
+
+        <!-- Section 10: Quick Tips -->
+        <div class="content-section">
+            <h2>10. Exam Preparation Tips</h2>
+
+            <div class="key-point">
+                <h3>Formula Memorization Tips:</h3>
+                <ul>
+                    <li><strong>Remember the ratio:</strong> F = MSB/MSW (between over within)</li>
+                    <li><strong>SS relationship:</strong> Total = Between + Within (SST = SSB + SSW)</li>
+                    <li><strong>df pattern:</strong> k-1 for between, N-k for within</li>
+                    <li><strong>MS always:</strong> SS divided by its df</li>
+                    <li><strong>HSD formula:</strong> q times square root of (MSW over n)</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h3>Calculation Checklist:</h3>
+                <ul>
+                    <li>Always calculate grand mean first</li>
+                    <li>Double-check: does SST = SSB + SSW?</li>
+                    <li>Verify df add up: df_total = df_between + df_within</li>
+                    <li>F-statistic should be positive (can't have negative variance)</li>
+                    <li>If F < 1, you probably made an error (or groups are very similar)</li>
+                </ul>
+            </div>
+
+            <div class="key-point">
+                <h3>Conceptual Understanding:</h3>
+                <ul>
+                    <li>ANOVA = comparing group means for 3+ groups</li>
+                    <li>F-statistic = ratio of between to within variation</li>
+                    <li>Large F = groups differ significantly</li>
+                    <li>Significant ANOVA → do post-hoc to find which groups differ</li>
+                    <li>Three assumptions: independence (most critical!), normality, equal variances</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="content-section no-print">
+            <h2>Additional Resources</h2>
+            <p><strong>Related study materials:</strong></p>
+            <ul>
+                <li><a href="quick-reference.html">Quick Reference Card</a> - One-page formula sheet</li>
+                <li><a href="practice.html">Practice Problems</a> - 20 comprehensive problems</li>
+                <li><a href="quiz.html">Module Quiz</a> - Test your knowledge</li>
+            </ul>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="index.html" class="btn btn-outline">← Back to Module 10 Home</a>
+                <button onclick="window.print()" class="btn btn-primary">🖨️ Print This Guide</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="no-print">
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: The Regression Equation - Module 11</title>
+    <meta name="description" content="Learn about the least-squares regression line, slope, intercept, predictions, and r²">
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .learning-objectives {
+            background: #fff9f0;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            background: #e8f4f8;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .formula-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .check-understanding {
+            background: #f0f7ff;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .solution {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .show-solution {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .show-solution:hover {
+            background: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .interpretation-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-title">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 2: The Regression Equation</h1>
+            <p>Finding the best-fit line, making predictions, and understanding residuals</p>
+        </div>
+
+        <p style="margin-bottom: 2rem;">
+            <a href="../../../index.html">Home</a> &gt;
+            <a href="../index.html">Intro Stats</a> &gt;
+            <a href="index.html">Module 11</a> &gt;
+            Lesson 2
+        </p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Understand the simple linear regression model: ŷ = b₀ + b₁x</li>
+                <li>Calculate the slope (b₁) and y-intercept (b₀) of the regression line</li>
+                <li>Interpret the slope and intercept in context</li>
+                <li>Use the regression equation to make predictions</li>
+                <li>Calculate and interpret residuals</li>
+                <li>Understand the standard error of the estimate (sₑ)</li>
+                <li>Calculate and interpret the coefficient of determination (r²)</li>
+                <li>Distinguish between interpolation and extrapolation</li>
+            </ul>
+        </div>
+
+        <!-- Section 1: The Regression Line -->
+        <section>
+            <h2>1. Simple Linear Regression Model</h2>
+
+            <p>In Lesson 1, we used scatter plots to visualize relationships and the correlation coefficient (r) to measure their strength. But what if we want to <strong>predict</strong> the value of y for a given x?</p>
+
+            <p>That's where <strong>regression</strong> comes in!</p>
+
+            <div class="key-concept">
+                <h3>Simple Linear Regression</h3>
+                <p><strong>Simple linear regression</strong> finds the "best-fit" straight line through the data that we can use to predict y from x.</p>
+
+                <div class="formula-box" style="margin-top: 1.5rem;">
+                    <h3>The Regression Equation</h3>
+                    <div class="formula">
+                        ŷ = b₀ + b₁x
+                    </div>
+                    <p style="margin-top: 1rem;">Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li><strong>ŷ</strong> (y-hat) = <strong>predicted value</strong> of y</li>
+                        <li><strong>b₀</strong> = <strong>y-intercept</strong> (predicted y when x = 0)</li>
+                        <li><strong>b₁</strong> = <strong>slope</strong> (change in ŷ for each 1-unit increase in x)</li>
+                        <li><strong>x</strong> = value of the explanatory variable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Regression Line Through Data</h3>
+                <div id="regressionLineViz"></div>
+            </div>
+
+            <h3>The Least-Squares Method</h3>
+
+            <p>How do we find the "best" line? We use the <strong>least-squares method</strong>, which finds the line that <strong>minimizes the sum of squared residuals</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Least-Squares Criterion</h3>
+                <p>The <strong>least-squares regression line</strong> is the line that makes the sum of squared vertical distances from points to the line as small as possible.</p>
+                <p><strong>Minimize:</strong> Σ(y - ŷ)²</p>
+                <p>This line has special properties:</p>
+                <ul>
+                    <li>It always passes through the point (x̄, ȳ)</li>
+                    <li>The sum of residuals always equals zero: Σ(y - ŷ) = 0</li>
+                    <li>It's the unique line that minimizes prediction error</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: Calculating Slope and Intercept -->
+        <section>
+            <h2>2. Calculating Slope and Intercept</h2>
+
+            <div class="formula-box">
+                <h3>Formulas for Slope and Intercept</h3>
+
+                <p><strong>Slope (b₁):</strong></p>
+                <div class="formula">
+                    b₁ = r × (sᵧ / sₓ)
+                </div>
+                <p style="font-size: 0.95rem; margin-top: 0.5rem;">OR equivalently:</p>
+                <div class="formula" style="font-size: 1.1rem;">
+                    b₁ = Σ[(x - x̄)(y - ȳ)] / Σ(x - x̄)²
+                </div>
+
+                <p style="margin-top: 1.5rem;"><strong>Y-intercept (b₀):</strong></p>
+                <div class="formula">
+                    b₀ = ȳ - b₁x̄
+                </div>
+
+                <p style="margin-top: 1rem;">Where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>r = correlation coefficient</li>
+                    <li>sₓ = standard deviation of x</li>
+                    <li>sᵧ = standard deviation of y</li>
+                    <li>x̄ = mean of x, ȳ = mean of y</li>
+                </ul>
+            </div>
+
+            <h3>Interpreting Slope and Intercept</h3>
+
+            <div class="interpretation-box">
+                <h4>Interpreting the Slope (b₁)</h4>
+                <p><strong>Template:</strong> "For each 1-[unit of x] increase in [x variable], [y variable] increases/decreases by [|b₁|] [units of y] on average."</p>
+
+                <p><strong>Examples:</strong></p>
+                <ul>
+                    <li>If b₁ = 5.2 for predicting test score from study hours: "For each additional hour of study, the test score increases by 5.2 points on average."</li>
+                    <li>If b₁ = -3000 for predicting car value from age: "For each additional year of age, the car's value decreases by $3,000 on average."</li>
+                </ul>
+            </div>
+
+            <div class="interpretation-box">
+                <h4>Interpreting the Y-intercept (b₀)</h4>
+                <p><strong>Template:</strong> "When [x variable] = 0, the predicted [y variable] is [b₀] [units of y]."</p>
+
+                <p><strong>Warning:</strong> The intercept is only meaningful if x = 0 is within the range of the data and makes sense contextually. Otherwise, it's just a mathematical necessity for the equation.</p>
+
+                <p><strong>Examples:</strong></p>
+                <ul>
+                    <li>If b₀ = 50 for predicting test score from study hours: "When study hours = 0, the predicted test score is 50 points." (This makes sense - some baseline score without studying)</li>
+                    <li>If b₀ = -100 for predicting weight from height: "When height = 0 inches, predicted weight is -100 pounds." (This is nonsense! Height of 0 is not in our data range. The intercept is just mathematical.)</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h3>Complete Example: Finding the Regression Equation</h3>
+
+                <p>Let's find the regression equation for predicting test scores from study hours using our data from Lesson 1:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Study Hours (x)</th>
+                            <th>Test Score (y)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2</td><td>65</td></tr>
+                        <tr><td>4</td><td>75</td></tr>
+                        <tr><td>6</td><td>80</td></tr>
+                        <tr><td>8</td><td>90</td></tr>
+                        <tr><td>10</td><td>95</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>From Lesson 1, we calculated:</strong></p>
+                <ul>
+                    <li>r = 0.993 (correlation coefficient)</li>
+                    <li>x̄ = 6 hours</li>
+                    <li>ȳ = 81 points</li>
+                </ul>
+
+                <p><strong>Step 1: Calculate standard deviations</strong></p>
+                <ul>
+                    <li>sₓ = √[Σ(x - x̄)² / (n-1)] = √(40/4) = √10 ≈ 3.162 hours</li>
+                    <li>sᵧ = √[Σ(y - ȳ)² / (n-1)] = √(570/4) = √142.5 ≈ 11.94 points</li>
+                </ul>
+
+                <p><strong>Step 2: Calculate slope</strong></p>
+                <p>b₁ = r × (sᵧ / sₓ) = 0.993 × (11.94 / 3.162) = 0.993 × 3.775 ≈ <strong>3.75 points/hour</strong></p>
+
+                <p><strong>Step 3: Calculate intercept</strong></p>
+                <p>b₀ = ȳ - b₁x̄ = 81 - (3.75)(6) = 81 - 22.5 = <strong>58.5 points</strong></p>
+
+                <p><strong>Step 4: Write the equation</strong></p>
+                <div class="formula-box">
+                    <div class="formula" style="font-size: 1.2rem;">
+                        ŷ = 58.5 + 3.75x
+                    </div>
+                </div>
+
+                <p><strong>Interpretation:</strong></p>
+                <ul>
+                    <li><strong>Slope (3.75):</strong> For each additional hour of study, the test score increases by 3.75 points on average.</li>
+                    <li><strong>Intercept (58.5):</strong> When study hours = 0, the predicted test score is 58.5 points.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Making Predictions -->
+        <section>
+            <h2>3. Making Predictions with the Regression Equation</h2>
+
+            <p>Once we have the regression equation, we can use it to predict y for any value of x by simply plugging in the x value.</p>
+
+            <div class="example-box">
+                <h3>Example: Making Predictions</h3>
+
+                <p>Using our equation: ŷ = 58.5 + 3.75x</p>
+
+                <p><strong>Question 1:</strong> Predict the test score for a student who studies 7 hours.</p>
+                <p><strong>Solution:</strong></p>
+                <p>ŷ = 58.5 + 3.75(7) = 58.5 + 26.25 = <strong>84.75 points</strong></p>
+                <p><strong>Interpretation:</strong> We predict that a student who studies 7 hours will score approximately 84.75 points on the test.</p>
+
+                <p><strong>Question 2:</strong> Predict the test score for a student who studies 5 hours.</p>
+                <p><strong>Solution:</strong></p>
+                <p>ŷ = 58.5 + 3.75(5) = 58.5 + 18.75 = <strong>77.25 points</strong></p>
+
+                <p><strong>Question 3:</strong> Predict the test score for a student who studies 15 hours.</p>
+                <p><strong>Solution:</strong></p>
+                <p>ŷ = 58.5 + 3.75(15) = 58.5 + 56.25 = <strong>114.75 points</strong></p>
+                <p style="color: #d32f2f;"><strong>⚠️ Problem!</strong> This prediction is 114.75 points, but test scores can't exceed 100! This is an example of <strong>extrapolation</strong> - predicting outside the data range.</p>
+            </div>
+
+            <h3>Interpolation vs Extrapolation</h3>
+
+            <div class="key-concept">
+                <h3>Interpolation vs Extrapolation</h3>
+
+                <p><strong>Interpolation:</strong> Making predictions <strong>within the range of x values in the data</strong></p>
+                <ul>
+                    <li>Generally safe and reliable</li>
+                    <li>Example: Our data ranges from x = 2 to x = 10, so predicting at x = 7 is interpolation</li>
+                </ul>
+
+                <p><strong>Extrapolation:</strong> Making predictions <strong>outside the range of x values in the data</strong></p>
+                <ul>
+                    <li>Risky and potentially unreliable</li>
+                    <li>Assumes the linear relationship continues beyond the observed data</li>
+                    <li>Can lead to nonsensical predictions</li>
+                    <li>Example: Our data ranges from x = 2 to x = 10, so predicting at x = 15 is extrapolation</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Dangers of Extrapolation</h3>
+                <p><strong>Avoid extrapolation whenever possible!</strong> Relationships that are linear within the observed range may become non-linear or break down entirely outside that range.</p>
+
+                <p><strong>Examples of extrapolation gone wrong:</strong></p>
+                <ul>
+                    <li>Predicting a 200-inch person's weight (height-weight relationship changes at extremes)</li>
+                    <li>Predicting test scores for 20 hours of study (diminishing returns, fatigue)</li>
+                    <li>Predicting house price for a 50-bedroom house (relationship breaks down at extremes)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Residuals -->
+        <section>
+            <h2>4. Residuals</h2>
+
+            <p>Predictions are rarely perfect. The difference between the actual y value and the predicted ŷ value is called a <strong>residual</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Residuals</h3>
+                <p>A <strong>residual</strong> is the difference between the observed value and the predicted value:</p>
+
+                <div class="formula">
+                    Residual = y - ŷ = Observed - Predicted
+                </div>
+
+                <ul>
+                    <li><strong>Positive residual:</strong> Actual y is <em>above</em> the line (prediction was too low)</li>
+                    <li><strong>Negative residual:</strong> Actual y is <em>below</em> the line (prediction was too high)</li>
+                    <li><strong>Zero residual:</strong> Point falls exactly on the line (perfect prediction)</li>
+                </ul>
+            </div>
+
+            <div class="viz-container">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Visualizing Residuals</h3>
+                <div id="residualsViz"></div>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Calculating Residuals</h3>
+
+                <p>Using our equation ŷ = 58.5 + 3.75x, let's calculate residuals for our five data points:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>x (hours)</th>
+                            <th>y (actual score)</th>
+                            <th>ŷ (predicted)</th>
+                            <th>Residual (y - ŷ)</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2</td>
+                            <td>65</td>
+                            <td>58.5 + 3.75(2) = 66</td>
+                            <td>65 - 66 = -1</td>
+                            <td>Slightly below predicted</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>75</td>
+                            <td>58.5 + 3.75(4) = 73.5</td>
+                            <td>75 - 73.5 = +1.5</td>
+                            <td>Slightly above predicted</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>80</td>
+                            <td>58.5 + 3.75(6) = 81</td>
+                            <td>80 - 81 = -1</td>
+                            <td>Slightly below predicted</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>90</td>
+                            <td>58.5 + 3.75(8) = 88.5</td>
+                            <td>90 - 88.5 = +1.5</td>
+                            <td>Slightly above predicted</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>95</td>
+                            <td>58.5 + 3.75(10) = 96</td>
+                            <td>95 - 96 = -1</td>
+                            <td>Slightly below predicted</td>
+                        </tr>
+                        <tr style="font-weight: bold;">
+                            <td colspan="3">Sum of residuals:</td>
+                            <td>0</td>
+                            <td>Always!</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Note:</strong> The sum of residuals always equals 0 for the least-squares line. This is a mathematical property of the least-squares method.</p>
+            </div>
+
+            <h3>Standard Error of the Estimate (sₑ)</h3>
+
+            <p>While individual residuals tell us about specific points, the <strong>standard error</strong> measures the <strong>typical size of prediction errors</strong>.</p>
+
+            <div class="formula-box">
+                <h3>Standard Error of the Estimate</h3>
+                <div class="formula">
+                    sₑ = √[Σ(y - ŷ)² / (n - 2)]
+                </div>
+                <p style="margin-top: 1rem;">This measures the <strong>typical distance</strong> points fall from the regression line.</p>
+                <ul style="text-align: left; display: inline-block; margin-top: 1rem;">
+                    <li>Smaller sₑ = better fit (predictions more accurate)</li>
+                    <li>Larger sₑ = poorer fit (more prediction error)</li>
+                    <li>Units are the same as y</li>
+                    <li>We use (n - 2) in the denominator because we estimate 2 parameters (b₀ and b₁)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Coefficient of Determination -->
+        <section>
+            <h2>5. Coefficient of Determination (r²)</h2>
+
+            <p>The coefficient of determination, <strong>r²</strong>, tells us <strong>how much of the variation in y is explained by x</strong>.</p>
+
+            <div class="key-concept">
+                <h3>Coefficient of Determination (r²)</h3>
+
+                <div class="formula">
+                    r² = (correlation coefficient)²
+                </div>
+
+                <p><strong>Interpretation:</strong> r² is the <strong>proportion of variation in y explained by the linear relationship with x</strong>.</p>
+
+                <ul>
+                    <li><strong>Range:</strong> 0 ≤ r² ≤ 1 (or 0% to 100%)</li>
+                    <li><strong>r² = 0:</strong> x explains none of the variation in y</li>
+                    <li><strong>r² = 1:</strong> x explains all of the variation in y (perfect fit)</li>
+                    <li><strong>r² = 0.75:</strong> x explains 75% of the variation in y; 25% is unexplained</li>
+                </ul>
+
+                <p><strong>Note:</strong> r² is always positive (even when r is negative) because it's a squared value.</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example: Calculating and Interpreting r²</h3>
+
+                <p><strong>From our study hours example:</strong></p>
+                <ul>
+                    <li>r = 0.993</li>
+                    <li>r² = (0.993)² = 0.986 = <strong>98.6%</strong></li>
+                </ul>
+
+                <p><strong>Interpretation:</strong> 98.6% of the variation in test scores is explained by the linear relationship with study hours. Only 1.4% of the variation is due to other factors (aptitude, prior knowledge, sleep, etc.).</p>
+
+                <p><strong>This tells us:</strong> Study hours is an <strong>excellent</strong> predictor of test scores in this dataset!</p>
+            </div>
+
+            <div class="example-box">
+                <h3>More r² Examples</h3>
+
+                <p><strong>Example 1:</strong> Height and weight, r = 0.70</p>
+                <ul>
+                    <li>r² = (0.70)² = 0.49 = 49%</li>
+                    <li><strong>Interpretation:</strong> 49% of variation in weight is explained by height. 51% is due to other factors (muscle mass, diet, genetics, etc.).</li>
+                </ul>
+
+                <p><strong>Example 2:</strong> Car age and value, r = -0.90</p>
+                <ul>
+                    <li>r² = (-0.90)² = 0.81 = 81%</li>
+                    <li><strong>Interpretation:</strong> 81% of variation in car value is explained by age. 19% is due to other factors (condition, mileage, make/model, etc.).</li>
+                    <li><strong>Note:</strong> r² is positive even though r is negative!</li>
+                </ul>
+
+                <p><strong>Example 3:</strong> Shoe size and salary, r = 0.25</p>
+                <ul>
+                    <li>r² = (0.25)² = 0.0625 = 6.25%</li>
+                    <li><strong>Interpretation:</strong> Only 6.25% of variation in salary is "explained" by shoe size. This weak relationship is likely spurious or due to confounding variables.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+
+            <p><strong>Question 1:</strong> The regression equation for predicting car price (in thousands) from age (in years) is ŷ = 25 - 2.5x. Interpret the slope.</p>
+            <button class="show-solution" onclick="toggleSolution('sol1')">Show Solution</button>
+            <div class="solution" id="sol1">
+                <p><strong>Slope = -2.5</strong></p>
+                <p><strong>Interpretation:</strong> For each additional year of age, the car's price decreases by $2,500 on average (or 2.5 thousand dollars).</p>
+                <p>The negative sign indicates that price decreases as age increases.</p>
+            </div>
+
+            <p><strong>Question 2:</strong> Using the equation from Question 1, predict the price of a 6-year-old car.</p>
+            <button class="show-solution" onclick="toggleSolution('sol2')">Show Solution</button>
+            <div class="solution" id="sol2">
+                <p><strong>Solution:</strong></p>
+                <p>ŷ = 25 - 2.5(6) = 25 - 15 = <strong>10 thousand dollars = $10,000</strong></p>
+                <p><strong>Interpretation:</strong> We predict a 6-year-old car will be worth approximately $10,000.</p>
+            </div>
+
+            <p><strong>Question 3:</strong> If a 6-year-old car is actually worth $12,000, what is the residual?</p>
+            <button class="show-solution" onclick="toggleSolution('sol3')">Show Solution</button>
+            <div class="solution" id="sol3">
+                <p><strong>Solution:</strong></p>
+                <p>Residual = y - ŷ = 12 - 10 = <strong>+2 thousand dollars</strong></p>
+                <p><strong>Interpretation:</strong> The actual price is $2,000 <em>higher</em> than predicted. This car is worth more than the model predicts (perhaps it's well-maintained, low mileage, or a desirable model).</p>
+                <p>The positive residual means the point is <strong>above</strong> the regression line.</p>
+            </div>
+
+            <p><strong>Question 4:</strong> If r = 0.60 for the relationship between exercise hours and weight loss, what is r²? Interpret it.</p>
+            <button class="show-solution" onclick="toggleSolution('sol4')">Show Solution</button>
+            <div class="solution" id="sol4">
+                <p><strong>Solution:</strong></p>
+                <p>r² = (0.60)² = 0.36 = <strong>36%</strong></p>
+                <p><strong>Interpretation:</strong> 36% of the variation in weight loss is explained by exercise hours. The remaining 64% is due to other factors such as diet, metabolism, genetics, sleep, etc.</p>
+                <p>This tells us that exercise is a meaningful factor in weight loss, but it's not the only factor - diet and other variables matter significantly too.</p>
+            </div>
+        </div>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-nav">
+            <a href="lesson-01-intro-linear-regression.html" class="btn btn-outline">← Lesson 1: Introduction</a>
+            <a href="lesson-03-hypothesis-testing.html" class="btn btn-primary">Next: Lesson 3 - Hypothesis Testing →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        // Toggle solution visibility
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            const button = event.target;
+
+            if (solution.style.display === 'none' || solution.style.display === '') {
+                solution.style.display = 'block';
+                button.textContent = 'Hide Solution';
+            } else {
+                solution.style.display = 'none';
+                button.textContent = 'Show Solution';
+            }
+        }
+
+        // Initialize visualizations when page loads
+        window.addEventListener('load', function() {
+            if (typeof createRegressionLineViz === 'function') {
+                createRegressionLineViz('regressionLineViz');
+            }
+
+            if (typeof createResidualsViz === 'function') {
+                createResidualsViz('residualsViz');
+            }
+        });
+    </script>
+</body>
+</html>

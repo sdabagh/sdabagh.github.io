@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3: Chi-Square Test of Homogeneity - Module 12</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .objectives-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .formula-box {
+            background: #F0F7FA;
+            border: 2px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .example-box {
+            background: white;
+            border: 2px solid #D97D54;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        .example-box h3 {
+            color: #D97D54;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #DDD;
+        }
+        th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #F8F9FA;
+        }
+        .total-row {
+            background: #E0E0E0 !important;
+            font-weight: bold;
+        }
+        .calculation-step {
+            background: #F8F9FA;
+            border-left: 3px solid #2C5F7C;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+        }
+        .check-understanding {
+            background: #E3F2FD;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .check-understanding h3 {
+            color: #1976D2;
+            margin-top: 0;
+        }
+        .quiz-option {
+            display: block;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: white;
+            border: 2px solid #DDD;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #E3F2FD;
+            border-color: #2196F3;
+        }
+        .quiz-option input {
+            margin-right: 0.75rem;
+        }
+        .solution-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .show-solution-btn {
+            background: #28A745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        .show-solution-btn:hover {
+            background: #218838;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .comparison-card {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .comparison-card h4 {
+            color: #2C5F7C;
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        .highlight-important {
+            background: #FFE4E1;
+            border-left: 4px solid #DC3545;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container narrow">
+        <div class="lesson-header">
+            <h1>Lesson 3: Chi-Square Test of Homogeneity</h1>
+            <p style="font-size: 1.1rem; margin: 0.5rem 0 0 0; opacity: 0.95;">Comparing Distributions Across Multiple Populations</p>
+        </div>
+
+        <div class="objectives-box">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Understand when to use the chi-square test of homogeneity</li>
+                <li>Distinguish between test of independence and test of homogeneity</li>
+                <li>Perform a complete chi-square test of homogeneity</li>
+                <li>Interpret results about whether distributions are the same across populations</li>
+                <li>Recognize the conceptual difference despite identical calculations</li>
+            </ul>
+        </div>
+
+        <h2>What is Homogeneity?</h2>
+        <p><strong>Homogeneity</strong> means "sameness" - when distributions are <strong>homogeneous</strong>, they have the same pattern across different groups or populations.</p>
+
+        <div class="key-concept">
+            <h3>When to Use Test of Homogeneity</h3>
+            <ul>
+                <li><strong>One categorical variable</strong></li>
+                <li><strong>Multiple samples/populations</strong> (2 or more groups)</li>
+                <li><strong>Purpose:</strong> Test if the distribution of the variable is the same across all populations</li>
+            </ul>
+            <p><strong>Research question pattern:</strong> "Do [population 1], [population 2], and [population 3] have the same distribution of [variable]?"</p>
+        </div>
+
+        <h2>Independence vs. Homogeneity: The KEY Difference</h2>
+
+        <div class="highlight-important">
+            <h3>⚠️ IMPORTANT: Same Calculations, Different Study Design!</h3>
+            <p>The chi-square test of homogeneity uses the <strong>EXACT SAME formulas</strong> as the test of independence, but the <strong>research question and study design are completely different</strong>.</p>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="comparison-card" style="border-color: #2196F3;">
+                <h4>Test of Independence</h4>
+                <p><strong>Study Design:</strong></p>
+                <ul>
+                    <li>ONE random sample</li>
+                    <li>TWO variables measured on each subject</li>
+                    <li>Sample size determined beforehand, but cell counts vary</li>
+                </ul>
+                <p><strong>Question:</strong> Are the two variables associated?</p>
+                <p><strong>Example:</strong> Survey 500 people, classify each by gender AND political party</p>
+            </div>
+
+            <div class="comparison-card" style="border-color: #D97D54;">
+                <h4>Test of Homogeneity</h4>
+                <p><strong>Study Design:</strong></p>
+                <ul>
+                    <li>MULTIPLE samples/populations</li>
+                    <li>ONE variable measured in each group</li>
+                    <li>Sample sizes for each group determined beforehand</li>
+                </ul>
+                <p><strong>Question:</strong> Do the populations have the same distribution?</p>
+                <p><strong>Example:</strong> Sample 200 from City A, 200 from City B, 200 from City C; measure political party in each</p>
+            </div>
+        </div>
+
+        <div class="key-concept">
+            <h3>💡 The Conceptual Difference</h3>
+            <p><strong>Independence:</strong> "Are these two things related?" (Relationship between variables)</p>
+            <p><strong>Homogeneity:</strong> "Are these groups similar?" (Comparison of distributions)</p>
+            <p><strong>In practice:</strong> The table setup often reveals which test you're doing:</p>
+            <ul>
+                <li><strong>Rows = different populations/groups</strong> → Usually homogeneity</li>
+                <li><strong>Rows and columns both represent variable categories</strong> → Usually independence</li>
+            </ul>
+        </div>
+
+        <h2>Step-by-Step Procedure</h2>
+
+        <div class="calculation-step">
+            <h4>Step 1: State the Hypotheses</h4>
+            <p><strong>H₀ (Null Hypothesis):</strong> The distribution is the same for all populations</p>
+            <p><strong>Hₐ (Alternative Hypothesis):</strong> The distribution is NOT the same for all populations (at least one differs)</p>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 2: Check Conditions</h4>
+            <ul>
+                <li>Random sampling (or random assignment)</li>
+                <li>Independent observations</li>
+                <li><strong>All expected frequencies ≥ 5</strong></li>
+            </ul>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 3: Calculate Expected Frequencies</h4>
+            <div class="formula-box">
+                <p><strong>Same Formula as Independence:</strong></p>
+                <div class="formula">E = (Row Total × Column Total) / Grand Total</div>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 4: Calculate the Test Statistic</h4>
+            <div class="formula-box">
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 5: Find Degrees of Freedom</h4>
+            <div class="formula-box">
+                <div class="formula">df = (r - 1)(c - 1)</div>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Steps 6-7: Find p-value and Make Conclusion</h4>
+            <p>Use chi-square table or technology, then state conclusion in context</p>
+        </div>
+
+        <h2>Complete Example: Comparing Three Cities</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 1: Political Views Across Cities</h3>
+            <p><strong>Problem:</strong> A political analyst wants to know if political views differ across three cities. They randomly sample 150 residents from each city and ask about their political leaning:</p>
+
+            <table>
+                <tr>
+                    <th>City</th>
+                    <th>Liberal</th>
+                    <th>Moderate</th>
+                    <th>Conservative</th>
+                    <th>Row Total</th>
+                </tr>
+                <tr>
+                    <th>City A</th>
+                    <td>70</td>
+                    <td>50</td>
+                    <td>30</td>
+                    <td class="total-row">150</td>
+                </tr>
+                <tr>
+                    <th>City B</th>
+                    <td>55</td>
+                    <td>60</td>
+                    <td>35</td>
+                    <td class="total-row">150</td>
+                </tr>
+                <tr>
+                    <th>City C</th>
+                    <td>45</td>
+                    <td>55</td>
+                    <td>50</td>
+                    <td class="total-row">150</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Column Total</td>
+                    <td>170</td>
+                    <td>165</td>
+                    <td>115</td>
+                    <td>450</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At α = 0.05, is there evidence that the distribution of political views differs across the three cities?</p>
+
+            <h4>Solution:</h4>
+
+            <p><strong>Step 1: State the hypotheses</strong></p>
+            <ul>
+                <li>H₀: The distribution of political views is the same in all three cities</li>
+                <li>Hₐ: The distribution of political views is NOT the same across all three cities</li>
+            </ul>
+
+            <p><strong>Step 2: Check conditions</strong></p>
+            <ul>
+                <li>✓ Random samples from each city (150 from each)</li>
+                <li>✓ Observations are independent</li>
+                <li>✓ We'll check if all expected frequencies ≥ 5</li>
+            </ul>
+
+            <p><strong>Step 3: Calculate expected frequencies</strong></p>
+            <p>For each cell: E = (Row Total × Column Total) / Grand Total</p>
+
+            <p><strong>Sample calculations:</strong></p>
+            <ul>
+                <li>City A & Liberal: E = (150 × 170) / 450 = 56.67</li>
+                <li>City A & Moderate: E = (150 × 165) / 450 = 55.00</li>
+                <li>City A & Conservative: E = (150 × 115) / 450 = 38.33</li>
+            </ul>
+
+            <table>
+                <tr>
+                    <th>City</th>
+                    <th>Liberal (E)</th>
+                    <th>Moderate (E)</th>
+                    <th>Conservative (E)</th>
+                </tr>
+                <tr>
+                    <td>City A</td>
+                    <td>56.67</td>
+                    <td>55.00</td>
+                    <td>38.33</td>
+                </tr>
+                <tr>
+                    <td>City B</td>
+                    <td>56.67</td>
+                    <td>55.00</td>
+                    <td>38.33</td>
+                </tr>
+                <tr>
+                    <td>City C</td>
+                    <td>56.67</td>
+                    <td>55.00</td>
+                    <td>38.33</td>
+                </tr>
+            </table>
+
+            <p>✓ All expected frequencies are ≥ 5!</p>
+
+            <p><strong>Step 4: Calculate the chi-square test statistic</strong></p>
+
+            <table>
+                <tr>
+                    <th>Cell</th>
+                    <th>O</th>
+                    <th>E</th>
+                    <th>(O - E)²/E</th>
+                </tr>
+                <tr>
+                    <td>City A & Liberal</td>
+                    <td>70</td>
+                    <td>56.67</td>
+                    <td>3.136</td>
+                </tr>
+                <tr>
+                    <td>City A & Moderate</td>
+                    <td>50</td>
+                    <td>55.00</td>
+                    <td>0.455</td>
+                </tr>
+                <tr>
+                    <td>City A & Conservative</td>
+                    <td>30</td>
+                    <td>38.33</td>
+                    <td>1.813</td>
+                </tr>
+                <tr>
+                    <td>City B & Liberal</td>
+                    <td>55</td>
+                    <td>56.67</td>
+                    <td>0.049</td>
+                </tr>
+                <tr>
+                    <td>City B & Moderate</td>
+                    <td>60</td>
+                    <td>55.00</td>
+                    <td>0.455</td>
+                </tr>
+                <tr>
+                    <td>City B & Conservative</td>
+                    <td>35</td>
+                    <td>38.33</td>
+                    <td>0.289</td>
+                </tr>
+                <tr>
+                    <td>City C & Liberal</td>
+                    <td>45</td>
+                    <td>56.67</td>
+                    <td>2.402</td>
+                </tr>
+                <tr>
+                    <td>City C & Moderate</td>
+                    <td>55</td>
+                    <td>55.00</td>
+                    <td>0.000</td>
+                </tr>
+                <tr>
+                    <td>City C & Conservative</td>
+                    <td>50</td>
+                    <td>38.33</td>
+                    <td>3.548</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="3"><strong>Total χ²</strong></td>
+                    <td><strong>12.147</strong></td>
+                </tr>
+            </table>
+
+            <p><strong>χ² = 12.147</strong></p>
+
+            <p><strong>Step 5: Find degrees of freedom</strong></p>
+            <p>df = (r - 1)(c - 1) = (3 - 1)(3 - 1) = 2 × 2 = 4</p>
+
+            <p><strong>Step 6: Find p-value or critical value</strong></p>
+            <p>Using a chi-square table with df = 4 and α = 0.05:</p>
+            <p>Critical value = 9.488</p>
+            <p>Since our χ² = 12.147 > 9.488, we REJECT H₀</p>
+            <p>(Alternatively, p-value ≈ 0.016 < 0.05)</p>
+
+            <p><strong>Step 7: Conclusion</strong></p>
+            <p><strong>At the 0.05 significance level, there is sufficient evidence to conclude that the distribution of political views differs across the three cities. The cities are not homogeneous in their political views.</strong></p>
+
+            <p><strong>Follow-up observation:</strong> Looking at the data, City A appears more liberal (70 vs 56.67 expected), while City C appears more conservative (50 vs 38.33 expected).</p>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> In the example above, why is this a test of homogeneity rather than independence?</p>
+            <form id="quiz1">
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="a">
+                    A) Because we used different formulas
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="b">
+                    B) Because we have multiple separate samples (one from each city)
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="c">
+                    C) Because the sample sizes are equal
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="d">
+                    D) Because we're testing political views
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution1')">Show Answer</button>
+            <div id="solution1" class="solution-box">
+                <p><strong>Answer: B) Because we have multiple separate samples (one from each city)</strong></p>
+                <p><strong>Explanation:</strong> We took three separate samples (150 from City A, 150 from City B, 150 from City C). We're comparing the distribution of ONE variable (political views) across three populations. This is the key feature of homogeneity tests - multiple populations, one variable.</p>
+            </div>
+        </div>
+
+        <h2>Another Example: Treatment Groups</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 2: Comparing Educational Approaches</h3>
+            <p><strong>Problem:</strong> An educator tests three different teaching methods by randomly assigning students to one of three groups (100 students per method). After the course, students are classified as achieving Low, Medium, or High mastery:</p>
+
+            <table>
+                <tr>
+                    <th>Method</th>
+                    <th>Low</th>
+                    <th>Medium</th>
+                    <th>High</th>
+                    <th>Row Total</th>
+                </tr>
+                <tr>
+                    <th>Method 1 (Traditional)</th>
+                    <td>25</td>
+                    <td>50</td>
+                    <td>25</td>
+                    <td class="total-row">100</td>
+                </tr>
+                <tr>
+                    <th>Method 2 (Flipped)</th>
+                    <td>20</td>
+                    <td>45</td>
+                    <td>35</td>
+                    <td class="total-row">100</td>
+                </tr>
+                <tr>
+                    <th>Method 3 (Hybrid)</th>
+                    <td>15</td>
+                    <td>40</td>
+                    <td>45</td>
+                    <td class="total-row">100</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Column Total</td>
+                    <td>60</td>
+                    <td>135</td>
+                    <td>105</td>
+                    <td>300</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At α = 0.01, is there evidence that the distribution of mastery levels differs across the three teaching methods?</p>
+
+            <button class="show-solution-btn" onclick="showSolution('solution2')">Show Complete Solution</button>
+            <div id="solution2" class="solution-box">
+                <h4>Complete Solution:</h4>
+
+                <p><strong>Step 1: Hypotheses</strong></p>
+                <ul>
+                    <li>H₀: The distribution of mastery levels is the same for all three teaching methods</li>
+                    <li>Hₐ: The distribution of mastery levels is NOT the same across all three methods</li>
+                </ul>
+
+                <p><strong>Step 3: Expected frequencies</strong></p>
+                <p>Each method has 100 students. If distributions were the same:</p>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Low (E)</th>
+                        <th>Medium (E)</th>
+                        <th>High (E)</th>
+                    </tr>
+                    <tr>
+                        <td>Method 1</td>
+                        <td>(100×60)/300 = 20</td>
+                        <td>(100×135)/300 = 45</td>
+                        <td>(100×105)/300 = 35</td>
+                    </tr>
+                    <tr>
+                        <td>Method 2</td>
+                        <td>20</td>
+                        <td>45</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>Method 3</td>
+                        <td>20</td>
+                        <td>45</td>
+                        <td>35</td>
+                    </tr>
+                </table>
+
+                <p>✓ All expected frequencies ≥ 5</p>
+
+                <p><strong>Step 4: Calculate χ²</strong></p>
+                <table>
+                    <tr>
+                        <th>Cell</th>
+                        <th>O</th>
+                        <th>E</th>
+                        <th>(O-E)²/E</th>
+                    </tr>
+                    <tr>
+                        <td>Method 1 & Low</td>
+                        <td>25</td>
+                        <td>20</td>
+                        <td>1.250</td>
+                    </tr>
+                    <tr>
+                        <td>Method 1 & Medium</td>
+                        <td>50</td>
+                        <td>45</td>
+                        <td>0.556</td>
+                    </tr>
+                    <tr>
+                        <td>Method 1 & High</td>
+                        <td>25</td>
+                        <td>35</td>
+                        <td>2.857</td>
+                    </tr>
+                    <tr>
+                        <td>Method 2 & Low</td>
+                        <td>20</td>
+                        <td>20</td>
+                        <td>0.000</td>
+                    </tr>
+                    <tr>
+                        <td>Method 2 & Medium</td>
+                        <td>45</td>
+                        <td>45</td>
+                        <td>0.000</td>
+                    </tr>
+                    <tr>
+                        <td>Method 2 & High</td>
+                        <td>35</td>
+                        <td>35</td>
+                        <td>0.000</td>
+                    </tr>
+                    <tr>
+                        <td>Method 3 & Low</td>
+                        <td>15</td>
+                        <td>20</td>
+                        <td>1.250</td>
+                    </tr>
+                    <tr>
+                        <td>Method 3 & Medium</td>
+                        <td>40</td>
+                        <td>45</td>
+                        <td>0.556</td>
+                    </tr>
+                    <tr>
+                        <td>Method 3 & High</td>
+                        <td>45</td>
+                        <td>35</td>
+                        <td>2.857</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3"><strong>Total</strong></td>
+                        <td><strong>9.326</strong></td>
+                    </tr>
+                </table>
+
+                <p><strong>χ² = 9.326</strong></p>
+
+                <p><strong>Step 5: Degrees of freedom</strong></p>
+                <p>df = (3 - 1)(3 - 1) = 2 × 2 = 4</p>
+
+                <p><strong>Step 6: Critical value</strong></p>
+                <p>With df = 4 and α = 0.01, critical value = 13.277</p>
+                <p>Since 9.326 < 13.277, we fail to reject H₀</p>
+                <p>(p-value ≈ 0.053 > 0.01)</p>
+
+                <p><strong>Step 7: Conclusion</strong></p>
+                <p><strong>At the 0.01 significance level, there is insufficient evidence to conclude that the distribution of mastery levels differs across the three teaching methods. The methods appear to produce homogeneous distributions of student mastery.</strong></p>
+
+                <p><strong>Note:</strong> The p-value (0.053) is very close to 0.05. If we had used α = 0.05, we would have rejected H₀. This highlights the importance of choosing α before conducting the test!</p>
+            </div>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> Which of the following scenarios would use a test of homogeneity rather than independence?</p>
+            <form id="quiz2">
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="a">
+                    A) Survey 400 college students and classify each by major and year in school
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="b">
+                    B) Sample 150 from School A and 150 from School B, asking each about preferred study method
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="c">
+                    C) Survey 300 voters about both their age group and voting preference
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="d">
+                    D) Test if a die is fair by rolling it 120 times
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution3')">Show Answer</button>
+            <div id="solution3" class="solution-box">
+                <p><strong>Answer: B) Sample 150 from School A and 150 from School B, asking each about preferred study method</strong></p>
+                <p><strong>Explanation:</strong> This scenario has multiple separate samples (School A and School B) and measures one variable (study method preference) in each group. We're comparing whether the two schools have the same distribution of study preferences - this is homogeneity. Options A and C are independence (one sample, two variables), and D is goodness of fit (one sample, one variable).</p>
+            </div>
+        </div>
+
+        <h2>Summary Table: All Three Chi-Square Tests</h2>
+
+        <table style="margin: 2rem 0;">
+            <tr>
+                <th>Test Type</th>
+                <th>Variables</th>
+                <th>Samples</th>
+                <th>Research Question</th>
+                <th>Example</th>
+            </tr>
+            <tr>
+                <td><strong>Goodness of Fit</strong></td>
+                <td>1 categorical</td>
+                <td>1 sample</td>
+                <td>Does data fit expected distribution?</td>
+                <td>Is a die fair?</td>
+            </tr>
+            <tr>
+                <td><strong>Independence</strong></td>
+                <td>2 categorical</td>
+                <td>1 sample</td>
+                <td>Are variables associated?</td>
+                <td>Are gender and party related?</td>
+            </tr>
+            <tr>
+                <td><strong>Homogeneity</strong></td>
+                <td>1 categorical</td>
+                <td>2+ samples</td>
+                <td>Same distribution across groups?</td>
+                <td>Do three cities have same political views?</td>
+            </tr>
+        </table>
+
+        <h2>Key Takeaways</h2>
+        <div class="key-concept">
+            <h3>🎯 Remember These Points</h3>
+            <ul>
+                <li><strong>Purpose:</strong> Compare distributions of one variable across multiple populations</li>
+                <li><strong>Study design:</strong> Multiple samples, one variable in each</li>
+                <li><strong>Calculations:</strong> IDENTICAL to test of independence</li>
+                <li><strong>Conceptual difference:</strong> Comparing groups vs. testing relationship</li>
+                <li><strong>Expected frequency:</strong> E = (Row Total × Column Total) / Grand Total</li>
+                <li><strong>Test statistic:</strong> χ² = Σ[(O - E)² / E]</li>
+                <li><strong>Degrees of freedom:</strong> df = (r - 1)(c - 1)</li>
+                <li><strong>Interpretation:</strong> Rejected H₀ = distributions differ; Failed to reject = distributions appear homogeneous</li>
+            </ul>
+        </div>
+
+        <div style="margin: 3rem 0; text-align: center;">
+            <a href="lesson-04-choosing-the-right-test.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Continue to Lesson 4: Choosing the Right Test →</a>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #E0E0E0;">
+            <p><a href="lesson-02-test-of-independence.html">← Previous: Lesson 2 (Test of Independence)</a></p>
+            <p><a href="index.html">← Back to Module 12 Overview</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function showSolution(id) {
+            const solution = document.getElementById(id);
+            solution.style.display = solution.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

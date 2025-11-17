@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: Chi-Square Test of Independence - Module 12</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .objectives-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .formula-box {
+            background: #F0F7FA;
+            border: 2px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .example-box {
+            background: white;
+            border: 2px solid #D97D54;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        .example-box h3 {
+            color: #D97D54;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #DDD;
+        }
+        th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #F8F9FA;
+        }
+        .total-row {
+            background: #E0E0E0 !important;
+            font-weight: bold;
+        }
+        .calculation-step {
+            background: #F8F9FA;
+            border-left: 3px solid #2C5F7C;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+        }
+        .check-understanding {
+            background: #E3F2FD;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .check-understanding h3 {
+            color: #1976D2;
+            margin-top: 0;
+        }
+        .quiz-option {
+            display: block;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: white;
+            border: 2px solid #DDD;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #E3F2FD;
+            border-color: #2196F3;
+        }
+        .quiz-option input {
+            margin-right: 0.75rem;
+        }
+        .solution-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .show-solution-btn {
+            background: #28A745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        .show-solution-btn:hover {
+            background: #218838;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .comparison-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+        .comparison-card h4 {
+            color: #2C5F7C;
+            margin-top: 0;
+        }
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container narrow">
+        <div class="lesson-header">
+            <h1>Lesson 2: Chi-Square Test of Independence</h1>
+            <p style="font-size: 1.1rem; margin: 0.5rem 0 0 0; opacity: 0.95;">Testing Whether Two Categorical Variables Are Associated</p>
+        </div>
+
+        <div class="objectives-box">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Understand when to use the chi-square test of independence</li>
+                <li>Create and interpret contingency tables (two-way tables)</li>
+                <li>Calculate expected frequencies for independence tests</li>
+                <li>Determine degrees of freedom for contingency tables</li>
+                <li>Perform a complete chi-square test of independence</li>
+                <li>Interpret results about the relationship between two categorical variables</li>
+            </ul>
+        </div>
+
+        <h2>What is Independence?</h2>
+        <p>In statistics, two categorical variables are <strong>independent</strong> if knowing the category of one variable doesn't give us any information about the other variable.</p>
+
+        <div class="comparison-grid">
+            <div class="comparison-card" style="border-color: #28A745;">
+                <h4>✓ Independent Variables</h4>
+                <p><strong>No association or relationship</strong></p>
+                <p><em>Example:</em> Hair color and favorite ice cream flavor are likely independent - knowing someone's hair color doesn't help predict their ice cream preference.</p>
+            </div>
+            <div class="comparison-card" style="border-color: #D97D54;">
+                <h4>✗ Dependent (Associated) Variables</h4>
+                <p><strong>There IS an association</strong></p>
+                <p><em>Example:</em> Education level and income are likely dependent - higher education tends to be associated with higher income.</p>
+            </div>
+        </div>
+
+        <div class="key-concept">
+            <h3>When to Use Test of Independence</h3>
+            <ul>
+                <li><strong>Two categorical variables</strong></li>
+                <li><strong>One sample</strong> classified by both variables</li>
+                <li><strong>Purpose:</strong> Test if the two variables are independent or associated</li>
+            </ul>
+            <p><strong>Research question pattern:</strong> "Is there a relationship between [variable 1] and [variable 2]?"</p>
+        </div>
+
+        <h2>Contingency Tables (Two-Way Tables)</h2>
+        <p>A <strong>contingency table</strong> (also called a two-way table) displays the frequency distribution of two categorical variables:</p>
+
+        <div style="margin: 1.5rem 0;">
+            <table style="max-width: 600px; margin: 0 auto;">
+                <tr>
+                    <th style="background: #F0F7FA; color: #2D2D2D;"></th>
+                    <th colspan="3">Variable 2 →</th>
+                </tr>
+                <tr>
+                    <th style="background: #F0F7FA; color: #2D2D2D;">Variable 1 ↓</th>
+                    <th>Category A</th>
+                    <th>Category B</th>
+                    <th>Row Total</th>
+                </tr>
+                <tr>
+                    <th>Category 1</th>
+                    <td>Count</td>
+                    <td>Count</td>
+                    <td style="background: #E0E0E0;">Total</td>
+                </tr>
+                <tr>
+                    <th>Category 2</th>
+                    <td>Count</td>
+                    <td>Count</td>
+                    <td style="background: #E0E0E0;">Total</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Column Total</td>
+                    <td>Total</td>
+                    <td>Total</td>
+                    <td>Grand Total</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>Step-by-Step Procedure</h2>
+
+        <div class="calculation-step">
+            <h4>Step 1: State the Hypotheses</h4>
+            <p><strong>H₀ (Null Hypothesis):</strong> The two variables are independent (no association)</p>
+            <p><strong>Hₐ (Alternative Hypothesis):</strong> The two variables are dependent (there is an association)</p>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 2: Check Conditions</h4>
+            <ul>
+                <li>Random sampling</li>
+                <li>Independent observations</li>
+                <li><strong>All expected frequencies ≥ 5</strong></li>
+            </ul>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 3: Calculate Expected Frequencies</h4>
+            <div class="formula-box">
+                <p><strong>Expected Frequency Formula for Each Cell:</strong></p>
+                <div class="formula">E = (Row Total × Column Total) / Grand Total</div>
+                <p>Calculate this for EVERY cell in the table</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 4: Calculate the Test Statistic</h4>
+            <div class="formula-box">
+                <p><strong>Chi-Square Test Statistic:</strong></p>
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+                <p>Sum over ALL cells in the contingency table</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 5: Find Degrees of Freedom</h4>
+            <div class="formula-box">
+                <p><strong>Degrees of Freedom:</strong></p>
+                <div class="formula">df = (r - 1)(c - 1)</div>
+                <p>Where: r = number of rows, c = number of columns</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 6: Find the p-value or Critical Value</h4>
+            <p>Use chi-square distribution table or technology</p>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 7: Make a Conclusion</h4>
+            <p>State your conclusion about whether the variables are independent or associated</p>
+        </div>
+
+        <h2>Complete Example: Gender and Political Party</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 1: Gender and Political Affiliation</h3>
+            <p><strong>Problem:</strong> A political scientist surveys 500 randomly selected voters and records their gender and political party preference. The data is shown below:</p>
+
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Democrat</th>
+                    <th>Republican</th>
+                    <th>Independent</th>
+                    <th>Row Total</th>
+                </tr>
+                <tr>
+                    <th>Male</th>
+                    <td>120</td>
+                    <td>90</td>
+                    <td>40</td>
+                    <td class="total-row">250</td>
+                </tr>
+                <tr>
+                    <th>Female</th>
+                    <td>100</td>
+                    <td>110</td>
+                    <td>40</td>
+                    <td class="total-row">250</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Column Total</td>
+                    <td>220</td>
+                    <td>200</td>
+                    <td>80</td>
+                    <td>500</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At the α = 0.05 significance level, is there evidence that gender and political party preference are associated?</p>
+
+            <h4>Solution:</h4>
+
+            <p><strong>Step 1: State the hypotheses</strong></p>
+            <ul>
+                <li>H₀: Gender and political party preference are independent</li>
+                <li>Hₐ: Gender and political party preference are dependent (associated)</li>
+            </ul>
+
+            <p><strong>Step 2: Check conditions</strong></p>
+            <ul>
+                <li>✓ Random sample of 500 voters</li>
+                <li>✓ Observations are independent</li>
+                <li>✓ We'll check if all expected frequencies ≥ 5</li>
+            </ul>
+
+            <p><strong>Step 3: Calculate expected frequencies</strong></p>
+            <p>For each cell: E = (Row Total × Column Total) / Grand Total</p>
+
+            <p><strong>Expected frequency calculations:</strong></p>
+            <ul>
+                <li>Male & Democrat: E = (250 × 220) / 500 = 110</li>
+                <li>Male & Republican: E = (250 × 200) / 500 = 100</li>
+                <li>Male & Independent: E = (250 × 80) / 500 = 40</li>
+                <li>Female & Democrat: E = (250 × 220) / 500 = 110</li>
+                <li>Female & Republican: E = (250 × 200) / 500 = 100</li>
+                <li>Female & Independent: E = (250 × 80) / 500 = 40</li>
+            </ul>
+
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Democrat</th>
+                    <th>Republican</th>
+                    <th>Independent</th>
+                </tr>
+                <tr>
+                    <th>Male</th>
+                    <td>O=120, E=110</td>
+                    <td>O=90, E=100</td>
+                    <td>O=40, E=40</td>
+                </tr>
+                <tr>
+                    <th>Female</th>
+                    <td>O=100, E=110</td>
+                    <td>O=110, E=100</td>
+                    <td>O=40, E=40</td>
+                </tr>
+            </table>
+
+            <p>✓ All expected frequencies are ≥ 5!</p>
+
+            <p><strong>Step 4: Calculate the chi-square test statistic</strong></p>
+            <p>χ² = Σ[(O - E)² / E] for all 6 cells:</p>
+
+            <table>
+                <tr>
+                    <th>Cell</th>
+                    <th>O</th>
+                    <th>E</th>
+                    <th>(O - E)²/E</th>
+                </tr>
+                <tr>
+                    <td>Male & Democrat</td>
+                    <td>120</td>
+                    <td>110</td>
+                    <td>0.909</td>
+                </tr>
+                <tr>
+                    <td>Male & Republican</td>
+                    <td>90</td>
+                    <td>100</td>
+                    <td>1.000</td>
+                </tr>
+                <tr>
+                    <td>Male & Independent</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>0.000</td>
+                </tr>
+                <tr>
+                    <td>Female & Democrat</td>
+                    <td>100</td>
+                    <td>110</td>
+                    <td>0.909</td>
+                </tr>
+                <tr>
+                    <td>Female & Republican</td>
+                    <td>110</td>
+                    <td>100</td>
+                    <td>1.000</td>
+                </tr>
+                <tr>
+                    <td>Female & Independent</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>0.000</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="3"><strong>Total χ²</strong></td>
+                    <td><strong>3.818</strong></td>
+                </tr>
+            </table>
+
+            <p><strong>χ² = 3.818</strong></p>
+
+            <p><strong>Step 5: Find degrees of freedom</strong></p>
+            <p>df = (r - 1)(c - 1) = (2 - 1)(3 - 1) = 1 × 2 = 2</p>
+
+            <p><strong>Step 6: Find p-value or critical value</strong></p>
+            <p>Using a chi-square table with df = 2 and α = 0.05:</p>
+            <p>Critical value = 5.991</p>
+            <p>Since our χ² = 3.818 < 5.991, we fail to reject H₀</p>
+            <p>(Alternatively, p-value ≈ 0.148 > 0.05)</p>
+
+            <p><strong>Step 7: Conclusion</strong></p>
+            <p><strong>At the 0.05 significance level, there is insufficient evidence to conclude that gender and political party preference are associated. The data are consistent with the two variables being independent.</strong></p>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> In the political party example, what does it mean practically that we failed to reject the null hypothesis?</p>
+            <form id="quiz1">
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="a">
+                    A) We proved that gender and political party are definitely independent
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="b">
+                    B) We found that gender determines political party preference
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="c">
+                    C) We don't have enough evidence to say gender and political party are related
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="d">
+                    D) There is definitely no relationship between the variables
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution1')">Show Answer</button>
+            <div id="solution1" class="solution-box">
+                <p><strong>Answer: C) We don't have enough evidence to say gender and political party are related</strong></p>
+                <p><strong>Explanation:</strong> Failing to reject H₀ means we don't have sufficient evidence of an association. It does NOT prove independence - it just means our data is consistent with independence. The distinction is important: we never "prove" the null hypothesis, we simply lack evidence against it.</p>
+            </div>
+        </div>
+
+        <h2>Another Example: 2×2 Table</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 2: Treatment and Outcome</h3>
+            <p><strong>Problem:</strong> A medical researcher randomly assigns 200 patients with migraines to either a new drug treatment or a placebo. After one month, they record whether each patient experienced significant improvement:</p>
+
+            <table style="max-width: 500px; margin: 1rem auto;">
+                <tr>
+                    <th></th>
+                    <th>Improved</th>
+                    <th>Not Improved</th>
+                    <th>Row Total</th>
+                </tr>
+                <tr>
+                    <th>Drug</th>
+                    <td>70</td>
+                    <td>30</td>
+                    <td class="total-row">100</td>
+                </tr>
+                <tr>
+                    <th>Placebo</th>
+                    <td>50</td>
+                    <td>50</td>
+                    <td class="total-row">100</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Column Total</td>
+                    <td>120</td>
+                    <td>80</td>
+                    <td>200</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At α = 0.01, is there evidence that treatment type and improvement are associated?</p>
+
+            <button class="show-solution-btn" onclick="showSolution('solution2')">Show Complete Solution</button>
+            <div id="solution2" class="solution-box">
+                <h4>Complete Solution:</h4>
+
+                <p><strong>Step 1: Hypotheses</strong></p>
+                <ul>
+                    <li>H₀: Treatment type and improvement are independent</li>
+                    <li>Hₐ: Treatment type and improvement are associated</li>
+                </ul>
+
+                <p><strong>Step 3: Expected frequencies</strong></p>
+                <table style="max-width: 500px;">
+                    <tr>
+                        <th>Cell</th>
+                        <th>Calculation</th>
+                        <th>Expected</th>
+                    </tr>
+                    <tr>
+                        <td>Drug & Improved</td>
+                        <td>(100 × 120) / 200</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>Drug & Not Improved</td>
+                        <td>(100 × 80) / 200</td>
+                        <td>40</td>
+                    </tr>
+                    <tr>
+                        <td>Placebo & Improved</td>
+                        <td>(100 × 120) / 200</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>Placebo & Not Improved</td>
+                        <td>(100 × 80) / 200</td>
+                        <td>40</td>
+                    </tr>
+                </table>
+
+                <p>✓ All expected frequencies ≥ 5</p>
+
+                <p><strong>Step 4: Calculate χ²</strong></p>
+                <table style="max-width: 600px;">
+                    <tr>
+                        <th>Cell</th>
+                        <th>O</th>
+                        <th>E</th>
+                        <th>(O-E)²/E</th>
+                    </tr>
+                    <tr>
+                        <td>Drug & Improved</td>
+                        <td>70</td>
+                        <td>60</td>
+                        <td>1.667</td>
+                    </tr>
+                    <tr>
+                        <td>Drug & Not Improved</td>
+                        <td>30</td>
+                        <td>40</td>
+                        <td>2.500</td>
+                    </tr>
+                    <tr>
+                        <td>Placebo & Improved</td>
+                        <td>50</td>
+                        <td>60</td>
+                        <td>1.667</td>
+                    </tr>
+                    <tr>
+                        <td>Placebo & Not Improved</td>
+                        <td>50</td>
+                        <td>40</td>
+                        <td>2.500</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3"><strong>Total</strong></td>
+                        <td><strong>8.334</strong></td>
+                    </tr>
+                </table>
+
+                <p><strong>χ² = 8.334</strong></p>
+
+                <p><strong>Step 5: Degrees of freedom</strong></p>
+                <p>df = (2 - 1)(2 - 1) = 1 × 1 = 1</p>
+
+                <p><strong>Step 6: Critical value</strong></p>
+                <p>With df = 1 and α = 0.01, critical value = 6.635</p>
+                <p>Since 8.334 > 6.635, we REJECT H₀</p>
+                <p>(p-value ≈ 0.0039 < 0.01)</p>
+
+                <p><strong>Step 7: Conclusion</strong></p>
+                <p><strong>At the 0.01 significance level, there is sufficient evidence to conclude that treatment type and improvement are associated. The drug appears to be more effective than the placebo.</strong></p>
+            </div>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> What would be the degrees of freedom for a contingency table with 4 rows and 5 columns?</p>
+            <form id="quiz2">
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="a">
+                    A) 9
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="b">
+                    B) 12
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="c">
+                    C) 20
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="d">
+                    D) 19
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution3')">Show Answer</button>
+            <div id="solution3" class="solution-box">
+                <p><strong>Answer: B) 12</strong></p>
+                <p><strong>Explanation:</strong> df = (r - 1)(c - 1) = (4 - 1)(5 - 1) = 3 × 4 = 12. We subtract 1 from both the number of rows and columns, then multiply.</p>
+            </div>
+        </div>
+
+        <h2>Interpreting Results</h2>
+
+        <div class="key-concept">
+            <h3>🎯 What Does the Test Tell Us?</h3>
+
+            <p><strong>If we REJECT H₀ (χ² is large, p-value is small):</strong></p>
+            <ul>
+                <li>The two variables are <strong>associated</strong> (dependent)</li>
+                <li>Knowing one variable gives information about the other</li>
+                <li>The observed pattern differs significantly from what we'd expect if variables were independent</li>
+            </ul>
+
+            <p><strong>If we FAIL TO REJECT H₀ (χ² is small, p-value is large):</strong></p>
+            <ul>
+                <li>Insufficient evidence of association</li>
+                <li>The data is consistent with independence</li>
+                <li>We cannot conclude the variables are related</li>
+            </ul>
+
+            <p><strong>Important Note:</strong> Association ≠ Causation! Even if variables are associated, this doesn't prove one causes the other.</p>
+        </div>
+
+        <div class="viz-container">
+            <h3>Interactive Contingency Table Calculator</h3>
+            <div id="contingencyTableViz"></div>
+            <p style="margin-top: 1rem; color: #5A5A5A;"><em>Enter your own data to see expected frequencies and χ² calculation</em></p>
+        </div>
+
+        <h2>Key Takeaways</h2>
+        <div class="key-concept">
+            <h3>🎯 Remember These Points</h3>
+            <ul>
+                <li><strong>Purpose:</strong> Test if two categorical variables are independent or associated</li>
+                <li><strong>Study design:</strong> One sample, two variables</li>
+                <li><strong>Expected frequency:</strong> E = (Row Total × Column Total) / Grand Total</li>
+                <li><strong>Test statistic:</strong> χ² = Σ[(O - E)² / E] summed over ALL cells</li>
+                <li><strong>Degrees of freedom:</strong> df = (r - 1)(c - 1)</li>
+                <li><strong>Condition:</strong> All expected frequencies must be ≥ 5</li>
+                <li><strong>Always right-tailed:</strong> Large χ² indicates association</li>
+                <li><strong>Interpretation:</strong> Rejected H₀ = variables are associated; Failed to reject = no evidence of association</li>
+            </ul>
+        </div>
+
+        <div style="margin: 3rem 0; text-align: center;">
+            <a href="lesson-03-test-of-homogeneity.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Continue to Lesson 3: Test of Homogeneity →</a>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #E0E0E0;">
+            <p><a href="lesson-01-intro-goodness-of-fit.html">← Previous: Lesson 1 (Goodness of Fit)</a></p>
+            <p><a href="index.html">← Back to Module 12 Overview</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        function showSolution(id) {
+            const solution = document.getElementById(id);
+            solution.style.display = solution.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Initialize contingency table visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof drawContingencyTable === 'function') {
+                drawContingencyTable('contingencyTableViz');
+            }
+        });
+    </script>
+</body>
+</html>

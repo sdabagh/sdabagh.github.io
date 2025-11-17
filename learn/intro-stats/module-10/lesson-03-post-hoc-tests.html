@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3: Post-Hoc Tests - Module 10</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .content-section {
+            background: white;
+            border: 2px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .example-box {
+            background: #F0F7FA;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .warning-box {
+            background: #FFEBEE;
+            border-left: 4px solid #DC3545;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+        .formula {
+            background: #F8F9FA;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #2C5F7C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .check-understanding {
+            background: #E8F5E9;
+            border: 2px solid #28A745;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .solution {
+            background: #F8F9FA;
+            border-left: 3px solid #28A745;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        .solution.show {
+            display: block;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .step-box {
+            background: white;
+            border: 2px solid #2C5F7C;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .step-number {
+            display: inline-block;
+            background: #2C5F7C;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .calculation {
+            background: #E8F5E9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .comparison-table {
+            background: white;
+            border: 2px solid #2C5F7C;
+        }
+        .sig-result {
+            background-color: #FFE8E8;
+            font-weight: 600;
+        }
+        .not-sig-result {
+            background-color: #E8F5E9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="color: white; margin: 0;">Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px;">
+        <div class="lesson-header">
+            <h1>Lesson 3: Post-Hoc Tests</h1>
+            <p style="font-size: 1.1rem; margin: 0;">Identifying Which Groups Differ After a Significant ANOVA</p>
+        </div>
+
+        <!-- Section 1: Why Post-Hoc Tests? -->
+        <div class="content-section">
+            <h2>Why Do We Need Post-Hoc Tests?</h2>
+
+            <div class="warning-box">
+                <h3>⚠️ The Limitation of ANOVA</h3>
+                <p>When ANOVA gives a significant result, we know:</p>
+                <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0;"><strong>"At least one population mean is different from the others."</strong></p>
+                <p>But ANOVA <strong>does NOT tell us</strong>:</p>
+                <ul>
+                    <li>Which specific groups differ?</li>
+                    <li>How many groups differ?</li>
+                    <li>Which group has the highest/lowest mean?</li>
+                </ul>
+            </div>
+
+            <div class="key-concept">
+                <h3>🎯 Purpose of Post-Hoc Tests</h3>
+                <p><strong>Post-hoc tests</strong> (also called <strong>multiple comparison tests</strong>) perform pairwise comparisons to identify which specific groups differ significantly.</p>
+                <p><strong>Important:</strong> We only conduct post-hoc tests <strong>AFTER</strong> finding a significant F-statistic in ANOVA!</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example Scenario</h3>
+                <p>Suppose ANOVA comparing 4 teaching methods gives F = 8.2, p < 0.01 (significant).</p>
+                <p><strong>We know:</strong> At least one method differs.</p>
+                <p><strong>We DON'T know:</strong>
+                    <ul>
+                        <li>Is Method 1 different from Method 2?</li>
+                        <li>Is Method 3 different from Method 4?</li>
+                        <li>Which method is best?</li>
+                    </ul>
+                </p>
+                <p><strong>Solution:</strong> Use post-hoc tests to answer these questions!</p>
+            </div>
+        </div>
+
+        <!-- Section 2: Tukey's HSD -->
+        <div class="content-section">
+            <h2>Tukey's HSD (Honestly Significant Difference)</h2>
+            <p><strong>Tukey's HSD</strong> is the most commonly used post-hoc test. It controls the <strong>family-wise error rate</strong> while comparing all possible pairs of groups.</p>
+
+            <h3>The Tukey HSD Formula</h3>
+            <div class="formula">
+                HSD = q × √(MSW / n)
+            </div>
+
+            <p>Where:</p>
+            <ul>
+                <li><strong>q</strong> = critical value from the <strong>Studentized Range Distribution</strong> (q-table)</li>
+                <li><strong>MSW</strong> = Mean Square Within from ANOVA table</li>
+                <li><strong>n</strong> = sample size per group (assumes equal sample sizes)</li>
+            </ul>
+
+            <div class="key-concept">
+                <h3>Decision Rule</h3>
+                <p>For any two groups i and j:</p>
+                <div class="formula">
+                    If |x̄<sub>i</sub> - x̄<sub>j</sub>| > HSD → Groups i and j differ significantly
+                </div>
+                <div class="formula">
+                    If |x̄<sub>i</sub> - x̄<sub>j</sub>| ≤ HSD → No significant difference
+                </div>
+            </div>
+
+            <h3>Finding the q-value</h3>
+            <p>The q-value depends on:</p>
+            <ul>
+                <li><strong>k</strong> = number of groups</li>
+                <li><strong>df<sub>within</sub></strong> = N - k (from ANOVA)</li>
+                <li><strong>α</strong> = significance level (usually 0.05)</li>
+            </ul>
+            <p>You look up q in a <strong>Studentized Range table</strong> or use statistical software.</p>
+
+            <div class="example-box">
+                <h3>Example: Tukey HSD for k = 3, df = 12, α = 0.05</h3>
+                <p>From Studentized Range table: <strong>q = 3.77</strong></p>
+                <p><em>(This is an approximate value; exact tables available in textbooks or online)</em></p>
+            </div>
+        </div>
+
+        <!-- Section 3: Complete Tukey Example -->
+        <div class="content-section">
+            <h2>Complete Example: Tukey's HSD</h2>
+
+            <div class="example-box">
+                <h3>Continuing from Lesson 2 Example</h3>
+                <p>Recall our three study methods with:</p>
+                <ul>
+                    <li>Method 1 (Traditional): x̄₁ = 80</li>
+                    <li>Method 2 (Flashcards): x̄₂ = 86</li>
+                    <li>Method 3 (Practice Tests): x̄₃ = 92</li>
+                </ul>
+                <p>ANOVA results: F = 31.75, p < 0.001 (significant)</p>
+                <p>From ANOVA: MSW = 5.67, n = 5 per group, k = 3, df<sub>within</sub> = 12</p>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">1</span>Find Critical q-Value</h3>
+                <p>From Studentized Range table with k = 3, df = 12, α = 0.05:</p>
+                <div class="calculation">
+                    q = 3.77
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">2</span>Calculate HSD</h3>
+                <div class="calculation">
+                    HSD = q × √(MSW / n)
+                </div>
+                <div class="calculation">
+                    HSD = 3.77 × √(5.67 / 5)
+                </div>
+                <div class="calculation">
+                    HSD = 3.77 × √1.134
+                </div>
+                <div class="calculation">
+                    HSD = 3.77 × 1.065 = 4.01
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">3</span>Compare All Pairs</h3>
+
+                <p><strong>Comparison 1: Method 1 vs Method 2</strong></p>
+                <div class="calculation">
+                    |x̄₁ - x̄₂| = |80 - 86| = 6
+                </div>
+                <div class="calculation">
+                    6 > 4.01 → Significant difference ✓
+                </div>
+
+                <p><strong>Comparison 2: Method 1 vs Method 3</strong></p>
+                <div class="calculation">
+                    |x̄₁ - x̄₃| = |80 - 92| = 12
+                </div>
+                <div class="calculation">
+                    12 > 4.01 → Significant difference ✓
+                </div>
+
+                <p><strong>Comparison 3: Method 2 vs Method 3</strong></p>
+                <div class="calculation">
+                    |x̄₂ - x̄₃| = |86 - 92| = 6
+                </div>
+                <div class="calculation">
+                    6 > 4.01 → Significant difference ✓
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h3><span class="step-number">4</span>Summarize Results</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Difference in Means</th>
+                            <th>HSD = 4.01</th>
+                            <th>Conclusion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sig-result">
+                            <td>Method 1 vs 2</td>
+                            <td>6</td>
+                            <td>6 > 4.01</td>
+                            <td>Significant</td>
+                        </tr>
+                        <tr class="sig-result">
+                            <td>Method 1 vs 3</td>
+                            <td>12</td>
+                            <td>12 > 4.01</td>
+                            <td>Significant</td>
+                        </tr>
+                        <tr class="sig-result">
+                            <td>Method 2 vs 3</td>
+                            <td>6</td>
+                            <td>6 > 4.01</td>
+                            <td>Significant</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Conclusion:</strong> All three study methods produce significantly different mean exam scores. Method 3 (Practice Tests) is superior, followed by Method 2 (Flashcards), then Method 1 (Traditional).</p>
+            </div>
+        </div>
+
+        <!-- Section 4: Bonferroni Correction -->
+        <div class="content-section">
+            <h2>Bonferroni Correction</h2>
+            <p>The <strong>Bonferroni correction</strong> is another method for controlling Type I error in multiple comparisons. It's more conservative (stricter) than Tukey's HSD.</p>
+
+            <h3>The Bonferroni Method</h3>
+            <p>Instead of calculating a single HSD value, Bonferroni adjusts the significance level (α) for each comparison:</p>
+
+            <div class="formula">
+                α<sub>adjusted</sub> = α / c
+            </div>
+
+            <p>Where:</p>
+            <ul>
+                <li><strong>α</strong> = original significance level (e.g., 0.05)</li>
+                <li><strong>c</strong> = number of pairwise comparisons = k(k-1)/2</li>
+            </ul>
+
+            <p><strong>Then:</strong> Perform each pairwise comparison using a two-sample t-test with the adjusted α.</p>
+
+            <div class="example-box">
+                <h3>Example: Bonferroni with k = 4 Groups</h3>
+                <p>Number of comparisons: c = 4(3)/2 = 6</p>
+                <p>Original α = 0.05</p>
+                <div class="calculation">
+                    α<sub>adjusted</sub> = 0.05 / 6 = 0.0083
+                </div>
+                <p>For each of the 6 pairwise comparisons, we would use α = 0.0083 instead of 0.05.</p>
+                <p>This controls the overall family-wise error rate at 0.05.</p>
+            </div>
+
+            <h3>Tukey vs Bonferroni: When to Use Which?</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Strengths</th>
+                        <th>Best Used When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Tukey's HSD</strong></td>
+                        <td>
+                            • Most powerful when comparing all pairs<br>
+                            • Easy to calculate and interpret<br>
+                            • Controls family-wise error rate
+                        </td>
+                        <td>
+                            • Equal sample sizes<br>
+                            • Want to compare ALL pairs<br>
+                            • Standard choice for ANOVA
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bonferroni</strong></td>
+                        <td>
+                            • Very simple to understand<br>
+                            • Works with unequal sample sizes<br>
+                            • Can use for specific comparisons
+                        </td>
+                        <td>
+                            • Unequal sample sizes<br>
+                            • Only interested in few specific comparisons<br>
+                            • Want to be extra conservative
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-concept">
+                <h3>💡 General Rule</h3>
+                <p><strong>Use Tukey's HSD</strong> as your default post-hoc test for ANOVA. It's the most commonly used and strikes a good balance between power and error control.</p>
+                <p><strong>Use Bonferroni</strong> when you have unequal sample sizes or only want to test specific comparisons (not all pairs).</p>
+            </div>
+        </div>
+
+        <!-- Section 5: Other Post-Hoc Tests -->
+        <div class="content-section">
+            <h2>Other Post-Hoc Tests (Brief Overview)</h2>
+
+            <h3>Scheffé's Test</h3>
+            <ul>
+                <li>Most conservative (hardest to find significance)</li>
+                <li>Can compare not just pairs but any combination of groups</li>
+                <li>Use when you want maximum protection against Type I error</li>
+            </ul>
+
+            <h3>Dunnett's Test</h3>
+            <ul>
+                <li>Compares each treatment group to a <strong>control group</strong></li>
+                <li>Does NOT compare treatment groups to each other</li>
+                <li>More powerful than Tukey when you only care about comparisons to control</li>
+                <li>Common in medical research (comparing drugs to placebo)</li>
+            </ul>
+
+            <div class="example-box">
+                <h3>When to Use Dunnett's</h3>
+                <p>Testing 3 new drugs (A, B, C) against a placebo:</p>
+                <p><strong>Dunnett's tests:</strong></p>
+                <ul>
+                    <li>Drug A vs Placebo</li>
+                    <li>Drug B vs Placebo</li>
+                    <li>Drug C vs Placebo</li>
+                </ul>
+                <p><strong>Does NOT test:</strong> Drug A vs Drug B, etc.</p>
+            </div>
+        </div>
+
+        <!-- Section 6: Important Guidelines -->
+        <div class="content-section">
+            <h2>Important Guidelines for Post-Hoc Testing</h2>
+
+            <div class="warning-box">
+                <h3>⚠️ When NOT to Do Post-Hoc Tests</h3>
+                <ol>
+                    <li><strong>If ANOVA is not significant:</strong> If F-test fails to reject H₀, STOP. Don't do post-hoc tests.</li>
+                    <li><strong>With only 2 groups:</strong> If k = 2, ANOVA is equivalent to a t-test. No post-hoc needed.</li>
+                    <li><strong>Before running ANOVA:</strong> Always do the overall F-test first!</li>
+                </ol>
+            </div>
+
+            <div class="key-concept">
+                <h3>🎯 The Proper Sequence</h3>
+                <ol style="line-height: 2;">
+                    <li><strong>Run ANOVA</strong> to test if any differences exist</li>
+                    <li><strong>If ANOVA is significant:</strong> Proceed to post-hoc tests</li>
+                    <li><strong>Choose appropriate post-hoc test</strong> (usually Tukey's HSD)</li>
+                    <li><strong>Identify which specific pairs differ</strong></li>
+                    <li><strong>Report findings</strong> with context and interpretation</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Check Your Understanding -->
+        <div class="check-understanding">
+            <h2>✓ Check Your Understanding</h2>
+
+            <h3>Question 1</h3>
+            <p>An ANOVA comparing 4 fertilizers gives F = 2.1, p = 0.15. Should you conduct post-hoc tests? Why or why not?</p>
+            <button onclick="document.getElementById('sol1').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol1" class="solution">
+                <p><strong>Answer: NO, do not conduct post-hoc tests.</strong></p>
+                <p><strong>Reason:</strong> The ANOVA is NOT significant (p = 0.15 > 0.05). We failed to reject H₀, meaning we don't have evidence that any of the fertilizers differ. Post-hoc tests are only conducted AFTER finding a significant F-statistic.</p>
+            </div>
+
+            <h3>Question 2</h3>
+            <p>Given: k = 4 groups, MSW = 12, n = 8 per group, q = 3.96. Calculate Tukey's HSD.</p>
+            <button onclick="document.getElementById('sol2').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol2" class="solution">
+                <p><strong>Step 1:</strong> Use the formula HSD = q × √(MSW / n)</p>
+                <div class="calculation">
+                    HSD = 3.96 × √(12 / 8)
+                </div>
+                <div class="calculation">
+                    HSD = 3.96 × √1.5
+                </div>
+                <div class="calculation">
+                    HSD = 3.96 × 1.225 = 4.85
+                </div>
+                <p><strong>Answer: HSD = 4.85</strong></p>
+                <p>Any two group means that differ by more than 4.85 are significantly different.</p>
+            </div>
+
+            <h3>Question 3</h3>
+            <p>Using the HSD from Question 2, determine if groups with x̄₁ = 50 and x̄₂ = 54 differ significantly.</p>
+            <button onclick="document.getElementById('sol3').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol3" class="solution">
+                <p><strong>Step 1:</strong> Calculate the difference</p>
+                <div class="calculation">
+                    |x̄₁ - x̄₂| = |50 - 54| = 4
+                </div>
+                <p><strong>Step 2:</strong> Compare to HSD = 4.85</p>
+                <div class="calculation">
+                    4 < 4.85
+                </div>
+                <p><strong>Answer: No significant difference.</strong></p>
+                <p>The difference (4) is less than HSD (4.85), so we conclude that groups 1 and 2 do not differ significantly.</p>
+            </div>
+
+            <h3>Question 4</h3>
+            <p>If you're comparing 5 groups, how many pairwise comparisons are there? What would the Bonferroni-adjusted α be if the original α = 0.05?</p>
+            <button onclick="document.getElementById('sol4').classList.toggle('show')" class="btn btn-outline">Show Solution</button>
+            <div id="sol4" class="solution">
+                <p><strong>Step 1:</strong> Calculate number of comparisons</p>
+                <div class="calculation">
+                    c = k(k-1) / 2 = 5(4) / 2 = 10 comparisons
+                </div>
+                <p><strong>Step 2:</strong> Calculate adjusted α</p>
+                <div class="calculation">
+                    α<sub>adjusted</sub> = 0.05 / 10 = 0.005
+                </div>
+                <p><strong>Answers:</strong></p>
+                <ul>
+                    <li>10 pairwise comparisons</li>
+                    <li>Bonferroni α = 0.005 (or 0.5%) for each test</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="content-section">
+            <h2>📝 Lesson Summary</h2>
+            <ul style="line-height: 2;">
+                <li><strong>Post-hoc tests</strong> identify which specific groups differ after significant ANOVA</li>
+                <li>Only conduct post-hoc tests if ANOVA F-test is significant!</li>
+                <li><strong>Tukey's HSD:</strong> Most common post-hoc test
+                    <ul>
+                        <li>Formula: HSD = q × √(MSW / n)</li>
+                        <li>If |x̄ᵢ - x̄ⱼ| > HSD, groups differ significantly</li>
+                    </ul>
+                </li>
+                <li><strong>Bonferroni correction:</strong> Adjusts α for multiple comparisons
+                    <ul>
+                        <li>α<sub>adjusted</sub> = α / c</li>
+                        <li>More conservative than Tukey</li>
+                    </ul>
+                </li>
+                <li><strong>Other tests:</strong> Scheffé (most conservative), Dunnett (control comparison)</li>
+                <li>Post-hoc tests control <strong>family-wise error rate</strong> across multiple comparisons</li>
+            </ul>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="lesson-02-one-way-anova.html" class="btn btn-outline">← Previous: One-Way ANOVA Procedure</a>
+            <a href="lesson-04-assumptions-and-conditions.html" class="btn btn-primary">Next: Assumptions and Conditions →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
