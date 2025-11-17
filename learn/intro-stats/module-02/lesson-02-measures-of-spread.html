@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Measures of Spread - Learn about range, IQR, variance, and standard deviation">
+  <title>Lesson 2: Measures of Spread – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .lesson-objectives h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .lesson-objectives ul {
+      margin: 0;
+      padding-left: var(--spacing-lg);
+    }
+
+    .lesson-objectives li {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .content-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .example-box {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .definition-box {
+      background: var(--info-light);
+      border: 2px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .definition-box strong {
+      color: var(--info);
+      font-size: 1.1rem;
+    }
+
+    .formula-box {
+      background: #F0F8FF;
+      border: 2px solid var(--primary-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .formula {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin: var(--spacing-md) 0;
+      font-family: 'Georgia', serif;
+    }
+
+    .calculation-steps {
+      background: white;
+      border: 2px solid var(--border-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .calculation-steps ol {
+      padding-left: var(--spacing-lg);
+    }
+
+    .calculation-steps li {
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.8;
+    }
+
+    .calculation-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--spacing-md) 0;
+    }
+
+    .calculation-table th,
+    .calculation-table td {
+      border: 1px solid var(--border-color);
+      padding: var(--spacing-xs);
+      text-align: center;
+    }
+
+    .calculation-table th {
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .key-takeaway {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .key-takeaway h4 {
+      margin-top: 0;
+      color: var(--success);
+    }
+
+    .warning-box {
+      background: #fff9e6;
+      border-left: 4px solid var(--warning);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .warning-box h4 {
+      margin-top: 0;
+      color: #996300;
+    }
+
+    .comparison-visual {
+      background: white;
+      border: 2px solid var(--border-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .dataset-visual {
+      display: inline-block;
+      margin: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--background-alt);
+      border-radius: var(--radius-sm);
+    }
+
+    .data-points {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: var(--spacing-sm);
+    }
+
+    .data-point {
+      width: 8px;
+      height: 30px;
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    .empirical-rule-box {
+      background: linear-gradient(to right, #E3F2FD, #BBDEFB);
+      border: 2px solid var(--primary-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin: var(--spacing-md) 0;
+    }
+
+    .check-understanding {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .check-understanding h3 {
+      color: var(--primary-color);
+      margin-top: 0;
+    }
+
+    .question {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .question h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: var(--spacing-sm) 0;
+    }
+
+    .options li {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin-bottom: var(--spacing-xs);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .options li:hover {
+      border-color: var(--primary-color);
+      background: white;
+    }
+
+    .options li.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+    }
+
+    .feedback.correct {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      display: block;
+    }
+
+    .feedback.incorrect {
+      background: #fff9e6;
+      border-left: 4px solid var(--warning);
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .formula {
+        font-size: 1.1rem;
+      }
+
+      .dataset-visual {
+        display: block;
+        margin: var(--spacing-sm) 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">← Back to Module 2</a>
+
+    <div class="lesson-nav">
+      <div>
+        <strong>Module 2, Lesson 2 of 4</strong>
+        <p class="text-muted" style="margin: 0; font-size: 0.875rem;">⏱️ 30-35 minutes</p>
+      </div>
+      <div style="display: flex; gap: var(--spacing-sm);">
+        <a href="lesson-01-measures-of-center.html" class="btn btn-outline">← Previous</a>
+        <a href="lesson-03-distribution-shapes.html" class="btn btn-primary">Next Lesson →</a>
+      </div>
+    </div>
+
+    <h1>Lesson 2: Measures of Spread (Variability)</h1>
+
+    <div class="lesson-objectives">
+      <h3>📚 Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain why <strong>spread (variability)</strong> is just as important as center</li>
+        <li>Calculate and interpret the <strong>range</strong> of a dataset</li>
+        <li>Calculate <strong>quartiles</strong> and the <strong>interquartile range (IQR)</strong></li>
+        <li>Understand and calculate <strong>variance</strong> and <strong>standard deviation</strong></li>
+        <li>Apply the <strong>Empirical Rule (68-95-99.7 Rule)</strong> for bell-shaped distributions</li>
+        <li>Choose appropriate measures of spread based on data characteristics</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Why Does Spread Matter?</h2>
+      <p>
+        In Lesson 1, we learned that the <strong>mean</strong> tells us the "center" of the data.
+        But the mean alone doesn't tell the whole story!
+      </p>
+
+      <div class="example-box">
+        <h4>🤔 The Problem: Same Mean, Very Different Data!</h4>
+        <p><strong>Class A Test Scores:</strong> 70, 72, 75, 78, 80 <span style="float: right;"><strong>Mean = 75</strong></span></p>
+        <p><strong>Class B Test Scores:</strong> 30, 50, 75, 100, 100 <span style="float: right;"><strong>Mean = 75</strong></span></p>
+
+        <p class="mt-2">
+          Both classes have the <strong>same mean (75)</strong>, but are they really similar?
+        </p>
+        <ul class="mt-1">
+          <li><strong>Class A:</strong> Scores are clustered tightly around 75 (everyone scored 70-80)</li>
+          <li><strong>Class B:</strong> Scores are all over the place! (30 to 100)</li>
+        </ul>
+        <p class="mt-2">
+          <strong>Conclusion:</strong> To truly understand data, we need to know both the <strong>center</strong> (mean) AND the <strong>spread</strong> (how scattered the values are)!
+        </p>
+      </div>
+
+      <div class="definition-box">
+        <p>
+          <strong>Spread (Variability):</strong> A measure of how spread out or scattered the data values are.
+          Also called "dispersion" or "variability."
+        </p>
+        <p class="mt-1">
+          <strong>Low spread:</strong> Values are clustered close together<br>
+          <strong>High spread:</strong> Values are scattered far apart
+        </p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📏 The Range (Simplest Measure)</h2>
+
+      <div class="definition-box">
+        <p>
+          <strong>Range:</strong> The difference between the maximum and minimum values in a dataset.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <p><strong>Formula:</strong></p>
+        <p class="formula">Range = Maximum - Minimum</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Calculating Range</h4>
+        <p><strong>Dataset:</strong> Daily high temperatures (°F): <strong>68, 72, 75, 81, 64, 77, 70</strong></p>
+
+        <div class="calculation-steps">
+          <p><strong>Step-by-step:</strong></p>
+          <ol>
+            <li><strong>Find the maximum:</strong> 81°F (hottest day)</li>
+            <li><strong>Find the minimum:</strong> 64°F (coolest day)</li>
+            <li><strong>Calculate the range:</strong> 81 - 64 = <strong>17°F</strong></li>
+          </ol>
+          <p class="mt-2"><strong>Interpretation:</strong> Temperatures varied by 17 degrees over the week.</p>
+        </div>
+      </div>
+
+      <div class="key-takeaway">
+        <h4>✅ Pros and Cons of Range</h4>
+        <p><strong>Pros:</strong></p>
+        <ul>
+          <li>Easy to calculate and understand</li>
+          <li>Shows the full extent of the data</li>
+        </ul>
+        <p class="mt-2"><strong>Cons:</strong></p>
+        <ul>
+          <li>Uses only 2 values (max and min) – ignores everything else!</li>
+          <li>Extremely sensitive to outliers</li>
+          <li>Doesn't tell you how data is distributed in between</li>
+        </ul>
+      </div>
+
+      <div class="warning-box">
+        <h4>⚠️ The Range Problem: Outlier Sensitivity</h4>
+        <p><strong>Commute times (minutes):</strong> 20, 22, 21, 23, 19, 120</p>
+        <p class="mt-1">
+          Range = 120 - 19 = <strong>101 minutes</strong>
+        </p>
+        <p class="mt-1">
+          That one day you got stuck in traffic (120 min) makes the range huge, even though most days you commute ~20 minutes.
+          <strong>The range doesn't represent typical variability well when there are outliers!</strong>
+        </p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📊 Interquartile Range (IQR): Better Than Range!</h2>
+
+      <p>
+        The IQR solves the outlier problem by looking at the <strong>middle 50%</strong> of the data, ignoring the extreme tails.
+      </p>
+
+      <div class="definition-box">
+        <p><strong>Quartiles:</strong> Values that divide ordered data into four equal parts (quarters).</p>
+        <ul class="mt-1">
+          <li><strong>Q1 (First Quartile):</strong> 25% of data is below Q1</li>
+          <li><strong>Q2 (Second Quartile):</strong> The median (50% of data below)</li>
+          <li><strong>Q3 (Third Quartile):</strong> 75% of data is below Q3</li>
+        </ul>
+      </div>
+
+      <div class="formula-box">
+        <p><strong>Interquartile Range (IQR) Formula:</strong></p>
+        <p class="formula">IQR = Q3 - Q1</p>
+        <p class="text-muted mt-1" style="font-size: 0.875rem;">
+          (The range of the middle 50% of the data)
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Calculating IQR</h4>
+        <p><strong>Dataset:</strong> Quiz scores: <strong>12, 14, 15, 16, 18, 19, 20, 21, 24</strong> (already ordered!)</p>
+
+        <div class="calculation-steps">
+          <p><strong>Step 1: Find Q2 (the median)</strong></p>
+          <p>9 values (odd), so median is the 5th value: <strong>Q2 = 18</strong></p>
+
+          <p class="mt-2"><strong>Step 2: Find Q1 (median of lower half)</strong></p>
+          <p>Lower half: 12, 14, 15, 16 (values below Q2)</p>
+          <p>Q1 = average of 14 and 15 = <strong>14.5</strong></p>
+
+          <p class="mt-2"><strong>Step 3: Find Q3 (median of upper half)</strong></p>
+          <p>Upper half: 19, 20, 21, 24 (values above Q2)</p>
+          <p>Q3 = average of 20 and 21 = <strong>20.5</strong></p>
+
+          <p class="mt-2"><strong>Step 4: Calculate IQR</strong></p>
+          <p>IQR = Q3 - Q1 = 20.5 - 14.5 = <strong>6</strong></p>
+        </div>
+
+        <p class="mt-2"><strong>Interpretation:</strong> The middle 50% of quiz scores span 6 points.</p>
+      </div>
+
+      <div class="key-takeaway">
+        <h4>✅ Why IQR is Better Than Range</h4>
+        <ul>
+          <li><strong>Resistant to outliers</strong> - Only uses middle 50% of data</li>
+          <li><strong>More representative</strong> - Shows typical variability, not extreme spread</li>
+          <li><strong>Used in boxplots</strong> - Essential for identifying outliers (Lesson 4!)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📐 Variance and Standard Deviation: The Most Important Measures</h2>
+
+      <p>
+        Range and IQR give us a rough sense of spread, but <strong>variance</strong> and <strong>standard deviation</strong>
+        are the most widely used measures because they:
+      </p>
+      <ul class="icon-list">
+        <li>Use <strong>every data value</strong> (not just min/max or quartiles)</li>
+        <li>Measure spread <strong>from the mean</strong></li>
+        <li>Have important mathematical properties for advanced statistics</li>
+      </ul>
+
+      <h3 class="mt-3">Understanding Variance</h3>
+
+      <div class="definition-box">
+        <p>
+          <strong>Variance (s²):</strong> The average of the squared deviations from the mean.
+          Measures how far values typically are from the mean.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <p><strong>Variance Formula (Sample):</strong></p>
+        <p class="formula">s² = Σ(x - x̄)² / (n - 1)</p>
+        <p class="text-muted mt-1" style="font-size: 0.875rem;">
+          Where:<br>
+          • x = each data value<br>
+          • x̄ = mean<br>
+          • n = number of values<br>
+          • Σ = "sum of"
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Calculating Variance</h4>
+        <p><strong>Dataset:</strong> Number of pets: <strong>1, 2, 3, 4, 5</strong></p>
+
+        <div class="calculation-steps">
+          <p><strong>Step 1: Calculate the mean</strong></p>
+          <p>x̄ = (1+2+3+4+5) / 5 = 15/5 = <strong>3</strong></p>
+
+          <p class="mt-2"><strong>Step 2: Calculate deviations from mean (x - x̄)</strong></p>
+          <table class="calculation-table">
+            <thead>
+              <tr>
+                <th>x</th>
+                <th>x - x̄</th>
+                <th>(x - x̄)²</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>1 - 3 = -2</td><td>(-2)² = 4</td></tr>
+              <tr><td>2</td><td>2 - 3 = -1</td><td>(-1)² = 1</td></tr>
+              <tr><td>3</td><td>3 - 3 = 0</td><td>0² = 0</td></tr>
+              <tr><td>4</td><td>4 - 3 = 1</td><td>1² = 1</td></tr>
+              <tr><td>5</td><td>5 - 3 = 2</td><td>2² = 4</td></tr>
+            </tbody>
+          </table>
+
+          <p class="mt-2"><strong>Step 3: Sum the squared deviations</strong></p>
+          <p>Σ(x - x̄)² = 4 + 1 + 0 + 1 + 4 = <strong>10</strong></p>
+
+          <p class="mt-2"><strong>Step 4: Divide by (n-1)</strong></p>
+          <p>s² = 10 / (5-1) = 10/4 = <strong>2.5</strong></p>
+        </div>
+
+        <p class="mt-2"><strong>Result:</strong> Variance = 2.5 pets²</p>
+      </div>
+
+      <div class="warning-box">
+        <h4>🤔 Why Square the Deviations?</h4>
+        <p>
+          Notice in the table that some deviations are negative (below mean) and some are positive (above mean).
+          If we just added them up, they'd cancel out to zero!
+        </p>
+        <p class="mt-1">
+          <strong>Squaring</strong> makes all deviations positive, so they add up to show total variability.
+          It also gives more weight to values far from the mean.
+        </p>
+        <p class="mt-1">
+          <strong>Problem:</strong> Variance is in squared units (pets²? 😕). That's why we use standard deviation!
+        </p>
+      </div>
+
+      <h3 class="mt-3">Standard Deviation: Back to Original Units!</h3>
+
+      <div class="definition-box">
+        <p>
+          <strong>Standard Deviation (s):</strong> The square root of the variance.
+          Measures typical distance from the mean in the <strong>original units</strong>.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <p><strong>Standard Deviation Formula:</strong></p>
+        <p class="formula">s = √(s²) = √[Σ(x - x̄)² / (n - 1)]</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3 (continued): Standard Deviation</h4>
+        <p>From above, we calculated variance = 2.5</p>
+        <p class="mt-1">
+          <strong>Standard Deviation:</strong> s = √2.5 ≈ <strong>1.58 pets</strong>
+        </p>
+        <p class="mt-2">
+          <strong>Interpretation:</strong> The number of pets typically varies by about 1.58 from the mean of 3 pets.
+          This is back in "pets" units, not "pets²"!
+        </p>
+      </div>
+
+      <div class="key-takeaway">
+        <h4>✅ Interpreting Standard Deviation</h4>
+        <ul>
+          <li><strong>Small SD:</strong> Data points are clustered closely around the mean (low variability)</li>
+          <li><strong>Large SD:</strong> Data points are spread far from the mean (high variability)</li>
+          <li><strong>SD = 0:</strong> All values are exactly the same (no variability)</li>
+          <li><strong>Units:</strong> SD has the same units as the original data</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📊 Comparing Two Datasets with Same Mean</h4>
+        <p><strong>Dataset A:</strong> 10, 11, 12, 13, 14</p>
+        <ul class="mt-1">
+          <li>Mean = 12</li>
+          <li>Standard Deviation ≈ 1.58</li>
+          <li>Values are tightly clustered</li>
+        </ul>
+
+        <p class="mt-2"><strong>Dataset B:</strong> 2, 6, 12, 18, 22</p>
+        <ul class="mt-1">
+          <li>Mean = 12</li>
+          <li>Standard Deviation ≈ 7.91</li>
+          <li>Values are widely spread</li>
+        </ul>
+
+        <p class="mt-2">
+          <strong>Conclusion:</strong> Dataset B has <strong>5 times more variability</strong> than Dataset A,
+          even though they have the same mean!
+        </p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📈 The Empirical Rule (68-95-99.7 Rule)</h2>
+
+      <p>
+        For <strong>bell-shaped (approximately normal) distributions</strong>, standard deviation has a special interpretation!
+      </p>
+
+      <div class="empirical-rule-box">
+        <h3 style="text-align: center; color: var(--primary-dark);">The Empirical Rule</h3>
+        <p style="text-align: center; font-size: 1.1rem; margin-top: var(--spacing-md);">
+          For bell-shaped distributions:
+        </p>
+        <ul style="font-size: 1.1rem; line-height: 2;">
+          <li><strong>~68%</strong> of data falls within <strong>1 standard deviation</strong> of the mean (x̄ ± 1s)</li>
+          <li><strong>~95%</strong> of data falls within <strong>2 standard deviations</strong> of the mean (x̄ ± 2s)</li>
+          <li><strong>~99.7%</strong> of data falls within <strong>3 standard deviations</strong> of the mean (x̄ ± 3s)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Using the Empirical Rule</h4>
+        <p>
+          SAT scores are approximately bell-shaped with:
+        </p>
+        <ul>
+          <li>Mean = 1050</li>
+          <li>Standard Deviation = 200</li>
+        </ul>
+
+        <div class="calculation-steps">
+          <p><strong>What percentage of students score between 850 and 1250?</strong></p>
+
+          <p class="mt-2"><strong>Step 1: Calculate how many SDs from mean</strong></p>
+          <p>850 = 1050 - 200 = Mean - 1 SD</p>
+          <p>1250 = 1050 + 200 = Mean + 1 SD</p>
+
+          <p class="mt-2"><strong>Step 2: Apply Empirical Rule</strong></p>
+          <p>Within ±1 SD of the mean → <strong>~68% of students</strong></p>
+        </div>
+
+        <p class="mt-2">
+          <strong>Answer:</strong> About 68% of students score between 850 and 1250.
+        </p>
+
+        <div class="mt-3">
+          <p><strong>What about 650 to 1450?</strong></p>
+          <p>650 = 1050 - 400 = Mean - 2 SD</p>
+          <p>1450 = 1050 + 400 = Mean + 2 SD</p>
+          <p><strong>Answer:</strong> About 95% of students score in this range!</p>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <h4>⚠️ Important: Empirical Rule Only for Bell-Shaped Distributions!</h4>
+        <p>
+          The 68-95-99.7 rule ONLY works for approximately normal (bell-shaped) distributions.
+          It doesn't apply to skewed data!
+        </p>
+        <p class="mt-1">
+          <strong>When to use:</strong> Heights, test scores, measurement errors, many natural phenomena<br>
+          <strong>When NOT to use:</strong> Income (right-skewed), house prices (right-skewed), strongly skewed data
+        </p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>🔄 Comparing Measures of Spread</h2>
+
+      <table class="calculation-table">
+        <thead>
+          <tr>
+            <th>Measure</th>
+            <th>Formula</th>
+            <th>Uses All Data?</th>
+            <th>Resistant to Outliers?</th>
+            <th>When to Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Range</strong></td>
+            <td>Max - Min</td>
+            <td>No (only 2 values)</td>
+            <td>No</td>
+            <td>Quick, rough estimate</td>
+          </tr>
+          <tr>
+            <td><strong>IQR</strong></td>
+            <td>Q3 - Q1</td>
+            <td>No (middle 50%)</td>
+            <td>Yes</td>
+            <td>Skewed data, with outliers</td>
+          </tr>
+          <tr>
+            <td><strong>Variance</strong></td>
+            <td>Σ(x-x̄)²/(n-1)</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>Math/stats theory (but units are squared)</td>
+          </tr>
+          <tr>
+            <td><strong>Std Dev</strong></td>
+            <td>√Variance</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>Most common! Original units, interpretable</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>✏️ Check Your Understanding</h3>
+      <p>Test your knowledge of measures of spread!</p>
+
+      <!-- Question 1 -->
+      <div class="question">
+        <h4>Question 1:</h4>
+        <p>Calculate the range of: <strong>15, 22, 18, 30, 12, 25</strong></p>
+        <ul class="options" id="q1-options">
+          <li onclick="checkAnswer('q1', 'a', false)">10</li>
+          <li onclick="checkAnswer('q1', 'b', true)">18</li>
+          <li onclick="checkAnswer('q1', 'c', false)">30</li>
+          <li onclick="checkAnswer('q1', 'd', false)">122</li>
+        </ul>
+        <div class="feedback" id="q1-feedback"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question">
+        <h4>Question 2:</h4>
+        <p>Two datasets both have a mean of 50. Dataset A has SD = 2, Dataset B has SD = 10. Which is true?</p>
+        <ul class="options" id="q2-options">
+          <li onclick="checkAnswer('q2', 'a', false)">Dataset A has more variability</li>
+          <li onclick="checkAnswer('q2', 'b', true)">Dataset B has more variability (data more spread out)</li>
+          <li onclick="checkAnswer('q2', 'c', false)">They have the same variability</li>
+          <li onclick="checkAnswer('q2', 'd', false)">Can't tell from this information</li>
+        </ul>
+        <div class="feedback" id="q2-feedback"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question">
+        <h4>Question 3:</h4>
+        <p>IQ scores are bell-shaped with mean = 100 and SD = 15. Using the Empirical Rule, about what percentage of people have IQs between 85 and 115?</p>
+        <ul class="options" id="q3-options">
+          <li onclick="checkAnswer('q3', 'a', false)">50%</li>
+          <li onclick="checkAnswer('q3', 'b', true)">68% (within 1 SD of mean)</li>
+          <li onclick="checkAnswer('q3', 'c', false)">95%</li>
+          <li onclick="checkAnswer('q3', 'd', false)">99.7%</li>
+        </ul>
+        <div class="feedback" id="q3-feedback"></div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="question">
+        <h4>Question 4:</h4>
+        <p>Why do we square the deviations when calculating variance?</p>
+        <ul class="options" id="q4-options">
+          <li onclick="checkAnswer('q4', 'a', false)">To make the calculation harder</li>
+          <li onclick="checkAnswer('q4', 'b', true)">To prevent positive and negative deviations from canceling out</li>
+          <li onclick="checkAnswer('q4', 'c', false)">To change the units</li>
+          <li onclick="checkAnswer('q4', 'd', false)">There's no reason, it's arbitrary</li>
+        </ul>
+        <div class="feedback" id="q4-feedback"></div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="question">
+        <h4>Question 5:</h4>
+        <p>Which measure of spread is MOST resistant to extreme outliers?</p>
+        <ul class="options" id="q5-options">
+          <li onclick="checkAnswer('q5', 'a', false)">Range</li>
+          <li onclick="checkAnswer('q5', 'b', true)">IQR (Interquartile Range)</li>
+          <li onclick="checkAnswer('q5', 'c', false)">Variance</li>
+          <li onclick="checkAnswer('q5', 'd', false)">Standard Deviation</li>
+        </ul>
+        <div class="feedback" id="q5-feedback"></div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="question">
+        <h4>Question 6:</h4>
+        <p>A dataset has variance = 16. What is the standard deviation?</p>
+        <ul class="options" id="q6-options">
+          <li onclick="checkAnswer('q6', 'a', false)">8</li>
+          <li onclick="checkAnswer('q6', 'b', true)">4 (square root of variance)</li>
+          <li onclick="checkAnswer('q6', 'c', false)">16</li>
+          <li onclick="checkAnswer('q6', 'd', false)">256</li>
+        </ul>
+        <div class="feedback" id="q6-feedback"></div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <section class="content-section">
+      <h2>🎯 Key Takeaways</h2>
+      <div class="key-takeaway">
+        <ul>
+          <li><strong>Spread matters!</strong> Two datasets can have the same mean but very different variability.</li>
+          <li><strong>Range</strong> = Max - Min. Simple but sensitive to outliers.</li>
+          <li><strong>IQR</strong> = Q3 - Q1. Middle 50% spread, resistant to outliers. Great for skewed data!</li>
+          <li><strong>Variance</strong> = Average squared deviation from mean. In squared units.</li>
+          <li><strong>Standard Deviation</strong> = √Variance. Most common measure! Original units, interpretable.</li>
+          <li><strong>Empirical Rule:</strong> For bell-shaped data, ~68% within ±1 SD, ~95% within ±2 SD, ~99.7% within ±3 SD.</li>
+          <li><strong>Choosing measures:</strong> Use SD for symmetric data, IQR for skewed data or outliers.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Lesson Navigation -->
+    <div class="lesson-nav mt-3">
+      <a href="lesson-01-measures-of-center.html" class="btn btn-outline">← Lesson 1: Measures of Center</a>
+      <a href="lesson-03-distribution-shapes.html" class="btn btn-primary">Next: Distribution Shapes →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    const feedback = {
+      q1: {
+        correct: "✅ Correct! Range = Max - Min = 30 - 12 = 18. Well done!",
+        incorrect: "❌ Range = Maximum - Minimum. Max = 30, Min = 12, so Range = 30 - 12 = 18."
+      },
+      q2: {
+        correct: "✅ Exactly! A larger standard deviation means more spread. SD=10 indicates much more variability than SD=2.",
+        incorrect: "❌ Standard deviation measures spread. A larger SD means more variability. Dataset B (SD=10) has more spread than Dataset A (SD=2)."
+      },
+      q3: {
+        correct: "✅ Perfect! 85 = 100-15 (mean - 1 SD), and 115 = 100+15 (mean + 1 SD). The Empirical Rule says ~68% of data falls within ±1 SD.",
+        incorrect: "❌ Calculate how many SDs from the mean: 85 is 1 SD below, 115 is 1 SD above. The Empirical Rule: ~68% within ±1 SD of mean."
+      },
+      q4: {
+        correct: "✅ Exactly! If we didn't square, positive deviations (above mean) and negative deviations (below mean) would cancel out to zero. Squaring makes all values positive.",
+        incorrect: "❌ We square deviations because otherwise positive and negative deviations would cancel out (sum to zero). Squaring ensures all deviations contribute positively to the total variability."
+      },
+      q5: {
+        correct: "✅ Perfect! IQR only uses the middle 50% of data (Q3 - Q1), so extreme outliers don't affect it. Range uses min/max (very sensitive!), and SD uses all values including outliers.",
+        incorrect: "❌ IQR (Interquartile Range) only looks at the middle 50% of data, so outliers in the tails don't affect it. Range, variance, and SD are all sensitive to outliers."
+      },
+      q6: {
+        correct: "✅ Correct! Standard deviation is the square root of variance. √16 = 4. SD gets us back to original units!",
+        incorrect: "❌ Standard deviation = √(variance). So SD = √16 = 4."
+      }
+    };
+
+    function checkAnswer(questionId, choice, isCorrect) {
+      // Remove selection from all options in this question
+      const options = document.querySelectorAll(`#${questionId}-options li`);
+      options.forEach(opt => opt.classList.remove('selected'));
+
+      // Add selection to clicked option
+      event.target.classList.add('selected');
+
+      // Show feedback
+      const feedbackDiv = document.getElementById(`${questionId}-feedback`);
+      feedbackDiv.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+      feedbackDiv.textContent = isCorrect ? feedback[questionId].correct : feedback[questionId].incorrect;
+
+      // Log answer for research
+      console.log(`Lesson 2.2 Practice Question ${questionId}:`, {
+        questionId: questionId,
+        userAnswer: choice,
+        correct: isCorrect,
+        timestamp: new Date().toISOString()
+      });
+    }
+  </script>
+
+</body>
+</html>

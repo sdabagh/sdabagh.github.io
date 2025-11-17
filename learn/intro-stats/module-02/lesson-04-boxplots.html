@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Five-Number Summary and Boxplots - Learn to create and interpret boxplots">
+  <title>Lesson 4: Five-Number Summary & Boxplots – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .lesson-objectives h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .lesson-objectives ul {
+      margin: 0;
+      padding-left: var(--spacing-lg);
+    }
+
+    .lesson-objectives li {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .content-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .example-box {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .definition-box {
+      background: var(--info-light);
+      border: 2px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .definition-box strong {
+      color: var(--info);
+      font-size: 1.1rem;
+    }
+
+    .formula-box {
+      background: #F0F8FF;
+      border: 2px solid var(--primary-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .boxplot-visual {
+      background: white;
+      border: 2px solid var(--border-color);
+      padding: var(--spacing-xl);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .boxplot-diagram {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      line-height: 1.5;
+      white-space: pre;
+      background: #f5f5f5;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      text-align: left;
+    }
+
+    .five-number-box {
+      background: linear-gradient(to right, #E8F5E9, #C8E6C9);
+      border: 2px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .five-number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+
+    .five-number-item {
+      background: white;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      border: 2px solid var(--success);
+    }
+
+    .five-number-item strong {
+      display: block;
+      color: var(--success);
+      font-size: 0.875rem;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .five-number-item .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .calculation-steps {
+      background: white;
+      border: 2px solid var(--border-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .calculation-steps ol {
+      padding-left: var(--spacing-lg);
+    }
+
+    .calculation-steps li {
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.8;
+    }
+
+    .outlier-rule-box {
+      background: #FFF3E0;
+      border: 2px solid #FF9800;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .outlier-rule-box h4 {
+      margin-top: 0;
+      color: #E65100;
+    }
+
+    .key-takeaway {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .key-takeaway h4 {
+      margin-top: 0;
+      color: var(--success);
+    }
+
+    .warning-box {
+      background: #fff9e6;
+      border-left: 4px solid var(--warning);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .warning-box h4 {
+      margin-top: 0;
+      color: #996300;
+    }
+
+    .check-understanding {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .check-understanding h3 {
+      color: var(--primary-color);
+      margin-top: 0;
+    }
+
+    .question {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .question h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: var(--spacing-sm) 0;
+    }
+
+    .options li {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin-bottom: var(--spacing-xs);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .options li:hover {
+      border-color: var(--primary-color);
+      background: white;
+    }
+
+    .options li.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+    }
+
+    .feedback.correct {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      display: block;
+    }
+
+    .feedback.incorrect {
+      background: #fff9e6;
+      border-left: 4px solid var(--warning);
+      display: block;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    @media (max-width: 768px) {
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .five-number-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .five-number-grid .five-number-item:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .boxplot-diagram {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">← Back to Module 2</a>
+
+    <div class="lesson-nav">
+      <div>
+        <strong>Module 2, Lesson 4 of 4</strong>
+        <p class="text-muted" style="margin: 0; font-size: 0.875rem;">⏱️ 25-30 minutes</p>
+      </div>
+      <div style="display: flex; gap: var(--spacing-sm);">
+        <a href="lesson-03-distribution-shapes.html" class="btn btn-outline">← Previous</a>
+        <a href="practice.html" class="btn btn-primary">Practice Problems →</a>
+      </div>
+    </div>
+
+    <h1>Lesson 4: Five-Number Summary and Boxplots</h1>
+
+    <div class="lesson-objectives">
+      <h3>📚 Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Calculate the <strong>five-number summary</strong> (Min, Q1, Median, Q3, Max)</li>
+        <li>Create and interpret <strong>boxplots</strong> (box-and-whisker plots)</li>
+        <li>Use the <strong>1.5×IQR rule</strong> to identify outliers</li>
+        <li>Determine distribution shape from a boxplot</li>
+        <li>Compare multiple distributions using <strong>side-by-side boxplots</strong></li>
+        <li>Choose between histograms and boxplots for different purposes</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>What is the Five-Number Summary?</h2>
+
+      <div class="definition-box">
+        <p>
+          <strong>Five-Number Summary:</strong> A set of five values that provides a complete picture of a dataset's center and spread.
+        </p>
+      </div>
+
+      <div class="five-number-box">
+        <h3 style="margin-top: 0; text-align: center; color: var(--success);">The Five Numbers:</h3>
+        <div class="five-number-grid">
+          <div class="five-number-item">
+            <strong>1. Minimum</strong>
+            <div class="value">Min</div>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem;">Smallest value</p>
+          </div>
+          <div class="five-number-item">
+            <strong>2. Q1</strong>
+            <div class="value">Q1</div>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem;">First Quartile (25th percentile)</p>
+          </div>
+          <div class="five-number-item">
+            <strong>3. Median</strong>
+            <div class="value">Q2</div>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem;">Middle value (50th percentile)</p>
+          </div>
+          <div class="five-number-item">
+            <strong>4. Q3</strong>
+            <div class="value">Q3</div>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem;">Third Quartile (75th percentile)</p>
+          </div>
+          <div class="five-number-item">
+            <strong>5. Maximum</strong>
+            <div class="value">Max</div>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem;">Largest value</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="mt-2">
+        These five numbers divide your data into <strong>four equal quarters</strong>, each containing 25% of the data:
+      </p>
+      <ul class="icon-list mt-1">
+        <li><strong>Bottom 25%:</strong> Between Min and Q1</li>
+        <li><strong>Second 25%:</strong> Between Q1 and Median</li>
+        <li><strong>Third 25%:</strong> Between Median and Q3</li>
+        <li><strong>Top 25%:</strong> Between Q3 and Max</li>
+      </ul>
+    </section>
+
+    <section class="content-section">
+      <h2>📝 Calculating the Five-Number Summary</h2>
+
+      <div class="example-box">
+        <h4>Example 1: Finding the Five-Number Summary</h4>
+        <p><strong>Dataset:</strong> Test scores: <strong>62, 68, 72, 75, 78, 80, 82, 85, 88, 92, 95</strong></p>
+
+        <div class="calculation-steps">
+          <p><strong>Step-by-Step Calculation:</strong></p>
+
+          <p><strong>Step 1: Order the data</strong> (already ordered!)</p>
+          <p>62, 68, 72, 75, 78, 80, 82, 85, 88, 92, 95</p>
+
+          <p class="mt-2"><strong>Step 2: Find the Minimum and Maximum</strong></p>
+          <ul>
+            <li><strong>Minimum = 62</strong> (smallest value)</li>
+            <li><strong>Maximum = 95</strong> (largest value)</li>
+          </ul>
+
+          <p class="mt-2"><strong>Step 3: Find the Median (Q2)</strong></p>
+          <p>11 values, so median is the 6th value: <strong>Median = 80</strong></p>
+
+          <p class="mt-2"><strong>Step 4: Find Q1 (median of lower half)</strong></p>
+          <p>Lower half (values below median): 62, 68, 72, 75, 78</p>
+          <p>Median of lower half: <strong>Q1 = 72</strong></p>
+
+          <p class="mt-2"><strong>Step 5: Find Q3 (median of upper half)</strong></p>
+          <p>Upper half (values above median): 82, 85, 88, 92, 95</p>
+          <p>Median of upper half: <strong>Q3 = 88</strong></p>
+        </div>
+
+        <div class="five-number-box mt-3">
+          <h4 style="text-align: center; margin-top: 0;">Five-Number Summary:</h4>
+          <div class="five-number-grid">
+            <div class="five-number-item">
+              <strong>Min</strong>
+              <div class="value">62</div>
+            </div>
+            <div class="five-number-item">
+              <strong>Q1</strong>
+              <div class="value">72</div>
+            </div>
+            <div class="five-number-item">
+              <strong>Median</strong>
+              <div class="value">80</div>
+            </div>
+            <div class="five-number-item">
+              <strong>Q3</strong>
+              <div class="value">88</div>
+            </div>
+            <div class="five-number-item">
+              <strong>Max</strong>
+              <div class="value">95</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-takeaway">
+        <h4>✅ What the Five-Number Summary Tells Us:</h4>
+        <ul>
+          <li><strong>Center:</strong> Median = 80 (typical score)</li>
+          <li><strong>Spread:</strong> Range = 95 - 62 = 33 points (full spread)</li>
+          <li><strong>Middle 50%:</strong> IQR = Q3 - Q1 = 88 - 72 = 16 points (scores from 72 to 88)</li>
+          <li><strong>Distribution:</strong> 25% scored below 72, 50% scored below 80, 75% scored below 88</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📦 What is a Boxplot?</h2>
+
+      <div class="definition-box">
+        <p>
+          <strong>Boxplot (Box-and-Whisker Plot):</strong> A visual representation of the five-number summary.
+          Shows the center, spread, and shape of a distribution in one compact graph.
+        </p>
+      </div>
+
+      <div class="boxplot-visual">
+        <h3>Anatomy of a Boxplot</h3>
+        <div class="boxplot-diagram">
+              ┌─── Max (95)
+              │
+     Whisker  │
+              ├─── Q3 (88) ───┐
+              │               │
+              │     BOX       │ ← IQR (Middle 50%)
+              │               │
+              ├─── Median (80)│
+              │               │
+              │     BOX       │
+              │               │
+              ├─── Q1 (72) ───┘
+     Whisker  │
+              │
+              └─── Min (62)
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        60   70   80   90  100
+             Test Scores</div>
+
+        <div class="mt-3" style="text-align: left; max-width: 600px; margin: var(--spacing-lg) auto;">
+          <p><strong>Parts of a Boxplot:</strong></p>
+          <ul>
+            <li><strong>Box:</strong> Spans from Q1 to Q3 (contains middle 50% of data)</li>
+            <li><strong>Line inside box:</strong> Shows the median</li>
+            <li><strong>Whiskers:</strong> Lines extending from box to Min and Max</li>
+            <li><strong>Width of box = IQR</strong> (shows the spread of middle 50%)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>🎯 Reading Distribution Shape from Boxplots</h2>
+
+      <p>
+        Boxplots reveal distribution shape by showing where the data is concentrated!
+      </p>
+
+      <div class="comparison-grid">
+        <div class="example-box">
+          <h4>Symmetric Distribution</h4>
+          <div class="boxplot-diagram" style="font-size: 0.85rem;">        ┌─── Max
+        │
+   ═════╪═════  Q3
+        │
+   ─────┼─────  Median (centered!)
+        │
+   ═════╪═════  Q1
+        │
+        └─── Min
+
+Equal distances:
+Q1 to Median ≈ Median to Q3
+Min to Q1 ≈ Q3 to Max</div>
+        </div>
+
+        <div class="example-box">
+          <h4>Right-Skewed Distribution</h4>
+          <div class="boxplot-diagram" style="font-size: 0.85rem;">               ┌─── Max
+               │
+               │ Long whisker
+               │
+        ═══════╪  Q3
+        ───────┤  Median (closer to Q1)
+        ═══════╪  Q1
+        │
+        └─ Min
+
+Upper whisker LONGER
+Median closer to Q1</div>
+        </div>
+
+        <div class="example-box">
+          <h4>Left-Skewed Distribution</h4>
+          <div class="boxplot-diagram" style="font-size: 0.85rem;">        ┌─── Max
+        │
+        └─ Q3
+        ═══════╪
+        ───────┤  Median (closer to Q3)
+        ═══════╪  Q1
+               │
+               │ Long whisker
+               │
+               └─── Min
+
+Lower whisker LONGER
+Median closer to Q3</div>
+        </div>
+      </div>
+
+      <div class="key-takeaway mt-3">
+        <h4>🔍 Quick Shape Identification from Boxplots:</h4>
+        <ul>
+          <li><strong>Symmetric:</strong> Median centered in box, whiskers roughly equal length</li>
+          <li><strong>Right-Skewed:</strong> Median closer to Q1, longer upper whisker</li>
+          <li><strong>Left-Skewed:</strong> Median closer to Q3, longer lower whisker</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>⚠️ Identifying Outliers: The 1.5×IQR Rule</h2>
+
+      <div class="definition-box">
+        <p>
+          <strong>Outlier (formal definition):</strong> Any value that falls more than 1.5 × IQR below Q1 or above Q3.
+        </p>
+      </div>
+
+      <div class="outlier-rule-box">
+        <h4>📐 The 1.5×IQR Rule for Outliers</h4>
+        <p><strong>Step 1: Calculate IQR</strong></p>
+        <p class="formula-box" style="display: inline-block; padding: 0.5rem 1rem;">IQR = Q3 - Q1</p>
+
+        <p class="mt-2"><strong>Step 2: Calculate fences (boundaries)</strong></p>
+        <ul>
+          <li><strong>Lower Fence = Q1 - (1.5 × IQR)</strong></li>
+          <li><strong>Upper Fence = Q3 + (1.5 × IQR)</strong></li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 3: Identify outliers</strong></p>
+        <ul>
+          <li>Any value <strong>below lower fence</strong> = outlier</li>
+          <li>Any value <strong>above upper fence</strong> = outlier</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Finding Outliers</h4>
+        <p><strong>Dataset:</strong> Daily sales ($): 200, 210, 215, 220, 225, 230, 235, 240, 450</p>
+
+        <div class="calculation-steps">
+          <p><strong>Step 1: Find five-number summary</strong></p>
+          <ul>
+            <li>Min = 200, Q1 = 212.5, Median = 225, Q3 = 237.5, Max = 450</li>
+          </ul>
+
+          <p class="mt-2"><strong>Step 2: Calculate IQR</strong></p>
+          <p>IQR = Q3 - Q1 = 237.5 - 212.5 = <strong>25</strong></p>
+
+          <p class="mt-2"><strong>Step 3: Calculate fences</strong></p>
+          <ul>
+            <li>Lower Fence = Q1 - (1.5 × IQR) = 212.5 - (1.5 × 25) = 212.5 - 37.5 = <strong>175</strong></li>
+            <li>Upper Fence = Q3 + (1.5 × IQR) = 237.5 + (1.5 × 25) = 237.5 + 37.5 = <strong>275</strong></li>
+          </ul>
+
+          <p class="mt-2"><strong>Step 4: Identify outliers</strong></p>
+          <ul>
+            <li>Is any value < 175? <strong>No</strong></li>
+            <li>Is any value > 275? <strong>Yes! 450 is an outlier</strong></li>
+          </ul>
+        </div>
+
+        <p class="mt-2">
+          <strong>Interpretation:</strong> The $450 day is unusual – maybe a special event or catering order.
+          It's statistically different from typical daily sales ($200-240).
+        </p>
+      </div>
+
+      <div class="boxplot-visual mt-3">
+        <h4>Boxplot with Outlier</h4>
+        <div class="boxplot-diagram">
+                              *  ← Outlier (450)
+                              │
+              ┌───────────────┘ Upper fence (275)
+              │
+              ├─── Q3 (237.5) ───┐
+              │                  │
+              ├─── Median (225)  │ BOX
+              │                  │
+              ├─── Q1 (212.5) ───┘
+              │
+              └─── Min (200)
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        150  200  250  300  350  400  450
+                 Daily Sales ($)</div>
+        <p class="mt-2 text-muted" style="font-size: 0.875rem;">
+          Note: Outliers are plotted as individual points beyond the whiskers
+        </p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>📊 Comparing Groups with Side-by-Side Boxplots</h2>
+
+      <p>
+        One of the best uses of boxplots is comparing multiple groups on the same scale!
+      </p>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Comparing Test Scores (Class A vs. Class B)</h4>
+
+        <p><strong>Class A Scores:</strong> Five-number summary = (62, 72, 80, 88, 95)</p>
+        <p><strong>Class B Scores:</strong> Five-number summary = (55, 68, 75, 82, 98)</p>
+
+        <div class="boxplot-visual mt-2">
+          <div class="boxplot-diagram" style="text-align: left;">Class A:     ├─────╪═════╪═════╪─────┤
+             62   72   80   88   95
+
+Class B: ├──────╪═════╪═════╪──────┤
+         55   68   75   82   98
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        50   60   70   80   90  100
+              Test Scores</div>
+        </div>
+
+        <div class="calculation-steps mt-3">
+          <p><strong>Comparison Analysis:</strong></p>
+          <ul>
+            <li><strong>Center:</strong> Class A (median=80) scored higher than Class B (median=75)</li>
+            <li><strong>Spread:</strong> Class A IQR = 16, Class B IQR = 14 (similar variability)</li>
+            <li><strong>Range:</strong> Class A = 33 points, Class B = 43 points (B more variable overall)</li>
+            <li><strong>Shape:</strong> Both appear roughly symmetric (median centered in box)</li>
+          </ul>
+          <p class="mt-2">
+            <strong>Conclusion:</strong> Class A performed better on average, with tighter scores at the extremes.
+          </p>
+        </div>
+      </div>
+
+      <div class="key-takeaway">
+        <h4>✅ Advantages of Side-by-Side Boxplots:</h4>
+        <ul>
+          <li><strong>Easy visual comparison</strong> of centers (medians)</li>
+          <li><strong>Compare variability</strong> at a glance (box widths = IQR)</li>
+          <li><strong>Identify shape differences</strong> between groups</li>
+          <li><strong>Spot outliers</strong> in each group</li>
+          <li><strong>Compact</strong> - can compare many groups in small space</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>🤔 Boxplots vs. Histograms: When to Use Each?</h2>
+
+      <table class="calculation-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Boxplot</th>
+            <th>Histogram</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Shows center</strong></td>
+            <td>✅ Yes (median)</td>
+            <td>✅ Yes (peak)</td>
+          </tr>
+          <tr>
+            <td><strong>Shows spread</strong></td>
+            <td>✅ Yes (IQR, range)</td>
+            <td>✅ Yes (width)</td>
+          </tr>
+          <tr>
+            <td><strong>Shows shape</strong></td>
+            <td>✅ Yes (roughly)</td>
+            <td>✅ Yes (detailed)</td>
+          </tr>
+          <tr>
+            <td><strong>Shows individual values</strong></td>
+            <td>❌ No</td>
+            <td>❌ No (grouped)</td>
+          </tr>
+          <tr>
+            <td><strong>Identifies outliers</strong></td>
+            <td>✅ Yes (with 1.5×IQR rule)</td>
+            <td>⚠️ Sometimes visible</td>
+          </tr>
+          <tr>
+            <td><strong>Compares groups</strong></td>
+            <td>✅ Excellent (side-by-side)</td>
+            <td>⚠️ Harder (overlapping)</td>
+          </tr>
+          <tr>
+            <td><strong>Space efficient</strong></td>
+            <td>✅ Very compact</td>
+            <td>❌ Takes more space</td>
+          </tr>
+          <tr>
+            <td><strong>Shows detailed shape</strong></td>
+            <td>❌ Less detail</td>
+            <td>✅ Shows exact distribution</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box mt-3">
+        <h4>💡 When to Use Which?</h4>
+        <p><strong>Use Boxplots when:</strong></p>
+        <ul>
+          <li>Comparing multiple groups</li>
+          <li>You want a quick summary (5 numbers)</li>
+          <li>Identifying outliers is important</li>
+          <li>Space is limited</li>
+        </ul>
+
+        <p class="mt-2"><strong>Use Histograms when:</strong></p>
+        <ul>
+          <li>You want to see the detailed shape</li>
+          <li>Analyzing a single group</li>
+          <li>You need to see modes (peaks)</li>
+          <li>Distribution shape detail matters</li>
+        </ul>
+
+        <p class="mt-2"><strong>Best practice:</strong> Use both! They complement each other.</p>
+      </div>
+    </section>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>✏️ Check Your Understanding</h3>
+      <p>Test your knowledge of five-number summaries and boxplots!</p>
+
+      <!-- Question 1 -->
+      <div class="question">
+        <h4>Question 1:</h4>
+        <p>A dataset has these values: Min=10, Q1=20, Median=30, Q3=40, Max=50. What is the IQR?</p>
+        <ul class="options" id="q1-options">
+          <li onclick="checkAnswer('q1', 'a', false)">10</li>
+          <li onclick="checkAnswer('q1', 'b', true)">20 (Q3 - Q1 = 40 - 20)</li>
+          <li onclick="checkAnswer('q1', 'c', false)">30</li>
+          <li onclick="checkAnswer('q1', 'd', false)">40</li>
+        </ul>
+        <div class="feedback" id="q1-feedback"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question">
+        <h4>Question 2:</h4>
+        <p>Using the dataset from Q1, calculate the upper fence for outlier detection (Q3 + 1.5×IQR).</p>
+        <ul class="options" id="q2-options">
+          <li onclick="checkAnswer('q2', 'a', false)">50</li>
+          <li onclick="checkAnswer('q2', 'b', false)">60</li>
+          <li onclick="checkAnswer('q2', 'c', true)">70 (40 + 1.5×20 = 40 + 30)</li>
+          <li onclick="checkAnswer('q2', 'd', false)">80</li>
+        </ul>
+        <div class="feedback" id="q2-feedback"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question">
+        <h4>Question 3:</h4>
+        <p>In a boxplot, if the median line is much closer to Q1 than to Q3, what does this indicate about the distribution?</p>
+        <ul class="options" id="q3-options">
+          <li onclick="checkAnswer('q3', 'a', false)">Symmetric distribution</li>
+          <li onclick="checkAnswer('q3', 'b', true)">Right-skewed distribution (tail extends right)</li>
+          <li onclick="checkAnswer('q3', 'c', false)">Left-skewed distribution</li>
+          <li onclick="checkAnswer('q3', 'd', false)">There's an error in the data</li>
+        </ul>
+        <div class="feedback" id="q3-feedback"></div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="question">
+        <h4>Question 4:</h4>
+        <p>What percentage of data falls between Q1 and Q3 (inside the box)?</p>
+        <ul class="options" id="q4-options">
+          <li onclick="checkAnswer('q4', 'a', false)">25%</li>
+          <li onclick="checkAnswer('q4', 'b', true)">50% (the middle half of the data)</li>
+          <li onclick="checkAnswer('q4', 'c', false)">75%</li>
+          <li onclick="checkAnswer('q4', 'd', false)">100%</li>
+        </ul>
+        <div class="feedback" id="q4-feedback"></div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="question">
+        <h4>Question 5:</h4>
+        <p>When comparing test scores for 5 different classes, which visualization is better?</p>
+        <ul class="options" id="q5-options">
+          <li onclick="checkAnswer('q5', 'a', true)">Side-by-side boxplots (compact, easy comparison)</li>
+          <li onclick="checkAnswer('q5', 'b', false)">5 separate histograms</li>
+          <li onclick="checkAnswer('q5', 'c', false)">A single combined histogram</li>
+          <li onclick="checkAnswer('q5', 'd', false)">A pie chart</li>
+        </ul>
+        <div class="feedback" id="q5-feedback"></div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="question">
+        <h4>Question 6:</h4>
+        <p>A value of 85 is in a dataset with Q1=50, Q3=70, IQR=20. Is 85 an outlier?</p>
+        <ul class="options" id="q6-options">
+          <li onclick="checkAnswer('q6', 'a', true)">No (upper fence = 70+30=100, and 85 < 100)</li>
+          <li onclick="checkAnswer('q6', 'b', false)">Yes, it's above Q3</li>
+          <li onclick="checkAnswer('q6', 'c', false)">Yes, it's too far from the median</li>
+          <li onclick="checkAnswer('q6', 'd', false)">Cannot determine</li>
+        </ul>
+        <div class="feedback" id="q6-feedback"></div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <section class="content-section">
+      <h2>🎯 Key Takeaways</h2>
+      <div class="key-takeaway">
+        <ul>
+          <li><strong>Five-number summary:</strong> Min, Q1, Median, Q3, Max – divides data into four equal quarters.</li>
+          <li><strong>Boxplot shows:</strong> Center (median), spread (IQR, range), shape (symmetric vs. skewed), and outliers.</li>
+          <li><strong>IQR = Q3 - Q1</strong> – the range of the middle 50% of data.</li>
+          <li><strong>1.5×IQR Rule:</strong> Outliers are values beyond Q1 - 1.5×IQR or Q3 + 1.5×IQR.</li>
+          <li><strong>Reading shape:</strong> Median centered = symmetric, median near Q1 = right-skewed, median near Q3 = left-skewed.</li>
+          <li><strong>Side-by-side boxplots</strong> are excellent for comparing multiple groups quickly!</li>
+          <li><strong>Boxplots vs. histograms:</strong> Boxplots better for comparisons, histograms better for detailed shape.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Lesson Navigation -->
+    <div class="lesson-nav mt-3">
+      <a href="lesson-03-distribution-shapes.html" class="btn btn-outline">← Lesson 3: Distribution Shapes</a>
+      <a href="practice.html" class="btn btn-primary">Practice Problems →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    const feedback = {
+      q1: {
+        correct: "✅ Perfect! IQR = Q3 - Q1 = 40 - 20 = 20. This is the range of the middle 50% of the data!",
+        incorrect: "❌ IQR = Q3 - Q1. So IQR = 40 - 20 = 20. It represents the spread of the middle 50% of data."
+      },
+      q2: {
+        correct: "✅ Excellent! Upper fence = Q3 + (1.5 × IQR) = 40 + (1.5 × 20) = 40 + 30 = 70. Any value above 70 would be an outlier.",
+        incorrect: "❌ Upper fence = Q3 + (1.5 × IQR) = 40 + (1.5 × 20) = 40 + 30 = 70. Values above 70 are outliers."
+      },
+      q3: {
+        correct: "✅ Exactly right! When the median is closer to Q1, it means most data is on the lower end, with a tail extending to the right (high values). This is right-skewed!",
+        incorrect: "❌ When the median is closer to Q1 than Q3, the distribution is right-skewed. The upper half (Q2 to Q3) is more spread out, indicating a right tail."
+      },
+      q4: {
+        correct: "✅ Perfect! Q1 is the 25th percentile, Q3 is the 75th percentile. So 75% - 25% = 50% of data falls between Q1 and Q3 (inside the box).",
+        incorrect: "❌ The box contains the middle 50% of data. Q1 has 25% below it, Q3 has 75% below it, so the box contains 75% - 25% = 50%."
+      },
+      q5: {
+        correct: "✅ Excellent choice! Side-by-side boxplots make it easy to compare centers, spreads, and shapes across multiple groups in a compact space.",
+        incorrect: "❌ Side-by-side boxplots are perfect for comparing multiple groups! They're compact and make it easy to compare medians, IQRs, and shapes at a glance."
+      },
+      q6: {
+        correct: "✅ Correct! Upper fence = Q3 + (1.5 × IQR) = 70 + (1.5 × 20) = 100. Since 85 < 100, it's NOT an outlier (even though it's above Q3).",
+        incorrect: "❌ Use the 1.5×IQR rule! Upper fence = Q3 + (1.5 × 20) = 70 + 30 = 100. Since 85 < 100, it's not an outlier. Being above Q3 doesn't automatically make it an outlier!"
+      }
+    };
+
+    function checkAnswer(questionId, choice, isCorrect) {
+      // Remove selection from all options in this question
+      const options = document.querySelectorAll(`#${questionId}-options li`);
+      options.forEach(opt => opt.classList.remove('selected'));
+
+      // Add selection to clicked option
+      event.target.classList.add('selected');
+
+      // Show feedback
+      const feedbackDiv = document.getElementById(`${questionId}-feedback`);
+      feedbackDiv.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+      feedbackDiv.textContent = isCorrect ? feedback[questionId].correct : feedback[questionId].incorrect;
+
+      // Log answer for research
+      console.log(`Lesson 2.4 Practice Question ${questionId}:`, {
+        questionId: questionId,
+        userAnswer: choice,
+        correct: isCorrect,
+        timestamp: new Date().toISOString()
+      });
+    }
+  </script>
+
+</body>
+</html>
