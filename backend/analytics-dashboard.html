@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Analytics Dashboard - Safaa Dabagh Dissertation</title>
+    <meta name="description" content="Analytics dashboard for monitoring AI-powered cognitive scaffolding research data">
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2C5F7C;
+            --primary-light: #3A7CA5;
+            --primary-dark: #1A3A4D;
+            --accent-color: #D97D54;
+            --accent-light: #E89B7B;
+            --success-color: #28A745;
+            --warning-color: #FFC107;
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --text-primary: #2D2D2D;
+            --text-secondary: #5A5A5A;
+            --background: #F8F9FA;
+            --background-card: #FFFFFF;
+            --border-color: #DEE2E6;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --primary-color: #3A7CA5;
+            --primary-light: #4A8CB5;
+            --primary-dark: #2C5F7C;
+            --accent-color: #E89B7B;
+            --text-primary: #E9ECEF;
+            --text-secondary: #ADB5BD;
+            --background: #212529;
+            --background-card: #343A40;
+            --border-color: #495057;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-top h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .date-range input {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            background: rgba(255,255,255,0.9);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(20deg);
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .last-updated {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--background-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.info { border-left-color: var(--info-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-trend {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .trend-up { color: var(--success-color); }
+        .trend-down { color: var(--danger-color); }
+        .trend-neutral { color: var(--text-secondary); }
+
+        /* Section */
+        .section {
+            background: var(--background-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Charts */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: var(--background-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-wrapper.tall {
+            height: 400px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--background-card);
+        }
+
+        thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        thead th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background: var(--background);
+            cursor: pointer;
+        }
+
+        tbody td {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-pilot { background: #E3F2FD; color: #1976D2; }
+        .badge-control { background: #FFF3E0; color: #F57C00; }
+        .badge-treatment { background: #E8F5E9; color: #388E3C; }
+        .badge-active { background: #E8F5E9; color: #388E3C; }
+        .badge-inactive { background: #FFEBEE; color: #D32F2F; }
+
+        /* Search & Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: var(--background-card);
+            color: var(--text-primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--background-card);
+            border-radius: 12px;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .student-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error States */
+        .error-message {
+            background: #FFEBEE;
+            color: #C62828;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #D32F2F;
+            margin-bottom: 1rem;
+        }
+
+        [data-theme="dark"] .error-message {
+            background: #4A2C2C;
+            color: #FFB3B3;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                padding: 1rem;
+            }
+
+            .header-top h1 {
+                font-size: 1.3rem;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .date-range {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .dashboard-header,
+            .btn,
+            .theme-toggle,
+            .section-controls {
+                display: none;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .section {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        /* Focus Styles */
+        button:focus,
+        input:focus,
+        select:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="header-top">
+            <h1>Research Analytics Dashboard</h1>
+
+            <div class="header-controls">
+                <div class="date-range">
+                    <label for="startDate" class="sr-only">Start Date</label>
+                    <input type="date" id="startDate" aria-label="Start date">
+                    <span>to</span>
+                    <label for="endDate" class="sr-only">End Date</label>
+                    <input type="date" id="endDate" aria-label="End date">
+                    <button class="btn btn-secondary" id="applyDateRange">Apply</button>
+                </div>
+
+                <button class="btn btn-primary" id="exportCSV">
+                    📊 Export CSV
+                </button>
+
+                <button class="btn btn-primary" id="exportJSON">
+                    💾 Export JSON
+                </button>
+
+                <button class="btn btn-secondary" id="refreshData">
+                    🔄 Refresh
+                </button>
+
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    🌙
+                </button>
+            </div>
+        </div>
+
+        <div class="header-meta">
+            <div class="last-updated">
+                <span>Last updated:</span>
+                <strong id="lastUpdated">--</strong>
+            </div>
+            <div>
+                <span>Data range:</span>
+                <strong id="dataRange">All time</strong>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" style="display: none;">
+            <div class="error-message" role="alert">
+                <strong>Error:</strong> <span id="errorMessage">Failed to load data</span>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- Overview Cards -->
+            <section aria-labelledby="overview-heading">
+                <h2 id="overview-heading" class="sr-only">Overview Statistics</h2>
+                <div class="overview-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Participants</div>
+                        <div class="stat-value" id="totalParticipants">0</div>
+                        <div class="stat-trend" id="participantsTrend">
+                            <span>-- this week</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card success">
+                        <div class="stat-label">Total Interactions</div>
+                        <div class="stat-value" id="totalInteractions">0</div>
+                        <div class="stat-trend" id="interactionsTrend">
+                            <span>-- today</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card info">
+                        <div class="stat-label">Avg Learning Gain</div>
+                        <div class="stat-value" id="avgLearningGain">0%</div>
+                        <div class="stat-trend" id="learningGainTrend">
+                            <span>Pre to Post Assessment</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card warning">
+                        <div class="stat-label">Active Sessions</div>
+                        <div class="stat-value" id="activeSessions">0</div>
+                        <div class="stat-trend">
+                            <span>Currently online</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Student Engagement Section -->
+            <section class="section" aria-labelledby="engagement-heading">
+                <div class="section-header">
+                    <h2 id="engagement-heading">Student Engagement</h2>
+                    <div class="section-controls">
+                        <select id="engagementModule" aria-label="Filter by module">
+                            <option value="all">All Modules</option>
+                            <option value="1">Module 1</option>
+                            <option value="2">Module 2</option>
+                            <option value="3">Module 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Daily Active Users</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="dailyActiveUsersChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Module Completion Rates</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="completionRatesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Study Group Distribution</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="studyGroupChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scaffolding Effectiveness Section -->
+            <section class="section" aria-labelledby="scaffolding-heading">
+                <div class="section-header">
+                    <h2 id="scaffolding-heading">Scaffolding Effectiveness</h2>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Scaffolding Level Distribution</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="scaffoldingLevelsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Escalation/De-escalation Events</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="escalationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Proficiency vs Scaffolding Need</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="proficiencyScatterChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Outcomes Section -->
+            <section class="section" aria-labelledby="outcomes-heading">
+                <div class="section-header">
+                    <h2 id="outcomes-heading">Learning Outcomes</h2>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Pre vs Post Assessment Scores</h3>
+                        <div class="chart-wrapper tall">
+                            <canvas id="assessmentScoresChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Learning Gains by Module</h3>
+                        <div class="chart-wrapper tall">
+                            <canvas id="learningGainsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Quiz Pass Rates by Module</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="quizPassRatesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Interaction Metrics Section -->
+            <section class="section" aria-labelledby="ai-metrics-heading">
+                <div class="section-header">
+                    <h2 id="ai-metrics-heading">AI Interaction Metrics</h2>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Avg Response Time by Scaffolding Level</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="responseTimeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Help-Seeking Patterns</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="helpSeekingChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Topic Difficulty Rankings</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="topicDifficultyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Individual Students Section -->
+            <section class="section" aria-labelledby="students-heading">
+                <div class="section-header">
+                    <h2 id="students-heading">Individual Student View</h2>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="searchStudent">Search Student</label>
+                        <input type="text" id="searchStudent" placeholder="Search by name or email...">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterStudyGroup">Study Group</label>
+                        <select id="filterStudyGroup">
+                            <option value="all">All Groups</option>
+                            <option value="pilot">Pilot</option>
+                            <option value="control">Control</option>
+                            <option value="treatment">Treatment</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Email</th>
+                                <th>Study Group</th>
+                                <th>Modules Completed</th>
+                                <th>Learning Gain</th>
+                                <th>Last Active</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <div class="empty-state-icon">📊</div>
+                                    <p>No student data available</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Student Detail Modal -->
+    <div class="modal" id="studentModal" role="dialog" aria-labelledby="studentModalTitle" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">Student Details</h3>
+                <button class="modal-close" id="closeStudentModal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body" id="studentModalBody">
+                <!-- Student details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Dashboard JavaScript -->
+    <script src="analytics-dashboard.js"></script>
+</body>
+</html>
