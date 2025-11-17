@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Two-Sample Tests for Means (Independent Samples) - Learn how to compare means from two independent populations">
+  <title>Lesson 1: Two-Sample Tests for Means (Independent) – Module 9</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: left; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; }
+    .steps-list li { counter-increment: step-counter; margin: var(--spacing-md) 0; padding: var(--spacing-md); background: var(--background-alt); border-radius: var(--radius-md); position: relative; padding-left: 3rem; }
+    .steps-list li::before { content: counter(step-counter); position: absolute; left: var(--spacing-md); top: 50%; transform: translateY(-50%); background: var(--primary-color); color: white; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .comparison-table { margin: var(--spacing-lg) 0; }
+    .comparison-table th { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 9</a> →
+        Lesson 1
+      </div>
+      <h1>Two-Sample Tests for Means (Independent Samples)</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn how to compare means from two independent populations
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Distinguish between independent and dependent samples</li>
+        <li>State the conditions required for a two-sample t-test</li>
+        <li>Formulate null and alternative hypotheses for comparing two means</li>
+        <li>Calculate test statistics for unpooled (Welch's) and pooled variance approaches</li>
+        <li>Conduct and interpret two-sample t-tests for independent samples</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. Independent vs. Dependent Samples</h2>
+
+      <div class="definition-box">
+        <h4>📖 Key Definitions</h4>
+        <p>
+          <strong>Independent Samples:</strong> Two samples are independent if the observations in one sample are completely unrelated to the observations in the other sample. The samples are drawn from two separate populations.
+        </p>
+        <p class="mt-2">
+          <strong>Dependent (Paired) Samples:</strong> Two samples are dependent if each observation in one sample is naturally paired or matched with an observation in the other sample.
+        </p>
+      </div>
+
+      <h3>Examples of Independent Samples</h3>
+      <ul>
+        <li>Comparing average heights of randomly selected men vs. randomly selected women</li>
+        <li>Comparing test scores from students at School A vs. students at School B</li>
+        <li>Comparing recovery times for patients receiving Treatment A vs. patients receiving Treatment B (different patients in each group)</li>
+        <li>Comparing salaries in California vs. Texas</li>
+      </ul>
+
+      <h3>Examples of Dependent Samples</h3>
+      <ul>
+        <li>Comparing blood pressure <em>before</em> and <em>after</em> medication in the same patients</li>
+        <li>Comparing test scores of twins (one twin in each group)</li>
+        <li>Comparing pre-test and post-test scores for the same students</li>
+        <li>Comparing left eye vs. right eye vision for the same individuals</li>
+      </ul>
+
+      <div class="key-point">
+        <strong>Key Question:</strong> Are the same subjects (or matched pairs) measured twice, or are there two completely separate groups? Same subjects/matched pairs = dependent. Separate groups = independent.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. The Two-Sample t-Test for Independent Samples</h2>
+
+      <p>
+        When we want to compare the means of two independent populations, we use a <strong>two-sample t-test</strong> (also called an independent samples t-test).
+      </p>
+
+      <h3>Hypotheses</h3>
+
+      <p>The hypotheses compare the two population means μ₁ and μ₂:</p>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Test Type</th>
+          <th>Null Hypothesis (H₀)</th>
+          <th>Alternative Hypothesis (Hₐ)</th>
+        </tr>
+        <tr>
+          <td><strong>Two-tailed</strong></td>
+          <td>H₀: μ₁ = μ₂ or H₀: μ₁ - μ₂ = 0</td>
+          <td>Hₐ: μ₁ ≠ μ₂ or Hₐ: μ₁ - μ₂ ≠ 0</td>
+        </tr>
+        <tr>
+          <td><strong>Right-tailed</strong></td>
+          <td>H₀: μ₁ = μ₂</td>
+          <td>Hₐ: μ₁ > μ₂ or Hₐ: μ₁ - μ₂ > 0</td>
+        </tr>
+        <tr>
+          <td><strong>Left-tailed</strong></td>
+          <td>H₀: μ₁ = μ₂</td>
+          <td>Hₐ: μ₁ < μ₂ or Hₐ: μ₁ - μ₂ < 0</td>
+        </tr>
+      </table>
+
+      <h3>Conditions for Two-Sample t-Test</h3>
+
+      <p>Before conducting the test, verify these conditions:</p>
+
+      <ol>
+        <li><strong>Independence:</strong>
+          <ul>
+            <li>The two samples are independent of each other</li>
+            <li>Observations within each sample are independent (random sampling)</li>
+            <li>Each sample size is less than 10% of its population (if sampling without replacement)</li>
+          </ul>
+        </li>
+        <li><strong>Normality:</strong>
+          <ul>
+            <li>Both populations are normally distributed, OR</li>
+            <li>Both sample sizes are large (n₁ ≥ 30 AND n₂ ≥ 30)</li>
+            <li>If sample sizes are small, check for major skewness or outliers</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>⚠️ Important:</strong> If the samples are NOT independent (e.g., before/after measurements, matched pairs), you CANNOT use a two-sample t-test. You must use a paired t-test instead (Lesson 2).
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Test Statistic: Unpooled Variance (Welch's t-test)</h2>
+
+      <p>
+        The most common approach is the <strong>unpooled variance method</strong>, also called <strong>Welch's t-test</strong>. This method does NOT assume that the two populations have equal variances.
+      </p>
+
+      <div class="formula-box">
+        <h4>Test Statistic (Unpooled Variance)</h4>
+        <div class="formula">
+          t = (x̄₁ - x̄₂) / √(s₁²/n₁ + s₂²/n₂)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where:<br>
+          x̄₁, x̄₂ = sample means<br>
+          s₁, s₂ = sample standard deviations<br>
+          n₁, n₂ = sample sizes
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Degrees of Freedom (Welch's Approximation)</h4>
+        <p>The degrees of freedom calculation is complex:</p>
+        <div class="formula" style="font-size: 1rem;">
+          df = [(s₁²/n₁ + s₂²/n₂)²] / [(s₁²/n₁)²/(n₁-1) + (s₂²/n₂)²/(n₂-1)]
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm); font-size: 0.9rem;">
+          <em>In practice, use technology to calculate df. Most calculators and software use this formula automatically.</em>
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Unpooled Two-Sample t-Test</h4>
+        <p>
+          <strong>Research Question:</strong> Does a new drug lower cholesterol more than the standard drug?
+        </p>
+        <p><strong>Data:</strong></p>
+        <ul>
+          <li><strong>New Drug (Group 1):</strong> n₁ = 35, x̄₁ = 195 mg/dL, s₁ = 18 mg/dL</li>
+          <li><strong>Standard Drug (Group 2):</strong> n₂ = 40, x̄₂ = 210 mg/dL, s₂ = 22 mg/dL</li>
+        </ul>
+        <p><strong>Significance level:</strong> α = 0.05</p>
+
+        <p class="mt-2"><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: μ₁ = μ₂ (new drug is not more effective)</li>
+          <li>Hₐ: μ₁ < μ₂ (new drug lowers cholesterol more) — <em>left-tailed test</em></li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 2: Check conditions</strong></p>
+        <ul>
+          <li>✓ Independent random samples from two groups</li>
+          <li>✓ Both n₁ ≥ 30 and n₂ ≥ 30 (large samples, CLT applies)</li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 3: Calculate test statistic</strong></p>
+        <p>
+          t = (195 - 210) / √(18²/35 + 22²/40)<br>
+          t = -15 / √(9.257 + 12.1)<br>
+          t = -15 / √21.357<br>
+          t = -15 / 4.621<br>
+          <strong>t ≈ -3.25</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 4: Find degrees of freedom</strong></p>
+        <p>Using Welch's formula or technology: <strong>df ≈ 71.8</strong> (round to 71)</p>
+
+        <p class="mt-2"><strong>Step 5: Find p-value</strong></p>
+        <p>For a left-tailed test with t = -3.25 and df = 71:</p>
+        <p><strong>p-value ≈ 0.001</strong> (from t-table or technology)</p>
+
+        <p class="mt-2"><strong>Step 6: Make decision</strong></p>
+        <p>Since p-value (0.001) < α (0.05), we <strong>reject H₀</strong>.</p>
+
+        <p class="mt-2"><strong>Step 7: Conclusion</strong></p>
+        <p>
+          There is sufficient evidence at the 0.05 significance level to conclude that the new drug lowers cholesterol more than the standard drug. The mean cholesterol for the new drug group is significantly lower.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Test Statistic: Pooled Variance Approach</h2>
+
+      <p>
+        If you have reason to believe that the two populations have <strong>equal variances</strong> (σ₁² = σ₂²), you can use the <strong>pooled variance</strong> approach. This combines the sample variances into a single estimate.
+      </p>
+
+      <div class="formula-box">
+        <h4>Pooled Variance</h4>
+        <div class="formula">
+          sp² = [(n₁ - 1)s₁² + (n₂ - 1)s₂²] / (n₁ + n₂ - 2)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          sp² = pooled variance estimate
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Test Statistic (Pooled Variance)</h4>
+        <div class="formula">
+          t = (x̄₁ - x̄₂) / (sp√(1/n₁ + 1/n₂))
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          <strong>Degrees of freedom:</strong> df = n₁ + n₂ - 2
+        </p>
+      </div>
+
+      <div class="key-point">
+        <strong>When to Use Pooled vs. Unpooled?</strong>
+        <ul class="mt-1">
+          <li><strong>Pooled:</strong> Use when you have strong evidence that σ₁² = σ₂² (e.g., experimental design ensures equal variances)</li>
+          <li><strong>Unpooled (Welch's):</strong> Use when variances may be unequal OR when you're unsure. This is the safer, more conservative choice and is the <strong>default in most statistical software</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Pooled Two-Sample t-Test</h4>
+        <p>
+          <strong>Research Question:</strong> Do students learn better with Method A or Method B?
+        </p>
+        <p><strong>Data:</strong></p>
+        <ul>
+          <li><strong>Method A:</strong> n₁ = 25, x̄₁ = 82, s₁ = 8</li>
+          <li><strong>Method B:</strong> n₂ = 30, x̄₂ = 78, s₂ = 7</li>
+          <li>Assume equal population variances (controlled experimental design)</li>
+        </ul>
+        <p><strong>Significance level:</strong> α = 0.05, two-tailed test</p>
+
+        <p class="mt-2"><strong>Step 1: Hypotheses</strong></p>
+        <ul>
+          <li>H₀: μ₁ = μ₂ (no difference in learning)</li>
+          <li>Hₐ: μ₁ ≠ μ₂ (there is a difference)</li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 2: Calculate pooled variance</strong></p>
+        <p>
+          sp² = [(25-1)(8²) + (30-1)(7²)] / (25 + 30 - 2)<br>
+          sp² = [24(64) + 29(49)] / 53<br>
+          sp² = [1536 + 1421] / 53<br>
+          sp² = 2957 / 53 ≈ 55.79<br>
+          <strong>sp ≈ 7.47</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 3: Calculate test statistic</strong></p>
+        <p>
+          t = (82 - 78) / (7.47√(1/25 + 1/30))<br>
+          t = 4 / (7.47√0.0733)<br>
+          t = 4 / (7.47 × 0.2707)<br>
+          t = 4 / 2.022<br>
+          <strong>t ≈ 1.98</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 4: Degrees of freedom</strong></p>
+        <p>df = 25 + 30 - 2 = <strong>53</strong></p>
+
+        <p class="mt-2"><strong>Step 5: Critical value and decision</strong></p>
+        <p>For α = 0.05 (two-tailed) and df = 53: <strong>t-critical ≈ ±2.006</strong></p>
+        <p>Since |1.98| < 2.006, we <strong>fail to reject H₀</strong>.</p>
+
+        <p class="mt-2"><strong>Step 6: Conclusion</strong></p>
+        <p>
+          There is insufficient evidence at the 0.05 significance level to conclude that the two teaching methods produce different average test scores.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Decision Methods: Critical Value vs. p-Value</h2>
+
+      <h3>Critical Value Approach</h3>
+      <ol>
+        <li>Calculate the test statistic t</li>
+        <li>Find the critical value(s) from the t-table based on α and df</li>
+        <li>Compare:
+          <ul>
+            <li><strong>Two-tailed:</strong> Reject H₀ if |t| > t-critical</li>
+            <li><strong>Right-tailed:</strong> Reject H₀ if t > t-critical</li>
+            <li><strong>Left-tailed:</strong> Reject H₀ if t < -t-critical</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h3>p-Value Approach</h3>
+      <ol>
+        <li>Calculate the test statistic t</li>
+        <li>Find the p-value using technology (or approximate using t-table)</li>
+        <li>Compare: Reject H₀ if p-value < α</li>
+      </ol>
+
+      <div class="key-point">
+        <strong>Both methods give the same conclusion!</strong> The p-value approach is more informative because it tells you exactly how strong the evidence is against H₀.
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A researcher wants to compare average daily screen time for teenagers vs. adults. She randomly surveys 50 teenagers and 60 adults. Is this an independent or dependent samples design?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> Independent samples. The teenagers and adults are two separate, unrelated groups. Each person is only in one group.
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> Two samples have n₁ = 40, s₁ = 12 and n₂ = 35, s₂ = 15. Would you use pooled or unpooled variance?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> Unpooled (Welch's t-test). The sample standard deviations are fairly different (12 vs 15), and there's no indication that the population variances are equal. Unpooled is the safer, more conservative choice.
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> In a two-sample t-test, you get t = 2.8 with df = 45. For a two-tailed test at α = 0.05, the critical value is ±2.014. What is your decision?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> Reject H₀. Since |2.8| = 2.8 > 2.014, the test statistic falls in the rejection region. There is sufficient evidence to conclude the two population means are different.
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📌 Key Takeaways</h2>
+      <ul>
+        <li>Two-sample t-tests compare means from <strong>two independent populations</strong></li>
+        <li>Check independence: different groups, not paired or matched</li>
+        <li><strong>Unpooled (Welch's) t-test</strong> is the default and safer choice</li>
+        <li><strong>Pooled t-test</strong> requires equal population variances assumption</li>
+        <li>Hypotheses: H₀: μ₁ = μ₂ vs. Hₐ: μ₁ ≠ μ₂ (or <, >)</li>
+        <li>Always check conditions before conducting the test</li>
+        <li>Interpret results in the context of the research question</li>
+      </ul>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="btn btn-outline">← Back to Module 9</a>
+      <a href="lesson-02-paired-samples.html" class="btn btn-primary">Next: Lesson 2 (Paired Samples) →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>

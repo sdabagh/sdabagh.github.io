@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 9: Hypothesis Testing for Two Populations - Learn how to compare two groups using statistical tests">
+  <title>Module 9: Hypothesis Testing for Two Populations – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .module-header h1 {
+      color: white;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+      margin-top: var(--spacing-md);
+      opacity: 0.95;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .objectives-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .objectives-list li {
+      padding: var(--spacing-sm) 0;
+      padding-left: var(--spacing-lg);
+      position: relative;
+    }
+
+    .objectives-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--success);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .lesson-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      transition: var(--transition);
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: flex-start;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .lesson-number {
+      background: var(--primary-color);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .lesson-content {
+      flex: 1;
+    }
+
+    .lesson-content h3 {
+      margin-top: 0;
+      margin-bottom: var(--spacing-xs);
+      color: var(--primary-dark);
+    }
+
+    .lesson-duration {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .progress-tracker {
+      background: var(--background-alt);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    .progress-step {
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      padding: var(--spacing-sm);
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    .progress-step.current {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .progress-step.completed {
+      border-color: var(--success);
+      background: var(--success);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .module-meta {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .progress-steps {
+        flex-direction: column;
+      }
+
+      .progress-step {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="../index.html" class="back-link">← Back to Course Home</a>
+
+    <div class="module-header">
+      <h1>Module 9: Hypothesis Testing for Two Populations</h1>
+      <p>Learn how to compare two groups using statistical hypothesis tests. Master independent samples, paired samples, and two-proportion tests to answer real-world research questions.</p>
+
+      <div class="module-meta">
+        <div class="meta-item">
+          <span>📚</span>
+          <span>4 Lessons</span>
+        </div>
+        <div class="meta-item">
+          <span>⏱️</span>
+          <span>~2.5 hours</span>
+        </div>
+        <div class="meta-item">
+          <span>📊</span>
+          <span>20 Practice Problems</span>
+        </div>
+        <div class="meta-item">
+          <span>🎯</span>
+          <span>Module Quiz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-tracker">
+      <h3>Your Progress</h3>
+      <div class="progress-steps">
+        <div class="progress-step current">Pre-Assessment</div>
+        <div class="progress-step">Lessons 1-4</div>
+        <div class="progress-step">Practice</div>
+        <div class="progress-step">Module Quiz</div>
+        <div class="progress-step">Post-Assessment</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this module, you will be able to:</p>
+        <ul class="objectives-list">
+          <li><strong>Distinguish</strong> between independent samples and paired (dependent) samples</li>
+          <li><strong>Conduct</strong> two-sample t-tests for comparing means from independent populations</li>
+          <li><strong>Apply</strong> paired t-tests to matched pairs or before/after data</li>
+          <li><strong>Perform</strong> two-proportion z-tests to compare proportions across two groups</li>
+          <li><strong>Choose</strong> the appropriate hypothesis test based on data structure and research question</li>
+          <li><strong>Interpret</strong> results in context and make evidence-based conclusions</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why This Matters</h2>
+      <div class="highlight-box">
+        <p>
+          <strong>Comparing two groups is fundamental to research and decision-making!</strong> From clinical trials comparing treatment groups to A/B testing in marketing, from educational interventions to quality control comparisons, two-sample hypothesis tests help us determine if observed differences are statistically significant.
+        </p>
+        <p class="mt-2">
+          This module gives you the tools to:
+        </p>
+        <ul class="icon-list mt-1">
+          <li>Compare treatment effectiveness in medical studies</li>
+          <li>Evaluate whether a new policy or intervention works better than the current approach</li>
+          <li>Test for differences between demographic groups (gender, age, region)</li>
+          <li>Analyze before/after studies and matched pairs experiments</li>
+          <li>Make data-driven decisions in business, education, and public health</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prerequisites</h2>
+      <div class="info-box">
+        <h3>What You Need to Know First</h3>
+        <p>
+          This module builds directly on Module 8. Make sure you understand:
+        </p>
+        <ul>
+          <li><strong>Module 8:</strong> Hypothesis Testing fundamentals, Type I/II errors, tests for single means and proportions</li>
+          <li><strong>Module 6:</strong> Sampling distributions and Central Limit Theorem</li>
+          <li><strong>Module 7:</strong> Confidence intervals for means and proportions</li>
+        </ul>
+        <p class="mt-2">
+          If you haven't completed Module 8, <strong>go back and complete it first</strong>. Module 9 extends those concepts to comparing two populations!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Get Started: Pre-Assessment</h2>
+      <div class="info-box">
+        <h3>Before You Begin...</h3>
+        <p>
+          Take a quick <strong>5-question pre-assessment</strong> to see what you already know about comparing two populations. This isn't graded—it's just to establish your baseline knowledge.
+        </p>
+        <p class="mt-2">
+          <strong>Why do this?</strong> At the end of the module, you'll retake the same assessment and measure your learning gains!
+        </p>
+        <div class="cta-group mt-2">
+          <a href="pre-assessment.html" class="btn btn-primary">Start Pre-Assessment (5 min)</a>
+          <a href="lesson-01-two-sample-means-independent.html" class="btn btn-outline">Skip to Lessons</a>
+        </div>
+        <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
+          💡 <em>Recommended: Take the pre-assessment! It helps you see how much you learn.</em>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Module Lessons</h2>
+
+      <div class="lesson-card">
+        <div class="lesson-number">1</div>
+        <div class="lesson-content">
+          <h3>Two-Sample Tests for Means (Independent Samples)</h3>
+          <p>Learn when and how to use independent two-sample t-tests. Understand pooled vs unpooled variance approaches, calculate test statistics, and interpret results when comparing two groups.</p>
+          <p class="lesson-duration">⏱️ 35-40 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-01-two-sample-means-independent.html" class="btn btn-outline">Start Lesson 1</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">2</div>
+        <div class="lesson-content">
+          <h3>Paired Samples (Matched Pairs) Tests</h3>
+          <p>Master paired t-tests for dependent samples. Learn to identify paired data structures, understand why paired tests are more powerful, and apply them to before/after and matched pairs designs.</p>
+          <p class="lesson-duration">⏱️ 30-35 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-02-paired-samples.html" class="btn btn-outline">Start Lesson 2</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">3</div>
+        <div class="lesson-content">
+          <h3>Two-Sample Tests for Proportions</h3>
+          <p>Learn how to compare proportions from two independent samples. Calculate pooled proportions, conduct z-tests, and apply these methods to real-world scenarios like comparing success rates.</p>
+          <p class="lesson-duration">⏱️ 30-35 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-03-two-sample-proportions.html" class="btn btn-outline">Start Lesson 3</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">4</div>
+        <div class="lesson-content">
+          <h3>Choosing the Right Test</h3>
+          <p>Develop a systematic approach to selecting the correct hypothesis test. Use decision flowcharts, avoid common mistakes, and build confidence in identifying which test to use for any scenario.</p>
+          <p class="lesson-duration">⏱️ 25-30 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-04-choosing-the-right-test.html" class="btn btn-outline">Start Lesson 4</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>After the Lessons</h2>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>📝 Practice Problems</h3>
+          <p>Apply what you've learned with 20 comprehensive practice problems covering all two-sample test concepts. Detailed solutions included!</p>
+          <a href="practice.html" class="btn btn-outline mt-2">Practice Problems</a>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Module Quiz</h3>
+          <p>Test your mastery with a 15-question quiz. Pass with 70% to earn your Module 9 badge!</p>
+          <a href="quiz.html" class="btn btn-primary mt-2">Take Module Quiz</a>
+        </div>
+
+        <div class="card">
+          <h3>📄 Study Materials</h3>
+          <p>Download printable study guides and quick reference cards with all formulas and decision rules. Perfect for exam prep!</p>
+          <div class="cta-group mt-2">
+            <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+            <a href="quick-reference.html" class="btn btn-outline">Quick Ref Card</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🤖 AI Tutor Help</h3>
+          <p>Stuck on two-sample tests? Chat with the AI statistics tutor for personalized guidance and step-by-step help.</p>
+          <a href="../../../ai-tutor-demo.html" class="btn btn-outline mt-2">Get AI Help</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tips for Success</h2>
+      <div class="highlight-box">
+        <ul class="icon-list">
+          <li><strong>Identify the data structure first</strong> - Independent or paired? This determines which test to use.</li>
+          <li><strong>Check all conditions</strong> - Sample size, normality, independence. Conditions matter!</li>
+          <li><strong>Use the right formula</strong> - Pooled vs unpooled for independent samples; watch your degrees of freedom.</li>
+          <li><strong>Draw pictures</strong> - Visualize the two distributions to understand what you're comparing.</li>
+          <li><strong>Interpret in context</strong> - Statistical significance ≠ practical significance. Always consider real-world meaning.</li>
+          <li><strong>Practice decision-making</strong> - Create your own flowchart for choosing tests until it becomes automatic.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="pre-assessment.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Begin Module 9 →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+</body>
+</html>

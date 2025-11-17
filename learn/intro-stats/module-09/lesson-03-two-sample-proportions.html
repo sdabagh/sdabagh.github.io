@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Two-Sample Tests for Proportions - Learn how to compare proportions from two populations">
+  <title>Lesson 3: Two-Sample Tests for Proportions – Module 9</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: left; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; }
+    .steps-list li { counter-increment: step-counter; margin: var(--spacing-md) 0; padding: var(--spacing-md); background: var(--background-alt); border-radius: var(--radius-md); position: relative; padding-left: 3rem; }
+    .steps-list li::before { content: counter(step-counter); position: absolute; left: var(--spacing-md); top: 50%; transform: translateY(-50%); background: var(--primary-color); color: white; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 9</a> →
+        Lesson 3
+      </div>
+      <h1>Two-Sample Tests for Proportions</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn how to compare proportions from two independent populations
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Formulate hypotheses for comparing two population proportions</li>
+        <li>Calculate the pooled proportion under the null hypothesis</li>
+        <li>Check conditions for valid two-proportion z-tests</li>
+        <li>Conduct and interpret two-proportion z-tests</li>
+        <li>Apply two-proportion tests to real-world scenarios</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. When Do We Compare Two Proportions?</h2>
+
+      <p>
+        Many research questions involve comparing success rates, percentages, or proportions between two groups:
+      </p>
+
+      <ul>
+        <li><strong>Medical Research:</strong> Is the cure rate higher for Drug A than Drug B?</li>
+        <li><strong>Marketing:</strong> Do more customers prefer Product X or Product Y?</li>
+        <li><strong>Education:</strong> Is the pass rate different for online vs. in-person classes?</li>
+        <li><strong>Political Polling:</strong> Do men and women vote differently on an issue?</li>
+        <li><strong>Quality Control:</strong> Is the defect rate the same for two manufacturing plants?</li>
+      </ul>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Two-Sample Proportion Test</h4>
+        <p>
+          A <strong>two-proportion z-test</strong> is used to test whether two population proportions (p₁ and p₂) are equal based on data from two independent random samples.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Hypotheses for Two-Proportion Tests</h2>
+
+      <p>We compare two population proportions: p₁ and p₂.</p>
+
+      <table>
+        <tr>
+          <th>Test Type</th>
+          <th>Null Hypothesis (H₀)</th>
+          <th>Alternative Hypothesis (Hₐ)</th>
+        </tr>
+        <tr>
+          <td><strong>Two-tailed</strong></td>
+          <td>H₀: p₁ = p₂ or H₀: p₁ - p₂ = 0</td>
+          <td>Hₐ: p₁ ≠ p₂ or Hₐ: p₁ - p₂ ≠ 0</td>
+        </tr>
+        <tr>
+          <td><strong>Right-tailed</strong></td>
+          <td>H₀: p₁ = p₂</td>
+          <td>Hₐ: p₁ > p₂ or Hₐ: p₁ - p₂ > 0</td>
+        </tr>
+        <tr>
+          <td><strong>Left-tailed</strong></td>
+          <td>H₀: p₁ = p₂</td>
+          <td>Hₐ: p₁ < p₂ or Hₐ: p₁ - p₂ < 0</td>
+        </tr>
+      </table>
+
+      <div class="example-box">
+        <h4>📝 Example: Setting Up Hypotheses</h4>
+        <p>
+          <strong>Scenario:</strong> A researcher wants to test if the proportion of college graduates differs between two cities.
+        </p>
+        <ul>
+          <li><strong>H₀:</strong> p₁ = p₂ (the proportions are equal)</li>
+          <li><strong>Hₐ:</strong> p₁ ≠ p₂ (the proportions are different) — <em>two-tailed test</em></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Conditions for Two-Proportion z-Test</h2>
+
+      <p>Before conducting the test, verify these conditions:</p>
+
+      <ol>
+        <li><strong>Independence:</strong>
+          <ul>
+            <li>The two samples are independent of each other</li>
+            <li>Both samples are random samples from their populations</li>
+            <li>Each sample size is less than 10% of its population (if sampling without replacement)</li>
+          </ul>
+        </li>
+        <li><strong>Success-Failure Condition:</strong> For both samples, we need enough successes and failures:
+          <ul>
+            <li>n₁p̂₁ ≥ 10 and n₁(1 - p̂₁) ≥ 10</li>
+            <li>n₂p̂₂ ≥ 10 and n₂(1 - p̂₂) ≥ 10</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>⚠️ Important:</strong> If the success-failure condition is not met, the normal approximation may not be valid. You would need to use exact methods (like Fisher's exact test) instead.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. The Pooled Proportion</h2>
+
+      <p>
+        Under the null hypothesis (H₀: p₁ = p₂), we assume the two populations have the <strong>same proportion</strong>. We estimate this common proportion by combining (pooling) the data from both samples.
+      </p>
+
+      <div class="formula-box">
+        <h4>Pooled Proportion</h4>
+        <div class="formula">
+          p̄ = (x₁ + x₂) / (n₁ + n₂)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where:<br>
+          x₁ = number of successes in sample 1<br>
+          x₂ = number of successes in sample 2<br>
+          n₁ = size of sample 1<br>
+          n₂ = size of sample 2
+        </p>
+      </div>
+
+      <p>
+        Alternatively, if you're given sample proportions:
+      </p>
+
+      <div class="formula-box">
+        <div class="formula">
+          p̄ = (n₁p̂₁ + n₂p̂₂) / (n₁ + n₂)
+        </div>
+      </div>
+
+      <div class="key-point">
+        <strong>Why Pool?</strong> The pooled proportion p̄ is our best estimate of the common population proportion <em>under the assumption that H₀ is true</em> (i.e., p₁ = p₂). We use this pooled proportion in the test statistic formula.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Test Statistic for Two Proportions</h2>
+
+      <div class="formula-box">
+        <h4>Test Statistic for Two-Proportion z-Test</h4>
+        <div class="formula">
+          z = (p̂₁ - p̂₂) / √[p̄(1 - p̄)(1/n₁ + 1/n₂)]
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where:<br>
+          p̂₁, p̂₂ = sample proportions<br>
+          p̄ = pooled proportion<br>
+          n₁, n₂ = sample sizes
+        </p>
+      </div>
+
+      <p>
+        This test statistic follows a <strong>standard normal distribution</strong> (z-distribution) when the null hypothesis is true and conditions are met.
+      </p>
+
+      <h3>Decision Rules</h3>
+
+      <ul>
+        <li><strong>Two-tailed:</strong> Reject H₀ if |z| > z* (e.g., z* = 1.96 for α = 0.05)</li>
+        <li><strong>Right-tailed:</strong> Reject H₀ if z > z* (e.g., z* = 1.645 for α = 0.05)</li>
+        <li><strong>Left-tailed:</strong> Reject H₀ if z < -z* (e.g., z* = -1.645 for α = 0.05)</li>
+      </ul>
+
+      <p class="mt-2">Or use the p-value approach: Reject H₀ if p-value < α.</p>
+    </section>
+
+    <section>
+      <h2>6. Complete Example: Drug Efficacy Study</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Comparing Drug Cure Rates</h4>
+        <p>
+          <strong>Research Question:</strong> Is Drug A more effective than Drug B at curing a disease?
+        </p>
+        <p><strong>Data:</strong></p>
+        <ul>
+          <li><strong>Drug A:</strong> 120 out of 200 patients cured (p̂₁ = 0.60)</li>
+          <li><strong>Drug B:</strong> 90 out of 180 patients cured (p̂₂ = 0.50)</li>
+        </ul>
+        <p><strong>Significance level:</strong> α = 0.05</p>
+
+        <p class="mt-2"><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: p₁ = p₂ (cure rates are equal)</li>
+          <li>Hₐ: p₁ > p₂ (Drug A has a higher cure rate) — <em>right-tailed test</em></li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 2: Check conditions</strong></p>
+        <ul>
+          <li>✓ Independent random samples from two groups</li>
+          <li>✓ n₁p̂₁ = 200(0.60) = 120 ≥ 10, n₁(1-p̂₁) = 200(0.40) = 80 ≥ 10</li>
+          <li>✓ n₂p̂₂ = 180(0.50) = 90 ≥ 10, n₂(1-p̂₂) = 180(0.50) = 90 ≥ 10</li>
+          <li>All conditions satisfied!</li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 3: Calculate pooled proportion</strong></p>
+        <p>
+          p̄ = (x₁ + x₂) / (n₁ + n₂)<br>
+          p̄ = (120 + 90) / (200 + 180)<br>
+          p̄ = 210 / 380<br>
+          <strong>p̄ ≈ 0.5526</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 4: Calculate test statistic</strong></p>
+        <p>
+          z = (p̂₁ - p̂₂) / √[p̄(1 - p̄)(1/n₁ + 1/n₂)]<br>
+          z = (0.60 - 0.50) / √[0.5526(0.4474)(1/200 + 1/180)]<br>
+          z = 0.10 / √[0.2472 × 0.01056]<br>
+          z = 0.10 / √0.00261<br>
+          z = 0.10 / 0.0511<br>
+          <strong>z ≈ 1.96</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 5: Find critical value and p-value</strong></p>
+        <p>
+          For α = 0.05 (right-tailed): z-critical = <strong>1.645</strong><br>
+          For z = 1.96: <strong>p-value ≈ 0.025</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 6: Make decision</strong></p>
+        <p>
+          Since z = 1.96 > 1.645 (or p-value = 0.025 < 0.05), we <strong>reject H₀</strong>.
+        </p>
+
+        <p class="mt-2"><strong>Step 7: Conclusion</strong></p>
+        <p>
+          There is sufficient evidence at the 0.05 significance level to conclude that Drug A has a higher cure rate than Drug B. The difference in cure rates (60% vs. 50%) is statistically significant.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7. Example: Two-Tailed Test</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Gender Differences in Support</h4>
+        <p>
+          <strong>Research Question:</strong> Is there a difference in support for a policy between men and women?
+        </p>
+        <p><strong>Data:</strong></p>
+        <ul>
+          <li><strong>Men:</strong> 156 out of 300 support the policy (p̂₁ = 0.52)</li>
+          <li><strong>Women:</strong> 198 out of 350 support the policy (p̂₂ = 0.566)</li>
+        </ul>
+        <p><strong>Significance level:</strong> α = 0.05, two-tailed test</p>
+
+        <p class="mt-2"><strong>Step 1: Hypotheses</strong></p>
+        <ul>
+          <li>H₀: p₁ = p₂ (no gender difference)</li>
+          <li>Hₐ: p₁ ≠ p₂ (there is a gender difference)</li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 2: Check conditions</strong></p>
+        <p>✓ All success-failure conditions met (verify yourself for practice!)</p>
+
+        <p class="mt-2"><strong>Step 3: Calculate pooled proportion</strong></p>
+        <p>
+          p̄ = (156 + 198) / (300 + 350) = 354 / 650 ≈ <strong>0.545</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 4: Calculate test statistic</strong></p>
+        <p>
+          z = (0.52 - 0.566) / √[0.545(0.455)(1/300 + 1/350)]<br>
+          z = -0.046 / √[0.248 × 0.00619]<br>
+          z = -0.046 / 0.0391<br>
+          <strong>z ≈ -1.18</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 5: Decision</strong></p>
+        <p>
+          For α = 0.05 (two-tailed): z-critical = <strong>±1.96</strong><br>
+          Since |z| = 1.18 < 1.96, we <strong>fail to reject H₀</strong>.
+        </p>
+
+        <p class="mt-2"><strong>Step 6: Conclusion</strong></p>
+        <p>
+          There is insufficient evidence at the 0.05 significance level to conclude that men and women differ in their support for the policy. The observed difference (52% vs. 56.6%) could reasonably be due to sampling variability.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8. Confidence Interval for Difference in Proportions</h2>
+
+      <p>
+        In addition to hypothesis testing, you can construct a confidence interval for the difference p₁ - p₂. Note that for confidence intervals, we do <strong>NOT</strong> use the pooled proportion!
+      </p>
+
+      <div class="formula-box">
+        <h4>Confidence Interval for p₁ - p₂</h4>
+        <div class="formula">
+          (p̂₁ - p̂₂) ± z* × √[(p̂₁(1-p̂₁)/n₁) + (p̂₂(1-p̂₂)/n₂)]
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where z* is the critical value for the desired confidence level<br>
+          (e.g., z* = 1.96 for 95% confidence)
+        </p>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Key Difference:</strong>
+        <ul class="mt-1">
+          <li><strong>Hypothesis test:</strong> Uses pooled proportion p̄</li>
+          <li><strong>Confidence interval:</strong> Uses individual sample proportions p̂₁ and p̂₂</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example: CI for Drug Cure Rate Difference</h4>
+        <p>Using the drug data: p̂₁ = 0.60, p̂₂ = 0.50, n₁ = 200, n₂ = 180</p>
+        <p class="mt-2">
+          95% CI = (0.60 - 0.50) ± 1.96√[(0.60×0.40/200) + (0.50×0.50/180)]<br>
+          = 0.10 ± 1.96√[0.0012 + 0.00139]<br>
+          = 0.10 ± 1.96√0.00259<br>
+          = 0.10 ± 1.96(0.0509)<br>
+          = 0.10 ± 0.0998<br>
+          = <strong>(0.0002, 0.1998) or (0.02%, 19.98%)</strong>
+        </p>
+        <p class="mt-2">
+          <strong>Interpretation:</strong> We are 95% confident that Drug A's cure rate is between 0.02% and 19.98% higher than Drug B's cure rate. Since the interval does NOT contain 0, we can conclude Drug A is significantly better.
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> Why do we use a pooled proportion in hypothesis testing but not in confidence intervals?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> In hypothesis testing, we assume H₀ is true (p₁ = p₂), so we pool the data to get a single estimate. In confidence intervals, we're estimating the actual difference p₁ - p₂, so we use the individual sample proportions to preserve any real difference.
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> A study has n₁ = 50 with 8 successes and n₂ = 60 with 10 successes. Can you conduct a two-proportion z-test?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> No! The success-failure condition is violated. For sample 1: n₁p̂₁ = 8 < 10. For sample 2: n₂p̂₂ = 10, which is barely acceptable, but n₁p̂₁ fails. You would need a larger sample size or use an exact test instead.
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> If a 95% confidence interval for p₁ - p₂ is (-0.05, 0.15), what can you conclude about a two-tailed test at α = 0.05?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> Fail to reject H₀. Since the confidence interval contains 0, there is no significant difference between p₁ and p₂ at the 0.05 level. The confidence interval and hypothesis test always agree when using the same α.
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📌 Key Takeaways</h2>
+      <ul>
+        <li>Two-proportion z-tests compare proportions from <strong>two independent samples</strong></li>
+        <li><strong>Pooled proportion:</strong> p̄ = (x₁ + x₂) / (n₁ + n₂) — used in hypothesis testing</li>
+        <li><strong>Test statistic:</strong> z = (p̂₁ - p̂₂) / √[p̄(1 - p̄)(1/n₁ + 1/n₂)]</li>
+        <li>Check <strong>success-failure condition:</strong> At least 10 successes and 10 failures in each sample</li>
+        <li>Confidence intervals use individual p̂₁ and p̂₂, NOT the pooled proportion</li>
+        <li>Use z-distribution (not t-distribution) for proportion tests</li>
+        <li>Applications: Medical trials, quality control, survey comparisons, A/B testing</li>
+      </ul>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-paired-samples.html" class="btn btn-outline">← Previous: Lesson 2</a>
+      <a href="lesson-04-choosing-the-right-test.html" class="btn btn-primary">Next: Lesson 4 (Choosing Tests) →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>
