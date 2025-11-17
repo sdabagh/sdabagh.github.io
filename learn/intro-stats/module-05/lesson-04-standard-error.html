@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Standard Error and Applications - Understand SE and apply sampling distributions to real problems">
+  <title>Lesson 4: Standard Error & Applications – Module 5</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 5</a> →
+        Lesson 4
+      </div>
+      <h1>Standard Error and Applications</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Deepen your understanding of SE and apply sampling distributions to real-world problems
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Clearly distinguish between standard deviation and standard error</li>
+        <li>Calculate and interpret standard error in context</li>
+        <li>Understand how sample size affects precision of estimates</li>
+        <li>Apply sampling distribution concepts to real-world problems</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. What is Standard Error?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Standard Error (SE)</h4>
+        <p>
+          The <strong>standard error</strong> is the standard deviation of a sampling distribution.
+          It measures the typical distance between a sample statistic (like x̄ or p̂) and the
+          population parameter it estimates.
+        </p>
+      </div>
+
+      <p>
+        We've seen two standard error formulas:
+      </p>
+
+      <div class="formula-box">
+        <p><strong>Standard Error Formulas:</strong></p>
+        <div class="formula">
+          For sample means: SE = σ / √n
+        </div>
+        <div class="formula" style="margin-top: var(--spacing-md);">
+          For sample proportions: SE = √(p(1-p) / n)
+        </div>
+      </div>
+
+      <p>
+        Standard error tells us how much our sample statistic typically varies from sample to sample.
+        Smaller SE means more precise estimates!
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Standard Error vs. Standard Deviation</h2>
+
+      <p>
+        Students often confuse standard deviation (SD) and standard error (SE). Let's clarify:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Standard Deviation (σ or s)</th>
+            <th>Standard Error (SE)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>What it measures</strong></td>
+            <td>Variability of <em>individual values</em> in a population or sample</td>
+            <td>Variability of <em>sample statistics</em> (like x̄) across samples</td>
+          </tr>
+          <tr>
+            <td><strong>What it describes</strong></td>
+            <td>How spread out the data values are</td>
+            <td>How much sample statistics vary from sample to sample</td>
+          </tr>
+          <tr>
+            <td><strong>Affected by n?</strong></td>
+            <td>No—population SD is fixed; sample SD depends on the data</td>
+            <td>Yes—SE decreases as n increases (SE = σ/√n)</td>
+          </tr>
+          <tr>
+            <td><strong>Typical use</strong></td>
+            <td>Describing data spread</td>
+            <td>Measuring precision of estimates</td>
+          </tr>
+          <tr>
+            <td><strong>Example</strong></td>
+            <td>Heights of adults: σ = 3 inches</td>
+            <td>Mean heights from samples of 25: SE = 3/√25 = 0.6 inches</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-point">
+        <strong>💡 Quick Memory Aid:</strong>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li><strong>SD:</strong> "Standard Deviation" = variability of <strong>Data</strong></li>
+          <li><strong>SE:</strong> "Standard Error" = variability of <strong>Estimates</strong></li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: SD vs. SE in Context</h4>
+        <p>
+          Adult male heights have mean μ = 70 inches and standard deviation σ = 3 inches.
+        </p>
+
+        <p><strong>(a)</strong> What does σ = 3 tell us?</p>
+        <p><strong>Answer:</strong> Individual men's heights typically vary about 3 inches from
+        the mean. This describes the spread of the population.</p>
+
+        <p><strong>(b)</strong> If we take samples of n = 36 men, what is the SE of x̄?</p>
+        <p><strong>Answer:</strong> SE = σ/√n = 3/√36 = 3/6 = 0.5 inches</p>
+
+        <p><strong>(c)</strong> What does SE = 0.5 tell us?</p>
+        <p><strong>Answer:</strong> Sample means (average heights of 36 men) typically vary about
+        0.5 inches from the true population mean. This describes the precision of our estimate.</p>
+
+        <p><strong>Key insight:</strong> Individual heights vary by about 3 inches, but sample means
+        of 36 men only vary by about 0.5 inches. Sample means are much more consistent!</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. How Sample Size Affects Standard Error</h2>
+
+      <p>
+        One of the most important properties of SE is its relationship with sample size:
+      </p>
+
+      <div class="key-point">
+        <strong>Effect of Sample Size on SE:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          As n increases, SE decreases. Specifically: <strong>SE is inversely proportional to √n</strong>
+        </p>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li>Larger samples → smaller SE → more precise estimates</li>
+          <li>To cut SE in half, multiply n by 4</li>
+          <li>To cut SE to 1/3, multiply n by 9</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Sample Size and Precision</h4>
+        <p>
+          A population has σ = 40. Compare the standard error for different sample sizes:
+        </p>
+
+        <table style="max-width: 500px;">
+          <thead>
+            <tr>
+              <th>Sample Size (n)</th>
+              <th>Standard Error</th>
+              <th>Interpretation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>25</td>
+              <td>40/√25 = 8</td>
+              <td>Sample means vary by about 8 units</td>
+            </tr>
+            <tr>
+              <td>100</td>
+              <td>40/√100 = 4</td>
+              <td>Half the SE; 4× the sample size</td>
+            </tr>
+            <tr>
+              <td>400</td>
+              <td>40/√400 = 2</td>
+              <td>Half the SE again; 4× the sample size again</td>
+            </tr>
+            <tr>
+              <td>2500</td>
+              <td>40/√2500 = 0.8</td>
+              <td>Very precise; but huge sample needed!</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Key insight:</strong> Going from n = 25 to n = 100 (4× increase) cuts SE in half.
+        But diminishing returns: going from n = 400 to n = 2500 (6.25× increase) only cuts SE from 2 to 0.8.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Real-World Applications</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Quality Control in Manufacturing</h4>
+        <p>
+          A factory produces bolts with target diameter 10mm. The production process has σ = 0.2mm.
+          Quality control takes samples of 50 bolts each hour.
+        </p>
+
+        <p><strong>(a)</strong> What is the SE of the sample mean diameter?</p>
+        <p><strong>Solution:</strong> SE = σ/√n = 0.2/√50 = 0.2/7.07 ≈ 0.0283 mm</p>
+
+        <p><strong>(b)</strong> If a sample has x̄ = 10.1mm, is this concerning?</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>z = (10.1 - 10) / 0.0283 = 0.1 / 0.0283 ≈ 3.53</li>
+          <li>P(z > 3.53) < 0.001 (very unlikely!)</li>
+        </ul>
+        <p><strong>Answer:</strong> Yes, very concerning! This sample mean is more than 3.5 standard
+        errors from target. The process may be out of control.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Political Polling</h4>
+        <p>
+          A poll of 1000 voters finds 520 support Candidate A (p̂ = 0.52). The pollster reports
+          "52% support with margin of error ±3%". What does this mean?
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p>The "margin of error" is approximately 2 × SE (for 95% confidence):</p>
+        <ul>
+          <li>SE = √(p(1-p)/n) ≈ √(0.52 × 0.48 / 1000) ≈ √0.0002496 ≈ 0.0158</li>
+          <li>Margin of error ≈ 2 × 0.0158 ≈ 0.0316 ≈ 3%</li>
+        </ul>
+
+        <p><strong>Interpretation:</strong> We estimate 52% support, but due to sampling variability,
+        the true percentage could reasonably be anywhere from 49% to 55%. If Candidate A truly had
+        exactly 50% support, getting p̂ = 0.52 in a sample would not be surprising.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Medical Research - Drug Effectiveness</h4>
+        <p>
+          A pharmaceutical company tests a new drug. In a trial of 400 patients, 280 showed improvement
+          (p̂ = 0.70). The placebo effect suggests 60% improvement (p = 0.60). Is the drug effective?
+        </p>
+
+        <p><strong>Solution:</strong></p>
+
+        <p><strong>Step 1: If drug is no better than placebo (p = 0.60), what's the SE?</strong></p>
+        <ul>
+          <li>SE = √(0.60 × 0.40 / 400) = √(0.24/400) = √0.0006 ≈ 0.0245</li>
+        </ul>
+
+        <p><strong>Step 2: How many SE is p̂ = 0.70 from p = 0.60?</strong></p>
+        <ul>
+          <li>z = (0.70 - 0.60) / 0.0245 = 0.10 / 0.0245 ≈ 4.08</li>
+        </ul>
+
+        <p><strong>Step 3: How likely is this if drug = placebo?</strong></p>
+        <ul>
+          <li>P(z > 4.08) < 0.00003 (extremely unlikely)</li>
+        </ul>
+
+        <p><strong>Conclusion:</strong> If the drug were no better than placebo, getting p̂ = 0.70
+        would be extremely unlikely (less than 0.003% chance). Strong evidence the drug is effective!</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 6: Education - Standardized Test Scores</h4>
+        <p>
+          A school district wants to know if a new teaching method improves math scores. Historical
+          data shows μ = 500, σ = 100. After implementing the new method with 225 students, x̄ = 515.
+          Is this improvement significant?
+        </p>
+
+        <p><strong>Solution:</strong></p>
+
+        <p><strong>Step 1: Find SE</strong></p>
+        <ul>
+          <li>SE = σ/√n = 100/√225 = 100/15 ≈ 6.67</li>
+        </ul>
+
+        <p><strong>Step 2: Calculate z-score</strong></p>
+        <ul>
+          <li>z = (515 - 500) / 6.67 = 15 / 6.67 ≈ 2.25</li>
+        </ul>
+
+        <p><strong>Step 3: Find probability</strong></p>
+        <ul>
+          <li>P(x̄ ≥ 515 | μ = 500) = P(z ≥ 2.25) ≈ 0.0122 or 1.22%</li>
+        </ul>
+
+        <p><strong>Interpretation:</strong> If the new method had no effect, there's only a 1.22%
+        chance we'd see a sample mean this high. This suggests the new method may be effective, but
+        we'd want more evidence before declaring success.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A population has σ = 20. Which gives smaller SE: a sample
+        of 50 or a sample of 200?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans1')">Show Answer</button>
+        <div id="ans1" class="answer">
+          <p><strong>Answer:</strong> Sample of 200 gives smaller SE</p>
+          <p><strong>Calculation:</strong></p>
+          <ul>
+            <li>n = 50: SE = 20/√50 ≈ 2.83</li>
+            <li>n = 200: SE = 20/√200 ≈ 1.41</li>
+          </ul>
+          <p>Larger sample → smaller SE → more precise estimate</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> True or False: Standard error measures how spread out
+        individual data values are.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans2')">Show Answer</button>
+        <div id="ans2" class="answer">
+          <p><strong>Answer:</strong> False</p>
+          <p><strong>Explanation:</strong> Standard <em>deviation</em> measures how spread out
+          individual values are. Standard <em>error</em> measures how much sample statistics
+          (like x̄) vary from sample to sample.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> If SE = 4 for n = 100, what sample size is needed to
+        achieve SE = 2?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans3')">Show Answer</button>
+        <div id="ans3" class="answer">
+          <p><strong>Answer:</strong> n = 400</p>
+          <p><strong>Explanation:</strong> To cut SE in half, we need to multiply n by 4.
+          Since n = 100 gives SE = 4, then n = 400 gives SE = 2.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> A quality control process samples 100 items per shift.
+        The SE is currently 0.5. Management wants SE = 0.25. What sample size is needed?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans4')">Show Answer</button>
+        <div id="ans4" class="answer">
+          <p><strong>Answer:</strong> n = 400</p>
+          <p><strong>Explanation:</strong> Current: n = 100, SE = 0.5. Want SE = 0.25 (half).
+          Need to multiply n by 4: new n = 4 × 100 = 400.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> Why do news polls typically sample around 1000 people
+        instead of 10,000?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans5')">Show Answer</button>
+        <div id="ans5" class="answer">
+          <p><strong>Answer:</strong> Diminishing returns and cost</p>
+          <p><strong>Explanation:</strong> To improve SE from n=1000 to n=10,000 (10× increase),
+          SE only improves by a factor of √10 ≈ 3.16. The massive increase in cost and effort
+          isn't worth the modest improvement in precision. A sample of 1000 already gives
+          SE ≈ 1.6%, which is precise enough for most purposes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>📝 Lesson Summary</h3>
+      <ul>
+        <li><strong>Standard Error (SE):</strong> Measures variability of sample statistics, not individual values</li>
+        <li><strong>SE vs. SD:</strong> SD describes data spread; SE describes estimate precision</li>
+        <li><strong>Sample size effect:</strong> SE = σ/√n, so larger n gives smaller SE</li>
+        <li><strong>Practical rule:</strong> To cut SE in half, need 4× the sample size</li>
+        <li><strong>Applications:</strong> Quality control, polling, medical trials, education research</li>
+        <li>Understanding SE is crucial for interpreting study results and margins of error</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-sampling-proportions.html" class="btn btn-outline">← Previous: Sampling Proportions</a>
+      <a href="practice.html" class="btn btn-primary">Practice Problems →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>
