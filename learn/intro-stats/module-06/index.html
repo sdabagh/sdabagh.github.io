@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 6: Confidence Intervals & Sample Size - Learn to construct and interpret confidence intervals">
+  <title>Module 6: Confidence Intervals & Sample Size – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .module-header h1 {
+      color: white;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+      margin-top: var(--spacing-md);
+      opacity: 0.95;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .objectives-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .objectives-list li {
+      padding: var(--spacing-sm) 0;
+      padding-left: var(--spacing-lg);
+      position: relative;
+    }
+
+    .objectives-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--success);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .lesson-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      transition: var(--transition);
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: flex-start;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .lesson-number {
+      background: var(--primary-color);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .lesson-content {
+      flex: 1;
+    }
+
+    .lesson-content h3 {
+      margin-top: 0;
+      margin-bottom: var(--spacing-xs);
+      color: var(--primary-dark);
+    }
+
+    .lesson-duration {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: var(--spacing-xs);
+    }
+
+    .prerequisite-box {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .prerequisite-box h3 {
+      margin-top: 0;
+      color: #856404;
+    }
+
+    .assessment-section {
+      background: var(--background-alt);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-top: var(--spacing-xl);
+    }
+
+    .assessment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+
+    .assessment-card {
+      background: white;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border-color);
+      text-align: center;
+    }
+
+    .assessment-card h4 {
+      margin-top: var(--spacing-xs);
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="module-header">
+      <h1>📊 Module 6: Confidence Intervals & Sample Size</h1>
+      <p style="font-size: 1.1rem; margin-top: 10px;">Learn to construct confidence intervals and determine appropriate sample sizes</p>
+      <div class="module-meta">
+        <div class="meta-item">
+          <span>📝</span>
+          <span>4 Lessons</span>
+        </div>
+        <div class="meta-item">
+          <span>⏱️</span>
+          <span>~8 hours</span>
+        </div>
+        <div class="meta-item">
+          <span>💪</span>
+          <span>20 Practice Problems</span>
+        </div>
+        <div class="meta-item">
+          <span>📊</span>
+          <span>15-Question Quiz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prerequisite-box">
+      <h3>📋 Prerequisites: Modules 4 & 5</h3>
+      <p>
+        This module builds on concepts from <strong>Module 4: The Normal Distribution</strong> (z-scores, normal probabilities, t-distribution) and
+        <strong>Module 5: Sampling Distributions</strong> (Central Limit Theorem, standard error, sampling variability).
+        Make sure you're comfortable with these topics before starting.
+      </p>
+      <div class="cta-group mt-1">
+        <a href="../module-04/index.html" class="btn btn-outline btn-sm">Review Module 4</a>
+        <a href="../module-05/index.html" class="btn btn-outline btn-sm">Review Module 5</a>
+      </div>
+    </div>
+
+    <section>
+      <h2>🎯 Learning Objectives</h2>
+      <p>By the end of this module, you will be able to:</p>
+      <ul class="objectives-list">
+        <li>Explain what a confidence interval is and what it represents</li>
+        <li>Distinguish between point estimates and interval estimates</li>
+        <li>Interpret confidence levels (90%, 95%, 99%) correctly</li>
+        <li>Construct confidence intervals for population means using the t-distribution</li>
+        <li>Construct confidence intervals for population proportions</li>
+        <li>Determine when to use z vs t distributions for confidence intervals</li>
+        <li>Calculate margin of error and understand factors that affect it</li>
+        <li>Determine appropriate sample sizes for desired precision</li>
+        <li>Interpret confidence intervals correctly (common misconceptions)</li>
+      </ul>
+    </section>
+
+    <section class="mt-2">
+      <h2>📚 Lessons</h2>
+
+      <a href="lesson-01-intro-confidence-intervals.html" class="lesson-card" style="text-decoration: none; color: inherit;">
+        <div class="lesson-number">1</div>
+        <div class="lesson-content">
+          <h3>Introduction to Confidence Intervals</h3>
+          <p>Learn what confidence intervals are, how to interpret them, and why we use them instead of point estimates.</p>
+          <ul style="margin: var(--spacing-xs) 0; color: var(--text-secondary); font-size: 0.9rem;">
+            <li>Point estimates vs. interval estimates</li>
+            <li>What is a confidence interval?</li>
+            <li>Confidence level (90%, 95%, 99%)</li>
+            <li>Margin of error</li>
+            <li>Correct vs. incorrect interpretations</li>
+          </ul>
+          <div class="lesson-duration">⏱️ ~30 minutes</div>
+        </div>
+      </a>
+
+      <a href="lesson-02-ci-for-means.html" class="lesson-card" style="text-decoration: none; color: inherit;">
+        <div class="lesson-number">2</div>
+        <div class="lesson-content">
+          <h3>Confidence Intervals for Means</h3>
+          <p>Master constructing confidence intervals for population means using the t-distribution.</p>
+          <ul style="margin: var(--spacing-xs) 0; color: var(--text-secondary); font-size: 0.9rem;">
+            <li>CI formula for means: x̄ ± t* × (s/√n)</li>
+            <li>t-distribution and degrees of freedom</li>
+            <li>When to use z vs t distributions</li>
+            <li>Finding critical values from t-table</li>
+            <li>Effect of confidence level on interval width</li>
+          </ul>
+          <div class="lesson-duration">⏱️ ~35 minutes</div>
+        </div>
+      </a>
+
+      <a href="lesson-03-ci-for-proportions.html" class="lesson-card" style="text-decoration: none; color: inherit;">
+        <div class="lesson-number">3</div>
+        <div class="lesson-content">
+          <h3>Confidence Intervals for Proportions</h3>
+          <p>Learn to construct and interpret confidence intervals for population proportions.</p>
+          <ul style="margin: var(--spacing-xs) 0; color: var(--text-secondary); font-size: 0.9rem;">
+            <li>CI formula for proportions: p̂ ± z* × √(p̂(1-p̂)/n)</li>
+            <li>Success-failure condition: np̂ ≥ 10 and n(1-p̂) ≥ 10</li>
+            <li>Critical z-values (1.645, 1.96, 2.576)</li>
+            <li>Calculating and interpreting proportion CIs</li>
+          </ul>
+          <div class="lesson-duration">⏱️ ~30 minutes</div>
+        </div>
+      </a>
+
+      <a href="lesson-04-sample-size.html" class="lesson-card" style="text-decoration: none; color: inherit;">
+        <div class="lesson-number">4</div>
+        <div class="lesson-content">
+          <h3>Determining Sample Size</h3>
+          <p>Learn how to calculate the sample size needed to achieve a desired margin of error.</p>
+          <ul style="margin: var(--spacing-xs) 0; color: var(--text-secondary); font-size: 0.9rem;">
+            <li>Why sample size matters</li>
+            <li>Sample size for estimating means: n = (z*σ/E)²</li>
+            <li>Sample size for estimating proportions: n = p̂(1-p̂)(z*/E)²</li>
+            <li>Conservative estimate: p̂ = 0.5</li>
+            <li>Trading off precision vs. cost</li>
+          </ul>
+          <div class="lesson-duration">⏱️ ~30 minutes</div>
+        </div>
+      </a>
+    </section>
+
+    <div class="assessment-section">
+      <h2>📝 Assessments & Practice</h2>
+      <p>Test your understanding and practice what you've learned.</p>
+
+      <div class="assessment-grid">
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">📋</div>
+          <h4>Pre-Assessment</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">5 questions to gauge your starting knowledge</p>
+          <a href="pre-assessment.html" class="btn btn-outline btn-sm mt-1">Start</a>
+        </div>
+
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">💪</div>
+          <h4>Practice Problems</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">20 problems with detailed solutions</p>
+          <a href="practice.html" class="btn btn-outline btn-sm mt-1">Practice</a>
+        </div>
+
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">📊</div>
+          <h4>Module Quiz</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">15 questions • 70% to pass</p>
+          <a href="quiz.html" class="btn btn-outline btn-sm mt-1">Take Quiz</a>
+        </div>
+
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">✅</div>
+          <h4>Post-Assessment</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">Measure your learning gains</p>
+          <a href="post-assessment.html" class="btn btn-outline btn-sm mt-1">Complete</a>
+        </div>
+
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">📖</div>
+          <h4>Study Guide</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">Comprehensive reference with all formulas</p>
+          <a href="study-guide.html" class="btn btn-outline btn-sm mt-1">View</a>
+        </div>
+
+        <div class="assessment-card">
+          <div style="font-size: 2rem;">📄</div>
+          <h4>Quick Reference</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">1-page formula sheet</p>
+          <a href="quick-reference.html" class="btn btn-outline btn-sm mt-1">Download</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>💡 Study Tips for Module 6</h3>
+      <ul>
+        <li><strong>Master the interpretation:</strong> Know what a confidence interval DOES and DOES NOT tell you</li>
+        <li><strong>Practice calculations:</strong> Work through many examples to get comfortable with the formulas</li>
+        <li><strong>Check conditions:</strong> Always verify conditions before constructing CIs (success-failure for proportions, sample size for means)</li>
+        <li><strong>Understand t vs z:</strong> Know when to use each distribution (σ known vs unknown)</li>
+        <li><strong>Sample size trade-offs:</strong> Larger samples give narrower intervals but cost more</li>
+        <li><strong>Use the study guide:</strong> Keep the formula sheet handy when practicing</li>
+      </ul>
+    </div>
+
+    <div class="cta-group mt-2">
+      <a href="pre-assessment.html" class="btn btn-primary">Start with Pre-Assessment</a>
+      <a href="lesson-01-intro-confidence-intervals.html" class="btn btn-accent">Go to Lesson 1</a>
+      <a href="../index.html" class="btn btn-outline">Back to Course Home</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

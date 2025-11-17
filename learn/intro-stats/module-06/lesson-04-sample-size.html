@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Determining Sample Size - Learn how to calculate required sample sizes for desired precision">
+  <title>Lesson 4: Sample Size – Module 6</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .steps { background: #f8f9fa; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .steps ol { margin-left: var(--spacing-md); }
+    .steps li { margin: var(--spacing-sm) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 6</a> →
+        Lesson 4
+      </div>
+      <h1>Determining Sample Size</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn how to calculate the sample size needed to achieve a desired margin of error
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain why sample size matters for precision</li>
+        <li>Calculate required sample size for estimating means</li>
+        <li>Calculate required sample size for estimating proportions</li>
+        <li>Use conservative estimates when no prior information is available</li>
+        <li>Understand trade-offs between precision and cost</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. Why Sample Size Matters</h2>
+
+      <p>
+        The <strong>margin of error</strong> in a confidence interval depends directly on sample size.
+        Larger samples give more precise estimates (narrower intervals), but they also cost more in
+        time and money.
+      </p>
+
+      <div class="key-point">
+        <strong>The Central Question:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          "How large a sample do I need to estimate a parameter within a desired margin of error
+          at a given confidence level?"
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Why Sample Size Planning Matters</h4>
+        <p><strong>Scenario:</strong> A company wants to estimate average customer satisfaction within ±0.2 points on a 10-point scale with 95% confidence.</p>
+        <ul>
+          <li>If they sample n = 50: margin of error might be ±0.4 (too imprecise)</li>
+          <li>If they sample n = 200: margin of error might be ±0.2 (perfect!)</li>
+          <li>If they sample n = 1000: margin of error might be ±0.1 (more precise than needed, wasted resources)</li>
+        </ul>
+        <p><strong>Goal:</strong> Calculate the exact sample size needed to meet the requirement (n = 200).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Sample Size for Estimating Means</h2>
+
+      <p>
+        To estimate a population mean μ within a desired margin of error E with a certain confidence
+        level, we rearrange the margin of error formula and solve for n.
+      </p>
+
+      <div class="formula-box">
+        <h4>Sample Size Formula for Means</h4>
+        <div class="formula">
+          n = (z*σ / E)²
+        </div>
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Where:</strong><br>
+          z* = critical value for desired confidence level<br>
+          σ = population standard deviation (or estimate from pilot study)<br>
+          E = desired margin of error
+        </p>
+        <p style="margin-top: var(--spacing-sm); font-size: 0.9rem;">
+          <strong>Note:</strong> Always round UP to the next whole number (can't sample 0.3 of a person!)
+        </p>
+      </div>
+
+      <div class="steps">
+        <h4>Steps to Calculate Sample Size for Means:</h4>
+        <ol>
+          <li>Determine desired <strong>confidence level</strong> → find z*</li>
+          <li>Determine desired <strong>margin of error (E)</strong></li>
+          <li>Estimate <strong>population standard deviation (σ)</strong>:
+            <ul>
+              <li>Use value from prior research or pilot study</li>
+              <li>Use range/4 as rough estimate if no other info</li>
+            </ul>
+          </li>
+          <li>Calculate n = (z*σ / E)²</li>
+          <li>Round UP to next whole number</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Sample Size for Estimating Mean GPA</h4>
+        <p>
+          <strong>Problem:</strong> A university wants to estimate the mean GPA of all students within
+          ±0.05 points with 95% confidence. A previous study found σ ≈ 0.40. How many students should be sampled?
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p><strong>Given:</strong></p>
+        <ul>
+          <li>Desired margin of error: E = 0.05</li>
+          <li>Confidence level: 95% → z* = 1.96</li>
+          <li>Estimated σ = 0.40</li>
+        </ul>
+
+        <p><strong>Calculate:</strong></p>
+        <p>n = (z*σ / E)²</p>
+        <p>n = (1.96 × 0.40 / 0.05)²</p>
+        <p>n = (0.784 / 0.05)²</p>
+        <p>n = (15.68)²</p>
+        <p>n = 245.86</p>
+
+        <p><strong>Round up:</strong> n = 246 students</p>
+
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Answer:</strong> The university should sample <strong>246 students</strong> to estimate
+          mean GPA within ±0.05 with 95% confidence.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Effect of Confidence Level on Sample Size</h4>
+        <p>
+          <strong>Problem:</strong> Compare sample sizes needed to estimate mean income within $500 if
+          σ = $3000 at different confidence levels.
+        </p>
+
+        <p><strong>a) 90% confidence (z* = 1.645):</strong></p>
+        <p>n = (1.645 × 3000 / 500)² = (9.87)² = 97.4 → <strong>98 people</strong></p>
+
+        <p><strong>b) 95% confidence (z* = 1.96):</strong></p>
+        <p>n = (1.96 × 3000 / 500)² = (11.76)² = 138.3 → <strong>139 people</strong></p>
+
+        <p><strong>c) 99% confidence (z* = 2.576):</strong></p>
+        <p>n = (2.576 × 3000 / 500)² = (15.456)² = 238.9 → <strong>239 people</strong></p>
+
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Observation:</strong> Higher confidence requires larger samples. Going from 90% to 99%
+          more than doubles the required sample size!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Sample Size for Estimating Proportions</h2>
+
+      <p>
+        To estimate a population proportion p within a desired margin of error E, we use a similar approach.
+      </p>
+
+      <div class="formula-box">
+        <h4>Sample Size Formula for Proportions</h4>
+        <div class="formula">
+          n = p̂(1-p̂) × (z*/E)²
+        </div>
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Where:</strong><br>
+          p̂ = estimated proportion (from pilot study or prior research)<br>
+          z* = critical value for desired confidence level<br>
+          E = desired margin of error (as a proportion, not percentage)
+        </p>
+      </div>
+
+      <h3>When You Don't Have a Prior Estimate</h3>
+      <div class="key-point">
+        <strong>Conservative Approach: Use p̂ = 0.5</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          When you have no prior information about p, use p̂ = 0.5 (50%). This gives the <strong>maximum
+          possible sample size</strong> because p̂(1-p̂) is maximized at p̂ = 0.5.
+        </p>
+        <div class="formula">
+          n = 0.25 × (z*/E)²  when p̂ = 0.5
+        </div>
+        <p style="margin-top: var(--spacing-sm); font-size: 0.9rem;">
+          This ensures your sample will be large enough regardless of the true value of p.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Sample Size for Proportion with Prior Estimate</h4>
+        <p>
+          <strong>Problem:</strong> A marketing team wants to estimate the proportion of customers who would
+          buy a new product within ±3% with 95% confidence. A pilot study suggests p ≈ 0.35. How many
+          customers should they survey?
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p><strong>Given:</strong></p>
+        <ul>
+          <li>E = 0.03 (3% as a proportion)</li>
+          <li>Confidence: 95% → z* = 1.96</li>
+          <li>p̂ = 0.35 (from pilot study)</li>
+        </ul>
+
+        <p><strong>Calculate:</strong></p>
+        <p>n = p̂(1-p̂) × (z*/E)²</p>
+        <p>n = 0.35(0.65) × (1.96/0.03)²</p>
+        <p>n = 0.2275 × (65.33)²</p>
+        <p>n = 0.2275 × 4268.21</p>
+        <p>n = 971.0</p>
+
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Answer:</strong> They should survey <strong>971 customers</strong>.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Sample Size WITHOUT Prior Estimate</h4>
+        <p>
+          <strong>Problem:</strong> A political campaign wants to estimate voter support within ±2% with
+          95% confidence, but has no prior data. How many voters should they poll?
+        </p>
+
+        <p><strong>Solution (Conservative Approach):</strong></p>
+        <p>Since no prior estimate, use p̂ = 0.5</p>
+        <p>E = 0.02, z* = 1.96</p>
+
+        <p>n = 0.5(0.5) × (1.96/0.02)²</p>
+        <p>n = 0.25 × (98)²</p>
+        <p>n = 0.25 × 9604</p>
+        <p>n = 2401</p>
+
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Answer:</strong> They should poll <strong>2,401 voters</strong>.
+        </p>
+        <p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: #856404;">
+          <strong>Note:</strong> This is why political polls with ±2-3% margins typically have sample sizes
+          of 1000-2500 people!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Trade-offs: Precision vs. Cost</h2>
+
+      <table>
+        <tr>
+          <th>Factor</th>
+          <th>Effect on Sample Size</th>
+          <th>Cost Implication</th>
+        </tr>
+        <tr>
+          <td>Smaller margin of error</td>
+          <td>Larger n needed</td>
+          <td>Higher cost</td>
+        </tr>
+        <tr>
+          <td>Higher confidence level</td>
+          <td>Larger n needed</td>
+          <td>Higher cost</td>
+        </tr>
+        <tr>
+          <td>More variable population (larger σ)</td>
+          <td>Larger n needed</td>
+          <td>Higher cost</td>
+        </tr>
+      </table>
+
+      <div class="key-point">
+        <strong>Practical Considerations:</strong>
+        <ul style="margin-top: var(--spacing-sm);">
+          <li>Cutting margin of error in half requires <strong>4 times</strong> the sample size</li>
+          <li>Researchers must balance precision (small E) with budget constraints</li>
+          <li>Common practice: Use 95% confidence with E chosen based on budget</li>
+          <li>Pilot studies help estimate σ or p to avoid oversampling</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 6: Comparing Costs</h4>
+        <p>A survey costs $5 per respondent. Compare total costs for different margins of error:</p>
+
+        <table style="margin-top: var(--spacing-sm);">
+          <tr>
+            <th>Margin of Error</th>
+            <th>Sample Size (n)</th>
+            <th>Total Cost</th>
+          </tr>
+          <tr>
+            <td>±4%</td>
+            <td>600</td>
+            <td>$3,000</td>
+          </tr>
+          <tr>
+            <td>±3%</td>
+            <td>1,067</td>
+            <td>$5,335</td>
+          </tr>
+          <tr>
+            <td>±2%</td>
+            <td>2,401</td>
+            <td>$12,005</td>
+          </tr>
+          <tr>
+            <td>±1%</td>
+            <td>9,604</td>
+            <td>$48,020</td>
+          </tr>
+        </table>
+
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Observation:</strong> Going from ±4% to ±1% margin increases cost by 16 times!
+          Researchers must decide if extra precision is worth the cost.
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> If you want to cut the margin of error in half, by what factor must you increase the sample size?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans1')">Show Answer</button>
+        <div id="ans1" class="answer">
+          <p><strong>Answer:</strong> Multiply by 4. Since n appears under a square root in the margin of error formula, cutting E in half requires multiplying n by 2² = 4.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> When estimating a proportion with no prior information, what value should you use for p̂?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans2')">Show Answer</button>
+        <div id="ans2" class="answer">
+          <p><strong>Answer:</strong> Use p̂ = 0.5. This gives the maximum possible sample size and guarantees your sample will be large enough regardless of the true proportion.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> You need n = 384.16. How many people should you actually sample?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans3')">Show Answer</button>
+        <div id="ans3" class="answer">
+          <p><strong>Answer:</strong> 385 people. Always round UP to the next whole number to ensure you meet the desired margin of error.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> For E = 0.04 and z* = 1.96, what sample size is needed for a proportion (using conservative approach)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans4')">Show Answer</button>
+        <div id="ans4" class="answer">
+          <p><strong>Answer:</strong> n = 0.25 × (1.96/0.04)² = 0.25 × (49)² = 0.25 × 2401 = 600.25 → 601 people</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> Why does higher confidence require a larger sample size?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans5')">Show Answer</button>
+        <div id="ans5" class="answer">
+          <p><strong>Answer:</strong> Higher confidence means larger z*, which increases the numerator in the sample size formula. To be more confident we've captured the parameter, we need to collect more data.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>📝 Lesson Summary</h3>
+      <ul>
+        <li><strong>Sample size for means:</strong> n = (z*σ / E)²</li>
+        <li><strong>Sample size for proportions:</strong> n = p̂(1-p̂) × (z*/E)²</li>
+        <li>Use <strong>p̂ = 0.5</strong> for proportions when no prior estimate available (conservative)</li>
+        <li>Always <strong>round UP</strong> to next whole number</li>
+        <li>Smaller margin of error → larger sample needed (quadratic relationship)</li>
+        <li>Higher confidence → larger sample needed</li>
+        <li>Must balance precision with cost in real-world applications</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-ci-for-proportions.html" class="btn btn-outline">← Previous: CIs for Proportions</a>
+      <a href="practice.html" class="btn btn-primary">Practice Problems →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

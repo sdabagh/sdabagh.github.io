@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Introduction to Confidence Intervals - Learn what confidence intervals are and how to interpret them">
+  <title>Lesson 1: Intro to Confidence Intervals – Module 6</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 6</a> →
+        Lesson 1
+      </div>
+      <h1>Introduction to Confidence Intervals</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn what confidence intervals are, how to interpret them, and why we use them
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Distinguish between point estimates and interval estimates</li>
+        <li>Explain what a confidence interval is</li>
+        <li>Interpret confidence levels correctly</li>
+        <li>Understand margin of error and its components</li>
+        <li>Avoid common misconceptions about confidence intervals</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. Point Estimates vs. Interval Estimates</h2>
+
+      <div class="definition-box">
+        <h4>📖 Key Definitions</h4>
+        <p><strong>Point Estimate:</strong> A single number used to estimate a population parameter.</p>
+        <p><strong>Interval Estimate (Confidence Interval):</strong> A range of values used to estimate a population parameter.</p>
+      </div>
+
+      <p>
+        When we take a sample and calculate statistics like x̄ or p̂, we get <strong>point estimates</strong>
+        of the population parameters μ and p. But we know from sampling distributions that different samples
+        give different estimates due to sampling variability.
+      </p>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Point Estimate</h4>
+        <p><strong>Question:</strong> A university surveys 200 students and finds the average GPA is x̄ = 3.24.</p>
+        <p><strong>Point estimate:</strong> Our best guess for the population mean GPA is μ ≈ 3.24.</p>
+        <p>
+          <strong>The problem:</strong> We know x̄ = 3.24 is probably <em>not exactly</em> equal to μ.
+          Different samples would give different values. How confident should we be in this estimate?
+        </p>
+      </div>
+
+      <p>
+        This is where <strong>interval estimates</strong> (confidence intervals) come in. Instead of saying
+        "μ is approximately 3.24," we say something like:
+      </p>
+      <p style="text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--primary-dark);">
+        "We are 95% confident that μ is between 3.15 and 3.33"
+      </p>
+
+      <p>
+        This interval gives us a <strong>range of plausible values</strong> for the parameter, along with
+        a measure of our confidence in that range.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. What is a Confidence Interval?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Confidence Interval</h4>
+        <p>
+          A <strong>confidence interval</strong> is a range of values (an interval) that is likely to
+          contain an unknown population parameter. It consists of:
+        </p>
+        <ul>
+          <li>A <strong>point estimate</strong> (like x̄ or p̂)</li>
+          <li>A <strong>margin of error</strong> (how much uncertainty we have)</li>
+          <li>A <strong>confidence level</strong> (how confident we are, typically 90%, 95%, or 99%)</li>
+        </ul>
+      </div>
+
+      <div class="formula-box">
+        <h4>General Form of a Confidence Interval</h4>
+        <div class="formula">
+          Confidence Interval = Point Estimate ± Margin of Error
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          Or equivalently: (Lower Bound, Upper Bound)
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Understanding the Structure</h4>
+        <p><strong>A poll reports:</strong> "52% of voters support the measure (margin of error ± 3% at 95% confidence)"</p>
+        <p><strong>Breaking it down:</strong></p>
+        <ul>
+          <li><strong>Point estimate:</strong> p̂ = 0.52 (52%)</li>
+          <li><strong>Margin of error:</strong> 0.03 (3 percentage points)</li>
+          <li><strong>Confidence level:</strong> 95%</li>
+          <li><strong>Confidence interval:</strong> 0.52 ± 0.03 → (0.49, 0.55) or 49% to 55%</li>
+        </ul>
+        <p>
+          <strong>Interpretation:</strong> We are 95% confident that the true proportion of voters who
+          support the measure is between 49% and 55%.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Confidence Level</h2>
+
+      <p>
+        The <strong>confidence level</strong> (usually 90%, 95%, or 99%) tells us how confident we are
+        that our interval captures the true parameter.
+      </p>
+
+      <div class="key-point">
+        <strong>What a 95% confidence level means:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          If we were to take many random samples and construct a 95% confidence interval from each sample,
+          about <strong>95% of those intervals would contain the true population parameter</strong>.
+        </p>
+        <p style="margin-top: var(--spacing-sm);">
+          For any single interval, the parameter either is or is not in that specific interval—but we're
+          95% confident it is.
+        </p>
+      </div>
+
+      <h3>Common Confidence Levels</h3>
+      <table style="max-width: 500px; margin: var(--spacing-md) auto;">
+        <tr>
+          <th>Confidence Level</th>
+          <th>Success Rate</th>
+          <th>When to Use</th>
+        </tr>
+        <tr>
+          <td>90%</td>
+          <td>9 out of 10 intervals capture μ</td>
+          <td>Less precision needed</td>
+        </tr>
+        <tr>
+          <td>95%</td>
+          <td>19 out of 20 intervals capture μ</td>
+          <td>Standard choice (most common)</td>
+        </tr>
+        <tr>
+          <td>99%</td>
+          <td>99 out of 100 intervals capture μ</td>
+          <td>High precision required</td>
+        </tr>
+      </table>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Visualizing Confidence Level</h4>
+        <p>
+          Imagine taking 20 random samples from a population where μ = 100. For each sample, we construct
+          a 95% confidence interval:
+        </p>
+        <ul style="font-size: 0.9rem;">
+          <li>Sample 1: (97.5, 102.3) ✓ Contains μ = 100</li>
+          <li>Sample 2: (98.1, 103.7) ✓ Contains μ = 100</li>
+          <li>Sample 3: (95.8, 100.4) ✓ Contains μ = 100</li>
+          <li>...</li>
+          <li>Sample 19: (99.2, 104.1) ✓ Contains μ = 100</li>
+          <li>Sample 20: (101.5, 106.2) ✗ Does NOT contain μ = 100</li>
+        </ul>
+        <p>
+          <strong>Result:</strong> 19 out of 20 intervals (95%) captured the true mean. One interval (5%) did not.
+          This is what "95% confidence" means in the long run!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Margin of Error</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Margin of Error</h4>
+        <p>
+          The <strong>margin of error (E)</strong> is the amount we add and subtract from the point estimate
+          to create the confidence interval. It represents the maximum expected difference between the point
+          estimate and the true parameter.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Margin of Error (General Formula)</h4>
+        <div class="formula">
+          E = (Critical Value) × (Standard Error)
+        </div>
+        <p style="margin-top: var(--spacing-sm);">
+          <strong>Critical value:</strong> Depends on confidence level (from z-table or t-table)<br>
+          <strong>Standard error:</strong> Measures sampling variability (depends on σ and n)
+        </p>
+      </div>
+
+      <p><strong>What affects the margin of error?</strong></p>
+      <ol>
+        <li><strong>Confidence level:</strong> Higher confidence → larger margin of error (wider interval)</li>
+        <li><strong>Sample size (n):</strong> Larger sample → smaller margin of error (narrower interval)</li>
+        <li><strong>Population variability (σ):</strong> More variability → larger margin of error</li>
+      </ol>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Effect of Confidence Level on Margin of Error</h4>
+        <p>Suppose we have x̄ = 50, s = 10, n = 100.</p>
+        <ul>
+          <li><strong>90% CI:</strong> 50 ± 1.65 → (48.35, 51.65) — <em>narrower interval</em></li>
+          <li><strong>95% CI:</strong> 50 ± 1.96 → (48.04, 51.96) — <em>moderate width</em></li>
+          <li><strong>99% CI:</strong> 50 ± 2.58 → (47.42, 52.58) — <em>wider interval</em></li>
+        </ul>
+        <p>
+          <strong>Trade-off:</strong> Higher confidence gives wider intervals. To be more confident we've
+          captured the parameter, we need to cast a wider net.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Interpreting Confidence Intervals</h2>
+
+      <h3>✅ Correct Interpretations</h3>
+      <div class="key-point">
+        <p><strong>If we have a 95% CI of (48, 52) for μ:</strong></p>
+        <ul>
+          <li>✅ "We are 95% confident that the true population mean is between 48 and 52."</li>
+          <li>✅ "This interval was constructed using a method that captures the true mean 95% of the time."</li>
+          <li>✅ "If we repeated this process many times, 95% of intervals would contain μ."</li>
+        </ul>
+      </div>
+
+      <h3>❌ Incorrect Interpretations</h3>
+      <div class="warning-box">
+        <p><strong>Common mistakes to AVOID:</strong></p>
+        <ul>
+          <li>❌ "There is a 95% chance that μ is between 48 and 52."
+            <br><small style="color: #721c24;"><em>Why wrong:</em> The parameter μ is fixed (not random). It either is or isn't in the interval. The randomness is in the sampling process, not the parameter.</small>
+          </li>
+          <li>❌ "95% of the data falls between 48 and 52."
+            <br><small style="color: #721c24;"><em>Why wrong:</em> The CI is about the population parameter (μ), not individual data points.</small>
+          </li>
+          <li>❌ "The sample mean has a 95% chance of being between 48 and 52."
+            <br><small style="color: #721c24;"><em>Why wrong:</em> We already know the sample mean! The CI is about the unknown population parameter.</small>
+          </li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Practicing Interpretations</h4>
+        <p><strong>A researcher reports:</strong> "The 95% confidence interval for the average study time is (12.5, 15.3) hours per week."</p>
+        <p><strong>Good interpretation:</strong></p>
+        <blockquote style="border-left: 3px solid var(--success); padding-left: var(--spacing-md); margin: var(--spacing-sm) 0;">
+          "We are 95% confident that the true average study time for all students in the population is
+          between 12.5 and 15.3 hours per week."
+        </blockquote>
+        <p><strong>Bad interpretation:</strong></p>
+        <blockquote style="border-left: 3px solid #dc3545; padding-left: var(--spacing-md); margin: var(--spacing-sm) 0;">
+          "There is a 95% probability that the average study time is between 12.5 and 15.3 hours." ❌
+        </blockquote>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> What is the main advantage of using an interval estimate instead of a point estimate?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans1')">Show Answer</button>
+        <div id="ans1" class="answer">
+          <p><strong>Answer:</strong> An interval estimate provides a range of plausible values along with a measure of confidence, acknowledging sampling variability. A point estimate is just one number with no indication of how precise or reliable it is.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> A 90% confidence interval for μ is (45, 55). Does this mean there's a 90% chance that μ is between 45 and 55?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans2')">Show Answer</button>
+        <div id="ans2" class="answer">
+          <p><strong>Answer:</strong> No! The parameter μ is fixed—it either is or isn't in the interval. The 90% refers to our confidence in the <em>method</em>: if we constructed many such intervals, 90% would contain μ.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> Which confidence level produces the widest interval: 90%, 95%, or 99%?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans3')">Show Answer</button>
+        <div id="ans3" class="answer">
+          <p><strong>Answer:</strong> 99% confidence produces the widest interval. To be more confident we've captured the parameter, we need a wider net (larger margin of error).</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> A poll reports "45% support the policy (margin of error ± 4%)". What is the confidence interval?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans4')">Show Answer</button>
+        <div id="ans4" class="answer">
+          <p><strong>Answer:</strong> The confidence interval is 45% ± 4% = (41%, 49%). We're confident (usually 95% unless stated otherwise) that the true population proportion is between 41% and 49%.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> If you want a narrower (more precise) confidence interval, should you increase or decrease the sample size?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans5')">Show Answer</button>
+        <div id="ans5" class="answer">
+          <p><strong>Answer:</strong> Increase the sample size. Larger samples reduce the standard error, which reduces the margin of error, making the interval narrower. This is why polls with larger samples have smaller margins of error.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>📝 Lesson Summary</h3>
+      <ul>
+        <li>A <strong>confidence interval</strong> provides a range of plausible values for a parameter</li>
+        <li>Structure: <strong>Point Estimate ± Margin of Error</strong></li>
+        <li>The <strong>confidence level</strong> (90%, 95%, 99%) indicates how often our method captures the true parameter</li>
+        <li><strong>Margin of error</strong> depends on confidence level, sample size, and population variability</li>
+        <li>Interpret CIs in terms of <strong>confidence in the method</strong>, not probability about the parameter</li>
+        <li>Higher confidence → wider intervals; larger samples → narrower intervals</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="btn btn-outline">← Back to Module 6</a>
+      <a href="lesson-02-ci-for-means.html" class="btn btn-primary">Next: CIs for Means →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

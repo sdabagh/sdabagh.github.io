@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Confidence Intervals for Proportions - Learn to construct CIs for population proportions">
+  <title>Lesson 3: CIs for Proportions – Module 6</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .steps { background: #f8f9fa; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .steps ol { margin-left: var(--spacing-md); }
+    .steps li { margin: var(--spacing-sm) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 6</a> →
+        Lesson 3
+      </div>
+      <h1>Confidence Intervals for Proportions</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn to construct and interpret confidence intervals for population proportions
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Construct confidence intervals for population proportions</li>
+        <li>Check the success-failure condition before using normal approximation</li>
+        <li>Find critical z-values for proportion CIs</li>
+        <li>Calculate margin of error for proportions</li>
+        <li>Interpret confidence intervals for proportions correctly</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. The Confidence Interval Formula for Proportions</h2>
+
+      <p>
+        When estimating a population proportion p (like the percentage of voters who support a candidate),
+        we use the sample proportion p̂ and construct an interval around it.
+      </p>
+
+      <div class="formula-box">
+        <h4>Confidence Interval for a Population Proportion (p)</h4>
+        <div class="formula">
+          p̂ ± z* × √(p̂(1-p̂)/n)
+        </div>
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Where:</strong><br>
+          p̂ = sample proportion (point estimate)<br>
+          z* = critical value from standard normal distribution<br>
+          n = sample size<br>
+          √(p̂(1-p̂)/n) = standard error for proportions
+        </p>
+      </div>
+
+      <div class="key-point">
+        <strong>Why use z for proportions?</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          For proportions, we use the <strong>z-distribution</strong> (not t) because:
+        </p>
+        <ul>
+          <li>The standard error formula √(p̂(1-p̂)/n) doesn't involve estimating σ separately</li>
+          <li>By the Central Limit Theorem, p̂ is approximately normally distributed for large samples</li>
+          <li>The conditions np̂ ≥ 10 and n(1-p̂) ≥ 10 ensure the normal approximation is valid</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Conditions for Using Normal Approximation</h2>
+
+      <div class="definition-box">
+        <h4>📖 Success-Failure Condition</h4>
+        <p>
+          Before constructing a CI for a proportion, check that:
+        </p>
+        <div class="formula">
+          np̂ ≥ 10  AND  n(1-p̂) ≥ 10
+        </div>
+        <p style="margin-top: var(--spacing-sm);">
+          This ensures we have enough successes and failures for the normal approximation to be valid.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Checking Conditions</h4>
+        <p><strong>a)</strong> n = 200, p̂ = 0.45 (90 successes)</p>
+        <p>np̂ = 200(0.45) = 90 ≥ 10 ✓</p>
+        <p>n(1-p̂) = 200(0.55) = 110 ≥ 10 ✓</p>
+        <p><strong>Conclusion:</strong> Conditions met. Safe to use normal approximation.</p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>b)</strong> n = 50, p̂ = 0.10 (5 successes)</p>
+        <p>np̂ = 50(0.10) = 5 < 10 ✗</p>
+        <p>n(1-p̂) = 50(0.90) = 45 ≥ 10 ✓</p>
+        <p><strong>Conclusion:</strong> Condition NOT met. Too few successes. Cannot use this method.</p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>c)</strong> n = 400, p̂ = 0.62 (248 successes)</p>
+        <p>np̂ = 400(0.62) = 248 ≥ 10 ✓</p>
+        <p>n(1-p̂) = 400(0.38) = 152 ≥ 10 ✓</p>
+        <p><strong>Conclusion:</strong> Conditions met. Safe to proceed.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Critical z-Values for Common Confidence Levels</h2>
+
+      <p>
+        Since we use the standard normal (z) distribution for proportions, here are the critical values
+        for common confidence levels:
+      </p>
+
+      <table style="max-width: 500px; margin: var(--spacing-md) auto;">
+        <tr>
+          <th>Confidence Level</th>
+          <th>Critical Value (z*)</th>
+        </tr>
+        <tr>
+          <td>90%</td>
+          <td>1.645</td>
+        </tr>
+        <tr>
+          <td>95%</td>
+          <td>1.960</td>
+        </tr>
+        <tr>
+          <td>99%</td>
+          <td>2.576</td>
+        </tr>
+      </table>
+
+      <div class="key-point">
+        <strong>💡 Remember these values!</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          For 95% CI, z* = 1.96 is the most commonly used value. Many people round it to 2 for quick
+          calculations (the "95% rule" gives approximately ±2 standard errors).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Constructing Confidence Intervals for Proportions</h2>
+
+      <div class="steps">
+        <h4>Steps to Construct a CI for p:</h4>
+        <ol>
+          <li><strong>Check conditions:</strong>
+            <ul>
+              <li>Random sample</li>
+              <li>np̂ ≥ 10 and n(1-p̂) ≥ 10 (success-failure condition)</li>
+              <li>Population at least 10 times larger than sample (independence)</li>
+            </ul>
+          </li>
+          <li><strong>Calculate p̂:</strong> p̂ = x/n (where x = number of successes)</li>
+          <li><strong>Find critical value:</strong> Look up z* for desired confidence level</li>
+          <li><strong>Calculate standard error:</strong> SE = √(p̂(1-p̂)/n)</li>
+          <li><strong>Calculate margin of error:</strong> E = z* × SE</li>
+          <li><strong>Construct interval:</strong> p̂ ± E</li>
+          <li><strong>Interpret:</strong> State conclusion in context</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Complete CI Calculation for a Proportion</h4>
+        <p>
+          <strong>Problem:</strong> In a survey of 500 randomly selected voters, 260 said they support a new
+          policy. Construct a 95% confidence interval for the proportion of all voters who support the policy.
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1: Check conditions</strong></p>
+        <ul>
+          <li>✓ Random sample (stated)</li>
+          <li>p̂ = 260/500 = 0.52</li>
+          <li>np̂ = 500(0.52) = 260 ≥ 10 ✓</li>
+          <li>n(1-p̂) = 500(0.48) = 240 ≥ 10 ✓</li>
+        </ul>
+
+        <p><strong>Step 2: Sample proportion</strong></p>
+        <p>p̂ = 260/500 = 0.52</p>
+
+        <p><strong>Step 3: Critical value</strong></p>
+        <p>For 95% CI: z* = 1.96</p>
+
+        <p><strong>Step 4: Standard error</strong></p>
+        <p>SE = √(p̂(1-p̂)/n) = √(0.52 × 0.48 / 500) = √(0.0004992) = 0.02234</p>
+
+        <p><strong>Step 5: Margin of error</strong></p>
+        <p>E = z* × SE = 1.96 × 0.02234 = 0.0438 ≈ 0.044</p>
+
+        <p><strong>Step 6: Construct interval</strong></p>
+        <p>0.52 ± 0.044 = (0.476, 0.564) or (47.6%, 56.4%)</p>
+
+        <p><strong>Step 7: Interpret</strong></p>
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Conclusion:</strong> We are 95% confident that the true proportion of all voters who
+          support the policy is between 47.6% and 56.4%.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Higher Confidence Level</h4>
+        <p>
+          <strong>Problem:</strong> A quality control inspector finds 18 defective items in a random sample
+          of 200 products. Construct a 99% confidence interval for the proportion of defective products.
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p>p̂ = 18/200 = 0.09</p>
+        <p>Check: np̂ = 200(0.09) = 18 ≥ 10 ✓, n(1-p̂) = 200(0.91) = 182 ≥ 10 ✓</p>
+        <p>For 99% CI: z* = 2.576</p>
+        <p>SE = √(0.09 × 0.91 / 200) = √(0.0004095) = 0.02024</p>
+        <p>E = 2.576 × 0.02024 = 0.0521</p>
+        <p>CI: 0.09 ± 0.052 = (0.038, 0.142) or (3.8%, 14.2%)</p>
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Interpretation:</strong> We are 99% confident that the true proportion of defective products
+          is between 3.8% and 14.2%.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Interpreting Proportion CIs</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Common Scenarios</h4>
+
+        <p><strong>Political Poll:</strong></p>
+        <p>"52% ± 3% (95% CI)" means we're 95% confident the true support is between 49% and 55%.</p>
+        <p style="font-size: 0.9rem; color: #856404;">
+          <strong>Note:</strong> If the CI includes 50%, we cannot confidently say the candidate has majority
+          support (could be below 50%).
+        </p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Medical Test:</strong></p>
+        <p>95% CI for disease prevalence: (0.12, 0.18)</p>
+        <p>Interpretation: Between 12% and 18% of the population likely has the disease.</p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Customer Satisfaction:</strong></p>
+        <p>90% CI for customer satisfaction: (0.73, 0.81)</p>
+        <p>Interpretation: We're 90% confident that 73% to 81% of customers are satisfied.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> Why do we use z instead of t for confidence intervals for proportions?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans1')">Show Answer</button>
+        <div id="ans1" class="answer">
+          <p><strong>Answer:</strong> For proportions, the standard error formula √(p̂(1-p̂)/n) is completely determined by p̂ and n—we don't need to estimate a separate population standard deviation. The sampling distribution of p̂ follows a normal distribution (when conditions are met), so we use z.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> A sample has n = 80, p̂ = 0.08. Does this satisfy the success-failure condition?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans2')">Show Answer</button>
+        <div id="ans2" class="answer">
+          <p><strong>Answer:</strong> No. np̂ = 80(0.08) = 6.4 < 10. We don't have enough successes for the normal approximation to be reliable.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> For a 95% CI with p̂ = 0.40 and n = 100, what is the standard error?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans3')">Show Answer</button>
+        <div id="ans3" class="answer">
+          <p><strong>Answer:</strong> SE = √(p̂(1-p̂)/n) = √(0.40 × 0.60 / 100) = √(0.0024) = 0.049</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> A 95% CI for p is (0.32, 0.48). What was the sample proportion p̂?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans4')">Show Answer</button>
+        <div id="ans4" class="answer">
+          <p><strong>Answer:</strong> p̂ is the center of the interval: (0.32 + 0.48) / 2 = 0.40. The margin of error is 0.08.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> Does a wider confidence interval mean we're more or less confident in our estimate?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans5')">Show Answer</button>
+        <div id="ans5" class="answer">
+          <p><strong>Answer:</strong> More confident! A wider interval (higher confidence level like 99% vs 95%) casts a wider net, making it more likely to capture the true parameter. However, it's less precise (less informative about the exact value).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>📝 Lesson Summary</h3>
+      <ul>
+        <li>CI for p: <strong>p̂ ± z* × √(p̂(1-p̂)/n)</strong></li>
+        <li><strong>Success-failure condition:</strong> np̂ ≥ 10 and n(1-p̂) ≥ 10</li>
+        <li>Use <strong>z-distribution</strong> (not t) for proportions</li>
+        <li>Common z* values: 1.645 (90%), 1.96 (95%), 2.576 (99%)</li>
+        <li>Standard error for proportions: SE = √(p̂(1-p̂)/n)</li>
+        <li>Larger samples → smaller SE → narrower intervals</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-ci-for-means.html" class="btn btn-outline">← Previous: CIs for Means</a>
+      <a href="lesson-04-sample-size.html" class="btn btn-primary">Next: Sample Size →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

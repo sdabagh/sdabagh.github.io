@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Confidence Intervals for Means - Learn to construct CIs for population means using the t-distribution">
+  <title>Lesson 2: CIs for Means – Module 6</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .steps { background: #f8f9fa; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .steps ol { margin-left: var(--spacing-md); }
+    .steps li { margin: var(--spacing-sm) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Safaa Dabagh</h1>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../math54.html">Math 54</a>
+        <a href="../../../math4.html">Math 4/4C</a>
+        <a href="../../../ai-education.html">AI Journey</a>
+        <a href="../../../publications.html">Publications</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 6</a> →
+        Lesson 2
+      </div>
+      <h1>Confidence Intervals for Means</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Construct and interpret confidence intervals for population means using the t-distribution
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Construct confidence intervals for population means</li>
+        <li>Understand and use the t-distribution</li>
+        <li>Calculate degrees of freedom</li>
+        <li>Find critical t-values from a t-table</li>
+        <li>Determine when to use z vs t distributions</li>
+        <li>Interpret confidence intervals for means correctly</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. The Confidence Interval Formula for Means</h2>
+
+      <div class="formula-box">
+        <h4>Confidence Interval for a Population Mean (μ)</h4>
+        <div class="formula">
+          x̄ ± t* × (s / √n)
+        </div>
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Where:</strong><br>
+          x̄ = sample mean (point estimate)<br>
+          t* = critical value from t-distribution<br>
+          s = sample standard deviation<br>
+          n = sample size<br>
+          s/√n = standard error (SE)
+        </p>
+      </div>
+
+      <p>
+        This formula gives us the interval (lower bound, upper bound):
+      </p>
+      <div class="formula-box">
+        <div class="formula">
+          Lower Bound = x̄ - t* × (s/√n)
+        </div>
+        <div class="formula">
+          Upper Bound = x̄ + t* × (s/√n)
+        </div>
+      </div>
+
+      <div class="key-point">
+        <strong>Why use t instead of z?</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          In most real-world situations, we don't know the population standard deviation σ. We only have
+          the sample standard deviation s. When we use s to estimate σ, we introduce extra uncertainty,
+          so we use the <strong>t-distribution</strong> instead of the normal (z) distribution.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. The t-Distribution</h2>
+
+      <div class="definition-box">
+        <h4>📖 The t-Distribution</h4>
+        <p>
+          The <strong>t-distribution</strong> (Student's t-distribution) is similar to the standard normal
+          distribution but has heavier tails. It's used when:
+        </p>
+        <ul>
+          <li>The population standard deviation (σ) is unknown</li>
+          <li>We use the sample standard deviation (s) as an estimate</li>
+        </ul>
+      </div>
+
+      <p><strong>Key properties of the t-distribution:</strong></p>
+      <ul>
+        <li>Symmetric and bell-shaped (like the normal distribution)</li>
+        <li>Centered at 0</li>
+        <li>Has heavier tails than the normal distribution (more area in the tails)</li>
+        <li>Shape depends on <strong>degrees of freedom (df)</strong></li>
+        <li>As df increases, t-distribution approaches the standard normal distribution</li>
+      </ul>
+
+      <h3>Degrees of Freedom</h3>
+      <div class="formula-box">
+        <div class="formula">
+          df = n - 1
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where n is the sample size
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Finding Degrees of Freedom</h4>
+        <p><strong>a)</strong> A sample of n = 25 students: df = 25 - 1 = 24</p>
+        <p><strong>b)</strong> A sample of n = 100 voters: df = 100 - 1 = 99</p>
+        <p><strong>c)</strong> A sample of n = 10 measurements: df = 10 - 1 = 9</p>
+      </div>
+
+      <h3>Finding Critical t-Values (t*)</h3>
+      <p>
+        The critical value t* depends on two things:
+      </p>
+      <ol>
+        <li><strong>Confidence level</strong> (90%, 95%, 99%, etc.)</li>
+        <li><strong>Degrees of freedom</strong> (df = n - 1)</li>
+      </ol>
+
+      <p>We look up t* in a t-table or use technology. Here are common values:</p>
+
+      <table style="max-width: 600px; margin: var(--spacing-md) auto;">
+        <tr>
+          <th>df</th>
+          <th>90% CI (t*)</th>
+          <th>95% CI (t*)</th>
+          <th>99% CI (t*)</th>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>2.015</td>
+          <td>2.571</td>
+          <td>4.032</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>1.812</td>
+          <td>2.228</td>
+          <td>3.169</td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td>1.725</td>
+          <td>2.086</td>
+          <td>2.845</td>
+        </tr>
+        <tr>
+          <td>30</td>
+          <td>1.697</td>
+          <td>2.042</td>
+          <td>2.750</td>
+        </tr>
+        <tr>
+          <td>100</td>
+          <td>1.660</td>
+          <td>1.984</td>
+          <td>2.626</td>
+        </tr>
+        <tr>
+          <td>∞ (z)</td>
+          <td>1.645</td>
+          <td>1.960</td>
+          <td>2.576</td>
+        </tr>
+      </table>
+
+      <p style="font-size: 0.9rem; margin-top: var(--spacing-sm);">
+        <strong>Notice:</strong> As df increases, t* values get closer to z* values. With large samples (df > 100),
+        t ≈ z.
+      </p>
+    </section>
+
+    <section>
+      <h2>3. Constructing Confidence Intervals for Means</h2>
+
+      <div class="steps">
+        <h4>Steps to Construct a CI for μ:</h4>
+        <ol>
+          <li><strong>Check conditions:</strong>
+            <ul>
+              <li>Random sample</li>
+              <li>Population is approximately normal OR n ≥ 30 (Central Limit Theorem)</li>
+              <li>If n < 30, check that data doesn't have strong skewness or outliers</li>
+            </ul>
+          </li>
+          <li><strong>Calculate sample statistics:</strong> x̄ and s</li>
+          <li><strong>Determine df:</strong> df = n - 1</li>
+          <li><strong>Find critical value:</strong> Look up t* for desired confidence level and df</li>
+          <li><strong>Calculate margin of error:</strong> E = t* × (s/√n)</li>
+          <li><strong>Construct interval:</strong> x̄ ± E</li>
+          <li><strong>Interpret:</strong> State conclusion in context</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Complete CI Calculation</h4>
+        <p>
+          <strong>Problem:</strong> A nutritionist measures the daily calorie intake for a random sample of
+          15 college students. The sample mean is x̄ = 2250 calories with standard deviation s = 320 calories.
+          Construct a 95% confidence interval for the mean daily calorie intake of all college students.
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1: Check conditions</strong></p>
+        <ul>
+          <li>✓ Random sample (stated)</li>
+          <li>✓ Assume calorie intake is approximately normally distributed</li>
+        </ul>
+
+        <p><strong>Step 2: Sample statistics</strong></p>
+        <ul>
+          <li>x̄ = 2250 calories</li>
+          <li>s = 320 calories</li>
+          <li>n = 15</li>
+        </ul>
+
+        <p><strong>Step 3: Degrees of freedom</strong></p>
+        <p>df = n - 1 = 15 - 1 = 14</p>
+
+        <p><strong>Step 4: Critical value</strong></p>
+        <p>For 95% CI with df = 14: t* = 2.145 (from t-table)</p>
+
+        <p><strong>Step 5: Margin of error</strong></p>
+        <p>E = t* × (s/√n) = 2.145 × (320/√15) = 2.145 × 82.62 = 177.2 calories</p>
+
+        <p><strong>Step 6: Construct interval</strong></p>
+        <p>2250 ± 177.2 = (2072.8, 2427.2)</p>
+
+        <p><strong>Step 7: Interpret</strong></p>
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Conclusion:</strong> We are 95% confident that the true mean daily calorie intake for all
+          college students is between 2073 and 2427 calories.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Larger Sample Size</h4>
+        <p>
+          <strong>Problem:</strong> A company samples 50 employees and finds mean commute time x̄ = 32 minutes
+          with s = 12 minutes. Find a 90% confidence interval for the mean commute time.
+        </p>
+
+        <p><strong>Solution:</strong></p>
+        <p>Given: x̄ = 32, s = 12, n = 50</p>
+        <p>df = 50 - 1 = 49</p>
+        <p>For 90% CI with df = 49: t* ≈ 1.677 (from t-table)</p>
+        <p>E = 1.677 × (12/√50) = 1.677 × 1.697 = 2.85 minutes</p>
+        <p>CI: 32 ± 2.85 = (29.15, 34.85)</p>
+        <p style="background: #e8f5e9; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-top: var(--spacing-sm);">
+          <strong>Interpretation:</strong> We are 90% confident that the true mean commute time for all employees
+          is between 29.2 and 34.9 minutes.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. When to Use z vs. t</h2>
+
+      <table>
+        <tr>
+          <th>Use t-distribution when:</th>
+          <th>Use z-distribution when:</th>
+        </tr>
+        <tr>
+          <td>
+            • σ is <strong>unknown</strong> (most common)<br>
+            • Using sample standard deviation s<br>
+            • Any sample size
+          </td>
+          <td>
+            • σ is <strong>known</strong> (rare in practice)<br>
+            • Sample size is very large (n > 100)<br>
+            • Working with proportions
+          </td>
+        </tr>
+      </table>
+
+      <div class="key-point">
+        <strong>Rule of thumb:</strong>
+        <p style="margin-top: var(--spacing-sm);">
+          <strong>When in doubt, use t.</strong> The t-distribution is almost always correct for means when
+          σ is unknown. As n increases, t approaches z anyway, so t is the safer choice.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Choosing z vs. t</h4>
+        <p><strong>a)</strong> Sample of n = 25, σ unknown → Use <strong>t</strong></p>
+        <p><strong>b)</strong> Sample of n = 200, σ unknown → Use <strong>t</strong> (or z, they're almost equal)</p>
+        <p><strong>c)</strong> Population σ = 10 is known, n = 40 → Use <strong>z</strong></p>
+        <p><strong>d)</strong> Proportion problem (p̂) → Use <strong>z</strong></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Effect of Confidence Level on Interval Width</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Comparing Confidence Levels</h4>
+        <p>Given: x̄ = 100, s = 15, n = 25 (so df = 24)</p>
+
+        <p><strong>90% CI:</strong></p>
+        <p>t* = 1.711, E = 1.711 × (15/√25) = 5.13</p>
+        <p>CI: 100 ± 5.13 = <strong>(94.87, 105.13)</strong> — width = 10.26</p>
+
+        <p><strong>95% CI:</strong></p>
+        <p>t* = 2.064, E = 2.064 × (15/√25) = 6.19</p>
+        <p>CI: 100 ± 6.19 = <strong>(93.81, 106.19)</strong> — width = 12.38</p>
+
+        <p><strong>99% CI:</strong></p>
+        <p>t* = 2.797, E = 2.797 × (15/√25) = 8.39</p>
+        <p>CI: 100 ± 8.39 = <strong>(91.61, 108.39)</strong> — width = 16.78</p>
+
+        <p style="margin-top: var(--spacing-md);">
+          <strong>Observation:</strong> Higher confidence → wider interval. This is the trade-off between
+          confidence and precision.
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A sample of n = 20 has x̄ = 50 and s = 8. What are the degrees of freedom?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans1')">Show Answer</button>
+        <div id="ans1" class="answer">
+          <p><strong>Answer:</strong> df = n - 1 = 20 - 1 = 19</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> Why do we use the t-distribution instead of z when σ is unknown?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans2')">Show Answer</button>
+        <div id="ans2" class="answer">
+          <p><strong>Answer:</strong> Using s to estimate σ introduces extra uncertainty. The t-distribution has heavier tails to account for this additional uncertainty, giving more conservative (wider) intervals.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> For a 95% CI with df = 10, would t* be larger or smaller than z* = 1.96?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans3')">Show Answer</button>
+        <div id="ans3" class="answer">
+          <p><strong>Answer:</strong> Larger. With df = 10, t* = 2.228, which is larger than z* = 1.96. This makes the interval wider to account for the smaller sample size and using s instead of σ.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 4:</strong> A 99% CI for μ is (45, 55). What is the margin of error?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans4')">Show Answer</button>
+        <div id="ans4" class="answer">
+          <p><strong>Answer:</strong> The margin of error is 5. The interval width is 55 - 45 = 10, and margin of error is half the width: 10/2 = 5. Alternatively, the center is 50, and E = 55 - 50 = 5.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 5:</strong> If you want a narrower CI but keep the same confidence level, what should you do?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('ans5')">Show Answer</button>
+        <div id="ans5" class="answer">
+          <p><strong>Answer:</strong> Increase the sample size (n). Since margin of error = t* × (s/√n), increasing n decreases s/√n, which decreases the margin of error and makes the interval narrower.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-2">
+      <h3>📝 Lesson Summary</h3>
+      <ul>
+        <li>CI for μ: <strong>x̄ ± t* × (s/√n)</strong></li>
+        <li>Use <strong>t-distribution</strong> when σ is unknown (most common situation)</li>
+        <li><strong>Degrees of freedom:</strong> df = n - 1</li>
+        <li>Find t* from t-table using df and confidence level</li>
+        <li>As df increases, t-distribution approaches standard normal (z)</li>
+        <li>Higher confidence → larger t* → wider interval</li>
+        <li>Larger sample → smaller SE → narrower interval</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-intro-confidence-intervals.html" class="btn btn-outline">← Previous: Intro to CIs</a>
+      <a href="lesson-03-ci-for-proportions.html" class="btn btn-primary">Next: CIs for Proportions →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../../about.html">About</a>
+        <a href="../../../research.html">Research</a>
+        <a href="../../../publications.html">Publications</a>
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>
