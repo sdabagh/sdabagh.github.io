@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Hypothesis Tests for Proportions - Learn how to test claims about population proportions">
+  <title>Lesson 4: Tests for Proportions – Module 8</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); }
+    .calculation-step { margin: var(--spacing-sm) 0; padding-left: var(--spacing-md); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 8</a> →
+        Lesson 4
+      </div>
+      <h1>Hypothesis Tests for Proportions</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn how to test claims about population proportions using the normal approximation
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Formulate hypotheses for population proportions</li>
+        <li>Check conditions for valid proportion tests</li>
+        <li>Calculate test statistics for proportions</li>
+        <li>Conduct hypothesis tests using both critical value and p-value approaches</li>
+        <li>Apply proportion tests to real-world scenarios</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. When to Test Proportions</h2>
+
+      <p>We test hypotheses about population proportions when our data is:</p>
+      <ul>
+        <li><strong>Categorical/Qualitative</strong> (yes/no, success/failure, pass/fail)</li>
+        <li>Can be converted to a <strong>proportion or percentage</strong></li>
+      </ul>
+
+      <div class="example-box">
+        <h4>📝 Real-World Examples</h4>
+        <ul>
+          <li><strong>Quality Control:</strong> "Less than 5% of products are defective"</li>
+          <li><strong>Politics:</strong> "More than 50% of voters support the candidate"</li>
+          <li><strong>Medicine:</strong> "The cure rate is 80%"</li>
+          <li><strong>Education:</strong> "At least 70% of students pass the exam"</li>
+          <li><strong>Marketing:</strong> "30% of customers will buy the new product"</li>
+        </ul>
+      </div>
+
+      <h3>Key Notation</h3>
+      <table>
+        <tr>
+          <th>Symbol</th>
+          <th>Meaning</th>
+        </tr>
+        <tr>
+          <td><strong>p</strong></td>
+          <td>Population proportion (parameter, unknown)</td>
+        </tr>
+        <tr>
+          <td><strong>p₀</strong></td>
+          <td>Hypothesized population proportion (claimed value in H₀)</td>
+        </tr>
+        <tr>
+          <td><strong>p̂</strong> (p-hat)</td>
+          <td>Sample proportion (statistic, calculated from data)</td>
+        </tr>
+        <tr>
+          <td><strong>n</strong></td>
+          <td>Sample size</td>
+        </tr>
+        <tr>
+          <td><strong>x</strong></td>
+          <td>Number of successes in sample</td>
+        </tr>
+      </table>
+
+      <div class="formula-box">
+        <h4>Sample Proportion</h4>
+        <div class="formula">
+          p̂ = x / n
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          Where x = number of successes, n = sample size
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Conditions for Proportion Tests</h2>
+
+      <div class="warning-box">
+        <h4>⚠️ IMPORTANT: Check These Conditions First!</h4>
+        <p>Before conducting a hypothesis test for proportions, verify these conditions:</p>
+      </div>
+
+      <div class="key-point">
+        <h4>Required Conditions:</h4>
+        <ol>
+          <li>
+            <strong>Random Sample:</strong> The sample must be randomly selected from the population
+          </li>
+          <li>
+            <strong>Independence:</strong> Observations must be independent
+            <ul style="margin-top: 0.5rem;">
+              <li>If sampling without replacement: n ≤ 0.05N (sample is at most 5% of population)</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Normal Approximation (Success-Failure Condition):</strong>
+            <div class="formula" style="font-size: 1rem; margin-top: 0.5rem;">
+              np₀ ≥ 10  AND  n(1 - p₀) ≥ 10
+            </div>
+            <p style="margin-top: 0.5rem;">
+              This ensures the sampling distribution of p̂ is approximately normal so we can use the z-distribution.
+            </p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Checking Conditions</h4>
+        <p><strong>Scenario:</strong> A company claims 25% of customers prefer their new product. We survey 200 customers.</p>
+        <p><strong>Check conditions:</strong></p>
+        <ul>
+          <li><strong>Random sample:</strong> ✓ (assume survey was random)</li>
+          <li><strong>Independence:</strong> ✓ (200 is less than 5% of all customers)</li>
+          <li><strong>Normal approximation:</strong>
+            <div class="calculation-step">
+              np₀ = 200(0.25) = 50 ≥ 10 ✓<br>
+              n(1-p₀) = 200(0.75) = 150 ≥ 10 ✓
+            </div>
+          </li>
+        </ul>
+        <p><strong>Conclusion:</strong> All conditions are met. We can proceed with the test!</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Test Statistic for Proportions</h2>
+
+      <div class="formula-box">
+        <h4>Test Statistic for One-Sample Proportion Test</h4>
+        <div class="formula">
+          z = (p̂ - p₀) / √(p₀(1-p₀)/n)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          Where:<br>
+          p̂ = sample proportion<br>
+          p₀ = hypothesized population proportion (from H₀)<br>
+          n = sample size
+        </p>
+      </div>
+
+      <div class="key-point">
+        <strong>Important Note:</strong> When calculating the standard error for hypothesis testing, we use <strong>p₀</strong> (the hypothesized proportion from H₀), NOT p̂. This is different from confidence intervals, where we use p̂.
+      </div>
+
+      <h3>Hypothesis Forms</h3>
+      <table>
+        <tr>
+          <th>Test Type</th>
+          <th>Null Hypothesis</th>
+          <th>Alternative Hypothesis</th>
+        </tr>
+        <tr>
+          <td><strong>Two-tailed</strong></td>
+          <td>H₀: p = p₀</td>
+          <td>Hₐ: p ≠ p₀</td>
+        </tr>
+        <tr>
+          <td><strong>Right-tailed</strong></td>
+          <td>H₀: p = p₀</td>
+          <td>Hₐ: p > p₀</td>
+        </tr>
+        <tr>
+          <td><strong>Left-tailed</strong></td>
+          <td>H₀: p = p₀</td>
+          <td>Hₐ: p < p₀</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Examples: Hypothesis Tests for Proportions</h2>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Right-Tailed Test (Critical Value Approach)</h4>
+        <p><strong>Problem:</strong> A politician claims that more than 60% of voters support a new policy. A poll of 400 voters shows 256 support it. Test at α = 0.05.</p>
+
+        <p><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: p = 0.60 (60% support, as claimed)</li>
+          <li>Hₐ: p > 0.60 (more than 60% support) — <em>right-tailed test</em></li>
+          <li>α = 0.05</li>
+        </ul>
+
+        <p><strong>Step 2: Check conditions</strong></p>
+        <div class="calculation-step">
+          np₀ = 400(0.60) = 240 ≥ 10 ✓<br>
+          n(1-p₀) = 400(0.40) = 160 ≥ 10 ✓<br>
+          Conditions met!
+        </div>
+
+        <p><strong>Step 3: Calculate sample proportion and test statistic</strong></p>
+        <div class="calculation-step">
+          p̂ = x/n = 256/400 = 0.64<br><br>
+          z = (p̂ - p₀) / √(p₀(1-p₀)/n)<br>
+          z = (0.64 - 0.60) / √(0.60(0.40)/400)<br>
+          z = 0.04 / √(0.24/400)<br>
+          z = 0.04 / √0.0006<br>
+          z = 0.04 / 0.0245<br>
+          z = 1.63
+        </div>
+
+        <p><strong>Step 4: Find critical value</strong></p>
+        <p>Right-tailed test, α = 0.05 → critical value = 1.645</p>
+
+        <p><strong>Step 5: Make decision</strong></p>
+        <p>z = 1.63 < 1.645 (not in critical region)</p>
+        <p><strong>Decision:</strong> Fail to reject H₀</p>
+
+        <p><strong>Step 6: Conclusion</strong></p>
+        <p>
+          There is not sufficient evidence at the 0.05 significance level to support the politician's claim that more than 60% of voters support the policy. While the sample showed 64% support, this difference could be due to sampling variability.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Left-Tailed Test (P-Value Approach)</h4>
+        <p><strong>Problem:</strong> A manufacturer claims their defect rate is 3%. Quality control inspects 500 items and finds 10 defects. Test if the defect rate is less than claimed (α = 0.01).</p>
+
+        <p><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: p = 0.03 (defect rate is 3%)</li>
+          <li>Hₐ: p < 0.03 (defect rate is less than 3%) — <em>left-tailed test</em></li>
+          <li>α = 0.01</li>
+        </ul>
+
+        <p><strong>Step 2: Check conditions</strong></p>
+        <div class="calculation-step">
+          np₀ = 500(0.03) = 15 ≥ 10 ✓<br>
+          n(1-p₀) = 500(0.97) = 485 ≥ 10 ✓<br>
+          Conditions met!
+        </div>
+
+        <p><strong>Step 3: Calculate test statistic</strong></p>
+        <div class="calculation-step">
+          p̂ = 10/500 = 0.02<br><br>
+          z = (0.02 - 0.03) / √(0.03(0.97)/500)<br>
+          z = -0.01 / √(0.0291/500)<br>
+          z = -0.01 / 0.00763<br>
+          z = -1.31
+        </div>
+
+        <p><strong>Step 4: Find p-value</strong></p>
+        <p>For left-tailed test: p-value = P(Z < -1.31)</p>
+        <p>From z-table: p-value = 0.0951</p>
+
+        <p><strong>Step 5: Make decision</strong></p>
+        <p>p-value (0.0951) > α (0.01)</p>
+        <p><strong>Decision:</strong> Fail to reject H₀</p>
+
+        <p><strong>Step 6: Conclusion</strong></p>
+        <p>
+          There is not sufficient evidence to conclude the defect rate is less than 3%. The observed 2% defect rate could reasonably occur by chance if the true rate is 3%.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Two-Tailed Test</h4>
+        <p><strong>Problem:</strong> A university claims 70% of graduates find jobs within 6 months. A survey of 300 recent graduates finds 195 employed. Test if the actual rate differs from the claim (α = 0.05).</p>
+
+        <p><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: p = 0.70 (employment rate is 70%)</li>
+          <li>Hₐ: p ≠ 0.70 (employment rate differs from 70%) — <em>two-tailed test</em></li>
+          <li>α = 0.05</li>
+        </ul>
+
+        <p><strong>Step 2: Check conditions</strong></p>
+        <div class="calculation-step">
+          np₀ = 300(0.70) = 210 ≥ 10 ✓<br>
+          n(1-p₀) = 300(0.30) = 90 ≥ 10 ✓
+        </div>
+
+        <p><strong>Step 3: Calculate test statistic</strong></p>
+        <div class="calculation-step">
+          p̂ = 195/300 = 0.65<br><br>
+          z = (0.65 - 0.70) / √(0.70(0.30)/300)<br>
+          z = -0.05 / √(0.21/300)<br>
+          z = -0.05 / 0.0265<br>
+          z = -1.89
+        </div>
+
+        <p><strong>Step 4: Decision (both approaches)</strong></p>
+        <p><strong>Critical value:</strong> Two-tailed, α = 0.05 → ±1.96</p>
+        <p>|z| = 1.89 < 1.96 → Fail to reject H₀</p>
+
+        <p><strong>P-value:</strong> For z = -1.89, two-tailed p-value = 2(0.0294) = 0.0588</p>
+        <p>0.0588 > 0.05 → Fail to reject H₀</p>
+
+        <p><strong>Step 5: Conclusion</strong></p>
+        <p>
+          There is not sufficient evidence to conclude the employment rate differs from the claimed 70%. Although only 65% of the sample were employed, this could be due to sampling variability (p = 0.0588 is close to, but above, α = 0.05).
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A candy company claims 20% of their candies are red. In a bag of 100 candies, you find 15 red ones. Check if the normal approximation conditions are met.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <p><strong>Check conditions:</strong></p>
+          <div class="calculation-step">
+            np₀ = 100(0.20) = 20 ≥ 10 ✓<br>
+            n(1-p₀) = 100(0.80) = 80 ≥ 10 ✓
+          </div>
+          <p><strong>Conclusion:</strong> Yes, conditions are met. We can use the normal approximation (z-test) for proportions.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> Calculate the test statistic: n = 200, x = 50, p₀ = 0.20</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <p><strong>Step 1: Calculate p̂</strong></p>
+          <div class="calculation-step">
+            p̂ = x/n = 50/200 = 0.25
+          </div>
+          <p><strong>Step 2: Calculate z</strong></p>
+          <div class="calculation-step">
+            z = (p̂ - p₀) / √(p₀(1-p₀)/n)<br>
+            z = (0.25 - 0.20) / √(0.20(0.80)/200)<br>
+            z = 0.05 / √(0.16/200)<br>
+            z = 0.05 / √0.0008<br>
+            z = 0.05 / 0.0283<br>
+            z = 1.77
+          </div>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> For a two-tailed test at α = 0.05, if z = -2.15, what is your decision?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <p><strong>Critical values:</strong> ±1.96</p>
+          <p><strong>Comparison:</strong> |z| = |-2.15| = 2.15 > 1.96</p>
+          <p><strong>Decision:</strong> Reject H₀</p>
+          <p><strong>Reasoning:</strong> The test statistic falls in the critical region (more extreme than ±1.96), so we have sufficient evidence to reject the null hypothesis at the 0.05 significance level.</p>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📝 Summary</h2>
+      <div class="key-point">
+        <ul>
+          <li>Use proportion tests for <strong>categorical data</strong> (yes/no, success/failure)</li>
+          <li><strong>Check conditions:</strong> Random sample, independence, and np₀ ≥ 10 AND n(1-p₀) ≥ 10</li>
+          <li><strong>Test statistic:</strong> z = (p̂ - p₀) / √(p₀(1-p₀)/n)</li>
+          <li>Use <strong>p₀</strong> (hypothesized value) in standard error, not p̂</li>
+          <li>Critical values come from standard normal (z) distribution</li>
+          <li>Always interpret results in the context of the real-world problem</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-tests-for-means.html" class="btn btn-outline">← Previous: Tests for Means</a>
+      <a href="practice.html" class="btn btn-primary">Next: Practice Problems →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>

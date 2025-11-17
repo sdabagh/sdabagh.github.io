@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Type I and Type II Errors & Power - Learn about errors in hypothesis testing">
+  <title>Lesson 2: Errors & Power – Module 8</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: center; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .error-type-1 { background: #ffe6e6; }
+    .error-type-2 { background: #fff9e6; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 8</a> →
+        Lesson 2
+      </div>
+      <h1>Type I and Type II Errors & Power</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Understand the two types of errors in hypothesis testing and the concept of statistical power
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Define Type I and Type II errors</li>
+        <li>Explain the relationship between α and β</li>
+        <li>Understand the concept of statistical power</li>
+        <li>Identify factors that affect power</li>
+        <li>Recognize real-world consequences of different types of errors</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. The Four Possible Outcomes</h2>
+
+      <p>
+        When we conduct a hypothesis test, we make a decision: either reject H₀ or fail to reject H₀. But we don't know the true state of reality—H₀ might actually be true or false. This creates four possible outcomes:
+      </p>
+
+      <table>
+        <tr>
+          <th rowspan="2" style="vertical-align: middle;">Our Decision</th>
+          <th colspan="2">Reality (Unknown to Us)</th>
+        </tr>
+        <tr>
+          <th>H₀ is Actually True</th>
+          <th>H₀ is Actually False</th>
+        </tr>
+        <tr>
+          <td><strong>Reject H₀</strong></td>
+          <td class="error-type-1"><strong>Type I Error</strong><br>(False Positive)<br>Probability = α</td>
+          <td style="background: #d4edda;"><strong>Correct Decision</strong><br>(True Positive)<br>Probability = 1 - β<br>(Power)</td>
+        </tr>
+        <tr>
+          <td><strong>Fail to Reject H₀</strong></td>
+          <td style="background: #d4edda;"><strong>Correct Decision</strong><br>(True Negative)<br>Probability = 1 - α</td>
+          <td class="error-type-2"><strong>Type II Error</strong><br>(False Negative)<br>Probability = β</td>
+        </tr>
+      </table>
+
+      <p>Two of these outcomes are <strong>correct decisions</strong>, and two are <strong>errors</strong>.</p>
+    </section>
+
+    <section>
+      <h2>2. Type I Error (α)</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Type I Error</h4>
+        <p>
+          A <strong>Type I error</strong> occurs when we <strong>reject a true null hypothesis</strong>. This is also called a <strong>false positive</strong>.
+        </p>
+        <p class="mt-1">
+          The probability of making a Type I error is denoted by <strong>α</strong> (alpha), which is the significance level we choose.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Type I Error in Medicine</h4>
+        <p><strong>Medical test scenario:</strong></p>
+        <ul>
+          <li>H₀: Patient does not have the disease</li>
+          <li>Hₐ: Patient has the disease</li>
+        </ul>
+        <p><strong>Type I Error:</strong> The test says the patient HAS the disease (reject H₀), but the patient is actually healthy (H₀ was true).</p>
+        <p><strong>Consequence:</strong> Unnecessary treatment, anxiety, additional testing, and medical costs for a healthy person.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Type I Error in Criminal Justice</h4>
+        <ul>
+          <li>H₀: Defendant is innocent</li>
+          <li>Hₐ: Defendant is guilty</li>
+        </ul>
+        <p><strong>Type I Error:</strong> Convict an innocent person (reject H₀ when it's true).</p>
+        <p><strong>Consequence:</strong> An innocent person goes to jail—a very serious error!</p>
+        <p class="mt-2">
+          <em>This is why the criminal justice system uses a very low α ("beyond reasonable doubt").</em>
+        </p>
+      </div>
+
+      <div class="key-point">
+        <strong>Controlling Type I Error:</strong>
+        <p class="mt-1">
+          We <strong>directly control</strong> the Type I error rate by choosing α. Common choices:
+        </p>
+        <ul class="mt-1">
+          <li><strong>α = 0.05:</strong> Accept 5% chance of Type I error (standard in most research)</li>
+          <li><strong>α = 0.01:</strong> Accept only 1% chance (more conservative, fewer false positives)</li>
+          <li><strong>α = 0.10:</strong> Accept 10% chance (less conservative, more false positives)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Type II Error (β)</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Type II Error</h4>
+        <p>
+          A <strong>Type II error</strong> occurs when we <strong>fail to reject a false null hypothesis</strong>. This is also called a <strong>false negative</strong>.
+        </p>
+        <p class="mt-1">
+          The probability of making a Type II error is denoted by <strong>β</strong> (beta).
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Type II Error in Medicine</h4>
+        <p><strong>Medical test scenario:</strong></p>
+        <ul>
+          <li>H₀: Patient does not have the disease</li>
+          <li>Hₐ: Patient has the disease</li>
+        </ul>
+        <p><strong>Type II Error:</strong> The test says the patient is healthy (fail to reject H₀), but the patient actually HAS the disease (H₀ was false).</p>
+        <p><strong>Consequence:</strong> Disease goes untreated, potentially leading to serious health complications or death.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example 4: Type II Error in Drug Development</h4>
+        <ul>
+          <li>H₀: New drug is no better than existing treatment</li>
+          <li>Hₐ: New drug is better than existing treatment</li>
+        </ul>
+        <p><strong>Type II Error:</strong> Conclude the new drug doesn't work (fail to reject H₀), when it actually is effective (H₀ is false).</p>
+        <p><strong>Consequence:</strong> An effective treatment is rejected and never becomes available to patients.</p>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Important:</strong> Unlike α, we don't directly choose β. The value of β depends on several factors including sample size, effect size, and α. However, we can reduce β by increasing sample size or using better research designs.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. The Relationship Between α and β</h2>
+
+      <p>Type I and Type II errors are inversely related:</p>
+
+      <div class="key-point">
+        <strong>The Tradeoff:</strong>
+        <ul class="mt-1">
+          <li>If you <strong>decrease α</strong> (reduce Type I error), you <strong>increase β</strong> (increase Type II error)</li>
+          <li>If you <strong>increase α</strong> (increase Type I error), you <strong>decrease β</strong> (reduce Type II error)</li>
+        </ul>
+        <p class="mt-2">
+          Think of it like adjusting the sensitivity of a test:
+        </p>
+        <ul class="mt-1">
+          <li><strong>Very strict test (low α):</strong> Fewer false alarms, but might miss real effects</li>
+          <li><strong>Lenient test (high α):</strong> Catches more real effects, but also more false alarms</li>
+        </ul>
+      </div>
+
+      <h3>Which Error is Worse?</h3>
+
+      <p>The answer depends on context and consequences:</p>
+
+      <table>
+        <tr>
+          <th>Scenario</th>
+          <th>Worse Error</th>
+          <th>Strategy</th>
+        </tr>
+        <tr>
+          <td>Criminal trial</td>
+          <td>Type I (convict innocent)</td>
+          <td>Use very low α ("beyond reasonable doubt")</td>
+        </tr>
+        <tr>
+          <td>Cancer screening</td>
+          <td>Type II (miss cancer)</td>
+          <td>Accept higher α to catch more cases</td>
+        </tr>
+        <tr>
+          <td>Quality control (safety)</td>
+          <td>Type II (miss defect)</td>
+          <td>Strict testing to avoid missing defects</td>
+        </tr>
+        <tr>
+          <td>Scientific research</td>
+          <td>Type I (false discovery)</td>
+          <td>Standard α = 0.05 to control false claims</td>
+        </tr>
+      </table>
+
+      <div class="example-box">
+        <h4>📝 Example 5: Choosing α Based on Consequences</h4>
+
+        <p><strong>Scenario A: Airport Security</strong></p>
+        <ul>
+          <li>H₀: Passenger is not a threat</li>
+          <li>Type I Error: Flag innocent passenger (inconvenience)</li>
+          <li>Type II Error: Miss actual threat (catastrophic)</li>
+          <li><strong>Decision:</strong> Use higher α to minimize Type II error (better safe than sorry)</li>
+        </ul>
+
+        <p class="mt-2"><strong>Scenario B: Spam Filter</strong></p>
+        <ul>
+          <li>H₀: Email is legitimate</li>
+          <li>Type I Error: Mark legitimate email as spam (might miss important message)</li>
+          <li>Type II Error: Let spam through (minor annoyance)</li>
+          <li><strong>Decision:</strong> Use lower α to minimize Type I error (don't want to lose important emails)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Statistical Power (1 - β)</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Power</h4>
+        <p>
+          <strong>Statistical power</strong> is the probability of correctly rejecting a false null hypothesis. It's calculated as:
+        </p>
+        <div class="formula">Power = 1 - β</div>
+        <p class="mt-2">
+          Power represents the test's ability to detect a real effect when one exists. Higher power is better!
+        </p>
+      </div>
+
+      <p><strong>What does power tell us?</strong></p>
+      <ul>
+        <li><strong>Power = 0.80 (80%):</strong> If there really is an effect, we have an 80% chance of detecting it</li>
+        <li><strong>Power = 0.50 (50%):</strong> Only a coin flip's chance of detecting a real effect—not good!</li>
+        <li><strong>Power = 0.95 (95%):</strong> Very high chance of detecting a real effect—excellent!</li>
+      </ul>
+
+      <div class="key-point">
+        <strong>Recommended Power:</strong> Most researchers aim for <strong>power ≥ 0.80</strong> (80% or higher). This means accepting up to a 20% chance of a Type II error (β = 0.20).
+      </div>
+
+      <h3>Factors That Affect Power</h3>
+
+      <p>Four main factors influence statistical power:</p>
+
+      <table>
+        <tr>
+          <th>Factor</th>
+          <th>Increase This...</th>
+          <th>Effect on Power</th>
+        </tr>
+        <tr>
+          <td><strong>Sample Size (n)</strong></td>
+          <td>Larger sample</td>
+          <td>⬆️ Power increases</td>
+        </tr>
+        <tr>
+          <td><strong>Significance Level (α)</strong></td>
+          <td>Higher α (e.g., 0.10 vs 0.05)</td>
+          <td>⬆️ Power increases<br>(but more Type I errors)</td>
+        </tr>
+        <tr>
+          <td><strong>Effect Size</strong></td>
+          <td>Larger difference from H₀</td>
+          <td>⬆️ Power increases<br>(easier to detect big effects)</td>
+        </tr>
+        <tr>
+          <td><strong>Variability (σ)</strong></td>
+          <td>Lower variability</td>
+          <td>⬆️ Power increases<br>(less noise in data)</td>
+        </tr>
+      </table>
+
+      <div class="key-point">
+        <strong>Most Practical Way to Increase Power:</strong> Increase sample size!
+        <p class="mt-1">
+          We can't always control effect size or population variability, but we can often collect more data. Doubling the sample size substantially increases power.
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A pharmaceutical company tests a new drug. What would be a Type I error and a Type II error in this scenario?</p>
+        <p><em>H₀: The drug is not effective<br>Hₐ: The drug is effective</em></p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <p><strong>Type I Error (α):</strong> Conclude the drug is effective (reject H₀) when it actually doesn't work (H₀ true).</p>
+          <p><strong>Consequence:</strong> Ineffective drug goes to market, patients pay for treatment that doesn't help.</p>
+          <p class="mt-2"><strong>Type II Error (β):</strong> Conclude the drug doesn't work (fail to reject H₀) when it actually is effective (H₀ false).</p>
+          <p><strong>Consequence:</strong> Effective treatment never reaches patients who could benefit.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> A study has α = 0.05 and power = 0.75. What are the probabilities of Type I error, Type II error, and correctly detecting a real effect?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <p><strong>Type I Error (α) = 0.05 (5%)</strong></p>
+          <p><strong>Type II Error (β) = 1 - Power = 1 - 0.75 = 0.25 (25%)</strong></p>
+          <p><strong>Correctly detecting real effect (Power) = 0.75 (75%)</strong></p>
+          <p class="mt-2">
+            This means if the null hypothesis is false (there really is an effect), we have a 75% chance of correctly rejecting it, and a 25% chance of missing it.
+          </p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> A researcher wants to increase the power of their study from 0.70 to 0.85. What are three ways they could do this?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <p><strong>Three ways to increase power:</strong></p>
+          <ol>
+            <li><strong>Increase sample size:</strong> Collect data from more participants (most common approach)</li>
+            <li><strong>Increase α:</strong> Use α = 0.10 instead of 0.05 (though this increases Type I error risk)</li>
+            <li><strong>Reduce variability:</strong> Use more precise measurement tools or more homogeneous sample</li>
+          </ol>
+          <p class="mt-2">
+            <strong>Best approach:</strong> Usually increasing sample size, as it doesn't involve the tradeoffs of the other methods.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📝 Summary</h2>
+      <div class="key-point">
+        <ul>
+          <li><strong>Type I Error (α):</strong> Rejecting a true null hypothesis (false positive)</li>
+          <li><strong>Type II Error (β):</strong> Failing to reject a false null hypothesis (false negative)</li>
+          <li>α and β are <strong>inversely related</strong>—decreasing one increases the other</li>
+          <li><strong>Power = 1 - β:</strong> The probability of correctly detecting a real effect</li>
+          <li>We aim for power ≥ 0.80 (at least 80%)</li>
+          <li>The most practical way to increase power is to <strong>increase sample size</strong></li>
+          <li>Which error is worse depends on the <strong>real-world consequences</strong> of each type</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-intro-hypothesis-testing.html" class="btn btn-outline">← Previous: Intro to Testing</a>
+      <a href="lesson-03-tests-for-means.html" class="btn btn-primary">Next: Tests for Means →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>

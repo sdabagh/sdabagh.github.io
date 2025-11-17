@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Introduction to Hypothesis Testing - Learn the logic and steps of hypothesis testing">
+  <title>Lesson 1: Intro to Hypothesis Testing – Module 8</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: left; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; }
+    .steps-list li { counter-increment: step-counter; margin: var(--spacing-md) 0; padding: var(--spacing-md); background: var(--background-alt); border-radius: var(--radius-md); position: relative; padding-left: 3rem; }
+    .steps-list li::before { content: counter(step-counter); position: absolute; left: var(--spacing-md); top: 50%; transform: translateY(-50%); background: var(--primary-color); color: white; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 8</a> →
+        Lesson 1
+      </div>
+      <h1>Introduction to Hypothesis Testing</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn the logic of hypothesis testing and how to formulate and test statistical claims
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain the logic and purpose of hypothesis testing</li>
+        <li>Formulate null and alternative hypotheses</li>
+        <li>Distinguish between one-tailed and two-tailed tests</li>
+        <li>Understand the components of hypothesis testing (test statistic, significance level, critical region)</li>
+        <li>Follow the steps of a hypothesis test</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. What is Hypothesis Testing?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Hypothesis Testing</h4>
+        <p>
+          <strong>Hypothesis testing</strong> is a statistical procedure used to test a claim or hypothesis about a population parameter based on sample data.
+        </p>
+      </div>
+
+      <p>
+        In everyday life, we constantly make claims and test them:
+      </p>
+      <ul>
+        <li>"This new teaching method improves student test scores"</li>
+        <li>"Women and men are paid equally for the same work"</li>
+        <li>"This medication reduces blood pressure"</li>
+        <li>"The coin is fair (50% heads, 50% tails)"</li>
+      </ul>
+
+      <p>
+        Hypothesis testing provides a <strong>systematic, objective way</strong> to evaluate these claims using data. Instead of relying on intuition or anecdotal evidence, we use probability and statistical reasoning.
+      </p>
+
+      <div class="key-point">
+        <strong>Key Concept:</strong> Hypothesis testing doesn't <em>prove</em> something is true. Instead, it determines whether there is enough statistical evidence to reject a claim (the null hypothesis) in favor of an alternative claim.
+      </div>
+
+      <h3>The Logic of Hypothesis Testing</h3>
+
+      <p>Hypothesis testing uses a form of reasoning called <strong>proof by contradiction</strong>:</p>
+
+      <ol>
+        <li>Assume the claim we want to test (null hypothesis) is true</li>
+        <li>Collect sample data</li>
+        <li>Calculate how likely it would be to observe our sample data <em>if</em> the null hypothesis were true</li>
+        <li>If our observed data is very unlikely under the null hypothesis, we reject it</li>
+      </ol>
+
+      <div class="example-box">
+        <h4>📝 Example 1: Testing a Coin</h4>
+        <p><strong>Claim:</strong> A coin is fair (50% chance of heads).</p>
+        <p><strong>Test:</strong> We flip the coin 100 times and get 73 heads.</p>
+        <p><strong>Question:</strong> Is this strong enough evidence to reject the claim that the coin is fair?</p>
+        <p><strong>Logic:</strong></p>
+        <ul>
+          <li>If the coin really is fair, getting exactly 50 heads in 100 flips is unlikely</li>
+          <li>But getting around 45-55 heads is pretty common</li>
+          <li>Getting 73 heads is <em>very</em> unlikely if the coin is fair</li>
+          <li><strong>Conclusion:</strong> We have strong evidence the coin is NOT fair</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Null and Alternative Hypotheses</h2>
+
+      <p>Every hypothesis test has two competing hypotheses:</p>
+
+      <div class="definition-box">
+        <h4>📖 Key Definitions</h4>
+        <p>
+          <strong>Null Hypothesis (H₀):</strong> The claim being tested, usually representing "no effect," "no difference," or the status quo. It typically contains an equals sign (=).
+        </p>
+        <p class="mt-2">
+          <strong>Alternative Hypothesis (Hₐ or H₁):</strong> The claim we're trying to find evidence for. It represents "there is an effect" or "there is a difference." It uses ≠, >, or <.
+        </p>
+      </div>
+
+      <h3>Setting Up Hypotheses</h3>
+
+      <table>
+        <tr>
+          <th>Type</th>
+          <th>Null Hypothesis (H₀)</th>
+          <th>Alternative Hypothesis (Hₐ)</th>
+        </tr>
+        <tr>
+          <td><strong>Two-tailed test</strong><br>(≠)</td>
+          <td>H₀: μ = μ₀<br>H₀: p = p₀</td>
+          <td>Hₐ: μ ≠ μ₀<br>Hₐ: p ≠ p₀</td>
+        </tr>
+        <tr>
+          <td><strong>Right-tailed test</strong><br>(>)</td>
+          <td>H₀: μ = μ₀<br>H₀: p = p₀</td>
+          <td>Hₐ: μ > μ₀<br>Hₐ: p > p₀</td>
+        </tr>
+        <tr>
+          <td><strong>Left-tailed test</strong><br>(<)</td>
+          <td>H₀: μ = μ₀<br>H₀: p = p₀</td>
+          <td>Hₐ: μ < μ₀<br>Hₐ: p < p₀</td>
+        </tr>
+      </table>
+
+      <div class="example-box">
+        <h4>📝 Example 2: Formulating Hypotheses</h4>
+
+        <p><strong>Scenario 1:</strong> A pharmaceutical company claims their drug lowers cholesterol. The average cholesterol level is 200 mg/dL.</p>
+        <ul>
+          <li><strong>H₀:</strong> μ = 200 (the drug has no effect)</li>
+          <li><strong>Hₐ:</strong> μ < 200 (the drug lowers cholesterol) — <em>left-tailed test</em></li>
+        </ul>
+
+        <p class="mt-2"><strong>Scenario 2:</strong> A quality control manager wants to know if the proportion of defective products differs from the claimed 3%.</p>
+        <ul>
+          <li><strong>H₀:</strong> p = 0.03 (defect rate is as claimed)</li>
+          <li><strong>Hₐ:</strong> p ≠ 0.03 (defect rate is different) — <em>two-tailed test</em></li>
+        </ul>
+
+        <p class="mt-2"><strong>Scenario 3:</strong> A teacher uses a new teaching method and believes it will increase test scores. The old average was 75.</p>
+        <ul>
+          <li><strong>H₀:</strong> μ = 75 (no improvement)</li>
+          <li><strong>Hₐ:</strong> μ > 75 (test scores increased) — <em>right-tailed test</em></li>
+        </ul>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Common Mistake:</strong> The null hypothesis always includes the equals sign. The alternative hypothesis never does. Don't write H₀: μ ≥ 75 — instead write H₀: μ = 75.
+      </div>
+    </section>
+
+    <section>
+      <h2>3. One-Tailed vs. Two-Tailed Tests</h2>
+
+      <h3>Two-Tailed Test (≠)</h3>
+      <p>
+        Used when we want to detect a difference in <em>either direction</em>. We're testing whether the parameter is different from the claimed value, but we don't specify which direction.
+      </p>
+      <p><strong>Example:</strong> Is the average height of students different from 68 inches? (Could be taller OR shorter)</p>
+
+      <h3>One-Tailed Test (< or >)</h3>
+      <p>
+        Used when we're only interested in detecting a difference in <em>one specific direction</em>.
+      </p>
+      <ul>
+        <li><strong>Right-tailed (>):</strong> Testing if parameter is <em>greater than</em> the claimed value</li>
+        <li><strong>Left-tailed (<):</strong> Testing if parameter is <em>less than</em> the claimed value</li>
+      </ul>
+      <p><strong>Example:</strong> Does this fertilizer increase crop yield? (Only interested in increase, not decrease)</p>
+
+      <div class="key-point">
+        <strong>How to Choose:</strong>
+        <ul class="mt-1">
+          <li>If the research question asks "is there a difference" or "is it different" → <strong>two-tailed</strong></li>
+          <li>If the question asks "is it greater" or "is it higher" → <strong>right-tailed</strong></li>
+          <li>If the question asks "is it less" or "is it lower" → <strong>left-tailed</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Components of Hypothesis Testing</h2>
+
+      <h3>Test Statistic</h3>
+      <div class="definition-box">
+        <p>
+          A <strong>test statistic</strong> is a value calculated from sample data that we use to make a decision about the null hypothesis. It measures how far the sample statistic is from the hypothesized parameter.
+        </p>
+      </div>
+
+      <p>Common test statistics:</p>
+      <ul>
+        <li><strong>z-statistic:</strong> Used when population standard deviation σ is known</li>
+        <li><strong>t-statistic:</strong> Used when population standard deviation σ is unknown</li>
+      </ul>
+
+      <h3>Significance Level (α)</h3>
+      <div class="definition-box">
+        <p>
+          The <strong>significance level (α)</strong> is the probability threshold for rejecting the null hypothesis. It represents the maximum probability of making a Type I error (rejecting a true null hypothesis) that we're willing to accept.
+        </p>
+      </div>
+
+      <p>Common values:</p>
+      <ul>
+        <li><strong>α = 0.05</strong> (5%) — most common in practice</li>
+        <li><strong>α = 0.01</strong> (1%) — more stringent, used when consequences of error are serious</li>
+        <li><strong>α = 0.10</strong> (10%) — less stringent, used in exploratory research</li>
+      </ul>
+
+      <h3>Critical Region and Critical Values</h3>
+      <div class="definition-box">
+        <p>
+          The <strong>critical region</strong> (or rejection region) is the set of test statistic values for which we reject the null hypothesis.
+        </p>
+        <p class="mt-1">
+          <strong>Critical values</strong> are the boundaries of the critical region.
+        </p>
+      </div>
+
+      <p>
+        If the test statistic falls in the critical region, we reject H₀.<br>
+        If the test statistic does not fall in the critical region, we fail to reject H₀.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Steps of Hypothesis Testing</h2>
+
+      <p>Every hypothesis test follows these systematic steps:</p>
+
+      <ul class="steps-list">
+        <li>
+          <strong>State the hypotheses</strong><br>
+          Write out the null hypothesis (H₀) and alternative hypothesis (Hₐ). Identify whether it's one-tailed or two-tailed.
+        </li>
+        <li>
+          <strong>Choose significance level (α)</strong><br>
+          Select α (usually 0.05). This determines the critical region.
+        </li>
+        <li>
+          <strong>Select and calculate the test statistic</strong><br>
+          Choose the appropriate test (z-test or t-test) and calculate the test statistic from your sample data.
+        </li>
+        <li>
+          <strong>Find the critical value(s) or p-value</strong><br>
+          <strong>Critical value approach:</strong> Find the critical value(s) from the z or t table<br>
+          <strong>P-value approach:</strong> Calculate the p-value (probability of observing data this extreme)
+        </li>
+        <li>
+          <strong>Make a decision</strong><br>
+          <strong>Critical value approach:</strong> Reject H₀ if test statistic is in critical region<br>
+          <strong>P-value approach:</strong> Reject H₀ if p-value < α
+        </li>
+        <li>
+          <strong>State conclusion in context</strong><br>
+          Interpret the result in terms of the original research question. Use language like "there is sufficient evidence to..." or "there is not sufficient evidence to..."
+        </li>
+      </ul>
+
+      <div class="example-box">
+        <h4>📝 Example 3: Complete Hypothesis Test Process</h4>
+        <p><strong>Research question:</strong> A cereal company claims the average weight of cereal in their boxes is 500 grams. A consumer group suspects the boxes are underfilled.</p>
+
+        <p><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: μ = 500 (boxes contain 500 grams on average)</li>
+          <li>Hₐ: μ < 500 (boxes are underfilled) — left-tailed test</li>
+        </ul>
+
+        <p><strong>Step 2: Choose α</strong></p>
+        <ul>
+          <li>α = 0.05</li>
+        </ul>
+
+        <p><strong>Step 3: Calculate test statistic</strong></p>
+        <ul>
+          <li>Sample: n = 36 boxes, x̄ = 495 grams, s = 12 grams</li>
+          <li>We'll learn the formula in Lesson 3, but the test statistic is calculated from these values</li>
+        </ul>
+
+        <p><strong>Step 4-6:</strong> We'll complete these steps in the next lessons once we learn the formulas!</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A researcher wants to test if a new diet pill causes weight loss. The average weight before the diet is 180 pounds. Write the null and alternative hypotheses.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <p><strong>Answer:</strong></p>
+          <ul>
+            <li><strong>H₀:</strong> μ = 180 (no weight loss, status quo)</li>
+            <li><strong>Hₐ:</strong> μ < 180 (weight loss occurred)</li>
+          </ul>
+          <p>This is a <strong>left-tailed test</strong> because we're only interested in whether weight decreased.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> A factory produces bolts with a target diameter of 10 mm. Quality control wants to detect if the production process is producing bolts of the wrong size (either too large or too small). Write the hypotheses.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <p><strong>Answer:</strong></p>
+          <ul>
+            <li><strong>H₀:</strong> μ = 10 (diameter is correct)</li>
+            <li><strong>Hₐ:</strong> μ ≠ 10 (diameter is incorrect in either direction)</li>
+          </ul>
+          <p>This is a <strong>two-tailed test</strong> because we want to detect deviations in either direction.</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> If α = 0.05, what does this mean in plain English?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <p><strong>Answer:</strong></p>
+          <p>
+            We are willing to accept a 5% chance of rejecting the null hypothesis when it is actually true (Type I error). In other words, if we run this test 100 times and the null hypothesis is true every time, we expect to incorrectly reject it about 5 times.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📝 Summary</h2>
+      <div class="key-point">
+        <ul>
+          <li><strong>Hypothesis testing</strong> uses sample data to test claims about population parameters</li>
+          <li>The <strong>null hypothesis (H₀)</strong> represents the status quo or claim of no effect (contains =)</li>
+          <li>The <strong>alternative hypothesis (Hₐ)</strong> is what we're trying to find evidence for (contains ≠, <, or >)</li>
+          <li><strong>One-tailed tests</strong> detect effects in one direction; <strong>two-tailed tests</strong> detect effects in either direction</li>
+          <li>The <strong>significance level (α)</strong> is the probability threshold for rejecting H₀</li>
+          <li>Hypothesis testing follows a <strong>systematic 6-step process</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="btn btn-outline">← Back to Module</a>
+      <a href="lesson-02-errors-and-power.html" class="btn btn-primary">Next: Errors & Power →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>

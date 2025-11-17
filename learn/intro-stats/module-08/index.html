@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 8: Hypothesis Testing - Learn how to test claims about populations using statistical methods">
+  <title>Module 8: Hypothesis Testing – Free Stats Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .module-header h1 {
+      color: white;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+      margin-top: var(--spacing-md);
+      opacity: 0.95;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .objectives-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .objectives-list li {
+      padding: var(--spacing-sm) 0;
+      padding-left: var(--spacing-lg);
+      position: relative;
+    }
+
+    .objectives-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--success);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .lesson-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      transition: var(--transition);
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: flex-start;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .lesson-number {
+      background: var(--primary-color);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .lesson-content {
+      flex: 1;
+    }
+
+    .lesson-content h3 {
+      margin-top: 0;
+      margin-bottom: var(--spacing-xs);
+      color: var(--primary-dark);
+    }
+
+    .lesson-duration {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .progress-tracker {
+      background: var(--background-alt);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    .progress-step {
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      padding: var(--spacing-sm);
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    .progress-step.current {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .progress-step.completed {
+      border-color: var(--success);
+      background: var(--success);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .module-meta {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .progress-steps {
+        flex-direction: column;
+      }
+
+      .progress-step {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="../index.html" class="back-link">← Back to Course Home</a>
+
+    <div class="module-header">
+      <h1>Module 8: Hypothesis Testing</h1>
+      <p>Learn how to test claims about populations using statistical methods. Master the logic of hypothesis testing, understand Type I and Type II errors, and conduct tests for means and proportions.</p>
+
+      <div class="module-meta">
+        <div class="meta-item">
+          <span>📚</span>
+          <span>4 Lessons</span>
+        </div>
+        <div class="meta-item">
+          <span>⏱️</span>
+          <span>~2.5 hours</span>
+        </div>
+        <div class="meta-item">
+          <span>📊</span>
+          <span>20 Practice Problems</span>
+        </div>
+        <div class="meta-item">
+          <span>🎯</span>
+          <span>Module Quiz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-tracker">
+      <h3>Your Progress</h3>
+      <div class="progress-steps">
+        <div class="progress-step current">Pre-Assessment</div>
+        <div class="progress-step">Lessons 1-4</div>
+        <div class="progress-step">Practice</div>
+        <div class="progress-step">Module Quiz</div>
+        <div class="progress-step">Post-Assessment</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this module, you will be able to:</p>
+        <ul class="objectives-list">
+          <li><strong>Formulate</strong> null and alternative hypotheses for research questions</li>
+          <li><strong>Explain</strong> the logic and steps of hypothesis testing</li>
+          <li><strong>Distinguish</strong> between Type I and Type II errors and understand statistical power</li>
+          <li><strong>Conduct</strong> z-tests and t-tests for population means</li>
+          <li><strong>Perform</strong> hypothesis tests for population proportions</li>
+          <li><strong>Interpret</strong> p-values and make decisions using both critical value and p-value approaches</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why This Matters</h2>
+      <div class="highlight-box">
+        <p>
+          <strong>Hypothesis testing is the backbone of scientific research!</strong> From medical trials to quality control, from marketing campaigns to social science research, hypothesis testing helps us make evidence-based decisions.
+        </p>
+        <p class="mt-2">
+          This module gives you the tools to:
+        </p>
+        <ul class="icon-list mt-1">
+          <li>Evaluate scientific claims with statistical rigor</li>
+          <li>Understand research findings in academic papers</li>
+          <li>Make data-driven decisions in business and policy</li>
+          <li>Critically assess statistical claims in the media</li>
+          <li>Design and analyze your own research studies</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prerequisites</h2>
+      <div class="info-box">
+        <h3>What You Need to Know First</h3>
+        <p>
+          This module builds directly on previous concepts. Make sure you understand:
+        </p>
+        <ul>
+          <li><strong>Module 5:</strong> Normal Distribution and z-scores</li>
+          <li><strong>Module 6:</strong> Sampling Distributions and Central Limit Theorem</li>
+          <li><strong>Module 7:</strong> Confidence Intervals and Margin of Error</li>
+        </ul>
+        <p class="mt-2">
+          If you need to review, go back to those modules before starting this one. Hypothesis testing will make much more sense with a solid foundation!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Get Started: Pre-Assessment</h2>
+      <div class="info-box">
+        <h3>Before You Begin...</h3>
+        <p>
+          Take a quick <strong>5-question pre-assessment</strong> to see what you already know about hypothesis testing. This isn't graded—it's just to establish your baseline knowledge.
+        </p>
+        <p class="mt-2">
+          <strong>Why do this?</strong> At the end of the module, you'll retake the same assessment and measure your learning gains!
+        </p>
+        <div class="cta-group mt-2">
+          <a href="pre-assessment.html" class="btn btn-primary">Start Pre-Assessment (5 min)</a>
+          <a href="lesson-01-intro-hypothesis-testing.html" class="btn btn-outline">Skip to Lessons</a>
+        </div>
+        <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
+          💡 <em>Recommended: Take the pre-assessment! It helps you see how much you learn.</em>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Module Lessons</h2>
+
+      <div class="lesson-card">
+        <div class="lesson-number">1</div>
+        <div class="lesson-content">
+          <h3>Introduction to Hypothesis Testing</h3>
+          <p>Learn the logic of hypothesis testing, how to formulate null and alternative hypotheses, and the steps of the hypothesis testing process. Understand one-tailed vs. two-tailed tests.</p>
+          <p class="lesson-duration">⏱️ 30-35 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-01-intro-hypothesis-testing.html" class="btn btn-outline">Start Lesson 1</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">2</div>
+        <div class="lesson-content">
+          <h3>Type I and Type II Errors & Power</h3>
+          <p>Understand the two types of errors in hypothesis testing, their consequences, and the concept of statistical power. Learn the tradeoffs between α and β.</p>
+          <p class="lesson-duration">⏱️ 25-30 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-02-errors-and-power.html" class="btn btn-outline">Start Lesson 2</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">3</div>
+        <div class="lesson-content">
+          <h3>Hypothesis Tests for Means</h3>
+          <p>Master z-tests and t-tests for population means. Learn when to use each test, how to calculate test statistics, and how to make decisions using both critical value and p-value approaches.</p>
+          <p class="lesson-duration">⏱️ 35-40 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-03-tests-for-means.html" class="btn btn-outline">Start Lesson 3</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">4</div>
+        <div class="lesson-content">
+          <h3>Hypothesis Tests for Proportions</h3>
+          <p>Learn how to test claims about population proportions. Understand the conditions for valid tests and apply hypothesis testing to real-world scenarios like quality control and survey data.</p>
+          <p class="lesson-duration">⏱️ 30-35 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-04-tests-for-proportions.html" class="btn btn-outline">Start Lesson 4</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>After the Lessons</h2>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>📝 Practice Problems</h3>
+          <p>Apply what you've learned with 20 comprehensive practice problems covering all hypothesis testing concepts. Detailed solutions included!</p>
+          <a href="practice.html" class="btn btn-outline mt-2">Practice Problems</a>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Module Quiz</h3>
+          <p>Test your mastery with a 15-question quiz. Pass with 70% to earn your Module 8 badge!</p>
+          <a href="quiz.html" class="btn btn-primary mt-2">Take Module Quiz</a>
+        </div>
+
+        <div class="card">
+          <h3>📄 Study Materials</h3>
+          <p>Download printable study guides and quick reference cards with all formulas and decision rules. Perfect for exam prep!</p>
+          <div class="cta-group mt-2">
+            <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+            <a href="quick-reference.html" class="btn btn-outline">Quick Ref Card</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🤖 AI Tutor Help</h3>
+          <p>Stuck on hypothesis testing? Chat with the AI statistics tutor for personalized guidance and step-by-step help.</p>
+          <a href="../../../ai-tutor-demo.html" class="btn btn-outline mt-2">Get AI Help</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tips for Success</h2>
+      <div class="highlight-box">
+        <ul class="icon-list">
+          <li><strong>Master the logic first</strong> - Understand WHY we do hypothesis testing before worrying about calculations.</li>
+          <li><strong>Practice identifying hypotheses</strong> - Setting up H₀ and Hₐ correctly is crucial for everything else.</li>
+          <li><strong>Know when to use which test</strong> - Create a flowchart to decide between z-test and t-test.</li>
+          <li><strong>Interpret in context</strong> - Always relate your statistical conclusion back to the real-world question.</li>
+          <li><strong>Don't confuse "fail to reject" with "accept"</strong> - This is a common mistake that can change your interpretation!</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="pre-assessment.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Begin Module 8 →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+</body>
+</html>
