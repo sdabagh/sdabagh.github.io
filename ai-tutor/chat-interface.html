@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Statistics Tutor - Adaptive learning support with cognitive scaffolding">
+    <title>AI Statistics Tutor - Chat Interface</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="chat-styles.css">
+</head>
+<body>
+    <div id="chat-container" class="chat-standalone">
+        <!-- Chat Header -->
+        <div id="chat-header">
+            <div class="chat-header-content">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    AI Statistics Tutor
+                </h2>
+                <div class="chat-header-controls">
+                    <button id="help-button" class="icon-button" aria-label="Help and information">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="clear-chat-button" class="icon-button" aria-label="Clear conversation">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scaffolding Level Indicator -->
+            <div id="scaffolding-indicator" class="scaffolding-level-1" aria-live="polite">
+                <span class="scaffolding-label">Support Level:</span>
+                <div class="scaffolding-dots">
+                    <span class="dot active" data-level="1" aria-label="Level 1: Hints"></span>
+                    <span class="dot" data-level="2" aria-label="Level 2: Guided Questions"></span>
+                    <span class="dot" data-level="3" aria-label="Level 3: Worked Examples"></span>
+                </div>
+                <span class="scaffolding-description">Hints & Tips</span>
+            </div>
+
+            <!-- Module Context Selector -->
+            <div class="context-selector">
+                <label for="module-select">Current Module:</label>
+                <select id="module-select" aria-label="Select module context">
+                    <option value="module-01">Module 1: Intro to Statistics</option>
+                    <option value="module-02">Module 2: Descriptive Statistics</option>
+                    <option value="module-03">Module 3: Probability Basics</option>
+                    <option value="module-04">Module 4: Discrete Distributions</option>
+                    <option value="module-05">Module 5: Normal Distribution</option>
+                    <option value="module-06">Module 6: Sampling Distributions</option>
+                    <option value="module-07" selected>Module 7: Confidence Intervals</option>
+                    <option value="module-08">Module 8: Hypothesis Testing</option>
+                    <option value="module-09">Module 9: Two-Sample Tests</option>
+                    <option value="module-10">Module 10: ANOVA</option>
+                    <option value="module-11">Module 11: Linear Regression</option>
+                    <option value="module-12">Module 12: Chi-Square Tests</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages" role="log" aria-live="polite" aria-atomic="false">
+            <!-- Welcome Message -->
+            <div class="message message-ai welcome-message">
+                <div class="message-avatar" aria-hidden="true">AI</div>
+                <div class="message-content">
+                    <div class="message-text">
+                        <p><strong>Welcome to your AI Statistics Tutor!</strong></p>
+                        <p>I'm here to help you learn statistics through thoughtful questions and guidance. I'll adapt my support based on your needs:</p>
+                        <ul>
+                            <li><strong>Level 1:</strong> Hints and tips to guide your thinking</li>
+                            <li><strong>Level 2:</strong> Step-by-step guided questions</li>
+                            <li><strong>Level 3:</strong> Worked examples and demonstrations</li>
+                        </ul>
+                        <p>Ask me anything about the concepts you're learning, or use the quick action buttons below for specific types of help.</p>
+                    </div>
+                    <div class="message-timestamp">Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="typing-indicator" style="display: none;" aria-label="AI is typing">
+            <div class="message-avatar" aria-hidden="true">AI</div>
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="quick-actions">
+            <button class="quick-action-btn" data-action="hint" aria-label="Request a hint">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Hint
+            </button>
+            <button class="quick-action-btn" data-action="explain" aria-label="Request step-by-step explanation">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                Explain Step-by-Step
+            </button>
+            <button class="quick-action-btn" data-action="example" aria-label="Request a worked example">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                </svg>
+                Show Example
+            </button>
+        </div>
+
+        <!-- Chat Input Area -->
+        <div id="chat-input-container">
+            <form id="chat-form" aria-label="Send message to AI tutor">
+                <textarea
+                    id="chat-input"
+                    placeholder="Ask a question about statistics..."
+                    rows="2"
+                    aria-label="Type your question"
+                    maxlength="2000"
+                ></textarea>
+                <button type="submit" id="send-button" aria-label="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+            <div class="character-count">
+                <span id="char-counter">0</span> / 2000
+            </div>
+        </div>
+
+        <!-- Privacy Notice Footer -->
+        <div class="privacy-notice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Your conversations are logged anonymously for research purposes. <a href="#" id="privacy-link">Privacy Policy</a></span>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal" style="display: none;" role="dialog" aria-labelledby="help-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="help-modal-title">How to Use the AI Tutor</h3>
+                <button class="modal-close" aria-label="Close help modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>Getting Started</h4>
+                <p>Ask questions in your own words about any statistics concept. The AI tutor adapts its responses based on your needs.</p>
+
+                <h4>Support Levels</h4>
+                <ul>
+                    <li><strong>Level 1 (Hints):</strong> Minimal guidance to encourage independent thinking</li>
+                    <li><strong>Level 2 (Guided):</strong> Step-by-step questions to walk through problems</li>
+                    <li><strong>Level 3 (Examples):</strong> Worked examples and detailed explanations</li>
+                </ul>
+                <p>The tutor automatically adjusts the support level based on your progress.</p>
+
+                <h4>Quick Actions</h4>
+                <p>Use the buttons above the input box for common requests:</p>
+                <ul>
+                    <li><strong>Hint:</strong> Get a small clue to point you in the right direction</li>
+                    <li><strong>Explain Step-by-Step:</strong> Break down the solution process</li>
+                    <li><strong>Show Example:</strong> See a worked example of a similar problem</li>
+                </ul>
+
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Be specific about what you're struggling with</li>
+                    <li>Try the problem yourself before asking for help</li>
+                    <li>Ask follow-up questions if you need clarification</li>
+                    <li>Let the tutor know if an explanation doesn't make sense</li>
+                </ul>
+
+                <h4>Research Participation</h4>
+                <p>Your interactions help us understand how AI can best support statistics learning. All data is anonymized and used only for educational research.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal" style="display: none;" role="dialog" aria-labelledby="privacy-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="privacy-modal-title">Privacy & Data Collection</h3>
+                <button class="modal-close" aria-label="Close privacy modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>What Data We Collect</h4>
+                <ul>
+                    <li>Chat messages (questions and responses)</li>
+                    <li>Timestamps and session duration</li>
+                    <li>Module and lesson context</li>
+                    <li>Scaffolding level adjustments</li>
+                    <li>Anonymous user ID (no personal information)</li>
+                </ul>
+
+                <h4>How We Use This Data</h4>
+                <p>All data is used exclusively for educational research on AI-powered cognitive scaffolding. Your data helps us understand:</p>
+                <ul>
+                    <li>How students interact with AI tutoring systems</li>
+                    <li>Which types of support are most effective</li>
+                    <li>How to improve adaptive learning algorithms</li>
+                </ul>
+
+                <h4>Your Rights</h4>
+                <ul>
+                    <li>Participation is voluntary</li>
+                    <li>You may stop using the tutor at any time</li>
+                    <li>Data is anonymized and cannot be traced back to you</li>
+                    <li>Results will be published in aggregate form only</li>
+                </ul>
+
+                <h4>IRB Approval</h4>
+                <p>This research has been approved by the UCLA Institutional Review Board (IRB #[Pending]). For questions or concerns, contact:</p>
+                <p><strong>Researcher:</strong> Safaa Dabagh (dabagh_safaa@smc.edu)<br>
+                <strong>Advisor:</strong> Prof. Mark Handcock (UCLA Statistics)</p>
+
+                <h4>Data Security</h4>
+                <p>All data is encrypted in transit and at rest. We follow best practices for educational research data protection.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="system-prompts.js"></script>
+    <script src="scaffolding-logic.js"></script>
+    <script src="chat-interface.js"></script>
+</body>
+</html>
