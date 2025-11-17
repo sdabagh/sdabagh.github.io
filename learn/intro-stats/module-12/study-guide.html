@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Guide - Module 12: Chi-Square Tests</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .study-header {
+            background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .section-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            page-break-inside: avoid;
+        }
+        .formula-card {
+            background: #F0F7FA;
+            border-left: 4px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        .formula {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            border: 2px solid #DDD;
+            text-align: left;
+        }
+        .comparison-table th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #F8F9FA;
+        }
+        .procedure-steps {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .procedure-steps ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        .procedure-steps li {
+            margin: 0.75rem 0;
+        }
+        .key-points {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .interpretation-box {
+            background: #FFE4E1;
+            border-left: 4px solid #DC3545;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #2C5F7C;
+            border-bottom: 3px solid #2C5F7C;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        h3 {
+            color: #D97D54;
+            margin-top: 1.5rem;
+        }
+        .print-btn {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .print-btn:hover {
+            background: #1A3A4D;
+        }
+        @media print {
+            .print-btn, header, footer, nav { display: none !important; }
+            body { margin: 0; padding: 0; }
+            .container { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Print Study Guide</button>
+
+    <main class="container narrow">
+        <div class="study-header">
+            <h1>📖 Comprehensive Study Guide</h1>
+            <h2 style="margin: 0.5rem 0 0 0; opacity: 0.95; border: none; color: white;">Module 12: Chi-Square Tests</h2>
+        </div>
+
+        <div class="section-box">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#overview">Overview of Chi-Square Tests</a></li>
+                <li><a href="#distribution">Chi-Square Distribution</a></li>
+                <li><a href="#goodness">Goodness of Fit Test</a></li>
+                <li><a href="#independence">Test of Independence</a></li>
+                <li><a href="#homogeneity">Test of Homogeneity</a></li>
+                <li><a href="#comparison">Comparison of All Three Tests</a></li>
+                <li><a href="#choosing">Choosing the Right Test</a></li>
+                <li><a href="#conditions">Conditions and Assumptions</a></li>
+                <li><a href="#interpretation">Interpreting Results</a></li>
+                <li><a href="#common-mistakes">Common Mistakes to Avoid</a></li>
+            </ol>
+        </div>
+
+        <div class="section-box" id="overview">
+            <h2>1. Overview of Chi-Square Tests</h2>
+            <p><strong>Purpose:</strong> Chi-square tests analyze categorical data to determine if observed frequencies differ significantly from expected frequencies.</p>
+
+            <div class="key-points">
+                <h3>Three Types of Chi-Square Tests</h3>
+                <ul>
+                    <li><strong>Goodness of Fit:</strong> Tests if sample data fits an expected distribution</li>
+                    <li><strong>Independence:</strong> Tests if two categorical variables are related</li>
+                    <li><strong>Homogeneity:</strong> Tests if multiple populations have the same distribution</li>
+                </ul>
+            </div>
+
+            <div class="key-points">
+                <h3>When to Use Chi-Square</h3>
+                <ul>
+                    <li>✓ You have categorical data (counts/frequencies)</li>
+                    <li>✓ You want to compare observed vs. expected frequencies</li>
+                    <li>✓ You need to test relationships between categorical variables</li>
+                    <li>✗ Do NOT use for quantitative data (use t-tests, ANOVA instead)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-box" id="distribution">
+            <h2>2. Chi-Square Distribution</h2>
+
+            <h3>Properties</h3>
+            <ul>
+                <li><strong>Always positive:</strong> χ² ≥ 0 (cannot be negative)</li>
+                <li><strong>Right-skewed:</strong> Tail extends to the right</li>
+                <li><strong>Shape depends on df:</strong> More degrees of freedom → more symmetric</li>
+                <li><strong>Mean = df:</strong> The expected value equals the degrees of freedom</li>
+            </ul>
+
+            <h3>Key Characteristics</h3>
+            <ul>
+                <li>Unlike the normal distribution, chi-square is NOT symmetric (except with very large df)</li>
+                <li>We always use the RIGHT tail for rejection region</li>
+                <li>Different df values create different distribution curves</li>
+            </ul>
+        </div>
+
+        <div class="section-box" id="goodness">
+            <h2>3. Chi-Square Goodness of Fit Test</h2>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>ONE categorical variable</li>
+                <li>ONE sample</li>
+                <li>Want to test if data fits an expected distribution</li>
+            </ul>
+
+            <div class="procedure-steps">
+                <h3>Step-by-Step Procedure</h3>
+                <ol>
+                    <li><strong>State hypotheses</strong>
+                        <ul>
+                            <li>H₀: The data follows the specified distribution</li>
+                            <li>Hₐ: The data does NOT follow the specified distribution</li>
+                        </ul>
+                    </li>
+                    <li><strong>Check conditions</strong>
+                        <ul>
+                            <li>Random sampling</li>
+                            <li>Independent observations</li>
+                            <li>All expected frequencies ≥ 5</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calculate expected frequencies</strong>
+                        <ul>
+                            <li>E = n × p (for each category)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calculate test statistic</strong>
+                        <ul>
+                            <li>χ² = Σ[(O - E)² / E]</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find degrees of freedom</strong>
+                        <ul>
+                            <li>df = k - 1</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find p-value or critical value</strong></li>
+                    <li><strong>Make decision and conclude</strong></li>
+                </ol>
+            </div>
+
+            <div class="formula-card">
+                <h3>Formulas for Goodness of Fit</h3>
+                <p><strong>Expected Frequency:</strong></p>
+                <div class="formula">E = n × p</div>
+                <p style="text-align: center;">where n = sample size, p = expected proportion</p>
+
+                <p style="margin-top: 1rem;"><strong>Test Statistic:</strong></p>
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+                <p style="text-align: center;">Sum over all categories</p>
+
+                <p style="margin-top: 1rem;"><strong>Degrees of Freedom:</strong></p>
+                <div class="formula">df = k - 1</div>
+                <p style="text-align: center;">where k = number of categories</p>
+            </div>
+
+            <div class="key-points">
+                <h3>Example</h3>
+                <p><strong>Problem:</strong> Test if a die is fair with 120 rolls</p>
+                <p><strong>Expected:</strong> Each face should appear 120/6 = 20 times</p>
+                <p><strong>df:</strong> 6 - 1 = 5</p>
+            </div>
+        </div>
+
+        <div class="section-box" id="independence">
+            <h2>4. Chi-Square Test of Independence</h2>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>TWO categorical variables</li>
+                <li>ONE sample (classified by both variables)</li>
+                <li>Want to test if variables are related</li>
+            </ul>
+
+            <div class="procedure-steps">
+                <h3>Step-by-Step Procedure</h3>
+                <ol>
+                    <li><strong>State hypotheses</strong>
+                        <ul>
+                            <li>H₀: The two variables are independent (no association)</li>
+                            <li>Hₐ: The two variables are dependent (associated)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Check conditions</strong> (same as goodness of fit)</li>
+                    <li><strong>Calculate expected frequencies</strong>
+                        <ul>
+                            <li>E = (Row Total × Column Total) / Grand Total</li>
+                            <li>Calculate for EACH cell</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calculate test statistic</strong>
+                        <ul>
+                            <li>χ² = Σ[(O - E)² / E] over ALL cells</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find degrees of freedom</strong>
+                        <ul>
+                            <li>df = (r - 1)(c - 1)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find p-value or critical value</strong></li>
+                    <li><strong>Make decision and conclude</strong></li>
+                </ol>
+            </div>
+
+            <div class="formula-card">
+                <h3>Formulas for Test of Independence</h3>
+                <p><strong>Expected Frequency (for each cell):</strong></p>
+                <div class="formula">E = (Row Total × Column Total) / Grand Total</div>
+
+                <p style="margin-top: 1rem;"><strong>Test Statistic:</strong></p>
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+                <p style="text-align: center;">Sum over ALL cells in contingency table</p>
+
+                <p style="margin-top: 1rem;"><strong>Degrees of Freedom:</strong></p>
+                <div class="formula">df = (r - 1)(c - 1)</div>
+                <p style="text-align: center;">where r = rows, c = columns</p>
+            </div>
+
+            <div class="key-points">
+                <h3>Example</h3>
+                <p><strong>Problem:</strong> Test if gender and political party are independent (one sample of 500)</p>
+                <p><strong>Setup:</strong> 2×3 contingency table (2 genders × 3 parties)</p>
+                <p><strong>df:</strong> (2-1)(3-1) = 2</p>
+            </div>
+        </div>
+
+        <div class="section-box" id="homogeneity">
+            <h2>5. Chi-Square Test of Homogeneity</h2>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>ONE categorical variable</li>
+                <li>MULTIPLE samples/populations</li>
+                <li>Want to test if distributions are the same across groups</li>
+            </ul>
+
+            <div class="procedure-steps">
+                <h3>Step-by-Step Procedure</h3>
+                <ol>
+                    <li><strong>State hypotheses</strong>
+                        <ul>
+                            <li>H₀: The distribution is the same for all populations</li>
+                            <li>Hₐ: At least one population has a different distribution</li>
+                        </ul>
+                    </li>
+                    <li><strong>Check conditions</strong> (same as others)</li>
+                    <li><strong>Calculate expected frequencies</strong>
+                        <ul>
+                            <li>SAME formula as independence: E = (RT × CT) / GT</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calculate test statistic</strong>
+                        <ul>
+                            <li>SAME formula: χ² = Σ[(O - E)² / E]</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find degrees of freedom</strong>
+                        <ul>
+                            <li>SAME formula: df = (r - 1)(c - 1)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Find p-value or critical value</strong></li>
+                    <li><strong>Make decision and conclude</strong></li>
+                </ol>
+            </div>
+
+            <div class="key-points">
+                <h3>Key Difference from Independence</h3>
+                <p><strong>Calculations are IDENTICAL, but study design differs:</strong></p>
+                <ul>
+                    <li><strong>Independence:</strong> One sample, two variables</li>
+                    <li><strong>Homogeneity:</strong> Multiple samples, one variable</li>
+                </ul>
+            </div>
+
+            <div class="key-points">
+                <h3>Example</h3>
+                <p><strong>Problem:</strong> Compare satisfaction across 3 cities (100 sampled from each city)</p>
+                <p><strong>Setup:</strong> 3×3 table (3 cities × 3 satisfaction levels)</p>
+                <p><strong>df:</strong> (3-1)(3-1) = 4</p>
+            </div>
+        </div>
+
+        <div class="section-box" id="comparison">
+            <h2>6. Comparison of All Three Tests</h2>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Feature</th>
+                    <th>Goodness of Fit</th>
+                    <th>Independence</th>
+                    <th>Homogeneity</th>
+                </tr>
+                <tr>
+                    <td><strong>Variables</strong></td>
+                    <td>1 categorical</td>
+                    <td>2 categorical</td>
+                    <td>1 categorical</td>
+                </tr>
+                <tr>
+                    <td><strong>Samples</strong></td>
+                    <td>1 sample</td>
+                    <td>1 sample</td>
+                    <td>2+ samples</td>
+                </tr>
+                <tr>
+                    <td><strong>Research Question</strong></td>
+                    <td>Does data fit expected distribution?</td>
+                    <td>Are variables related?</td>
+                    <td>Same distribution across groups?</td>
+                </tr>
+                <tr>
+                    <td><strong>Example</strong></td>
+                    <td>Is a die fair?</td>
+                    <td>Gender vs party preference?</td>
+                    <td>Three cities' political views same?</td>
+                </tr>
+                <tr>
+                    <td><strong>Expected Frequency</strong></td>
+                    <td>E = n × p</td>
+                    <td>E = (RT × CT) / GT</td>
+                    <td>E = (RT × CT) / GT</td>
+                </tr>
+                <tr>
+                    <td><strong>Test Statistic</strong></td>
+                    <td>χ² = Σ[(O-E)²/E]</td>
+                    <td>χ² = Σ[(O-E)²/E]</td>
+                    <td>χ² = Σ[(O-E)²/E]</td>
+                </tr>
+                <tr>
+                    <td><strong>Degrees of Freedom</strong></td>
+                    <td>df = k - 1</td>
+                    <td>df = (r-1)(c-1)</td>
+                    <td>df = (r-1)(c-1)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section-box" id="choosing">
+            <h2>7. Choosing the Right Test</h2>
+
+            <div class="procedure-steps">
+                <h3>Decision Process</h3>
+                <ol>
+                    <li><strong>Is the data categorical?</strong>
+                        <ul>
+                            <li>No → Use t-test, ANOVA, or regression (NOT chi-square)</li>
+                            <li>Yes → Continue</li>
+                        </ul>
+                    </li>
+                    <li><strong>How many categorical variables?</strong>
+                        <ul>
+                            <li>One variable → Goodness of Fit OR Homogeneity (check #3)</li>
+                            <li>Two variables → Independence OR Homogeneity (check #3)</li>
+                        </ul>
+                    </li>
+                    <li><strong>How many samples?</strong>
+                        <ul>
+                            <li>One sample → Goodness of Fit (if 1 variable) or Independence (if 2 variables)</li>
+                            <li>Multiple samples → Homogeneity</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="key-points">
+                <h3>Quick Decision Rules</h3>
+                <ul>
+                    <li><strong>Testing if data matches a theory/model?</strong> → Goodness of Fit</li>
+                    <li><strong>One sample classified by TWO variables?</strong> → Independence</li>
+                    <li><strong>Comparing MULTIPLE groups on ONE variable?</strong> → Homogeneity</li>
+                    <li><strong>Random assignment to treatment groups?</strong> → Usually Homogeneity</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-box" id="conditions">
+            <h2>8. Conditions and Assumptions</h2>
+
+            <div class="interpretation-box">
+                <h3>⚠️ Required Conditions (ALL Tests)</h3>
+                <ol>
+                    <li><strong>Random Sampling or Random Assignment</strong>
+                        <ul>
+                            <li>Ensures representative data</li>
+                            <li>If violated: Cannot generalize to population</li>
+                        </ul>
+                    </li>
+                    <li><strong>Independence of Observations</strong>
+                        <ul>
+                            <li>Each observation must be independent</li>
+                            <li>If violated: p-values are unreliable</li>
+                        </ul>
+                    </li>
+                    <li><strong>All Expected Frequencies ≥ 5</strong>
+                        <ul>
+                            <li><strong>MOST CRITICAL CONDITION</strong></li>
+                            <li>Check EVERY expected cell</li>
+                            <li>If violated: Combine categories, collect more data, or use Fisher's exact test (for 2×2)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Categorical Data (Counts)</strong>
+                        <ul>
+                            <li>Must use frequencies, NOT proportions or percentages</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section-box" id="interpretation">
+            <h2>9. Interpreting Results</h2>
+
+            <h3>Understanding the Test Statistic</h3>
+            <ul>
+                <li><strong>Small χ²:</strong> Observed frequencies close to expected → likely fail to reject H₀</li>
+                <li><strong>Large χ²:</strong> Observed frequencies far from expected → likely reject H₀</li>
+                <li>Perfect fit would give χ² = 0 (never happens with real data)</li>
+            </ul>
+
+            <h3>Making Decisions</h3>
+            <div class="procedure-steps">
+                <p><strong>Using Critical Value:</strong></p>
+                <ul>
+                    <li>If χ² > critical value → REJECT H₀</li>
+                    <li>If χ² ≤ critical value → FAIL TO REJECT H₀</li>
+                </ul>
+
+                <p><strong>Using p-value:</strong></p>
+                <ul>
+                    <li>If p-value < α → REJECT H₀</li>
+                    <li>If p-value ≥ α → FAIL TO REJECT H₀</li>
+                </ul>
+            </div>
+
+            <h3>Writing Conclusions</h3>
+            <div class="key-points">
+                <p><strong>Template for Goodness of Fit:</strong></p>
+                <p>"At the [α] significance level, there is [sufficient/insufficient] evidence to conclude that the data does not follow the [specified distribution]."</p>
+
+                <p><strong>Template for Independence:</strong></p>
+                <p>"At the [α] significance level, there is [sufficient/insufficient] evidence to conclude that [variable 1] and [variable 2] are associated."</p>
+
+                <p><strong>Template for Homogeneity:</strong></p>
+                <p>"At the [α] significance level, there is [sufficient/insufficient] evidence to conclude that the distribution of [variable] differs across [populations]."</p>
+            </div>
+
+            <div class="interpretation-box">
+                <h3>⚠️ Important Reminder</h3>
+                <p><strong>Association ≠ Causation!</strong></p>
+                <p>Even if a chi-square test shows two variables are associated, this does NOT prove that one causes the other. There may be confounding variables or the relationship may be indirect.</p>
+            </div>
+        </div>
+
+        <div class="section-box" id="common-mistakes">
+            <h2>10. Common Mistakes to Avoid</h2>
+
+            <div class="interpretation-box">
+                <h3>❌ Top 10 Mistakes</h3>
+                <ol>
+                    <li><strong>Using proportions instead of counts</strong>
+                        <ul>
+                            <li>WRONG: Entering 0.35 (35%)</li>
+                            <li>RIGHT: Entering 35 (the count)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Not checking expected frequency condition</strong>
+                        <ul>
+                            <li>Always calculate expected values BEFORE computing χ²</li>
+                            <li>Check that ALL are ≥ 5</li>
+                        </ul>
+                    </li>
+                    <li><strong>Confusing independence and homogeneity</strong>
+                        <ul>
+                            <li>Look at study design, not just the table</li>
+                        </ul>
+                    </li>
+                    <li><strong>Using wrong degrees of freedom</strong>
+                        <ul>
+                            <li>Goodness of fit: k - 1</li>
+                            <li>Independence/Homogeneity: (r-1)(c-1)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Trying to use one-tailed test</strong>
+                        <ul>
+                            <li>Chi-square is ALWAYS right-tailed</li>
+                        </ul>
+                    </li>
+                    <li><strong>Using chi-square for quantitative data</strong>
+                        <ul>
+                            <li>Chi-square is for categories only!</li>
+                        </ul>
+                    </li>
+                    <li><strong>Claiming causation from association</strong>
+                        <ul>
+                            <li>Association does not imply causation</li>
+                        </ul>
+                    </li>
+                    <li><strong>Forgetting to sum over ALL cells</strong>
+                        <ul>
+                            <li>χ² must include contribution from every cell</li>
+                        </ul>
+                    </li>
+                    <li><strong>Not stating conclusion in context</strong>
+                        <ul>
+                            <li>Always relate back to the original problem</li>
+                        </ul>
+                    </li>
+                    <li><strong>Rounding too early</strong>
+                        <ul>
+                            <li>Keep extra decimals in calculations</li>
+                            <li>Round only final answer</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2>Study Tips</h2>
+            <div class="key-points">
+                <ul>
+                    <li>✓ Make flashcards for the three test types and when to use each</li>
+                    <li>✓ Practice calculating expected frequencies - this is key!</li>
+                    <li>✓ Memorize the df formulas for each test</li>
+                    <li>✓ Always check the expected frequency condition</li>
+                    <li>✓ Work through complete examples step-by-step</li>
+                    <li>✓ Practice identifying which test to use from word problems</li>
+                    <li>✓ Keep the quick reference sheet handy during practice</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="margin: 3rem 0; text-align: center;">
+            <button onclick="window.print()" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">🖨️ Print This Study Guide</button>
+            <a href="quick-reference.html" class="btn btn-accent" style="font-size: 1.1rem; padding: 0.75rem 2rem; margin-left: 1rem;">View Quick Reference →</a>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #E0E0E0;">
+            <p><a href="index.html">← Back to Module 12 Overview</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

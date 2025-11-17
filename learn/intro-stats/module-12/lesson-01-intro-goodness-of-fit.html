@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: Introduction to Chi-Square & Goodness of Fit - Module 12</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .lesson-header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .objectives-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .key-concept {
+            background: #FFF9E6;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .formula-box {
+            background: #F0F7FA;
+            border: 2px solid #17A2B8;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .formula {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .example-box {
+            background: white;
+            border: 2px solid #D97D54;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        .example-box h3 {
+            color: #D97D54;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #DDD;
+        }
+        th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #F8F9FA;
+        }
+        .calculation-step {
+            background: #F8F9FA;
+            border-left: 3px solid #2C5F7C;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+        }
+        .check-understanding {
+            background: #E3F2FD;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .check-understanding h3 {
+            color: #1976D2;
+            margin-top: 0;
+        }
+        .quiz-option {
+            display: block;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: white;
+            border: 2px solid #DDD;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #E3F2FD;
+            border-color: #2196F3;
+        }
+        .quiz-option input {
+            margin-right: 0.75rem;
+        }
+        .solution-box {
+            background: #E8F5E9;
+            border-left: 4px solid #28A745;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .show-solution-btn {
+            background: #28A745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        .show-solution-btn:hover {
+            background: #218838;
+        }
+        .distribution-properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .property-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .property-card h4 {
+            color: #2C5F7C;
+            margin: 0.5rem 0;
+        }
+        .viz-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container narrow">
+        <div class="lesson-header">
+            <h1>Lesson 1: Introduction to Chi-Square & Goodness of Fit</h1>
+            <p style="font-size: 1.1rem; margin: 0.5rem 0 0 0; opacity: 0.95;">Understanding the Chi-Square Distribution and Testing if Data Fits an Expected Distribution</p>
+        </div>
+
+        <div class="objectives-box">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this lesson, you will be able to:</p>
+            <ul>
+                <li>Understand the properties of the chi-square (χ²) distribution</li>
+                <li>Distinguish between categorical and quantitative data</li>
+                <li>Perform a chi-square goodness of fit test</li>
+                <li>Calculate expected frequencies and the chi-square test statistic</li>
+                <li>Determine degrees of freedom for goodness of fit tests</li>
+                <li>Interpret results and draw conclusions about whether data fits an expected distribution</li>
+            </ul>
+        </div>
+
+        <h2>Review: Categorical vs. Quantitative Data</h2>
+        <p>Before diving into chi-square tests, let's review a fundamental distinction:</p>
+
+        <div class="distribution-properties">
+            <div class="property-card" style="background: #E3F2FD;">
+                <h4>Categorical Data</h4>
+                <p><strong>Categories or groups</strong></p>
+                <p>Examples: Color (red, blue, green), Political party, Gender, Yes/No responses</p>
+                <p><strong>Chi-square tests analyze this type!</strong></p>
+            </div>
+            <div class="property-card" style="background: #FFF9E6;">
+                <h4>Quantitative Data</h4>
+                <p><strong>Numerical measurements</strong></p>
+                <p>Examples: Height, weight, test scores, temperature</p>
+                <p><strong>Use t-tests, ANOVA, regression for this type</strong></p>
+            </div>
+        </div>
+
+        <div class="key-concept">
+            <h3>💡 Key Concept</h3>
+            <p><strong>Chi-square tests are designed specifically for analyzing categorical data.</strong> When you have counts or frequencies in different categories, chi-square tests help you determine if the observed pattern differs significantly from what you'd expect.</p>
+        </div>
+
+        <h2>The Chi-Square (χ²) Distribution</h2>
+        <p>The chi-square distribution is a family of probability distributions that forms the foundation for chi-square tests. Understanding its properties helps us interpret test results correctly.</p>
+
+        <div class="distribution-properties">
+            <div class="property-card">
+                <h4>✓ Always Positive</h4>
+                <p>χ² ≥ 0</p>
+                <p>Values cannot be negative</p>
+            </div>
+            <div class="property-card">
+                <h4>✓ Right-Skewed</h4>
+                <p>Tail extends to the right</p>
+                <p>Most values near zero</p>
+            </div>
+            <div class="property-card">
+                <h4>✓ Shape Varies</h4>
+                <p>Determined by degrees of freedom (df)</p>
+                <p>More df → more symmetric</p>
+            </div>
+        </div>
+
+        <div class="viz-container">
+            <h3>Chi-Square Distribution Shapes</h3>
+            <div id="chiSquareDistribution"></div>
+            <p style="margin-top: 1rem; color: #5A5A5A;"><em>The distribution becomes more symmetric as degrees of freedom increase</em></p>
+        </div>
+
+        <h2>Chi-Square Goodness of Fit Test</h2>
+        <p>The <strong>chi-square goodness of fit test</strong> determines whether sample data fits an expected or hypothesized distribution.</p>
+
+        <div class="key-concept">
+            <h3>When to Use Goodness of Fit Test</h3>
+            <ul>
+                <li><strong>One categorical variable</strong></li>
+                <li><strong>One sample</strong></li>
+                <li><strong>Purpose:</strong> Test if the observed frequencies match expected frequencies</li>
+            </ul>
+            <p><strong>Research question pattern:</strong> "Does the distribution of [variable] match [expected distribution]?"</p>
+        </div>
+
+        <h3>Step-by-Step Procedure</h3>
+
+        <div class="calculation-step">
+            <h4>Step 1: State the Hypotheses</h4>
+            <p><strong>H₀ (Null Hypothesis):</strong> The data follows the specified distribution</p>
+            <p><strong>Hₐ (Alternative Hypothesis):</strong> The data does NOT follow the specified distribution</p>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 2: Check Conditions</h4>
+            <ul>
+                <li>Random sampling</li>
+                <li>Independent observations</li>
+                <li><strong>All expected frequencies ≥ 5</strong> (crucial condition!)</li>
+            </ul>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 3: Calculate Expected Frequencies</h4>
+            <div class="formula-box">
+                <p><strong>Expected Frequency Formula:</strong></p>
+                <div class="formula">E = n × p</div>
+                <p>Where: n = total sample size, p = expected proportion for that category</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 4: Calculate the Test Statistic</h4>
+            <div class="formula-box">
+                <p><strong>Chi-Square Test Statistic:</strong></p>
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+                <p>Where: O = observed frequency, E = expected frequency</p>
+                <p>Sum over all categories</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 5: Find Degrees of Freedom</h4>
+            <div class="formula-box">
+                <p><strong>Degrees of Freedom:</strong></p>
+                <div class="formula">df = k - 1</div>
+                <p>Where: k = number of categories</p>
+            </div>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 6: Find the p-value or Critical Value</h4>
+            <p>Use chi-square distribution table or technology with df from Step 5</p>
+            <p><strong>Decision rule:</strong> Reject H₀ if χ² > critical value OR if p-value < α</p>
+        </div>
+
+        <div class="calculation-step">
+            <h4>Step 7: Make a Conclusion</h4>
+            <p>State your conclusion in context of the problem</p>
+        </div>
+
+        <h2>Complete Example: Testing a Fair Die</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 1: Is the Die Fair?</h3>
+            <p><strong>Problem:</strong> A gambler suspects a six-sided die might be unfair. They roll the die 120 times and record the outcomes:</p>
+
+            <table>
+                <tr>
+                    <th>Outcome</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                </tr>
+                <tr>
+                    <td><strong>Observed Frequency</strong></td>
+                    <td>15</td>
+                    <td>18</td>
+                    <td>22</td>
+                    <td>17</td>
+                    <td>26</td>
+                    <td>22</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At the α = 0.05 significance level, is there evidence that the die is unfair?</p>
+
+            <h4>Solution:</h4>
+
+            <p><strong>Step 1: State the hypotheses</strong></p>
+            <ul>
+                <li>H₀: The die is fair (all outcomes are equally likely, p = 1/6 for each)</li>
+                <li>Hₐ: The die is not fair (outcomes are not equally likely)</li>
+            </ul>
+
+            <p><strong>Step 2: Check conditions</strong></p>
+            <ul>
+                <li>✓ Assume the rolls are independent</li>
+                <li>✓ We'll check if all expected frequencies ≥ 5</li>
+            </ul>
+
+            <p><strong>Step 3: Calculate expected frequencies</strong></p>
+            <p>For a fair die, each outcome should appear 1/6 of the time:</p>
+            <p>E = n × p = 120 × (1/6) = 20 for each outcome</p>
+
+            <table>
+                <tr>
+                    <th>Outcome</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                </tr>
+                <tr>
+                    <td><strong>Observed (O)</strong></td>
+                    <td>15</td>
+                    <td>18</td>
+                    <td>22</td>
+                    <td>17</td>
+                    <td>26</td>
+                    <td>22</td>
+                </tr>
+                <tr>
+                    <td><strong>Expected (E)</strong></td>
+                    <td>20</td>
+                    <td>20</td>
+                    <td>20</td>
+                    <td>20</td>
+                    <td>20</td>
+                    <td>20</td>
+                </tr>
+            </table>
+
+            <p>✓ All expected frequencies are 20 ≥ 5, so the condition is met!</p>
+
+            <p><strong>Step 4: Calculate the chi-square test statistic</strong></p>
+            <p>χ² = Σ[(O - E)² / E]</p>
+
+            <table>
+                <tr>
+                    <th>Outcome</th>
+                    <th>O</th>
+                    <th>E</th>
+                    <th>O - E</th>
+                    <th>(O - E)²</th>
+                    <th>(O - E)²/E</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>15</td>
+                    <td>20</td>
+                    <td>-5</td>
+                    <td>25</td>
+                    <td>1.25</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>18</td>
+                    <td>20</td>
+                    <td>-2</td>
+                    <td>4</td>
+                    <td>0.20</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>22</td>
+                    <td>20</td>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>0.20</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>17</td>
+                    <td>20</td>
+                    <td>-3</td>
+                    <td>9</td>
+                    <td>0.45</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>26</td>
+                    <td>20</td>
+                    <td>6</td>
+                    <td>36</td>
+                    <td>1.80</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>22</td>
+                    <td>20</td>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>0.20</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td>120</td>
+                    <td>120</td>
+                    <td></td>
+                    <td></td>
+                    <td><strong>4.10</strong></td>
+                </tr>
+            </table>
+
+            <p><strong>χ² = 4.10</strong></p>
+
+            <p><strong>Step 5: Find degrees of freedom</strong></p>
+            <p>df = k - 1 = 6 - 1 = 5</p>
+
+            <p><strong>Step 6: Find p-value or critical value</strong></p>
+            <p>Using a chi-square table with df = 5 and α = 0.05:</p>
+            <p>Critical value = 11.07</p>
+            <p>Since our χ² = 4.10 < 11.07, we fail to reject H₀</p>
+            <p>(Alternatively, p-value ≈ 0.536 > 0.05, so we fail to reject H₀)</p>
+
+            <p><strong>Step 7: Conclusion</strong></p>
+            <p><strong>At the 0.05 significance level, there is insufficient evidence to conclude that the die is unfair. The observed frequencies are consistent with a fair die.</strong></p>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> In the die example above, which category contributed most to the chi-square statistic?</p>
+            <form id="quiz1">
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="a">
+                    A) Outcome 1 (contributed 1.25)
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="b">
+                    B) Outcome 5 (contributed 1.80)
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="c">
+                    C) Outcome 3 (contributed 0.20)
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q1" value="d">
+                    D) All contributed equally
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution1')">Show Answer</button>
+            <div id="solution1" class="solution-box">
+                <p><strong>Answer: B) Outcome 5 (contributed 1.80)</strong></p>
+                <p><strong>Explanation:</strong> Outcome 5 had the largest deviation from expected (26 observed vs 20 expected), which resulted in the largest contribution (1.80) to the total chi-square statistic. The larger the contribution, the more that category differs from what we'd expect.</p>
+            </div>
+        </div>
+
+        <h2>Another Example: M&M Colors</h2>
+
+        <div class="example-box">
+            <h3>📊 Example 2: M&M Color Distribution</h3>
+            <p><strong>Problem:</strong> According to Mars, Inc., M&M's should be distributed by color as follows:</p>
+            <ul>
+                <li>Brown: 13%</li>
+                <li>Yellow: 14%</li>
+                <li>Red: 13%</li>
+                <li>Blue: 24%</li>
+                <li>Orange: 20%</li>
+                <li>Green: 16%</li>
+            </ul>
+
+            <p>A bag of 200 M&M's contains:</p>
+            <table>
+                <tr>
+                    <th>Color</th>
+                    <th>Brown</th>
+                    <th>Yellow</th>
+                    <th>Red</th>
+                    <th>Blue</th>
+                    <th>Orange</th>
+                    <th>Green</th>
+                </tr>
+                <tr>
+                    <td><strong>Observed</strong></td>
+                    <td>20</td>
+                    <td>32</td>
+                    <td>28</td>
+                    <td>45</td>
+                    <td>42</td>
+                    <td>33</td>
+                </tr>
+            </table>
+
+            <p><strong>Question:</strong> At α = 0.05, does this bag's distribution differ from the claimed distribution?</p>
+
+            <button class="show-solution-btn" onclick="showSolution('solution2')">Show Complete Solution</button>
+            <div id="solution2" class="solution-box">
+                <h4>Complete Solution:</h4>
+
+                <p><strong>Step 1: Hypotheses</strong></p>
+                <ul>
+                    <li>H₀: The color distribution matches the claimed percentages</li>
+                    <li>Hₐ: The color distribution does NOT match the claimed percentages</li>
+                </ul>
+
+                <p><strong>Step 3: Expected frequencies</strong></p>
+                <table>
+                    <tr>
+                        <th>Color</th>
+                        <th>Proportion (p)</th>
+                        <th>Expected (E = 200 × p)</th>
+                    </tr>
+                    <tr>
+                        <td>Brown</td>
+                        <td>0.13</td>
+                        <td>26</td>
+                    </tr>
+                    <tr>
+                        <td>Yellow</td>
+                        <td>0.14</td>
+                        <td>28</td>
+                    </tr>
+                    <tr>
+                        <td>Red</td>
+                        <td>0.13</td>
+                        <td>26</td>
+                    </tr>
+                    <tr>
+                        <td>Blue</td>
+                        <td>0.24</td>
+                        <td>48</td>
+                    </tr>
+                    <tr>
+                        <td>Orange</td>
+                        <td>0.20</td>
+                        <td>40</td>
+                    </tr>
+                    <tr>
+                        <td>Green</td>
+                        <td>0.16</td>
+                        <td>32</td>
+                    </tr>
+                </table>
+
+                <p>✓ All expected frequencies ≥ 5</p>
+
+                <p><strong>Step 4: Calculate χ²</strong></p>
+                <table>
+                    <tr>
+                        <th>Color</th>
+                        <th>O</th>
+                        <th>E</th>
+                        <th>(O-E)²/E</th>
+                    </tr>
+                    <tr>
+                        <td>Brown</td>
+                        <td>20</td>
+                        <td>26</td>
+                        <td>1.385</td>
+                    </tr>
+                    <tr>
+                        <td>Yellow</td>
+                        <td>32</td>
+                        <td>28</td>
+                        <td>0.571</td>
+                    </tr>
+                    <tr>
+                        <td>Red</td>
+                        <td>28</td>
+                        <td>26</td>
+                        <td>0.154</td>
+                    </tr>
+                    <tr>
+                        <td>Blue</td>
+                        <td>45</td>
+                        <td>48</td>
+                        <td>0.188</td>
+                    </tr>
+                    <tr>
+                        <td>Orange</td>
+                        <td>42</td>
+                        <td>40</td>
+                        <td>0.100</td>
+                    </tr>
+                    <tr>
+                        <td>Green</td>
+                        <td>33</td>
+                        <td>32</td>
+                        <td>0.031</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td><strong>2.429</strong></td>
+                    </tr>
+                </table>
+
+                <p><strong>χ² = 2.429</strong></p>
+
+                <p><strong>Step 5: Degrees of freedom</strong></p>
+                <p>df = 6 - 1 = 5</p>
+
+                <p><strong>Step 6: Critical value</strong></p>
+                <p>With df = 5 and α = 0.05, critical value = 11.07</p>
+                <p>Since 2.429 < 11.07, we fail to reject H₀</p>
+                <p>(p-value ≈ 0.787)</p>
+
+                <p><strong>Step 7: Conclusion</strong></p>
+                <p><strong>At the 0.05 significance level, there is insufficient evidence to conclude that the color distribution differs from the claimed distribution. The bag's colors are consistent with Mars' stated percentages.</strong></p>
+            </div>
+        </div>
+
+        <div class="check-understanding">
+            <h3>✓ Check Your Understanding</h3>
+            <p><strong>Question:</strong> A researcher wants to test if births are evenly distributed across the 7 days of the week. They collect data on 350 births. What are the expected frequencies if births are truly evenly distributed?</p>
+            <form id="quiz2">
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="a">
+                    A) 50 births per day
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="b">
+                    B) 350 births per day
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="c">
+                    C) 7 births per day
+                </label>
+                <label class="quiz-option">
+                    <input type="radio" name="q2" value="d">
+                    D) Cannot be determined
+                </label>
+            </form>
+            <button class="show-solution-btn" onclick="showSolution('solution3')">Show Answer</button>
+            <div id="solution3" class="solution-box">
+                <p><strong>Answer: A) 50 births per day</strong></p>
+                <p><strong>Explanation:</strong> If births are evenly distributed across 7 days, each day should have the same proportion (1/7). Expected frequency = n × p = 350 × (1/7) = 50 births per day. This is what we'd expect under the null hypothesis of equal distribution.</p>
+            </div>
+        </div>
+
+        <h2>Key Takeaways</h2>
+        <div class="key-concept">
+            <h3>🎯 Remember These Points</h3>
+            <ul>
+                <li><strong>Purpose:</strong> Goodness of fit tests whether observed frequencies match expected frequencies</li>
+                <li><strong>Formula:</strong> χ² = Σ[(O - E)² / E]</li>
+                <li><strong>Degrees of freedom:</strong> df = k - 1 (number of categories minus 1)</li>
+                <li><strong>Expected frequency:</strong> E = n × p (sample size × proportion)</li>
+                <li><strong>Condition:</strong> All expected frequencies must be ≥ 5</li>
+                <li><strong>Rejection region:</strong> Always right-tailed (large χ² = poor fit)</li>
+                <li><strong>Interpretation:</strong> Large χ² means observed differs from expected; small χ² means good fit</li>
+            </ul>
+        </div>
+
+        <div style="margin: 3rem 0; text-align: center;">
+            <a href="lesson-02-test-of-independence.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Continue to Lesson 2: Test of Independence →</a>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #E0E0E0;">
+            <p><a href="index.html">← Back to Module 12 Overview</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="visualizations.js"></script>
+    <script>
+        function showSolution(id) {
+            const solution = document.getElementById(id);
+            solution.style.display = solution.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Initialize chi-square distribution visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof drawChiSquareDistribution === 'function') {
+                drawChiSquareDistribution('chiSquareDistribution');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Reference - Module 12: Chi-Square Tests</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        body {
+            background: #F8F9FA;
+        }
+        .quick-ref-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border: 3px solid #2C5F7C;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header-section {
+            text-align: center;
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 1.5rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 5px 5px 0 0;
+        }
+        .header-section h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .header-section p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.95;
+        }
+        .section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #F8F9FA;
+            border-left: 4px solid #2C5F7C;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            margin: 0 0 1rem 0;
+            color: #2C5F7C;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #2C5F7C;
+            padding-bottom: 0.5rem;
+        }
+        .formula-box {
+            background: #FFF9E6;
+            border: 2px solid #FFC107;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .formula {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2C5F7C;
+            font-family: 'Courier New', monospace;
+            margin: 0.25rem 0;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .test-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            padding: 0.75rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .test-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #D97D54;
+            font-size: 1rem;
+        }
+        .test-card p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+        .checklist li {
+            padding: 0.25rem 0 0.25rem 1.5rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28A745;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid #DDD;
+            text-align: left;
+        }
+        th {
+            background: #2C5F7C;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .flowchart {
+            background: #E3F2FD;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            margin: 0.75rem 0;
+        }
+        .flowchart-step {
+            background: white;
+            border: 2px solid #2196F3;
+            padding: 0.5rem;
+            margin: 0.5rem auto;
+            border-radius: 4px;
+            max-width: 500px;
+            font-size: 0.85rem;
+        }
+        .arrow {
+            color: #2196F3;
+            font-size: 1.5rem;
+            margin: 0.25rem 0;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .print-btn:hover {
+            background: #1A3A4D;
+        }
+        @media print {
+            .print-btn, header, footer, nav, .no-print { display: none !important; }
+            body { margin: 0; padding: 0; background: white; }
+            .quick-ref-container {
+                max-width: 100%;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="no-print">
+        <div class="container">
+            <h1>Safaa Dabagh</h1>
+            <nav>
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../research.html">Research</a>
+                <a href="../../../math54.html">Math 54</a>
+                <a href="../../../math4.html">Math 4/4C</a>
+                <a href="../../../ai-education.html">AI Journey</a>
+                <a href="../../../publications.html">Publications</a>
+            </nav>
+        </div>
+    </header>
+
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Print</button>
+
+    <div class="quick-ref-container">
+        <div class="header-section">
+            <h1>📋 Chi-Square Tests Quick Reference</h1>
+            <p>Module 12 • One-Page Cheat Sheet</p>
+        </div>
+
+        <!-- Formulas Section -->
+        <div class="section">
+            <h2>Essential Formulas</h2>
+            <div class="comparison-grid">
+                <div class="formula-box" style="background: #E8F5E9; border-color: #28A745;">
+                    <strong>Goodness of Fit</strong>
+                    <div class="formula">E = n × p</div>
+                    <div class="formula">df = k - 1</div>
+                </div>
+                <div class="formula-box" style="background: #E3F2FD; border-color: #2196F3;">
+                    <strong>Independence</strong>
+                    <div class="formula">E = (RT×CT)/GT</div>
+                    <div class="formula">df = (r-1)(c-1)</div>
+                </div>
+                <div class="formula-box" style="background: #FFF3CD; border-color: #FFC107;">
+                    <strong>Homogeneity</strong>
+                    <div class="formula">E = (RT×CT)/GT</div>
+                    <div class="formula">df = (r-1)(c-1)</div>
+                </div>
+            </div>
+            <div class="formula-box">
+                <strong>Test Statistic (ALL TESTS):</strong>
+                <div class="formula">χ² = Σ[(O - E)² / E]</div>
+                <p style="margin: 0.25rem 0; font-size: 0.85rem;">Sum over all categories or cells</p>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="section">
+            <h2>Which Test to Use?</h2>
+            <table>
+                <tr>
+                    <th>Test</th>
+                    <th>Variables</th>
+                    <th>Samples</th>
+                    <th>Question</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td><strong>Goodness of Fit</strong></td>
+                    <td>1 categorical</td>
+                    <td>1 sample</td>
+                    <td>Fits expected distribution?</td>
+                    <td>Is die fair?</td>
+                </tr>
+                <tr>
+                    <td><strong>Independence</strong></td>
+                    <td>2 categorical</td>
+                    <td>1 sample</td>
+                    <td>Are variables related?</td>
+                    <td>Gender vs party?</td>
+                </tr>
+                <tr>
+                    <td><strong>Homogeneity</strong></td>
+                    <td>1 categorical</td>
+                    <td>2+ samples</td>
+                    <td>Same distribution?</td>
+                    <td>3 cities' views same?</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Decision Flowchart -->
+        <div class="section">
+            <h2>Decision Flowchart</h2>
+            <div class="flowchart">
+                <div class="flowchart-step"><strong>How many categorical variables?</strong></div>
+                <div class="arrow">↓</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div class="flowchart-step">ONE variable</div>
+                    <div class="flowchart-step">TWO variables</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div>
+                        <div class="flowchart-step" style="font-size: 0.75rem;"><strong>How many samples?</strong></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; margin-top: 0.5rem;">
+                            <div class="flowchart-step" style="background: #E8F5E9; font-size: 0.7rem;">1 sample<br>→ Goodness of Fit</div>
+                            <div class="flowchart-step" style="background: #FFF3CD; font-size: 0.7rem;">Multiple samples<br>→ Homogeneity</div>
+                        </div>
+                    </div>
+                    <div class="flowchart-step" style="background: #E3F2FD;">1 sample<br>→ Independence</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditions Checklist -->
+        <div class="section">
+            <h2>Conditions Checklist (ALL TESTS)</h2>
+            <ul class="checklist">
+                <li>Random sampling or random assignment</li>
+                <li>Independent observations</li>
+                <li><strong style="color: #DC3545;">All expected frequencies ≥ 5</strong> (CRITICAL!)</li>
+                <li>Categorical data (use counts, not percentages)</li>
+            </ul>
+        </div>
+
+        <!-- Step-by-Step Procedure -->
+        <div class="section">
+            <h2>7-Step Procedure</h2>
+            <table>
+                <tr>
+                    <th style="width: 20%;">Step</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td><strong>1. Hypotheses</strong></td>
+                    <td>H₀ vs Hₐ (state in context)</td>
+                </tr>
+                <tr>
+                    <td><strong>2. Conditions</strong></td>
+                    <td>Check all 4 conditions (especially E ≥ 5)</td>
+                </tr>
+                <tr>
+                    <td><strong>3. Expected</strong></td>
+                    <td>Calculate expected frequencies</td>
+                </tr>
+                <tr>
+                    <td><strong>4. Test Statistic</strong></td>
+                    <td>Calculate χ² = Σ[(O-E)²/E]</td>
+                </tr>
+                <tr>
+                    <td><strong>5. df</strong></td>
+                    <td>Find degrees of freedom</td>
+                </tr>
+                <tr>
+                    <td><strong>6. p-value/CV</strong></td>
+                    <td>Use table or technology</td>
+                </tr>
+                <tr>
+                    <td><strong>7. Conclusion</strong></td>
+                    <td>Decision + statement in context</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Common Mistakes -->
+        <div class="section" style="background: #FFE4E1; border-color: #DC3545;">
+            <h2 style="color: #DC3545;">❌ Common Mistakes</h2>
+            <div style="font-size: 0.85rem;">
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    <li>Using proportions instead of counts</li>
+                    <li>Not checking E ≥ 5 condition</li>
+                    <li>Wrong df formula for test type</li>
+                    <li>Claiming causation from association</li>
+                    <li>Forgetting to sum over ALL cells</li>
+                    <li>Using chi-square for quantitative data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Key Reminders -->
+        <div class="section" style="background: #E8F5E9; border-color: #28A745;">
+            <h2 style="color: #28A745;">✓ Key Reminders</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.85rem;">
+                <div>
+                    <strong>Chi-square distribution:</strong>
+                    <ul style="margin: 0.25rem 0; padding-left: 1.5rem;">
+                        <li>Always positive (χ² ≥ 0)</li>
+                        <li>Right-skewed</li>
+                        <li>Shape depends on df</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong>Tests are always:</strong>
+                    <ul style="margin: 0.25rem 0; padding-left: 1.5rem;">
+                        <li>Right-tailed</li>
+                        <li>Based on categorical data</li>
+                        <li>About frequencies, not means</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hypotheses Templates -->
+        <div class="section">
+            <h2>Hypotheses Templates</h2>
+            <table style="font-size: 0.8rem;">
+                <tr>
+                    <th>Test</th>
+                    <th>H₀</th>
+                    <th>Hₐ</th>
+                </tr>
+                <tr>
+                    <td><strong>Goodness of Fit</strong></td>
+                    <td>Data follows specified distribution</td>
+                    <td>Data does NOT follow distribution</td>
+                </tr>
+                <tr>
+                    <td><strong>Independence</strong></td>
+                    <td>Variables are independent</td>
+                    <td>Variables are associated</td>
+                </tr>
+                <tr>
+                    <td><strong>Homogeneity</strong></td>
+                    <td>Distributions are the same</td>
+                    <td>At least one distribution differs</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Decision Rules -->
+        <div class="section">
+            <h2>Decision Rules</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem;">
+                <div class="formula-box" style="background: white;">
+                    <strong>Using Critical Value:</strong>
+                    <p style="margin: 0.5rem 0;">If χ² > CV → Reject H₀</p>
+                    <p style="margin: 0.5rem 0;">If χ² ≤ CV → Fail to reject H₀</p>
+                </div>
+                <div class="formula-box" style="background: white;">
+                    <strong>Using p-value:</strong>
+                    <p style="margin: 0.5rem 0;">If p-value < α → Reject H₀</p>
+                    <p style="margin: 0.5rem 0;">If p-value ≥ α → Fail to reject H₀</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid #E0E0E0; font-size: 0.85rem; color: #5A5A5A;">
+            <p style="margin: 0;">Module 12: Chi-Square Tests • Introductory Statistics</p>
+            <p style="margin: 0.25rem 0;">© 2025 Safaa Dabagh • <a href="https://sdabagh.github.io">sdabagh.github.io</a></p>
+        </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin: 2rem 0;">
+        <button onclick="window.print()" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">🖨️ Print This Reference</button>
+        <a href="study-guide.html" class="btn btn-outline" style="font-size: 1.1rem; padding: 0.75rem 2rem; margin-left: 1rem;">← Back to Study Guide</a>
+        <a href="index.html" class="btn btn-outline" style="font-size: 1.1rem; padding: 0.75rem 2rem; margin-left: 1rem;">Module Overview</a>
+    </div>
+
+    <footer class="no-print">
+        <div class="container">
+            <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+            <p>
+                <a href="../../../index.html">Home</a> |
+                <a href="../../../about.html">About</a> |
+                <a href="../../../research.html">Research</a> |
+                <a href="../../../publications.html">Publications</a> |
+                <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
