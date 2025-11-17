@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Paired Samples Tests - Learn how to analyze matched pairs and before/after data">
+  <title>Lesson 2: Paired Samples Tests – Module 9</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-header h1 { color: white; margin-bottom: var(--spacing-xs); }
+    .breadcrumb { color: rgba(255,255,255,0.9); margin-bottom: var(--spacing-sm); }
+    .breadcrumb a { color: white; text-decoration: underline; }
+    .formula-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .formula { font-size: 1.2rem; font-weight: 600; text-align: center; margin: var(--spacing-sm) 0; font-family: 'Courier New', monospace; }
+    .example-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .example-box h4 { color: #856404; margin-top: 0; }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--info); padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .check-understanding { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .question { background: white; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); border: 2px solid var(--border-color); }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: #d4edda; border-radius: var(--radius-sm); border-left: 4px solid var(--success); }
+    .answer.show { display: block; }
+    .key-point { background: #fff9e6; border-left: 4px solid #ffb700; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .warning-box { background: #ffe6e6; border-left: 4px solid #dc3545; padding: var(--spacing-md); margin: var(--spacing-md) 0; border-radius: var(--radius-md); }
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    th { background: var(--primary-color); color: white; padding: var(--spacing-sm); text-align: left; }
+    td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: center; }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; }
+    .steps-list li { counter-increment: step-counter; margin: var(--spacing-md) 0; padding: var(--spacing-md); background: var(--background-alt); border-radius: var(--radius-md); position: relative; padding-left: 3rem; }
+    .steps-list li::before { content: counter(step-counter); position: absolute; left: var(--spacing-md); top: 50%; transform: translateY(-50%); background: var(--primary-color); color: white; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-header">
+      <div class="breadcrumb">
+        <a href="../index.html">Intro Stats</a> →
+        <a href="index.html">Module 9</a> →
+        Lesson 2
+      </div>
+      <h1>Paired Samples (Matched Pairs) Tests</h1>
+      <p style="margin-top: var(--spacing-sm); opacity: 0.95;">
+        Learn how to analyze dependent samples using paired t-tests
+      </p>
+    </div>
+
+    <section>
+      <h2>🎯 Lesson Objectives</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Identify situations requiring paired samples tests</li>
+        <li>Understand why paired tests are more powerful than independent tests</li>
+        <li>Calculate differences for paired data</li>
+        <li>Conduct paired t-tests using the one-sample approach on differences</li>
+        <li>Interpret results from before/after and matched pairs studies</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1. What Are Paired Samples?</h2>
+
+      <div class="definition-box">
+        <h4>📖 Definition: Paired (Dependent) Samples</h4>
+        <p>
+          <strong>Paired samples</strong> (also called matched pairs or dependent samples) occur when each observation in one sample is naturally paired or matched with a specific observation in the other sample.
+        </p>
+      </div>
+
+      <h3>Common Paired Designs</h3>
+
+      <table>
+        <tr>
+          <th>Design Type</th>
+          <th>Description</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td><strong>Before-After</strong></td>
+          <td>Same subjects measured at two time points</td>
+          <td>Weight before and after diet program</td>
+        </tr>
+        <tr>
+          <td><strong>Matched Subjects</strong></td>
+          <td>Subjects matched on important characteristics</td>
+          <td>Identical twins, one in each group</td>
+        </tr>
+        <tr>
+          <td><strong>Same Subject, Two Conditions</strong></td>
+          <td>Each subject experiences both treatments</td>
+          <td>Left eye vs right eye vision</td>
+        </tr>
+        <tr>
+          <td><strong>Pre-Post Testing</strong></td>
+          <td>Performance before and after intervention</td>
+          <td>Pre-test and post-test scores</td>
+        </tr>
+      </table>
+
+      <h3>Why Use Paired Designs?</h3>
+
+      <div class="key-point">
+        <strong>The Power of Pairing:</strong> Paired designs <strong>control for individual variability</strong>, making them more powerful (better at detecting real differences) than independent designs.
+        <p class="mt-2">
+          By comparing each subject to themselves (or their matched pair), we eliminate variation due to individual differences, which would otherwise be confounding noise in the data.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example: Why Pairing Matters</h4>
+        <p>
+          Suppose you're testing a weight loss program. You have two options:
+        </p>
+        <p><strong>Option 1 (Independent):</strong> Randomly assign 50 people to the diet, 50 to control. Compare final weights.</p>
+        <p class="mt-1"><strong>Option 2 (Paired):</strong> Measure weight before and after the diet for 50 people. Compare each person's change.</p>
+
+        <p class="mt-2"><strong>Why is Option 2 better?</strong></p>
+        <p>
+          People naturally have very different weights (individual variability is HIGH). In Option 1, this variability makes it harder to detect the diet's effect. In Option 2, you compare each person to themselves, eliminating this variability. You need <strong>fewer participants</strong> to detect the same effect!
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. The Paired t-Test: Process and Logic</h2>
+
+      <p>
+        The key insight: <strong>A paired t-test is actually a one-sample t-test on the differences!</strong>
+      </p>
+
+      <h3>Step-by-Step Process</h3>
+
+      <ol class="steps-list">
+        <li>
+          <strong>Calculate differences for each pair</strong><br>
+          d = x₁ - x₂ (or x₂ - x₁, be consistent)<br>
+          <em>Each pair gives you one difference value</em>
+        </li>
+        <li>
+          <strong>Calculate the mean of differences (d̄)</strong><br>
+          d̄ = Σd / n<br>
+          <em>This is your sample mean difference</em>
+        </li>
+        <li>
+          <strong>Calculate the standard deviation of differences (sd)</strong><br>
+          sd = √[Σ(d - d̄)² / (n - 1)]<br>
+          <em>Measure of variability in the differences</em>
+        </li>
+        <li>
+          <strong>Conduct a one-sample t-test on the differences</strong><br>
+          Test whether the mean difference is significantly different from 0
+        </li>
+      </ol>
+
+      <h3>Hypotheses for Paired t-Test</h3>
+
+      <p>We're testing whether the mean population difference (μd) equals zero:</p>
+
+      <table>
+        <tr>
+          <th>Test Type</th>
+          <th>Null Hypothesis (H₀)</th>
+          <th>Alternative Hypothesis (Hₐ)</th>
+        </tr>
+        <tr>
+          <td><strong>Two-tailed</strong></td>
+          <td>H₀: μd = 0</td>
+          <td>Hₐ: μd ≠ 0</td>
+        </tr>
+        <tr>
+          <td><strong>Right-tailed</strong></td>
+          <td>H₀: μd = 0</td>
+          <td>Hₐ: μd > 0</td>
+        </tr>
+        <tr>
+          <td><strong>Left-tailed</strong></td>
+          <td>H₀: μd = 0</td>
+          <td>Hₐ: μd < 0</td>
+        </tr>
+      </table>
+
+      <p class="mt-2">
+        <strong>Note:</strong> μd = 0 means "no difference on average" between the two conditions. Rejecting this means there IS a significant difference.
+      </p>
+    </section>
+
+    <section>
+      <h2>3. Test Statistic and Formula</h2>
+
+      <div class="formula-box">
+        <h4>Test Statistic for Paired t-Test</h4>
+        <div class="formula">
+          t = (d̄ - μd₀) / (sd / √n)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where:<br>
+          d̄ = mean of the differences<br>
+          μd₀ = hypothesized mean difference (usually 0)<br>
+          sd = standard deviation of the differences<br>
+          n = number of pairs
+        </p>
+      </div>
+
+      <div class="formula-box">
+        <h4>Degrees of Freedom</h4>
+        <div class="formula">
+          df = n - 1
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where n = number of pairs (NOT total number of observations!)
+        </p>
+      </div>
+
+      <h3>Conditions for Paired t-Test</h3>
+
+      <ol>
+        <li><strong>Random Sampling:</strong> The pairs are randomly selected</li>
+        <li><strong>Independence of Pairs:</strong> Each pair is independent of other pairs</li>
+        <li><strong>Normality of Differences:</strong>
+          <ul>
+            <li>The differences are approximately normally distributed, OR</li>
+            <li>The sample size is large (n ≥ 30 pairs)</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>⚠️ Common Mistake:</strong> Don't confuse the number of pairs (n) with the total number of observations (2n). If you have 25 pairs, n = 25, NOT 50! Your degrees of freedom is n - 1 = 24.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Complete Example: Before-After Study</h2>
+
+      <div class="example-box">
+        <h4>📝 Example: Weight Loss Program</h4>
+        <p>
+          <strong>Research Question:</strong> Does a new diet program result in significant weight loss?
+        </p>
+        <p>
+          A dietitian measures the weight of 8 participants before and after a 6-week program. Test at α = 0.05.
+        </p>
+
+        <table>
+          <tr>
+            <th>Participant</th>
+            <th>Before (lb)</th>
+            <th>After (lb)</th>
+            <th>Difference d = Before - After</th>
+          </tr>
+          <tr>
+            <td>1</td><td>185</td><td>178</td><td>7</td>
+          </tr>
+          <tr>
+            <td>2</td><td>210</td><td>205</td><td>5</td>
+          </tr>
+          <tr>
+            <td>3</td><td>168</td><td>165</td><td>3</td>
+          </tr>
+          <tr>
+            <td>4</td><td>195</td><td>188</td><td>7</td>
+          </tr>
+          <tr>
+            <td>5</td><td>220</td><td>210</td><td>10</td>
+          </tr>
+          <tr>
+            <td>6</td><td>172</td><td>170</td><td>2</td>
+          </tr>
+          <tr>
+            <td>7</td><td>198</td><td>192</td><td>6</td>
+          </tr>
+          <tr>
+            <td>8</td><td>205</td><td>198</td><td>7</td>
+          </tr>
+        </table>
+
+        <p class="mt-2"><strong>Step 1: State hypotheses</strong></p>
+        <ul>
+          <li>H₀: μd = 0 (no weight loss on average)</li>
+          <li>Hₐ: μd > 0 (weight loss occurred) — <em>right-tailed test</em></li>
+        </ul>
+        <p><em>Note: d = Before - After, so positive d means weight loss</em></p>
+
+        <p class="mt-2"><strong>Step 2: Check conditions</strong></p>
+        <ul>
+          <li>✓ Participants randomly selected</li>
+          <li>✓ Pairs are independent (different people)</li>
+          <li>⚠ n = 8 < 30, so we need to assume differences are approximately normal (reasonable for weight loss)</li>
+        </ul>
+
+        <p class="mt-2"><strong>Step 3: Calculate d̄ and sd</strong></p>
+        <p>
+          <strong>Mean difference:</strong><br>
+          d̄ = (7 + 5 + 3 + 7 + 10 + 2 + 6 + 7) / 8 = 47 / 8 = <strong>5.875 lb</strong>
+        </p>
+        <p class="mt-2">
+          <strong>Standard deviation of differences:</strong><br>
+          First calculate deviations from mean and square them:<br>
+          (7-5.875)² = 1.266, (5-5.875)² = 0.766, (3-5.875)² = 8.266, etc.<br>
+          Sum of squared deviations = 43.875<br>
+          sd = √(43.875 / 7) = √6.268 = <strong>2.504 lb</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 4: Calculate test statistic</strong></p>
+        <p>
+          t = (5.875 - 0) / (2.504 / √8)<br>
+          t = 5.875 / (2.504 / 2.828)<br>
+          t = 5.875 / 0.886<br>
+          <strong>t ≈ 6.63</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 5: Find critical value and p-value</strong></p>
+        <p>
+          df = n - 1 = 8 - 1 = <strong>7</strong><br>
+          For α = 0.05 (right-tailed), t-critical(7) ≈ <strong>1.895</strong><br>
+          With t = 6.63, <strong>p-value < 0.001</strong>
+        </p>
+
+        <p class="mt-2"><strong>Step 6: Make decision</strong></p>
+        <p>
+          Since t = 6.63 > 1.895 (or p-value < 0.05), we <strong>reject H₀</strong>.
+        </p>
+
+        <p class="mt-2"><strong>Step 7: Conclusion</strong></p>
+        <p>
+          There is sufficient evidence at the 0.05 significance level to conclude that the diet program results in significant weight loss. On average, participants lost 5.875 pounds.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Paired vs. Independent: When to Use Which?</h2>
+
+      <table>
+        <tr>
+          <th>Aspect</th>
+          <th>Paired t-Test</th>
+          <th>Independent Two-Sample t-Test</th>
+        </tr>
+        <tr>
+          <td><strong>Data Structure</strong></td>
+          <td>Same subjects measured twice OR matched pairs</td>
+          <td>Two separate, unrelated groups</td>
+        </tr>
+        <tr>
+          <td><strong>Sample Size</strong></td>
+          <td>n = number of pairs</td>
+          <td>n₁ and n₂ for each group</td>
+        </tr>
+        <tr>
+          <td><strong>What We Analyze</strong></td>
+          <td>Differences (d = x₁ - x₂)</td>
+          <td>Two separate samples</td>
+        </tr>
+        <tr>
+          <td><strong>Degrees of Freedom</strong></td>
+          <td>df = n - 1</td>
+          <td>df = complex formula or n₁ + n₂ - 2</td>
+        </tr>
+        <tr>
+          <td><strong>Power</strong></td>
+          <td>Higher (controls individual variability)</td>
+          <td>Lower (more noise from individual differences)</td>
+        </tr>
+        <tr>
+          <td><strong>Example</strong></td>
+          <td>Blood pressure before/after medication</td>
+          <td>Blood pressure in Med A group vs Med B group</td>
+        </tr>
+      </table>
+
+      <div class="key-point">
+        <strong>Critical Decision Rule:</strong> If the same subjects are measured twice (or matched pairs), use a <strong>paired t-test</strong>. If you have two completely separate groups, use an <strong>independent two-sample t-test</strong>.
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Confidence Interval for Mean Difference</h2>
+
+      <p>
+        In addition to hypothesis testing, you can construct a confidence interval for the mean difference μd:
+      </p>
+
+      <div class="formula-box">
+        <h4>Confidence Interval for μd</h4>
+        <div class="formula">
+          d̄ ± t* × (sd / √n)
+        </div>
+        <p style="text-align: center; margin-top: var(--spacing-sm);">
+          where t* is the critical value from t-distribution with df = n - 1
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>📝 Example: Confidence Interval for Weight Loss</h4>
+        <p>Using the weight loss data from Example 4:</p>
+        <ul>
+          <li>d̄ = 5.875, sd = 2.504, n = 8, df = 7</li>
+          <li>For 95% CI: t* ≈ 2.365</li>
+        </ul>
+        <p class="mt-2">
+          95% CI = 5.875 ± 2.365 × (2.504 / √8)<br>
+          = 5.875 ± 2.365 × 0.886<br>
+          = 5.875 ± 2.095<br>
+          = <strong>(3.78, 7.97) pounds</strong>
+        </p>
+        <p class="mt-2">
+          <strong>Interpretation:</strong> We are 95% confident that the true mean weight loss is between 3.78 and 7.97 pounds. Since this interval does NOT contain 0, we can conclude there is significant weight loss (consistent with our hypothesis test).
+        </p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>✅ Check Your Understanding</h3>
+
+      <div class="question">
+        <p><strong>Question 1:</strong> A researcher wants to compare reading speeds before and after a speed-reading course. She tests 20 people before the course and 20 different people after the course. Should she use a paired or independent test?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> Independent two-sample test. These are two different groups of people, NOT the same people measured twice. The correct design would have been to test the SAME 20 people before and after.
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 2:</strong> If you have 15 pairs of data, what is the degrees of freedom for a paired t-test?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> df = n - 1 = 15 - 1 = <strong>14</strong>. Remember, n is the number of pairs, not the total number of observations (which would be 30).
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Question 3:</strong> In a paired t-test, you calculate d̄ = -3.2 and get t = -2.8 with p-value = 0.01 for a two-tailed test at α = 0.05. What is your conclusion if d = Before - After?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> Reject H₀. Since p-value (0.01) < α (0.05), there is significant evidence of a difference. The negative d̄ means "After" scores are higher than "Before" scores on average (by 3.2 units).
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📌 Key Takeaways</h2>
+      <ul>
+        <li>Paired t-tests are used when the same subjects are measured twice or when subjects are matched</li>
+        <li>The key is to calculate <strong>differences</strong> (d) for each pair</li>
+        <li>A paired t-test is a <strong>one-sample t-test on the differences</strong></li>
+        <li>Test statistic: t = (d̄ - 0) / (sd / √n) with df = n - 1</li>
+        <li>Paired designs are <strong>more powerful</strong> than independent designs because they control for individual variability</li>
+        <li>Hypotheses: H₀: μd = 0 vs. Hₐ: μd ≠ 0 (or <, >)</li>
+        <li>Always specify what the difference represents (Before - After or After - Before)</li>
+      </ul>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-two-sample-means-independent.html" class="btn btn-outline">← Previous: Lesson 1</a>
+      <a href="lesson-03-two-sample-proportions.html" class="btn btn-primary">Next: Lesson 3 (Two Proportions) →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Statistics Learning Platform • Part of UCLA Dissertation Research</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const answer = document.getElementById(id);
+      answer.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>
