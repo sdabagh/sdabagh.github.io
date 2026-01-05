@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Statistics Tutor - Canvas Integration</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #tutor-frame {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            display: block;
+        }
+
+        /* Loading screen while iframe loads */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Error fallback */
+        #error-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            z-index: 10000;
+        }
+
+        #error-message h2 {
+            color: #D32F2F;
+            margin-top: 0;
+        }
+
+        #error-message a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #2C5F7C;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        #error-message a:hover {
+            background: #1A3A4D;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading AI Statistics Tutor...</div>
+    </div>
+
+    <!-- Error Message (hidden by default) -->
+    <div id="error-message">
+        <h2>⚠️ Unable to Load Tutor</h2>
+        <p>The AI tutor could not be loaded in this view.</p>
+        <a href="https://sdabagh.github.io/ai-tutor/chat-interface.html" target="_blank">
+            Open Tutor in New Window
+        </a>
+    </div>
+
+    <!-- Embedded Tutor -->
+    <iframe
+        id="tutor-frame"
+        src="chat-interface.html"
+        title="AI Statistics Tutor"
+        allow="clipboard-write"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
+    ></iframe>
+
+    <script>
+        // Hide loading screen when iframe loads
+        const iframe = document.getElementById('tutor-frame');
+        const loadingScreen = document.getElementById('loading-screen');
+        const errorMessage = document.getElementById('error-message');
+
+        iframe.addEventListener('load', function() {
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+            }, 500);
+        });
+
+        // Show error message if iframe fails to load after 10 seconds
+        setTimeout(() => {
+            if (!loadingScreen.classList.contains('hidden')) {
+                loadingScreen.style.display = 'none';
+                errorMessage.style.display = 'block';
+            }
+        }, 10000);
+
+        // Handle iframe errors
+        iframe.addEventListener('error', function() {
+            loadingScreen.style.display = 'none';
+            errorMessage.style.display = 'block';
+        });
+
+        // Pass Canvas context parameters if available (for future LTI integration)
+        window.addEventListener('message', function(event) {
+            // Handle messages from Canvas if needed
+            // This allows for future expansion with LTI parameters
+            if (event.data && event.data.type === 'canvas-context') {
+                console.log('Canvas context received:', event.data);
+                // Could pass to tutor iframe for module context detection
+            }
+        });
+    </script>
+
+</body>
+</html>
