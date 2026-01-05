@@ -1,163 +1,126 @@
 <!--
-  CANVAS AI TUTOR - Uses contenteditable div for input (Canvas-proof)
+  SIMPLE CANVAS AI TUTOR - No CSP violations
+  Extremely simplified to work within Canvas restrictions
 -->
 
-<div style="border: 3px solid #2C5F7C; max-width: 900px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden;">
+<div style="border: 3px solid #2C5F7C; max-width: 900px; margin: 20px auto; background: white; padding: 20px;">
 
-<!-- Header -->
-<div style="background: #2C5F7C; color: white; padding: 25px; text-align: center;">
-  <h2 style="margin: 0; color: white; font-size: 26px;">🤖 AI Statistics Tutor</h2>
-  <p style="margin: 8px 0 0 0; font-size: 15px; color: white;">Adaptive Support - Adjusts to Your Needs</p>
+<div style="background: #2C5F7C; color: white; padding: 20px; text-align: center; margin: -20px -20px 20px -20px;">
+  <h2 style="margin: 0; color: white;">🤖 AI Statistics Tutor</h2>
+  <p style="margin: 5px 0 0 0; color: white;">Click a topic below for help</p>
 </div>
 
-<!-- Level Badge -->
-<div style="background: #FFF9E6; padding: 15px; text-align: center; border-bottom: 2px solid #FFE082;">
-  <strong style="font-size: 16px;">Support Level:</strong>
-  <span id="tutor-level" style="background: #FFB020; color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin-left: 10px;">Level 1 - Hints</span>
+<div style="background: #FFF9E6; padding: 15px; text-align: center; margin-bottom: 20px;">
+  <strong>Support Level:</strong> <span style="background: #FFB020; color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold;">Interactive Help</span>
 </div>
 
-<!-- Messages -->
-<div id="tutor-messages" style="min-height: 450px; max-height: 550px; overflow-y: auto; padding: 25px; background: #FAFBFC; border-bottom: 3px solid #E0E0E0;">
+<p style="font-size: 16px; margin-bottom: 20px;"><strong>Click a topic to get AI tutoring help:</strong></p>
 
-  <div style="background: #E7F3FF; border: 2px solid #90CAF9; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-    <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>AI Tutor</strong></p>
-    <p style="margin: 0 0 12px 0;">Welcome! I'm your AI statistics tutor. I'll adapt my responses based on your needs:</p>
-    <ul style="margin: 8px 0; padding-left: 25px; line-height: 1.8;">
-      <li><strong>Level 1:</strong> Hints and guiding questions</li>
-      <li><strong>Level 2:</strong> Step-by-step breakdowns</li>
-      <li><strong>Level 3:</strong> Complete worked examples</li>
-    </ul>
-    <p style="margin: 12px 0 0 0;"><strong>Ask me anything about statistics!</strong></p>
-  </div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
 
-</div>
-
-<!-- Input Area with contenteditable div -->
-<div style="padding: 20px; background: white;">
-  <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>Type your question below and click Send:</strong></p>
-
-  <div id="tutor-input" contenteditable="true" style="width: 95%; min-height: 60px; padding: 15px; border: 3px solid #2C5F7C; border-radius: 8px; font-size: 17px; margin-bottom: 15px; background: white; cursor: text; overflow-wrap: break-word;" placeholder="Example: How do I calculate the mean?">Type your question here...</div>
-
-  <button onclick="askTutor()" style="background: #2C5F7C; color: white; padding: 15px 40px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 5px;">
-    💬 Send Question
+  <button onclick="showHelp('mean')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    📊 Mean / Average
   </button>
 
-  <p style="margin: 15px 0 0 0; font-size: 13px; color: #666;">
-    📊 <em>Research Note: Conversations are logged anonymously for dissertation research.</em>
-  </p>
+  <button onclick="showHelp('median')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    📏 Median
+  </button>
+
+  <button onclick="showHelp('mode')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    🎯 Mode
+  </button>
+
+  <button onclick="showHelp('deviation')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    📈 Standard Deviation
+  </button>
+
+  <button onclick="showHelp('variance')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    📉 Variance
+  </button>
+
+  <button onclick="showHelp('confidence')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    🎲 Confidence Intervals
+  </button>
+
+  <button onclick="showHelp('hypothesis')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    🔬 Hypothesis Testing
+  </button>
+
+  <button onclick="showHelp('probability')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    🎰 Probability
+  </button>
+
+  <button onclick="showHelp('correlation')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    🔗 Correlation
+  </button>
+
+  <button onclick="showHelp('sampling')" style="background: #2C5F7C; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left;">
+    👥 Sampling
+  </button>
+
 </div>
+
+<div id="help-content" style="background: #E7F3FF; border: 2px solid #90CAF9; padding: 20px; border-radius: 10px; min-height: 200px; display: none;">
+  <h3 id="help-title" style="margin-top: 0; color: #2C5F7C;">Select a topic above</h3>
+  <div id="help-text"></div>
+  <button onclick="document.getElementById('help-content').style.display='none'" style="background: #D97D54; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 15px; cursor: pointer;">Close</button>
+</div>
+
+<p style="margin-top: 20px; font-size: 13px; color: #666;">
+  📊 <em>Research Note: Interactions help improve AI in education research.</em>
+</p>
 
 </div>
 
 <script>
-var tutorLevel = 1;
-var questionNum = 0;
+function showHelp(topic) {
+  var content = document.getElementById('help-content');
+  var title = document.getElementById('help-title');
+  var text = document.getElementById('help-text');
 
-var answers = {
-  1: {
-    default: "Let's think about this together. What's the first thing you notice about this problem?",
-    mean: "Good question! What does 'mean' or 'average' represent? How would you calculate the center of a data set?",
-    median: "Think about the median - it's the middle value. How would you find the middle of a sorted dataset?",
-    mode: "The mode is the most frequent value. What if multiple values appear most often?",
-    deviation: "Standard deviation measures spread. What's the relationship between variance and standard deviation?",
-    variance: "Variance shows how spread out data is. How do we calculate it?",
-    confidence: "For confidence intervals, we need three key pieces. Can you identify what those might be?",
-    test: "In hypothesis testing, what's the first step? Think about what we're trying to prove.",
-    probability: "Let's think about probability. What does it mean for an event to have a probability of 0.5?",
-    correlation: "Correlation measures relationships. What's the difference between correlation and causation?"
-  },
-  2: {
-    default: "Let me break this down:\n\n1. Identify the type of problem\n2. List what we have\n3. Choose the method\n\nStart with step 1 - what type of problem?",
-    mean: "To calculate the mean:\n\n1. Add all values\n2. Count how many values\n3. Divide sum by count\n\nTry step 1 with your data.",
-    median: "To find median:\n\n1. Sort the data\n2. If odd count, pick middle\n3. If even, average two middle values\n\nHow many data points?",
-    mode: "To find mode:\n\n1. Count frequencies\n2. Find highest frequency\n3. No mode if all equal\n\nWhat are your values?",
-    deviation: "For standard deviation:\n\n1. Find mean\n2. Subtract mean from each\n3. Square differences\n4. Average squared values\n5. Take square root\n\nWhich step is tricky?",
-    variance: "To calculate variance:\n\n1. Find mean\n2. Find deviations\n3. Square deviations\n4. Average them\n\nTry steps 1-2.",
-    confidence: "Build confidence interval:\n\n1. What estimating? (mean/proportion)\n2. Confidence level? (90/95/99%)\n3. Know population SD?\n\nAnswer question 1.",
-    test: "Hypothesis test:\n\n1. State H₀\n2. State Hₐ\n3. Choose α\n4. Select test\n\nWhat's your H₀?",
-    probability: "For probability:\n\n1. Sample space\n2. Favorable outcomes\n3. Total outcomes\n4. P = favorable/total\n\nWhat's the sample space?",
-    correlation: "For correlation:\n\n1. Check r value\n2. Near ±1 = strong\n3. Near 0 = weak\n4. Sign = direction\n\nWhat's your r?"
-  },
-  3: {
-    default: "EXAMPLE:\n\nFind 95% CI for mean\nn=36, x̄=78, s=12\n\nz*=1.96\nSE=12/√36=2\nME=1.96×2=3.92\nCI=78±3.92\n\nANSWER: (74.08, 81.92)",
-    mean: "MEAN EXAMPLE:\n\nData: 4,7,9,12,18\n\nSum = 50\nCount = 5\nMean = 50÷5 = 10\n\nANSWER: 10",
-    median: "MEDIAN EXAMPLE:\n\nData: 3,7,8,12,15\n\nSorted ✓\nCount=5 (odd)\n3rd value = 8\n\nANSWER: 8",
-    mode: "MODE EXAMPLE:\n\nData: 2,3,3,5,5,5,7,9\n\n2: 1x\n3: 2x\n5: 3x ← most\n7,9: 1x each\n\nANSWER: 5",
-    deviation: "SD EXAMPLE:\n\nData: 2,4,6,8,10\n\nMean=6\nDeviations: -4,-2,0,2,4\nSquared: 16,4,0,4,16\nVariance=8\nSD=√8=2.83\n\nANSWER: 2.83",
-    variance: "VARIANCE EXAMPLE:\n\nData: 1,3,5,7,9\n\nMean=5\nDeviations: -4,-2,0,2,4\nSquared: 16,4,0,4,16\nSum=40\nVariance=40/5=8\n\nANSWER: 8",
-    confidence: "95% CI EXAMPLE:\n\nn=36, x̄=78, s=12\n\nz*=1.96\nSE=12/6=2\nME=3.92\nLower=74.08\nUpper=81.92\n\nANSWER: (74.08, 81.92)",
-    test: "HYPOTHESIS TEST:\n\nμ>65? α=0.05\nn=25, x̄=67, s=4\n\nH₀:μ=65 Hₐ:μ>65\nt=(67-65)/(4/5)=2.5\nt*=1.711\n2.5>1.711 → REJECT\n\nμ > 65 ✓",
-    probability: "PROBABILITY:\n\n2 dice, P(sum=7)?\n\nTotal: 36\nSum=7: (1,6)(2,5)(3,4)(4,3)(5,2)(6,1)\nCount: 6\nP=6/36=1/6\n\nANSWER: 0.167",
-    correlation: "CORRELATION:\n\nr = 0.85\n\nClose to +1\nSTRONG correlation\nPositive direction\nr²=0.72 (72%)\n\nStrong positive!"
+  content.style.display = 'block';
+
+  if (topic === 'mean') {
+    title.textContent = '📊 How to Calculate the Mean';
+    text.innerHTML = '<p><strong>The mean is the average of all values.</strong></p><p><strong>Steps:</strong></p><ol><li>Add up all the values</li><li>Count how many values you have</li><li>Divide the sum by the count</li></ol><p><strong>Example:</strong></p><p>Data: 4, 7, 9, 12, 18</p><p>Sum = 4 + 7 + 9 + 12 + 18 = 50<br>Count = 5<br>Mean = 50 ÷ 5 = <strong>10</strong></p><p><strong>💡 Tip:</strong> The mean can be affected by outliers (very high or low values)!</p>';
   }
-};
-
-function levelUp() {
-  questionNum++;
-  if (questionNum >= 4) tutorLevel = 3;
-  else if (questionNum >= 2) tutorLevel = 2;
-
-  var names = {1: 'Level 1 - Hints', 2: 'Level 2 - Guided Steps', 3: 'Level 3 - Worked Examples'};
-  document.getElementById('tutor-level').textContent = names[tutorLevel];
-}
-
-function showMsg(who, msg) {
-  var box = document.getElementById('tutor-messages');
-  var div = document.createElement('div');
-
-  if (who === 'user') {
-    div.style.cssText = 'background:#D97D54;color:white;padding:15px;border-radius:10px;margin-bottom:18px;margin-left:18%;';
-    div.innerHTML = '<p style="margin:0;"><strong>You:</strong></p><p style="margin:8px 0 0 0;">' + msg + '</p>';
-  } else {
-    div.style.cssText = 'background:#E7F3FF;border:2px solid #90CAF9;padding:15px;border-radius:10px;margin-bottom:18px;margin-right:18%;';
-    div.innerHTML = '<p style="margin:0;"><strong>AI Tutor:</strong></p><p style="margin:8px 0 0 0;white-space:pre-wrap;">' + msg + '</p>';
+  else if (topic === 'median') {
+    title.textContent = '📏 How to Find the Median';
+    text.innerHTML = '<p><strong>The median is the middle value when data is sorted.</strong></p><p><strong>Steps:</strong></p><ol><li>Sort data from smallest to largest</li><li>If odd count: pick the middle number</li><li>If even count: average the two middle numbers</li></ol><p><strong>Example (odd count):</strong></p><p>Data: 3, 7, 8, 12, 15</p><p>Already sorted ✓<br>Count = 5 (odd)<br>Middle = 3rd value = <strong>8</strong></p><p><strong>💡 Tip:</strong> Median is resistant to outliers - it represents the "typical" value better than mean when outliers exist!</p>';
+  }
+  else if (topic === 'mode') {
+    title.textContent = '🎯 How to Find the Mode';
+    text.innerHTML = '<p><strong>The mode is the value that appears most frequently.</strong></p><p><strong>Steps:</strong></p><ol><li>Count how often each value appears</li><li>Find the value(s) with the highest frequency</li><li>If all values appear equally, there is no mode</li></ol><p><strong>Example:</strong></p><p>Data: 2, 3, 3, 5, 5, 5, 7, 9</p><p>2 appears 1 time<br>3 appears 2 times<br>5 appears 3 times ← Most frequent<br>7, 9 appear 1 time each</p><p>Mode = <strong>5</strong></p><p><strong>💡 Tip:</strong> A dataset can have no mode, one mode, or multiple modes!</p>';
+  }
+  else if (topic === 'deviation') {
+    title.textContent = '📈 Standard Deviation';
+    text.innerHTML = '<p><strong>Standard deviation measures how spread out data is from the mean.</strong></p><p><strong>Steps:</strong></p><ol><li>Find the mean</li><li>Subtract mean from each value (deviations)</li><li>Square each deviation</li><li>Average the squared deviations (variance)</li><li>Take the square root</li></ol><p><strong>Example:</strong></p><p>Data: 2, 4, 6, 8, 10</p><p>Mean = 6<br>Deviations: -4, -2, 0, 2, 4<br>Squared: 16, 4, 0, 4, 16<br>Variance = (16+4+0+4+16)/5 = 8<br>SD = √8 = <strong>2.83</strong></p><p><strong>💡 Tip:</strong> Larger SD = more spread out data!</p>';
+  }
+  else if (topic === 'variance') {
+    title.textContent = '📉 Variance';
+    text.innerHTML = '<p><strong>Variance measures the average squared distance from the mean.</strong></p><p><strong>Steps:</strong></p><ol><li>Find the mean</li><li>Subtract mean from each value</li><li>Square each deviation</li><li>Average all squared deviations</li></ol><p><strong>Example:</strong></p><p>Data: 1, 3, 5, 7, 9</p><p>Mean = 5<br>Deviations: -4, -2, 0, 2, 4<br>Squared: 16, 4, 0, 4, 16<br>Variance = (16+4+0+4+16)/5 = <strong>8</strong></p><p><strong>💡 Tip:</strong> Variance is in squared units. Standard deviation (√variance) is in original units!</p>';
+  }
+  else if (topic === 'confidence') {
+    title.textContent = '🎲 Confidence Intervals';
+    text.innerHTML = '<p><strong>A confidence interval gives a range where the population parameter likely falls.</strong></p><p><strong>95% CI Formula:</strong></p><p>CI = x̄ ± (z* × SE)</p><p>Where:<br>• x̄ = sample mean<br>• z* = critical value (1.96 for 95%)<br>• SE = s/√n (standard error)</p><p><strong>Example:</strong></p><p>n=36, x̄=78, s=12</p><p>SE = 12/√36 = 2<br>ME = 1.96 × 2 = 3.92<br>CI = 78 ± 3.92 = <strong>(74.08, 81.92)</strong></p><p><strong>💡 Interpretation:</strong> We are 95% confident the true population mean is between 74.08 and 81.92.</p>';
+  }
+  else if (topic === 'hypothesis') {
+    title.textContent = '🔬 Hypothesis Testing';
+    text.innerHTML = '<p><strong>Hypothesis testing determines if sample data supports a claim about a population.</strong></p><p><strong>Steps:</strong></p><ol><li>State H₀ (null hypothesis) and Hₐ (alternative)</li><li>Choose significance level (α, usually 0.05)</li><li>Calculate test statistic</li><li>Find critical value or p-value</li><li>Make decision: Reject H₀ or Fail to reject</li></ol><p><strong>Example:</strong></p><p>Test if μ > 65 (α=0.05)<br>Data: n=25, x̄=67, s=4</p><p>H₀: μ = 65<br>Hₐ: μ > 65<br>t = (67-65)/(4/√25) = 2.5<br>Critical value: t* = 1.711<br>2.5 > 1.711 → <strong>Reject H₀</strong></p><p><strong>💡 Conclusion:</strong> Evidence supports μ > 65</p>';
+  }
+  else if (topic === 'probability') {
+    title.textContent = '🎰 Probability';
+    text.innerHTML = '<p><strong>Probability measures the chance of an event occurring.</strong></p><p><strong>Formula:</strong></p><p>P(event) = (Favorable outcomes) / (Total possible outcomes)</p><p><strong>Example:</strong></p><p>Rolling two dice, what is P(sum = 7)?</p><p>Total outcomes: 36<br>Favorable outcomes for sum=7:<br>(1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6</p><p>P(sum=7) = 6/36 = 1/6 = <strong>0.167 or 16.7%</strong></p><p><strong>💡 Key Properties:</strong><br>• 0 ≤ P ≤ 1<br>• P = 0 means impossible<br>• P = 1 means certain</p>';
+  }
+  else if (topic === 'correlation') {
+    title.textContent = '🔗 Correlation';
+    text.innerHTML = '<p><strong>Correlation measures the strength and direction of a linear relationship between two variables.</strong></p><p><strong>Correlation coefficient (r):</strong><br>• Range: -1 to +1<br>• r near +1 = strong positive relationship<br>• r near -1 = strong negative relationship<br>• r near 0 = weak/no relationship</p><p><strong>Example:</strong></p><p>r = 0.85</p><p>Interpretation:<br>• 0.85 is close to +1<br>• <strong>Strong positive</strong> correlation<br>• As X increases, Y tends to increase<br>• r² = 0.72 (72% of variation explained)</p><p><strong>⚠️ Important:</strong> Correlation ≠ Causation! Just because two variables are correlated doesn\'t mean one causes the other.</p>';
+  }
+  else if (topic === 'sampling') {
+    title.textContent = '👥 Sampling';
+    text.innerHTML = '<p><strong>Sampling is selecting a subset of a population to study.</strong></p><p><strong>Types of Sampling:</strong></p><ul><li><strong>Random:</strong> Every member has equal chance</li><li><strong>Stratified:</strong> Divide into groups, sample from each</li><li><strong>Cluster:</strong> Randomly select groups, survey all in selected groups</li><li><strong>Systematic:</strong> Every nth member</li></ul><p><strong>Example:</strong></p><p>Population: 1,000 students<br>Sample: 100 randomly selected</p><p>Why sample?<br>• Too expensive/time-consuming to survey all<br>• Random sample is representative<br>• Can infer population characteristics</p><p><strong>💡 Key:</strong> Random selection prevents bias!</p>';
   }
 
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+  content.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
-
-function getReply(q) {
-  var lower = q.toLowerCase();
-  var r = answers[tutorLevel];
-
-  if (lower.indexOf('mean') >= 0 || lower.indexOf('average') >= 0) return r.mean;
-  if (lower.indexOf('median') >= 0) return r.median;
-  if (lower.indexOf('mode') >= 0) return r.mode;
-  if (lower.indexOf('deviation') >= 0 || lower.indexOf('spread') >= 0) return r.deviation;
-  if (lower.indexOf('variance') >= 0) return r.variance;
-  if (lower.indexOf('confidence') >= 0 || lower.indexOf('interval') >= 0) return r.confidence;
-  if (lower.indexOf('test') >= 0 || lower.indexOf('hypothesis') >= 0) return r.test;
-  if (lower.indexOf('probability') >= 0 || lower.indexOf('chance') >= 0) return r.probability;
-  if (lower.indexOf('correlation') >= 0) return r.correlation;
-  return r.default;
-}
-
-function askTutor() {
-  var inputBox = document.getElementById('tutor-input');
-  var question = inputBox.textContent.trim();
-
-  if (!question || question === 'Type your question here...') {
-    alert('Please type a question first!');
-    return;
-  }
-
-  showMsg('user', question);
-  inputBox.textContent = 'Type your question here...';
-  levelUp();
-
-  setTimeout(function() {
-    var reply = getReply(question);
-    showMsg('ai', reply);
-  }, 800);
-}
-
-// Clear placeholder on click
-document.getElementById('tutor-input').onclick = function() {
-  if (this.textContent === 'Type your question here...') {
-    this.textContent = '';
-  }
-};
-
-console.log('AI Tutor loaded!');
 </script>
