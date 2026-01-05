@@ -1,0 +1,174 @@
+<!--
+  CANVAS-COMPATIBLE AI TUTOR
+  Simplified version that works in Canvas HTML editor
+-->
+
+<div style="border: 2px solid #2C5F7C; border-radius: 10px; margin: 20px 0; background: white; max-width: 100%;">
+
+<!-- Header -->
+<div style="background: #2C5F7C; color: white; padding: 20px; text-align: center;">
+  <h2 style="margin: 0; color: white;">🤖 AI Statistics Tutor</h2>
+  <p style="margin: 5px 0 0 0; font-size: 14px; color: white;">Adaptive Support - Adjusts to Your Needs</p>
+</div>
+
+<!-- Level Indicator -->
+<div style="text-align: center; padding: 12px; background: #FFF9E6; border-bottom: 2px solid #FFE082;">
+  <strong>Support Level:</strong> <span id="ai-level-display" style="background: #FFB020; color: white; padding: 5px 15px; border-radius: 15px; font-weight: bold;">Level 1 - Hints</span>
+</div>
+
+<!-- Messages Area -->
+<div id="ai-chat-box" style="min-height: 400px; max-height: 500px; overflow-y: auto; padding: 20px; background: #FAFBFC; border-bottom: 2px solid #E0E0E0;">
+
+  <!-- Welcome Message -->
+  <div style="background: #E7F3FF; border: 1px solid #90CAF9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+    <p style="margin: 0 0 10px 0;"><strong>AI Tutor</strong></p>
+    <p style="margin: 0 0 10px 0;">Welcome! I'm your AI statistics tutor. I'll adapt my responses based on your needs:</p>
+    <ul style="margin: 5px 0; padding-left: 20px;">
+      <li><strong>Level 1:</strong> Hints and guiding questions</li>
+      <li><strong>Level 2:</strong> Step-by-step breakdowns</li>
+      <li><strong>Level 3:</strong> Complete worked examples</li>
+    </ul>
+    <p style="margin: 10px 0 0 0;"><strong>Ask me anything about statistics!</strong></p>
+  </div>
+
+</div>
+
+<!-- Input Area -->
+<div style="padding: 15px; background: white;">
+  <p style="margin: 0 0 10px 0;"><strong>Type your question:</strong></p>
+  <textarea id="ai-input-box" style="width: 100%; max-width: 100%; min-height: 60px; padding: 10px; border: 2px solid #2C5F7C; border-radius: 5px; font-size: 16px; font-family: Arial, sans-serif; box-sizing: border-box;" placeholder="Example: How do I calculate the mean?"></textarea>
+
+  <div style="margin-top: 10px;">
+    <button onclick="aiSendMsg()" style="background: #2C5F7C; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer;">Send Message</button>
+  </div>
+
+  <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+    📊 <em>Research Note: Conversations are logged anonymously for dissertation research.</em>
+  </p>
+</div>
+
+</div>
+
+<script>
+// AI Tutor Script - Simplified for Canvas
+var aiLevel = 1;
+var aiAttempts = 0;
+
+var aiResponses = {
+  1: {
+    default: "Let's think about this together. What's the first thing you notice about this problem?",
+    mean: "Good question! What does 'mean' or 'average' represent? How would you calculate the center of a data set?",
+    deviation: "Standard deviation measures spread. What's the relationship between variance and standard deviation?",
+    confidence: "For confidence intervals, we need three key pieces. Can you identify what those might be?",
+    test: "In hypothesis testing, what's the first step? Think about what we're trying to prove.",
+    probability: "Let's think about probability. What does it mean for an event to have a certain probability?",
+    correlation: "Correlation measures relationships between variables. What's the difference between correlation and causation?"
+  },
+  2: {
+    default: "Let me break this down:\n\n1. Identify the type of problem\n2. List what information we have\n3. Choose the right method\n\nLet's start with step 1 - what are you working on?",
+    mean: "To calculate the mean:\n\n1. Add up all the values\n2. Count how many values you have\n3. Divide sum by count\n\nCan you try step 1 with your data?",
+    deviation: "For standard deviation:\n\n1. Find the mean\n2. Subtract mean from each value\n3. Square those differences\n4. Find average of squared values (variance)\n5. Take square root\n\nWhich step are you stuck on?",
+    confidence: "Let's build a confidence interval:\n\n1. What are we estimating? (mean, proportion, etc.)\n2. What confidence level? (90%, 95%, 99%)\n3. Do we know population standard deviation?\n\nStart with question 1.",
+    test: "Hypothesis test setup:\n\n1. State H₀ (null hypothesis)\n2. State Hₐ (alternative hypothesis)\n3. Choose significance level (α)\n4. Select the right test\n\nWhat would your H₀ be?",
+    probability: "For probability problems:\n\n1. Identify the sample space\n2. Count favorable outcomes\n3. Count total possible outcomes\n4. Calculate P = favorable/total\n\nWhat's the sample space here?",
+    correlation: "To interpret correlation:\n\n1. Check the r value (ranges from -1 to +1)\n2. r near ±1 = strong relationship\n3. r near 0 = weak relationship\n4. Sign shows direction (+ or -)\n\nWhat's your r value?"
+  },
+  3: {
+    default: "COMPLETE EXAMPLE:\n\nProblem: Find 95% CI for mean\nGiven: n=36, x̄=78, s=12\n\nStep 1: Critical value z* = 1.96\nStep 2: SE = s/√n = 12/√36 = 2\nStep 3: Margin of error = 1.96 × 2 = 3.92\nStep 4: CI = 78 ± 3.92 = (74.08, 81.92)\n\nANSWER: We are 95% confident the mean is between 74.08 and 81.92",
+    mean: "MEAN EXAMPLE:\n\nData: {4, 7, 9, 12, 18}\n\nStep 1: Add values\n4 + 7 + 9 + 12 + 18 = 50\n\nStep 2: Count values\nn = 5\n\nStep 3: Divide\nMean = 50 ÷ 5 = 10\n\nANSWER: Mean = 10\n\nNow apply these steps to your data!",
+    deviation: "STANDARD DEVIATION EXAMPLE:\n\nData: {2, 4, 6, 8, 10}\n\nStep 1: Mean = (2+4+6+8+10)/5 = 6\n\nStep 2: Deviations from mean\n• 2-6=-4, 4-6=-2, 6-6=0, 8-6=2, 10-6=4\n\nStep 3: Square them\n• 16, 4, 0, 4, 16\n\nStep 4: Variance = (16+4+0+4+16)/5 = 8\n\nStep 5: Standard deviation = √8 = 2.83\n\nANSWER: s = 2.83",
+    confidence: "95% CONFIDENCE INTERVAL EXAMPLE:\n\nGiven: n=36, x̄=78, s=12\n\nStep 1: Critical value for 95% → z* = 1.96\n\nStep 2: Standard error\nSE = s/√n = 12/√36 = 12/6 = 2\n\nStep 3: Margin of error\nME = z* × SE = 1.96 × 2 = 3.92\n\nStep 4: Build interval\nLower = 78 - 3.92 = 74.08\nUpper = 78 + 3.92 = 81.92\n\nANSWER: 95% CI is (74.08, 81.92)",
+    test: "HYPOTHESIS TEST EXAMPLE:\n\nTest if μ > 65 at α=0.05\nData: n=25, x̄=67, s=4\n\nStep 1: Hypotheses\nH₀: μ = 65\nHₐ: μ > 65 (one-tailed test)\n\nStep 2: Significance level\nα = 0.05\n\nStep 3: Test statistic\nt = (x̄ - μ₀)/(s/√n)\nt = (67-65)/(4/√25)\nt = 2/(4/5) = 2/0.8 = 2.5\n\nStep 4: Critical value\ndf = 24, t* = 1.711\n\nStep 5: Decision\nt = 2.5 > 1.711 → REJECT H₀\n\nCONCLUSION: Evidence supports μ > 65",
+    probability: "PROBABILITY EXAMPLE:\n\nProblem: Rolling two dice, find P(sum = 7)\n\nStep 1: Sample space = 36 outcomes\n(all combinations from (1,1) to (6,6))\n\nStep 2: Favorable outcomes for sum=7\n(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)\nCount = 6\n\nStep 3: Calculate probability\nP(sum=7) = 6/36 = 1/6\n\nANSWER: P = 1/6 ≈ 0.167 or 16.7%",
+    correlation: "CORRELATION EXAMPLE:\n\nGiven: r = 0.85 (correlation coefficient)\n\nStep 1: Check magnitude\n0.85 is close to +1\n\nStep 2: Interpret strength\nSince |r| > 0.7, this is a STRONG correlation\n\nStep 3: Direction\nPositive sign means: as X increases, Y increases\n\nStep 4: Coefficient of determination\nr² = 0.85² = 0.72\n72% of variation in Y is explained by X\n\nINTERPRETATION: Strong positive linear relationship"
+  }
+};
+
+function aiUpdateLevel() {
+  aiAttempts++;
+  if (aiAttempts >= 4) aiLevel = 3;
+  else if (aiAttempts >= 2) aiLevel = 2;
+
+  var levelText = {
+    1: 'Level 1 - Hints',
+    2: 'Level 2 - Guided Steps',
+    3: 'Level 3 - Worked Examples'
+  };
+
+  document.getElementById('ai-level-display').textContent = levelText[aiLevel];
+}
+
+function aiAddMsg(role, text) {
+  var chatBox = document.getElementById('ai-chat-box');
+  var msgDiv = document.createElement('div');
+
+  if (role === 'user') {
+    msgDiv.style.cssText = 'background: #D97D54; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; margin-left: 20%; text-align: left;';
+    msgDiv.innerHTML = '<p style="margin: 0;"><strong>You:</strong></p><p style="margin: 5px 0 0 0;">' + text + '</p>';
+  } else {
+    msgDiv.style.cssText = 'background: #E7F3FF; border: 1px solid #90CAF9; padding: 12px; border-radius: 8px; margin-bottom: 15px; margin-right: 20%;';
+    msgDiv.innerHTML = '<p style="margin: 0;"><strong>AI Tutor:</strong></p><p style="margin: 5px 0 0 0; white-space: pre-wrap;">' + text + '</p>';
+  }
+
+  chatBox.appendChild(msgDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function aiGetResponse(msg) {
+  var lower = msg.toLowerCase();
+  var r = aiResponses[aiLevel];
+
+  if (lower.indexOf('mean') >= 0 || lower.indexOf('average') >= 0) return r.mean;
+  if (lower.indexOf('deviation') >= 0 || lower.indexOf('spread') >= 0 || lower.indexOf('variance') >= 0) return r.deviation;
+  if (lower.indexOf('confidence') >= 0 || lower.indexOf('interval') >= 0) return r.confidence;
+  if (lower.indexOf('test') >= 0 || lower.indexOf('hypothesis') >= 0 || lower.indexOf('null') >= 0) return r.test;
+  if (lower.indexOf('probability') >= 0 || lower.indexOf('chance') >= 0) return r.probability;
+  if (lower.indexOf('correlation') >= 0 || lower.indexOf('relationship') >= 0) return r.correlation;
+  return r.default;
+}
+
+function aiSendMsg() {
+  var input = document.getElementById('ai-input-box');
+  var btn = event.target;
+  var text = input.value.trim();
+
+  if (!text) {
+    alert('Please type a question first!');
+    return;
+  }
+
+  // Disable input
+  btn.disabled = true;
+  input.disabled = true;
+  btn.textContent = 'Thinking...';
+
+  // Add user message
+  aiAddMsg('user', text);
+  input.value = '';
+
+  // Update level
+  aiUpdateLevel();
+
+  // Get and display AI response after delay
+  setTimeout(function() {
+    var response = aiGetResponse(text);
+    aiAddMsg('ai', response);
+
+    // Re-enable
+    btn.disabled = false;
+    input.disabled = false;
+    btn.textContent = 'Send Message';
+    input.focus();
+  }, 1000);
+}
+
+// Allow Enter key to send
+document.getElementById('ai-input-box').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    aiSendMsg();
+  }
+});
+
+console.log('AI Tutor loaded successfully!');
+</script>
