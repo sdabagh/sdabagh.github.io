@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple AI Tutor - Testing Version</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F8F9FA;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #FAFBFC;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+        .message-ai {
+            background: #E7F3FF;
+            border: 1px solid #90CAF9;
+            margin-right: auto;
+        }
+        .message-user {
+            background: #D97D54;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .typing {
+            padding: 12px 16px;
+            background: #E0E0E0;
+            border-radius: 8px;
+            max-width: 80px;
+            font-style: italic;
+            color: #666;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .input-area {
+            padding: 15px 20px;
+            border-top: 2px solid #E0E0E0;
+            background: white;
+        }
+        .input-form {
+            display: flex;
+            gap: 10px;
+        }
+        .input-form input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #2C5F7C;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .input-form input:focus {
+            outline: none;
+            border-color: #3A7CA5;
+        }
+        .input-form button {
+            padding: 12px 24px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .input-form button:hover {
+            background: #1A3A4D;
+        }
+        .input-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .level-indicator {
+            text-align: center;
+            padding: 10px;
+            background: #FFF9E6;
+            border-bottom: 2px solid #FFE082;
+            font-size: 14px;
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #FFB020;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Statistics Tutor</h1>
+            <p>Simple Testing Version - Adaptive Cognitive Scaffolding</p>
+        </div>
+
+        <div class="level-indicator">
+            Current Support Level: <span class="level-badge" id="level-display">Level 1 - Hints</span>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message message-ai">
+                <strong>AI Tutor</strong>
+                Welcome! I'm your AI statistics tutor. I'll adapt my responses based on your needs:
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li><strong>Level 1:</strong> Hints and guiding questions</li>
+                    <li><strong>Level 2:</strong> Step-by-step breakdowns</li>
+                    <li><strong>Level 3:</strong> Complete worked examples</li>
+                </ul>
+                <p style="margin-top: 8px;">Ask me anything about statistics!</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <form class="input-form" id="chat-form">
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Type your statistics question here..."
+                    autocomplete="off"
+                    required
+                />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple scaffolding logic
+        let currentLevel = 1;
+        let attemptCount = 0;
+
+        const messagesDiv = document.getElementById('messages');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const levelDisplay = document.getElementById('level-display');
+
+        // Demo responses for each level
+        const responses = {
+            1: {
+                default: "Let's think about this together. What's the first thing you notice about this problem?",
+                mean: "Good question! What does 'mean' or 'average' represent? How would you calculate the center of a data set?",
+                deviation: "Standard deviation measures spread. What's the relationship between variance and standard deviation?",
+                confidence: "For confidence intervals, we need three key pieces. Can you identify what those might be?",
+                test: "In hypothesis testing, what's the first step? Think about what we're trying to prove or disprove."
+            },
+            2: {
+                default: "Let me break this down into steps:\n\n1. Identify what type of problem this is\n2. Determine what information we have\n3. Choose the appropriate formula or method\n\nLet's start with step 1 - what are you working on?",
+                mean: "To calculate the mean, let's follow these steps:\n\n1. Add up all the values\n2. Count how many values you have\n3. Divide the sum by the count\n\nCan you try step 1 with your data?",
+                deviation: "For standard deviation:\n\n1. Find the mean\n2. Subtract the mean from each value (deviations)\n3. Square those deviations\n4. Average the squared deviations (variance)\n5. Take the square root\n\nWhere are you getting stuck?",
+                confidence: "Let's build a confidence interval step-by-step:\n\n1. What parameter are we estimating? (mean, proportion, etc.)\n2. What's the confidence level? (90%, 95%, 99%)\n3. Do we know the population standard deviation?\n\nStart by answering question 1.",
+                test: "Let's set up the hypothesis test:\n\n1. State H₀ (null hypothesis)\n2. State Hₐ (alternative hypothesis)\n3. Choose significance level (α)\n4. Select the appropriate test\n\nWhat would you write for step 1?"
+            },
+            3: {
+                default: "Let me show you a complete example:\n\n**Example Problem:** Calculate the 95% confidence interval for sample data: {10, 12, 15, 18, 20}\n\n**Solution:**\nStep 1: Calculate mean = (10+12+15+18+20)/5 = 15\nStep 2: Calculate standard deviation = 3.87\nStep 3: Find critical value (t* = 2.776 for n=5, 95% CI)\nStep 4: Calculate margin of error = 2.776 × (3.87/√5) = 4.81\nStep 5: CI = 15 ± 4.81 = (10.19, 19.81)\n\nNow apply these same steps to your problem!",
+                mean: "**Complete Example: Finding the Mean**\n\nData: {4, 7, 9, 12, 18}\n\nStep 1: Add all values\n4 + 7 + 9 + 12 + 18 = 50\n\nStep 2: Count the values\nn = 5\n\nStep 3: Divide sum by count\nMean = 50 ÷ 5 = 10\n\n**Answer: The mean is 10**\n\nNow try these steps with your data!",
+                deviation: "**Complete Example: Standard Deviation**\n\nData: {2, 4, 6, 8, 10}\n\nStep 1: Mean = (2+4+6+8+10)/5 = 6\n\nStep 2: Deviations from mean:\n• 2-6 = -4\n• 4-6 = -2\n• 6-6 = 0\n• 8-6 = 2\n• 10-6 = 4\n\nStep 3: Square deviations:\n• 16, 4, 0, 4, 16\n\nStep 4: Variance = (16+4+0+4+16)/5 = 8\n\nStep 5: Standard Deviation = √8 = 2.83\n\n**Answer: s ≈ 2.83**",
+                confidence: "**Complete Example: 95% Confidence Interval**\n\nGiven: n=36, x̄=78, s=12\n\nStep 1: Identify knowns\n• Sample mean (x̄) = 78\n• Sample std dev (s) = 12\n• Sample size (n) = 36\n• Confidence level = 95%\n\nStep 2: Critical value\nz* = 1.96 (for 95% CI)\n\nStep 3: Standard error\nSE = s/√n = 12/√36 = 2\n\nStep 4: Margin of error\nME = 1.96 × 2 = 3.92\n\nStep 5: Interval\nCI = 78 ± 3.92 = (74.08, 81.92)\n\n**Answer: 95% CI is (74.08, 81.92)**",
+                test: "**Complete Hypothesis Test Example**\n\nTest if μ > 65 (α = 0.05)\nData: n=25, x̄=67, s=4\n\nStep 1: Hypotheses\nH₀: μ = 65\nHₐ: μ > 65\n\nStep 2: Significance level\nα = 0.05\n\nStep 3: Test statistic\nt = (67-65)/(4/√25) = 2/0.8 = 2.5\n\nStep 4: Critical value\ndf=24, t*=1.711\n\nStep 5: Decision\nt=2.5 > 1.711 → Reject H₀\n\n**Conclusion: Evidence supports μ > 65**"
+            }
+        };
+
+        // Update scaffolding level
+        function updateLevel() {
+            attemptCount++;
+
+            if (attemptCount >= 4) {
+                currentLevel = 3;
+            } else if (attemptCount >= 2) {
+                currentLevel = 2;
+            }
+
+            const levelNames = {
+                1: 'Level 1 - Hints',
+                2: 'Level 2 - Guided Steps',
+                3: 'Level 3 - Worked Examples'
+            };
+
+            levelDisplay.textContent = levelNames[currentLevel];
+            console.log(`Scaffolding level updated to ${currentLevel} (attempts: ${attemptCount})`);
+        }
+
+        // Add message to chat
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${role}`;
+
+            const label = role === 'user' ? 'You' : 'AI Tutor';
+            messageDiv.innerHTML = `<strong>${label}</strong>${text.replace(/\n/g, '<br>')}`;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTyping() {
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.id = 'typing-indicator';
+            typing.textContent = 'AI is thinking...';
+            messagesDiv.appendChild(typing);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // Get AI response based on user message and current level
+        function getResponse(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            const levelResponses = responses[currentLevel];
+
+            if (lowerMsg.includes('mean') || lowerMsg.includes('average')) {
+                return levelResponses.mean;
+            } else if (lowerMsg.includes('deviation') || lowerMsg.includes('spread') || lowerMsg.includes('variance')) {
+                return levelResponses.deviation;
+            } else if (lowerMsg.includes('confidence') || lowerMsg.includes('interval')) {
+                return levelResponses.confidence;
+            } else if (lowerMsg.includes('test') || lowerMsg.includes('hypothesis') || lowerMsg.includes('null')) {
+                return levelResponses.test;
+            } else {
+                return levelResponses.default;
+            }
+        }
+
+        // Handle form submission
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Disable input
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+
+            // Add user message
+            addMessage('user', text);
+            userInput.value = '';
+
+            // Update scaffolding level
+            updateLevel();
+
+            // Show typing
+            showTyping();
+
+            // Simulate AI thinking delay
+            setTimeout(() => {
+                hideTyping();
+
+                // Get and display AI response
+                const response = getResponse(text);
+                addMessage('ai', response);
+
+                // Re-enable input
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }, 1500);
+        });
+
+        console.log('✓ Simple AI Tutor loaded successfully');
+        console.log('✓ DEMO MODE active - responses are pre-written');
+        console.log('✓ Scaffolding will escalate as you ask more questions');
+    </script>
+
+</body>
+</html>
