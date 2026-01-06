@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Statistics Tutor - Live with Claude API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F8F9FA;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 15px 20px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .api-status {
+            padding: 8px 15px;
+            background: #FFF3CD;
+            border-bottom: 2px solid #FFC107;
+            font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .api-status.connected {
+            background: #D4EDDA;
+            border-color: #28A745;
+            color: #155724;
+        }
+
+        .api-status.error {
+            background: #F8D7DA;
+            border-color: #DC3545;
+            color: #721C24;
+        }
+
+        .level-indicator {
+            text-align: center;
+            padding: 8px 10px;
+            background: #FFF9E6;
+            border-bottom: 2px solid #FFE082;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #FFB020;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #FAFBFC;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .message-ai {
+            background: #E7F3FF;
+            border: 1px solid #90CAF9;
+            margin-right: auto;
+        }
+
+        .message-user {
+            background: #D97D54;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message-system {
+            background: #FFF3CD;
+            border: 1px solid #FFC107;
+            margin: 0 auto;
+            max-width: 90%;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .typing {
+            padding: 10px 14px;
+            background: #E0E0E0;
+            border-radius: 8px;
+            max-width: 120px;
+            font-style: italic;
+            color: #666;
+            font-size: 13px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .input-area {
+            padding: 12px 15px;
+            border-top: 2px solid #E0E0E0;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-form input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #2C5F7C;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .input-form input:focus {
+            outline: none;
+            border-color: #3A7CA5;
+            box-shadow: 0 0 0 3px rgba(44, 95, 124, 0.1);
+        }
+
+        .input-form button {
+            padding: 10px 20px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-form button:hover {
+            background: #1A3A4D;
+        }
+
+        .input-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .setup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .setup-modal.hidden {
+            display: none;
+        }
+
+        .setup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .setup-content h2 {
+            color: #2C5F7C;
+            margin-bottom: 15px;
+        }
+
+        .setup-content input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .setup-content button {
+            width: 100%;
+            padding: 12px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .setup-content button:hover {
+            background: #1A3A4D;
+        }
+
+        .setup-content .info {
+            background: #E7F3FF;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 15px 0;
+            border-left: 4px solid #2C5F7C;
+        }
+
+        .setup-content a {
+            color: #2C5F7C;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .setup-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar styling */
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 18px; }
+            .message { max-width: 95%; }
+            .input-form input { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- API Key Setup Modal -->
+    <div id="setup-modal" class="setup-modal">
+        <div class="setup-content">
+            <h2>🔑 AI Tutor Setup</h2>
+            <p>To use the live AI tutor, you need an Anthropic API key.</p>
+
+            <div class="info">
+                <strong>📌 How to get an API key:</strong><br>
+                1. Visit <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a><br>
+                2. Sign up or log in<br>
+                3. Go to API Keys section<br>
+                4. Create a new key<br>
+                5. Copy and paste it below
+            </div>
+
+            <label for="api-key-input"><strong>Enter your Anthropic API Key:</strong></label>
+            <input
+                type="password"
+                id="api-key-input"
+                placeholder="sk-ant-api03-..."
+                autocomplete="off"
+            />
+
+            <button id="save-api-key">Save & Start Tutoring</button>
+
+            <div class="info" style="margin-top: 15px; background: #FFF3CD; border-color: #FFC107;">
+                <strong>💰 Cost:</strong> Very low! Typical conversation costs less than $0.10.<br>
+                <strong>🔒 Privacy:</strong> Your API key is stored only in your browser, never sent to our servers.
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Statistics Tutor</h1>
+            <p>Live AI-Powered Adaptive Scaffolding with Claude</p>
+        </div>
+
+        <div id="api-status" class="api-status">
+            ⚠️ API key required - Click to set up
+        </div>
+
+        <div class="level-indicator">
+            Current Support Level: <span class="level-badge" id="level-display">Level 1 - Hints</span>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message message-ai">
+                <strong>AI Tutor</strong>
+                Welcome! I'm your live AI statistics tutor powered by Claude. I can help you with:
+
+• Your specific homework problems with YOUR data
+• Quiz questions and exam preparation
+• Step-by-step solutions tailored to your question
+• Any statistics topic at any level
+
+I provide adaptive scaffolding:
+• <strong>Level 1:</strong> Hints and guiding questions
+• <strong>Level 2:</strong> Step-by-step breakdowns
+• <strong>Level 3:</strong> Complete worked examples
+
+I'll automatically adjust my support based on our conversation. Ask me anything about statistics!
+            </div>
+        </div>
+
+        <div class="input-area">
+            <form class="input-form" id="chat-form">
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Ask me to help with your homework, explain a concept, or solve a problem..."
+                    autocomplete="off"
+                    required
+                    disabled
+                />
+                <button type="submit" id="send-btn" disabled>Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+        const MODEL = 'claude-3-5-sonnet-20241022'; // Latest Claude model
+        const MAX_TOKENS = 1024;
+
+        // ===== STATE MANAGEMENT =====
+        let apiKey = localStorage.getItem('anthropic_api_key') || '';
+        let currentLevel = 1;
+        let attemptCount = 0;
+        let conversationHistory = [];
+
+        // ===== DOM ELEMENTS =====
+        const setupModal = document.getElementById('setup-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyBtn = document.getElementById('save-api-key');
+        const apiStatus = document.getElementById('api-status');
+        const messagesDiv = document.getElementById('messages');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const levelDisplay = document.getElementById('level-display');
+
+        // ===== ADAPTIVE SCAFFOLDING SYSTEM PROMPTS =====
+        const systemPrompts = {
+            1: `You are an expert statistics tutor using LEVEL 1 scaffolding (Hints & Guiding Questions).
+
+Your role:
+- Provide conceptual hints and ask guiding questions
+- Help students think through problems themselves
+- DO NOT give direct answers or complete solutions
+- Encourage critical thinking and problem-solving
+
+Example responses:
+- "What formula would be appropriate for this type of problem?"
+- "What's the first step when calculating a confidence interval?"
+- "How does this relate to what you learned about probability?"
+
+Be warm, encouraging, and Socratic in your teaching style.`,
+
+            2: `You are an expert statistics tutor using LEVEL 2 scaffolding (Step-by-Step Guidance).
+
+Your role:
+- Break problems into clear, manageable steps
+- Provide structured guidance through the solution process
+- Show the process but let students do some work
+- Explain reasoning behind each step
+
+Example responses:
+- "Let's work through this step-by-step: Step 1..."
+- "First, we need to identify... Then we calculate..."
+- "The formula is X. Let me show you how to apply it to your data."
+
+Be supportive and provide clear structure.`,
+
+            3: `You are an expert statistics tutor using LEVEL 3 scaffolding (Complete Worked Examples).
+
+Your role:
+- Provide complete, detailed solutions
+- Show all work and calculations
+- Explain every step thoroughly
+- Use their specific data and numbers
+- Provide interpretation of results
+
+Example responses:
+- Show complete calculations with actual numbers
+- Explain what each result means
+- Provide context and interpretation
+- Connect to real-world applications
+
+Be thorough, clear, and educational. This is for students who need maximum support.`
+        };
+
+        // ===== INITIALIZATION =====
+        function init() {
+            if (apiKey) {
+                setupModal.classList.add('hidden');
+                enableChat();
+                updateApiStatus('connected');
+            } else {
+                setupModal.classList.remove('hidden');
+                apiStatus.addEventListener('click', () => {
+                    setupModal.classList.remove('hidden');
+                });
+            }
+        }
+
+        // ===== API KEY MANAGEMENT =====
+        saveApiKeyBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key && key.startsWith('sk-ant-')) {
+                apiKey = key;
+                localStorage.setItem('anthropic_api_key', key);
+                setupModal.classList.add('hidden');
+                enableChat();
+                updateApiStatus('connected');
+                addSystemMessage('✅ API key saved! You can now chat with the AI tutor.');
+            } else {
+                alert('Please enter a valid Anthropic API key (starts with sk-ant-)');
+            }
+        });
+
+        function enableChat() {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+
+        function updateApiStatus(status) {
+            apiStatus.className = 'api-status ' + status;
+            if (status === 'connected') {
+                apiStatus.textContent = '✅ Connected to Claude API';
+            } else if (status === 'error') {
+                apiStatus.textContent = '❌ API Error - Check your key';
+            }
+        }
+
+        // ===== SCAFFOLDING LEVEL MANAGEMENT =====
+        function updateLevel() {
+            attemptCount++;
+
+            if (attemptCount >= 4) {
+                currentLevel = 3;
+            } else if (attemptCount >= 2) {
+                currentLevel = 2;
+            }
+
+            const levelNames = {
+                1: 'Level 1 - Hints',
+                2: 'Level 2 - Guided Steps',
+                3: 'Level 3 - Worked Examples'
+            };
+
+            levelDisplay.textContent = levelNames[currentLevel];
+
+            console.log(`[SCAFFOLDING] Level ${currentLevel} (attempts: ${attemptCount})`);
+
+            // Log for research
+            logResearchData('scaffolding_update', {
+                newLevel: currentLevel,
+                totalAttempts: attemptCount,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // ===== CHAT UI FUNCTIONS =====
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${role}`;
+
+            const label = role === 'user' ? 'You' : 'AI Tutor';
+            messageDiv.innerHTML = `<strong>${label}</strong>${text}`;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message message-system';
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.id = 'typing-indicator';
+            typing.textContent = 'AI is thinking...';
+            messagesDiv.appendChild(typing);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // ===== CLAUDE API INTEGRATION =====
+        async function sendToClaudeAPI(userMessage) {
+            const response = await fetch(ANTHROPIC_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    max_tokens: MAX_TOKENS,
+                    system: systemPrompts[currentLevel],
+                    messages: [
+                        {
+                            role: 'user',
+                            content: userMessage
+                        }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+            return data.content[0].text;
+        }
+
+        // ===== RESEARCH DATA LOGGING =====
+        function logResearchData(eventType, data) {
+            const logEntry = {
+                eventType,
+                timestamp: new Date().toISOString(),
+                scaffoldingLevel: currentLevel,
+                attemptCount,
+                ...data
+            };
+
+            console.log('[RESEARCH LOG]', logEntry);
+
+            // In production, send to your research database
+            // Example: sendToFirestore(logEntry);
+        }
+
+        // ===== FORM SUBMISSION HANDLER =====
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Disable input
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+
+            // Add user message
+            addMessage('user', text);
+            userInput.value = '';
+
+            // Log interaction
+            logResearchData('user_message', {
+                message: text,
+                messageLength: text.length
+            });
+
+            // Update scaffolding level
+            updateLevel();
+
+            // Show typing
+            showTyping();
+
+            try {
+                // Call Claude API
+                const aiResponse = await sendToClaudeAPI(text);
+
+                // Hide typing and show response
+                hideTyping();
+                addMessage('ai', aiResponse);
+
+                // Log AI response
+                logResearchData('ai_response', {
+                    responseLength: aiResponse.length,
+                    scaffoldingLevel: currentLevel
+                });
+
+                // Track conversation
+                conversationHistory.push(
+                    { role: 'user', content: text, level: currentLevel },
+                    { role: 'assistant', content: aiResponse, level: currentLevel }
+                );
+
+            } catch (error) {
+                hideTyping();
+                console.error('API Error:', error);
+                addSystemMessage('❌ Error: ' + error.message);
+                updateApiStatus('error');
+
+                logResearchData('api_error', {
+                    error: error.message
+                });
+            }
+
+            // Re-enable input
+            sendBtn.disabled = false;
+            userInput.disabled = false;
+            userInput.focus();
+        });
+
+        // ===== START =====
+        init();
+        console.log('✅ Live AI Statistics Tutor initialized');
+        console.log('🤖 Using Claude 3.5 Sonnet with adaptive scaffolding');
+        console.log('📊 Research data logging active');
+    </script>
+
+</body>
+</html>
