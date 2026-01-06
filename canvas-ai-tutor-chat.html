@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Statistics Tutor - Adaptive Scaffolding</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F8F9FA;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 15px 20px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .level-indicator {
+            text-align: center;
+            padding: 8px 10px;
+            background: #FFF9E6;
+            border-bottom: 2px solid #FFE082;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #FFB020;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #FAFBFC;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .message-ai {
+            background: #E7F3FF;
+            border: 1px solid #90CAF9;
+            margin-right: auto;
+        }
+
+        .message-user {
+            background: #D97D54;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .message ul {
+            margin: 8px 0 8px 20px;
+        }
+
+        .message li {
+            margin: 4px 0;
+        }
+
+        .typing {
+            padding: 10px 14px;
+            background: #E0E0E0;
+            border-radius: 8px;
+            max-width: 100px;
+            font-style: italic;
+            color: #666;
+            font-size: 13px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .input-area {
+            padding: 12px 15px;
+            border-top: 2px solid #E0E0E0;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-form input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #2C5F7C;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .input-form input:focus {
+            outline: none;
+            border-color: #3A7CA5;
+            box-shadow: 0 0 0 3px rgba(44, 95, 124, 0.1);
+        }
+
+        .input-form button {
+            padding: 10px 20px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-form button:hover {
+            background: #1A3A4D;
+        }
+
+        .input-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Better formatting for worked examples */
+        .example-step {
+            background: #F5F5F5;
+            padding: 8px;
+            margin: 8px 0;
+            border-left: 3px solid #2C5F7C;
+            border-radius: 4px;
+        }
+
+        /* Scrollbar styling */
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 18px; }
+            .message { max-width: 95%; }
+            .input-form input { font-size: 16px; } /* Prevents zoom on mobile */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Statistics Tutor</h1>
+            <p>Adaptive Cognitive Scaffolding for Statistics Learning</p>
+        </div>
+
+        <div class="level-indicator">
+            Current Support Level: <span class="level-badge" id="level-display">Level 1 - Hints</span>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message message-ai">
+                <strong>AI Tutor</strong>
+                Welcome! I'm your AI statistics tutor. I provide adaptive support based on your needs:
+                <ul>
+                    <li><strong>Level 1 (Hints):</strong> Guiding questions and conceptual hints</li>
+                    <li><strong>Level 2 (Steps):</strong> Step-by-step breakdowns</li>
+                    <li><strong>Level 3 (Examples):</strong> Complete worked examples</li>
+                </ul>
+                <p style="margin-top: 8px;">I'll automatically adjust my support level as we work together. Ask me any statistics question to get started!</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <form class="input-form" id="chat-form">
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Ask me about statistics (mean, standard deviation, confidence intervals, hypothesis testing, etc.)"
+                    autocomplete="off"
+                    required
+                />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ===== ADAPTIVE SCAFFOLDING SYSTEM =====
+        let currentLevel = 1;      // Current scaffolding level (1-3)
+        let attemptCount = 0;       // Number of questions asked
+        let conversationHistory = []; // Track conversation for research
+
+        // DOM elements
+        const messagesDiv = document.getElementById('messages');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const levelDisplay = document.getElementById('level-display');
+
+        // ===== SCAFFOLDED RESPONSES FOR DEMO =====
+        const responses = {
+            // LEVEL 1: Hints and guiding questions
+            1: {
+                default: "Let's think about this together. What's the first thing you notice about this problem? What concepts or formulas might be relevant here?",
+                mean: "Good question! Think about what 'mean' represents. How would you find the center or typical value of a data set? What operation would you use?",
+                median: "What does the median tell us? If you arranged all the numbers in order, which value would be in the middle?",
+                mode: "The mode is about frequency. What value appears most often in your data set?",
+                deviation: "Standard deviation measures spread. Before calculating it, what do you think it represents? How is it related to variance?",
+                variance: "Variance measures how spread out data is from the mean. What's the first step? (Hint: it involves the mean!)",
+                confidence: "For confidence intervals, we need three key pieces of information. Can you identify what those might be? Think about what we're estimating, how confident we want to be, and what variability we have.",
+                test: "In hypothesis testing, what's the first step? What are we trying to prove or disprove? Think about setting up your null and alternative hypotheses.",
+                probability: "What type of probability question is this? Is it about a single event, multiple events, or conditional probability?",
+                correlation: "Correlation measures the relationship between two variables. Does the relationship appear positive, negative, or no correlation? What values would suggest this?",
+                sampling: "What sampling method would work best here? Think about whether you want random sampling, stratified, or systematic sampling."
+            },
+
+            // LEVEL 2: Step-by-step guidance
+            2: {
+                default: "Let me break this down into steps:\n\n1. Identify what type of problem this is\n2. Determine what information we have\n3. Choose the appropriate formula or method\n4. Work through the calculation systematically\n\nLet's start with step 1 - what statistical concept are you working with?",
+                mean: "To calculate the mean, follow these steps:\n\n1. Add up all the values in your data set\n2. Count how many values you have (n)\n3. Divide the sum by n\n\nFormula: x̄ = (Σx) / n\n\nCan you try applying these steps to your data?",
+                median: "Finding the median:\n\n1. Arrange all values in order from smallest to largest\n2. If n is odd: median is the middle value\n3. If n is even: median is the average of the two middle values\n\nTry ordering your data first. What do you get?",
+                mode: "To find the mode:\n\n1. Count the frequency of each value\n2. Identify which value(s) appear most often\n3. If no value repeats, there's no mode\n4. If multiple values tie, you have multiple modes\n\nWhat's the frequency distribution of your data?",
+                deviation: "Calculating standard deviation:\n\n1. Find the mean (x̄)\n2. Subtract the mean from each value to get deviations\n3. Square each deviation\n4. Average the squared deviations to get variance (s²)\n5. Take the square root of variance to get standard deviation (s)\n\nFormula: s = √[Σ(x - x̄)² / (n-1)]\n\nWhich step are you working on?",
+                variance: "For variance:\n\n1. Calculate the mean of your data\n2. Find the deviation of each value from the mean (x - x̄)\n3. Square each deviation\n4. Sum all squared deviations\n5. Divide by (n-1) for sample variance\n\nVariance formula: s² = Σ(x - x̄)² / (n-1)\n\nWhat do you get for each step?",
+                confidence: "Building a confidence interval step-by-step:\n\n1. Identify the parameter (mean, proportion, etc.)\n2. Determine the confidence level (90%, 95%, 99%)\n3. Find the critical value (z* or t*)\n4. Calculate the standard error\n5. Compute margin of error = critical value × SE\n6. Interval = estimate ± margin of error\n\nWhat information do you have so far?",
+                test: "Setting up a hypothesis test:\n\n1. State H₀ (null hypothesis) - the claim being tested\n2. State Hₐ (alternative hypothesis) - what you're trying to show\n3. Choose significance level (α), usually 0.05\n4. Select the appropriate test statistic (z, t, χ², etc.)\n5. Calculate the test statistic\n6. Find the p-value or critical value\n7. Make a decision (reject H₀ or fail to reject)\n\nWhat would you write for steps 1-3?",
+                probability: "For probability problems:\n\n1. Define the sample space (all possible outcomes)\n2. Identify the event of interest\n3. Count favorable outcomes and total outcomes\n4. Calculate P(event) = favorable / total\n5. Check if events are independent or dependent\n\nWhat's the sample space for your problem?",
+                correlation: "To work with correlation:\n\n1. Identify your two variables (x and y)\n2. Check if the relationship appears linear\n3. Calculate the correlation coefficient (r)\n4. Interpret: r close to 1 (strong positive), -1 (strong negative), 0 (no correlation)\n5. Remember: correlation ≠ causation!\n\nWhat are your variables?",
+                sampling: "Sampling strategy:\n\n1. Define your population\n2. Decide on sample size (n)\n3. Choose sampling method:\n   • Simple random: every member has equal chance\n   • Stratified: divide into groups, sample from each\n   • Systematic: select every kth member\n4. Execute sampling\n5. Check for bias\n\nWhat's your population and desired sample size?"
+            },
+
+            // LEVEL 3: Complete worked examples
+            3: {
+                default: "Let me show you a complete example:\n\n**Example Problem:** Calculate the 95% confidence interval for sample data: {10, 12, 15, 18, 20}\n\n**Solution:**\n\nStep 1: Calculate sample mean\nx̄ = (10+12+15+18+20)/5 = 75/5 = 15\n\nStep 2: Calculate sample standard deviation\n• Deviations: -5, -3, 0, 3, 5\n• Squared: 25, 9, 0, 9, 25\n• Sum: 68\n• s² = 68/4 = 17\n• s = √17 = 4.12\n\nStep 3: Find critical value\nt* = 2.776 (for df=4, 95% CI)\n\nStep 4: Standard error\nSE = s/√n = 4.12/√5 = 1.84\n\nStep 5: Margin of error\nME = 2.776 × 1.84 = 5.11\n\nStep 6: Confidence interval\nCI = 15 ± 5.11 = (9.89, 20.11)\n\n**Answer: We are 95% confident the population mean is between 9.89 and 20.11**\n\nNow apply these same steps to your problem!",
+
+                mean: "**Complete Example: Calculating the Mean**\n\n**Problem:** Find the mean of: {4, 7, 9, 12, 18}\n\n**Solution:**\n\nStep 1: Add all values\n4 + 7 + 9 + 12 + 18 = 50\n\nStep 2: Count the values\nn = 5 values\n\nStep 3: Divide sum by count\nMean = 50 ÷ 5 = 10\n\n**Answer: The mean is 10** ✓\n\n**Interpretation:** The average value is 10, which represents the center of this data set.\n\nNow try these same steps with your data!",
+
+                median: "**Complete Example: Finding the Median**\n\n**Problem:** Find the median of: {15, 3, 9, 27, 11}\n\n**Solution:**\n\nStep 1: Sort the data in order\n{3, 9, 11, 15, 27}\n\nStep 2: Count the values\nn = 5 (odd number)\n\nStep 3: Find middle position\nMiddle position = (5+1)/2 = 3rd value\n\nStep 4: Identify median\nMedian = 11 (the 3rd value)\n\n**Answer: The median is 11** ✓\n\n**Note:** If n were even (say 6 values), we'd average the 3rd and 4th values.\n\nApply this to your data!",
+
+                mode: "**Complete Example: Finding the Mode**\n\n**Problem:** Find the mode of: {5, 3, 5, 8, 3, 5, 9}\n\n**Solution:**\n\nStep 1: Count frequencies\n• 3 appears: 2 times\n• 5 appears: 3 times ← most frequent\n• 8 appears: 1 time\n• 9 appears: 1 time\n\nStep 2: Identify most frequent value\nMode = 5 (appears 3 times)\n\n**Answer: The mode is 5** ✓\n\n**Notes:**\n• No mode: if no value repeats\n• Bimodal: if two values tie for most frequent\n• Multimodal: if more than two values tie\n\nTry finding the mode in your data!",
+
+                deviation: "**Complete Example: Standard Deviation**\n\n**Problem:** Find s for {2, 4, 6, 8, 10}\n\n**Solution:**\n\nStep 1: Calculate mean\nx̄ = (2+4+6+8+10)/5 = 30/5 = 6\n\nStep 2: Find deviations from mean\n• 2 - 6 = -4\n• 4 - 6 = -2\n• 6 - 6 = 0\n• 8 - 6 = 2\n• 10 - 6 = 4\n\nStep 3: Square the deviations\n• (-4)² = 16\n• (-2)² = 4\n• (0)² = 0\n• (2)² = 4\n• (4)² = 16\n\nStep 4: Sum squared deviations\nΣ(x - x̄)² = 16 + 4 + 0 + 4 + 16 = 40\n\nStep 5: Calculate variance\ns² = 40 / (5-1) = 40/4 = 10\n\nStep 6: Take square root\ns = √10 = 3.16\n\n**Answer: Standard deviation s ≈ 3.16** ✓\n\n**Interpretation:** Values typically deviate from the mean by about 3.16 units.",
+
+                variance: "**Complete Example: Variance**\n\n**Problem:** Calculate sample variance for {12, 15, 18, 21, 24}\n\n**Solution:**\n\nStep 1: Find mean\nx̄ = (12+15+18+21+24)/5 = 90/5 = 18\n\nStep 2: Calculate deviations\n• 12 - 18 = -6\n• 15 - 18 = -3\n• 18 - 18 = 0\n• 21 - 18 = 3\n• 24 - 18 = 6\n\nStep 3: Square deviations\n• 36, 9, 0, 9, 36\n\nStep 4: Sum squared deviations\nΣ(x - x̄)² = 36 + 9 + 0 + 9 + 36 = 90\n\nStep 5: Divide by (n-1)\ns² = 90 / (5-1) = 90/4 = 22.5\n\n**Answer: Variance s² = 22.5** ✓\n\n**Note:** Standard deviation would be √22.5 = 4.74",
+
+                confidence: "**Complete Example: 95% Confidence Interval for Mean**\n\n**Problem:** Given: n=36, x̄=78, s=12. Find 95% CI.\n\n**Solution:**\n\nStep 1: Identify given information\n• Sample mean (x̄) = 78\n• Sample std dev (s) = 12\n• Sample size (n) = 36\n• Confidence level = 95%\n\nStep 2: Determine critical value\nSince n > 30, use z-distribution\nz* = 1.96 (for 95% confidence)\n\nStep 3: Calculate standard error\nSE = s/√n = 12/√36 = 12/6 = 2\n\nStep 4: Calculate margin of error\nME = z* × SE = 1.96 × 2 = 3.92\n\nStep 5: Build confidence interval\nCI = x̄ ± ME\nCI = 78 ± 3.92\nLower bound = 78 - 3.92 = 74.08\nUpper bound = 78 + 3.92 = 81.92\n\n**Answer: 95% CI = (74.08, 81.92)** ✓\n\n**Interpretation:** We are 95% confident the true population mean is between 74.08 and 81.92.",
+
+                test: "**Complete Hypothesis Test Example**\n\n**Problem:** Test if μ > 65 at α = 0.05\nGiven: n=25, x̄=67, s=4\n\n**Solution:**\n\nStep 1: State hypotheses\nH₀: μ = 65 (null hypothesis)\nHₐ: μ > 65 (alternative - what we want to show)\n\nStep 2: Set significance level\nα = 0.05\n\nStep 3: Identify test and find critical value\nUse t-test (σ unknown, n<30)\ndf = n - 1 = 24\nOne-tailed critical value: t* = 1.711\n\nStep 4: Calculate test statistic\nSE = s/√n = 4/√25 = 4/5 = 0.8\nt = (x̄ - μ₀)/SE = (67 - 65)/0.8 = 2/0.8 = 2.5\n\nStep 5: Make decision\nt = 2.5 > 1.711 (critical value)\n→ t falls in rejection region\n→ Reject H₀\n\nStep 6: State conclusion\n**We have sufficient evidence to conclude that μ > 65 at the 0.05 significance level.** ✓\n\n**p-value:** p < 0.01 (very strong evidence against H₀)",
+
+                probability: "**Complete Probability Example**\n\n**Problem:** A fair die is rolled twice. What's the probability of getting a sum of 7?\n\n**Solution:**\n\nStep 1: Define sample space\nTotal outcomes = 6 × 6 = 36 possible pairs\n\nStep 2: List favorable outcomes (sum = 7)\n• (1,6): 1+6 = 7 ✓\n• (2,5): 2+5 = 7 ✓\n• (3,4): 3+4 = 7 ✓\n• (4,3): 4+3 = 7 ✓\n• (5,2): 5+2 = 7 ✓\n• (6,1): 6+1 = 7 ✓\n\nFavorable outcomes = 6\n\nStep 3: Calculate probability\nP(sum = 7) = favorable/total\nP(sum = 7) = 6/36 = 1/6 ≈ 0.167\n\n**Answer: P(sum = 7) = 1/6 or about 16.7%** ✓\n\n**Interpretation:** About 1 in 6 times rolling two dice will result in a sum of 7.",
+
+                correlation: "**Complete Correlation Example**\n\n**Problem:** Find the correlation between study hours and test scores:\n\nHours (x): {2, 4, 6, 8, 10}\nScores (y): {65, 70, 80, 85, 95}\n\n**Solution:**\n\nStep 1: Calculate means\nx̄ = (2+4+6+8+10)/5 = 6\nȳ = (65+70+80+85+95)/5 = 79\n\nStep 2: Calculate deviations and products\n\n| x | y | x-x̄ | y-ȳ | (x-x̄)(y-ȳ) | (x-x̄)² | (y-ȳ)² |\n|---|---|------|------|------------|---------|--------|\n| 2 | 65| -4   | -14  | 56         | 16      | 196    |\n| 4 | 70| -2   | -9   | 18         | 4       | 81     |\n| 6 | 80| 0    | 1    | 0          | 0       | 1      |\n| 8 | 85| 2    | 6    | 12         | 4       | 36     |\n|10 | 95| 4    | 16   | 64         | 16      | 256    |\n\nStep 3: Sum the columns\nΣ(x-x̄)(y-ȳ) = 150\nΣ(x-x̄)² = 40\nΣ(y-ȳ)² = 570\n\nStep 4: Calculate correlation coefficient\nr = Σ(x-x̄)(y-ȳ) / √[Σ(x-x̄)² × Σ(y-ȳ)²]\nr = 150 / √(40 × 570)\nr = 150 / √22,800\nr = 150 / 151.0\nr ≈ 0.993\n\n**Answer: r ≈ 0.99** ✓\n\n**Interpretation:** Very strong positive correlation - more study hours strongly associated with higher test scores!",
+
+                sampling: "**Complete Sampling Example**\n\n**Problem:** Select a sample of 50 students from a school of 500 using simple random sampling.\n\n**Solution:**\n\nStep 1: Define population\nN = 500 students (population size)\nn = 50 students (desired sample size)\n\nStep 2: Assign numbers\nNumber all students from 1 to 500\n\nStep 3: Generate random numbers\nUse random number generator or table\nGenerate 50 unique random numbers between 1-500\n\nExample random numbers:\n23, 87, 156, 234, 312, 389, 421, 456, ...(and 42 more)\n\nStep 4: Select sample\nSelect the students corresponding to these numbers\n\nStep 5: Verify sample\n• Sample size = 50 ✓\n• Each student had equal chance (1/500) ✓\n• Random selection (no bias) ✓\n\n**Alternative methods:**\n\n**Stratified sampling:** If school has 300 girls and 200 boys:\n• Sample 30 girls (300/500 × 50)\n• Sample 20 boys (200/500 × 50)\n\n**Systematic sampling:**\n• k = 500/50 = 10\n• Pick a random start (say #7)\n• Select every 10th student: 7, 17, 27, 37...\n\n**Answer: 50 students randomly selected from numbered population** ✓"
+            }
+        };
+
+        // ===== SCAFFOLDING LEVEL MANAGEMENT =====
+        function updateLevel() {
+            attemptCount++;
+
+            // Escalate support based on number of questions
+            if (attemptCount >= 4) {
+                currentLevel = 3; // Full worked examples after 4+ questions
+            } else if (attemptCount >= 2) {
+                currentLevel = 2; // Guided steps after 2-3 questions
+            }
+            // else stays at level 1 (hints)
+
+            const levelNames = {
+                1: 'Level 1 - Hints',
+                2: 'Level 2 - Guided Steps',
+                3: 'Level 3 - Worked Examples'
+            };
+
+            levelDisplay.textContent = levelNames[currentLevel];
+
+            // Log for research data collection
+            console.log(`[SCAFFOLDING] Level updated to ${currentLevel} (total attempts: ${attemptCount})`);
+        }
+
+        // ===== CHAT UI FUNCTIONS =====
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${role}`;
+
+            const label = role === 'user' ? 'You' : 'AI Tutor';
+
+            // Convert newlines to <br> for better formatting
+            const formattedText = text.replace(/\n/g, '<br>');
+            messageDiv.innerHTML = `<strong>${label}</strong>${formattedText}`;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.id = 'typing-indicator';
+            typing.textContent = 'AI is thinking...';
+            messagesDiv.appendChild(typing);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // ===== AI RESPONSE LOGIC =====
+        function getResponse(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            const levelResponses = responses[currentLevel];
+
+            // Topic detection with keyword matching
+            if (lowerMsg.includes('mean') || lowerMsg.includes('average')) {
+                return levelResponses.mean;
+            } else if (lowerMsg.includes('median')) {
+                return levelResponses.median;
+            } else if (lowerMsg.includes('mode')) {
+                return levelResponses.mode;
+            } else if (lowerMsg.includes('standard deviation') || lowerMsg.includes('std dev') || lowerMsg.includes('spread')) {
+                return levelResponses.deviation;
+            } else if (lowerMsg.includes('variance') && !lowerMsg.includes('anova')) {
+                return levelResponses.variance;
+            } else if (lowerMsg.includes('confidence') || lowerMsg.includes('interval')) {
+                return levelResponses.confidence;
+            } else if (lowerMsg.includes('hypothesis') || lowerMsg.includes('test') || lowerMsg.includes('null') || lowerMsg.includes('alternative')) {
+                return levelResponses.test;
+            } else if (lowerMsg.includes('probability') || lowerMsg.includes('chance')) {
+                return levelResponses.probability;
+            } else if (lowerMsg.includes('correlation') || lowerMsg.includes('relationship')) {
+                return levelResponses.correlation;
+            } else if (lowerMsg.includes('sample') || lowerMsg.includes('sampling')) {
+                return levelResponses.sampling;
+            } else {
+                return levelResponses.default;
+            }
+        }
+
+        // ===== FORM SUBMISSION HANDLER =====
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Disable input during processing
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+
+            // Add user message to chat
+            addMessage('user', text);
+
+            // Track conversation for research
+            conversationHistory.push({
+                role: 'user',
+                message: text,
+                timestamp: new Date().toISOString(),
+                scaffoldingLevel: currentLevel
+            });
+
+            // Clear input field
+            userInput.value = '';
+
+            // Update scaffolding level
+            updateLevel();
+
+            // Show typing indicator
+            showTyping();
+
+            // Simulate AI thinking delay (1-2 seconds)
+            setTimeout(() => {
+                hideTyping();
+
+                // Get AI response based on current level
+                const response = getResponse(text);
+                addMessage('ai', response);
+
+                // Track AI response for research
+                conversationHistory.push({
+                    role: 'ai',
+                    message: response,
+                    timestamp: new Date().toISOString(),
+                    scaffoldingLevel: currentLevel
+                });
+
+                // Re-enable input
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }, 1500);
+        });
+
+        // ===== INITIALIZATION =====
+        console.log('✅ AI Statistics Tutor loaded successfully');
+        console.log('📊 Adaptive scaffolding system active');
+        console.log('🎓 DEMO MODE - Using pre-written educational responses');
+        console.log('📈 Support level will escalate automatically as you ask questions');
+
+        // Focus input on load
+        userInput.focus();
+    </script>
+
+</body>
+</html>
