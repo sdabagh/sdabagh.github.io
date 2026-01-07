@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Statistics Tutor - Live with Claude API</title>
+    <title>AI Statistics Tutor - Powered by Claude</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -48,16 +48,11 @@
 
         .api-status {
             padding: 8px 15px;
-            background: #FFF3CD;
-            border-bottom: 2px solid #FFC107;
+            background: #D4EDDA;
+            border-bottom: 2px solid #28A745;
             font-size: 13px;
             text-align: center;
             flex-shrink: 0;
-        }
-
-        .api-status.connected {
-            background: #D4EDDA;
-            border-color: #28A745;
             color: #155724;
         }
 
@@ -197,83 +192,6 @@
             cursor: not-allowed;
         }
 
-        .setup-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .setup-modal.hidden {
-            display: none;
-        }
-
-        .setup-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        .setup-content h2 {
-            color: #2C5F7C;
-            margin-bottom: 15px;
-        }
-
-        .setup-content input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .setup-content button {
-            width: 100%;
-            padding: 12px;
-            background: #2C5F7C;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .setup-content button:hover {
-            background: #1A3A4D;
-        }
-
-        .setup-content .info {
-            background: #E7F3FF;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin: 15px 0;
-            border-left: 4px solid #2C5F7C;
-        }
-
-        .setup-content a {
-            color: #2C5F7C;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .setup-content a:hover {
-            text-decoration: underline;
-        }
-
         /* Scrollbar styling */
         .messages::-webkit-scrollbar {
             width: 8px;
@@ -301,38 +219,6 @@
 </head>
 <body>
 
-    <!-- API Key Setup Modal -->
-    <div id="setup-modal" class="setup-modal">
-        <div class="setup-content">
-            <h2>🔑 AI Tutor Setup</h2>
-            <p>To use the live AI tutor, you need an Anthropic API key.</p>
-
-            <div class="info">
-                <strong>📌 How to get an API key:</strong><br>
-                1. Visit <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a><br>
-                2. Sign up or log in<br>
-                3. Go to API Keys section<br>
-                4. Create a new key<br>
-                5. Copy and paste it below
-            </div>
-
-            <label for="api-key-input"><strong>Enter your Anthropic API Key:</strong></label>
-            <input
-                type="password"
-                id="api-key-input"
-                placeholder="sk-ant-api03-..."
-                autocomplete="off"
-            />
-
-            <button id="save-api-key">Save & Start Tutoring</button>
-
-            <div class="info" style="margin-top: 15px; background: #FFF3CD; border-color: #FFC107;">
-                <strong>💰 Cost:</strong> Very low! Typical conversation costs less than $0.10.<br>
-                <strong>🔒 Privacy:</strong> Your API key is stored only in your browser, never sent to our servers.
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="header">
             <h1>🤖 AI Statistics Tutor</h1>
@@ -340,7 +226,7 @@
         </div>
 
         <div id="api-status" class="api-status">
-            ⚠️ API key required - Click to set up
+            ✅ Connected to AI Tutor (Secure Backend)
         </div>
 
         <div class="level-indicator">
@@ -350,7 +236,7 @@
         <div class="messages" id="messages">
             <div class="message message-ai">
                 <strong>AI Tutor</strong>
-                Welcome! I'm your live AI statistics tutor powered by Claude. I can help you with:
+Welcome! I'm your live AI statistics tutor powered by Claude. I can help you with:
 
 • Your specific homework problems with YOUR data
 • Quiz questions and exam preparation
@@ -374,29 +260,22 @@ I'll automatically adjust my support based on our conversation. Ask me anything 
                     placeholder="Ask me to help with your homework, explain a concept, or solve a problem..."
                     autocomplete="off"
                     required
-                    disabled
                 />
-                <button type="submit" id="send-btn" disabled>Send</button>
+                <button type="submit" id="send-btn">Send</button>
             </form>
         </div>
     </div>
 
     <script>
         // ===== CONFIGURATION =====
-        const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-        const MODEL = 'claude-3-5-sonnet-20241022'; // Latest Claude model
-        const MAX_TOKENS = 1024;
+        const WORKER_URL = 'https://stats-tutor-api.sofiadabagh383.workers.dev';
 
         // ===== STATE MANAGEMENT =====
-        let apiKey = localStorage.getItem('anthropic_api_key') || '';
         let currentLevel = 1;
         let attemptCount = 0;
         let conversationHistory = [];
 
         // ===== DOM ELEMENTS =====
-        const setupModal = document.getElementById('setup-modal');
-        const apiKeyInput = document.getElementById('api-key-input');
-        const saveApiKeyBtn = document.getElementById('save-api-key');
         const apiStatus = document.getElementById('api-status');
         const messagesDiv = document.getElementById('messages');
         const chatForm = document.getElementById('chat-form');
@@ -404,109 +283,17 @@ I'll automatically adjust my support based on our conversation. Ask me anything 
         const sendBtn = document.getElementById('send-btn');
         const levelDisplay = document.getElementById('level-display');
 
-        // ===== ADAPTIVE SCAFFOLDING SYSTEM PROMPTS =====
-        const systemPrompts = {
-            1: `You are an expert statistics tutor using LEVEL 1 scaffolding (Hints & Guiding Questions).
-
-Your role:
-- Provide conceptual hints and ask guiding questions
-- Help students think through problems themselves
-- DO NOT give direct answers or complete solutions
-- Encourage critical thinking and problem-solving
-
-Example responses:
-- "What formula would be appropriate for this type of problem?"
-- "What's the first step when calculating a confidence interval?"
-- "How does this relate to what you learned about probability?"
-
-Be warm, encouraging, and Socratic in your teaching style.`,
-
-            2: `You are an expert statistics tutor using LEVEL 2 scaffolding (Step-by-Step Guidance).
-
-Your role:
-- Break problems into clear, manageable steps
-- Provide structured guidance through the solution process
-- Show the process but let students do some work
-- Explain reasoning behind each step
-
-Example responses:
-- "Let's work through this step-by-step: Step 1..."
-- "First, we need to identify... Then we calculate..."
-- "The formula is X. Let me show you how to apply it to your data."
-
-Be supportive and provide clear structure.`,
-
-            3: `You are an expert statistics tutor using LEVEL 3 scaffolding (Complete Worked Examples).
-
-Your role:
-- Provide complete, detailed solutions
-- Show all work and calculations
-- Explain every step thoroughly
-- Use their specific data and numbers
-- Provide interpretation of results
-
-Example responses:
-- Show complete calculations with actual numbers
-- Explain what each result means
-- Provide context and interpretation
-- Connect to real-world applications
-
-Be thorough, clear, and educational. This is for students who need maximum support.`
-        };
-
-        // ===== INITIALIZATION =====
-        function init() {
-            if (apiKey) {
-                setupModal.classList.add('hidden');
-                enableChat();
-                updateApiStatus('connected');
-            } else {
-                setupModal.classList.remove('hidden');
-                apiStatus.addEventListener('click', () => {
-                    setupModal.classList.remove('hidden');
-                });
-            }
-        }
-
-        // ===== API KEY MANAGEMENT =====
-        saveApiKeyBtn.addEventListener('click', () => {
-            const key = apiKeyInput.value.trim();
-            if (key && key.startsWith('sk-ant-')) {
-                apiKey = key;
-                localStorage.setItem('anthropic_api_key', key);
-                setupModal.classList.add('hidden');
-                enableChat();
-                updateApiStatus('connected');
-                addSystemMessage('✅ API key saved! You can now chat with the AI tutor.');
-            } else {
-                alert('Please enter a valid Anthropic API key (starts with sk-ant-)');
-            }
-        });
-
-        function enableChat() {
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-        }
-
-        function updateApiStatus(status) {
-            apiStatus.className = 'api-status ' + status;
-            if (status === 'connected') {
-                apiStatus.textContent = '✅ Connected to Claude API';
-            } else if (status === 'error') {
-                apiStatus.textContent = '❌ API Error - Check your key';
-            }
-        }
-
         // ===== SCAFFOLDING LEVEL MANAGEMENT =====
         function updateLevel() {
             attemptCount++;
 
+            // Escalate support based on number of questions
             if (attemptCount >= 4) {
-                currentLevel = 3;
+                currentLevel = 3; // Full worked examples after 4+ questions
             } else if (attemptCount >= 2) {
-                currentLevel = 2;
+                currentLevel = 2; // Guided steps after 2-3 questions
             }
+            // else stays at level 1 (hints)
 
             const levelNames = {
                 1: 'Level 1 - Hints',
@@ -516,14 +303,8 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
 
             levelDisplay.textContent = levelNames[currentLevel];
 
-            console.log(`[SCAFFOLDING] Level ${currentLevel} (attempts: ${attemptCount})`);
-
-            // Log for research
-            logResearchData('scaffolding_update', {
-                newLevel: currentLevel,
-                totalAttempts: attemptCount,
-                timestamp: new Date().toISOString()
-            });
+            // Log for research data collection
+            console.log(`[SCAFFOLDING] Level updated to ${currentLevel} (total attempts: ${attemptCount})`);
         }
 
         // ===== CHAT UI FUNCTIONS =====
@@ -560,35 +341,36 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
             if (typing) typing.remove();
         }
 
-        // ===== CLAUDE API INTEGRATION =====
-        async function sendToClaudeAPI(userMessage) {
-            const response = await fetch(ANTHROPIC_API_URL, {
+        function updateApiStatus(status, message) {
+            if (status === 'error') {
+                apiStatus.className = 'api-status error';
+                apiStatus.textContent = '❌ ' + (message || 'Connection Error');
+            } else {
+                apiStatus.className = 'api-status';
+                apiStatus.textContent = '✅ Connected to AI Tutor (Secure Backend)';
+            }
+        }
+
+        // ===== WORKER API INTEGRATION =====
+        async function sendToWorker(userMessage) {
+            const response = await fetch(WORKER_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: MODEL,
-                    max_tokens: MAX_TOKENS,
-                    system: systemPrompts[currentLevel],
-                    messages: [
-                        {
-                            role: 'user',
-                            content: userMessage
-                        }
-                    ]
+                    message: userMessage,
+                    scaffoldingLevel: currentLevel
                 })
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error?.message || 'API request failed');
+                throw new Error(error.error || 'Worker request failed');
             }
 
             const data = await response.json();
-            return data.content[0].text;
+            return data.response;
         }
 
         // ===== RESEARCH DATA LOGGING =====
@@ -635,8 +417,8 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
             showTyping();
 
             try {
-                // Call Claude API
-                const aiResponse = await sendToClaudeAPI(text);
+                // Call Cloudflare Worker (which calls Claude API)
+                const aiResponse = await sendToWorker(text);
 
                 // Hide typing and show response
                 hideTyping();
@@ -654,11 +436,14 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
                     { role: 'assistant', content: aiResponse, level: currentLevel }
                 );
 
+                // Update status to show connection is good
+                updateApiStatus('connected');
+
             } catch (error) {
                 hideTyping();
                 console.error('API Error:', error);
                 addSystemMessage('❌ Error: ' + error.message);
-                updateApiStatus('error');
+                updateApiStatus('error', error.message);
 
                 logResearchData('api_error', {
                     error: error.message
@@ -672,10 +457,14 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
         });
 
         // ===== START =====
-        init();
-        console.log('✅ Live AI Statistics Tutor initialized');
-        console.log('🤖 Using Claude 3.5 Sonnet with adaptive scaffolding');
+        console.log('✅ AI Statistics Tutor initialized');
+        console.log('🤖 Using Claude via Cloudflare Worker proxy');
+        console.log('🔒 API key is secure (not exposed in browser)');
         console.log('📊 Research data logging active');
+        console.log('🎯 Worker URL:', WORKER_URL);
+
+        // Focus input on load
+        userInput.focus();
     </script>
 
 </body>
