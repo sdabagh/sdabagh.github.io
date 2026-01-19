@@ -3,12 +3,21 @@
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
-// CORS headers - allows requests from your GitHub Pages site
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://sdabagh.github.io',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://sdabagh.github.io',
+  'https://online.smc.edu'
+];
+
+// Function to get CORS headers based on request origin
+function getCorsHeaders(origin) {
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
 // System prompts for different scaffolding levels
 const SYSTEM_PROMPTS = {
@@ -62,6 +71,10 @@ Be thorough, clear, and educational. This is for students who need maximum suppo
 
 export default {
   async fetch(request, env) {
+    // Get request origin for CORS
+    const origin = request.headers.get('Origin');
+    const corsHeaders = getCorsHeaders(origin);
+
     // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
       return new Response(null, {
