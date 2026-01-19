@@ -5,8 +5,7 @@ const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
-  'https://sdabagh.github.io',
-  'https://online.smc.edu'
+  'https://sdabagh.github.io'
 ];
 
 // Function to get CORS headers based on request origin
