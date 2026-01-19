@@ -9,10 +9,17 @@
  * - getAnalytics: Fetch research analytics data
  */
 
+const corsOptions = {
+  // or if you need to match exact subdomains:
+   origin: [
+     /^https:\/\/[a-z0-9-]+\.sofiadabagh383\.workers\.dev$/,
+     'https://sdabagh.github.io'
+   ]
+};
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const Anthropic = require('@anthropic-ai/sdk');
-const cors = require('cors')({ origin: true });
+const cors = require('cors')(corsOptions);
 const CryptoJS = require('crypto-js');
 
 // Initialize Firebase Admin
