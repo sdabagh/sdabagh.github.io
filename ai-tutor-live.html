@@ -366,8 +366,24 @@ I'll automatically adjust my support based on our conversation. Ask me anything 
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Worker request failed');
+                // Try to get error details, but handle cases where response body is empty or not JSON
+                let errorMessage = `Worker request failed with status ${response.status}`;
+                try {
+                    const errorText = await response.text();
+                    if (errorText) {
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            errorMessage = errorJson.error || errorJson.message || errorMessage;
+                        } catch (e) {
+                            // Response wasn't JSON, use the text as the error message
+                            errorMessage = errorText;
+                        }
+                    }
+                } catch (e) {
+                    // Couldn't read response body, use default message
+                    console.error('Error reading response:', e);
+                }
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();
