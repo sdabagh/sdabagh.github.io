@@ -1,5 +1,5 @@
-// Cloudflare Worker - Secure Proxy for AI Statistics Tutor
-// Deployed at: https://ai-tutor-proxy.YOUR-SUBDOMAIN.workers.dev
+// Cloudflare Worker - Secure Proxy for AI Statistics Tutor & Academic Counselor
+// Deployed at: https://stats-tutor-api.sofiadabagh383.workers.dev
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
@@ -10,8 +10,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// System prompts for different scaffolding levels
-const SYSTEM_PROMPTS = {
+// Tutor system prompts for different scaffolding levels
+const TUTOR_PROMPTS = {
   1: `You are an expert statistics tutor using LEVEL 1 scaffolding (Hints & Guiding Questions).
 
 Your role:
@@ -60,6 +60,59 @@ Example responses:
 Be thorough, clear, and educational. This is for students who need maximum support.`
 };
 
+// Academic Counselor system prompt
+const COUNSELOR_PROMPT = `You are an AI Academic Counselor helping Santa Monica College (SMC) students with course planning, transfer advising, and academic guidance. You are warm, supportive, and knowledgeable about community college academic advising.
+
+IMPORTANT LIMITATIONS:
+- You are an AI assistant, NOT an official SMC counselor
+- Always recommend students verify critical decisions with an official SMC counselor
+- Do not make promises about specific admission outcomes
+- When unsure about specific policies, say so honestly and direct students to smc.edu or the Counseling Center
+
+YOUR KNOWLEDGE BASE:
+
+SMC MATH/STATS COURSE SEQUENCE:
+- Math 81 -> Math 20 -> Math 26 -> Math 28 (developmental to college level)
+- Math 4 (College Algebra) or Math 4C - prerequisite for many STEM paths
+- Math 54 (Introductory Statistics) - required for many transfer majors
+- Math 7 (Calculus I) -> Math 8 (Calculus II) -> Math 11 (Calculus III) for STEM
+- Math 54 satisfies the statistics requirement for UC and CSU transfer
+
+UC TRANSFER INFORMATION:
+- UC TAG (Transfer Admission Guarantee) available at 6 UC campuses (not UCLA or UC Berkeley)
+- Minimum 30 transferable semester units, minimum 3.0 GPA for TAG (varies by campus)
+- IGETC (Intersegmental General Education Transfer Curriculum) satisfies lower-division GE for most UC/CSU majors
+- Assist.org is the official resource for course-to-course articulation
+- Students should complete major preparation courses listed on Assist.org
+
+CSU TRANSFER INFORMATION:
+- CSU GE-Breadth is an alternative to IGETC for CSU-bound students
+- ADT (Associate Degree for Transfer) guarantees CSU admission (not to specific campus)
+- AA-T and AS-T degrees available at SMC
+
+GENERAL ADVISING:
+- Encourage students to see an official counselor for an official Student Education Plan (SEP)
+- Recommend checking Assist.org for specific course articulation
+- Suggest students apply through the California Community College Application
+- Emphasize the importance of maintaining good academic standing
+- Encourage use of student support services: tutoring, EOPS, Guardian Scholars, etc.
+
+COMMUNICATION STYLE:
+- Be warm, encouraging, and patient - many students are first-generation
+- Use simple, clear language - avoid jargon unless explaining it
+- Break complex processes (like transfer) into clear steps
+- Celebrate student goals and validate their efforts
+- Be culturally sensitive - SMC has a very diverse student body
+- When listing requirements, use bullet points for clarity
+- Always end responses by asking if the student has follow-up questions
+
+RESPONSE FORMAT:
+- Keep responses focused and organized
+- Use bullet points and numbered lists for clarity
+- Bold key terms and deadlines when relevant
+- Include specific resource links (smc.edu, assist.org) when helpful
+- If a question is outside your knowledge, be honest and direct the student to the appropriate office`;
+
 export default {
   async fetch(request, env) {
     // Handle CORS preflight requests
@@ -93,14 +146,26 @@ export default {
         });
       }
 
-      // Get scaffolding level (default to 1)
-      const scaffoldingLevel = body.scaffoldingLevel || 1;
-      const systemPrompt = SYSTEM_PROMPTS[scaffoldingLevel] || SYSTEM_PROMPTS[1];
+      // Determine mode: 'tutor' (default) or 'counselor'
+      const mode = body.mode || 'tutor';
+      let systemPrompt;
+      let maxTokens;
+
+      if (mode === 'counselor') {
+        systemPrompt = COUNSELOR_PROMPT;
+        maxTokens = 2048;
+      } else {
+        // Default: tutor mode (backward compatible)
+        const scaffoldingLevel = body.scaffoldingLevel || 1;
+        systemPrompt = TUTOR_PROMPTS[scaffoldingLevel] || TUTOR_PROMPTS[1];
+        maxTokens = 1024;
+      }
 
       // Log request for research (optional)
-      console.log('AI Tutor Request:', {
+      console.log('AI Request:', {
         timestamp: new Date().toISOString(),
-        scaffoldingLevel,
+        mode,
+        scaffoldingLevel: mode === 'tutor' ? (body.scaffoldingLevel || 1) : 'N/A',
         messageLength: body.message.length
       });
 
@@ -109,12 +174,12 @@ export default {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': env.ANTHROPIC_API_KEY,  // Your secret key (encrypted)
+          'x-api-key': env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           system: systemPrompt,
           messages: [
             {
@@ -135,9 +200,9 @@ export default {
       const data = await response.json();
 
       // Log response for research
-      console.log('AI Tutor Response:', {
+      console.log('AI Response:', {
         timestamp: new Date().toISOString(),
-        scaffoldingLevel,
+        mode,
         responseLength: data.content[0].text.length,
         inputTokens: data.usage.input_tokens,
         outputTokens: data.usage.output_tokens
