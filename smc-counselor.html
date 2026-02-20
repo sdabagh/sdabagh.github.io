@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Academic Counselor for Santa Monica College students - course planning, transfer advising, and degree requirements">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://stats-tutor-api.sofiadabagh383.workers.dev; style-src 'self' 'unsafe-inline';">
+    <title>AI Academic Counselor - Santa Monica College</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F8F9FA;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
+            color: white;
+            padding: 15px 20px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .header a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: underline;
+        }
+
+        .header a:hover {
+            color: white;
+        }
+
+        .disclaimer {
+            padding: 10px 15px;
+            background: #FFF3CD;
+            border-bottom: 2px solid #FFC107;
+            font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
+            color: #856404;
+        }
+
+        .disclaimer a {
+            color: #0D6EFD;
+            text-decoration: underline;
+        }
+
+        .api-status {
+            padding: 8px 15px;
+            background: #D4EDDA;
+            border-bottom: 2px solid #28A745;
+            font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
+            color: #155724;
+        }
+
+        .api-status.error {
+            background: #F8D7DA;
+            border-color: #DC3545;
+            color: #721C24;
+        }
+
+        .quick-topics {
+            padding: 8px 15px;
+            background: #F0F7FA;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .quick-topics button {
+            padding: 5px 12px;
+            background: white;
+            border: 1px solid #2C5F7C;
+            border-radius: 15px;
+            color: #2C5F7C;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .quick-topics button:hover {
+            background: #2C5F7C;
+            color: white;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #FAFBFC;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .message-user {
+            background: #D97D54;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-ai {
+            background: #E8F5E9;
+            border: 1px solid #A5D6A7;
+            margin-right: auto;
+        }
+
+        .message-system {
+            background: #FFF3CD;
+            border: 1px solid #FFE082;
+            text-align: center;
+            max-width: 95%;
+            margin: 8px auto;
+            font-size: 13px;
+        }
+
+        .message strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .typing {
+            display: none;
+            padding: 10px 14px;
+            background: #E8F5E9;
+            border: 1px solid #A5D6A7;
+            border-radius: 8px;
+            max-width: 85%;
+            margin-bottom: 12px;
+            font-style: italic;
+            color: #666;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .input-area {
+            padding: 12px;
+            background: white;
+            border-top: 2px solid #E0E0E0;
+            flex-shrink: 0;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #2C5F7C;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .input-form input:focus {
+            border-color: #3A7CA5;
+            box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.2);
+        }
+
+        .input-form button {
+            padding: 10px 20px;
+            background: #2C5F7C;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-form button:hover {
+            background: #1A3A4D;
+        }
+
+        .input-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Scrollbar styling */
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 { font-size: 18px; }
+            .message { max-width: 92%; font-size: 13px; }
+            .input-form input { font-size: 13px; }
+            .quick-topics { gap: 6px; padding: 6px 10px; }
+            .quick-topics button { font-size: 11px; padding: 4px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>AI Academic Counselor</h1>
+            <p>SMC Course Planning & Transfer Advising | <a href="index.html">Back to Main Site</a></p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            This is an AI assistant, not an official SMC counselor. Always verify information with the
+            <a href="https://www.smc.edu/student-support/counseling/" target="_blank">SMC Counseling Office</a>
+            or your assigned counselor.
+        </div>
+
+        <!-- API Status -->
+        <div id="api-status" class="api-status">
+            Connecting to AI Counselor...
+        </div>
+
+        <!-- Quick Topic Buttons -->
+        <div class="quick-topics">
+            <button onclick="askQuick('What are the requirements to transfer to a UC from SMC?')">UC Transfer</button>
+            <button onclick="askQuick('What is the math course sequence at SMC?')">Math Sequence</button>
+            <button onclick="askQuick('What are the IGETC requirements?')">IGETC</button>
+            <button onclick="askQuick('What are the prerequisites for Math 54 Statistics?')">Stats Prerequisites</button>
+            <button onclick="askQuick('How does the Associate Degree for Transfer (ADT) work?')">ADT Degrees</button>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages" id="messages">
+            <div class="message message-ai">
+                <strong>AI Counselor</strong>
+Welcome! I'm your AI Academic Counselor for Santa Monica College. I can help you with:
+
+- Course selection and scheduling
+- Transfer planning (UC TAG, CSU, IGETC)
+- Math and statistics course sequences
+- Prerequisite requirements
+- Degree and certificate requirements
+- General education planning
+
+Remember: I'm an AI assistant. For official advising, please visit the SMC Counseling Center or schedule an appointment with your counselor.
+
+What can I help you with today?</div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing" id="typing">AI Counselor is thinking...</div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <form class="input-form" id="chat-form">
+                <input type="text" id="user-input"
+                    placeholder="Ask about courses, transfer planning, prerequisites..."
+                    autocomplete="off" required />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const WORKER_URL = 'https://stats-tutor-api.sofiadabagh383.workers.dev';
+
+        // ===== STATE =====
+        let conversationHistory = [];
+
+        // ===== DOM ELEMENTS =====
+        const messagesDiv = document.getElementById('messages');
+        const typingDiv = document.getElementById('typing');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const apiStatus = document.getElementById('api-status');
+
+        // ===== MESSAGE FUNCTIONS =====
+        function addMessage(role, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message message-${role === 'user' ? 'user' : 'ai'}`;
+
+            const label = document.createElement('strong');
+            label.textContent = role === 'user' ? 'You' : 'AI Counselor';
+            msgDiv.appendChild(label);
+
+            msgDiv.appendChild(document.createTextNode(text));
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message message-system';
+            msgDiv.textContent = text;
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            typingDiv.style.display = 'block';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingDiv.style.display = 'none';
+        }
+
+        // ===== API STATUS =====
+        function updateApiStatus(status, message) {
+            if (status === 'connected') {
+                apiStatus.textContent = 'Connected to AI Counselor (Secure Backend)';
+                apiStatus.className = 'api-status';
+            } else if (status === 'error') {
+                apiStatus.textContent = 'Connection Error: ' + (message || 'Check console');
+                apiStatus.className = 'api-status error';
+            }
+        }
+
+        // ===== WORKER API INTEGRATION =====
+        async function sendToWorker(userMessage) {
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    mode: 'counselor'
+                })
+            });
+
+            if (!response.ok) {
+                let errorMessage = `Worker request failed with status ${response.status}`;
+                try {
+                    const errorText = await response.text();
+                    if (errorText) {
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            errorMessage = errorJson.error || errorJson.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = errorText;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error reading response:', e);
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            return data.response;
+        }
+
+        // ===== QUICK TOPIC HANDLER =====
+        function askQuick(question) {
+            userInput.value = question;
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+
+        // ===== FORM SUBMISSION HANDLER =====
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Disable input
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            // Add user message
+            addMessage('user', text);
+            userInput.value = '';
+
+            // Show typing
+            showTyping();
+
+            try {
+                // Call Cloudflare Worker (counselor mode)
+                const aiResponse = await sendToWorker(text);
+
+                // Hide typing and show response
+                hideTyping();
+                addMessage('ai', aiResponse);
+
+                // Track conversation
+                conversationHistory.push(
+                    { role: 'user', content: text },
+                    { role: 'assistant', content: aiResponse }
+                );
+
+                // Update status to show connection is good
+                updateApiStatus('connected');
+
+            } catch (error) {
+                hideTyping();
+                console.error('API Error:', error);
+                addSystemMessage('Error: ' + error.message);
+                updateApiStatus('error', error.message);
+            }
+
+            // Re-enable input
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        });
+
+        // ===== INITIALIZATION =====
+        console.log('AI Academic Counselor initialized');
+        console.log('Using Claude via Cloudflare Worker proxy');
+        console.log('API key is secure (not exposed in browser)');
+        console.log('Worker URL:', WORKER_URL);
+
+        updateApiStatus('connected');
+
+        // Focus input on load
+        userInput.focus();
+    </script>
+
+</body>
+</html>
