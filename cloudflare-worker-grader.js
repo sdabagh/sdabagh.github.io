@@ -1,4 +1,4 @@
-// Cloudflare Worker - MAT300 Discussion Grading Assistant
+// Cloudflare Worker - Discussion Grading Assistant
 // Handles AI-powered grading for Canvas SpeedGrader Chrome Extension
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
@@ -29,8 +29,8 @@ function getCorsHeaders(origin) {
   };
 }
 
-// MAT300 Discussion Grading Rubric System Prompt
-const GRADING_SYSTEM_PROMPT = `You are an expert grader for MAT300 (Intermediate Algebra) discussion posts at Santa Monica College. You grade discussions based on a specific rubric with five categories:
+// Discussion Grading Rubric System Prompt
+const GRADING_SYSTEM_PROMPT = `You are an expert grader for online course discussion posts. You grade discussions based on a specific rubric with five categories:
 
 **RUBRIC BREAKDOWN (100 points total):**
 
@@ -93,9 +93,9 @@ Given a student's discussion post content, provide:
 
 **GRADING GUIDELINES:**
 - Be fair, consistent, and objective
-- Look for evidence of mathematical understanding, not just correctness
+- Look for evidence of understanding and critical thinking
 - Value effort and engagement
-- Consider the context of intermediate algebra (not expecting advanced concepts)
+- Consider the academic level appropriate to the course
 - Provide constructive feedback that helps students improve
 - Be encouraging while maintaining academic standards
 - If content is missing (e.g., no peer responses), assign 0 for that category`;

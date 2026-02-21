@@ -1,4 +1,4 @@
-// MAT300 Grading Assistant - Popup Logic
+// Canvas Discussion Grading Assistant - Popup Logic
 
 let currentDiscussion = null;
 let currentGrading = null;

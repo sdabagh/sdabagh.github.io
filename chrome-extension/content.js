@@ -1,7 +1,7 @@
-// MAT300 Grading Assistant - Content Script
+// Canvas Discussion Grading Assistant - Content Script
 // Runs on Canvas SpeedGrader pages (top frame AND iframes via all_frames)
 
-console.log('MAT300 Grading Assistant content script loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
+console.log('Canvas Grading Assistant content script loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
 
 // Add visual indicator only in top frame
 if (window === window.top) {
@@ -9,10 +9,10 @@ if (window === window.top) {
 }
 
 function addExtensionIndicator() {
-  if (document.getElementById('mat300-indicator')) return;
+  if (document.getElementById('grading-assistant-indicator')) return;
 
   const indicator = document.createElement('div');
-  indicator.id = 'mat300-indicator';
+  indicator.id = 'grading-assistant-indicator';
   indicator.innerHTML = `
     <div style="
       position: fixed;
@@ -28,7 +28,7 @@ function addExtensionIndicator() {
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       font-family: 'Segoe UI', sans-serif;
     ">
-      📊 MAT300 Assistant Active
+      📊 Grading Assistant Active
     </div>
   `;
 
@@ -109,7 +109,7 @@ function extractDiscussionData() {
     const authorPosts = document.querySelectorAll('.student_context_card_trigger.author_post, .author_post');
     const userMessages = document.querySelectorAll('.userMessage');
 
-    console.log(`MAT300: Found ${authorPosts.length} author elements, ${userMessages.length} message elements`);
+    console.log(`Grading Assistant: Found ${authorPosts.length} author elements, ${userMessages.length} message elements`);
 
     if (userMessages.length > 0) {
       userMessages.forEach((msg, index) => {
@@ -193,15 +193,15 @@ function extractDiscussionData() {
             }
           }
         } catch (e) {
-          console.log('MAT300: Cannot access iframe (cross-origin)');
+          console.log('Grading Assistant: Cannot access iframe (cross-origin)');
         }
       }
     }
 
-    console.log(`MAT300: Extracted ${data.allPosts.length} posts from ${data.frameType} frame`);
+    console.log(`Grading Assistant: Extracted ${data.allPosts.length} posts from ${data.frameType} frame`);
 
   } catch (error) {
-    console.error('MAT300: Error extracting discussion data:', error);
+    console.error('Grading Assistant: Error extracting discussion data:', error);
   }
 
   return data;
@@ -240,13 +240,13 @@ function fillGradingForm(gradingData) {
     // Try to fill rubric if available
     const rubricContainer = document.querySelector('.rubric_container, .rubric-assessment');
     if (rubricContainer) {
-      console.log('MAT300: Rubric container found');
+      console.log('Grading Assistant: Rubric container found');
     }
 
     return true;
 
   } catch (error) {
-    console.error('MAT300: Error filling grading form:', error);
+    console.error('Grading Assistant: Error filling grading form:', error);
     return false;
   }
 }
