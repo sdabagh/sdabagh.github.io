@@ -3,9 +3,10 @@
 
 console.log('Canvas Grading Assistant content script loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
 
-// Add visual indicator only in top frame
+// Add visual indicator and extract button only in top frame
 if (window === window.top) {
   addExtensionIndicator();
+  addExtractButton();
 }
 
 function addExtensionIndicator() {
@@ -72,9 +73,12 @@ function extractDiscussionData() {
   try {
     // === STUDENT NAME (usually only in top frame SpeedGrader UI) ===
     const studentNameSelectors = [
+      // New Canvas UI (2024+)
+      '[data-testid="student-name"]',
+      '[aria-label*="student"]',
+      // Classic selectors
       '#students_selectmenu-button .ui-selectmenu-item-header',
       '.student_name',
-      '[data-testid="student-name"]',
       '#combo_box_container input',
       '.ui-selectmenu-item-header'
     ];
@@ -84,6 +88,30 @@ function extractDiscussionData() {
       if (el) {
         data.studentName = (el.value || el.textContent || '').trim();
         if (data.studentName) break;
+      }
+    }
+
+    // Try extracting from "discussion posts for [Name]" text
+    if (!data.studentName) {
+      const bodyText = document.body.textContent;
+      const match = bodyText.match(/discussion posts for ([A-Z][a-z]+ [A-Z][a-z]+)/);
+      if (match) {
+        data.studentName = match[1].trim();
+        console.log('Grading Assistant: Extracted student name from text:', data.studentName);
+      }
+    }
+
+    // Final fallback: look for any prominent name in header/top area
+    if (!data.studentName) {
+      const headers = document.querySelectorAll('header, [role="banner"], .header');
+      for (const header of headers) {
+        const text = header.textContent;
+        const nameMatch = text.match(/\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+        if (nameMatch && nameMatch[1].split(' ').length === 2) {
+          data.studentName = nameMatch[1];
+          console.log('Grading Assistant: Extracted student name from header:', data.studentName);
+          break;
+        }
       }
     }
 
@@ -181,6 +209,43 @@ function extractDiscussionData() {
       });
     }
 
+    // === NEW CANVAS UI: Try to extract from main content area ===
+    if (data.allPosts.length === 0) {
+      console.log('Grading Assistant: Trying new Canvas UI content extraction');
+      // Look for post content in various possible containers
+      const contentSelectors = [
+        'article',
+        '[role="article"]',
+        '.discussion-content',
+        '.post-content',
+        'main [data-testid*="post"]',
+        'main [data-testid*="discussion"]'
+      ];
+
+      for (const sel of contentSelectors) {
+        const articles = document.querySelectorAll(sel);
+        if (articles.length > 0) {
+          console.log(`Grading Assistant: Found ${articles.length} articles with selector: ${sel}`);
+          articles.forEach((article, index) => {
+            const text = article.textContent.trim();
+            if (text && text.length > 50) {
+              // Try to find author within article
+              const authorEl = article.querySelector('[data-testid*="author"], .author, header strong, h3, h4');
+              const author = authorEl ? authorEl.textContent.trim() : '';
+
+              data.allPosts.push({
+                author: author,
+                content: text.substring(0, 5000),
+                timestamp: '',
+                index: index
+              });
+            }
+          });
+          if (data.allPosts.length > 0) break;
+        }
+      }
+    }
+
     // === FALLBACK: Try to access iframe from top frame ===
     if (data.allPosts.length === 0 && window === window.top) {
       const iframe = document.querySelector('#speedgrader_iframe');
@@ -205,6 +270,60 @@ function extractDiscussionData() {
   }
 
   return data;
+}
+
+// Add "Extract Discussion" button to Canvas page
+function addExtractButton() {
+  // Check if button already exists
+  if (document.getElementById('grading-assistant-extract-btn')) return;
+
+  // Wait for DOM to be ready
+  setTimeout(() => {
+    const button = document.createElement('button');
+    button.id = 'grading-assistant-extract-btn';
+    button.innerHTML = '🤖 Extract & Grade Discussion';
+    button.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #2C5F7C, #3A7CA5);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-family: 'Segoe UI', sans-serif;
+      transition: all 0.2s ease;
+    `;
+
+    button.onmouseover = () => {
+      button.style.transform = 'translateY(-2px)';
+      button.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+    };
+
+    button.onmouseout = () => {
+      button.style.transform = 'translateY(0)';
+      button.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+    };
+
+    button.onclick = () => {
+      // Send message to popup/background to trigger extraction
+      button.innerHTML = '⏳ Extracting...';
+      button.disabled = true;
+
+      // Trigger the extraction by sending a message to the extension
+      chrome.runtime.sendMessage({ action: 'openPopup' }, (response) => {
+        button.innerHTML = '🤖 Extract & Grade Discussion';
+        button.disabled = false;
+      });
+    };
+
+    document.body.appendChild(button);
+  }, 1000);
 }
 
 // Fill Canvas grading form with AI-generated grades
