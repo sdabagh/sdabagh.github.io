@@ -148,20 +148,36 @@ async function extractDiscussion() {
     if (combined.allPosts.length > 0) {
       if (combined.studentName) {
         // Try to match student name against post authors
-        const nameParts = combined.studentName.toLowerCase().split(/[\s,]+/).filter(p => p.length > 2);
+        // More robust matching: handle "Last, First" and "First Last" formats
+        const nameParts = combined.studentName.toLowerCase()
+          .split(/[\s,]+/)
+          .filter(p => p.length > 2);
+
+        console.log('Student name:', combined.studentName);
+        console.log('Name parts for matching:', nameParts);
 
         const studentPosts = [];
         const peerPosts = [];
 
         combined.allPosts.forEach(post => {
+          console.log('Post author:', post.author, '| Content preview:', post.content.substring(0, 100));
+
           if (!post.author) {
-            // Can't determine - add to peers
-            peerPosts.push(post);
+            // No author - treat first post as initial, others as peers
+            if (combined.allPosts.indexOf(post) === 0) {
+              studentPosts.push(post);
+            } else {
+              peerPosts.push(post);
+            }
             return;
           }
 
           const authorLower = post.author.toLowerCase();
-          const isStudent = nameParts.some(part => authorLower.includes(part));
+          // Match if at least 2 name parts match OR any part is >4 chars and matches
+          const matchCount = nameParts.filter(part => authorLower.includes(part)).length;
+          const isStudent = matchCount >= 2 || nameParts.some(part => part.length > 4 && authorLower.includes(part));
+
+          console.log(`  Matched ${matchCount} parts, isStudent: ${isStudent}`);
 
           if (isStudent) {
             studentPosts.push(post);
@@ -173,10 +189,23 @@ async function extractDiscussion() {
         // Student's first post is the initial post
         if (studentPosts.length > 0) {
           combined.initialPost = studentPosts[0].content;
+          console.log('✅ Found student initial post');
           // Additional student posts are also included
           if (studentPosts.length > 1) {
             for (let i = 1; i < studentPosts.length; i++) {
               combined.peerResponses.push(`[${combined.studentName} - Reply ${i}]: ${studentPosts[i].content}`);
+            }
+          }
+        } else {
+          // Fallback: if name matching failed, treat first post as student's
+          console.log('⚠️ Name matching failed, using first post as initial post');
+          if (combined.allPosts.length > 0) {
+            combined.initialPost = combined.allPosts[0].content;
+            // Treat remaining posts as peer responses
+            for (let i = 1; i < combined.allPosts.length; i++) {
+              const post = combined.allPosts[i];
+              const label = post.author ? `[${post.author}]` : `[Post ${i}]`;
+              peerPosts.push(post);
             }
           }
         }
