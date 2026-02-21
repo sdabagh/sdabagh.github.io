@@ -148,20 +148,36 @@ async function extractDiscussion() {
     if (combined.allPosts.length > 0) {
       if (combined.studentName) {
         // Try to match student name against post authors
-        const nameParts = combined.studentName.toLowerCase().split(/[\s,]+/).filter(p => p.length > 2);
+        // More robust matching: handle "Last, First" and "First Last" formats
+        const nameParts = combined.studentName.toLowerCase()
+          .split(/[\s,]+/)
+          .filter(p => p.length > 2);
+
+        console.log('Student name:', combined.studentName);
+        console.log('Name parts for matching:', nameParts);
 
         const studentPosts = [];
         const peerPosts = [];
 
         combined.allPosts.forEach(post => {
+          console.log('Post author:', post.author, '| Content preview:', post.content.substring(0, 100));
+
           if (!post.author) {
-            // Can't determine - add to peers
-            peerPosts.push(post);
+            // No author - treat first post as initial, others as peers
+            if (combined.allPosts.indexOf(post) === 0) {
+              studentPosts.push(post);
+            } else {
+              peerPosts.push(post);
+            }
             return;
           }
 
           const authorLower = post.author.toLowerCase();
-          const isStudent = nameParts.some(part => authorLower.includes(part));
+          // Match if at least 2 name parts match OR any part is >4 chars and matches
+          const matchCount = nameParts.filter(part => authorLower.includes(part)).length;
+          const isStudent = matchCount >= 2 || nameParts.some(part => part.length > 4 && authorLower.includes(part));
+
+          console.log(`  Matched ${matchCount} parts, isStudent: ${isStudent}`);
 
           if (isStudent) {
             studentPosts.push(post);
@@ -173,10 +189,23 @@ async function extractDiscussion() {
         // Student's first post is the initial post
         if (studentPosts.length > 0) {
           combined.initialPost = studentPosts[0].content;
+          console.log('✅ Found student initial post');
           // Additional student posts are also included
           if (studentPosts.length > 1) {
             for (let i = 1; i < studentPosts.length; i++) {
               combined.peerResponses.push(`[${combined.studentName} - Reply ${i}]: ${studentPosts[i].content}`);
+            }
+          }
+        } else {
+          // Fallback: if name matching failed, treat first post as student's
+          console.log('⚠️ Name matching failed, using first post as initial post');
+          if (combined.allPosts.length > 0) {
+            combined.initialPost = combined.allPosts[0].content;
+            // Treat remaining posts as peer responses
+            for (let i = 1; i < combined.allPosts.length; i++) {
+              const post = combined.allPosts[i];
+              const label = post.author ? `[${post.author}]` : `[Post ${i}]`;
+              peerPosts.push(post);
             }
           }
         }
@@ -245,6 +274,63 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Call Claude API directly to grade discussion
+async function callClaudeAPI(apiKey, discussion, formattedContent) {
+  const gradingPrompt = `You are a grading assistant for Canvas discussions. Analyze the following discussion and provide scores and feedback.
+
+**Student:** ${discussion.studentName}
+**Discussion Topic:** ${discussion.discussionTitle}
+
+${formattedContent}
+
+Provide a grading breakdown with scores (0-10) and feedback for:
+1. **Initial Post Quality** (0-10 points)
+2. **Peer Engagement** (0-10 points)
+3. **Critical Thinking** (0-10 points)
+
+Format your response as JSON:
+{
+  "initialPost": { "score": X, "feedback": "..." },
+  "peerEngagement": { "score": X, "feedback": "..." },
+  "criticalThinking": { "score": X, "feedback": "..." },
+  "overallFeedback": "Brief overall comment...",
+  "totalScore": XX
+}`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2048,
+      messages: [{
+        role: 'user',
+        content: gradingPrompt
+      }]
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Claude API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  const responseText = data.content[0].text;
+
+  // Parse JSON from response (handle markdown code blocks if present)
+  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Could not parse grading response from AI');
+  }
+
+  return JSON.parse(jsonMatch[0]);
 }
 
 // Content script function to extract Canvas discussion data
@@ -391,8 +477,8 @@ async function gradeWithAI() {
   try {
     const config = await chrome.storage.local.get(['apiKey', 'workerUrl']);
 
-    if (!config.apiKey || !config.workerUrl) {
-      showStatus('status-message', '❌ Please configure API key and worker URL first', 'error');
+    if (!config.apiKey) {
+      showStatus('status-message', '❌ Please configure API key first', 'error');
       return;
     }
 
@@ -416,27 +502,35 @@ async function gradeWithAI() {
         : '(No peer responses found)'
     ].join('\n');
 
-    // Call Cloudflare Worker API
-    const response = await fetch(config.workerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        apiKey: config.apiKey,
-        discussion: {
-          studentName: currentDiscussion.studentName,
-          discussionTitle: currentDiscussion.discussionTitle,
-          content: formattedContent
-        }
-      })
-    });
+    // Call Claude API directly (or use worker if configured)
+    let grading;
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
+    if (config.workerUrl) {
+      // Use Cloudflare Worker if URL is configured
+      const response = await fetch(config.workerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apiKey: config.apiKey,
+          discussion: {
+            studentName: currentDiscussion.studentName,
+            discussionTitle: currentDiscussion.discussionTitle,
+            content: formattedContent
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      grading = await response.json();
+    } else {
+      // Call Claude API directly
+      grading = await callClaudeAPI(config.apiKey, currentDiscussion, formattedContent);
     }
-
-    const grading = await response.json();
     currentGrading = grading;
 
     // Hide loading, show results
