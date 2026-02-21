@@ -349,9 +349,12 @@ function extractCanvasDiscussion() {
 
     // === STUDENT NAME (SpeedGrader UI - usually top frame) ===
     const studentNameSelectors = [
+      // New Canvas UI (2024+)
+      '[data-testid="student-name"]',
+      '[aria-label*="student"]',
+      // Classic selectors
       '#students_selectmenu-button .ui-selectmenu-item-header',
       '.student_name',
-      '[data-testid="student-name"]',
       '.ui-selectmenu-item-header'
     ];
 
@@ -360,6 +363,30 @@ function extractCanvasDiscussion() {
       if (el) {
         data.studentName = (el.value || el.textContent || '').trim();
         if (data.studentName) break;
+      }
+    }
+
+    // Try extracting from "discussion posts for [Name]" text
+    if (!data.studentName) {
+      const bodyText = document.body.textContent;
+      const match = bodyText.match(/discussion posts for ([A-Z][a-z]+ [A-Z][a-z]+)/);
+      if (match) {
+        data.studentName = match[1].trim();
+        console.log('Extracted student name from text:', data.studentName);
+      }
+    }
+
+    // Final fallback: look for any prominent name in header/top area
+    if (!data.studentName) {
+      const headers = document.querySelectorAll('header, [role="banner"], .header');
+      for (const header of headers) {
+        const text = header.textContent;
+        const nameMatch = text.match(/\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+        if (nameMatch && nameMatch[1].split(' ').length === 2) {
+          data.studentName = nameMatch[1];
+          console.log('Extracted student name from header:', data.studentName);
+          break;
+        }
       }
     }
 
@@ -446,6 +473,43 @@ function extractCanvasDiscussion() {
           }
         }
       });
+    }
+
+    // === NEW CANVAS UI: Try to extract from main content area ===
+    if (data.allPosts.length === 0) {
+      console.log('Trying new Canvas UI content extraction');
+      // Look for post content in various possible containers
+      const contentSelectors = [
+        'article',
+        '[role="article"]',
+        '.discussion-content',
+        '.post-content',
+        'main [data-testid*="post"]',
+        'main [data-testid*="discussion"]'
+      ];
+
+      for (const sel of contentSelectors) {
+        const articles = document.querySelectorAll(sel);
+        if (articles.length > 0) {
+          console.log(`Found ${articles.length} articles with selector: ${sel}`);
+          articles.forEach(function(article, index) {
+            const text = article.textContent.trim();
+            if (text && text.length > 50) {
+              // Try to find author within article
+              const authorEl = article.querySelector('[data-testid*="author"], .author, header strong, h3, h4');
+              const author = authorEl ? authorEl.textContent.trim() : '';
+
+              data.allPosts.push({
+                author: author,
+                content: text.substring(0, 5000),
+                timestamp: '',
+                index: index
+              });
+            }
+          });
+          if (data.allPosts.length > 0) break;
+        }
+      }
     }
 
     // === LAST RESORT: Get iframe body text from top frame ===
