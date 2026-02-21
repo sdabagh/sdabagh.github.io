@@ -405,6 +405,17 @@ async function gradeWithAI() {
     document.getElementById('grading-progress').classList.remove('hidden');
     document.getElementById('grade-btn').disabled = true;
 
+    // Format discussion content for the worker
+    const formattedContent = [
+      '**Initial Post:**',
+      currentDiscussion.initialPost || '(No initial post found)',
+      '',
+      '**Peer Responses:**',
+      currentDiscussion.peerResponses.length > 0
+        ? currentDiscussion.peerResponses.join('\n\n')
+        : '(No peer responses found)'
+    ].join('\n');
+
     // Call Cloudflare Worker API
     const response = await fetch(config.workerUrl, {
       method: 'POST',
@@ -413,7 +424,11 @@ async function gradeWithAI() {
       },
       body: JSON.stringify({
         apiKey: config.apiKey,
-        discussion: currentDiscussion
+        discussion: {
+          studentName: currentDiscussion.studentName,
+          discussionTitle: currentDiscussion.discussionTitle,
+          content: formattedContent
+        }
       })
     });
 
