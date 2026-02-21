@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAT300 Grading Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 MAT300 Grading Assistant</h1>
+      <p class="subtitle">AI-powered discussion grading with Claude</p>
+    </header>
+
+    <div id="config-section">
+      <h2>⚙️ Configuration</h2>
+      <div class="form-group">
+        <label for="api-key">Anthropic API Key:</label>
+        <input type="password" id="api-key" placeholder="sk-ant-...">
+        <button id="save-key" class="btn btn-primary">Save Key</button>
+      </div>
+      <div class="form-group">
+        <label for="worker-url">Cloudflare Worker URL:</label>
+        <input type="text" id="worker-url" placeholder="https://your-worker.workers.dev">
+        <button id="save-url" class="btn btn-primary">Save URL</button>
+      </div>
+      <div id="config-status" class="status-message"></div>
+    </div>
+
+    <div id="grading-section" class="hidden">
+      <h2>📝 Grade Discussion</h2>
+
+      <div class="info-box">
+        <p><strong>Student:</strong> <span id="student-name">-</span></p>
+        <p><strong>Discussion:</strong> <span id="discussion-title">-</span></p>
+      </div>
+
+      <div class="form-group">
+        <label>Discussion Content:</label>
+        <div id="discussion-preview" class="preview-box">
+          Click "Extract Discussion" to load content from Canvas
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="extract-btn" class="btn btn-primary">📥 Extract Discussion</button>
+        <button id="grade-btn" class="btn btn-success hidden">🤖 Grade with AI</button>
+      </div>
+
+      <div id="grading-progress" class="hidden">
+        <div class="loader"></div>
+        <p>Claude is analyzing the discussion...</p>
+      </div>
+
+      <div id="grading-results" class="hidden">
+        <h3>✨ AI Grading Results</h3>
+
+        <!-- Initial Post (45 pts) -->
+        <div class="rubric-section">
+          <h4>1. Comprehensive Initial Post (45 pts)</h4>
+          <select id="score-initial" class="score-select">
+            <option value="45">Exemplary - 45 pts</option>
+            <option value="40">Accomplished - 40 pts</option>
+            <option value="35">Developing - 35 pts</option>
+            <option value="25">Beginning - 25 pts</option>
+            <option value="0">Deficient - 0 pts</option>
+          </select>
+          <div id="reasoning-initial" class="reasoning-box"></div>
+        </div>
+
+        <!-- Peer Responses (35 pts) -->
+        <div class="rubric-section">
+          <h4>2. Comprehensive Peer Responses (35 pts)</h4>
+          <select id="score-peers" class="score-select">
+            <option value="35">Exemplary - 35 pts</option>
+            <option value="30">Accomplished - 30 pts</option>
+            <option value="20">Developing - 20 pts</option>
+            <option value="10">Beginning - 10 pts</option>
+            <option value="0">Deficient - 0 pts</option>
+          </select>
+          <div id="reasoning-peers" class="reasoning-box"></div>
+        </div>
+
+        <!-- Clarity and Mechanics (10 pts) -->
+        <div class="rubric-section">
+          <h4>3. Clarity and Mechanics (10 pts)</h4>
+          <select id="score-clarity" class="score-select">
+            <option value="10">Exemplary - 10 pts</option>
+            <option value="6">Accomplished - 6 pts</option>
+            <option value="0">Deficient - 0 pts</option>
+          </select>
+          <div id="reasoning-clarity" class="reasoning-box"></div>
+        </div>
+
+        <!-- Participation Guidelines (5 pts) -->
+        <div class="rubric-section">
+          <h4>4. Participation Guidelines (5 pts)</h4>
+          <select id="score-participation" class="score-select">
+            <option value="5">Exemplary - 5 pts (Posted on 2+ days, replied to instructor)</option>
+            <option value="0">Deficient - 0 pts (All on same day OR no instructor reply)</option>
+          </select>
+          <div id="reasoning-participation" class="reasoning-box"></div>
+        </div>
+
+        <!-- Timeliness (5 pts) -->
+        <div class="rubric-section">
+          <h4>5. Timeliness (5 pts)</h4>
+          <select id="score-timeliness" class="score-select">
+            <option value="5">Full Marks - 5 pts (First post by Wednesday)</option>
+            <option value="0">No Marks - 0 pts (First post after Wednesday)</option>
+          </select>
+          <div id="reasoning-timeliness" class="reasoning-box"></div>
+        </div>
+
+        <!-- Feedback Comment -->
+        <div class="rubric-section">
+          <h4>💬 Feedback Comment</h4>
+          <textarea id="feedback-comment" rows="6" placeholder="AI-generated feedback will appear here..."></textarea>
+        </div>
+
+        <!-- Total Score -->
+        <div class="total-score">
+          <h3>Total Score: <span id="total-score">0</span> / 100</h3>
+        </div>
+
+        <div class="button-group">
+          <button id="apply-to-canvas" class="btn btn-success">✅ Apply to Canvas</button>
+          <button id="reset-btn" class="btn btn-secondary">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div id="status-message" class="status-message"></div>
+    </div>
+
+    <footer>
+      <p>Built with ❤️ for Safaa Dabagh | Powered by Claude AI</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
