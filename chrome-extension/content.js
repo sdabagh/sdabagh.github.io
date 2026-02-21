@@ -272,16 +272,17 @@ function extractDiscussionData() {
   return data;
 }
 
-// Add "Extract Discussion" button to Canvas page
+// Add "Extract Discussion" button to Canvas page (persistent)
 function addExtractButton() {
-  // Check if button already exists
-  if (document.getElementById('grading-assistant-extract-btn')) return;
+  let buttonCheckInterval;
 
-  // Wait for DOM to be ready
-  setTimeout(() => {
+  function createButton() {
+    // Check if button already exists
+    if (document.getElementById('grading-assistant-extract-btn')) return;
+
     const button = document.createElement('button');
     button.id = 'grading-assistant-extract-btn';
-    button.innerHTML = '🤖 Extract & Grade Discussion';
+    button.innerHTML = '🤖 Extract & Grade';
     button.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -311,19 +312,48 @@ function addExtractButton() {
     };
 
     button.onclick = () => {
-      // Send message to popup/background to trigger extraction
+      // Extract data and show in console
       button.innerHTML = '⏳ Extracting...';
       button.disabled = true;
 
-      // Trigger the extraction by sending a message to the extension
-      chrome.runtime.sendMessage({ action: 'openPopup' }, (response) => {
-        button.innerHTML = '🤖 Extract & Grade Discussion';
-        button.disabled = false;
-      });
+      const data = extractDiscussionData();
+      console.log('=== EXTRACTED DATA ===', data);
+
+      // Show alert with extraction results
+      const postCount = data.allPosts.length;
+      const studentName = data.studentName || 'Unknown';
+      alert(`Extracted:\n\nStudent: ${studentName}\nPosts found: ${postCount}\n\nCheck console for full data`);
+
+      button.innerHTML = '🤖 Extract & Grade';
+      button.disabled = false;
     };
 
     document.body.appendChild(button);
-  }, 1000);
+    console.log('Grading Assistant: Button injected');
+  }
+
+  // Initial button creation
+  setTimeout(createButton, 1000);
+
+  // Re-inject button if it gets removed (Canvas SPA behavior)
+  buttonCheckInterval = setInterval(() => {
+    if (!document.getElementById('grading-assistant-extract-btn') && document.body) {
+      console.log('Grading Assistant: Button removed, re-injecting...');
+      createButton();
+    }
+  }, 2000);
+
+  // Also use MutationObserver for immediate re-injection
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById('grading-assistant-extract-btn') && document.body) {
+      createButton();
+    }
+  });
+
+  // Observe body for child removals
+  if (document.body) {
+    observer.observe(document.body, { childList: true });
+  }
 }
 
 // Fill Canvas grading form with AI-generated grades
