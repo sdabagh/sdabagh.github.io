@@ -247,6 +247,63 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Call Claude API directly to grade discussion
+async function callClaudeAPI(apiKey, discussion, formattedContent) {
+  const gradingPrompt = `You are a grading assistant for Canvas discussions. Analyze the following discussion and provide scores and feedback.
+
+**Student:** ${discussion.studentName}
+**Discussion Topic:** ${discussion.discussionTitle}
+
+${formattedContent}
+
+Provide a grading breakdown with scores (0-10) and feedback for:
+1. **Initial Post Quality** (0-10 points)
+2. **Peer Engagement** (0-10 points)
+3. **Critical Thinking** (0-10 points)
+
+Format your response as JSON:
+{
+  "initialPost": { "score": X, "feedback": "..." },
+  "peerEngagement": { "score": X, "feedback": "..." },
+  "criticalThinking": { "score": X, "feedback": "..." },
+  "overallFeedback": "Brief overall comment...",
+  "totalScore": XX
+}`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2048,
+      messages: [{
+        role: 'user',
+        content: gradingPrompt
+      }]
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Claude API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  const responseText = data.content[0].text;
+
+  // Parse JSON from response (handle markdown code blocks if present)
+  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Could not parse grading response from AI');
+  }
+
+  return JSON.parse(jsonMatch[0]);
+}
+
 // Content script function to extract Canvas discussion data
 // This runs inside each frame (top + iframes) via chrome.scripting.executeScript
 function extractCanvasDiscussion() {
@@ -391,8 +448,8 @@ async function gradeWithAI() {
   try {
     const config = await chrome.storage.local.get(['apiKey', 'workerUrl']);
 
-    if (!config.apiKey || !config.workerUrl) {
-      showStatus('status-message', '❌ Please configure API key and worker URL first', 'error');
+    if (!config.apiKey) {
+      showStatus('status-message', '❌ Please configure API key first', 'error');
       return;
     }
 
@@ -416,27 +473,35 @@ async function gradeWithAI() {
         : '(No peer responses found)'
     ].join('\n');
 
-    // Call Cloudflare Worker API
-    const response = await fetch(config.workerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        apiKey: config.apiKey,
-        discussion: {
-          studentName: currentDiscussion.studentName,
-          discussionTitle: currentDiscussion.discussionTitle,
-          content: formattedContent
-        }
-      })
-    });
+    // Call Claude API directly (or use worker if configured)
+    let grading;
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
+    if (config.workerUrl) {
+      // Use Cloudflare Worker if URL is configured
+      const response = await fetch(config.workerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apiKey: config.apiKey,
+          discussion: {
+            studentName: currentDiscussion.studentName,
+            discussionTitle: currentDiscussion.discussionTitle,
+            content: formattedContent
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      grading = await response.json();
+    } else {
+      // Call Claude API directly
+      grading = await callClaudeAPI(config.apiKey, currentDiscussion, formattedContent);
     }
-
-    const grading = await response.json();
     currentGrading = grading;
 
     // Hide loading, show results
