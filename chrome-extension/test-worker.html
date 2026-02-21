@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test MAT300 Grading Worker</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2C5F7C;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    button {
+      background: #2C5F7C;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #1A3A4D;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #result {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2C5F7C;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Test MAT300 Grading Worker</h1>
+    <p class="subtitle">Use this page to test your Cloudflare Worker before using it in the Chrome extension</p>
+
+    <div class="form-group">
+      <label for="worker-url">Worker URL:</label>
+      <input
+        type="text"
+        id="worker-url"
+        placeholder="https://mat300-grader.your-subdomain.workers.dev"
+        value="https://mat300-grader.sofiadabagh383.workers.dev"
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="api-key">Anthropic API Key:</label>
+      <input
+        type="password"
+        id="api-key"
+        placeholder="sk-ant-..."
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="discussion-content">Sample Discussion Content:</label>
+      <textarea id="discussion-content">Initial Post:
+In this week's discussion, I want to talk about solving quadratic equations using the quadratic formula. The quadratic formula is x = (-b ± √(b²-4ac)) / 2a. This formula is really useful when you can't easily factor a quadratic equation.
+
+For example, if we have x² + 5x + 6 = 0, we can identify:
+- a = 1
+- b = 5
+- c = 6
+
+Plugging into the formula:
+x = (-5 ± √(25-24)) / 2
+x = (-5 ± 1) / 2
+
+So x = -2 or x = -3
+
+I think the quadratic formula is more reliable than factoring because it works for all quadratic equations, even when the solutions are irrational or complex numbers.
+
+Peer Response 1:
+@Sarah - I really liked your explanation of the quadratic formula! I never thought about how it's more reliable than factoring. That's a great point. Do you think there are situations where factoring might still be faster or easier? Like when the equation is already in a simple form?
+
+Peer Response 2:
+@Michael - Great question about polynomial long division! I struggled with that too. One tip that helped me is to always write out the dividend and divisor in standard form with all terms included (even if coefficients are 0). This makes it easier to keep track of where you are in the process. Also, aligning terms vertically really helps!</textarea>
+    </div>
+
+    <button onclick="testWorker()">🚀 Test Worker</button>
+
+    <div id="loading" style="display: none;">
+      <div class="loader"></div>
+      <p style="text-align: center; color: #666;">Grading discussion with Claude...</p>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function testWorker() {
+      const workerUrl = document.getElementById('worker-url').value.trim();
+      const apiKey = document.getElementById('api-key').value.trim();
+      const discussionContent = document.getElementById('discussion-content').value.trim();
+      const resultDiv = document.getElementById('result');
+      const loadingDiv = document.getElementById('loading');
+
+      // Validate inputs
+      if (!workerUrl) {
+        resultDiv.className = 'error';
+        resultDiv.textContent = '❌ Error: Please enter a worker URL';
+        return;
+      }
+
+      if (!apiKey) {
+        resultDiv.className = 'error';
+        resultDiv.textContent = '❌ Error: Please enter an API key';
+        return;
+      }
+
+      if (!apiKey.startsWith('sk-ant-')) {
+        resultDiv.className = 'error';
+        resultDiv.textContent = '❌ Error: Invalid API key format. Should start with "sk-ant-"';
+        return;
+      }
+
+      if (!discussionContent) {
+        resultDiv.className = 'error';
+        resultDiv.textContent = '❌ Error: Please enter discussion content';
+        return;
+      }
+
+      // Show loading
+      resultDiv.style.display = 'none';
+      loadingDiv.style.display = 'block';
+
+      try {
+        const response = await fetch(workerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            apiKey: apiKey,
+            discussion: {
+              studentName: 'Test Student',
+              discussionTitle: 'Test Discussion',
+              content: discussionContent
+            }
+          })
+        });
+
+        loadingDiv.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          resultDiv.className = 'error';
+          resultDiv.textContent = `❌ Error: HTTP ${response.status}\n\n${errorText}`;
+          return;
+        }
+
+        const data = await response.json();
+
+        // Check if response has expected structure
+        if (!data.scores || !data.reasoning) {
+          resultDiv.className = 'error';
+          resultDiv.textContent = `❌ Error: Unexpected response format\n\n${JSON.stringify(data, null, 2)}`;
+          return;
+        }
+
+        // Display success
+        resultDiv.className = 'success';
+        resultDiv.innerHTML = `
+✅ <strong>Worker Test Successful!</strong>
+
+<strong>Scores:</strong>
+• Initial Post: ${data.scores.initialPost} / 45 pts
+• Peer Responses: ${data.scores.peerResponses} / 35 pts
+• Clarity & Mechanics: ${data.scores.clarity} / 10 pts
+• Participation: ${data.scores.participation} / 5 pts
+• Timeliness: ${data.scores.timeliness} / 5 pts
+<strong>Total: ${data.scores.initialPost + data.scores.peerResponses + data.scores.clarity + data.scores.participation + data.scores.timeliness} / 100 pts</strong>
+
+<strong>Reasoning:</strong>
+
+<strong>Initial Post:</strong>
+${data.reasoning.initialPost}
+
+<strong>Peer Responses:</strong>
+${data.reasoning.peerResponses}
+
+<strong>Clarity & Mechanics:</strong>
+${data.reasoning.clarity}
+
+<strong>Feedback Comment:</strong>
+${data.feedbackComment}
+
+---
+<em>Full Response:</em>
+${JSON.stringify(data, null, 2)}
+        `.trim();
+
+      } catch (error) {
+        loadingDiv.style.display = 'none';
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'error';
+        resultDiv.textContent = `❌ Error: ${error.message}\n\nPossible causes:\n• Worker URL is incorrect\n• CORS is blocking the request\n• Worker is not deployed\n• Network connectivity issue`;
+      }
+    }
+  </script>
+</body>
+</html>
