@@ -44,6 +44,9 @@ function setupEventListeners() {
   document.getElementById('save-key').addEventListener('click', saveApiKey);
   document.getElementById('save-url').addEventListener('click', saveWorkerUrl);
 
+  // Batch grading button
+  document.getElementById('open-batch-grading').addEventListener('click', openBatchGrading);
+
   // Grading buttons
   document.getElementById('extract-btn').addEventListener('click', extractDiscussion);
   document.getElementById('grade-btn').addEventListener('click', gradeWithAI);
@@ -811,4 +814,9 @@ function showStatus(elementId, message, type = 'info') {
       statusDiv.className = 'status-message';
     }, 5000);
   }
+}
+
+// Open batch grading interface in a new tab
+function openBatchGrading() {
+  chrome.tabs.create({ url: 'batch-grade.html' });
 }

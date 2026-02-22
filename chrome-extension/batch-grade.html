@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Grade Submissions - Canvas AI Grader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+    }
+
+    h1 {
+      color: #2d3748;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 3px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f7fafc;
+      margin-bottom: 30px;
+    }
+
+    .upload-zone:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .upload-zone.dragover {
+      border-color: #667eea;
+      background: #e6f2ff;
+      transform: scale(1.02);
+    }
+
+    .upload-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+    }
+
+    .upload-text {
+      font-size: 1.2rem;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .file-info {
+      background: #ebf8ff;
+      border: 1px solid #90cdf4;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .file-info h3 {
+      color: #2c5282;
+      margin-bottom: 10px;
+    }
+
+    .file-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-top: 4px;
+    }
+
+    /* Rubric Section */
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h3 {
+      color: #2d3748;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .assignment-type {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .type-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .type-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .type-card.selected {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .type-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .type-name {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 5px;
+    }
+
+    .type-desc {
+      font-size: 0.85rem;
+      color: #718096;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    input[type="number"] {
+      width: 120px;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+    }
+
+    /* Progress */
+    .progress-section {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 30px;
+      background: #e2e8f0;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 15px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: #4a5568;
+      font-size: 1.1rem;
+      margin-top: 10px;
+    }
+
+    .processing-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .processing-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .processing-item:last-child {
+      border-bottom: none;
+    }
+
+    .status-icon {
+      font-size: 1.2rem;
+    }
+
+    .processing-item.completed {
+      opacity: 0.6;
+    }
+
+    .processing-item.current {
+      background: #f0f4ff;
+      font-weight: 600;
+    }
+
+    .processing-item.error {
+      background: #fff5f5;
+      color: #c53030;
+    }
+
+    /* Results */
+    .results-section {
+      background: #f0fff4;
+      border: 2px solid #9ae6b4;
+      border-radius: 12px;
+      padding: 30px;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .results-header h2 {
+      color: #22543d;
+      font-size: 1.5rem;
+    }
+
+    .results-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .preview-table th,
+    .preview-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .preview-table th {
+      background: #f7fafc;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .preview-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .score-badge {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Hidden elements */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Animations */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinning {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 Batch Grade Submissions</h1>
+    <p class="subtitle">Upload a zip file of student submissions and grade them all at once with AI</p>
+
+    <!-- Step 1: Upload Zip -->
+    <div id="uploadSection">
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Drop submissions.zip here or click to browse</div>
+        <div class="upload-subtext">Accepts .zip files from Canvas gradebook</div>
+        <input type="file" id="zipInput" accept=".zip" style="display: none;">
+      </div>
+    </div>
+
+    <!-- Step 2: File Info & Configuration -->
+    <div id="configSection" class="hidden">
+      <div class="file-info">
+        <h3>✅ File Loaded Successfully</h3>
+        <div class="file-stats">
+          <div class="stat">
+            <div class="stat-value" id="totalSubmissions">0</div>
+            <div class="stat-label">Submissions</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="totalStudents">0</div>
+            <div class="stat-label">Students</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="fileSize">0 KB</div>
+            <div class="stat-label">File Size</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Assignment Type</h3>
+        <div class="assignment-type">
+          <div class="type-card" data-type="discussion">
+            <div class="type-icon">💬</div>
+            <div class="type-name">Discussion Post</div>
+            <div class="type-desc">Forum responses, reflections, peer engagement</div>
+          </div>
+          <div class="type-card" data-type="research">
+            <div class="type-icon">📝</div>
+            <div class="type-name">Research Assignment</div>
+            <div class="type-desc">Papers, reports, analytical writing</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Grading Rubric</h3>
+        <textarea id="rubric" rows="8" placeholder="Enter custom rubric or select an assignment type above to load a template..."></textarea>
+      </div>
+
+      <div class="section">
+        <h3>Points Possible</h3>
+        <input type="number" id="points" value="10" min="1" max="100">
+      </div>
+
+      <button class="btn btn-primary" id="startGrading">
+        <span>🚀</span>
+        <span>Start Grading All Submissions</span>
+      </button>
+    </div>
+
+    <!-- Step 3: Progress -->
+    <div id="progressSection" class="hidden">
+      <div class="progress-section">
+        <h3 style="margin-bottom: 20px;">Grading in Progress...</h3>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressFill" style="width: 0%;">
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
+        <div class="progress-text" id="progressText">Processing 0 of 0 submissions...</div>
+
+        <div class="processing-list" id="processingList"></div>
+      </div>
+    </div>
+
+    <!-- Step 4: Results -->
+    <div id="resultsSection" class="hidden">
+      <div class="results-section">
+        <div class="results-header">
+          <span style="font-size: 3rem;">✅</span>
+          <h2>Grading Complete!</h2>
+        </div>
+
+        <div class="results-stats">
+          <div class="stat">
+            <div class="stat-value" id="gradedCount">0</div>
+            <div class="stat-label">Graded</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="avgScore">0</div>
+            <div class="stat-label">Average Score</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="errorCount">0</div>
+            <div class="stat-label">Errors</div>
+          </div>
+        </div>
+
+        <div class="results-actions">
+          <button class="btn btn-success" id="downloadCSV">
+            <span>📥</span>
+            <span>Download CSV (Canvas Import)</span>
+          </button>
+          <button class="btn btn-success" id="downloadJSON">
+            <span>📄</span>
+            <span>Download JSON</span>
+          </button>
+          <button class="btn btn-primary" id="startOver">
+            <span>🔄</span>
+            <span>Grade Another Batch</span>
+          </button>
+        </div>
+
+        <details style="margin-top: 25px;">
+          <summary style="cursor: pointer; font-weight: 600; color: #2d3748; margin-bottom: 15px;">
+            Preview Results
+          </summary>
+          <div id="resultsPreview"></div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <script src="lib/jszip.min.js"></script>
+  <script src="batch-grade.js"></script>
+</body>
+</html>
