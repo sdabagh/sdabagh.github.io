@@ -27,13 +27,13 @@ async function loadConfiguration() {
 async function checkCanvasPage() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  if (tab.url && tab.url.includes('instructure.com') && tab.url.includes('speed_grader')) {
+  if (tab.url && tab.url.includes('instructure.com') && (tab.url.includes('speed_grader') || tab.url.includes('discussion_topics'))) {
     // Show grading section
     document.getElementById('grading-section').classList.remove('hidden');
   } else {
     // Show message to navigate to Canvas
     const statusDiv = document.getElementById('status-message');
-    statusDiv.textContent = '⚠️ Please navigate to a Canvas SpeedGrader page to use grading features';
+    statusDiv.textContent = '⚠️ Please navigate to a Canvas discussion or SpeedGrader page to use grading features';
     statusDiv.className = 'status-message info';
   }
 }
