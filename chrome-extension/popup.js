@@ -55,6 +55,12 @@ function setupEventListeners() {
   scoreSelects.forEach(select => {
     select.addEventListener('change', updateTotalScore);
   });
+
+  // Toggle raw data textarea
+  document.getElementById('toggle-raw-data').addEventListener('click', () => {
+    const textarea = document.getElementById('raw-discussion-data');
+    textarea.classList.toggle('hidden');
+  });
 }
 
 // Save API key to storage
@@ -259,6 +265,9 @@ async function extractDiscussion() {
       ${escapeHtml(peerPreview).replace(/\n/g, '<br>')}
     `;
 
+    // Populate raw data textarea with JSON
+    document.getElementById('raw-discussion-data').value = JSON.stringify(currentDiscussion, null, 2);
+
     // Show grade button
     document.getElementById('grade-btn').classList.remove('hidden');
     showStatus('status-message', `✅ Extracted ${totalPostsFound} discussion posts successfully!`, 'success');
@@ -278,26 +287,85 @@ function escapeHtml(text) {
 
 // Call Claude API directly to grade discussion
 async function callClaudeAPI(apiKey, discussion, formattedContent) {
-  const gradingPrompt = `You are a grading assistant for Canvas discussions. Analyze the following discussion and provide scores and feedback.
+  const systemPrompt = `You are an expert grader for online course discussion posts. You grade discussions based on a specific rubric with five categories:
 
-**Student:** ${discussion.studentName}
-**Discussion Topic:** ${discussion.discussionTitle}
+**RUBRIC BREAKDOWN (100 points total):**
 
+**1. Comprehensive Initial Post (45 points)**
+- Exemplary (45 pts): Exceptionally thorough, insightful analysis; demonstrates deep understanding; well-organized with clear mathematical reasoning; makes meaningful connections
+- Accomplished (40 pts): Thorough response showing solid understanding; well-organized; addresses all key components; clear mathematical reasoning
+- Developing (35 pts): Adequate response with moderate understanding; addresses most components but may lack depth; some organizational issues
+- Beginning (25 pts): Minimal effort; surface-level understanding; missing key components; lacks organization or clarity
+- Deficient (0 pts): No initial post or completely off-topic
+
+**2. Comprehensive Peer Responses (35 points)**
+- Exemplary (35 pts): Two+ substantive responses that extend discussion; build on peers' ideas; demonstrate engagement and critical thinking; ask thought-provoking questions
+- Accomplished (30 pts): Two adequate responses showing engagement; contribute meaningfully to discussion; demonstrate understanding
+- Developing (20 pts): Two basic responses with minimal engagement; surface-level comments; may lack substance
+- Beginning (10 pts): Only one response, or two very brief/superficial responses
+- Deficient (0 pts): No peer responses or completely off-topic
+
+**3. Clarity and Mechanics (10 points)**
+- Exemplary (10 pts): Professional, error-free writing; proper grammar, spelling, punctuation; well-formatted
+- Accomplished (6 pts): Generally professional with minor errors; good organization
+- Deficient (0 pts): Significant errors affecting clarity; very poor mechanics
+
+**4. Participation Guidelines (5 points)**
+- Full Marks (5 pts): Posted on 2+ different days AND replied to instructor feedback
+- No Marks (0 pts): All posts on same day OR did not reply to instructor
+
+**5. Timeliness (5 points)**
+- Full Marks (5 pts): First post submitted by Wednesday
+- No Marks (0 pts): First post submitted after Wednesday
+
+**YOUR TASK:**
+Given a student's discussion post content, provide:
+1. A score for each category (choose the exact point value from the rubric)
+2. Detailed reasoning for each score (2-3 sentences explaining why this level was chosen)
+3. Overall feedback comment for Canvas
+
+**IMPORTANT NOTES:**
+- For categories 4 and 5 (Participation and Timeliness), you CANNOT determine these from the discussion text alone
+- Always assign 0 pts for Participation and Timeliness with a note that instructor must verify manually
+- Focus your grading on categories 1-3 which can be assessed from the content
+
+**RESPONSE FORMAT (JSON):**
+{
+  "scores": {
+    "initialPost": <45|40|35|25|0>,
+    "peerResponses": <35|30|20|10|0>,
+    "clarity": <10|6|0>,
+    "participation": 0,
+    "timeliness": 0
+  },
+  "reasoning": {
+    "initialPost": "Detailed explanation for initial post score...",
+    "peerResponses": "Detailed explanation for peer responses score...",
+    "clarity": "Detailed explanation for clarity/mechanics score...",
+    "participation": "⚠️ Cannot assess from content. Instructor must verify: Posted on 2+ days AND replied to instructor.",
+    "timeliness": "⚠️ Cannot assess from content. Instructor must verify: First post by Wednesday."
+  },
+  "feedbackComment": "Overall feedback comment for Canvas. Start with positive aspects, then constructive suggestions. Include the AI-assessed total (/90 pts) and note that participation/timeliness need manual verification."
+}
+
+**GRADING GUIDELINES:**
+- Be fair, consistent, and objective
+- Look for evidence of understanding and critical thinking
+- Value effort and engagement
+- Consider the academic level appropriate to the course
+- Provide constructive feedback that helps students improve
+- Be encouraging while maintaining academic standards
+- If content is missing (e.g., no peer responses), assign 0 for that category`;
+
+  const userMessage = `Please grade the following discussion post:
+
+**Student:** ${discussion.studentName || 'Unknown'}
+**Discussion:** ${discussion.discussionTitle || 'Untitled'}
+
+**Discussion Content:**
 ${formattedContent}
 
-Provide a grading breakdown with scores (0-10) and feedback for:
-1. **Initial Post Quality** (0-10 points)
-2. **Peer Engagement** (0-10 points)
-3. **Critical Thinking** (0-10 points)
-
-Format your response as JSON:
-{
-  "initialPost": { "score": X, "feedback": "..." },
-  "peerEngagement": { "score": X, "feedback": "..." },
-  "criticalThinking": { "score": X, "feedback": "..." },
-  "overallFeedback": "Brief overall comment...",
-  "totalScore": XX
-}`;
+Provide grading in JSON format as specified in the rubric.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -309,9 +377,10 @@ Format your response as JSON:
     body: JSON.stringify({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 2048,
+      system: systemPrompt,
       messages: [{
         role: 'user',
-        content: gradingPrompt
+        content: userMessage
       }]
     })
   });
@@ -325,12 +394,14 @@ Format your response as JSON:
   const responseText = data.content[0].text;
 
   // Parse JSON from response (handle markdown code blocks if present)
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Could not parse grading response from AI');
+  let jsonText = responseText.trim();
+  if (jsonText.startsWith('```json')) {
+    jsonText = jsonText.replace(/```json\n?/, '').replace(/\n?```$/, '').trim();
+  } else if (jsonText.startsWith('```')) {
+    jsonText = jsonText.replace(/```\n?/, '').replace(/\n?```$/, '').trim();
   }
 
-  return JSON.parse(jsonMatch[0]);
+  return JSON.parse(jsonText);
 }
 
 // Content script function to extract Canvas discussion data
@@ -551,6 +622,22 @@ async function gradeWithAI() {
       return;
     }
 
+    // Check if user has edited the raw data
+    const rawDataTextarea = document.getElementById('raw-discussion-data');
+    let discussionToGrade = currentDiscussion;
+
+    if (rawDataTextarea.value.trim()) {
+      try {
+        // Use edited data if it's valid JSON
+        const editedData = JSON.parse(rawDataTextarea.value);
+        discussionToGrade = editedData;
+        console.log('Using edited discussion data from textarea');
+      } catch (e) {
+        showStatus('status-message', '⚠️ Invalid JSON in raw data field. Using original extracted data.', 'error');
+        // Fall back to currentDiscussion
+      }
+    }
+
     // Show loading state
     document.getElementById('grading-progress').classList.remove('hidden');
     document.getElementById('grade-btn').disabled = true;
@@ -558,11 +645,11 @@ async function gradeWithAI() {
     // Format discussion content for the worker
     const formattedContent = [
       '**Initial Post:**',
-      currentDiscussion.initialPost || '(No initial post found)',
+      discussionToGrade.initialPost || '(No initial post found)',
       '',
       '**Peer Responses:**',
-      currentDiscussion.peerResponses.length > 0
-        ? currentDiscussion.peerResponses.join('\n\n')
+      discussionToGrade.peerResponses && discussionToGrade.peerResponses.length > 0
+        ? discussionToGrade.peerResponses.join('\n\n')
         : '(No peer responses found)'
     ].join('\n');
 
@@ -579,8 +666,8 @@ async function gradeWithAI() {
         body: JSON.stringify({
           apiKey: config.apiKey,
           discussion: {
-            studentName: currentDiscussion.studentName,
-            discussionTitle: currentDiscussion.discussionTitle,
+            studentName: discussionToGrade.studentName,
+            discussionTitle: discussionToGrade.discussionTitle,
             content: formattedContent
           }
         })
@@ -593,7 +680,7 @@ async function gradeWithAI() {
       grading = await response.json();
     } else {
       // Call Claude API directly
-      grading = await callClaudeAPI(config.apiKey, currentDiscussion, formattedContent);
+      grading = await callClaudeAPI(config.apiKey, discussionToGrade, formattedContent);
     }
     currentGrading = grading;
 
