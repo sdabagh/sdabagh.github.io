@@ -1,7 +1,8 @@
 // Canvas Discussion Grading Assistant - Content Script
 // Runs on Canvas SpeedGrader pages (top frame AND iframes via all_frames)
 
-console.log('Canvas Grading Assistant content script loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
+const EXTENSION_VERSION = '1.2.0';
+console.log('🤖 Canvas Grading Assistant v' + EXTENSION_VERSION + ' loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
 
 // Add visual indicator and extract button only in top frame
 if (window === window.top) {
