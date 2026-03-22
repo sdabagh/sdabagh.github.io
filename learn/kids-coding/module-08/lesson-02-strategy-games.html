@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Strategy Games - Learn how tic-tac-toe, chess concepts, Nim, and pattern games build thinking-ahead skills.">
+  <title>Lesson 2: Strategy Games – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt); padding: var(--spacing-md);
+      border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--spacing-sm);
+    }
+    .lesson-objectives {
+      background: linear-gradient(135deg, #2D6A4F 0%, #40916C 100%);
+      color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+
+    .unplugged-box { border: 2px solid #2D6A4F; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0faf4; }
+    .unplugged-box h4 { color: #2D6A4F; margin-top: 0; }
+    .talk-box { border: 2px solid #D97D54; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #fef6f0; }
+    .talk-box h4 { color: #D97D54; margin-top: 0; }
+
+    .key-takeaways {
+      background: #f0faf4; border-left: 4px solid #2D6A4F;
+      padding: var(--spacing-lg); border-radius: var(--radius-md);
+      margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h3 { margin-top: 0; color: #2D6A4F; }
+
+    .game-card {
+      background: white; border: 2px solid #2D6A4F; border-radius: 8px;
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);
+    }
+    .game-card h3 { margin-top: 0; color: #2D6A4F; }
+
+    .ttt-grid {
+      display: inline-grid; grid-template-columns: repeat(3, 50px);
+      gap: 0; margin: 1rem 0;
+    }
+    .ttt-cell {
+      width: 50px; height: 50px; border: 2px solid #2D6A4F;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 700; color: #2D6A4F;
+    }
+
+    .nim-row {
+      display: flex; gap: 0.5rem; margin: 0.5rem 0; align-items: center;
+    }
+    .nim-stone {
+      width: 30px; height: 30px; background: #2D6A4F; border-radius: 50%;
+      display: inline-block;
+    }
+    .nim-label { font-weight: 600; color: #1B4332; min-width: 60px; }
+
+    @media (max-width: 768px) {
+      .lesson-nav { flex-direction: column; align-items: stretch; }
+      .lesson-nav a { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-01-logic-puzzles.html" class="back-link">&larr; Lesson 1</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-coding-thinking-everywhere.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Strategy Games</h1>
+    <p class="text-muted">15-20 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>What You Will Learn</h3>
+      <p>In this lesson, you will:</p>
+      <ul>
+        <li>Discover how strategy games teach you to think ahead and plan</li>
+        <li>Learn a winning strategy for tic-tac-toe</li>
+        <li>Explore simple chess ideas about thinking before you move</li>
+        <li>Play the Nim game and figure out the secret strategy</li>
+        <li>See the connection between strategy games and coding</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Why Games Make You Smarter</h2>
+
+      <p>
+        Have you ever played a game where you had to think really hard before making a move? Games like that are called <strong>strategy games</strong>. In a strategy game, you do not just pick any move -- you think about what will happen NEXT. You try to plan ahead.
+      </p>
+
+      <p>
+        This is exactly what coders do! When a coder writes a program, they think: "If the user clicks this button, what should happen? And then what? And what if they click something else?" Playing strategy games trains your brain to think this way.
+      </p>
+    </section>
+
+    <section class="content-section">
+      <h2>Game 1: Tic-Tac-Toe Strategy</h2>
+
+      <div class="game-card">
+        <h3>More Than Just X's and O's</h3>
+
+        <p>You probably know how to play tic-tac-toe. But did you know there are strategies that can help you win (or at least never lose)?</p>
+
+        <div class="ttt-grid">
+          <div class="ttt-cell">X</div>
+          <div class="ttt-cell"></div>
+          <div class="ttt-cell">O</div>
+          <div class="ttt-cell"></div>
+          <div class="ttt-cell">X</div>
+          <div class="ttt-cell"></div>
+          <div class="ttt-cell">O</div>
+          <div class="ttt-cell"></div>
+          <div class="ttt-cell"></div>
+        </div>
+
+        <h4>Tic-Tac-Toe Tips</h4>
+        <ul>
+          <li><strong>Go first and take the center.</strong> The center square is the most powerful position because it connects to the most winning lines.</li>
+          <li><strong>Take corners.</strong> Corners are the next best spots. If you have two corners, you can often set up a double trap.</li>
+          <li><strong>Block your opponent.</strong> Always check: does your opponent have two in a row? If yes, block them before making your own move!</li>
+          <li><strong>Set up a "fork."</strong> A fork is when you have two ways to win at the same time. Your opponent can only block one, so you win!</li>
+        </ul>
+
+        <div class="unplugged-box">
+          <h4>Activity: Play 5 Games</h4>
+          <p>Play 5 games of tic-tac-toe with your parent. After each game, talk about these questions:</p>
+          <ul>
+            <li>Did the person who went first have an advantage?</li>
+            <li>Did anyone set up a fork (two ways to win)?</li>
+            <li>What would have happened if you made a different move?</li>
+          </ul>
+          <p>After 5 games, try to find out: is it possible for both players to play perfectly and always tie? (Hint: yes!)</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Game 2: Thinking Like a Chess Player</h2>
+
+      <div class="game-card">
+        <h3>Chess Ideas for Everyone</h3>
+
+        <p>You do not need to know how to play chess to learn from it! Chess is the ultimate strategy game because it teaches one very important skill: <strong>thinking ahead</strong>.</p>
+
+        <p>Chess players do not just think about their next move. They think:</p>
+
+        <ol>
+          <li><strong>"If I move here..."</strong> (what I want to do)</li>
+          <li><strong>"Then they might move there..."</strong> (what my opponent could do)</li>
+          <li><strong>"Then I could move here!"</strong> (what I would do next)</li>
+        </ol>
+
+        <p>This is called <strong>thinking ahead</strong> or <strong>looking ahead</strong>. The best chess players can think 5, 10, or even 20 moves ahead!</p>
+
+        <div class="talk-box">
+          <h4>Talk About It</h4>
+          <p>You use thinking-ahead in everyday life too! Talk about these examples:</p>
+          <ul>
+            <li>"If I do not do my homework now, then I will have to rush in the morning, then I might make mistakes."</li>
+            <li>"If I share my toy with my friend, then they will be happy, then they might share something with me later."</li>
+            <li>"If I eat all my candy now, then I will not have any tomorrow, then I will be sad."</li>
+          </ul>
+          <p>Can you think of your own "if... then... then..." example?</p>
+        </div>
+
+        <div class="unplugged-box">
+          <h4>Activity: The "What If" Game</h4>
+          <p>Take turns coming up with "What if" scenarios and thinking through what would happen next. For example:</p>
+          <ul>
+            <li>"What if it rained for a whole week without stopping?"</li>
+            <li>"What if dogs could talk?"</li>
+            <li>"What if you could fly for one hour every day?"</li>
+          </ul>
+          <p>For each one, try to think of at least 3 things that would happen. This is practice for thinking ahead!</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Game 3: The Nim Game</h2>
+
+      <div class="game-card">
+        <h3>A Game with a Secret</h3>
+
+        <p>Nim is an ancient game with a hidden winning strategy. Here is how to play:</p>
+
+        <p><strong>Setup:</strong> Make 3 rows of objects (use coins, buttons, candies, or draw circles on paper):</p>
+
+        <div class="nim-row">
+          <span class="nim-label">Row 1:</span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+        </div>
+        <div class="nim-row">
+          <span class="nim-label">Row 2:</span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+        </div>
+        <div class="nim-row">
+          <span class="nim-label">Row 3:</span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+          <span class="nim-stone"></span>
+        </div>
+
+        <p><strong>Rules:</strong></p>
+        <ul>
+          <li>Players take turns.</li>
+          <li>On your turn, pick ONE row and remove as many objects from that row as you want (at least 1).</li>
+          <li>The person who takes the <strong>last object</strong> LOSES.</li>
+        </ul>
+
+        <div class="unplugged-box">
+          <h4>Activity: Play Nim!</h4>
+          <p>Play at least 3 rounds of Nim. After each game, think about:</p>
+          <ul>
+            <li>Did you have a strategy, or were you just guessing?</li>
+            <li>Is there a pattern to who wins?</li>
+            <li>What happens when there are only 2 objects left on your turn?</li>
+            <li>Can you figure out a strategy to win every time?</li>
+          </ul>
+          <p><strong>Hint:</strong> Try to leave your opponent with just 1 object in 1 row. Work backwards from there!</p>
+        </div>
+
+        <div class="talk-box">
+          <h4>The Connection to Coding</h4>
+          <p>Nim is a game that a computer can play perfectly -- because the winning strategy is based on patterns and logic. In fact, one of the first computer games ever made was a Nim-playing machine built in 1940! Computers are very good at games with clear rules and patterns, because that is exactly what code does best.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Game 4: Pattern Detective</h2>
+
+      <div class="game-card">
+        <h3>A Quick Game for Any Time</h3>
+
+        <p>Here is a simple game you can play anywhere. One person creates a secret pattern rule, and the other person has to figure it out!</p>
+
+        <p><strong>How to play:</strong></p>
+        <ol>
+          <li>Player 1 thinks of a secret rule. For example: "Numbers that are even" or "Words that start with B" or "Things you can eat."</li>
+          <li>Player 1 gives 3 examples that follow the rule. For example: 2, 8, 14.</li>
+          <li>Player 2 guesses things and asks "Does this follow the rule?"</li>
+          <li>Player 1 says yes or no.</li>
+          <li>Player 2 keeps guessing until they can figure out the rule!</li>
+        </ol>
+
+        <div class="unplugged-box">
+          <h4>Activity: Play 3 Rounds</h4>
+          <p>Play 3 rounds, switching who makes the rule each time. Start with easy rules and make them harder!</p>
+          <p><strong>Easy rules:</strong> Colors, animals, things that are round</p>
+          <p><strong>Medium rules:</strong> Numbers bigger than 10, words with 4 letters</p>
+          <p><strong>Hard rules:</strong> Things you find in a kitchen, numbers you can divide by 3</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Strategy games</strong> teach you to think ahead and plan -- just like coding</li>
+        <li>In <strong>tic-tac-toe</strong>, the center and corners are the strongest positions, and you should always check for blocks</li>
+        <li><strong>Thinking ahead</strong> means asking "If I do this, then what happens next?"</li>
+        <li>The <strong>Nim game</strong> has a hidden strategy based on patterns and logic</li>
+        <li>Finding <strong>hidden rules</strong> in pattern games uses the same skills as spotting patterns in code</li>
+        <li>Computers are great at strategy games because games follow clear rules -- and that is what code does best</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, you will discover how coding thinking helps you in school and everyday life!</p>
+          <a href="lesson-03-coding-thinking-everywhere.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have finished Lesson 2! You are becoming a real strategic thinker.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder – Free Kids Coding Course</p>
+  </footer>
+
+</body>
+</html>

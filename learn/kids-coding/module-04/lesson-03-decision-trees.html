@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Decision Trees - Draw decision trees on paper, create Choose Your Own Adventure stories, and trace paths through branching choices.">
+  <title>Lesson 3: Decision Trees – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2D6A4F 0%, #40916C 60%, #52B788 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .unplugged-box { border: 2px solid #2D6A4F; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0faf4; }
+    .unplugged-box h4 { color: #2D6A4F; margin-top: 0; }
+    .talk-box { border: 2px solid #D97D54; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #fef6f0; }
+    .talk-box h4 { color: #D97D54; margin-top: 0; }
+    .check-understanding { background: white; border: 2px solid #2D6A4F; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2D6A4F; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2D6A4F; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #1B4332; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    .tree-diagram { background: white; border: 2px solid #2D6A4F; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; text-align: center; overflow-x: auto; }
+    .tree-node { display: inline-block; background: #d8f3dc; border: 2px solid #2D6A4F; border-radius: 8px; padding: 0.5rem 1rem; margin: 0.25rem; font-weight: 600; color: #1B4332; font-size: 0.9rem; }
+    .tree-question { display: inline-block; background: #fff9e6; border: 2px solid #D97D54; border-radius: 50%; padding: 0.5rem 0.75rem; margin: 0.25rem; font-weight: 600; color: #D97D54; font-size: 0.85rem; }
+    .tree-result { display: inline-block; background: #f0f6fe; border: 2px solid #4C9BE8; border-radius: 8px; padding: 0.5rem 1rem; margin: 0.25rem; font-weight: 600; color: #1e40af; font-size: 0.9rem; }
+    .tree-arrow { color: #2D6A4F; font-size: 1.2rem; margin: 0 0.25rem; }
+    .tree-row { margin: 0.5rem 0; }
+    .tree-label { font-size: 0.8rem; color: #666; font-weight: 600; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-02-yes-no-questions.html" class="back-link">&larr; Previous Lesson</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-conditionals-scratch.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: Decision Trees</h1>
+    <p class="text-muted">Estimated time: 15-20 minutes | Screen-Free Activity</p>
+
+    <div class="lesson-objectives">
+      <h3>What You Will Learn</h3>
+      <p>By the end of this lesson, your child will be able to:</p>
+      <ul>
+        <li>Explain what a decision tree is and how to read one</li>
+        <li>Trace a path through a decision tree by answering yes/no questions</li>
+        <li>Draw their own decision tree on paper</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>What is a Decision Tree?</h2>
+
+      <p>
+        In the last lesson, you sorted objects by asking yes/no questions. A <strong>decision tree</strong> is a picture that shows those questions as a branching path. Each question is a fork in the road: one path goes to "yes" and the other goes to "no."
+      </p>
+
+      <div class="definition-box">
+        <p>
+          <strong>Decision Tree</strong> -- A diagram that looks like an upside-down tree. It starts with one question at the top and branches out. Each branch leads to another question or to a final answer. You follow the branches by answering yes or no at each step.
+        </p>
+      </div>
+
+      <p>
+        Decision trees are like flowcharts with choices. In Module 3, your flowcharts went straight from start to finish. Now, decision trees have <em>branches</em> where the path splits based on a question. This is where it gets really interesting!
+      </p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>Example: Should I Go Outside?</h2>
+
+      <p>Let us trace through a simple decision tree together. Start at the top and answer each question.</p>
+
+      <div class="tree-diagram">
+        <div class="tree-row">
+          <div class="tree-question">Is it raining?</div>
+        </div>
+        <div class="tree-row">
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="tree-label">&darr; NO</span>
+        </div>
+        <div class="tree-row">
+          <div class="tree-question">Do you have a raincoat?</div>
+          &nbsp;&nbsp;
+          <div class="tree-question">Is it very hot?</div>
+        </div>
+        <div class="tree-row">
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;
+          <span class="tree-label">&darr; NO</span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;
+          <span class="tree-label">&darr; NO</span>
+        </div>
+        <div class="tree-row">
+          <div class="tree-result">Go outside with raincoat!</div>
+          <div class="tree-result">Stay inside</div>
+          <div class="tree-result">Go outside with sunscreen!</div>
+          <div class="tree-result">Go outside and play!</div>
+        </div>
+      </div>
+
+      <div class="talk-box">
+        <h4>Trace It Together</h4>
+        <p>Look at the tree with your child. Ask: "What if it IS raining and you DO have a raincoat? Where do you end up?" (Answer: "Go outside with raincoat!") Then try: "What if it is NOT raining and it is NOT very hot?" (Answer: "Go outside and play!") Trace each path with your finger.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Example: What Animal Am I?</h2>
+
+      <p>
+        Decision trees are great for guessing games too. Here is a simple tree that identifies animals:
+      </p>
+
+      <div class="tree-diagram">
+        <div class="tree-row">
+          <div class="tree-question">Does it have legs?</div>
+        </div>
+        <div class="tree-row">
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="tree-label">&darr; NO</span>
+        </div>
+        <div class="tree-row">
+          <div class="tree-question">Can it fly?</div>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <div class="tree-question">Does it live in water?</div>
+        </div>
+        <div class="tree-row">
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;
+          <span class="tree-label">&darr; NO</span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="tree-label">YES &darr;</span>
+          &nbsp;
+          <span class="tree-label">&darr; NO</span>
+        </div>
+        <div class="tree-row">
+          <div class="tree-result">Bird</div>
+          <div class="tree-result">Dog or Cat</div>
+          <div class="tree-result">Fish</div>
+          <div class="tree-result">Snake</div>
+        </div>
+      </div>
+
+      <p>
+        This tree uses just two questions to sort animals into four groups. If the animal has legs and can fly, it is probably a bird. If it has legs but cannot fly, it might be a dog or cat. If it has no legs and lives in water, it is a fish. If it has no legs and does not live in water, it is a snake.
+      </p>
+
+      <div class="try-it-box">
+        <h4>Try It: Trace the Path</h4>
+        <p>Think of a goldfish. Start at the top of the tree.</p>
+        <ul>
+          <li>Does it have legs? NO -- go right.</li>
+          <li>Does it live in water? YES -- go left.</li>
+          <li>Result: Fish! Correct!</li>
+        </ul>
+        <p>Now try an eagle, then a snake. Does the tree get the right answer each time?</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Choose Your Own Adventure</h2>
+
+      <p>
+        Have you ever read a "Choose Your Own Adventure" book? Those books are decision trees! At the end of each page, you make a choice, and that choice sends you to a different part of the story.
+      </p>
+
+      <div class="example-box">
+        <h4>A Mini Adventure</h4>
+        <p><strong>You are exploring a cave. You come to a fork in the path.</strong></p>
+        <p>Do you go left or right?</p>
+        <ul>
+          <li><strong>LEFT:</strong> You find a room full of glowing crystals! Do you pick one up?
+            <ul>
+              <li><strong>YES:</strong> The crystal lights your way deeper into the cave. You find a treasure chest!</li>
+              <li><strong>NO:</strong> You admire the crystals and head back to the entrance. A beautiful sunset greets you.</li>
+            </ul>
+          </li>
+          <li><strong>RIGHT:</strong> You hear a sound. Do you keep going?
+            <ul>
+              <li><strong>YES:</strong> You discover a friendly bat family! They show you a secret exit.</li>
+              <li><strong>NO:</strong> You decide to go back. Better safe than sorry! You enjoy a quiet walk home.</li>
+            </ul>
+          </li>
+        </ul>
+        <p>This little story has 4 possible endings, all decided by yes/no choices. That is a decision tree!</p>
+      </div>
+    </section>
+
+    <!-- Section 5: Activity -->
+    <section class="content-section">
+      <h2>Activity: Draw a "What Should I Wear?" Decision Tree</h2>
+
+      <div class="unplugged-box">
+        <h4>Screen-Free Activity (10 minutes)</h4>
+        <p><strong>What you need:</strong> A big piece of paper and colored pencils or markers.</p>
+        <p><strong>What to do:</strong></p>
+        <ol>
+          <li>At the top of your paper, write the question: <strong>"Is it cold outside?"</strong></li>
+          <li>Draw two lines going down from it. Label one "YES" and one "NO."</li>
+          <li>Under YES, write another question: <strong>"Is it raining?"</strong></li>
+          <li>Under NO, write another question: <strong>"Is it sunny?"</strong></li>
+          <li>Draw two more branches from each of those questions.</li>
+          <li>At the bottom of each branch, draw or write what to wear!
+            <ul>
+              <li>Cold + Raining = Warm coat and rain boots</li>
+              <li>Cold + Not Raining = Warm coat and regular shoes</li>
+              <li>Not Cold + Sunny = T-shirt and sunglasses</li>
+              <li>Not Cold + Not Sunny = Light jacket</li>
+            </ul>
+          </li>
+        </ol>
+        <p><strong>Make it your own:</strong> Add more questions! What about wind? What about snow? The more questions, the bigger the tree. Draw pictures of the outfits at the bottom of each branch.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Activity: Create Your Own Adventure</h2>
+
+      <div class="unplugged-box">
+        <h4>Bonus Activity: Write a Mini Adventure</h4>
+        <p><strong>What you need:</strong> Paper and pencil.</p>
+        <p><strong>What to do:</strong></p>
+        <ol>
+          <li>Start with a situation: "You are a space explorer and you land on a new planet."</li>
+          <li>Give the reader a choice: "Do you explore the forest or the ocean?"</li>
+          <li>For each choice, write what happens next and give another choice.</li>
+          <li>Keep branching until you have at least 4 different endings.</li>
+          <li>Read it aloud and let your parent (or a sibling) choose the path!</li>
+        </ol>
+        <p>Your child can write about anything: a princess rescuing a dragon, a detective solving a mystery, a chef in a magical kitchen. The topic does not matter -- the decision tree structure is the learning.</p>
+      </div>
+
+      <div class="talk-box">
+        <h4>Parent Tip</h4>
+        <p>This is a wonderful activity that blends creative writing with logical thinking. If your child loves stories, they will love building decision trees this way. Do not worry about spelling or neatness. Focus on the branching structure: every choice leads to different paths.</p>
+      </div>
+    </section>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. What is a decision tree?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> A decision tree is a diagram that starts with a question at the top and branches out based on yes/no answers. Each branch leads to another question or to a final result. You follow the branches by answering questions.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. How is a decision tree different from a flowchart?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> A flowchart usually goes in one direction from start to finish (a single path). A decision tree has <strong>branches</strong> where the path splits based on a yes/no question. Different answers lead to different paths.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. In the "Should I Go Outside?" tree, what happens if it is not raining and it is very hot?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> You follow the "NO" branch from "Is it raining?" and then the "YES" branch from "Is it very hot?" The result is: <strong>"Go outside with sunscreen!"</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>A <strong>decision tree</strong> is a diagram with branching paths based on yes/no questions</li>
+        <li>You start at the top and follow branches by answering each question</li>
+        <li>Decision trees are like flowcharts with <strong>choices</strong> -- the path splits instead of going straight</li>
+        <li>"Choose Your Own Adventure" stories are decision trees in disguise</li>
+        <li>Decision trees can help you sort things, make choices, or tell interactive stories</li>
+        <li>Computers use decision trees constantly to make smart decisions</li>
+      </ul>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 4, you will use <strong>if/then blocks in Scratch</strong> to make sprites respond to key presses and make interactive stories!</p>
+          <a href="lesson-04-conditionals-scratch.html" class="btn btn-primary mt-2">Start Lesson 4</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 3! One more lesson to go.</p>
+          <div class="mt-2">
+            <a href="index.html" class="btn btn-outline">Back to Module Home</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder - Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+
+</body>
+</html>
