@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 2 Quiz - Test your knowledge and earn your Module 2 completion badge">
+  <title>Module 2 Quiz - College Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .breadcrumb {
+      background: var(--background-alt);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .breadcrumb a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .quiz-intro {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .quiz-intro h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .quiz-rules {
+      background: var(--info-light);
+      border-left: 4px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .question-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .question-card.correct {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .question-card.incorrect {
+      border-color: var(--danger);
+      background: #ffebee;
+    }
+
+    .question-number {
+      background: var(--primary-color);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin-right: var(--spacing-sm);
+    }
+
+    .question-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: var(--spacing-md) 0;
+    }
+
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: var(--spacing-md) 0;
+    }
+
+    .options li {
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+    }
+
+    .options li:hover {
+      border-color: var(--primary-color);
+      background: var(--background-alt);
+    }
+
+    .options li.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    .options li.correct-answer {
+      border-color: var(--success);
+      background: var(--success-light);
+      font-weight: 600;
+    }
+
+    .options li.wrong-answer {
+      border-color: var(--danger);
+      background: #ffebee;
+    }
+
+    .options input[type="radio"] {
+      margin-top: 0.25rem;
+      cursor: pointer;
+    }
+
+    .submit-section {
+      text-align: center;
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg);
+      border-top: 2px solid var(--border-color);
+    }
+
+    #results {
+      display: none;
+      margin-top: var(--spacing-xl);
+    }
+
+    .result-card {
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .result-card.pass {
+      background: var(--success-light);
+      border: 3px solid var(--success);
+    }
+
+    .result-card.fail {
+      background: #fff9e6;
+      border: 3px solid var(--warning);
+    }
+
+    .result-card h2 {
+      margin-top: 0;
+      font-size: 2rem;
+    }
+
+    .result-card.pass h2 {
+      color: var(--success);
+    }
+
+    .result-card.fail h2 {
+      color: #996300;
+    }
+
+    .score-display {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: var(--spacing-md) 0;
+    }
+
+    .badge {
+      width: 120px;
+      height: 120px;
+      margin: var(--spacing-lg) auto;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .question-feedback {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .question-feedback.show {
+      display: block;
+    }
+
+    .question-feedback.correct {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      color: var(--success);
+    }
+
+    .question-feedback.incorrect {
+      background: #ffebee;
+      border-left: 4px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .progress-indicator {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      position: sticky;
+      top: 80px;
+    }
+
+    .progress-indicator h4 {
+      margin-top: 0;
+      color: var(--primary-color);
+    }
+
+    .question-status {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+    }
+
+    .status-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-dot.answered {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      .score-display {
+        font-size: 2rem;
+      }
+
+      .badge {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+      }
+
+      .progress-indicator {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Introductory Statistics</a>
+      <a href="../../../math4.html">College Algebra for STEM Majors</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="breadcrumb">
+      <a href="../../../index.html">Home</a> &gt;
+      <a href="../../../math4.html">College Algebra</a> &gt;
+      <a href="../index.html">Learning Platform</a> &gt;
+      <a href="index.html">Module 2</a> &gt;
+      <strong>Quiz</strong>
+    </div>
+
+    <h1>Module 2 Quiz</h1>
+
+    <div class="quiz-intro">
+      <h3>Test Your Knowledge!</h3>
+      <p>
+        This quiz covers all topics from Module 2: Linear and Quadratic Functions. Pass with 70% or higher (9 out of 12 questions) to earn your Module 2 completion badge!
+      </p>
+    </div>
+
+    <div class="quiz-rules">
+      <h4>Quiz Rules</h4>
+      <ul class="icon-list">
+        <li><strong>12 questions</strong> covering linear functions, modeling, quadratic functions, and solving methods</li>
+        <li><strong>Passing score:</strong> 70% (9 or more correct answers)</li>
+        <li><strong>Multiple attempts allowed</strong> - Learning is the goal!</li>
+        <li><strong>Immediate feedback</strong> after submission with explanations</li>
+        <li>All questions must be answered before submitting</li>
+      </ul>
+    </div>
+
+    <div class="progress-indicator">
+      <h4>Progress</h4>
+      <p class="text-muted" style="margin-bottom: var(--spacing-sm); font-size: 0.875rem;">Questions answered: <span id="answeredCount">0</span> / 12</p>
+      <div class="question-status" id="questionStatus"></div>
+    </div>
+
+    <form id="quizForm">
+
+      <!-- Question 1 -->
+      <div class="question-card" data-question="1">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">1</span>
+          <span class="question-text">What is the slope of a line passing through points (2, 5) and (6, 13)?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(1, 'a')">
+            <input type="radio" name="q1" value="a" id="q1a">
+            <label for="q1a">1</label>
+          </li>
+          <li onclick="selectAnswer(1, 'b')">
+            <input type="radio" name="q1" value="b" id="q1b">
+            <label for="q1b">2</label>
+          </li>
+          <li onclick="selectAnswer(1, 'c')">
+            <input type="radio" name="q1" value="c" id="q1c">
+            <label for="q1c">4</label>
+          </li>
+          <li onclick="selectAnswer(1, 'd')">
+            <input type="radio" name="q1" value="d" id="q1d">
+            <label for="q1d">8</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback1"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question-card" data-question="2">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">2</span>
+          <span class="question-text">Which equation represents a line with slope -3 passing through the point (2, 5)?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(2, 'a')">
+            <input type="radio" name="q2" value="a" id="q2a">
+            <label for="q2a">y = -3x + 11</label>
+          </li>
+          <li onclick="selectAnswer(2, 'b')">
+            <input type="radio" name="q2" value="b" id="q2b">
+            <label for="q2b">y = -3x + 5</label>
+          </li>
+          <li onclick="selectAnswer(2, 'c')">
+            <input type="radio" name="q2" value="c" id="q2c">
+            <label for="q2c">y = -3x - 1</label>
+          </li>
+          <li onclick="selectAnswer(2, 'd')">
+            <input type="radio" name="q2" value="d" id="q2d">
+            <label for="q2d">y = 3x + 5</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback2"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question-card" data-question="3">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">3</span>
+          <span class="question-text">If two lines are perpendicular and one has slope 2/5, what is the slope of the other line?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(3, 'a')">
+            <input type="radio" name="q3" value="a" id="q3a">
+            <label for="q3a">2/5</label>
+          </li>
+          <li onclick="selectAnswer(3, 'b')">
+            <input type="radio" name="q3" value="b" id="q3b">
+            <label for="q3b">-2/5</label>
+          </li>
+          <li onclick="selectAnswer(3, 'c')">
+            <input type="radio" name="q3" value="c" id="q3c">
+            <label for="q3c">5/2</label>
+          </li>
+          <li onclick="selectAnswer(3, 'd')">
+            <input type="radio" name="q3" value="d" id="q3d">
+            <label for="q3d">-5/2</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback3"></div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="question-card" data-question="4">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">4</span>
+          <span class="question-text">A gym membership costs $50 to join plus $30 per month. Which equation represents the total cost C after m months?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(4, 'a')">
+            <input type="radio" name="q4" value="a" id="q4a">
+            <label for="q4a">C = 30m + 50</label>
+          </li>
+          <li onclick="selectAnswer(4, 'b')">
+            <input type="radio" name="q4" value="b" id="q4b">
+            <label for="q4b">C = 50m + 30</label>
+          </li>
+          <li onclick="selectAnswer(4, 'c')">
+            <input type="radio" name="q4" value="c" id="q4c">
+            <label for="q4c">C = 80m</label>
+          </li>
+          <li onclick="selectAnswer(4, 'd')">
+            <input type="radio" name="q4" value="d" id="q4d">
+            <label for="q4d">C = 50m</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback4"></div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="question-card" data-question="5">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">5</span>
+          <span class="question-text">What is the vertex of the parabola f(x) = (x + 3)² - 4?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(5, 'a')">
+            <input type="radio" name="q5" value="a" id="q5a">
+            <label for="q5a">(3, -4)</label>
+          </li>
+          <li onclick="selectAnswer(5, 'b')">
+            <input type="radio" name="q5" value="b" id="q5b">
+            <label for="q5b">(-3, -4)</label>
+          </li>
+          <li onclick="selectAnswer(5, 'c')">
+            <input type="radio" name="q5" value="c" id="q5c">
+            <label for="q5c">(3, 4)</label>
+          </li>
+          <li onclick="selectAnswer(5, 'd')">
+            <input type="radio" name="q5" value="d" id="q5d">
+            <label for="q5d">(-3, 4)</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback5"></div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="question-card" data-question="6">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">6</span>
+          <span class="question-text">For the quadratic function f(x) = -2x² + 8x - 3, does the parabola open upward or downward?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(6, 'a')">
+            <input type="radio" name="q6" value="a" id="q6a">
+            <label for="q6a">Upward</label>
+          </li>
+          <li onclick="selectAnswer(6, 'b')">
+            <input type="radio" name="q6" value="b" id="q6b">
+            <label for="q6b">Downward</label>
+          </li>
+          <li onclick="selectAnswer(6, 'c')">
+            <input type="radio" name="q6" value="c" id="q6c">
+            <label for="q6c">Neither, it's a line</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback6"></div>
+      </div>
+
+      <!-- Question 7 -->
+      <div class="question-card" data-question="7">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">7</span>
+          <span class="question-text">What is the axis of symmetry for the parabola f(x) = x² - 6x + 5?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(7, 'a')">
+            <input type="radio" name="q7" value="a" id="q7a">
+            <label for="q7a">x = -6</label>
+          </li>
+          <li onclick="selectAnswer(7, 'b')">
+            <input type="radio" name="q7" value="b" id="q7b">
+            <label for="q7b">x = 3</label>
+          </li>
+          <li onclick="selectAnswer(7, 'c')">
+            <input type="radio" name="q7" value="c" id="q7c">
+            <label for="q7c">x = 6</label>
+          </li>
+          <li onclick="selectAnswer(7, 'd')">
+            <input type="radio" name="q7" value="d" id="q7d">
+            <label for="q7d">x = -3</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback7"></div>
+      </div>
+
+      <!-- Question 8 -->
+      <div class="question-card" data-question="8">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">8</span>
+          <span class="question-text">Solve by factoring: x² - 7x + 12 = 0</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(8, 'a')">
+            <input type="radio" name="q8" value="a" id="q8a">
+            <label for="q8a">x = 3 or x = 4</label>
+          </li>
+          <li onclick="selectAnswer(8, 'b')">
+            <input type="radio" name="q8" value="b" id="q8b">
+            <label for="q8b">x = -3 or x = -4</label>
+          </li>
+          <li onclick="selectAnswer(8, 'c')">
+            <input type="radio" name="q8" value="c" id="q8c">
+            <label for="q8c">x = 2 or x = 6</label>
+          </li>
+          <li onclick="selectAnswer(8, 'd')">
+            <input type="radio" name="q8" value="d" id="q8d">
+            <label for="q8d">x = 1 or x = 12</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback8"></div>
+      </div>
+
+      <!-- Question 9 -->
+      <div class="question-card" data-question="9">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">9</span>
+          <span class="question-text">Using the quadratic formula, what are the solutions to x² + 2x - 8 = 0?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(9, 'a')">
+            <input type="radio" name="q9" value="a" id="q9a">
+            <label for="q9a">x = 2 or x = -4</label>
+          </li>
+          <li onclick="selectAnswer(9, 'b')">
+            <input type="radio" name="q9" value="b" id="q9b">
+            <label for="q9b">x = -2 or x = 4</label>
+          </li>
+          <li onclick="selectAnswer(9, 'c')">
+            <input type="radio" name="q9" value="c" id="q9c">
+            <label for="q9c">x = 1 or x = -8</label>
+          </li>
+          <li onclick="selectAnswer(9, 'd')">
+            <input type="radio" name="q9" value="d" id="q9d">
+            <label for="q9d">x = -1 or x = 8</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback9"></div>
+      </div>
+
+      <!-- Question 10 -->
+      <div class="question-card" data-question="10">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">10</span>
+          <span class="question-text">What is the discriminant of the equation 2x² + 3x - 5 = 0?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(10, 'a')">
+            <input type="radio" name="q10" value="a" id="q10a">
+            <label for="q10a">29</label>
+          </li>
+          <li onclick="selectAnswer(10, 'b')">
+            <input type="radio" name="q10" value="b" id="q10b">
+            <label for="q10b">49</label>
+          </li>
+          <li onclick="selectAnswer(10, 'c')">
+            <input type="radio" name="q10" value="c" id="q10c">
+            <label for="q10c">9</label>
+          </li>
+          <li onclick="selectAnswer(10, 'd')">
+            <input type="radio" name="q10" value="d" id="q10d">
+            <label for="q10d">-31</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback10"></div>
+      </div>
+
+      <!-- Question 11 -->
+      <div class="question-card" data-question="11">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">11</span>
+          <span class="question-text">A ball is thrown upward with height h(t) = -16t² + 64t + 5. At what time does it reach maximum height?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(11, 'a')">
+            <input type="radio" name="q11" value="a" id="q11a">
+            <label for="q11a">t = 1</label>
+          </li>
+          <li onclick="selectAnswer(11, 'b')">
+            <input type="radio" name="q11" value="b" id="q11b">
+            <label for="q11b">t = 2</label>
+          </li>
+          <li onclick="selectAnswer(11, 'c')">
+            <input type="radio" name="q11" value="c" id="q11c">
+            <label for="q11c">t = 3</label>
+          </li>
+          <li onclick="selectAnswer(11, 'd')">
+            <input type="radio" name="q11" value="d" id="q11d">
+            <label for="q11d">t = 4</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback11"></div>
+      </div>
+
+      <!-- Question 12 -->
+      <div class="question-card" data-question="12">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">12</span>
+          <span class="question-text">Convert f(x) = x² + 10x + 21 to vertex form f(x) = a(x - h)² + k. What is the vertex?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(12, 'a')">
+            <input type="radio" name="q12" value="a" id="q12a">
+            <label for="q12a">(5, -4)</label>
+          </li>
+          <li onclick="selectAnswer(12, 'b')">
+            <input type="radio" name="q12" value="b" id="q12b">
+            <label for="q12b">(-5, -4)</label>
+          </li>
+          <li onclick="selectAnswer(12, 'c')">
+            <input type="radio" name="q12" value="c" id="q12c">
+            <label for="q12c">(5, 4)</label>
+          </li>
+          <li onclick="selectAnswer(12, 'd')">
+            <input type="radio" name="q12" value="d" id="q12d">
+            <label for="q12d">(-5, 4)</label>
+          </li>
+        </ul>
+        <div class="question-feedback" id="feedback12"></div>
+      </div>
+
+      <div class="submit-section">
+        <button type="submit" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">
+          Submit Quiz
+        </button>
+        <p class="text-muted mt-2">Make sure you've answered all questions!</p>
+      </div>
+
+    </form>
+
+    <!-- Results Section -->
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+        <div id="badgeContainer"></div>
+      </div>
+
+      <div class="highlight-box">
+        <h3>What's Next?</h3>
+        <p id="nextStepsMessage"></p>
+        <div class="cta-group mt-2" id="nextStepButtons"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free College Algebra Learning Platform</p>
+  </footer>
+
+  <script>
+    // Correct answers and explanations
+    const answers = {
+      q1: { correct: 'b', explanation: 'Using the slope formula m = (y₂ - y₁)/(x₂ - x₁): m = (13 - 5)/(6 - 2) = 8/4 = 2' },
+      q2: { correct: 'a', explanation: 'Using point-slope form y - 5 = -3(x - 2), we get y - 5 = -3x + 6, so y = -3x + 11' },
+      q3: { correct: 'd', explanation: 'Perpendicular lines have slopes that are negative reciprocals. The negative reciprocal of 2/5 is -5/2' },
+      q4: { correct: 'a', explanation: 'The fixed cost ($50) is the y-intercept, and the monthly cost ($30) is the slope. So C = 30m + 50' },
+      q5: { correct: 'b', explanation: 'In vertex form f(x) = a(x - h)² + k, we have f(x) = (x - (-3))² + (-4), so the vertex is (-3, -4)' },
+      q6: { correct: 'b', explanation: 'The coefficient of x² is -2, which is negative. When a < 0, the parabola opens downward' },
+      q7: { correct: 'b', explanation: 'The axis of symmetry is x = -b/(2a) = -(-6)/(2×1) = 6/2 = 3' },
+      q8: { correct: 'a', explanation: 'Factoring: x² - 7x + 12 = (x - 3)(x - 4) = 0, so x = 3 or x = 4' },
+      q9: { correct: 'a', explanation: 'Using the quadratic formula with a=1, b=2, c=-8: x = [-2 ± √(4 + 32)]/2 = [-2 ± 6]/2, giving x = 2 or x = -4' },
+      q10: { correct: 'b', explanation: 'The discriminant is b² - 4ac = (3)² - 4(2)(-5) = 9 + 40 = 49' },
+      q11: { correct: 'b', explanation: 'Maximum height occurs at t = -b/(2a) = -64/(2×(-16)) = -64/(-32) = 2 seconds' },
+      q12: { correct: 'b', explanation: 'Completing the square: x² + 10x + 21 = (x² + 10x + 25) - 25 + 21 = (x + 5)² - 4. Vertex is (-5, -4)' }
+    };
+
+    let answeredQuestions = new Set();
+
+    // Initialize question status indicators
+    function initializeQuestionStatus() {
+      const statusContainer = document.getElementById('questionStatus');
+      for (let i = 1; i <= 12; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'status-dot';
+        dot.id = `status${i}`;
+        dot.textContent = i;
+        statusContainer.appendChild(dot);
+      }
+    }
+
+    // Select answer
+    function selectAnswer(questionNum, value) {
+      const options = document.querySelectorAll(`input[name="q${questionNum}"]`).forEach(input => {
+        input.parentElement.classList.remove('selected');
+      });
+
+      event.currentTarget.classList.add('selected');
+      document.getElementById(`q${questionNum}${value}`).checked = true;
+
+      answeredQuestions.add(questionNum);
+      document.getElementById(`status${questionNum}`).classList.add('answered');
+      updateAnsweredCount();
+    }
+
+    // Update answered count
+    function updateAnsweredCount() {
+      document.getElementById('answeredCount').textContent = answeredQuestions.size;
+    }
+
+    // Handle form submission
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Check if all questions answered
+      if (answeredQuestions.size < 12) {
+        alert('Please answer all 12 questions before submitting!');
+        return;
+      }
+
+      let score = 0;
+
+      // Grade each question
+      for (let i = 1; i <= 12; i++) {
+        const questionName = `q${i}`;
+        const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+        const userAnswer = selected ? selected.value : null;
+        const correctAnswer = answers[questionName].correct;
+        const isCorrect = userAnswer === correctAnswer;
+
+        if (isCorrect) score++;
+
+        // Show feedback
+        const questionCard = document.querySelector(`[data-question="${i}"]`);
+        const feedback = document.getElementById(`feedback${i}`);
+        const options = questionCard.querySelectorAll('.options li');
+
+        questionCard.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        // Highlight correct and wrong answers
+        options.forEach(li => {
+          const input = li.querySelector('input');
+          if (input.value === correctAnswer) {
+            li.classList.add('correct-answer');
+          }
+          if (input.value === userAnswer && !isCorrect) {
+            li.classList.add('wrong-answer');
+          }
+        });
+
+        // Show explanation
+        feedback.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = `
+          <strong>${isCorrect ? 'Correct!' : 'Incorrect.'}</strong><br>
+          ${answers[questionName].explanation}
+        `;
+      }
+
+      // Display results
+      displayResults(score);
+
+      // Hide form submit button
+      document.querySelector('.submit-section').style.display = 'none';
+
+      // Scroll to results
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Save results
+      localStorage.setItem('module2_quiz_score', score);
+      localStorage.setItem('module2_quiz_completed', 'true');
+      localStorage.setItem('module2_quiz_timestamp', new Date().toISOString());
+
+      // Log for research
+      console.log('Quiz completed:', {
+        module: 'Module 2',
+        score: score,
+        percentage: (score/12*100).toFixed(1),
+        passed: score >= 9,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    // Display results
+    function displayResults(score) {
+      const percentage = Math.round((score / 12) * 100);
+      const passed = score >= 9;
+
+      const resultCard = document.getElementById('resultCard');
+      const resultTitle = document.getElementById('resultTitle');
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const resultMessage = document.getElementById('resultMessage');
+      const badgeContainer = document.getElementById('badgeContainer');
+      const nextStepsMessage = document.getElementById('nextStepsMessage');
+      const nextStepButtons = document.getElementById('nextStepButtons');
+
+      resultCard.classList.add(passed ? 'pass' : 'fail');
+
+      if (passed) {
+        resultTitle.textContent = 'Congratulations! You Passed!';
+        scoreDisplay.textContent = `${score} / 12 (${percentage}%)`;
+        resultMessage.textContent = 'You\'ve demonstrated mastery of Module 2 concepts. Well done!';
+        badgeContainer.innerHTML = '<div class="badge">&#127942;</div><p style="font-weight: 600; margin-top: var(--spacing-sm);">Module 2 Completion Badge Earned!</p>';
+        nextStepsMessage.textContent = 'Complete the post-assessment to see how much you\'ve learned!';
+        nextStepButtons.innerHTML = `
+          <a href="post-assessment.html" class="btn btn-primary">Take Post-Assessment</a>
+          <a href="index.html" class="btn btn-outline">Back to Module 2</a>
+        `;
+      } else {
+        resultTitle.textContent = 'Keep Learning!';
+        scoreDisplay.textContent = `${score} / 12 (${percentage}%)`;
+        resultMessage.innerHTML = `You need 9 correct (70%) to pass. You got ${score} correct. <strong>Don't give up!</strong> Review the lessons and try again.`;
+        nextStepsMessage.textContent = 'Review the feedback above to see which topics need more attention. You can retake the quiz as many times as you need!';
+        nextStepButtons.innerHTML = `
+          <a href="practice.html" class="btn btn-primary">Review Practice Problems</a>
+          <a href="index.html" class="btn btn-outline">Review Lessons</a>
+          <a href="quiz.html" class="btn btn-accent">Retake Quiz</a>
+        `;
+      }
+
+      document.getElementById('results').style.display = 'block';
+    }
+
+    // Initialize on page load
+    initializeQuestionStatus();
+  </script>
+
+</body>
+</html>

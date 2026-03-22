@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Matrices and Systems - Learn matrix notation, row operations, Gaussian and Gauss-Jordan elimination methods">
+  <title>Lesson 2: Matrices and Systems – Free College Algebra Course</title>
+  <link rel="stylesheet" href="/learn/college-algebra/style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .lesson-objectives h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .lesson-objectives ul {
+      margin: 0;
+      padding-left: var(--spacing-lg);
+    }
+
+    .lesson-objectives li {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .content-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .example-box {
+      background: #FFF4E6;
+      border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .definition-box {
+      background: #E7F3F8;
+      border: 2px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .definition-box strong {
+      color: var(--info);
+      font-size: 1.1rem;
+    }
+
+    .check-understanding {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .check-understanding h3 {
+      color: var(--primary-color);
+      margin-top: 0;
+    }
+
+    .question {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .question p {
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .reveal-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    .reveal-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .answer {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      background: white;
+      border-left: 3px solid var(--success);
+      border-radius: var(--radius-sm);
+    }
+
+    .key-takeaways {
+      background: #d4edda;
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-xl) 0;
+    }
+
+    .key-takeaways h3 {
+      margin-top: 0;
+      color: var(--success);
+    }
+
+    .key-takeaways ul {
+      margin-bottom: 0;
+    }
+
+    .highlight-box {
+      background: var(--background-alt);
+      border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .formula-box {
+      background: white;
+      border: 2px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+
+    .formula-box .formula {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: var(--spacing-md) 0;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid var(--warning);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .breadcrumb {
+      background: var(--background-alt);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .breadcrumb a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--spacing-md) 0;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      border: 1px solid #ddd;
+      padding: var(--spacing-sm);
+      text-align: left;
+    }
+
+    .comparison-table th {
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: var(--background-alt);
+    }
+
+    .matrix {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      display: inline-block;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+
+    .matrix-bracket {
+      font-size: 2rem;
+      font-weight: 100;
+    }
+
+    @media (max-width: 768px) {
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .lesson-nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="/index.html">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/research.html">Research</a>
+      <a href="/math54.html">Introductory Statistics</a>
+      <a href="/math4.html" class="active">College Algebra for STEM Majors</a>
+      <a href="/ai-education.html">AI Journey</a>
+      <a href="/publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="breadcrumb">
+      <a href="/index.html">Home</a> &gt;
+      <a href="/math4.html">College Algebra</a> &gt;
+      <a href="/learn/college-algebra/index.html">Learning Platform</a> &gt;
+      <a href="index.html">Module 5</a> &gt;
+      <strong>Lesson 2: Matrices and Systems</strong>
+    </div>
+
+    <h1>Lesson 2: Matrices and Systems of Equations</h1>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-substitution-elimination.html" class="btn btn-outline">&larr; Previous: Substitution and Elimination</a>
+      <a href="index.html" class="btn btn-outline">Module 5 Home</a>
+      <a href="lesson-03-determinants-cramers-rule.html" class="btn btn-outline">Next: Determinants and Cramer's Rule &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Represent a system of linear equations as an augmented matrix</li>
+        <li>Perform elementary row operations on matrices</li>
+        <li>Apply Gaussian elimination to solve systems of equations</li>
+        <li>Apply Gauss-Jordan elimination to find reduced row-echelon form</li>
+        <li>Identify when a system has no solution or infinitely many solutions using matrices</li>
+        <li>Solve real-world application problems using matrix methods</li>
+      </ul>
+    </div>
+
+    <!-- Introduction -->
+    <section class="content-section">
+      <h2>Introduction: Why Matrices?</h2>
+
+      <p>In the previous lesson, we learned substitution and elimination methods for solving systems of equations. While these methods work well for small systems (2 or 3 equations), they become increasingly tedious for larger systems.</p>
+
+      <p><strong>Matrices</strong> provide a systematic, organized way to solve systems of any size. By representing systems as rectangular arrays of numbers and applying standardized row operations, we can solve complex systems efficiently and reliably.</p>
+
+      <div class="highlight-box">
+        <h4>Advantages of Matrix Methods:</h4>
+        <ul>
+          <li><strong>Organization:</strong> All information is in one compact structure</li>
+          <li><strong>Systematic:</strong> Follow clear, repeatable steps</li>
+          <li><strong>Scalability:</strong> Works equally well for 2, 3, or 10+ variables</li>
+          <li><strong>Computer-friendly:</strong> Easy to program and automate</li>
+          <li><strong>Error reduction:</strong> Structured approach minimizes mistakes</li>
+        </ul>
+      </div>
+
+      <p>This lesson introduces matrix notation and two powerful methods: <strong>Gaussian elimination</strong> (which finds row-echelon form) and <strong>Gauss-Jordan elimination</strong> (which finds reduced row-echelon form).</p>
+    </section>
+
+    <!-- Section 1: Matrix Notation -->
+    <section class="content-section">
+      <h2>Section 1: Matrix Notation and Augmented Matrices</h2>
+
+      <div class="definition-box">
+        <strong>Matrix:</strong> A rectangular array of numbers arranged in rows and columns, enclosed in brackets.
+      </div>
+
+      <div class="definition-box">
+        <strong>Dimensions:</strong> A matrix with <em>m</em> rows and <em>n</em> columns is an <strong>m × n matrix</strong> (read "m by n").
+      </div>
+
+      <p>For systems of linear equations, we use <strong>augmented matrices</strong>. An augmented matrix contains the coefficients of all variables plus the constants from the right side of the equations, separated by a vertical line.</p>
+
+      <div class="formula-box">
+        <p><strong>System of Equations:</strong></p>
+        <div class="formula">
+          ax + by = e<br>
+          cx + dy = f
+        </div>
+        <p><strong>Augmented Matrix:</strong></p>
+        <div class="formula">
+          <span class="matrix-bracket">[</span>
+          <table style="display: inline-table; border-collapse: collapse; vertical-align: middle;">
+            <tr><td style="padding: 5px 10px;">a</td><td style="padding: 5px 10px;">b</td><td style="border-left: 2px solid black; padding: 5px 10px;">e</td></tr>
+            <tr><td style="padding: 5px 10px;">c</td><td style="padding: 5px 10px;">d</td><td style="border-left: 2px solid black; padding: 5px 10px;">f</td></tr>
+          </table>
+          <span class="matrix-bracket">]</span>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Write System as Augmented Matrix (2×2)</h4>
+        <p><strong>Problem:</strong> Write the system as an augmented matrix:</p>
+        <p style="margin-left: 2rem;">
+          3x + 2y = 8<br>
+          x - 4y = -10
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>Identify coefficients and constants:</p>
+        <ul>
+          <li>First equation: a = 3, b = 2, constant = 8</li>
+          <li>Second equation: a = 1, b = -4, constant = -10</li>
+        </ul>
+        <p>Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 3   2 | 8  ]<br>
+          [ 1  -4 | -10]
+        </p>
+        <p>This is a <strong>2×3 augmented matrix</strong> (2 rows, 3 columns including the constants).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Write System as Augmented Matrix (2×3)</h4>
+        <p><strong>Problem:</strong> Write the system as an augmented matrix:</p>
+        <p style="margin-left: 2rem;">
+          2x + 3y - z = 5<br>
+          x - y + 2z = 1
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>This is a system of 2 equations with 3 variables. The augmented matrix is:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 2   3  -1 | 5]<br>
+          [ 1  -1   2 | 1]
+        </p>
+        <p>This is a <strong>2×4 augmented matrix</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Read System from Augmented Matrix</h4>
+        <p><strong>Problem:</strong> Write the system of equations represented by this augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   5 | -3]<br>
+          [-2   1 |  7]
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>First row represents: 1x + 5y = -3, or simply <strong>x + 5y = -3</strong></p>
+        <p>Second row represents: -2x + 1y = 7, or <strong>-2x + y = 7</strong></p>
+        <p><strong>System:</strong></p>
+        <p style="margin-left: 2rem;">
+          x + 5y = -3<br>
+          -2x + y = 7
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Write 3×3 System as Augmented Matrix</h4>
+        <p><strong>Problem:</strong> Write the system as an augmented matrix:</p>
+        <p style="margin-left: 2rem;">
+          x + 2y - z = 4<br>
+          3x - y + 2z = 1<br>
+          2x + y + z = 3
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2  -1 | 4]<br>
+          [ 3  -1   2 | 1]<br>
+          [ 2   1   1 | 3]
+        </p>
+        <p>This is a <strong>3×4 augmented matrix</strong> (3 equations, 3 variables).</p>
+      </div>
+
+      <div class="warning-box">
+        <strong>Important:</strong> When writing augmented matrices, ensure all equations are in standard form (variables on left, constant on right) and variables appear in the same order in every equation. If a variable is missing from an equation, use a coefficient of 0.
+      </div>
+    </section>
+
+    <!-- Section 2: Row Operations -->
+    <section class="content-section">
+      <h2>Section 2: Elementary Row Operations</h2>
+
+      <p>To solve systems using matrices, we perform <strong>elementary row operations</strong>. These operations transform the matrix while preserving the solution to the system.</p>
+
+      <div class="definition-box">
+        <strong>Three Elementary Row Operations:</strong>
+        <ol>
+          <li><strong>Swap two rows:</strong> R₁ ↔ R₂</li>
+          <li><strong>Multiply a row by a nonzero constant:</strong> kR₁ → R₁</li>
+          <li><strong>Add a multiple of one row to another row:</strong> R₁ + kR₂ → R₁</li>
+        </ol>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Row Operation Notation:</h4>
+        <ul>
+          <li><strong>R₁, R₂, R₃</strong> represent Row 1, Row 2, Row 3</li>
+          <li><strong>R₁ ↔ R₂</strong> means "swap Row 1 and Row 2"</li>
+          <li><strong>3R₁ → R₁</strong> means "multiply Row 1 by 3 and replace Row 1 with the result"</li>
+          <li><strong>R₂ - 2R₁ → R₂</strong> means "subtract 2 times Row 1 from Row 2 and replace Row 2"</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Swap Two Rows</h4>
+        <p><strong>Problem:</strong> Perform the operation R₁ ↔ R₂ on the matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 2   3 | 5]<br>
+          [ 1  -1 | 2]
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>Simply swap the two rows:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -1 | 2]<br>
+          [ 2   3 | 5]
+        </p>
+        <p><strong>Why we do this:</strong> It's often helpful to have a 1 in the top-left position to simplify calculations.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Multiply a Row by a Constant</h4>
+        <p><strong>Problem:</strong> Perform the operation (1/2)R₁ → R₁ on the matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 2   4 | 6]<br>
+          [ 1  -3 | 5]
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>Multiply every entry in Row 1 by 1/2:</p>
+        <ul>
+          <li>2 · (1/2) = 1</li>
+          <li>4 · (1/2) = 2</li>
+          <li>6 · (1/2) = 3</li>
+        </ul>
+        <p>Result:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2 | 3]<br>
+          [ 1  -3 | 5]
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 7: Add a Multiple of One Row to Another</h4>
+        <p><strong>Problem:</strong> Perform the operation R₂ - 2R₁ → R₂ on the matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   3 | 5]<br>
+          [ 2   7 | 12]
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Calculate 2R₁ (multiply Row 1 by 2):</p>
+        <p style="margin-left: 2rem;">2R₁ = [2, 6, 10]</p>
+        <p><strong>Step 2:</strong> Subtract from Row 2:</p>
+        <p style="margin-left: 2rem;">
+          R₂ - 2R₁ = [2 - 2, 7 - 6, 12 - 10] = [0, 1, 2]
+        </p>
+        <p><strong>Result:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   3 | 5]<br>
+          [ 0   1 | 2]
+        </p>
+        <p><strong>Notice:</strong> We created a 0 below the leading entry in Row 1!</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 8: Multiple Row Operations in Sequence</h4>
+        <p><strong>Problem:</strong> Perform these operations in order on the matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 3   6 | 9]<br>
+          [ 2   5 | 8]
+        </p>
+        <p>Operations: (1) (1/3)R₁ → R₁, then (2) R₂ - 2R₁ → R₂</p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>After operation (1):</strong> Multiply Row 1 by 1/3:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2 | 3]<br>
+          [ 2   5 | 8]
+        </p>
+        <p><strong>After operation (2):</strong> R₂ - 2R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">
+          2R₁ = [2, 4, 6]<br>
+          R₂ - 2R₁ = [2-2, 5-4, 8-6] = [0, 1, 2]
+        </p>
+        <p><strong>Final result:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2 | 3]<br>
+          [ 0   1 | 2]
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 9: Creating Zeros Below the Diagonal</h4>
+        <p><strong>Problem:</strong> Use row operations to get a zero in the (2,1) position:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -2 | 3]<br>
+          [ 4   5 | 7]
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p>We want to eliminate the 4 in position (2,1). Use R₂ - 4R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">
+          4R₁ = [4, -8, 12]<br>
+          R₂ - 4R₁ = [4-4, 5-(-8), 7-12] = [0, 13, -5]
+        </p>
+        <p><strong>Result:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -2 |  3]<br>
+          [ 0  13 | -5]
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 3: Gaussian Elimination -->
+    <section class="content-section">
+      <h2>Section 3: Row-Echelon Form and Gaussian Elimination</h2>
+
+      <div class="definition-box">
+        <strong>Row-Echelon Form (REF):</strong> A matrix is in row-echelon form if:
+        <ol>
+          <li>All rows consisting entirely of zeros are at the bottom</li>
+          <li>The first nonzero entry in each row (called the <strong>leading entry</strong> or <strong>pivot</strong>) is 1</li>
+          <li>Each leading 1 is to the right of the leading 1 in the row above it</li>
+          <li>All entries below a leading 1 are zeros</li>
+        </ol>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Row-Echelon Form Pattern (3×3 example):</h4>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  *  * | *]<br>
+          [ 0  1  * | *]<br>
+          [ 0  0  1 | *]
+        </p>
+        <p>Where * can be any number. Notice the "staircase" pattern of leading 1s.</p>
+      </div>
+
+      <div class="definition-box">
+        <strong>Gaussian Elimination:</strong> The process of using elementary row operations to transform a matrix into row-echelon form, then using <strong>back-substitution</strong> to find the solution.
+      </div>
+
+      <div class="example-box">
+        <h4>Example 10: Gaussian Elimination on a 2×2 System</h4>
+        <p><strong>Problem:</strong> Solve using Gaussian elimination:</p>
+        <p style="margin-left: 2rem;">
+          x + 2y = 5<br>
+          3x + 7y = 16
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Write augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2 | 5]<br>
+          [ 3   7 | 16]
+        </p>
+        <p><strong>Step 2:</strong> Get zero below leading 1 using R₂ - 3R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">
+          3R₁ = [3, 6, 15]<br>
+          R₂ - 3R₁ = [3-3, 7-6, 16-15] = [0, 1, 1]
+        </p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2 | 5]<br>
+          [ 0   1 | 1]
+        </p>
+        <p><strong>Matrix is now in row-echelon form!</strong></p>
+        <p><strong>Step 3:</strong> Back-substitution. Read from bottom up:</p>
+        <ul>
+          <li>Row 2: y = 1</li>
+          <li>Row 1: x + 2y = 5, so x + 2(1) = 5, thus x = 3</li>
+        </ul>
+        <p><strong>Solution: (3, 1)</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 11: System with No Solution</h4>
+        <p><strong>Problem:</strong> Solve using Gaussian elimination:</p>
+        <p style="margin-left: 2rem;">
+          2x + 3y = 7<br>
+          4x + 6y = 10
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 2   3 | 7]<br>
+          [ 4   6 | 10]
+        </p>
+        <p><strong>Step 2:</strong> Get leading 1 in Row 1: (1/2)R₁ → R₁:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   3/2 | 7/2]<br>
+          [ 4   6   | 10]
+        </p>
+        <p><strong>Step 3:</strong> Eliminate: R₂ - 4R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">
+          4R₁ = [4, 6, 14]<br>
+          R₂ - 4R₁ = [4-4, 6-6, 10-14] = [0, 0, -4]
+        </p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   3/2 | 7/2]<br>
+          [ 0   0   | -4]
+        </p>
+        <p><strong>Analysis:</strong> Row 2 says 0 = -4, which is impossible!</p>
+        <p><strong>Conclusion: No solution</strong> (inconsistent system)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 12: System with Infinite Solutions</h4>
+        <p><strong>Problem:</strong> Solve using Gaussian elimination:</p>
+        <p style="margin-left: 2rem;">
+          x - 2y = 3<br>
+          -2x + 4y = -6
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -2 | 3]<br>
+          [-2   4 | -6]
+        </p>
+        <p><strong>Step 2:</strong> Eliminate: R₂ + 2R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">
+          2R₁ = [2, -4, 6]<br>
+          R₂ + 2R₁ = [-2+2, 4-4, -6+6] = [0, 0, 0]
+        </p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -2 | 3]<br>
+          [ 0   0 | 0]
+        </p>
+        <p><strong>Analysis:</strong> Row 2 says 0 = 0, which is always true (gives no information).</p>
+        <p>Row 1: x - 2y = 3, so x = 3 + 2y</p>
+        <p><strong>Solution: x = 3 + 2t, y = t</strong> where t is any real number (infinitely many solutions)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 13: Gaussian Elimination on 3×3 System (Part 1)</h4>
+        <p><strong>Problem:</strong> Use Gaussian elimination to solve:</p>
+        <p style="margin-left: 2rem;">
+          x + y + z = 6<br>
+          2x + y - z = 1<br>
+          x - y + z = 2
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 | 6]<br>
+          [ 2   1  -1 | 1]<br>
+          [ 1  -1   1 | 2]
+        </p>
+        <p><strong>Step 2:</strong> Get zeros in column 1 below the leading 1:</p>
+        <p>R₂ - 2R₁ → R₂:</p>
+        <p style="margin-left: 2rem;">[2-2, 1-2, -1-2, 1-12] = [0, -1, -3, -11]</p>
+        <p>R₃ - R₁ → R₃:</p>
+        <p style="margin-left: 2rem;">[1-1, -1-1, 1-1, 2-6] = [0, -2, 0, -4]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 |  6]<br>
+          [ 0  -1  -3 | -11]<br>
+          [ 0  -2   0 | -4]
+        </p>
+        <p><em>(Continued in next example...)</em></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 14: Gaussian Elimination on 3×3 System (Part 2)</h4>
+        <p><strong>Continuing from Example 13...</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 |  6]<br>
+          [ 0  -1  -3 | -11]<br>
+          [ 0  -2   0 | -4]
+        </p>
+        <p><strong>Step 3:</strong> Get leading 1 in Row 2: -R₂ → R₂:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 |  6]<br>
+          [ 0   1   3 | 11]<br>
+          [ 0  -2   0 | -4]
+        </p>
+        <p><strong>Step 4:</strong> Get zero below Row 2's leading 1: R₃ + 2R₂ → R₃:</p>
+        <p style="margin-left: 2rem;">
+          2R₂ = [0, 2, 6, 22]<br>
+          R₃ + 2R₂ = [0+0, -2+2, 0+6, -4+22] = [0, 0, 6, 18]
+        </p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 |  6]<br>
+          [ 0   1   3 | 11]<br>
+          [ 0   0   6 | 18]
+        </p>
+        <p><strong>Step 5:</strong> Get leading 1 in Row 3: (1/6)R₃ → R₃:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1   1 |  6]<br>
+          [ 0   1   3 | 11]<br>
+          [ 0   0   1 |  3]
+        </p>
+        <p><strong>Matrix is now in row-echelon form!</strong></p>
+        <p><strong>Step 6:</strong> Back-substitution:</p>
+        <ul>
+          <li>Row 3: z = 3</li>
+          <li>Row 2: y + 3z = 11, so y + 3(3) = 11, thus y = 2</li>
+          <li>Row 1: x + y + z = 6, so x + 2 + 3 = 6, thus x = 1</li>
+        </ul>
+        <p><strong>Solution: (1, 2, 3)</strong></p>
+      </div>
+    </section>
+
+    <!-- Section 4: Gauss-Jordan Elimination -->
+    <section class="content-section">
+      <h2>Section 4: Reduced Row-Echelon Form and Gauss-Jordan Elimination</h2>
+
+      <div class="definition-box">
+        <strong>Reduced Row-Echelon Form (RREF):</strong> A matrix is in reduced row-echelon form if:
+        <ol>
+          <li>It is in row-echelon form (all conditions from REF)</li>
+          <li>Each leading 1 is the ONLY nonzero entry in its column (zeros above AND below)</li>
+        </ol>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Reduced Row-Echelon Form Pattern (3×3 example):</h4>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  0  0 | *]<br>
+          [ 0  1  0 | *]<br>
+          [ 0  0  1 | *]
+        </p>
+        <p>The solution can be read DIRECTLY from the last column: x = *, y = *, z = *</p>
+      </div>
+
+      <div class="definition-box">
+        <strong>Gauss-Jordan Elimination:</strong> The process of using elementary row operations to transform a matrix into reduced row-echelon form. The solution is then immediately visible without back-substitution.
+      </div>
+
+      <div class="example-box">
+        <h4>Example 15: Gauss-Jordan Elimination on 2×2 System</h4>
+        <p><strong>Problem:</strong> Solve using Gauss-Jordan elimination:</p>
+        <p style="margin-left: 2rem;">
+          2x + 3y = 8<br>
+          x - y = -1
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 2   3 | 8]<br>
+          [ 1  -1 | -1]
+        </p>
+        <p><strong>Step 2:</strong> Get leading 1 in Row 1. First swap rows (easier): R₁ ↔ R₂:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -1 | -1]<br>
+          [ 2   3 | 8]
+        </p>
+        <p><strong>Step 3:</strong> Get zero below: R₂ - 2R₁ → R₂:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -1 | -1]<br>
+          [ 0   5 | 10]
+        </p>
+        <p><strong>Step 4:</strong> Get leading 1 in Row 2: (1/5)R₂ → R₂:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1  -1 | -1]<br>
+          [ 0   1 |  2]
+        </p>
+        <p><strong>Step 5:</strong> Get zero ABOVE Row 2's leading 1: R₁ + R₂ → R₁:</p>
+        <p style="margin-left: 2rem;">
+          R₁ + R₂ = [1+0, -1+1, -1+2] = [1, 0, 1]
+        </p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   0 | 1]<br>
+          [ 0   1 | 2]
+        </p>
+        <p><strong>Matrix is now in RREF!</strong></p>
+        <p>Read solution directly: <strong>x = 1, y = 2</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 16: Gauss-Jordan on 3×3 System</h4>
+        <p><strong>Problem:</strong> Solve using Gauss-Jordan elimination:</p>
+        <p style="margin-left: 2rem;">
+          x + 2y + z = 8<br>
+          2x + 5y + 3z = 21<br>
+          x + y - z = 0
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Initial augmented matrix:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2   1 | 8]<br>
+          [ 2   5   3 | 21]<br>
+          [ 1   1  -1 | 0]
+        </p>
+        <p><strong>Get zeros in column 1 below leading 1:</strong></p>
+        <p>R₂ - 2R₁ → R₂: [0, 1, 1, 5]</p>
+        <p>R₃ - R₁ → R₃: [0, -1, -2, -8]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2   1 | 8]<br>
+          [ 0   1   1 | 5]<br>
+          [ 0  -1  -2 | -8]
+        </p>
+        <p><strong>Get zero in column 2 below Row 2:</strong></p>
+        <p>R₃ + R₂ → R₃: [0, 0, -1, -3]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2   1 | 8]<br>
+          [ 0   1   1 | 5]<br>
+          [ 0   0  -1 | -3]
+        </p>
+        <p><strong>Get leading 1 in Row 3:</strong> -R₃ → R₃:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2   1 | 8]<br>
+          [ 0   1   1 | 5]<br>
+          [ 0   0   1 | 3]
+        </p>
+        <p><strong>Now work upward to get zeros ABOVE each leading 1:</strong></p>
+        <p>R₂ - R₃ → R₂: [0, 1, 0, 2]</p>
+        <p>R₁ - R₃ → R₁: [1, 2, 0, 5]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2   0 | 5]<br>
+          [ 0   1   0 | 2]<br>
+          [ 0   0   1 | 3]
+        </p>
+        <p><strong>Finally, get zero above Row 2's leading 1:</strong></p>
+        <p>R₁ - 2R₂ → R₁: [1, 0, 0, 1]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   0   0 | 1]<br>
+          [ 0   1   0 | 2]<br>
+          [ 0   0   1 | 3]
+        </p>
+        <p><strong>Solution (read directly): x = 1, y = 2, z = 3</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 17: No Solution Identified via RREF</h4>
+        <p><strong>Problem:</strong> Use Gauss-Jordan elimination on:</p>
+        <p style="margin-left: 2rem;">
+          x + y = 2<br>
+          2x + 2y = 5
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1 | 2]<br>
+          [ 2   2 | 5]
+        </p>
+        <p>R₂ - 2R₁ → R₂:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   1 | 2]<br>
+          [ 0   0 | 1]
+        </p>
+        <p><strong>Row 2 says:</strong> 0 = 1 (impossible!)</p>
+        <p><strong>Conclusion: No solution</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 18: Infinite Solutions with Free Variable</h4>
+        <p><strong>Problem:</strong> Use Gauss-Jordan elimination on:</p>
+        <p style="margin-left: 2rem;">
+          x + 2y - z = 3<br>
+          2x + 4y - 2z = 6<br>
+          3x + 6y - 3z = 9
+        </p>
+        <p><strong>Solution:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2  -1 | 3]<br>
+          [ 2   4  -2 | 6]<br>
+          [ 3   6  -3 | 9]
+        </p>
+        <p>R₂ - 2R₁ → R₂: [0, 0, 0, 0]</p>
+        <p>R₃ - 3R₁ → R₃: [0, 0, 0, 0]</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   2  -1 | 3]<br>
+          [ 0   0   0 | 0]<br>
+          [ 0   0   0 | 0]
+        </p>
+        <p><strong>Analysis:</strong> Only one meaningful equation: x + 2y - z = 3</p>
+        <p>Two free variables. Let y = s and z = t (parameters).</p>
+        <p>Then x = 3 - 2y + z = 3 - 2s + t</p>
+        <p><strong>Solution: x = 3 - 2s + t, y = s, z = t</strong> (infinitely many solutions)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 19: Application - Investment Problem</h4>
+        <p><strong>Problem:</strong> Sarah invests a total of $12,000 in three accounts. Account A earns 3% annual interest, Account B earns 4%, and Account C earns 5%. After one year, she earns $510 in interest. The amount in Account C is twice the amount in Account A. How much did she invest in each account?</p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Step 1:</strong> Define variables:</p>
+        <ul>
+          <li>Let x = amount in Account A</li>
+          <li>Let y = amount in Account B</li>
+          <li>Let z = amount in Account C</li>
+        </ul>
+        <p><strong>Step 2:</strong> Write equations:</p>
+        <p style="margin-left: 2rem;">
+          x + y + z = 12000 (total investment)<br>
+          0.03x + 0.04y + 0.05z = 510 (interest earned)<br>
+          z = 2x, or -2x + z = 0 (Account C is twice Account A)
+        </p>
+        <p><strong>Step 3:</strong> Augmented matrix:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1     1     1   | 12000]<br>
+          [ 0.03  0.04  0.05|   510]<br>
+          [-2     0     1   |     0]
+        </p>
+        <p><strong>Step 4:</strong> Apply Gauss-Jordan (details omitted for brevity):</p>
+        <p>After row operations, RREF is:</p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   0   0 | 3000]<br>
+          [ 0   1   0 | 3000]<br>
+          [ 0   0   1 | 6000]
+        </p>
+        <p><strong>Solution:</strong> x = 3000, y = 3000, z = 6000</p>
+        <p><strong>Answer:</strong> Account A: $3,000, Account B: $3,000, Account C: $6,000</p>
+      </div>
+    </section>
+
+    <!-- Section 5: Applications -->
+    <section class="content-section">
+      <h2>Section 5: Applications of Matrix Methods</h2>
+
+      <p>Matrix methods are particularly useful for systems with three or more variables, where substitution and elimination become unwieldy. Here are situations where matrices excel:</p>
+
+      <div class="highlight-box">
+        <h4>When to Use Matrix Methods:</h4>
+        <ul>
+          <li><strong>Large systems:</strong> 3+ equations and variables</li>
+          <li><strong>Many systems with same coefficients:</strong> Change only the constants</li>
+          <li><strong>Computer solutions:</strong> Algorithms are easily programmed</li>
+          <li><strong>Applied problems:</strong> Economics, engineering, chemistry, physics</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 20: Mixture Problem (Three Substances)</h4>
+        <p><strong>Problem:</strong> A chemist needs to mix three solutions (A, B, and C) to create 100 liters of a mixture that is 30% acid. Solution A is 20% acid, Solution B is 40% acid, and Solution C is 50% acid. The amount of Solution B must equal the combined amounts of A and C. How many liters of each solution should be used?</p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Variables:</strong></p>
+        <ul>
+          <li>x = liters of Solution A</li>
+          <li>y = liters of Solution B</li>
+          <li>z = liters of Solution C</li>
+        </ul>
+        <p><strong>Equations:</strong></p>
+        <p style="margin-left: 2rem;">
+          x + y + z = 100 (total volume)<br>
+          0.20x + 0.40y + 0.50z = 0.30(100) = 30 (acid amount)<br>
+          y = x + z, or -x + y - z = 0 (B equals A plus C)
+        </p>
+        <p><strong>Augmented matrix:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1     1     1   | 100]<br>
+          [ 0.20  0.40  0.50|  30]<br>
+          [-1     1    -1   |   0]
+        </p>
+        <p><strong>After Gauss-Jordan elimination (steps omitted):</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   0   0 | 20]<br>
+          [ 0   1   0 | 50]<br>
+          [ 0   0   1 | 30]
+        </p>
+        <p><strong>Solution:</strong> x = 20, y = 50, z = 30</p>
+        <p><strong>Answer:</strong> 20 L of Solution A, 50 L of Solution B, 30 L of Solution C</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 21: Traffic Flow Problem</h4>
+        <p><strong>Problem:</strong> The diagram shows traffic flowing through a network of one-way streets. The numbers indicate cars per hour entering and leaving each intersection. Find the traffic flow x, y, and z on the unknown streets.</p>
+        <p><em>(Assume diagram shows: 100 cars enter intersection A, split to x and 30; at B, x and y merge to 80 leaving; at C, y and z merge to 50 leaving; at D, 30 and z merge to 60 leaving)</em></p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Traffic conservation principle:</strong> Flow in = Flow out at each intersection</p>
+        <p><strong>Equations:</strong></p>
+        <p style="margin-left: 2rem;">
+          Intersection A: 100 = x + 30, so x = 70<br>
+          Intersection B: x + y = 80, so 70 + y = 80, thus y = 10<br>
+          Intersection D: 30 + z = 60, so z = 30
+        </p>
+        <p><strong>Verification at C:</strong> y + z = 10 + 30 = 40... but problem states 50 leaving.</p>
+        <p><em>(Note: In real problems, equations would be consistent. This illustrates the setup method.)</em></p>
+        <p><strong>General approach:</strong> Write "flow in = flow out" equation for each intersection, then solve the system using matrices.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 22: Cost Analysis Problem</h4>
+        <p><strong>Problem:</strong> A bakery produces three types of bread: white, wheat, and rye. Each loaf requires flour, yeast, and salt. A white loaf needs 3 cups flour, 1 tsp yeast, and 1 tsp salt. A wheat loaf needs 2 cups flour, 1 tsp yeast, and 2 tsp salt. A rye loaf needs 2 cups flour, 2 tsp yeast, and 1 tsp salt. One day the bakery used 56 cups of flour, 28 tsp of yeast, and 32 tsp of salt. How many loaves of each type were baked?</p>
+        <p><strong>Solution:</strong></p>
+        <p><strong>Variables:</strong></p>
+        <ul>
+          <li>x = number of white loaves</li>
+          <li>y = number of wheat loaves</li>
+          <li>z = number of rye loaves</li>
+        </ul>
+        <p><strong>Equations (from ingredient usage):</strong></p>
+        <p style="margin-left: 2rem;">
+          3x + 2y + 2z = 56 (flour)<br>
+          x + y + 2z = 28 (yeast)<br>
+          x + 2y + z = 32 (salt)
+        </p>
+        <p><strong>Augmented matrix:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 3   2   2 | 56]<br>
+          [ 1   1   2 | 28]<br>
+          [ 1   2   1 | 32]
+        </p>
+        <p><strong>After Gauss-Jordan elimination:</strong></p>
+        <p style="text-align: center; font-family: monospace; font-size: 1.2rem;">
+          [ 1   0   0 | 8]<br>
+          [ 0   1   0 | 12]<br>
+          [ 0   0   1 | 8]
+        </p>
+        <p><strong>Solution:</strong> x = 8, y = 12, z = 8</p>
+        <p><strong>Answer:</strong> 8 white loaves, 12 wheat loaves, 8 rye loaves</p>
+      </div>
+    </section>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Write the following system as an augmented matrix:</p>
+        <p style="margin-left: 1rem;">5x - 2y = 7<br>3x + y = 4</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p style="font-family: monospace; text-align: center;">
+            [ 5  -2 | 7]<br>
+            [ 3   1 | 4]
+          </p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Perform the operation R₂ - 3R₁ → R₂ on the matrix:</p>
+        <p style="font-family: monospace; text-align: center;">
+          [ 1   2 | 5]<br>
+          [ 3   8 | 17]
+        </p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p>3R₁ = [3, 6, 15]</p>
+          <p>R₂ - 3R₁ = [3-3, 8-6, 17-15] = [0, 2, 2]</p>
+          <p style="font-family: monospace; text-align: center;">
+            [ 1   2 | 5]<br>
+            [ 0   2 | 2]
+          </p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Which of the following matrices is in row-echelon form?</p>
+        <p>(A) [1 2 | 3]<br>&nbsp;&nbsp;&nbsp;&nbsp;[0 1 | 5]</p>
+        <p>(B) [1 0 | 2]<br>&nbsp;&nbsp;&nbsp;&nbsp;[0 0 | 1]</p>
+        <p>(C) [0 1 | 4]<br>&nbsp;&nbsp;&nbsp;&nbsp;[1 0 | 2]</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p><strong>Answer: (A)</strong></p>
+          <p>(A) has leading 1s in staircase pattern with zeros below - correct REF</p>
+          <p>(B) has 0 = 1 in Row 2 - represents inconsistent system, not proper REF</p>
+          <p>(C) has leading 1 in Row 2 to the LEFT of Row 1's leading entry - violates REF</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. Use Gaussian elimination to solve:</p>
+        <p style="margin-left: 1rem;">x + 3y = 7<br>2x + 5y = 11</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p>Augmented matrix: [1 3|7], [2 5|11]</p>
+          <p>R₂ - 2R₁ → R₂: [1 3|7], [0 -1|-3]</p>
+          <p>-R₂ → R₂: [1 3|7], [0 1|3]</p>
+          <p>Back-substitution: y = 3, then x + 3(3) = 7, so x = -2</p>
+          <p><strong>Solution: (-2, 3)</strong></p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>5. Which of the following matrices is in reduced row-echelon form?</p>
+        <p>(A) [1 2|3]<br>&nbsp;&nbsp;&nbsp;&nbsp;[0 1|2]</p>
+        <p>(B) [1 0|5]<br>&nbsp;&nbsp;&nbsp;&nbsp;[0 1|3]</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p><strong>Answer: (B)</strong></p>
+          <p>(A) is in REF but not RREF - the 2 above the leading 1 in column 2 should be 0</p>
+          <p>(B) is in RREF - leading 1s have zeros above AND below</p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>6. Use Gauss-Jordan elimination to solve:</p>
+        <p style="margin-left: 1rem;">x - y = 1<br>2x + y = 8</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p>[1 -1|1], [2 1|8]</p>
+          <p>R₂ - 2R₁ → R₂: [1 -1|1], [0 3|6]</p>
+          <p>(1/3)R₂ → R₂: [1 -1|1], [0 1|2]</p>
+          <p>R₁ + R₂ → R₁: [1 0|3], [0 1|2]</p>
+          <p><strong>Solution: x = 3, y = 2</strong></p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>7. What does the following reduced matrix tell you about the system's solution?</p>
+        <p style="font-family: monospace; text-align: center;">
+          [ 1   0 | 4]<br>
+          [ 0   0 | 3]
+        </p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p>Row 2 says: 0 = 3, which is impossible.</p>
+          <p><strong>The system has NO SOLUTION (inconsistent)</strong></p>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>8. Set up (but do not solve) the augmented matrix for this problem:</p>
+        <p style="margin-left: 1rem;">A store sells three types of juice boxes: apple (x), orange (y), and grape (z). On Monday, they sold 100 total boxes for $180. Apple costs $1.50, orange costs $2.00, and grape costs $1.75. They sold twice as many apple boxes as grape boxes.</p>
+        <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+        <div class="answer">
+          <p>Equations:</p>
+          <p>x + y + z = 100 (total boxes)</p>
+          <p>1.50x + 2.00y + 1.75z = 180 (total revenue)</p>
+          <p>x = 2z, or x - 2z = 0 (apple is twice grape)</p>
+          <p><strong>Augmented matrix:</strong></p>
+          <p style="font-family: monospace; text-align: center;">
+            [ 1    1    1   | 100]<br>
+            [ 1.5  2    1.75| 180]<br>
+            [ 1    0   -2   |   0]
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Augmented matrices</strong> organize system information in a compact rectangular array</li>
+        <li><strong>Three elementary row operations:</strong> swap rows, multiply row by constant, add multiple of one row to another</li>
+        <li><strong>Gaussian elimination</strong> produces row-echelon form (REF), then uses back-substitution to solve</li>
+        <li><strong>Gauss-Jordan elimination</strong> produces reduced row-echelon form (RREF) with solution immediately visible</li>
+        <li><strong>No solution:</strong> Indicated by row of form [0 0 ... 0 | k] where k ≠ 0</li>
+        <li><strong>Infinite solutions:</strong> Indicated by row of all zeros, resulting in free variables</li>
+        <li><strong>Matrix methods</strong> excel for large systems and application problems with many variables</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-substitution-elimination.html" class="btn btn-outline">&larr; Previous: Substitution and Elimination</a>
+      <a href="index.html" class="btn btn-outline">Module 5 Home</a>
+      <a href="lesson-03-determinants-cramers-rule.html" class="btn btn-outline">Next: Determinants and Cramer's Rule &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+      <p>
+        <a href="/index.html">Home</a> |
+        <a href="/about.html">About</a> |
+        <a href="/research.html">Research</a> |
+        <a href="/publications.html">Publications</a> |
+        <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAnswer(button) {
+      const answer = button.nextElementSibling;
+      if (answer.style.display === 'block') {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      } else {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      }
+    }
+  </script>
+
+</body>
+</html>

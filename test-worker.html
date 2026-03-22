@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MAT300 Grader Worker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2C5F7C;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        button {
+            background-color: #2C5F7C;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #1A3A4D;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        .result.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .feedback-section {
+            margin-top: 15px;
+        }
+        .feedback-section h3 {
+            color: #2C5F7C;
+            margin-bottom: 10px;
+        }
+        .feedback-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #2C5F7C;
+        }
+        .sample-answers {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e7f3f8;
+            border-radius: 4px;
+        }
+        .sample-answers h3 {
+            margin-top: 0;
+            color: #2C5F7C;
+        }
+        .sample-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background: #D97D54;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .sample-btn:hover {
+            background: #c56d44;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Test MAT300 Grader Worker</h1>
+
+        <label for="workerUrl">Cloudflare Worker URL:</label>
+        <input type="text" id="workerUrl" value="https://mat300-grader.sdabagh-stats.workers.dev" placeholder="https://your-worker.workers.dev">
+
+        <div class="sample-answers">
+            <h3>Quick Test Samples:</h3>
+            <button class="sample-btn" onclick="loadSample1()">Good Answer (High Score)</button>
+            <button class="sample-btn" onclick="loadSample2()">Weak Answer (Low Score)</button>
+            <button class="sample-btn" onclick="loadSample3()">Minimal Answer</button>
+        </div>
+
+        <label for="studentAnswer">Student Answer:</label>
+        <textarea id="studentAnswer" placeholder="Paste a student's hypothesis test answer here..."></textarea>
+
+        <button onclick="gradeAnswer()">Grade Answer</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function loadSample1() {
+            document.getElementById('studentAnswer').value = `To test whether the mean is different from 50, we'll conduct a hypothesis test.
+
+Step 1: State the hypotheses
+H0: μ = 50 (null hypothesis - population mean equals 50)
+Ha: μ ≠ 50 (alternative hypothesis - population mean is different from 50)
+
+Step 2: Set significance level
+α = 0.05 (standard significance level)
+
+Step 3: Calculate test statistic
+Given: sample mean = 52.3, sample size = 100, standard deviation = 8
+z = (52.3 - 50) / (8 / √100)
+z = 2.3 / 0.8
+z = 2.875
+
+Step 4: Find p-value
+For a two-tailed test with z = 2.875:
+p-value = 2 × P(Z > 2.875) = 2 × 0.002 = 0.004
+
+Step 5: Make decision
+Since p-value (0.004) < α (0.05), we reject the null hypothesis.
+
+Conclusion: There is sufficient evidence at the 5% significance level to conclude that the population mean is significantly different from 50. The sample provides strong evidence that the true mean is not equal to 50.`;
+        }
+
+        function loadSample2() {
+            document.getElementById('studentAnswer').value = `I think the mean is different from 50 because the sample mean is 52.3, which is higher. The p-value is small so we reject the null hypothesis.`;
+        }
+
+        function loadSample3() {
+            document.getElementById('studentAnswer').value = `H0: μ = 50
+Ha: μ ≠ 50
+z = 2.875
+p = 0.004
+Reject null hypothesis.`;
+        }
+
+        async function gradeAnswer() {
+            const workerUrl = document.getElementById('workerUrl').value.trim();
+            const answer = document.getElementById('studentAnswer').value.trim();
+            const resultDiv = document.getElementById('result');
+            const button = document.querySelector('button[onclick="gradeAnswer()"]');
+
+            if (!workerUrl) {
+                alert('Please enter the Worker URL');
+                return;
+            }
+
+            if (!answer) {
+                alert('Please enter a student answer to grade');
+                return;
+            }
+
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Grading...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '<p class="loading">Sending request to Cloudflare Worker...</p>';
+
+            try {
+                const response = await fetch(workerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answer: answer,
+                        questionType: 'hypothesis-test'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displaySuccess(data);
+                } else {
+                    displayError(data);
+                }
+
+            } catch (error) {
+                displayError({
+                    error: 'Network Error',
+                    message: error.message,
+                    details: 'Make sure the Worker URL is correct and the Worker is deployed.'
+                });
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Grade Answer';
+            }
+        }
+
+        function displaySuccess(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result success';
+
+            let html = `
+                <h2>✅ Grading Successful!</h2>
+                <div class="score">Score: ${data.score}/100</div>
+                <p><strong>Status:</strong> ${data.passed ? '✅ PASSED' : '❌ NEEDS IMPROVEMENT'}</p>
+            `;
+
+            if (data.feedback && data.feedback.length > 0) {
+                html += `
+                    <div class="feedback-section">
+                        <h3>📝 Feedback:</h3>
+                `;
+                data.feedback.forEach(item => {
+                    html += `<div class="feedback-item">${item}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            if (data.strengths && data.strengths.length > 0) {
+                html += `
+                    <div class="feedback-section">
+                        <h3>💪 Strengths:</h3>
+                `;
+                data.strengths.forEach(item => {
+                    html += `<div class="feedback-item">${item}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `
+                <details style="margin-top: 20px;">
+                    <summary style="cursor: pointer; color: #2C5F7C; font-weight: bold;">Show Full Response JSON</summary>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </details>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        function displayError(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = `
+                <h2>❌ Error</h2>
+                <p><strong>Error:</strong> ${data.error || 'Unknown error'}</p>
+                ${data.message ? `<p><strong>Message:</strong> ${data.message}</p>` : ''}
+                ${data.details ? `<p><strong>Details:</strong> ${data.details}</p>` : ''}
+                <details style="margin-top: 20px;">
+                    <summary style="cursor: pointer;">Show Full Response</summary>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </details>
+            `;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
