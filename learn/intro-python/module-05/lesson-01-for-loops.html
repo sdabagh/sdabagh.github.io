@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python for loops and range() function - iterating over sequences, counting, and common patterns">
+  <title>Lesson 5.1: for Loops and range() – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; } .code-box .keyword { color: #569cd6; } .code-box .string { color: #ce9178; } .code-box .function { color: #dcdcaa; } .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; } .lesson-nav a:hover { color: var(--primary-dark); }
+    .lesson-nav span { color: var(--text-secondary); font-size: 0.9rem; }
+    .lesson-objectives { background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-sm); }
+    .lesson-objectives ul { margin-left: var(--spacing-md); } .lesson-objectives li { padding: var(--spacing-xs) 0; color: var(--text-secondary); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 3px solid var(--accent-color); display: inline-block; padding-bottom: var(--spacing-xs); margin-bottom: var(--spacing-md); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f9f9f9; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--accent-color); margin-bottom: var(--spacing-sm); }
+    .check-understanding { background: #fff8e1; border: 2px solid var(--warning); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #f57f17; margin-bottom: var(--spacing-sm); }
+    .reveal-answer { background: var(--primary-color); color: white; border: none; padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-answer:hover { background: var(--primary-dark); }
+    .answer-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-top: var(--spacing-xl); }
+    .key-takeaways h3 { color: var(--success); margin-bottom: var(--spacing-md); } .key-takeaways ul { margin-left: var(--spacing-md); } .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 5 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-while-loops.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 5.1: for Loops and range()</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>What loops are and why they are essential</li>
+        <li>How to write for loops to iterate over sequences</li>
+        <li>How to use range() with 1, 2, and 3 arguments</li>
+        <li>How to loop through strings and lists</li>
+        <li>Common for loop patterns (accumulator, counting)</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>Why Do We Need Loops?</h2>
+      <p>
+        Imagine you want to print "Hello!" five times. Without loops, you would have to write
+        the same line five times. With a loop, you write it once and tell Python how many times to repeat.
+      </p>
+
+      <pre class="code-box"><span class="comment"># Without a loop (tedious!)</span>
+<span class="function">print</span>(<span class="string">"Hello!"</span>)
+<span class="function">print</span>(<span class="string">"Hello!"</span>)
+<span class="function">print</span>(<span class="string">"Hello!"</span>)
+<span class="function">print</span>(<span class="string">"Hello!"</span>)
+<span class="function">print</span>(<span class="string">"Hello!"</span>)
+
+<span class="comment"># With a loop (much better!)</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="function">print</span>(<span class="string">"Hello!"</span>)</pre>
+      <div class="output-box">Hello!
+Hello!
+Hello!
+Hello!
+Hello!</div>
+
+      <div class="definition-box">
+        <strong>Loop:</strong> A programming structure that repeats a block of code multiple times.
+        A <strong>for loop</strong> repeats for each item in a sequence (like a range of numbers or
+        characters in a string).
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>The for Loop Syntax</h2>
+      <p>A for loop has three parts: the <code>for</code> keyword, a <strong>loop variable</strong>, and
+      an <strong>iterable</strong> (something to loop over).</p>
+
+      <pre class="code-box"><span class="keyword">for</span> variable <span class="keyword">in</span> iterable:
+    <span class="comment"># code to repeat (indented)</span></pre>
+
+      <pre class="code-box"><span class="comment"># Loop through a list of names</span>
+names = [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>]
+
+<span class="keyword">for</span> name <span class="keyword">in</span> names:
+    <span class="function">print</span>(<span class="string">f"Hello, </span>{name}<span class="string">!"</span>)</pre>
+      <div class="output-box">Hello, Alice!
+Hello, Bob!
+Hello, Charlie!</div>
+
+      <p>Each time through the loop, the variable <code>name</code> takes on the next value from the list.
+      After the last item, the loop ends and Python continues with the code after the loop.</p>
+
+      <pre class="code-box"><span class="comment"># Loop through a string (character by character)</span>
+word = <span class="string">"Python"</span>
+
+<span class="keyword">for</span> letter <span class="keyword">in</span> word:
+    <span class="function">print</span>(letter)</pre>
+      <div class="output-box">P
+y
+t
+h
+o
+n</div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>The range() Function</h2>
+      <p>
+        <code>range()</code> generates a sequence of numbers. It is the most common way to control
+        how many times a for loop runs.
+      </p>
+
+      <h3>range() with 1 argument: range(stop)</h3>
+      <p>Generates numbers from <strong>0</strong> up to (but not including) <code>stop</code>.</p>
+      <pre class="code-box"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="function">print</span>(i)</pre>
+      <div class="output-box">0
+1
+2
+3
+4</div>
+
+      <h3>range() with 2 arguments: range(start, stop)</h3>
+      <p>Generates numbers from <code>start</code> up to (but not including) <code>stop</code>.</p>
+      <pre class="code-box"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    <span class="function">print</span>(i)</pre>
+      <div class="output-box">1
+2
+3
+4
+5</div>
+
+      <h3>range() with 3 arguments: range(start, stop, step)</h3>
+      <p>Generates numbers from <code>start</code> to <code>stop</code>, incrementing by <code>step</code>.</p>
+      <pre class="code-box"><span class="comment"># Count by 2s</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">0</span>, <span class="number">11</span>, <span class="number">2</span>):
+    <span class="function">print</span>(i, end=<span class="string">" "</span>)</pre>
+      <div class="output-box">0 2 4 6 8 10</div>
+
+      <pre class="code-box"><span class="comment"># Count backwards</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>, <span class="number">0</span>, -<span class="number">1</span>):
+    <span class="function">print</span>(i, end=<span class="string">" "</span>)</pre>
+      <div class="output-box">5 4 3 2 1</div>
+
+      <div class="definition-box">
+        <strong>Remember:</strong> <code>range()</code> never includes the stop value. <code>range(1, 5)</code>
+        gives you 1, 2, 3, 4 &mdash; not 5. This matches how Python indexing works (starting from 0).
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Common for Loop Patterns</h2>
+
+      <div class="example-box">
+        <h4>Pattern 1: Accumulator (Running Total)</h4>
+        <pre class="code-box"><span class="comment"># Sum numbers from 1 to 10</span>
+total = <span class="number">0</span>
+
+<span class="keyword">for</span> num <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>):
+    total += num
+
+<span class="function">print</span>(<span class="string">f"Sum of 1 to 10: </span>{total}<span class="string">"</span>)</pre>
+        <div class="output-box">Sum of 1 to 10: 55</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Pattern 2: Counting</h4>
+        <pre class="code-box"><span class="comment"># Count vowels in a word</span>
+word = <span class="string">"programming"</span>
+vowel_count = <span class="number">0</span>
+
+<span class="keyword">for</span> letter <span class="keyword">in</span> word:
+    <span class="keyword">if</span> letter <span class="keyword">in</span> <span class="string">"aeiou"</span>:
+        vowel_count += <span class="number">1</span>
+
+<span class="function">print</span>(<span class="string">f"Vowels in '</span>{word}<span class="string">': </span>{vowel_count}<span class="string">"</span>)</pre>
+        <div class="output-box">Vowels in 'programming': 3</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Pattern 3: Building a String</h4>
+        <pre class="code-box"><span class="comment"># Build a string of stars</span>
+stars = <span class="string">""</span>
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    stars += <span class="string">"* "</span>
+
+<span class="function">print</span>(stars)</pre>
+        <div class="output-box">* * * * *</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Looping with Index and Value</h2>
+      <p>
+        Sometimes you need both the index (position) and the value. Python provides the
+        <code>enumerate()</code> function for this.
+      </p>
+
+      <pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>]
+
+<span class="keyword">for</span> index, fruit <span class="keyword">in</span> <span class="function">enumerate</span>(fruits):
+    <span class="function">print</span>(<span class="string">f"</span>{index}<span class="string">: </span>{fruit}<span class="string">"</span>)</pre>
+      <div class="output-box">0: apple
+1: banana
+2: cherry</div>
+
+      <pre class="code-box"><span class="comment"># Start numbering from 1</span>
+<span class="keyword">for</span> index, fruit <span class="keyword">in</span> <span class="function">enumerate</span>(fruits, start=<span class="number">1</span>):
+    <span class="function">print</span>(<span class="string">f"</span>{index}<span class="string">. </span>{fruit}<span class="string">"</span>)</pre>
+      <div class="output-box">1. apple
+2. banana
+3. cherry</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Practical Examples</h2>
+
+      <div class="example-box">
+        <h4>Example: Average Calculator</h4>
+        <pre class="code-box">scores = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">95</span>, <span class="number">88</span>]
+total = <span class="number">0</span>
+
+<span class="keyword">for</span> score <span class="keyword">in</span> scores:
+    total += score
+
+average = total / <span class="function">len</span>(scores)
+<span class="function">print</span>(<span class="string">f"Average score: </span>{average}<span class="string">"</span>)</pre>
+        <div class="output-box">Average score: 87.6</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Multiplication Table</h4>
+        <pre class="code-box">number = <span class="number">7</span>
+
+<span class="function">print</span>(<span class="string">f"Multiplication table for </span>{number}<span class="string">:"</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>):
+    result = number * i
+    <span class="function">print</span>(<span class="string">f"</span>{number}<span class="string"> x </span>{i}<span class="string"> = </span>{result}<span class="string">"</span>)</pre>
+        <div class="output-box">Multiplication table for 7:
+7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+7 x 10 = 70</div>
+      </div>
+    </div>
+
+    <div class="try-it-box">
+      <h4>Try It Yourself!</h4>
+      <p>Write a for loop that calculates the factorial of 6 (6! = 6 * 5 * 4 * 3 * 2 * 1 = 720).</p>
+      <p>Hint: Start with <code>result = 1</code> and multiply by each number in <code>range(1, 7)</code>.</p>
+    </div>
+
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>What will this code print?</p>
+      <pre class="code-box">total = <span class="number">0</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">4</span>):
+    total += i * <span class="number">2</span>
+<span class="function">print</span>(total)</pre>
+      <button class="reveal-answer" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+      <div class="answer-content">
+        <p><strong>Answer: 12</strong></p>
+        <p>Loop runs with i = 1, 2, 3. Each iteration: total += i * 2.<br>
+        i=1: total = 0 + 2 = 2<br>
+        i=2: total = 2 + 4 = 6<br>
+        i=3: total = 6 + 6 = 12</p>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>for loops iterate over each item in a sequence</li>
+        <li><code>range(n)</code> generates 0 through n-1</li>
+        <li><code>range(start, stop)</code> generates start through stop-1</li>
+        <li><code>range(start, stop, step)</code> allows counting by any increment</li>
+        <li>Common patterns: accumulator (running total), counting, string building</li>
+        <li><code>enumerate()</code> gives you both index and value</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none;">
+      <a href="index.html">&larr; Module 5 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-while-loops.html">Next: while Loops &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

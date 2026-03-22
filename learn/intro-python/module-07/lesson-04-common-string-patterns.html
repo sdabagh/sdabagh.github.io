@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn common Python string patterns: splitting, joining, parsing data, multiline strings, and raw strings">
+  <title>Lesson 7.4: Common String Patterns – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-03-searching-replacing.html">&larr; Lesson 3</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 7.4: Common String Patterns</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Split strings into lists using split()</li>
+        <li>Join lists back into strings using join()</li>
+        <li>Parse structured data from strings</li>
+        <li>Build formatted strings efficiently</li>
+        <li>Work with multiline strings and raw strings</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>Splitting Strings</h2>
+
+      <div class="definition-box">
+        <strong>split():</strong> Breaks a string into a list of substrings based on a separator. By default, it splits on whitespace.
+      </div>
+
+<pre class="code-box"><span class="comment"># Split on whitespace (default)</span>
+sentence = <span class="string">"Python is a great language"</span>
+words = sentence.<span class="function">split</span>()
+<span class="keyword">print</span>(words)
+<span class="keyword">print</span>(<span class="string">f"Word count: </span>{<span class="function">len</span>(words)}<span class="string">"</span>)
+</pre>
+      <div class="output-box">['Python', 'is', 'a', 'great', 'language']
+Word count: 5</div>
+
+      <h3>Splitting on a Specific Separator</h3>
+
+<pre class="code-box"><span class="comment"># Split CSV data</span>
+csv_line = <span class="string">"Alice,25,Engineer,New York"</span>
+fields = csv_line.<span class="function">split</span>(<span class="string">","</span>)
+<span class="keyword">print</span>(fields)
+
+<span class="comment"># Split a URL path</span>
+url = <span class="string">"https://example.com/blog/2024/post"</span>
+parts = url.<span class="function">split</span>(<span class="string">"/"</span>)
+<span class="keyword">print</span>(parts)
+
+<span class="comment"># Split on any string</span>
+data = <span class="string">"red::green::blue::yellow"</span>
+colors = data.<span class="function">split</span>(<span class="string">"::"</span>)
+<span class="keyword">print</span>(colors)
+</pre>
+      <div class="output-box">['Alice', '25', 'Engineer', 'New York']
+['https:', '', 'example.com', 'blog', '2024', 'post']
+['red', 'green', 'blue', 'yellow']</div>
+
+      <h3>Limiting Splits</h3>
+<pre class="code-box"><span class="comment"># Split only on the first occurrence</span>
+assignment = <span class="string">"name = John Smith"</span>
+key, value = assignment.<span class="function">split</span>(<span class="string">" = "</span>, <span class="number">1</span>)
+<span class="keyword">print</span>(<span class="string">f"Key: </span>{key}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Value: </span>{value}<span class="string">"</span>)
+</pre>
+      <div class="output-box">Key: name
+Value: John Smith</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Joining Strings</h2>
+
+      <div class="definition-box">
+        <strong>join():</strong> The opposite of split(). Combines a list of strings into a single string with a separator between each element. Syntax: <code>separator.join(list)</code>
+      </div>
+
+<pre class="code-box">words = [<span class="string">"Python"</span>, <span class="string">"is"</span>, <span class="string">"awesome"</span>]
+
+<span class="comment"># Join with spaces</span>
+sentence = <span class="string">" "</span>.<span class="function">join</span>(words)
+<span class="keyword">print</span>(sentence)
+
+<span class="comment"># Join with commas</span>
+csv = <span class="string">","</span>.<span class="function">join</span>(words)
+<span class="keyword">print</span>(csv)
+
+<span class="comment"># Join with no separator</span>
+letters = [<span class="string">"P"</span>, <span class="string">"y"</span>, <span class="string">"t"</span>, <span class="string">"h"</span>, <span class="string">"o"</span>, <span class="string">"n"</span>]
+word = <span class="string">""</span>.<span class="function">join</span>(letters)
+<span class="keyword">print</span>(word)
+
+<span class="comment"># Join with newlines</span>
+lines = [<span class="string">"Line 1"</span>, <span class="string">"Line 2"</span>, <span class="string">"Line 3"</span>]
+text = <span class="string">"\n"</span>.<span class="function">join</span>(lines)
+<span class="keyword">print</span>(text)
+</pre>
+      <div class="output-box">Python is awesome
+Python,is,awesome
+Python
+Line 1
+Line 2
+Line 3</div>
+
+      <div class="example-box">
+        <h4>split() and join() Together</h4>
+<pre class="code-box"><span class="comment"># Normalize spacing in a sentence</span>
+messy = <span class="string">"  too   many    spaces   here  "</span>
+clean = <span class="string">" "</span>.<span class="function">join</span>(messy.<span class="function">split</span>())
+<span class="keyword">print</span>(<span class="string">f"'</span>{clean}<span class="string">'"</span>)
+
+<span class="comment"># Convert between separators</span>
+csv_data = <span class="string">"Alice,Bob,Charlie"</span>
+tab_data = <span class="string">"\t"</span>.<span class="function">join</span>(csv_data.<span class="function">split</span>(<span class="string">","</span>))
+<span class="keyword">print</span>(tab_data)
+</pre>
+        <div class="output-box">'too many spaces here'
+Alice	Bob	Charlie</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Parsing Structured Data</h2>
+
+      <p>Combining split(), slicing, and other methods lets you extract information from structured text.</p>
+
+      <div class="example-box">
+        <h4>Parsing a Log Line</h4>
+<pre class="code-box">log = <span class="string">"2024-03-15 14:30:22 ERROR Database connection failed"</span>
+
+parts = log.<span class="function">split</span>(<span class="string">" "</span>, <span class="number">3</span>)   <span class="comment"># Split into 4 parts max</span>
+date = parts[<span class="number">0</span>]
+time = parts[<span class="number">1</span>]
+level = parts[<span class="number">2</span>]
+message = parts[<span class="number">3</span>]
+
+<span class="keyword">print</span>(<span class="string">f"Date: </span>{date}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Time: </span>{time}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Level: </span>{level}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Message: </span>{message}<span class="string">"</span>)
+</pre>
+        <div class="output-box">Date: 2024-03-15
+Time: 14:30:22
+Level: ERROR
+Message: Database connection failed</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Parsing CSV Data</h4>
+<pre class="code-box">csv_text = <span class="string">"Alice,25,Engineer\nBob,30,Designer\nCharlie,28,Teacher"</span>
+
+<span class="keyword">for</span> line <span class="keyword">in</span> csv_text.<span class="function">split</span>(<span class="string">"\n"</span>):
+    name, age, job = line.<span class="function">split</span>(<span class="string">","</span>)
+    <span class="keyword">print</span>(<span class="string">f"</span>{name}<span class="string"> is </span>{age}<span class="string"> years old and works as a </span>{job}<span class="string">"</span>)
+</pre>
+        <div class="output-box">Alice is 25 years old and works as a Engineer
+Bob is 30 years old and works as a Designer
+Charlie is 28 years old and works as a Teacher</div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Building Strings</h2>
+
+      <p>There are several ways to build strings from data in Python.</p>
+
+      <h3>String Concatenation (+ operator)</h3>
+<pre class="code-box">first = <span class="string">"Hello"</span>
+last = <span class="string">"World"</span>
+result = first + <span class="string">", "</span> + last + <span class="string">"!"</span>
+<span class="keyword">print</span>(result)
+</pre>
+      <div class="output-box">Hello, World!</div>
+
+      <h3>f-strings (Recommended)</h3>
+<pre class="code-box">name = <span class="string">"Alice"</span>
+age = <span class="number">25</span>
+<span class="keyword">print</span>(<span class="string">f"</span>{name}<span class="string"> is </span>{age}<span class="string"> years old"</span>)
+<span class="keyword">print</span>(<span class="string">f"In 5 years, </span>{name}<span class="string"> will be </span>{age + <span class="number">5</span>}<span class="string">"</span>)
+</pre>
+      <div class="output-box">Alice is 25 years old
+In 5 years, Alice will be 30</div>
+
+      <h3>Building with join() (Most Efficient for Many Items)</h3>
+<pre class="code-box"><span class="comment"># More efficient than concatenation in a loop</span>
+parts = []
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    parts.<span class="function">append</span>(<span class="string">f"item</span>{i}<span class="string">"</span>)
+result = <span class="string">", "</span>.<span class="function">join</span>(parts)
+<span class="keyword">print</span>(result)
+</pre>
+      <div class="output-box">item0, item1, item2, item3, item4</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Given <code>data = "John:Doe:35:Engineer:NYC"</code>, split it by ":" and create a formatted sentence with the information.</p>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Multiline Strings</h2>
+
+      <p>Use triple quotes (<code>"""</code> or <code>'''</code>) to create strings that span multiple lines.</p>
+
+<pre class="code-box">poem = <span class="string">"""Roses are red,
+Violets are blue,
+Python is great,
+And so are you!"""</span>
+<span class="keyword">print</span>(poem)
+</pre>
+      <div class="output-box">Roses are red,
+Violets are blue,
+Python is great,
+And so are you!</div>
+
+      <h3>splitlines()</h3>
+      <p>The <code>splitlines()</code> method splits a multiline string into a list of lines.</p>
+
+<pre class="code-box">text = <span class="string">"""Line one
+Line two
+Line three"""</span>
+
+lines = text.<span class="function">splitlines</span>()
+<span class="keyword">print</span>(lines)
+<span class="keyword">print</span>(<span class="string">f"Number of lines: </span>{<span class="function">len</span>(lines)}<span class="string">"</span>)
+</pre>
+      <div class="output-box">['Line one', 'Line two', 'Line three']
+Number of lines: 3</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Raw Strings</h2>
+
+      <div class="definition-box">
+        <strong>Raw String:</strong> A string prefixed with <code>r</code> that treats backslashes as literal characters instead of escape characters. Useful for file paths and regular expressions.
+      </div>
+
+<pre class="code-box"><span class="comment"># Regular string: \n is a newline</span>
+<span class="keyword">print</span>(<span class="string">"Hello\nWorld"</span>)
+
+<span class="comment"># Raw string: \n is literally \n</span>
+<span class="keyword">print</span>(<span class="string">r"Hello\nWorld"</span>)
+
+<span class="comment"># Useful for Windows file paths</span>
+path = <span class="string">r"C:\Users\name\documents\file.txt"</span>
+<span class="keyword">print</span>(path)
+</pre>
+      <div class="output-box">Hello
+World
+Hello\nWorld
+C:\Users\name\documents\file.txt</div>
+
+      <div class="example-box">
+        <h4>Common Escape Characters</h4>
+        <ul>
+          <li><code>\n</code> -- newline</li>
+          <li><code>\t</code> -- tab</li>
+          <li><code>\\</code> -- literal backslash</li>
+          <li><code>\"</code> -- literal double quote inside double-quoted string</li>
+          <li><code>\'</code> -- literal single quote inside single-quoted string</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <ol>
+        <li>What does <code>"a,b,c".split(",")</code> return?</li>
+        <li>What does <code>"-".join(["2024", "03", "15"])</code> return?</li>
+        <li>How do you split a string into individual lines?</li>
+        <li>What does the <code>r</code> prefix do before a string?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>["a", "b", "c"]</code></li>
+          <li><code>"2024-03-15"</code></li>
+          <li>Use <code>.splitlines()</code> or <code>.split("\n")</code></li>
+          <li>It makes the string "raw" -- backslashes are treated as literal characters, not escape sequences</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><code>split()</code> breaks a string into a list; <code>join()</code> combines a list into a string</li>
+        <li><code>split()</code> without arguments splits on any whitespace and strips extra spaces</li>
+        <li><code>join()</code> is called on the separator: <code>",".join(list)</code></li>
+        <li>Use <code>split()</code> and <code>join()</code> together to clean up and transform text</li>
+        <li>Triple quotes create multiline strings; <code>splitlines()</code> breaks them apart</li>
+        <li>Raw strings (<code>r"..."</code>) treat backslashes literally -- useful for paths</li>
+        <li>f-strings are the recommended way to build strings with variables</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="lesson-03-searching-replacing.html" class="btn btn-outline">&larr; Lesson 3: Searching</a>
+      <a href="practice.html" class="btn btn-primary">Practice Problems &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

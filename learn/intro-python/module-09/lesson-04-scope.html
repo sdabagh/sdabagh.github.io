@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about local and global scope in Python functions">
+  <title>Lesson 9.4: Scope – Local vs Global – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-default-keyword-args.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 9.4: Scope &ndash; Local vs Global</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>What scope means in programming</li>
+        <li>How local variables work inside functions</li>
+        <li>How global variables work outside functions</li>
+        <li>How to use the <code>global</code> keyword (and why you usually should not)</li>
+        <li>How Python looks up variable names (the LEGB rule)</li>
+        <li>Best practices for managing scope</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What is Scope?</h2>
+      <p><strong>Scope</strong> determines where in your program a variable can be accessed. A variable defined inside a function cannot be seen outside that function, and vice versa (with some rules).</p>
+
+      <div class="definition-box">
+        <strong>Scope:</strong> The region of a program where a variable is recognized and accessible. Python has two main scopes: <strong>local</strong> (inside a function) and <strong>global</strong> (outside all functions).
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Local Variables</h2>
+      <p>A variable created <em>inside</em> a function is <strong>local</strong> to that function. It only exists while the function is running and cannot be accessed from outside:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">my_function</span>():
+    message = <span class="string">"I am local!"</span>   <span class="comment"># local variable</span>
+    <span class="function">print</span>(message)
+
+<span class="function">my_function</span>()
+
+<span class="comment"># This will cause a NameError:</span>
+<span class="comment"># print(message)  # 'message' does not exist out here</span></pre>
+      <div class="output-box">I am local!</div>
+
+      <p>Function parameters are also local variables:</p>
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">double</span>(x):
+    result = x * <span class="number">2</span>   <span class="comment"># both 'x' and 'result' are local</span>
+    <span class="keyword">return</span> result
+
+<span class="function">print</span>(<span class="function">double</span>(<span class="number">5</span>))
+<span class="comment"># print(x)       # NameError: x is not defined</span>
+<span class="comment"># print(result)  # NameError: result is not defined</span></pre>
+      <div class="output-box">10</div>
+
+      <div class="example-box">
+        <h4>Each Call Gets Its Own Local Variables</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">counter</span>():
+    count = <span class="number">0</span>
+    count += <span class="number">1</span>
+    <span class="function">print</span>(f<span class="string">"count = {count}"</span>)
+
+<span class="function">counter</span>()
+<span class="function">counter</span>()
+<span class="function">counter</span>()</pre>
+        <div class="output-box">count = 1
+count = 1
+count = 1</div>
+        <p>Each call creates a brand-new <code>count</code> variable that starts at 0. The variable from the previous call is gone.</p>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Global Variables</h2>
+      <p>A variable created <em>outside</em> all functions is <strong>global</strong>. Functions can <em>read</em> global variables, but they cannot change them without special syntax:</p>
+
+      <pre class="code-box">greeting = <span class="string">"Hello"</span>   <span class="comment"># global variable</span>
+
+<span class="keyword">def</span> <span class="function">say_hello</span>(name):
+    <span class="comment"># We can READ the global variable</span>
+    <span class="function">print</span>(f<span class="string">"{greeting}, {name}!"</span>)
+
+<span class="function">say_hello</span>(<span class="string">"Alice"</span>)
+<span class="function">print</span>(greeting)  <span class="comment"># still accessible out here</span></pre>
+      <div class="output-box">Hello, Alice!
+Hello</div>
+
+      <h3>Local Shadows Global</h3>
+      <p>If you assign to a variable inside a function, Python creates a <strong>new local variable</strong> that <em>shadows</em> (hides) any global variable with the same name:</p>
+
+      <pre class="code-box">color = <span class="string">"blue"</span>   <span class="comment"># global</span>
+
+<span class="keyword">def</span> <span class="function">paint</span>():
+    color = <span class="string">"red"</span>   <span class="comment"># NEW local variable, does NOT change global</span>
+    <span class="function">print</span>(f<span class="string">"Inside: {color}"</span>)
+
+<span class="function">paint</span>()
+<span class="function">print</span>(f<span class="string">"Outside: {color}"</span>)</pre>
+      <div class="output-box">Inside: red
+Outside: blue</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. The global Keyword</h2>
+      <p>If you truly need to modify a global variable inside a function, use the <code>global</code> keyword:</p>
+
+      <pre class="code-box">score = <span class="number">0</span>
+
+<span class="keyword">def</span> <span class="function">add_points</span>(points):
+    <span class="keyword">global</span> score  <span class="comment"># tells Python to use the global variable</span>
+    score += points
+    <span class="function">print</span>(f<span class="string">"Score is now: {score}"</span>)
+
+<span class="function">add_points</span>(<span class="number">10</span>)
+<span class="function">add_points</span>(<span class="number">5</span>)
+<span class="function">print</span>(f<span class="string">"Final score: {score}"</span>)</pre>
+      <div class="output-box">Score is now: 10
+Score is now: 15
+Final score: 15</div>
+
+      <div class="warning-box">
+        <strong>Best Practice:</strong> Avoid using <code>global</code> whenever possible. It makes code harder to understand and debug because any function could change the variable. Instead, pass values as arguments and return results.
+      </div>
+
+      <div class="example-box">
+        <h4>Better Alternative: Use Parameters and Return</h4>
+        <pre class="code-box"><span class="comment"># Instead of using global:</span>
+<span class="keyword">def</span> <span class="function">add_points</span>(current_score, points):
+    <span class="string">"""Add points and return the new score."""</span>
+    <span class="keyword">return</span> current_score + points
+
+score = <span class="number">0</span>
+score = <span class="function">add_points</span>(score, <span class="number">10</span>)
+score = <span class="function">add_points</span>(score, <span class="number">5</span>)
+<span class="function">print</span>(f<span class="string">"Final score: {score}"</span>)</pre>
+        <div class="output-box">Final score: 15</div>
+        <p>This approach is clearer: you can see exactly where <code>score</code> changes.</p>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. The LEGB Rule</h2>
+      <p>When Python encounters a variable name, it searches for it in this order:</p>
+
+      <div class="definition-box">
+        <strong>LEGB Rule:</strong>
+        <ol>
+          <li><strong>L</strong>ocal &mdash; inside the current function</li>
+          <li><strong>E</strong>nclosing &mdash; inside any enclosing (outer) function</li>
+          <li><strong>G</strong>lobal &mdash; at the module (file) level</li>
+          <li><strong>B</strong>uilt-in &mdash; Python's built-in names (<code>print</code>, <code>len</code>, etc.)</li>
+        </ol>
+        Python stops searching as soon as it finds the name.
+      </div>
+
+      <pre class="code-box">x = <span class="string">"global"</span>
+
+<span class="keyword">def</span> <span class="function">outer</span>():
+    x = <span class="string">"enclosing"</span>
+
+    <span class="keyword">def</span> <span class="function">inner</span>():
+        x = <span class="string">"local"</span>
+        <span class="function">print</span>(f<span class="string">"inner: {x}"</span>)
+
+    <span class="function">inner</span>()
+    <span class="function">print</span>(f<span class="string">"outer: {x}"</span>)
+
+<span class="function">outer</span>()
+<span class="function">print</span>(f<span class="string">"global: {x}"</span>)</pre>
+      <div class="output-box">inner: local
+outer: enclosing
+global: global</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Best Practices</h2>
+
+      <div class="example-box">
+        <h4>Scope Best Practices</h4>
+        <ul>
+          <li><strong>Prefer local variables:</strong> Keep data inside functions whenever possible</li>
+          <li><strong>Pass data through parameters:</strong> Functions should get their input from arguments, not global variables</li>
+          <li><strong>Return results:</strong> Use <code>return</code> to send data back rather than modifying globals</li>
+          <li><strong>Use <code>global</code> sparingly:</strong> Only when absolutely necessary (like configuration constants)</li>
+          <li><strong>Use ALL_CAPS for constants:</strong> If you define a global that should not change, name it in uppercase: <code>MAX_SIZE = 100</code></li>
+          <li><strong>Avoid shadowing:</strong> Do not give local variables the same name as global ones or built-in functions</li>
+        </ul>
+      </div>
+
+      <pre class="code-box"><span class="comment"># BAD: Shadowing built-in 'list'</span>
+<span class="comment"># list = [1, 2, 3]  # Now you can't use list() anymore!</span>
+
+<span class="comment"># GOOD: Use a descriptive name</span>
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+
+<span class="comment"># BAD: Relying on global state</span>
+<span class="comment"># total = 0</span>
+<span class="comment"># def add(x):</span>
+<span class="comment">#     global total</span>
+<span class="comment">#     total += x</span>
+
+<span class="comment"># GOOD: Pure function</span>
+<span class="keyword">def</span> <span class="function">add</span>(total, x):
+    <span class="keyword">return</span> total + x</pre>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What does this code print?</p>
+      <pre class="code-box">x = <span class="number">10</span>
+
+<span class="keyword">def</span> <span class="function">change_x</span>():
+    x = <span class="number">20</span>
+
+<span class="function">change_x</span>()
+<span class="function">print</span>(x)</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer: <code>10</code></strong></p>
+        <p>The function creates a <em>local</em> variable <code>x</code> set to 20. This does not affect the global <code>x</code>. Without the <code>global</code> keyword, the assignment inside the function creates a new local variable.</p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <ol>
+        <li>Create a global variable <code>name = "World"</code>. Write a function that prints it without modifying it.</li>
+        <li>Write a function that tries to change the global <code>name</code> without using <code>global</code>. Print <code>name</code> after calling it to verify it did not change.</li>
+        <li>Rewrite the function using <code>global</code> and verify the change works.</li>
+        <li>Finally, refactor to avoid <code>global</code> entirely by using parameters and return values.</li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Local variables</strong> exist only inside the function where they are created</li>
+        <li><strong>Global variables</strong> exist at the module level and can be read (but not modified) by functions</li>
+        <li>Assigning to a variable inside a function creates a <strong>local</strong> variable, even if a global with the same name exists</li>
+        <li>The <code>global</code> keyword lets you modify global variables from within a function, but is best avoided</li>
+        <li>Python resolves names using the <strong>LEGB rule</strong>: Local, Enclosing, Global, Built-in</li>
+        <li>Best practice: pass data in through parameters and return results</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="lesson-03-default-keyword-args.html">&larr; Previous: Default &amp; Keyword Args</a>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn to work with CSV files in Python using the csv module">
+  <title>Lesson 11.4: Working with CSV Data – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-with-statement.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 11.4: Working with CSV Data</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>What CSV files are and why they are useful</li>
+        <li>How to read CSV files with <code>csv.reader</code></li>
+        <li>How to write CSV files with <code>csv.writer</code></li>
+        <li>Using <code>DictReader</code> and <code>DictWriter</code> for column-based access</li>
+        <li>Practical examples with real-world-style data</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What Are CSV Files?</h2>
+      <p><strong>CSV</strong> stands for Comma-Separated Values. It is one of the most common formats for storing tabular data (data organized in rows and columns). You can open CSV files in spreadsheet programs like Excel or Google Sheets.</p>
+
+      <div class="definition-box">
+        <strong>CSV file:</strong> A plain text file where each line is a row of data, and values in each row are separated by commas. The first row often contains column headers.
+      </div>
+
+      <div class="example-box">
+        <h4>Example: students.csv</h4>
+        <pre class="code-box">name,age,grade
+Alice,20,A
+Bob,22,B
+Charlie,21,A
+Diana,23,B+</pre>
+      </div>
+
+      <p>Python's built-in <code>csv</code> module handles the tricky parts of reading and writing CSV files, like dealing with commas inside quoted values.</p>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Reading CSV Files with csv.reader</h2>
+      <p>The <code>csv.reader</code> reads each row as a list of strings:</p>
+
+      <div class="example-box">
+        <h4>Basic CSV Reading</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"students.csv"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> file:
+    reader = csv.<span class="function">reader</span>(file)
+
+    <span class="comment"># Read the header row first</span>
+    header = <span class="function">next</span>(reader)
+    <span class="function">print</span>(<span class="string">"Columns:"</span>, header)
+
+    <span class="comment"># Read each data row</span>
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        <span class="function">print</span>(row)</pre>
+        <div class="output-box">Columns: ['name', 'age', 'grade']<br>['Alice', '20', 'A']<br>['Bob', '22', 'B']<br>['Charlie', '21', 'A']<br>['Diana', '23', 'B+']</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Accessing Individual Values</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"students.csv"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> file:
+    reader = csv.<span class="function">reader</span>(file)
+    <span class="function">next</span>(reader)  <span class="comment"># Skip header</span>
+
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        name = row[<span class="number">0</span>]
+        age = row[<span class="number">1</span>]
+        grade = row[<span class="number">2</span>]
+        <span class="function">print</span>(<span class="string">f"</span>{name}<span class="string"> is </span>{age}<span class="string"> years old with grade </span>{grade}<span class="string">"</span>)</pre>
+        <div class="output-box">Alice is 20 years old with grade A<br>Bob is 22 years old with grade B<br>Charlie is 21 years old with grade A<br>Diana is 23 years old with grade B+</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Writing CSV Files with csv.writer</h2>
+
+      <div class="example-box">
+        <h4>Writing a CSV File</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+<span class="comment"># Data to write</span>
+students = [
+    [<span class="string">"Alice"</span>, <span class="number">95</span>, <span class="string">"A"</span>],
+    [<span class="string">"Bob"</span>, <span class="number">87</span>, <span class="string">"B+"</span>],
+    [<span class="string">"Charlie"</span>, <span class="number">92</span>, <span class="string">"A-"</span>],
+    [<span class="string">"Diana"</span>, <span class="number">78</span>, <span class="string">"C+"</span>]
+]
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"grades.csv"</span>, <span class="string">"w"</span>, newline=<span class="string">""</span>) <span class="keyword">as</span> file:
+    writer = csv.<span class="function">writer</span>(file)
+
+    <span class="comment"># Write the header</span>
+    writer.<span class="function">writerow</span>([<span class="string">"Name"</span>, <span class="string">"Score"</span>, <span class="string">"Grade"</span>])
+
+    <span class="comment"># Write all data rows</span>
+    writer.<span class="function">writerows</span>(students)
+
+<span class="function">print</span>(<span class="string">"CSV file created!"</span>)</pre>
+      </div>
+
+      <div class="definition-box">
+        <strong>Why newline=""?</strong> When writing CSV files, include <code>newline=""</code> in the <code>open()</code> call. This prevents extra blank lines from appearing between rows on Windows.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. DictReader: Access Columns by Name</h2>
+      <p><code>DictReader</code> reads each row as a dictionary, using the header row as keys. This makes your code much more readable:</p>
+
+      <div class="example-box">
+        <h4>Reading with DictReader</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"students.csv"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> file:
+    reader = csv.<span class="function">DictReader</span>(file)
+
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        <span class="comment"># Access values by column name!</span>
+        <span class="function">print</span>(<span class="string">f"</span>{row[<span class="string">'name'</span>]}<span class="string"> - Age: </span>{row[<span class="string">'age'</span>]}<span class="string">, Grade: </span>{row[<span class="string">'grade'</span>]}<span class="string">"</span>)</pre>
+        <div class="output-box">Alice - Age: 20, Grade: A<br>Bob - Age: 22, Grade: B<br>Charlie - Age: 21, Grade: A<br>Diana - Age: 23, Grade: B+</div>
+      </div>
+
+      <p>Using <code>row['name']</code> is much clearer than <code>row[0]</code> because you do not have to remember which column number corresponds to which data.</p>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. DictWriter: Write with Column Names</h2>
+
+      <div class="example-box">
+        <h4>Writing with DictWriter</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+students = [
+    {<span class="string">"name"</span>: <span class="string">"Alice"</span>, <span class="string">"score"</span>: <span class="number">95</span>, <span class="string">"grade"</span>: <span class="string">"A"</span>},
+    {<span class="string">"name"</span>: <span class="string">"Bob"</span>, <span class="string">"score"</span>: <span class="number">87</span>, <span class="string">"grade"</span>: <span class="string">"B+"</span>},
+    {<span class="string">"name"</span>: <span class="string">"Charlie"</span>, <span class="string">"score"</span>: <span class="number">92</span>, <span class="string">"grade"</span>: <span class="string">"A-"</span>}
+]
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"results.csv"</span>, <span class="string">"w"</span>, newline=<span class="string">""</span>) <span class="keyword">as</span> file:
+    fieldnames = [<span class="string">"name"</span>, <span class="string">"score"</span>, <span class="string">"grade"</span>]
+    writer = csv.<span class="function">DictWriter</span>(file, fieldnames=fieldnames)
+
+    writer.<span class="function">writeheader</span>()   <span class="comment"># Write the column names</span>
+    writer.<span class="function">writerows</span>(students)  <span class="comment"># Write all rows</span>
+
+<span class="function">print</span>(<span class="string">"Results saved!"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Real-World Example: Analyzing Data</h2>
+
+      <div class="example-box">
+        <h4>Finding the Highest Score</h4>
+        <pre class="code-box"><span class="keyword">import</span> csv
+
+highest_score = <span class="number">0</span>
+top_student = <span class="string">""</span>
+
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"grades.csv"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> file:
+    reader = csv.<span class="function">DictReader</span>(file)
+
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        score = <span class="function">int</span>(row[<span class="string">"Score"</span>])
+        <span class="keyword">if</span> score > highest_score:
+            highest_score = score
+            top_student = row[<span class="string">"Name"</span>]
+
+<span class="function">print</span>(<span class="string">f"Top student: </span>{top_student}<span class="string"> with </span>{highest_score}<span class="string"> points"</span>)</pre>
+        <div class="output-box">Top student: Alice with 95 points</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>What is the advantage of using <code>DictReader</code> over <code>csv.reader</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p><code>DictReader</code> lets you access values by <strong>column name</strong> (e.g., <code>row['name']</code>) instead of by index number (e.g., <code>row[0]</code>). This makes your code more readable and less error-prone, especially when working with files that have many columns.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>CSV (Comma-Separated Values) is a common format for tabular data</li>
+        <li><code>csv.reader</code> reads rows as lists; <code>DictReader</code> reads rows as dictionaries</li>
+        <li><code>csv.writer</code> writes lists; <code>DictWriter</code> writes dictionaries</li>
+        <li>Use <code>next(reader)</code> to skip the header row when using <code>csv.reader</code></li>
+        <li>Always use <code>newline=""</code> when opening files for CSV writing</li>
+        <li>CSV values are always read as strings - convert to int/float when needed</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-03-with-statement.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

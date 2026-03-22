@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn to organize Python code with custom modules, __name__ == '__main__', and project structure">
+  <title>Lesson 10.4: Organizing Your Code – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+    .file-tree { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.8; }
+    .file-tree .folder { color: #dcdcaa; }
+    .file-tree .file { color: #9cdcfe; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-installing-packages.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 10.4: Organizing Your Code</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to create your own Python modules</li>
+        <li>What <code>__name__ == "__main__"</code> means and why it matters</li>
+        <li>How to structure a Python project</li>
+        <li>Best practices for organizing code across files</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Creating Your Own Modules</h2>
+      <p>Any Python file can be used as a module. If you save functions in a <code>.py</code> file, you can import and use them in other files. This is one of the most powerful ways to organize your code.</p>
+
+      <div class="example-box">
+        <h4>Step 1: Create a module file (helpers.py)</h4>
+        <pre class="code-box"><span class="comment"># helpers.py - a custom module with useful functions</span>
+
+<span class="keyword">def</span> <span class="function">greet</span>(name):
+    <span class="string">"""Return a greeting message."""</span>
+    <span class="keyword">return</span> <span class="string">f"Hello, </span>{name}<span class="string">! Welcome!"</span>
+
+<span class="keyword">def</span> <span class="function">calculate_average</span>(numbers):
+    <span class="string">"""Calculate the average of a list of numbers."""</span>
+    <span class="keyword">if</span> <span class="function">len</span>(numbers) == <span class="number">0</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+    <span class="keyword">return</span> <span class="function">sum</span>(numbers) / <span class="function">len</span>(numbers)
+
+<span class="keyword">def</span> <span class="function">is_even</span>(number):
+    <span class="string">"""Check if a number is even."""</span>
+    <span class="keyword">return</span> number % <span class="number">2</span> == <span class="number">0</span></pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Step 2: Use the module in another file (main.py)</h4>
+        <pre class="code-box"><span class="comment"># main.py - uses functions from helpers.py</span>
+<span class="keyword">import</span> helpers
+
+<span class="comment"># Use functions from the helpers module</span>
+message = helpers.<span class="function">greet</span>(<span class="string">"Alice"</span>)
+<span class="function">print</span>(message)
+
+scores = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">95</span>, <span class="number">88</span>]
+avg = helpers.<span class="function">calculate_average</span>(scores)
+<span class="function">print</span>(<span class="string">f"Average score: </span>{avg}<span class="string">"</span>)
+
+<span class="function">print</span>(helpers.<span class="function">is_even</span>(<span class="number">7</span>))  <span class="comment"># False</span>
+<span class="function">print</span>(helpers.<span class="function">is_even</span>(<span class="number">4</span>))  <span class="comment"># True</span></pre>
+        <div class="output-box">Hello, Alice! Welcome!<br>Average score: 87.6<br>False<br>True</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Key rule:</strong> Both files must be in the <strong>same folder</strong> for the import to work. The module file name (without .py) becomes the name you use in the import statement.
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Understanding __name__ == "__main__"</h2>
+      <p>You will often see this pattern in Python files. It controls what code runs when a file is executed directly versus when it is imported as a module.</p>
+
+      <div class="definition-box">
+        <strong>__name__:</strong> A special variable that Python sets automatically. When a file is run directly, <code>__name__</code> is set to <code>"__main__"</code>. When a file is imported as a module, <code>__name__</code> is set to the module's name.
+      </div>
+
+      <div class="example-box">
+        <h4>Example: math_tools.py</h4>
+        <pre class="code-box"><span class="comment"># math_tools.py</span>
+
+<span class="keyword">def</span> <span class="function">double</span>(n):
+    <span class="keyword">return</span> n * <span class="number">2</span>
+
+<span class="keyword">def</span> <span class="function">triple</span>(n):
+    <span class="keyword">return</span> n * <span class="number">3</span>
+
+<span class="comment"># This code ONLY runs when math_tools.py is run directly</span>
+<span class="comment"># It does NOT run when math_tools is imported</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="function">print</span>(<span class="string">"Testing math_tools..."</span>)
+    <span class="function">print</span>(<span class="function">double</span>(<span class="number">5</span>))   <span class="comment"># 10</span>
+    <span class="function">print</span>(<span class="function">triple</span>(<span class="number">5</span>))  <span class="comment"># 15</span>
+    <span class="function">print</span>(<span class="string">"All tests passed!"</span>)</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>When Run Directly vs. Imported</h4>
+        <pre class="code-box"><span class="comment"># Running directly: python math_tools.py</span>
+<span class="comment"># Output:</span>
+<span class="comment"># Testing math_tools...</span>
+<span class="comment"># 10</span>
+<span class="comment"># 15</span>
+<span class="comment"># All tests passed!</span>
+
+<span class="comment"># Importing in another file:</span>
+<span class="keyword">import</span> math_tools
+<span class="comment"># No output! The test code doesn't run.</span>
+
+<span class="comment"># But the functions are available:</span>
+<span class="function">print</span>(math_tools.<span class="function">double</span>(<span class="number">8</span>))  <span class="comment"># 16</span></pre>
+        <div class="output-box">16</div>
+      </div>
+
+      <p>This pattern is incredibly useful because it lets you:</p>
+      <ul>
+        <li>Test your module by running it directly</li>
+        <li>Import it into other files without running the test code</li>
+        <li>Include example usage that does not interfere with imports</li>
+      </ul>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Project Structure</h2>
+      <p>As your programs grow, organizing code into multiple files becomes essential. Here is a typical project structure:</p>
+
+      <div class="file-tree">
+<span class="folder">my_project/</span>
+    <span class="file">main.py</span>              <span class="comment"># Entry point - runs the program</span>
+    <span class="file">helpers.py</span>           <span class="comment"># Utility functions</span>
+    <span class="file">data_processing.py</span>   <span class="comment"># Data-related functions</span>
+    <span class="file">requirements.txt</span>     <span class="comment"># Package dependencies</span>
+    <span class="file">README.md</span>            <span class="comment"># Project description</span>
+      </div>
+
+      <div class="example-box">
+        <h4>A Mini Project Example</h4>
+        <pre class="code-box"><span class="comment"># data_processing.py</span>
+<span class="keyword">def</span> <span class="function">clean_name</span>(name):
+    <span class="string">"""Remove extra spaces and capitalize properly."""</span>
+    <span class="keyword">return</span> name.<span class="function">strip</span>().<span class="function">title</span>()
+
+<span class="keyword">def</span> <span class="function">validate_age</span>(age):
+    <span class="string">"""Check if age is a valid positive number."""</span>
+    <span class="keyword">return</span> <span class="function">isinstance</span>(age, <span class="function">int</span>) <span class="keyword">and</span> age > <span class="number">0</span>
+
+<span class="keyword">def</span> <span class="function">format_record</span>(name, age):
+    <span class="string">"""Create a formatted string for a person's record."""</span>
+    <span class="keyword">return</span> <span class="string">f"</span>{<span class="function">clean_name</span>(name)}<span class="string"> (age </span>{age}<span class="string">)"</span></pre>
+
+        <pre class="code-box"><span class="comment"># main.py</span>
+<span class="keyword">from</span> data_processing <span class="keyword">import</span> clean_name, validate_age, format_record
+
+<span class="comment"># Process a list of people</span>
+people = [
+    (<span class="string">"  alice  "</span>, <span class="number">30</span>),
+    (<span class="string">"BOB"</span>, <span class="number">25</span>),
+    (<span class="string">"  charlie johnson  "</span>, <span class="number">35</span>)
+]
+
+<span class="keyword">for</span> name, age <span class="keyword">in</span> people:
+    <span class="keyword">if</span> <span class="function">validate_age</span>(age):
+        <span class="function">print</span>(<span class="function">format_record</span>(name, age))</pre>
+        <div class="output-box">Alice (age 30)<br>Bob (age 25)<br>Charlie Johnson (age 35)</div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Best Practices</h2>
+      <p>Follow these guidelines to keep your code organized and maintainable:</p>
+
+      <div class="example-box">
+        <h4>Do: Group Related Functions Together</h4>
+        <pre class="code-box"><span class="comment"># string_utils.py - all string-related helpers</span>
+<span class="keyword">def</span> <span class="function">reverse_string</span>(text):
+    <span class="keyword">return</span> text[::-<span class="number">1</span>]
+
+<span class="keyword">def</span> <span class="function">count_vowels</span>(text):
+    <span class="keyword">return</span> <span class="function">sum</span>(<span class="number">1</span> <span class="keyword">for</span> c <span class="keyword">in</span> text.<span class="function">lower</span>() <span class="keyword">if</span> c <span class="keyword">in</span> <span class="string">"aeiou"</span>)
+
+<span class="keyword">def</span> <span class="function">is_palindrome</span>(text):
+    clean = text.<span class="function">lower</span>().<span class="function">replace</span>(<span class="string">" "</span>, <span class="string">""</span>)
+    <span class="keyword">return</span> clean == clean[::-<span class="number">1</span>]</pre>
+      </div>
+
+      <ul style="line-height: 1.8;">
+        <li><strong>One purpose per module:</strong> Each file should have a clear, focused purpose</li>
+        <li><strong>Use descriptive file names:</strong> <code>data_processing.py</code> is better than <code>stuff.py</code></li>
+        <li><strong>Add docstrings:</strong> Document what each function does</li>
+        <li><strong>Use __name__ == "__main__":</strong> Add test code inside this guard</li>
+        <li><strong>Keep imports at the top:</strong> All import statements go at the beginning of the file</li>
+        <li><strong>Avoid circular imports:</strong> If module A imports B and B imports A, you will get errors</li>
+      </ul>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>You have a file called <code>utils.py</code> with a function <code>format_name()</code>. How would you import and call that function in another file?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p>You have two main options:</p>
+        <p><strong>Option 1:</strong> <code>import utils</code> then call <code>utils.format_name("alice")</code></p>
+        <p><strong>Option 2:</strong> <code>from utils import format_name</code> then call <code>format_name("alice")</code></p>
+        <p>Both files must be in the same directory for the import to work.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Any <code>.py</code> file can be imported as a module</li>
+        <li>Use <code>if __name__ == "__main__":</code> to separate reusable code from test/run code</li>
+        <li>Group related functions in the same module file</li>
+        <li>Use descriptive file names and add docstrings to functions</li>
+        <li>Keep your project organized: one main entry point, separate modules for different tasks</li>
+        <li>Both the importing file and the module must be in the same directory (for simple imports)</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-03-installing-packages.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

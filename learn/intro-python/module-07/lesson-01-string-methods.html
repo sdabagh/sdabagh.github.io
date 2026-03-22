@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python string methods: upper, lower, title, strip, replace, count, startswith, endswith">
+  <title>Lesson 7.1: String Methods – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 7 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-string-slicing.html">Lesson 2 &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 7.1: String Methods</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Change the case of strings using upper(), lower(), and title()</li>
+        <li>Remove whitespace using strip(), lstrip(), and rstrip()</li>
+        <li>Replace parts of strings using replace()</li>
+        <li>Count occurrences with count()</li>
+        <li>Check string beginnings and endings with startswith() and endswith()</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>Strings Are Immutable</h2>
+
+      <div class="definition-box">
+        <strong>Immutable:</strong> Strings cannot be changed in place. Every string method returns a <em>new</em> string -- the original remains unchanged. This is the key difference from lists!
+      </div>
+
+<pre class="code-box">name = <span class="string">"alice"</span>
+result = name.<span class="function">upper</span>()
+
+<span class="keyword">print</span>(result)    <span class="comment"># New string</span>
+<span class="keyword">print</span>(name)      <span class="comment"># Original unchanged</span>
+</pre>
+      <div class="output-box">ALICE
+alice</div>
+
+      <p>To keep the result, you must assign it to a variable (either the same variable or a new one).</p>
+
+<pre class="code-box">name = <span class="string">"alice"</span>
+name = name.<span class="function">upper</span>()   <span class="comment"># Reassign to same variable</span>
+<span class="keyword">print</span>(name)
+</pre>
+      <div class="output-box">ALICE</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Case Conversion Methods</h2>
+
+      <h3>upper() and lower()</h3>
+<pre class="code-box">message = <span class="string">"Hello, World!"</span>
+
+<span class="keyword">print</span>(message.<span class="function">upper</span>())   <span class="comment"># All uppercase</span>
+<span class="keyword">print</span>(message.<span class="function">lower</span>())   <span class="comment"># All lowercase</span>
+</pre>
+      <div class="output-box">HELLO, WORLD!
+hello, world!</div>
+
+      <h3>title() and capitalize()</h3>
+<pre class="code-box">text = <span class="string">"the quick brown fox"</span>
+
+<span class="keyword">print</span>(text.<span class="function">title</span>())       <span class="comment"># Capitalize Each Word</span>
+<span class="keyword">print</span>(text.<span class="function">capitalize</span>())   <span class="comment"># Capitalize first letter only</span>
+</pre>
+      <div class="output-box">The Quick Brown Fox
+The quick brown fox</div>
+
+      <div class="example-box">
+        <h4>Practical Use: Case-Insensitive Comparison</h4>
+<pre class="code-box">user_input = <span class="string">"YES"</span>
+
+<span class="comment"># Compare in lowercase so "YES", "Yes", "yes" all work</span>
+<span class="keyword">if</span> user_input.<span class="function">lower</span>() == <span class="string">"yes"</span>:
+    <span class="keyword">print</span>(<span class="string">"User confirmed!"</span>)
+</pre>
+        <div class="output-box">User confirmed!</div>
+      </div>
+
+      <h3>swapcase()</h3>
+<pre class="code-box">text = <span class="string">"Hello World"</span>
+<span class="keyword">print</span>(text.<span class="function">swapcase</span>())
+</pre>
+      <div class="output-box">hELLO wORLD</div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Stripping Whitespace</h2>
+
+      <p>The <code>strip()</code> family of methods removes leading and/or trailing whitespace (spaces, tabs, newlines).</p>
+
+<pre class="code-box">messy = <span class="string">"   Hello, World!   "</span>
+
+<span class="keyword">print</span>(<span class="string">f"'{messy.<span class="function">strip</span>()}'"</span>)    <span class="comment"># Both sides</span>
+<span class="keyword">print</span>(<span class="string">f"'{messy.<span class="function">lstrip</span>()}'"</span>)   <span class="comment"># Left side only</span>
+<span class="keyword">print</span>(<span class="string">f"'{messy.<span class="function">rstrip</span>()}'"</span>)   <span class="comment"># Right side only</span>
+</pre>
+      <div class="output-box">'Hello, World!'
+'Hello, World!   '
+'   Hello, World!'</div>
+
+      <h3>Stripping Specific Characters</h3>
+      <p>You can also strip specific characters by passing them as an argument.</p>
+
+<pre class="code-box">data = <span class="string">"###Price: $25.99###"</span>
+<span class="keyword">print</span>(data.<span class="function">strip</span>(<span class="string">"#"</span>))
+
+url = <span class="string">"https://example.com/"</span>
+<span class="keyword">print</span>(url.<span class="function">rstrip</span>(<span class="string">"/"</span>))
+</pre>
+      <div class="output-box">Price: $25.99
+https://example.com</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Take the string <code>"  Welcome to Python!  "</code>. Strip it, convert it to uppercase, and print the result.</p>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>The replace() Method</h2>
+
+      <p><code>replace(old, new)</code> returns a new string with all occurrences of <code>old</code> replaced by <code>new</code>.</p>
+
+<pre class="code-box">sentence = <span class="string">"I like cats. Cats are great."</span>
+<span class="keyword">print</span>(sentence.<span class="function">replace</span>(<span class="string">"cats"</span>, <span class="string">"dogs"</span>))
+</pre>
+      <div class="output-box">I like dogs. Cats are great.</div>
+
+      <p>Note that <code>replace()</code> is case-sensitive. "Cats" was not replaced because it starts with a capital C.</p>
+
+      <h3>Limiting Replacements</h3>
+      <p>You can limit how many replacements are made with a third argument.</p>
+
+<pre class="code-box">text = <span class="string">"one fish, two fish, red fish, blue fish"</span>
+<span class="keyword">print</span>(text.<span class="function">replace</span>(<span class="string">"fish"</span>, <span class="string">"bird"</span>, <span class="number">2</span>))   <span class="comment"># Replace only first 2</span>
+</pre>
+      <div class="output-box">one bird, two bird, red fish, blue fish</div>
+
+      <div class="example-box">
+        <h4>Chaining replace() Calls</h4>
+<pre class="code-box"><span class="comment"># Clean up a phone number</span>
+phone = <span class="string">"(555) 123-4567"</span>
+clean = phone.<span class="function">replace</span>(<span class="string">"("</span>, <span class="string">""</span>).<span class="function">replace</span>(<span class="string">")"</span>, <span class="string">""</span>).<span class="function">replace</span>(<span class="string">"-"</span>, <span class="string">""</span>).<span class="function">replace</span>(<span class="string">" "</span>, <span class="string">""</span>)
+<span class="keyword">print</span>(clean)
+</pre>
+        <div class="output-box">5551234567</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>The count() Method</h2>
+
+      <p><code>count()</code> returns the number of non-overlapping occurrences of a substring.</p>
+
+<pre class="code-box">text = <span class="string">"banana"</span>
+<span class="keyword">print</span>(text.<span class="function">count</span>(<span class="string">"a"</span>))
+<span class="keyword">print</span>(text.<span class="function">count</span>(<span class="string">"an"</span>))
+<span class="keyword">print</span>(text.<span class="function">count</span>(<span class="string">"z"</span>))
+</pre>
+      <div class="output-box">3
+2
+0</div>
+
+      <div class="example-box">
+        <h4>Counting Words in a Sentence</h4>
+<pre class="code-box">paragraph = <span class="string">"Python is great. Python is popular. Python is fun."</span>
+<span class="keyword">print</span>(<span class="string">f"'Python' appears </span>{paragraph.<span class="function">count</span>(<span class="string">'Python'</span>)}<span class="string"> times"</span>)
+<span class="keyword">print</span>(<span class="string">f"Sentences: </span>{paragraph.<span class="function">count</span>(<span class="string">'.'</span>)}<span class="string">"</span>)
+</pre>
+        <div class="output-box">'Python' appears 3 times
+Sentences: 3</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>startswith() and endswith()</h2>
+
+      <p>These methods return <code>True</code> or <code>False</code> based on whether a string starts or ends with a given substring.</p>
+
+<pre class="code-box">filename = <span class="string">"report_2024.pdf"</span>
+
+<span class="keyword">print</span>(filename.<span class="function">startswith</span>(<span class="string">"report"</span>))
+<span class="keyword">print</span>(filename.<span class="function">endswith</span>(<span class="string">".pdf"</span>))
+<span class="keyword">print</span>(filename.<span class="function">endswith</span>(<span class="string">".txt"</span>))
+</pre>
+      <div class="output-box">True
+True
+False</div>
+
+      <div class="example-box">
+        <h4>Practical Use: File Type Checking</h4>
+<pre class="code-box">files = [<span class="string">"photo.jpg"</span>, <span class="string">"report.pdf"</span>, <span class="string">"data.csv"</span>, <span class="string">"image.png"</span>, <span class="string">"notes.txt"</span>]
+
+images = [f <span class="keyword">for</span> f <span class="keyword">in</span> files <span class="keyword">if</span> f.<span class="function">endswith</span>((<span class="string">".jpg"</span>, <span class="string">".png"</span>))]
+<span class="keyword">print</span>(<span class="string">"Image files:"</span>, images)
+</pre>
+        <div class="output-box">Image files: ['photo.jpg', 'image.png']</div>
+        <p>You can pass a tuple of strings to check multiple endings at once!</p>
+      </div>
+
+      <h3>Checking Methods: isdigit(), isalpha(), isalnum()</h3>
+<pre class="code-box"><span class="keyword">print</span>(<span class="string">"123"</span>.<span class="function">isdigit</span>())     <span class="comment"># All digits?</span>
+<span class="keyword">print</span>(<span class="string">"hello"</span>.<span class="function">isalpha</span>())   <span class="comment"># All letters?</span>
+<span class="keyword">print</span>(<span class="string">"abc123"</span>.<span class="function">isalnum</span>())  <span class="comment"># All letters or digits?</span>
+<span class="keyword">print</span>(<span class="string">"hello"</span>.<span class="function">islower</span>())   <span class="comment"># All lowercase?</span>
+<span class="keyword">print</span>(<span class="string">"HELLO"</span>.<span class="function">isupper</span>())   <span class="comment"># All uppercase?</span>
+</pre>
+      <div class="output-box">True
+True
+True
+True
+True</div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <ol>
+        <li>What does <code>"hello world".title()</code> return?</li>
+        <li>What does <code>"  python  ".strip()</code> return?</li>
+        <li>Does <code>replace()</code> modify the original string?</li>
+        <li>What does <code>"banana".count("na")</code> return?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>"Hello World"</code></li>
+          <li><code>"python"</code></li>
+          <li>No. Strings are immutable. <code>replace()</code> returns a new string.</li>
+          <li><code>2</code></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Strings are <strong>immutable</strong> -- all methods return a new string, never modify the original</li>
+        <li><code>upper()</code>, <code>lower()</code>, <code>title()</code> change case; useful for comparisons</li>
+        <li><code>strip()</code>, <code>lstrip()</code>, <code>rstrip()</code> remove whitespace (or specified characters)</li>
+        <li><code>replace(old, new)</code> substitutes all occurrences; optionally limit with a count</li>
+        <li><code>count()</code> returns how many times a substring appears</li>
+        <li><code>startswith()</code> and <code>endswith()</code> check string boundaries; accept tuples for multiple checks</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="index.html" class="btn btn-outline">&larr; Module 7 Home</a>
+      <a href="lesson-02-string-slicing.html" class="btn btn-primary">Lesson 2: String Slicing &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

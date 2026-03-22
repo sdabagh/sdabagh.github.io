@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python list comprehensions: concise syntax for creating and transforming lists">
+  <title>Lesson 6.4: List Comprehensions – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-03-slicing-indexing.html">&larr; Lesson 3</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 6.4: List Comprehensions</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Write list comprehensions to create lists concisely</li>
+        <li>Add conditions to filter elements in comprehensions</li>
+        <li>Convert between traditional for-loops and list comprehensions</li>
+        <li>Know when to use comprehensions vs. traditional loops</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>What is a List Comprehension?</h2>
+
+      <div class="definition-box">
+        <strong>List Comprehension:</strong> A concise, one-line way to create a new list by applying an expression to each item in an existing sequence. Syntax: <code>[expression for item in iterable]</code>
+      </div>
+
+      <p>List comprehensions let you create lists in a single line of code. They are one of Python's most popular features because they make code shorter and more readable for simple transformations.</p>
+
+      <h3>Traditional Loop vs. List Comprehension</h3>
+
+<pre class="code-box"><span class="comment"># Traditional for-loop approach</span>
+squares = []
+<span class="keyword">for</span> n <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    squares.<span class="function">append</span>(n ** <span class="number">2</span>)
+<span class="keyword">print</span>(squares)
+
+<span class="comment"># Same thing with a list comprehension</span>
+squares = [n ** <span class="number">2</span> <span class="keyword">for</span> n <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>)]
+<span class="keyword">print</span>(squares)
+</pre>
+      <div class="output-box">[1, 4, 9, 16, 25]
+[1, 4, 9, 16, 25]</div>
+
+      <div class="example-box">
+        <h4>Breaking Down the Syntax</h4>
+        <p>A list comprehension has three parts:</p>
+        <p><code>[<strong>expression</strong> <strong>for item in iterable</strong>]</code></p>
+        <ul>
+          <li><strong>expression</strong> -- what to do with each item (e.g., <code>n ** 2</code>)</li>
+          <li><strong>for item in iterable</strong> -- the loop that generates items</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Basic List Comprehensions</h2>
+
+<pre class="code-box"><span class="comment"># Convert temperatures from Celsius to Fahrenheit</span>
+celsius = [<span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>]
+fahrenheit = [c * <span class="number">9</span>/<span class="number">5</span> + <span class="number">32</span> <span class="keyword">for</span> c <span class="keyword">in</span> celsius]
+<span class="keyword">print</span>(fahrenheit)
+
+<span class="comment"># Make all names uppercase</span>
+names = [<span class="string">"alice"</span>, <span class="string">"bob"</span>, <span class="string">"charlie"</span>]
+upper_names = [name.<span class="function">upper</span>() <span class="keyword">for</span> name <span class="keyword">in</span> names]
+<span class="keyword">print</span>(upper_names)
+
+<span class="comment"># Get the length of each word</span>
+words = [<span class="string">"hello"</span>, <span class="string">"world"</span>, <span class="string">"python"</span>]
+lengths = [<span class="function">len</span>(word) <span class="keyword">for</span> word <span class="keyword">in</span> words]
+<span class="keyword">print</span>(lengths)
+</pre>
+      <div class="output-box">[32.0, 50.0, 68.0, 86.0, 104.0]
+['ALICE', 'BOB', 'CHARLIE']
+[5, 5, 6]</div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>List Comprehensions with Conditions</h2>
+
+      <p>You can add an <code>if</code> condition to filter which items are included in the new list.</p>
+
+      <h3>Syntax: <code>[expression for item in iterable if condition]</code></h3>
+
+<pre class="code-box"><span class="comment"># Get only even numbers</span>
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+evens = [n <span class="keyword">for</span> n <span class="keyword">in</span> numbers <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span>]
+<span class="keyword">print</span>(evens)
+
+<span class="comment"># Get words longer than 4 characters</span>
+words = [<span class="string">"hi"</span>, <span class="string">"hello"</span>, <span class="string">"hey"</span>, <span class="string">"howdy"</span>, <span class="string">"greetings"</span>]
+long_words = [w <span class="keyword">for</span> w <span class="keyword">in</span> words <span class="keyword">if</span> <span class="function">len</span>(w) > <span class="number">4</span>]
+<span class="keyword">print</span>(long_words)
+
+<span class="comment"># Get passing scores</span>
+scores = [<span class="number">45</span>, <span class="number">82</span>, <span class="number">93</span>, <span class="number">67</span>, <span class="number">55</span>, <span class="number">78</span>, <span class="number">91</span>]
+passing = [s <span class="keyword">for</span> s <span class="keyword">in</span> scores <span class="keyword">if</span> s >= <span class="number">70</span>]
+<span class="keyword">print</span>(passing)
+</pre>
+      <div class="output-box">[2, 4, 6, 8, 10]
+['hello', 'howdy', 'greetings']
+[82, 93, 78, 91]</div>
+
+      <h3>Combining Transformation and Filtering</h3>
+
+<pre class="code-box"><span class="comment"># Square only the even numbers</span>
+numbers = <span class="function">list</span>(<span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>))
+even_squares = [n ** <span class="number">2</span> <span class="keyword">for</span> n <span class="keyword">in</span> numbers <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span>]
+<span class="keyword">print</span>(even_squares)
+</pre>
+      <div class="output-box">[4, 16, 36, 64, 100]</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Comprehensions with if/else</h2>
+
+      <p>To use an <code>if/else</code> expression (where you want different values based on a condition), the syntax changes -- the condition goes <strong>before</strong> the for.</p>
+
+<pre class="code-box"><span class="comment"># Label numbers as "even" or "odd"</span>
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+labels = [<span class="string">"even"</span> <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span> <span class="keyword">else</span> <span class="string">"odd"</span> <span class="keyword">for</span> n <span class="keyword">in</span> numbers]
+<span class="keyword">print</span>(labels)
+
+<span class="comment"># Pass or fail</span>
+scores = [<span class="number">85</span>, <span class="number">42</span>, <span class="number">91</span>, <span class="number">67</span>, <span class="number">55</span>]
+results = [<span class="string">"Pass"</span> <span class="keyword">if</span> s >= <span class="number">60</span> <span class="keyword">else</span> <span class="string">"Fail"</span> <span class="keyword">for</span> s <span class="keyword">in</span> scores]
+<span class="keyword">print</span>(results)
+</pre>
+      <div class="output-box">['odd', 'even', 'odd', 'even', 'odd']
+['Pass', 'Fail', 'Pass', 'Pass', 'Fail']</div>
+
+      <div class="example-box">
+        <h4>Syntax Difference: Filtering vs. Transforming</h4>
+        <ul>
+          <li><strong>Filtering</strong> (if only): <code>[x for x in list if condition]</code> -- condition goes at the END</li>
+          <li><strong>Transforming</strong> (if/else): <code>[A if condition else B for x in list]</code> -- condition goes at the BEGINNING</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Practical Examples</h2>
+
+      <div class="example-box">
+        <h4>Example 1: Processing a List of Names</h4>
+<pre class="code-box">names = [<span class="string">"  alice  "</span>, <span class="string">"BOB"</span>, <span class="string">"  Charlie"</span>, <span class="string">"diana  "</span>]
+
+<span class="comment"># Clean up: strip whitespace and capitalize</span>
+clean_names = [name.<span class="function">strip</span>().<span class="function">title</span>() <span class="keyword">for</span> name <span class="keyword">in</span> names]
+<span class="keyword">print</span>(clean_names)
+</pre>
+        <div class="output-box">['Alice', 'Bob', 'Charlie', 'Diana']</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Extracting Data</h4>
+<pre class="code-box"><span class="comment"># Extract first letters</span>
+words = [<span class="string">"Python"</span>, <span class="string">"Is"</span>, <span class="string">"Fun"</span>]
+initials = [word[<span class="number">0</span>] <span class="keyword">for</span> word <span class="keyword">in</span> words]
+<span class="keyword">print</span>(initials)
+<span class="keyword">print</span>(<span class="string">""</span>.<span class="function">join</span>(initials))
+</pre>
+        <div class="output-box">['P', 'I', 'F']
+PIF</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Working with Numbers</h4>
+<pre class="code-box"><span class="comment"># Create a multiplication table row</span>
+row_5 = [<span class="number">5</span> * i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>)]
+<span class="keyword">print</span>(<span class="string">"5x table:"</span>, row_5)
+</pre>
+        <div class="output-box">5x table: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>When to Use List Comprehensions</h2>
+
+      <div class="definition-box">
+        <strong>Rule of Thumb:</strong> Use list comprehensions when the logic is simple and fits on one line. Use traditional for-loops when the logic is complex, involves multiple steps, or when readability suffers.
+      </div>
+
+      <h3>Good Uses</h3>
+<pre class="code-box"><span class="comment"># Simple transformation</span>
+doubled = [x * <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10</span>)]
+
+<span class="comment"># Simple filter</span>
+positives = [x <span class="keyword">for</span> x <span class="keyword">in</span> numbers <span class="keyword">if</span> x > <span class="number">0</span>]
+
+<span class="comment"># Simple string operation</span>
+lower_names = [name.<span class="function">lower</span>() <span class="keyword">for</span> name <span class="keyword">in</span> names]
+</pre>
+
+      <h3>When to Stick with For-Loops</h3>
+<pre class="code-box"><span class="comment"># Complex logic -- use a regular loop instead</span>
+results = []
+<span class="keyword">for</span> item <span class="keyword">in</span> data:
+    <span class="keyword">if</span> item > <span class="number">0</span>:
+        processed = item ** <span class="number">2</span> + <span class="number">1</span>
+        <span class="keyword">if</span> processed < <span class="number">100</span>:
+            results.<span class="function">append</span>(processed)
+
+<span class="comment"># Side effects (printing, writing files) -- use a loop</span>
+<span class="keyword">for</span> name <span class="keyword">in</span> names:
+    <span class="keyword">print</span>(<span class="string">f"Hello, </span>{name}<span class="string">!"</span>)
+</pre>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Write a list comprehension that creates a list of the first 10 cube numbers (1, 8, 27, 64, ...). Then write another that filters this list to only include cubes less than 100.</p>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <ol>
+        <li>Rewrite this loop as a list comprehension: <code>result = []; for x in range(10): result.append(x * 3)</code></li>
+        <li>What does <code>[x for x in range(20) if x % 5 == 0]</code> produce?</li>
+        <li>Write a comprehension that converts <code>["hello", "world"]</code> to <code>["HELLO", "WORLD"]</code>.</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>result = [x * 3 for x in range(10)]</code></li>
+          <li><code>[0, 5, 10, 15]</code> (multiples of 5 from 0 to 19)</li>
+          <li><code>[word.upper() for word in ["hello", "world"]]</code></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>List comprehensions provide a concise way to create lists: <code>[expr for item in iterable]</code></li>
+        <li>Add a filter with <code>if</code>: <code>[expr for item in iterable if condition]</code></li>
+        <li>Use if/else for transformations: <code>[A if cond else B for item in iterable]</code></li>
+        <li>Comprehensions are best for simple, one-line operations</li>
+        <li>Use traditional loops for complex logic or side effects</li>
+        <li>Readability matters -- if a comprehension is hard to read, use a loop instead</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="lesson-03-slicing-indexing.html" class="btn btn-outline">&larr; Lesson 3: Slicing</a>
+      <a href="practice.html" class="btn btn-primary">Practice Problems &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

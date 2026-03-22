@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python nested conditionals - if statements inside if statements, complex decision trees, and refactoring techniques">
+  <title>Lesson 4.4: Nested Conditionals – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; } .code-box .keyword { color: #569cd6; } .code-box .string { color: #ce9178; } .code-box .function { color: #dcdcaa; } .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; } .lesson-nav a:hover { color: var(--primary-dark); }
+    .lesson-nav span { color: var(--text-secondary); font-size: 0.9rem; }
+    .lesson-objectives { background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-sm); }
+    .lesson-objectives ul { margin-left: var(--spacing-md); } .lesson-objectives li { padding: var(--spacing-xs) 0; color: var(--text-secondary); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 3px solid var(--accent-color); display: inline-block; padding-bottom: var(--spacing-xs); margin-bottom: var(--spacing-md); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f9f9f9; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--accent-color); margin-bottom: var(--spacing-sm); }
+    .check-understanding { background: #fff8e1; border: 2px solid var(--warning); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #f57f17; margin-bottom: var(--spacing-sm); }
+    .reveal-answer { background: var(--primary-color); color: white; border: none; padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-answer:hover { background: var(--primary-dark); }
+    .answer-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-top: var(--spacing-xl); }
+    .key-takeaways h3 { color: var(--success); margin-bottom: var(--spacing-md); } .key-takeaways ul { margin-left: var(--spacing-md); } .key-takeaways li { padding: var(--spacing-xs) 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-logical-operators.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4.4: Nested Conditionals</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>What nested conditionals are and when to use them</li>
+        <li>How to write if statements inside other if statements</li>
+        <li>How to build complex decision trees</li>
+        <li>When and how to refactor nested code for clarity</li>
+        <li>Common pitfalls with deeply nested code</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>What Are Nested Conditionals?</h2>
+      <p>
+        A <strong>nested conditional</strong> is an <code>if</code> statement placed inside another
+        <code>if</code> statement. The inner <code>if</code> is only checked when the outer
+        <code>if</code> condition is <code>True</code>.
+      </p>
+
+      <div class="definition-box">
+        <strong>Nested conditional:</strong> An if statement that appears inside the block of another if statement.
+        Each level of nesting adds another layer of indentation.
+      </div>
+
+      <pre class="code-box">has_ticket = <span class="keyword">True</span>
+age = <span class="number">15</span>
+
+<span class="keyword">if</span> has_ticket:
+    <span class="function">print</span>(<span class="string">"You have a ticket."</span>)
+    <span class="keyword">if</span> age >= <span class="number">18</span>:
+        <span class="function">print</span>(<span class="string">"Welcome to the R-rated movie!"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Sorry, this movie is for adults only."</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"You need a ticket first."</span>)</pre>
+      <div class="output-box">You have a ticket.
+Sorry, this movie is for adults only.</div>
+
+      <p>
+        Notice how the inner <code>if</code>/<code>else</code> is indented one level deeper than the
+        outer <code>if</code>. This creates a clear hierarchy of decisions.
+      </p>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Building Decision Trees</h2>
+      <p>
+        Nested conditionals let you build step-by-step decision trees where each choice leads to
+        more specific choices.
+      </p>
+
+      <div class="example-box">
+        <h4>Real-World Example: Shipping Calculator</h4>
+        <pre class="code-box">country = <span class="string">"US"</span>
+weight = <span class="number">3.5</span>  <span class="comment"># kg</span>
+is_member = <span class="keyword">True</span>
+
+<span class="keyword">if</span> country == <span class="string">"US"</span>:
+    <span class="keyword">if</span> weight <= <span class="number">2</span>:
+        shipping = <span class="number">5.99</span>
+    <span class="keyword">elif</span> weight <= <span class="number">5</span>:
+        shipping = <span class="number">9.99</span>
+    <span class="keyword">else</span>:
+        shipping = <span class="number">14.99</span>
+
+    <span class="comment"># Members get free shipping</span>
+    <span class="keyword">if</span> is_member:
+        shipping = <span class="number">0</span>
+        <span class="function">print</span>(<span class="string">"Free shipping for members!"</span>)
+<span class="keyword">else</span>:
+    <span class="keyword">if</span> weight <= <span class="number">2</span>:
+        shipping = <span class="number">15.99</span>
+    <span class="keyword">else</span>:
+        shipping = <span class="number">29.99</span>
+
+<span class="function">print</span>(<span class="string">f"Shipping cost: $</span>{shipping}<span class="string">"</span>)</pre>
+        <div class="output-box">Free shipping for members!
+Shipping cost: $0</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Real-World Example: ATM Withdrawal</h4>
+        <pre class="code-box">balance = <span class="number">500</span>
+pin_entered = <span class="string">"1234"</span>
+correct_pin = <span class="string">"1234"</span>
+withdrawal = <span class="number">200</span>
+
+<span class="keyword">if</span> pin_entered == correct_pin:
+    <span class="function">print</span>(<span class="string">"PIN accepted."</span>)
+    <span class="keyword">if</span> withdrawal <= balance:
+        <span class="keyword">if</span> withdrawal > <span class="number">0</span>:
+            balance -= withdrawal
+            <span class="function">print</span>(<span class="string">f"Dispensing $</span>{withdrawal}<span class="string">"</span>)
+            <span class="function">print</span>(<span class="string">f"New balance: $</span>{balance}<span class="string">"</span>)
+        <span class="keyword">else</span>:
+            <span class="function">print</span>(<span class="string">"Amount must be positive."</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Insufficient funds."</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Incorrect PIN."</span>)</pre>
+        <div class="output-box">PIN accepted.
+Dispensing $200
+New balance: $300</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Tracing Through Nested Code</h2>
+      <p>
+        When reading nested conditionals, trace through them step by step. Ask yourself at each level:
+        "Is this condition True or False?" Then follow the appropriate path.
+      </p>
+
+      <pre class="code-box">x = <span class="number">15</span>
+y = <span class="number">8</span>
+
+<span class="keyword">if</span> x > <span class="number">10</span>:                <span class="comment"># Step 1: 15 > 10? YES</span>
+    <span class="keyword">if</span> y > <span class="number">10</span>:            <span class="comment"># Step 2: 8 > 10? NO</span>
+        <span class="function">print</span>(<span class="string">"Both large"</span>)
+    <span class="keyword">else</span>:                 <span class="comment"># Step 3: Go to else</span>
+        <span class="function">print</span>(<span class="string">"x large, y small"</span>)  <span class="comment"># This prints!</span>
+<span class="keyword">else</span>:
+    <span class="keyword">if</span> y > <span class="number">10</span>:
+        <span class="function">print</span>(<span class="string">"x small, y large"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Both small"</span>)</pre>
+      <div class="output-box">x large, y small</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>The Problem with Deep Nesting</h2>
+      <p>
+        While nesting is powerful, too many levels of nesting makes code hard to read and maintain.
+        A common guideline is to avoid more than <strong>3 levels of nesting</strong>.
+      </p>
+
+      <div class="warning-box">
+        <strong>Code Smell:</strong> If your code has more than 3 levels of indentation from nesting,
+        it is time to refactor. Deeply nested code is often called "arrow code" because of its
+        triangular shape.
+      </div>
+
+      <pre class="code-box"><span class="comment"># BAD: Too deeply nested (hard to read)</span>
+<span class="keyword">if</span> user_logged_in:
+    <span class="keyword">if</span> has_permission:
+        <span class="keyword">if</span> file_exists:
+            <span class="keyword">if</span> file_not_locked:
+                <span class="keyword">if</span> disk_space_available:
+                    <span class="comment"># Finally do something - 5 levels deep!</span>
+                    save_file()</pre>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Refactoring Nested Conditionals</h2>
+      <p>
+        There are several strategies to flatten nested code and make it more readable.
+      </p>
+
+      <h3>Strategy 1: Combine Conditions with <code>and</code></h3>
+      <pre class="code-box"><span class="comment"># BEFORE: Nested</span>
+<span class="keyword">if</span> age >= <span class="number">18</span>:
+    <span class="keyword">if</span> has_id:
+        <span class="function">print</span>(<span class="string">"Entry allowed"</span>)
+
+<span class="comment"># AFTER: Flattened with and</span>
+<span class="keyword">if</span> age >= <span class="number">18</span> <span class="keyword">and</span> has_id:
+    <span class="function">print</span>(<span class="string">"Entry allowed"</span>)</pre>
+
+      <h3>Strategy 2: Early Return / Guard Clauses</h3>
+      <pre class="code-box"><span class="comment"># BEFORE: Deeply nested</span>
+<span class="keyword">if</span> user_logged_in:
+    <span class="keyword">if</span> has_permission:
+        <span class="keyword">if</span> file_exists:
+            process_file()
+        <span class="keyword">else</span>:
+            <span class="function">print</span>(<span class="string">"File not found"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"No permission"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Not logged in"</span>)
+
+<span class="comment"># AFTER: Guard clauses (check failures first)</span>
+<span class="keyword">if</span> <span class="keyword">not</span> user_logged_in:
+    <span class="function">print</span>(<span class="string">"Not logged in"</span>)
+<span class="keyword">elif</span> <span class="keyword">not</span> has_permission:
+    <span class="function">print</span>(<span class="string">"No permission"</span>)
+<span class="keyword">elif</span> <span class="keyword">not</span> file_exists:
+    <span class="function">print</span>(<span class="string">"File not found"</span>)
+<span class="keyword">else</span>:
+    process_file()</pre>
+
+      <div class="definition-box">
+        <strong>Guard clause:</strong> A condition that checks for an invalid case and handles it early,
+        allowing the "happy path" (the normal case) to proceed without extra nesting.
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>When Nesting Is Appropriate</h2>
+      <p>
+        Nesting is not always bad. It is appropriate when the inner decision <strong>genuinely depends</strong>
+        on the outer decision and the logic is clearer expressed hierarchically.
+      </p>
+
+      <div class="example-box">
+        <h4>Good Use of Nesting: Category-Specific Logic</h4>
+        <pre class="code-box">product_type = <span class="string">"food"</span>
+is_organic = <span class="keyword">True</span>
+price = <span class="number">4.99</span>
+
+<span class="keyword">if</span> product_type == <span class="string">"food"</span>:
+    <span class="comment"># Food-specific logic</span>
+    tax_rate = <span class="number">0.0</span>  <span class="comment"># No tax on food</span>
+    <span class="keyword">if</span> is_organic:
+        <span class="function">print</span>(<span class="string">"Organic food item"</span>)
+        discount = <span class="number">0.10</span>  <span class="comment"># 10% organic discount</span>
+    <span class="keyword">else</span>:
+        discount = <span class="number">0.0</span>
+<span class="keyword">elif</span> product_type == <span class="string">"electronics"</span>:
+    <span class="comment"># Electronics-specific logic</span>
+    tax_rate = <span class="number">0.08</span>
+    discount = <span class="number">0.0</span>
+<span class="keyword">else</span>:
+    tax_rate = <span class="number">0.06</span>
+    discount = <span class="number">0.0</span>
+
+final_price = price * (<span class="number">1</span> + tax_rate) * (<span class="number">1</span> - discount)
+<span class="function">print</span>(<span class="string">f"Final price: $</span>{final_price:<span class="number">.2f</span>}<span class="string">"</span>)</pre>
+        <div class="output-box">Organic food item
+Final price: $4.49</div>
+      </div>
+    </div>
+
+    <div class="try-it-box">
+      <h4>Try It Yourself!</h4>
+      <p>Write a ticket pricing program. The base price is $12. Apply these rules:</p>
+      <ul>
+        <li>Children (under 12): 50% off</li>
+        <li>Seniors (65+): 30% off</li>
+        <li>Students (13-24 with student ID): 20% off</li>
+        <li>Everyone else: full price</li>
+        <li>Matinee (before 5pm): additional $2 off for everyone</li>
+      </ul>
+    </div>
+
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>What will this code print?</p>
+      <pre class="code-box">temp = <span class="number">25</span>
+raining = <span class="keyword">False</span>
+
+<span class="keyword">if</span> temp > <span class="number">20</span>:
+    <span class="keyword">if</span> raining:
+        <span class="function">print</span>(<span class="string">"Warm and rainy"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Warm and dry"</span>)
+<span class="keyword">else</span>:
+    <span class="keyword">if</span> raining:
+        <span class="function">print</span>(<span class="string">"Cold and rainy"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Cold and dry"</span>)</pre>
+      <button class="reveal-answer" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+      <div class="answer-content">
+        <p><strong>Answer: Warm and dry</strong></p>
+        <p><code>temp &gt; 20</code> is True (25 &gt; 20), so we enter the first block. <code>raining</code> is False, so we go to the inner else and print "Warm and dry".</p>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Nested conditionals are if statements inside other if statements</li>
+        <li>Each level of nesting adds one more level of indentation</li>
+        <li>Trace through nested code step by step, checking each condition</li>
+        <li>Avoid more than 3 levels of nesting when possible</li>
+        <li>Use <code>and</code> to combine conditions and reduce nesting</li>
+        <li>Guard clauses can flatten deeply nested code</li>
+        <li>Nesting is appropriate when inner logic genuinely depends on outer conditions</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none;">
+      <a href="lesson-03-logical-operators.html">&larr; Logical Operators</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

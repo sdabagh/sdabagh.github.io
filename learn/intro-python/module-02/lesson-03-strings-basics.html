@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to create and work with strings in Python - quotes, escaping, basic operations, and len()">
+  <title>Lesson 3: Strings Basics – Module 2 – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box {
+      background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg);
+      border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.95rem; line-height: 1.5; overflow-x: auto;
+    }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box {
+      background: #f5f5f5; border-left: 4px solid var(--success);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+      font-family: var(--font-mono); font-size: 0.9rem;
+    }
+    .output-box::before {
+      content: "Output:"; display: block; font-weight: 600;
+      color: var(--success); margin-bottom: var(--spacing-xs);
+      font-family: var(--font-primary);
+    }
+    .try-it-box {
+      background: #fff3e0; border: 2px solid var(--accent-color);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--border-color);
+    }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-nav span { font-weight: 600; color: var(--text-secondary); }
+    .lesson-objectives {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-md); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-color); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box {
+      background: #e8f4fd; border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box {
+      background: #f0f8ff; border: 1px solid var(--primary-color);
+      border-radius: var(--radius-md); padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { color: var(--primary-color); margin-top: 0; }
+    .warning-box {
+      background: #fff3e0; border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .check-understanding {
+      background: #f5f5f5; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn {
+      background: var(--primary-color); color: white; border: none;
+      padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer;
+      font-size: 0.9rem; margin-top: var(--spacing-sm);
+    }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h2 { color: var(--primary-dark); margin-bottom: var(--spacing-md); }
+    .lesson-nav-bottom {
+      display: flex; justify-content: space-between; margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color);
+    }
+    .lesson-nav-bottom a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-nav-bottom a:hover { text-decoration: underline; }
+    table.escape-table {
+      width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0;
+    }
+    table.escape-table th, table.escape-table td {
+      padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--border-color); text-align: left;
+    }
+    table.escape-table th { background: var(--primary-color); color: white; }
+    table.escape-table tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-02-numbers.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-booleans-type-conversion.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Strings Basics</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>What strings are and how to create them</li>
+        <li>Single quotes vs. double quotes</li>
+        <li>Escape characters for special symbols</li>
+        <li>String concatenation and repetition</li>
+        <li>Finding the length of a string with <code>len()</code></li>
+        <li>Accessing individual characters with indexing</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What is a String?</h2>
+
+      <div class="definition-box">
+        <strong>String (str):</strong> A sequence of characters enclosed in quotes. Strings represent text data in Python -- names, messages, addresses, and any other text.
+      </div>
+
+      <p>Strings are one of the most common data types in programming. Almost every program works with text in some way, whether it is displaying a message to the user, storing a name, or processing a document.</p>
+
+<pre class="code-box"><span class="keyword">greeting</span> = <span class="string">"Hello, World!"</span>
+<span class="keyword">name</span> = <span class="string">"Alice"</span>
+<span class="keyword">address</span> = <span class="string">"123 Main Street"</span>
+<span class="keyword">empty</span> = <span class="string">""</span>    <span class="comment"># An empty string (has zero characters)</span>
+
+<span class="function">print</span>(greeting)
+<span class="function">print</span>(<span class="function">type</span>(greeting))</pre>
+      <div class="output-box">Hello, World!
+&lt;class 'str'&gt;</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Single Quotes vs. Double Quotes</h2>
+
+      <p>Python lets you create strings using either single quotes (<code>'</code>) or double quotes (<code>"</code>). They work exactly the same way:</p>
+
+<pre class="code-box"><span class="keyword">message1</span> = <span class="string">'Hello, World!'</span>
+<span class="keyword">message2</span> = <span class="string">"Hello, World!"</span>
+
+<span class="function">print</span>(message1 == message2)  <span class="comment"># Are they equal?</span></pre>
+      <div class="output-box">True</div>
+
+      <p>So when should you use one over the other? The main reason is when your string <em>contains</em> a quote character:</p>
+
+<pre class="code-box"><span class="comment"># Use double quotes when your string contains a single quote</span>
+<span class="keyword">sentence</span> = <span class="string">"It's a beautiful day!"</span>
+<span class="function">print</span>(sentence)
+
+<span class="comment"># Use single quotes when your string contains double quotes</span>
+<span class="keyword">quote</span> = <span class="string">'She said "hello" to everyone.'</span>
+<span class="function">print</span>(quote)</pre>
+      <div class="output-box">It's a beautiful day!
+She said "hello" to everyone.</div>
+
+      <div class="warning-box">
+        <strong>Common Error:</strong> If you try <code>'It's a beautiful day!'</code>, Python sees the apostrophe as the end of the string and gets confused by the remaining text. Use double quotes to avoid this problem.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Escape Characters</h2>
+
+      <p>Sometimes you need to include special characters in a string. Python uses the backslash (<code>\</code>) as an <strong>escape character</strong> to give characters special meaning:</p>
+
+      <table class="escape-table">
+        <tr><th>Escape Sequence</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>\'</code></td><td>Single quote</td><td><code>'It\'s fun'</code></td></tr>
+        <tr><td><code>\"</code></td><td>Double quote</td><td><code>"She said \"hi\""</code></td></tr>
+        <tr><td><code>\\</code></td><td>Backslash</td><td><code>"C:\\Users\\Alice"</code></td></tr>
+        <tr><td><code>\n</code></td><td>New line</td><td><code>"Line 1\nLine 2"</code></td></tr>
+        <tr><td><code>\t</code></td><td>Tab</td><td><code>"Name:\tAlice"</code></td></tr>
+      </table>
+
+<pre class="code-box"><span class="comment"># Using escape characters</span>
+<span class="function">print</span>(<span class="string">"She said \"hello\" to me."</span>)
+<span class="function">print</span>(<span class="string">'It\'s a great day!'</span>)
+<span class="function">print</span>(<span class="string">"First line\nSecond line"</span>)
+<span class="function">print</span>(<span class="string">"Name:\tAlice"</span>)
+<span class="function">print</span>(<span class="string">"File path: C:\\Users\\Documents"</span>)</pre>
+      <div class="output-box">She said "hello" to me.
+It's a great day!
+First line
+Second line
+Name:	Alice
+File path: C:\Users\Documents</div>
+
+      <p>You can also create multi-line strings using triple quotes:</p>
+
+<pre class="code-box"><span class="keyword">poem</span> = <span class="string">"""Roses are red,
+Violets are blue,
+Python is awesome,
+And so are you!"""</span>
+
+<span class="function">print</span>(poem)</pre>
+      <div class="output-box">Roses are red,
+Violets are blue,
+Python is awesome,
+And so are you!</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. String Concatenation (+)</h2>
+
+      <p>You can join strings together using the <code>+</code> operator. This is called <strong>concatenation</strong>:</p>
+
+<pre class="code-box"><span class="keyword">first_name</span> = <span class="string">"Alice"</span>
+<span class="keyword">last_name</span> = <span class="string">"Smith"</span>
+
+<span class="keyword">full_name</span> = first_name + <span class="string">" "</span> + last_name
+<span class="function">print</span>(full_name)</pre>
+      <div class="output-box">Alice Smith</div>
+
+      <div class="warning-box">
+        <strong>Important:</strong> You cannot concatenate a string with a number directly. Python will raise a <code>TypeError</code>.
+      </div>
+
+<pre class="code-box"><span class="comment"># This will cause an error!</span>
+<span class="comment"># age = 25</span>
+<span class="comment"># message = "I am " + age + " years old"   # TypeError!</span>
+
+<span class="comment"># Fix: convert the number to a string first</span>
+<span class="keyword">age</span> = <span class="number">25</span>
+<span class="keyword">message</span> = <span class="string">"I am "</span> + <span class="function">str</span>(age) + <span class="string">" years old"</span>
+<span class="function">print</span>(message)</pre>
+      <div class="output-box">I am 25 years old</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. String Repetition (*)</h2>
+
+      <p>You can repeat a string multiple times using the <code>*</code> operator:</p>
+
+<pre class="code-box"><span class="keyword">line</span> = <span class="string">"-"</span> * <span class="number">30</span>
+<span class="function">print</span>(line)
+
+<span class="keyword">cheer</span> = <span class="string">"Go! "</span> * <span class="number">3</span>
+<span class="function">print</span>(cheer)
+
+<span class="keyword">pattern</span> = <span class="string">"*-"</span> * <span class="number">10</span>
+<span class="function">print</span>(pattern)</pre>
+      <div class="output-box">------------------------------
+Go! Go! Go!
+*-*-*-*-*-*-*-*-*-*-</div>
+
+      <div class="example-box">
+        <h4>Practical Use: Creating Formatted Output</h4>
+<pre class="code-box"><span class="keyword">title</span> = <span class="string">"Report Card"</span>
+<span class="keyword">border</span> = <span class="string">"="</span> * <span class="number">30</span>
+
+<span class="function">print</span>(border)
+<span class="function">print</span>(title)
+<span class="function">print</span>(border)</pre>
+        <div class="output-box">==============================
+Report Card
+==============================</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. String Length and Indexing</h2>
+
+      <p>The <code>len()</code> function tells you how many characters are in a string:</p>
+
+<pre class="code-box"><span class="keyword">name</span> = <span class="string">"Alice"</span>
+<span class="function">print</span>(<span class="function">len</span>(name))      <span class="comment"># 5</span>
+
+<span class="keyword">message</span> = <span class="string">"Hello, World!"</span>
+<span class="function">print</span>(<span class="function">len</span>(message))   <span class="comment"># 13 (spaces and punctuation count!)</span>
+
+<span class="keyword">empty</span> = <span class="string">""</span>
+<span class="function">print</span>(<span class="function">len</span>(empty))     <span class="comment"># 0</span></pre>
+      <div class="output-box">5
+13
+0</div>
+
+      <p>You can access individual characters using <strong>indexing</strong>. Python uses zero-based indexing, meaning the first character is at position 0:</p>
+
+<pre class="code-box"><span class="keyword">word</span> = <span class="string">"Python"</span>
+<span class="comment">#        P  y  t  h  o  n</span>
+<span class="comment"># Index: 0  1  2  3  4  5</span>
+
+<span class="function">print</span>(word[<span class="number">0</span>])    <span class="comment"># P (first character)</span>
+<span class="function">print</span>(word[<span class="number">1</span>])    <span class="comment"># y (second character)</span>
+<span class="function">print</span>(word[<span class="number">5</span>])    <span class="comment"># n (last character)</span>
+<span class="function">print</span>(word[-<span class="number">1</span>])   <span class="comment"># n (last character using negative index)</span>
+<span class="function">print</span>(word[-<span class="number">2</span>])   <span class="comment"># o (second to last)</span></pre>
+      <div class="output-box">P
+y
+n
+n
+o</div>
+
+      <div class="definition-box">
+        <strong>Zero-based indexing:</strong> In Python (and most programming languages), counting starts at 0, not 1. The first element is at index 0, the second at index 1, and so on.
+      </div>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question 1:</strong> What will <code>len("Hello\nWorld")</code> return?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'">Reveal Answer</button>
+      <div class="reveal-answer">
+        <p><strong>Answer: 11</strong></p>
+        <p>The <code>\n</code> escape sequence counts as a single character (a newline), so: H-e-l-l-o-\n-W-o-r-l-d = 11 characters.</p>
+      </div>
+
+      <p style="margin-top: var(--spacing-lg);"><strong>Question 2:</strong> Given <code>text = "Python"</code>, what is <code>text[2]</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'">Reveal Answer</button>
+      <div class="reveal-answer">
+        <p><strong>Answer: "t"</strong></p>
+        <p>Index 0 is "P", index 1 is "y", index 2 is "t".</p>
+      </div>
+    </div>
+
+    <div class="try-it-box">
+      <h4>Try It Yourself!</h4>
+      <ol>
+        <li>Create a string with your full name. Print it and its length.</li>
+        <li>Create a string that contains both single and double quotes.</li>
+        <li>Use <code>+</code> to build a greeting that says "Hello, [your name]! Welcome!"</li>
+        <li>Print a line of 50 asterisks using <code>*</code> repetition.</li>
+      </ol>
+    </div>
+
+    <div class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li><strong>Strings</strong> are sequences of characters enclosed in quotes.</li>
+        <li>Single quotes and double quotes are interchangeable; use whichever avoids conflicts with the string content.</li>
+        <li><strong>Escape characters</strong> (<code>\n</code>, <code>\t</code>, <code>\\</code>, etc.) represent special characters.</li>
+        <li>Use <code>+</code> for <strong>concatenation</strong> and <code>*</code> for <strong>repetition</strong>.</li>
+        <li><code>len()</code> returns the number of characters in a string.</li>
+        <li>Python uses <strong>zero-based indexing</strong>: the first character is at index 0.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a href="lesson-02-numbers.html">&larr; Previous: Numbers</a>
+      <a href="lesson-04-booleans-type-conversion.html">Next: Booleans &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

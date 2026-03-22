@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about default parameter values, keyword arguments, *args and **kwargs in Python">
+  <title>Lesson 9.3: Default and Keyword Arguments – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-02-parameters-return.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-scope.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 9.3: Default and Keyword Arguments</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>How to set default values for parameters</li>
+        <li>How to use keyword arguments for clearer function calls</li>
+        <li>How to mix positional and keyword arguments</li>
+        <li>An introduction to <code>*args</code> for variable positional arguments</li>
+        <li>An introduction to <code>**kwargs</code> for variable keyword arguments</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Default Parameter Values</h2>
+      <p>You can give parameters a <strong>default value</strong> so they become optional when calling the function:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">greet</span>(name, greeting=<span class="string">"Hello"</span>):
+    <span class="string">"""Greet someone with a customizable greeting."""</span>
+    <span class="function">print</span>(f<span class="string">"{greeting}, {name}!"</span>)
+
+<span class="comment"># Using the default greeting</span>
+<span class="function">greet</span>(<span class="string">"Alice"</span>)
+
+<span class="comment"># Overriding the default</span>
+<span class="function">greet</span>(<span class="string">"Bob"</span>, <span class="string">"Hi"</span>)
+<span class="function">greet</span>(<span class="string">"Carol"</span>, <span class="string">"Good morning"</span>)</pre>
+      <div class="output-box">Hello, Alice!
+Hi, Bob!
+Good morning, Carol!</div>
+
+      <div class="warning-box">
+        <strong>Rule:</strong> Parameters with default values must come <em>after</em> parameters without defaults. <code>def func(a=1, b)</code> is a syntax error, but <code>def func(a, b=1)</code> is fine.
+      </div>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">power</span>(base, exponent=<span class="number">2</span>):
+    <span class="string">"""Raise base to exponent. Defaults to squaring."""</span>
+    <span class="keyword">return</span> base ** exponent
+
+<span class="function">print</span>(<span class="function">power</span>(<span class="number">5</span>))       <span class="comment"># 5^2 = 25</span>
+<span class="function">print</span>(<span class="function">power</span>(<span class="number">5</span>, <span class="number">3</span>))    <span class="comment"># 5^3 = 125</span>
+<span class="function">print</span>(<span class="function">power</span>(<span class="number">2</span>, <span class="number">10</span>))   <span class="comment"># 2^10 = 1024</span></pre>
+      <div class="output-box">25
+125
+1024</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Keyword Arguments</h2>
+      <p>Instead of relying on position, you can name the arguments when calling a function:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">describe_pet</span>(animal, name, age):
+    <span class="string">"""Describe a pet."""</span>
+    <span class="function">print</span>(f<span class="string">"{name} is a {age}-year-old {animal}."</span>)
+
+<span class="comment"># Positional (order matters)</span>
+<span class="function">describe_pet</span>(<span class="string">"dog"</span>, <span class="string">"Rex"</span>, <span class="number">5</span>)
+
+<span class="comment"># Keyword (order doesn't matter)</span>
+<span class="function">describe_pet</span>(name=<span class="string">"Whiskers"</span>, age=<span class="number">3</span>, animal=<span class="string">"cat"</span>)
+
+<span class="comment"># Mix: positional first, then keyword</span>
+<span class="function">describe_pet</span>(<span class="string">"bird"</span>, name=<span class="string">"Tweety"</span>, age=<span class="number">2</span>)</pre>
+      <div class="output-box">Rex is a 5-year-old dog.
+Whiskers is a 3-year-old cat.
+Tweety is a 2-year-old bird.</div>
+
+      <div class="definition-box">
+        <strong>Keyword Arguments:</strong> Arguments passed using the <code>name=value</code> syntax. They make function calls clearer and allow you to pass arguments in any order.
+      </div>
+
+      <div class="warning-box">
+        <strong>Rule:</strong> Positional arguments must come <em>before</em> keyword arguments in a function call. <code>func(name="A", "dog")</code> is an error.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Combining Defaults and Keywords</h2>
+      <p>Default values and keyword arguments work together to create flexible functions:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">create_profile</span>(name, age, city=<span class="string">"Unknown"</span>, hobby=<span class="string">"Unknown"</span>):
+    <span class="string">"""Create a profile string."""</span>
+    <span class="keyword">return</span> f<span class="string">"{name}, {age}, from {city}, enjoys {hobby}"</span>
+
+<span class="comment"># All defaults</span>
+<span class="function">print</span>(<span class="function">create_profile</span>(<span class="string">"Alice"</span>, <span class="number">25</span>))
+
+<span class="comment"># Override just one default</span>
+<span class="function">print</span>(<span class="function">create_profile</span>(<span class="string">"Bob"</span>, <span class="number">30</span>, city=<span class="string">"LA"</span>))
+
+<span class="comment"># Override a later default without changing earlier ones</span>
+<span class="function">print</span>(<span class="function">create_profile</span>(<span class="string">"Carol"</span>, <span class="number">28</span>, hobby=<span class="string">"painting"</span>))
+
+<span class="comment"># Override all defaults</span>
+<span class="function">print</span>(<span class="function">create_profile</span>(<span class="string">"Dave"</span>, <span class="number">35</span>, <span class="string">"NYC"</span>, <span class="string">"chess"</span>))</pre>
+      <div class="output-box">Alice, 25, from Unknown, enjoys Unknown
+Bob, 30, from LA, enjoys Unknown
+Carol, 28, from Unknown, enjoys painting
+Dave, 35, from NYC, enjoys chess</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. *args: Variable Positional Arguments</h2>
+      <p>Sometimes you want a function that accepts <em>any number</em> of arguments. Use <code>*args</code> to collect extra positional arguments into a tuple:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">add_all</span>(*numbers):
+    <span class="string">"""Add any number of values together."""</span>
+    <span class="function">print</span>(f<span class="string">"Received: {numbers}"</span>)
+    <span class="keyword">return</span> <span class="function">sum</span>(numbers)
+
+<span class="function">print</span>(<span class="function">add_all</span>(<span class="number">1</span>, <span class="number">2</span>))
+<span class="function">print</span>(<span class="function">add_all</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>))
+<span class="function">print</span>(<span class="function">add_all</span>(<span class="number">10</span>))</pre>
+      <div class="output-box">Received: (1, 2)
+3
+Received: (1, 2, 3, 4, 5)
+15
+Received: (10,)
+10</div>
+
+      <div class="definition-box">
+        <strong>*args:</strong> A parameter prefixed with <code>*</code> that collects all extra positional arguments into a tuple. The name <code>args</code> is a convention; you could use any name like <code>*numbers</code>.
+      </div>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">print_scores</span>(student, *scores):
+    <span class="string">"""Print a student's name and all their scores."""</span>
+    <span class="function">print</span>(f<span class="string">"{student}'s scores:"</span>)
+    <span class="keyword">for</span> score <span class="keyword">in</span> scores:
+        <span class="function">print</span>(f<span class="string">"  - {score}"</span>)
+
+<span class="function">print_scores</span>(<span class="string">"Alice"</span>, <span class="number">95</span>, <span class="number">87</span>, <span class="number">92</span>)
+<span class="function">print_scores</span>(<span class="string">"Bob"</span>, <span class="number">78</span>)</pre>
+      <div class="output-box">Alice's scores:
+  - 95
+  - 87
+  - 92
+Bob's scores:
+  - 78</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. **kwargs: Variable Keyword Arguments</h2>
+      <p>Similarly, <code>**kwargs</code> collects extra keyword arguments into a dictionary:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">build_profile</span>(name, **details):
+    <span class="string">"""Build a user profile from keyword arguments."""</span>
+    profile = {<span class="string">"name"</span>: name}
+    profile.<span class="function">update</span>(details)
+    <span class="keyword">return</span> profile
+
+result = <span class="function">build_profile</span>(
+    <span class="string">"Alice"</span>,
+    age=<span class="number">25</span>,
+    city=<span class="string">"LA"</span>,
+    major=<span class="string">"CS"</span>
+)
+<span class="function">print</span>(result)</pre>
+      <div class="output-box">{'name': 'Alice', 'age': 25, 'city': 'LA', 'major': 'CS'}</div>
+
+      <div class="definition-box">
+        <strong>**kwargs:</strong> A parameter prefixed with <code>**</code> that collects all extra keyword arguments into a dictionary. The name <code>kwargs</code> is a convention.
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Putting It All Together</h2>
+      <p>When combining different parameter types, they must appear in this order:</p>
+      <ol>
+        <li>Regular positional parameters</li>
+        <li>Parameters with default values</li>
+        <li><code>*args</code></li>
+        <li><code>**kwargs</code></li>
+      </ol>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">example</span>(required, optional=<span class="string">"default"</span>, *args, **kwargs):
+    <span class="function">print</span>(f<span class="string">"required: {required}"</span>)
+    <span class="function">print</span>(f<span class="string">"optional: {optional}"</span>)
+    <span class="function">print</span>(f<span class="string">"args: {args}"</span>)
+    <span class="function">print</span>(f<span class="string">"kwargs: {kwargs}"</span>)
+
+<span class="function">example</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>, <span class="string">"D"</span>, x=<span class="number">1</span>, y=<span class="number">2</span>)</pre>
+      <div class="output-box">required: A
+optional: B
+args: ('C', 'D')
+kwargs: {'x': 1, 'y': 2}</div>
+
+      <div class="example-box">
+        <h4>Real-World Example: Flexible Print Function</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">log_message</span>(message, level=<span class="string">"INFO"</span>, **metadata):
+    <span class="string">"""Log a message with optional metadata."""</span>
+    <span class="function">print</span>(f<span class="string">"[{level}] {message}"</span>)
+    <span class="keyword">for</span> key, value <span class="keyword">in</span> metadata.<span class="function">items</span>():
+        <span class="function">print</span>(f<span class="string">"  {key}: {value}"</span>)
+
+<span class="function">log_message</span>(<span class="string">"Server started"</span>)
+<span class="function">log_message</span>(<span class="string">"Login failed"</span>, level=<span class="string">"ERROR"</span>, user=<span class="string">"alice"</span>, ip=<span class="string">"192.168.1.1"</span>)</pre>
+        <div class="output-box">[INFO] Server started
+[ERROR] Login failed
+  user: alice
+  ip: 192.168.1.1</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What does this code print?</p>
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">repeat</span>(text, times=<span class="number">2</span>):
+    <span class="keyword">return</span> text * times
+
+<span class="function">print</span>(<span class="function">repeat</span>(<span class="string">"ha"</span>))
+<span class="function">print</span>(<span class="function">repeat</span>(<span class="string">"ho"</span>, times=<span class="number">3</span>))</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer:</strong></p>
+        <p><code>haha</code> &mdash; uses the default <code>times=2</code></p>
+        <p><code>hohoho</code> &mdash; overrides with <code>times=3</code></p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <ol>
+        <li>Write a function <code>make_sandwich(bread, *fillings)</code> that prints the bread type and all fillings</li>
+        <li>Write a function <code>calculate_price(amount, tax_rate=0.10, discount=0)</code> that returns the final price</li>
+        <li>Call <code>calculate_price</code> using keyword arguments to apply a 20% discount but keep the default tax rate</li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Default values</strong> make parameters optional: <code>def func(x, y=10)</code></li>
+        <li><strong>Keyword arguments</strong> use <code>name=value</code> syntax for clarity and flexibility</li>
+        <li>Parameters with defaults must come after those without</li>
+        <li><code>*args</code> collects extra positional arguments into a tuple</li>
+        <li><code>**kwargs</code> collects extra keyword arguments into a dictionary</li>
+        <li>Order matters: regular, defaults, *args, **kwargs</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="lesson-02-parameters-return.html">&larr; Previous: Parameters &amp; Return</a>
+      <a href="lesson-04-scope.html">Next: Scope &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

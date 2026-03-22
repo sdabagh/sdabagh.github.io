@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quick reference for Python file handling">
+  <title>Module 11 Quick Reference – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .ref-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .ref-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .ref-header p { color: rgba(255,255,255,0.95); }
+    .ref-section { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .ref-section h2 { color: var(--primary-dark); margin-top: 0; border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); }
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.4; overflow-x: auto; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .comment { color: #6a9955; }
+    .ref-table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    .ref-table th { background: var(--background-alt); padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color); }
+    .ref-table td { padding: 10px; border-bottom: 1px solid var(--border-color); }
+    .back-link { display: inline-block; margin-bottom: var(--spacing-lg); color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+    @media print { .back-link, header, footer { display: none; } .ref-section { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <a href="index.html" class="back-link">&larr; Back to Module 11</a>
+
+    <div class="ref-header">
+      <h1>Module 11: Quick Reference</h1>
+      <p>File Handling Cheat Sheet</p>
+    </div>
+
+    <div class="ref-section">
+      <h2>File Modes</h2>
+      <table class="ref-table">
+        <tr><th>Mode</th><th>Description</th><th>File Exists</th><th>File Missing</th></tr>
+        <tr><td><code>"r"</code></td><td>Read (default)</td><td>Opens</td><td>Error</td></tr>
+        <tr><td><code>"w"</code></td><td>Write (overwrites)</td><td>Erases content</td><td>Creates</td></tr>
+        <tr><td><code>"a"</code></td><td>Append</td><td>Adds to end</td><td>Creates</td></tr>
+        <tr><td><code>"x"</code></td><td>Exclusive create</td><td>Error</td><td>Creates</td></tr>
+      </table>
+    </div>
+
+    <div class="ref-section">
+      <h2>Reading Files</h2>
+      <pre class="code-box"><span class="keyword">with</span> <span class="function">open</span>(<span class="string">"file.txt"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:
+    content = f.<span class="function">read</span>()        <span class="comment"># Entire file as string</span>
+    line = f.<span class="function">readline</span>()       <span class="comment"># One line at a time</span>
+    lines = f.<span class="function">readlines</span>()     <span class="comment"># All lines as list</span>
+
+<span class="comment"># Best: iterate directly</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"file.txt"</span>) <span class="keyword">as</span> f:
+    <span class="keyword">for</span> line <span class="keyword">in</span> f:
+        <span class="function">print</span>(line.<span class="function">strip</span>())    <span class="comment"># strip() removes \n</span></pre>
+    </div>
+
+    <div class="ref-section">
+      <h2>Writing Files</h2>
+      <pre class="code-box"><span class="comment"># Write (overwrites existing content)</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"file.txt"</span>, <span class="string">"w"</span>) <span class="keyword">as</span> f:
+    f.<span class="function">write</span>(<span class="string">"text\n"</span>)         <span class="comment"># Write string (add \n yourself)</span>
+    f.<span class="function">writelines</span>(list_of_str) <span class="comment"># Write list of strings</span>
+
+<span class="comment"># Append (adds to end)</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"file.txt"</span>, <span class="string">"a"</span>) <span class="keyword">as</span> f:
+    f.<span class="function">write</span>(<span class="string">"added to end\n"</span>)</pre>
+    </div>
+
+    <div class="ref-section">
+      <h2>CSV Files</h2>
+      <pre class="code-box"><span class="keyword">import</span> csv
+
+<span class="comment"># Read with csv.reader (rows as lists)</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"data.csv"</span>) <span class="keyword">as</span> f:
+    reader = csv.<span class="function">reader</span>(f)
+    header = <span class="function">next</span>(reader)  <span class="comment"># Skip header row</span>
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        <span class="function">print</span>(row[0])       <span class="comment"># Access by index</span>
+
+<span class="comment"># Read with DictReader (rows as dicts)</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"data.csv"</span>) <span class="keyword">as</span> f:
+    reader = csv.<span class="function">DictReader</span>(f)
+    <span class="keyword">for</span> row <span class="keyword">in</span> reader:
+        <span class="function">print</span>(row[<span class="string">"name"</span>])   <span class="comment"># Access by column name</span>
+
+<span class="comment"># Write CSV</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"out.csv"</span>, <span class="string">"w"</span>, newline=<span class="string">""</span>) <span class="keyword">as</span> f:
+    writer = csv.<span class="function">writer</span>(f)
+    writer.<span class="function">writerow</span>([<span class="string">"col1"</span>, <span class="string">"col2"</span>])  <span class="comment"># Header</span>
+    writer.<span class="function">writerows</span>(data)              <span class="comment"># All rows</span>
+
+<span class="comment"># Write with DictWriter</span>
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">"out.csv"</span>, <span class="string">"w"</span>, newline=<span class="string">""</span>) <span class="keyword">as</span> f:
+    writer = csv.<span class="function">DictWriter</span>(f, fieldnames=[<span class="string">"name"</span>, <span class="string">"score"</span>])
+    writer.<span class="function">writeheader</span>()
+    writer.<span class="function">writerows</span>(list_of_dicts)</pre>
+    </div>
+
+    <div class="ref-section">
+      <h2>Key Reminders</h2>
+      <ul>
+        <li>Always use <code>with</code> for file operations</li>
+        <li><code>write()</code> does NOT add newlines - include <code>\n</code> yourself</li>
+        <li><code>strip()</code> removes trailing <code>\n</code> from read lines</li>
+        <li>CSV values are always strings - convert with <code>int()</code> or <code>float()</code></li>
+        <li>Use <code>newline=""</code> when writing CSV files</li>
+        <li><code>"w"</code> mode erases existing file content</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

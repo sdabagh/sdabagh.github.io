@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 7: Strings in Depth - Master Python string methods, slicing, searching, and common patterns">
+  <title>Module 7: Strings in Depth – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-meta {
+      display: flex; gap: var(--spacing-lg); flex-wrap: wrap;
+      margin-top: var(--spacing-md); opacity: 0.95;
+    }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); }
+    .objectives-list { list-style: none; margin: 0; padding: 0; }
+    .objectives-list li { padding: var(--spacing-sm) 0; padding-left: var(--spacing-lg); position: relative; }
+    .objectives-list li::before { content: "\2713"; position: absolute; left: 0; color: var(--success); font-weight: bold; font-size: 1.2rem; }
+    .lesson-card {
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md); transition: var(--transition);
+      display: flex; gap: var(--spacing-md); align-items: flex-start;
+    }
+    .lesson-card:hover { border-color: var(--primary-color); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .lesson-number {
+      background: var(--primary-color); color: white; width: 48px; height: 48px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.25rem; flex-shrink: 0;
+    }
+    .lesson-content { flex: 1; }
+    .lesson-content h3 { margin-top: 0; margin-bottom: var(--spacing-xs); color: var(--primary-dark); }
+    .lesson-duration { color: var(--text-secondary); font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.25rem; }
+    .progress-tracker { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); }
+    .progress-steps { display: flex; justify-content: space-between; gap: var(--spacing-sm); margin-top: var(--spacing-md); flex-wrap: wrap; }
+    .progress-step {
+      flex: 1; min-width: 120px; text-align: center; padding: var(--spacing-sm);
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm); font-size: 0.875rem; transition: var(--transition);
+    }
+    .progress-step.current { border-color: var(--primary-color); background: var(--primary-color); color: white; font-weight: 600; }
+    .progress-step.completed { border-color: var(--success); background: var(--success); color: white; }
+    @media (max-width: 768px) {
+      .module-meta { flex-direction: column; gap: var(--spacing-sm); }
+      .progress-steps { flex-direction: column; }
+      .progress-step { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="../index.html" class="back-link">&larr; Back to Course Home</a>
+
+    <div class="module-header">
+      <h1>Module 7: Strings in Depth</h1>
+      <p>Strings are everywhere in programming -- from user input to file processing to web data. In this module, you'll master Python's powerful string methods, slicing techniques, searching and replacing, and common string patterns used in real-world programs.</p>
+
+      <div class="module-meta">
+        <div class="meta-item">
+          <span>&#128218;</span>
+          <span>4 Lessons</span>
+        </div>
+        <div class="meta-item">
+          <span>&#9201;&#65039;</span>
+          <span>~3 hours</span>
+        </div>
+        <div class="meta-item">
+          <span>&#128187;</span>
+          <span>15 Practice Problems</span>
+        </div>
+        <div class="meta-item">
+          <span>&#127919;</span>
+          <span>Module Quiz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-tracker">
+      <h3>Your Progress</h3>
+      <div class="progress-steps">
+        <div class="progress-step current">Lessons 1-4</div>
+        <div class="progress-step">Practice</div>
+        <div class="progress-step">Module Quiz</div>
+        <div class="progress-step">Review</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this module, you will be able to:</p>
+        <ul class="objectives-list">
+          <li><strong>Transform</strong> strings using methods like upper(), lower(), title(), strip(), and replace()</li>
+          <li><strong>Slice</strong> strings to extract substrings using the same syntax as lists</li>
+          <li><strong>Search</strong> within strings using find(), index(), and the <code>in</code> operator</li>
+          <li><strong>Split</strong> strings into lists and join lists back into strings</li>
+          <li><strong>Apply</strong> common string patterns for data parsing, formatting, and building</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why This Matters</h2>
+      <div class="highlight-box">
+        <p>
+          <strong>Text processing is fundamental to programming!</strong> Almost every program works with text in some way -- reading user input, processing files, working with web data, or generating reports.
+        </p>
+        <p class="mt-2">
+          This module gives you the skills to:
+        </p>
+        <ul class="icon-list mt-1">
+          <li>Clean and format text data from various sources</li>
+          <li>Search for and extract specific information from strings</li>
+          <li>Parse structured data like CSV, log files, and URLs</li>
+          <li>Build formatted output strings for display and reporting</li>
+          <li>Handle common text processing challenges confidently</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Module Lessons</h2>
+
+      <div class="lesson-card">
+        <div class="lesson-number">1</div>
+        <div class="lesson-content">
+          <h3>String Methods</h3>
+          <p>Learn essential string methods for transforming text: upper(), lower(), title(), strip(), replace(), count(), startswith(), and endswith().</p>
+          <p class="lesson-duration">&#9201;&#65039; 35-45 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-01-string-methods.html" class="btn btn-outline">Start Lesson 1</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">2</div>
+        <div class="lesson-content">
+          <h3>String Slicing</h3>
+          <p>Apply the same slicing syntax you learned with lists to extract substrings, reverse strings, and work with the step parameter.</p>
+          <p class="lesson-duration">&#9201;&#65039; 30-40 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-02-string-slicing.html" class="btn btn-outline">Start Lesson 2</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">3</div>
+        <div class="lesson-content">
+          <h3>Searching and Replacing</h3>
+          <p>Master string searching with find(), index(), rfind(), replace(), and the in operator. Get a brief introduction to pattern matching concepts.</p>
+          <p class="lesson-duration">&#9201;&#65039; 35-45 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-03-searching-replacing.html" class="btn btn-outline">Start Lesson 3</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">4</div>
+        <div class="lesson-content">
+          <h3>Common String Patterns</h3>
+          <p>Learn real-world string techniques: splitting and joining, parsing data, building strings, working with multiline strings, and raw strings.</p>
+          <p class="lesson-duration">&#9201;&#65039; 40-50 minutes</p>
+          <div class="mt-2">
+            <a href="lesson-04-common-string-patterns.html" class="btn btn-outline">Start Lesson 4</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>After the Lessons</h2>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>&#128221; Practice Problems</h3>
+          <p>Apply what you've learned with 15 practice problems covering all module topics. Hints and solutions available!</p>
+          <a href="practice.html" class="btn btn-outline mt-2">Practice Problems</a>
+        </div>
+
+        <div class="card">
+          <h3>&#127919; Module Quiz</h3>
+          <p>Test your understanding with a 12-question quiz. Pass with 70% to confirm your mastery of Module 7!</p>
+          <a href="quiz.html" class="btn btn-primary mt-2">Take Module Quiz</a>
+        </div>
+
+        <div class="card">
+          <h3>&#128196; Study Materials</h3>
+          <p>Review with printable study guides and quick reference cards. Perfect for review and offline study!</p>
+          <div class="cta-group mt-2">
+            <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+            <a href="quick-reference.html" class="btn btn-outline">Quick Ref Card</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tips for Success</h2>
+      <div class="highlight-box">
+        <ul class="icon-list">
+          <li><strong>Remember immutability</strong> - Unlike lists, strings cannot be changed in place. Methods always return a NEW string.</li>
+          <li><strong>Connect to Module 6</strong> - String slicing works exactly like list slicing. If you know one, you know the other!</li>
+          <li><strong>Practice with real data</strong> - Try processing a paragraph of text, a CSV line, or a URL to make it practical.</li>
+          <li><strong>Chain methods</strong> - You can chain string methods together: <code>"  Hello  ".strip().lower()</code></li>
+          <li><strong>Use the interpreter</strong> - Test string methods interactively to see what they do before using them in programs.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="lesson-01-string-methods.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Begin Module 7 &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

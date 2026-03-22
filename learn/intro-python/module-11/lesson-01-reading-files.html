@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to read files in Python using open(), read(), readline(), and readlines()">
+  <title>Lesson 11.1: Reading Files – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 11 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-writing-files.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 11.1: Reading Files</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to open a file with <code>open()</code></li>
+        <li>Reading entire file contents with <code>read()</code></li>
+        <li>Reading one line at a time with <code>readline()</code></li>
+        <li>Reading all lines as a list with <code>readlines()</code></li>
+        <li>Iterating through lines in a file</li>
+        <li>Understanding file paths</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Opening Files with open()</h2>
+      <p>To work with a file in Python, you first need to <strong>open</strong> it. The <code>open()</code> function creates a connection between your program and a file on your computer.</p>
+
+      <div class="definition-box">
+        <strong>open(filename, mode):</strong> Opens a file and returns a file object. The <code>mode</code> parameter specifies what you want to do with the file. For reading, use <code>"r"</code> (this is the default).
+      </div>
+
+      <pre class="code-box"><span class="comment"># Open a file for reading</span>
+file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+
+<span class="comment"># "r" is the default, so this also works:</span>
+file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>)
+
+<span class="comment"># Always close the file when done</span>
+file.<span class="function">close</span>()</pre>
+
+      <p>Think of opening a file like opening a book. You need to open it before you can read it, and you should close it when you are done.</p>
+
+      <div class="definition-box">
+        <strong>Important:</strong> If the file does not exist, Python will raise a <code>FileNotFoundError</code>. Make sure the file exists and the path is correct.
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Reading Entire Contents with read()</h2>
+      <p>The <code>read()</code> method reads the entire file as a single string:</p>
+
+      <div class="example-box">
+        <h4>Suppose greeting.txt contains:</h4>
+        <pre class="code-box">Hello, World!
+Welcome to Python.
+Have a great day!</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Reading the Entire File</h4>
+        <pre class="code-box">file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+content = file.<span class="function">read</span>()
+<span class="function">print</span>(content)
+file.<span class="function">close</span>()</pre>
+        <div class="output-box">Hello, World!<br>Welcome to Python.<br>Have a great day!</div>
+      </div>
+
+      <p>The <code>read()</code> method returns everything in the file as one big string, including the newline characters (<code>\n</code>) between lines.</p>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Reading One Line with readline()</h2>
+      <p>The <code>readline()</code> method reads one line at a time. Each call reads the next line:</p>
+
+      <div class="example-box">
+        <h4>Reading Line by Line</h4>
+        <pre class="code-box">file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+
+line1 = file.<span class="function">readline</span>()
+<span class="function">print</span>(<span class="string">"Line 1:"</span>, line1.<span class="function">strip</span>())
+
+line2 = file.<span class="function">readline</span>()
+<span class="function">print</span>(<span class="string">"Line 2:"</span>, line2.<span class="function">strip</span>())
+
+line3 = file.<span class="function">readline</span>()
+<span class="function">print</span>(<span class="string">"Line 3:"</span>, line3.<span class="function">strip</span>())
+
+file.<span class="function">close</span>()</pre>
+        <div class="output-box">Line 1: Hello, World!<br>Line 2: Welcome to Python.<br>Line 3: Have a great day!</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Why strip()?</strong> Each line read from a file includes the newline character (<code>\n</code>) at the end. The <code>strip()</code> method removes this whitespace so your output looks clean.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Reading All Lines as a List with readlines()</h2>
+      <p>The <code>readlines()</code> method reads all lines and returns them as a list of strings:</p>
+
+      <div class="example-box">
+        <h4>Getting a List of Lines</h4>
+        <pre class="code-box">file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+lines = file.<span class="function">readlines</span>()
+<span class="function">print</span>(lines)
+file.<span class="function">close</span>()</pre>
+        <div class="output-box">['Hello, World!\n', 'Welcome to Python.\n', 'Have a great day!']</div>
+      </div>
+
+      <p>Notice each line still has <code>\n</code> at the end. You can process the list to clean them up:</p>
+
+      <pre class="code-box">file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+lines = file.<span class="function">readlines</span>()
+file.<span class="function">close</span>()
+
+<span class="comment"># Clean up each line</span>
+<span class="keyword">for</span> line <span class="keyword">in</span> lines:
+    <span class="function">print</span>(line.<span class="function">strip</span>())</pre>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Iterating Through a File</h2>
+      <p>The most Pythonic and memory-efficient way to read a file line by line is to iterate directly over the file object:</p>
+
+      <div class="example-box">
+        <h4>Looping Through Lines (Recommended)</h4>
+        <pre class="code-box">file = <span class="function">open</span>(<span class="string">"greeting.txt"</span>, <span class="string">"r"</span>)
+
+<span class="keyword">for</span> line <span class="keyword">in</span> file:
+    <span class="function">print</span>(line.<span class="function">strip</span>())
+
+file.<span class="function">close</span>()</pre>
+        <div class="output-box">Hello, World!<br>Welcome to Python.<br>Have a great day!</div>
+      </div>
+
+      <p>This approach is best for large files because it only loads one line into memory at a time, rather than loading the entire file at once.</p>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. File Paths</h2>
+      <p>When opening a file, you need to tell Python where the file is located. There are two types of paths:</p>
+
+      <div class="example-box">
+        <h4>Relative vs. Absolute Paths</h4>
+        <pre class="code-box"><span class="comment"># Relative path - relative to where your script is running</span>
+file = <span class="function">open</span>(<span class="string">"data.txt"</span>)              <span class="comment"># Same folder</span>
+file = <span class="function">open</span>(<span class="string">"data/scores.txt"</span>)       <span class="comment"># Subfolder called "data"</span>
+file = <span class="function">open</span>(<span class="string">"../notes.txt"</span>)           <span class="comment"># Parent folder</span>
+
+<span class="comment"># Absolute path - full path from the root</span>
+<span class="comment"># Mac/Linux:</span>
+file = <span class="function">open</span>(<span class="string">"/Users/alice/data.txt"</span>)
+
+<span class="comment"># Windows (use raw string to avoid backslash issues):</span>
+file = <span class="function">open</span>(<span class="string">r"C:\Users\alice\data.txt"</span>)</pre>
+      </div>
+
+      <div class="definition-box">
+        <strong>Tip:</strong> On Windows, use a raw string (<code>r"..."</code>) or forward slashes for file paths to avoid issues with backslashes being interpreted as escape characters.
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>What is the difference between <code>read()</code>, <code>readline()</code>, and <code>readlines()</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p><code>read()</code> returns the <strong>entire file</strong> as a single string. <code>readline()</code> returns <strong>one line</strong> as a string (the next unread line). <code>readlines()</code> returns <strong>all lines</strong> as a list of strings. For large files, iterating over the file object directly (<code>for line in file</code>) is the most memory-efficient approach.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Use <code>open(filename, "r")</code> to open a file for reading</li>
+        <li><code>read()</code> returns the entire file as one string</li>
+        <li><code>readline()</code> returns one line at a time</li>
+        <li><code>readlines()</code> returns all lines as a list</li>
+        <li>Use <code>strip()</code> to remove trailing newline characters</li>
+        <li>Always close files with <code>file.close()</code> when done</li>
+        <li>Iterating directly over the file object is the most efficient approach</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="index.html">&larr; Module 11 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-writing-files.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

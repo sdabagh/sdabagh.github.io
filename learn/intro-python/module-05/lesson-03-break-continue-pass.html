@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python break, continue, and pass statements for controlling loop flow">
+  <title>Lesson 5.3: break, continue, and pass – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; } .code-box .keyword { color: #569cd6; } .code-box .string { color: #ce9178; } .code-box .function { color: #dcdcaa; } .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; } .lesson-nav a:hover { color: var(--primary-dark); }
+    .lesson-nav span { color: var(--text-secondary); font-size: 0.9rem; }
+    .lesson-objectives { background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-sm); }
+    .lesson-objectives ul { margin-left: var(--spacing-md); } .lesson-objectives li { padding: var(--spacing-xs) 0; color: var(--text-secondary); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 3px solid var(--accent-color); display: inline-block; padding-bottom: var(--spacing-xs); margin-bottom: var(--spacing-md); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f9f9f9; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--accent-color); margin-bottom: var(--spacing-sm); }
+    .check-understanding { background: #fff8e1; border: 2px solid var(--warning); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #f57f17; margin-bottom: var(--spacing-sm); }
+    .reveal-answer { background: var(--primary-color); color: white; border: none; padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-answer:hover { background: var(--primary-dark); }
+    .answer-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-top: var(--spacing-xl); }
+    .key-takeaways h3 { color: var(--success); margin-bottom: var(--spacing-md); } .key-takeaways ul { margin-left: var(--spacing-md); } .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-02-while-loops.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-nested-loops.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 5.3: break, continue, and pass</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>How to exit a loop early with <code>break</code></li>
+        <li>How to skip iterations with <code>continue</code></li>
+        <li>How to use <code>pass</code> as a placeholder</li>
+        <li>When each statement is appropriate</li>
+        <li>The <code>else</code> clause on loops</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>The break Statement</h2>
+      <p>
+        <code>break</code> immediately exits the loop, regardless of the loop condition. Execution
+        continues with the code after the loop.
+      </p>
+
+      <div class="definition-box">
+        <strong>break:</strong> Exits the innermost loop immediately. Any remaining iterations are skipped.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Search for a number in a list</span>
+numbers = [<span class="number">4</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>]
+target = <span class="number">9</span>
+
+<span class="keyword">for</span> num <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> num == target:
+        <span class="function">print</span>(<span class="string">f"Found </span>{target}<span class="string">!"</span>)
+        <span class="keyword">break</span>
+    <span class="function">print</span>(<span class="string">f"Checking </span>{num}<span class="string">..."</span>)
+
+<span class="function">print</span>(<span class="string">"Search complete."</span>)</pre>
+      <div class="output-box">Checking 4...
+Checking 7...
+Checking 2...
+Found 9!
+Search complete.</div>
+
+      <p>Notice that once 9 was found, the loop stopped. It did not check 1, 5, or 8.</p>
+
+      <div class="example-box">
+        <h4>Example: First Even Number</h4>
+        <pre class="code-box">numbers = [<span class="number">7</span>, <span class="number">3</span>, <span class="number">11</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">2</span>]
+
+<span class="keyword">for</span> num <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> num % <span class="number">2</span> == <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">f"First even number: </span>{num}<span class="string">"</span>)
+        <span class="keyword">break</span></pre>
+        <div class="output-box">First even number: 8</div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>The continue Statement</h2>
+      <p>
+        <code>continue</code> skips the rest of the current iteration and jumps to the next one.
+        The loop does not exit &mdash; it just moves on to the next item.
+      </p>
+
+      <div class="definition-box">
+        <strong>continue:</strong> Skips the remaining code in the current iteration and moves to
+        the next iteration of the loop.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Print only odd numbers</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>):
+    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:
+        <span class="keyword">continue</span>  <span class="comment"># Skip even numbers</span>
+    <span class="function">print</span>(i, end=<span class="string">" "</span>)</pre>
+      <div class="output-box">1 3 5 7 9</div>
+
+      <div class="example-box">
+        <h4>Example: Skip Negative Numbers</h4>
+        <pre class="code-box">numbers = [<span class="number">10</span>, -<span class="number">3</span>, <span class="number">5</span>, -<span class="number">7</span>, <span class="number">8</span>, -<span class="number">1</span>, <span class="number">4</span>]
+total = <span class="number">0</span>
+
+<span class="keyword">for</span> num <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> num < <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">f"Skipping </span>{num}<span class="string">"</span>)
+        <span class="keyword">continue</span>
+    total += num
+
+<span class="function">print</span>(<span class="string">f"Sum of positive numbers: </span>{total}<span class="string">"</span>)</pre>
+        <div class="output-box">Skipping -3
+Skipping -7
+Skipping -1
+Sum of positive numbers: 27</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>break vs. continue</h2>
+      <p>
+        The key difference: <code>break</code> <strong>exits</strong> the loop entirely,
+        while <code>continue</code> <strong>skips to the next iteration</strong>.
+      </p>
+
+      <pre class="code-box"><span class="comment"># break: stops the entire loop</span>
+<span class="function">print</span>(<span class="string">"break example:"</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="keyword">if</span> i == <span class="number">3</span>:
+        <span class="keyword">break</span>
+    <span class="function">print</span>(i, end=<span class="string">" "</span>)
+
+<span class="function">print</span>()  <span class="comment"># New line</span>
+
+<span class="comment"># continue: skips one iteration</span>
+<span class="function">print</span>(<span class="string">"continue example:"</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="keyword">if</span> i == <span class="number">3</span>:
+        <span class="keyword">continue</span>
+    <span class="function">print</span>(i, end=<span class="string">" "</span>)</pre>
+      <div class="output-box">break example:
+0 1 2
+continue example:
+0 1 2 4</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>The pass Statement</h2>
+      <p>
+        <code>pass</code> does absolutely nothing. It is a placeholder that lets you write syntactically
+        correct code when you have not yet decided what to put in a block.
+      </p>
+
+      <div class="definition-box">
+        <strong>pass:</strong> A "do nothing" statement. Used as a placeholder where Python syntax
+        requires a statement but you do not want any action.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Using pass as a placeholder while developing</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10</span>):
+    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:
+        <span class="keyword">pass</span>  <span class="comment"># TODO: handle even numbers later</span>
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">f"</span>{i}<span class="string"> is odd"</span>)</pre>
+      <div class="output-box">1 is odd
+3 is odd
+5 is odd
+7 is odd
+9 is odd</div>
+
+      <p>Without <code>pass</code>, an empty block would cause a <code>SyntaxError</code>. Think of it as saying
+      "I know I need code here, but not yet."</p>
+
+      <pre class="code-box"><span class="comment"># pass in an empty function (preview of Module 9)</span>
+<span class="keyword">def</span> <span class="function">calculate_tax</span>():
+    <span class="keyword">pass</span>  <span class="comment"># Will implement later</span>
+
+<span class="comment"># pass in an empty loop</span>
+<span class="keyword">while</span> <span class="keyword">False</span>:
+    <span class="keyword">pass</span>  <span class="comment"># This loop never runs, but it's valid syntax</span></pre>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>The else Clause on Loops</h2>
+      <p>
+        Python has a unique feature: you can put an <code>else</code> clause on a loop. The else block
+        runs <strong>only if the loop completed normally</strong> (was not terminated by <code>break</code>).
+      </p>
+
+      <pre class="code-box"><span class="comment"># else runs because break was NOT triggered</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="keyword">if</span> i == <span class="number">10</span>:  <span class="comment"># Never true</span>
+        <span class="keyword">break</span>
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Loop completed without break"</span>)</pre>
+      <div class="output-box">Loop completed without break</div>
+
+      <pre class="code-box"><span class="comment"># else does NOT run because break WAS triggered</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="keyword">if</span> i == <span class="number">3</span>:
+        <span class="function">print</span>(<span class="string">"Breaking at 3"</span>)
+        <span class="keyword">break</span>
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"This won't print"</span>)</pre>
+      <div class="output-box">Breaking at 3</div>
+
+      <div class="example-box">
+        <h4>Practical Use: Searching</h4>
+        <pre class="code-box"><span class="comment"># Check if a number is prime</span>
+number = <span class="number">17</span>
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">2</span>, number):
+    <span class="keyword">if</span> number % i == <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">f"</span>{number}<span class="string"> is not prime (divisible by </span>{i}<span class="string">)"</span>)
+        <span class="keyword">break</span>
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">f"</span>{number}<span class="string"> is prime!"</span>)</pre>
+        <div class="output-box">17 is prime!</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>When to Use Each Statement</h2>
+      <ul>
+        <li><strong><code>break</code>:</strong> When you have found what you are looking for and want to stop immediately (searching, validation with early exit)</li>
+        <li><strong><code>continue</code>:</strong> When you want to skip certain items but keep processing the rest (filtering, ignoring invalid data)</li>
+        <li><strong><code>pass</code>:</strong> When you need a placeholder for code you have not written yet (development, empty blocks)</li>
+      </ul>
+
+      <div class="example-box">
+        <h4>Example: Processing Data with All Three</h4>
+        <pre class="code-box">data = [<span class="number">5</span>, -<span class="number">2</span>, <span class="number">0</span>, <span class="number">8</span>, <span class="number">999</span>, <span class="number">3</span>]
+
+<span class="keyword">for</span> value <span class="keyword">in</span> data:
+    <span class="keyword">if</span> value == <span class="number">999</span>:
+        <span class="function">print</span>(<span class="string">"End of data marker found"</span>)
+        <span class="keyword">break</span>         <span class="comment"># Stop processing</span>
+
+    <span class="keyword">if</span> value < <span class="number">0</span>:
+        <span class="keyword">continue</span>      <span class="comment"># Skip negative values</span>
+
+    <span class="keyword">if</span> value == <span class="number">0</span>:
+        <span class="keyword">pass</span>          <span class="comment"># TODO: handle zero case</span>
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">f"Processing: </span>{value}<span class="string">"</span>)</pre>
+        <div class="output-box">Processing: 5
+Processing: 8
+End of data marker found</div>
+      </div>
+    </div>
+
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>What will this code print?</p>
+      <pre class="code-box"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    <span class="keyword">if</span> i == <span class="number">2</span>:
+        <span class="keyword">continue</span>
+    <span class="keyword">if</span> i == <span class="number">4</span>:
+        <span class="keyword">break</span>
+    <span class="function">print</span>(i)</pre>
+      <button class="reveal-answer" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+      <div class="answer-content">
+        <p><strong>Answer:</strong></p>
+        <pre class="code-box">1
+3</pre>
+        <p>i=1: no skip, no break, prints 1.<br>
+        i=2: continue skips the rest, does not print.<br>
+        i=3: no skip, no break, prints 3.<br>
+        i=4: break exits the loop. 4 and 5 never print.</p>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><code>break</code> exits the loop entirely</li>
+        <li><code>continue</code> skips to the next iteration</li>
+        <li><code>pass</code> does nothing (placeholder)</li>
+        <li>Loop <code>else</code> runs only if the loop was not broken</li>
+        <li>Use <code>break</code> for searching; <code>continue</code> for filtering; <code>pass</code> for placeholders</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none;">
+      <a href="lesson-02-while-loops.html">&larr; while Loops</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-nested-loops.html">Next: Nested Loops &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>
