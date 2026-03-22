@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn the different ways to import modules in Python: import, from...import, and aliases">
+  <title>Lesson 10.2: Import Statements – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-builtin-modules.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-installing-packages.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 10.2: Import Statements</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to use <code>import module_name</code> to import an entire module</li>
+        <li>How to use <code>from module import function</code> to import specific items</li>
+        <li>How to create aliases with <code>import module as alias</code></li>
+        <li>What actually happens when Python imports a module</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. The Basic import Statement</h2>
+      <p>The simplest way to use a module is with the <code>import</code> keyword. This imports the entire module, and you access its contents using dot notation:</p>
+
+      <pre class="code-box"><span class="keyword">import</span> math
+
+<span class="comment"># Use dot notation: module_name.function_name</span>
+result = math.<span class="function">sqrt</span>(<span class="number">49</span>)
+<span class="function">print</span>(result)           <span class="comment"># 7.0</span>
+<span class="function">print</span>(math.pi)          <span class="comment"># 3.141592653589793</span>
+<span class="function">print</span>(math.<span class="function">ceil</span>(<span class="number">4.3</span>))   <span class="comment"># 5</span></pre>
+      <div class="output-box">7.0<br>3.141592653589793<br>5</div>
+
+      <div class="definition-box">
+        <strong>Dot notation:</strong> The pattern <code>module.function()</code> that tells Python to look inside a specific module for a function or variable. Think of it like saying "from the math module, use the sqrt function."
+      </div>
+
+      <p>The advantage of this approach is that it is very clear where each function comes from. When you see <code>math.sqrt()</code>, you immediately know it is from the math module.</p>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. The from...import Statement</h2>
+      <p>If you only need specific functions from a module, you can import just those functions. This lets you use them without the module name prefix:</p>
+
+      <div class="example-box">
+        <h4>Importing Specific Functions</h4>
+        <pre class="code-box"><span class="comment"># Import only what you need</span>
+<span class="keyword">from</span> math <span class="keyword">import</span> sqrt, pi
+
+<span class="comment"># Now use them directly - no "math." needed</span>
+result = <span class="function">sqrt</span>(<span class="number">64</span>)
+<span class="function">print</span>(result)    <span class="comment"># 8.0</span>
+<span class="function">print</span>(pi)        <span class="comment"># 3.141592653589793</span>
+
+<span class="comment"># But other math functions are NOT available:</span>
+<span class="comment"># print(ceil(4.3))  # NameError! ceil was not imported</span></pre>
+        <div class="output-box">8.0<br>3.141592653589793</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Importing Multiple Items</h4>
+        <pre class="code-box"><span class="keyword">from</span> random <span class="keyword">import</span> randint, choice, shuffle
+
+<span class="comment"># All three functions are directly available</span>
+<span class="function">print</span>(<span class="function">randint</span>(<span class="number">1</span>, <span class="number">10</span>))
+<span class="function">print</span>(<span class="function">choice</span>([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]))
+
+names = [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>]
+<span class="function">shuffle</span>(names)
+<span class="function">print</span>(names)</pre>
+        <div class="output-box">7<br>b<br>['Charlie', 'Alice', 'Bob']</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Warning about import *:</strong> You might see <code>from math import *</code> which imports everything. This is generally <strong>discouraged</strong> because it can cause naming conflicts and makes it unclear where functions come from. Stick to importing specific items.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Creating Aliases with import...as</h2>
+      <p>Sometimes module names are long. You can create a shorter alias (nickname) using <code>as</code>:</p>
+
+      <div class="example-box">
+        <h4>Module Aliases</h4>
+        <pre class="code-box"><span class="comment"># Create a shorter name for a module</span>
+<span class="keyword">import</span> datetime <span class="keyword">as</span> dt
+
+now = dt.datetime.<span class="function">now</span>()
+<span class="function">print</span>(now.<span class="function">strftime</span>(<span class="string">"%Y-%m-%d"</span>))
+
+<span class="comment"># Common aliases you'll see in Python code:</span>
+<span class="comment"># import numpy as np        (data science)</span>
+<span class="comment"># import pandas as pd       (data analysis)</span>
+<span class="comment"># import matplotlib.pyplot as plt  (plotting)</span></pre>
+        <div class="output-box">2025-06-15</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Function Aliases</h4>
+        <pre class="code-box"><span class="comment"># You can also alias specific imports</span>
+<span class="keyword">from</span> math <span class="keyword">import</span> sqrt <span class="keyword">as</span> square_root
+<span class="keyword">from</span> random <span class="keyword">import</span> randint <span class="keyword">as</span> random_number
+
+result = <span class="function">square_root</span>(<span class="number">36</span>)
+<span class="function">print</span>(result)  <span class="comment"># 6.0</span>
+
+num = <span class="function">random_number</span>(<span class="number">1</span>, <span class="number">100</span>)
+<span class="function">print</span>(num)</pre>
+        <div class="output-box">6.0<br>42</div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Comparing Import Styles</h2>
+      <p>Here is a side-by-side comparison of the three import styles:</p>
+
+      <div class="example-box">
+        <h4>Three Ways to Import</h4>
+        <pre class="code-box"><span class="comment"># Style 1: Import the whole module</span>
+<span class="keyword">import</span> math
+<span class="function">print</span>(math.<span class="function">sqrt</span>(<span class="number">16</span>))    <span class="comment"># Must use math.sqrt</span>
+
+<span class="comment"># Style 2: Import specific items</span>
+<span class="keyword">from</span> math <span class="keyword">import</span> sqrt
+<span class="function">print</span>(<span class="function">sqrt</span>(<span class="number">16</span>))         <span class="comment"># Use sqrt directly</span>
+
+<span class="comment"># Style 3: Import with an alias</span>
+<span class="keyword">import</span> math <span class="keyword">as</span> m
+<span class="function">print</span>(m.<span class="function">sqrt</span>(<span class="number">16</span>))      <span class="comment"># Use shorter alias</span></pre>
+        <div class="output-box">4.0<br>4.0<br>4.0</div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: var(--spacing-md);">
+        <thead>
+          <tr style="background: var(--background-alt);">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Style</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Best When</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Consideration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>import math</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Using many functions from a module</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Very clear, but more typing</td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>from math import sqrt</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Using only a few specific functions</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Less typing, but less clear origin</td></tr>
+          <tr><td style="padding: 10px;"><code>import math as m</code></td><td style="padding: 10px;">Module name is long or has a convention</td><td style="padding: 10px;">Good balance of clarity and brevity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. What Happens During Import</h2>
+      <p>When Python encounters an <code>import</code> statement, several things happen behind the scenes:</p>
+
+      <ol style="line-height: 1.8;">
+        <li><strong>Python searches</strong> for the module in its list of known locations</li>
+        <li><strong>The module code runs</strong> once (Python executes the file)</li>
+        <li><strong>A module object is created</strong> that contains all the functions and variables</li>
+        <li><strong>The name is bound</strong> in your program so you can use it</li>
+      </ol>
+
+      <div class="definition-box">
+        <strong>Important:</strong> Python only runs a module's code <strong>once</strong>, even if you import it multiple times. The second <code>import</code> statement simply reuses the already-loaded module.
+      </div>
+
+      <div class="example-box">
+        <h4>Import Order Convention</h4>
+        <pre class="code-box"><span class="comment"># Best practice: put all imports at the top of your file</span>
+<span class="comment"># Group them in this order:</span>
+
+<span class="comment"># 1. Standard library imports</span>
+<span class="keyword">import</span> math
+<span class="keyword">import</span> random
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+<span class="comment"># 2. Third-party imports (installed with pip)</span>
+<span class="comment"># import requests</span>
+<span class="comment"># import pandas as pd</span>
+
+<span class="comment"># 3. Your own modules</span>
+<span class="comment"># from my_module import my_function</span>
+
+<span class="comment"># Your code starts here</span>
+<span class="function">print</span>(<span class="string">"Program begins!"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>If you write <code>from random import choice</code>, can you later use <code>random.randint(1, 10)</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p><strong>No.</strong> When you use <code>from random import choice</code>, you only import the <code>choice</code> function, not the entire <code>random</code> module. To use <code>randint</code>, you would need to either add it to the import (<code>from random import choice, randint</code>) or import the whole module separately (<code>import random</code>).</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><code>import math</code> imports the entire module; use <code>math.sqrt()</code> to access functions</li>
+        <li><code>from math import sqrt</code> imports just <code>sqrt</code>; use it directly without the prefix</li>
+        <li><code>import math as m</code> creates an alias; use <code>m.sqrt()</code></li>
+        <li>Avoid <code>from module import *</code> as it can cause naming conflicts</li>
+        <li>Place all imports at the top of your file, grouped by type</li>
+        <li>Python only executes a module's code once, even if imported multiple times</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-01-builtin-modules.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-installing-packages.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

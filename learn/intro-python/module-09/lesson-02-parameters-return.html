@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about function parameters, arguments, and return values in Python">
+  <title>Lesson 9.2: Parameters and Return Values – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-defining-functions.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-default-keyword-args.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 9.2: Parameters and Return Values</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>The difference between parameters and arguments</li>
+        <li>How to define functions with one or more parameters</li>
+        <li>How positional arguments work</li>
+        <li>How to use the <code>return</code> statement</li>
+        <li>How to return multiple values</li>
+        <li>What <code>None</code> means when a function has no return statement</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Parameters vs Arguments</h2>
+      <p>These terms are often used interchangeably, but they have a specific meaning:</p>
+
+      <div class="definition-box">
+        <strong>Parameter:</strong> A variable listed in the function definition. It is a placeholder for the data the function will receive.<br><br>
+        <strong>Argument:</strong> The actual value you pass to the function when you call it.
+      </div>
+
+      <pre class="code-box"><span class="comment"># 'name' is a PARAMETER (in the definition)</span>
+<span class="keyword">def</span> <span class="function">greet</span>(name):
+    <span class="function">print</span>(f<span class="string">"Hello, {name}!"</span>)
+
+<span class="comment"># "Alice" is an ARGUMENT (in the call)</span>
+<span class="function">greet</span>(<span class="string">"Alice"</span>)</pre>
+      <div class="output-box">Hello, Alice!</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Functions with Multiple Parameters</h2>
+      <p>Separate parameters with commas:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">add</span>(a, b):
+    <span class="string">"""Add two numbers and print the result."""</span>
+    result = a + b
+    <span class="function">print</span>(f<span class="string">"{a} + {b} = {result}"</span>)
+
+<span class="function">add</span>(<span class="number">3</span>, <span class="number">5</span>)
+<span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>)</pre>
+      <div class="output-box">3 + 5 = 8
+10 + 20 = 30</div>
+
+      <h3>Positional Arguments</h3>
+      <p>By default, arguments are matched to parameters by <strong>position</strong>:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">describe_pet</span>(animal, name):
+    <span class="string">"""Describe a pet."""</span>
+    <span class="function">print</span>(f<span class="string">"I have a {animal} named {name}."</span>)
+
+<span class="function">describe_pet</span>(<span class="string">"dog"</span>, <span class="string">"Rex"</span>)
+<span class="function">describe_pet</span>(<span class="string">"cat"</span>, <span class="string">"Whiskers"</span>)
+
+<span class="comment"># Order matters! This gives a wrong result:</span>
+<span class="function">describe_pet</span>(<span class="string">"Rex"</span>, <span class="string">"dog"</span>)</pre>
+      <div class="output-box">I have a dog named Rex.
+I have a cat named Whiskers.
+I have a Rex named dog.</div>
+
+      <div class="warning-box">
+        <strong>Watch Out:</strong> The number of arguments must match the number of parameters. Too few or too many will raise a <code>TypeError</code>.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. The return Statement</h2>
+      <p>So far, our functions have only printed output. But often you want a function to <strong>compute a value</strong> and give it back so you can use it later. That is what <code>return</code> does:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">add</span>(a, b):
+    <span class="string">"""Return the sum of two numbers."""</span>
+    <span class="keyword">return</span> a + b
+
+<span class="comment"># The returned value can be stored in a variable</span>
+result = <span class="function">add</span>(<span class="number">3</span>, <span class="number">5</span>)
+<span class="function">print</span>(result)
+
+<span class="comment"># Or used directly in expressions</span>
+<span class="function">print</span>(<span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>) * <span class="number">2</span>)</pre>
+      <div class="output-box">8
+60</div>
+
+      <div class="definition-box">
+        <strong>return:</strong> A statement that ends the function and sends a value back to the caller. The function immediately stops when <code>return</code> is executed.
+      </div>
+
+      <h3>return vs print</h3>
+      <div class="example-box">
+        <h4>Understanding the Difference</h4>
+        <pre class="code-box"><span class="comment"># This function PRINTS (shows output but returns nothing)</span>
+<span class="keyword">def</span> <span class="function">add_print</span>(a, b):
+    <span class="function">print</span>(a + b)
+
+<span class="comment"># This function RETURNS (sends a value back)</span>
+<span class="keyword">def</span> <span class="function">add_return</span>(a, b):
+    <span class="keyword">return</span> a + b
+
+<span class="comment"># With print: you see output but can't use the value</span>
+x = <span class="function">add_print</span>(<span class="number">3</span>, <span class="number">5</span>)
+<span class="function">print</span>(f<span class="string">"x is: {x}"</span>)
+
+<span class="comment"># With return: you can store and reuse the value</span>
+y = <span class="function">add_return</span>(<span class="number">3</span>, <span class="number">5</span>)
+<span class="function">print</span>(f<span class="string">"y is: {y}"</span>)</pre>
+        <div class="output-box">8
+x is: None
+y is: 8</div>
+        <p>Notice that <code>add_print</code> displays <code>8</code> but returns <code>None</code>. The <code>add_return</code> function gives back <code>8</code> as a usable value.</p>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Returning Multiple Values</h2>
+      <p>Python functions can return multiple values as a tuple:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">get_min_max</span>(numbers):
+    <span class="string">"""Return the minimum and maximum of a list."""</span>
+    <span class="keyword">return</span> <span class="function">min</span>(numbers), <span class="function">max</span>(numbers)
+
+<span class="comment"># Unpack into separate variables</span>
+low, high = <span class="function">get_min_max</span>([<span class="number">4</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">9</span>])
+<span class="function">print</span>(f<span class="string">"Min: {low}, Max: {high}"</span>)
+
+<span class="comment"># Or keep as a tuple</span>
+result = <span class="function">get_min_max</span>([<span class="number">4</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">9</span>])
+<span class="function">print</span>(result)</pre>
+      <div class="output-box">Min: 1, Max: 9
+(1, 9)</div>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">divide_with_remainder</span>(a, b):
+    <span class="string">"""Return quotient and remainder."""</span>
+    quotient = a // b
+    remainder = a % b
+    <span class="keyword">return</span> quotient, remainder
+
+q, r = <span class="function">divide_with_remainder</span>(<span class="number">17</span>, <span class="number">5</span>)
+<span class="function">print</span>(f<span class="string">"17 / 5 = {q} remainder {r}"</span>)</pre>
+      <div class="output-box">17 / 5 = 3 remainder 2</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Functions That Return None</h2>
+      <p>If a function has no <code>return</code> statement (or just says <code>return</code> with no value), it returns <code>None</code>:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">say_hello</span>(name):
+    <span class="function">print</span>(f<span class="string">"Hello, {name}!"</span>)
+    <span class="comment"># no return statement</span>
+
+result = <span class="function">say_hello</span>(<span class="string">"Alice"</span>)
+<span class="function">print</span>(f<span class="string">"Return value: {result}"</span>)
+<span class="function">print</span>(<span class="function">type</span>(result))</pre>
+      <div class="output-box">Hello, Alice!
+Return value: None
+&lt;class 'NoneType'&gt;</div>
+
+      <div class="definition-box">
+        <strong>None:</strong> Python's special value meaning "no value" or "nothing." Functions that do not explicitly return a value return <code>None</code> by default.
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Early Return</h2>
+      <p>You can use <code>return</code> to exit a function early based on a condition:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">divide</span>(a, b):
+    <span class="string">"""Divide a by b, with error checking."""</span>
+    <span class="keyword">if</span> b == <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">"Error: Cannot divide by zero!"</span>)
+        <span class="keyword">return</span> <span class="keyword">None</span>
+    <span class="keyword">return</span> a / b
+
+<span class="function">print</span>(<span class="function">divide</span>(<span class="number">10</span>, <span class="number">3</span>))
+<span class="function">print</span>(<span class="function">divide</span>(<span class="number">10</span>, <span class="number">0</span>))</pre>
+      <div class="output-box">3.3333333333333335
+Error: Cannot divide by zero!
+None</div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What does this code print?</p>
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">mystery</span>(x):
+    <span class="keyword">return</span> x * <span class="number">2</span>
+
+a = <span class="function">mystery</span>(<span class="number">5</span>)
+b = <span class="function">mystery</span>(a)
+<span class="function">print</span>(b)</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer: <code>20</code></strong></p>
+        <p><code>mystery(5)</code> returns <code>10</code> (stored in <code>a</code>). Then <code>mystery(10)</code> returns <code>20</code> (stored in <code>b</code>).</p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <ol>
+        <li>Write a function <code>square(n)</code> that returns the square of a number</li>
+        <li>Write a function <code>is_even(n)</code> that returns <code>True</code> if n is even, <code>False</code> otherwise</li>
+        <li>Write a function <code>full_name(first, last)</code> that returns the full name as a single string</li>
+        <li>Write a function <code>circle_stats(radius)</code> that returns both the area and circumference</li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Parameters</strong> are defined in the function header; <strong>arguments</strong> are the values passed when calling</li>
+        <li>Positional arguments must be passed in the correct order</li>
+        <li><code>return</code> sends a value back to the caller and ends the function</li>
+        <li>Functions without a <code>return</code> statement return <code>None</code></li>
+        <li>Functions can return multiple values as a tuple</li>
+        <li><code>return</code> gives back data; <code>print()</code> just displays text</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="lesson-01-defining-functions.html">&larr; Previous: Defining Functions</a>
+      <a href="lesson-03-default-keyword-args.html">Next: Default &amp; Keyword Arguments &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

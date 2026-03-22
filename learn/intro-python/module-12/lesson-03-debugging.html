@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn practical debugging strategies for Python programming">
+  <title>Lesson 12.3: Debugging Strategies – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-02-try-except.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-next-steps.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 12.3: Debugging Strategies</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to read and interpret error messages effectively</li>
+        <li>Using print statements to find bugs</li>
+        <li>Commenting out code to isolate problems</li>
+        <li>Common beginner mistakes and how to avoid them</li>
+        <li>The rubber duck debugging technique</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Reading Error Messages Carefully</h2>
+      <p>The most important debugging skill is learning to read error messages. They usually tell you exactly what went wrong.</p>
+
+      <div class="definition-box">
+        <strong>Steps to read an error:</strong>
+        <ol style="margin: var(--spacing-sm) 0 0 var(--spacing-lg);">
+          <li>Look at the <strong>last line</strong> - it tells you the error type and message</li>
+          <li>Look at the <strong>line number</strong> - it tells you where the error occurred</li>
+          <li>Look at the <strong>code shown</strong> - it shows the exact line that failed</li>
+          <li>Read <strong>upward</strong> for the chain of calls that led to the error</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Reading a Traceback</h4>
+        <pre class="code-box"><span class="comment"># This error message:</span>
+<span class="comment"># Traceback (most recent call last):</span>
+<span class="comment">#   File "app.py", line 5, in calculate</span>
+<span class="comment">#     return total / count</span>
+<span class="comment"># ZeroDivisionError: division by zero</span>
+
+<span class="comment"># Tells you:</span>
+<span class="comment"># 1. Error type: ZeroDivisionError</span>
+<span class="comment"># 2. File: app.py, line 5</span>
+<span class="comment"># 3. The problematic code: total / count</span>
+<span class="comment"># 4. "count" must be 0</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Print Debugging</h2>
+      <p>The simplest and most effective debugging technique is adding <code>print()</code> statements to see what your program is actually doing:</p>
+
+      <div class="example-box">
+        <h4>Before Debugging (Bug)</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">calculate_average</span>(grades):
+    total = <span class="number">0</span>
+    <span class="keyword">for</span> grade <span class="keyword">in</span> grades:
+        total = grade          <span class="comment"># Bug! Should be total += grade</span>
+    <span class="keyword">return</span> total / <span class="function">len</span>(grades)
+
+result = <span class="function">calculate_average</span>([<span class="number">80</span>, <span class="number">90</span>, <span class="number">100</span>])
+<span class="function">print</span>(result)  <span class="comment"># Expected: 90.0, Got: 33.33...</span></pre>
+      </div>
+
+      <div class="example-box">
+        <h4>With Print Debugging</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">calculate_average</span>(grades):
+    total = <span class="number">0</span>
+    <span class="keyword">for</span> grade <span class="keyword">in</span> grades:
+        total = grade
+        <span class="function">print</span>(<span class="string">f"DEBUG: grade=</span>{grade}<span class="string">, total=</span>{total}<span class="string">"</span>)  <span class="comment"># Add this</span>
+    <span class="function">print</span>(<span class="string">f"DEBUG: final total=</span>{total}<span class="string">"</span>)  <span class="comment"># And this</span>
+    <span class="keyword">return</span> total / <span class="function">len</span>(grades)
+
+result = <span class="function">calculate_average</span>([<span class="number">80</span>, <span class="number">90</span>, <span class="number">100</span>])</pre>
+        <div class="output-box">DEBUG: grade=80, total=80<br>DEBUG: grade=90, total=90<br>DEBUG: grade=100, total=100<br>DEBUG: final total=100</div>
+        <p style="margin-top: var(--spacing-sm);">The debug output reveals the bug: total is being <strong>replaced</strong> instead of <strong>accumulated</strong>. Changing <code>total = grade</code> to <code>total += grade</code> fixes it.</p>
+      </div>
+
+      <div class="definition-box">
+        <strong>Tip:</strong> Prefix debug prints with "DEBUG:" so you can easily find and remove them later. Some programmers also use <code>print(f"DEBUG [{variable_name}]: {variable}")</code> for clarity.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Using Comments to Isolate Problems</h2>
+      <p>If you are not sure which part of your code is causing the problem, comment out sections to narrow it down:</p>
+
+      <div class="example-box">
+        <h4>Isolating a Bug</h4>
+        <pre class="code-box"><span class="comment"># Something is wrong with this program</span>
+<span class="comment"># Comment out sections one at a time to find the bug</span>
+
+data = <span class="function">load_data</span>()          <span class="comment"># Step 1: Does this work?</span>
+<span class="comment"># cleaned = clean_data(data)   # Step 2: Comment this out</span>
+<span class="comment"># results = process(cleaned)   # Step 3: And this</span>
+<span class="comment"># save_results(results)        # Step 4: And this</span>
+
+<span class="comment"># If Step 1 works alone, uncomment Step 2</span>
+<span class="comment"># If Step 1+2 work, uncomment Step 3</span>
+<span class="comment"># Keep going until you find the step that breaks</span></pre>
+      </div>
+
+      <p>This technique is called <strong>binary search debugging</strong> - you systematically narrow down where the problem is by testing half the code at a time.</p>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Common Beginner Mistakes</h2>
+
+      <div class="example-box">
+        <h4>Mistake 1: Using = Instead of ==</h4>
+        <pre class="code-box"><span class="comment"># Wrong: assignment instead of comparison</span>
+<span class="comment"># if x = 5:    # SyntaxError!</span>
+
+<span class="comment"># Right: use == for comparison</span>
+<span class="keyword">if</span> x == <span class="number">5</span>:
+    <span class="function">print</span>(<span class="string">"x is five"</span>)</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Mistake 2: Modifying a List While Looping</h4>
+        <pre class="code-box"><span class="comment"># Wrong: removing items while iterating</span>
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+<span class="keyword">for</span> n <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span>:
+        numbers.<span class="function">remove</span>(n)  <span class="comment"># Causes skipped items!</span>
+
+<span class="comment"># Right: create a new list</span>
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+odds = [n <span class="keyword">for</span> n <span class="keyword">in</span> numbers <span class="keyword">if</span> n % <span class="number">2</span> != <span class="number">0</span>]</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Mistake 3: Indentation Errors</h4>
+        <pre class="code-box"><span class="comment"># Wrong: code is inside the loop but shouldn't be</span>
+total = <span class="number">0</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    total += i
+    <span class="function">print</span>(<span class="string">f"Total: </span>{total}<span class="string">"</span>)  <span class="comment"># Prints 5 times!</span>
+
+<span class="comment"># Right: move print outside the loop</span>
+total = <span class="number">0</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    total += i
+<span class="function">print</span>(<span class="string">f"Total: </span>{total}<span class="string">"</span>)      <span class="comment"># Prints once</span></pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Mistake 4: Off-by-One Errors</h4>
+        <pre class="code-box"><span class="comment"># Wrong: range(5) gives 0,1,2,3,4 (not 1-5)</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="function">print</span>(i)   <span class="comment"># 0, 1, 2, 3, 4</span>
+
+<span class="comment"># Right: range(1, 6) gives 1,2,3,4,5</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    <span class="function">print</span>(i)   <span class="comment"># 1, 2, 3, 4, 5</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Rubber Duck Debugging</h2>
+      <p><strong>Rubber duck debugging</strong> is a surprisingly effective technique. The idea is simple: explain your code out loud, line by line, to a rubber duck (or any object). The act of explaining often reveals the bug.</p>
+
+      <div class="definition-box">
+        <strong>How it works:</strong>
+        <ol style="margin: var(--spacing-sm) 0 0 var(--spacing-lg);">
+          <li>Place a rubber duck (or any object) on your desk</li>
+          <li>Explain to the duck what your code is <strong>supposed</strong> to do</li>
+          <li>Go through your code <strong>line by line</strong>, explaining each line</li>
+          <li>At some point, you will say what the code <strong>does</strong> versus what it <strong>should do</strong>, and realize the bug</li>
+        </ol>
+      </div>
+
+      <p>This works because explaining forces you to slow down and think carefully about each step. Many bugs are caused by assumptions that we do not question until we try to explain them.</p>
+
+      <div class="try-it-box">
+        <h4>Debugging Checklist</h4>
+        <ol>
+          <li>Read the error message carefully (bottom up)</li>
+          <li>Check the line number mentioned in the error</li>
+          <li>Add print statements to trace your variables</li>
+          <li>Comment out code to isolate the problem</li>
+          <li>Check for common mistakes (=, indentation, off-by-one)</li>
+          <li>Explain your code to a rubber duck</li>
+          <li>Take a break and come back with fresh eyes</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>Your code produces wrong results but no error message. What should you do first?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p>Add <code>print()</code> statements at key points in your code to check what values your variables actually hold. This helps you find where the program's behavior diverges from what you expected. Start by printing variables right before the output that is wrong, then work backward.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Read error messages from the <strong>bottom up</strong> - the last line has the error type</li>
+        <li>Use <code>print()</code> statements to trace variable values</li>
+        <li>Comment out code sections to isolate the problem</li>
+        <li>Watch for common mistakes: <code>=</code> vs <code>==</code>, indentation, off-by-one errors</li>
+        <li>Explain your code out loud (rubber duck debugging) to find logic errors</li>
+        <li>Taking a break is a valid debugging strategy</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-02-try-except.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-next-steps.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

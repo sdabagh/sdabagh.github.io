@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to install Python packages with pip, use requirements.txt, and set up virtual environments">
+  <title>Lesson 10.3: Installing Packages with pip – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+    .terminal-box { background: #0d1117; color: #c9d1d9; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.6; }
+    .terminal-box .prompt { color: #58a6ff; }
+    .terminal-box .cmd { color: #f0f6fc; }
+    .terminal-box .output-text { color: #8b949e; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-02-import-statements.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-organizing-code.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 10.3: Installing Packages with pip</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>What pip is and how it works</li>
+        <li>How to install third-party packages</li>
+        <li>How to use a <code>requirements.txt</code> file</li>
+        <li>The basics of virtual environments</li>
+        <li>Popular Python packages worth knowing about</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What Is pip?</h2>
+      <p>Python's standard library is powerful, but sometimes you need functionality that does not come built in. That is where <strong>pip</strong> comes in.</p>
+
+      <div class="definition-box">
+        <strong>pip:</strong> Python's package installer. It downloads and installs packages (libraries) from the <strong>Python Package Index (PyPI)</strong>, an online repository of over 400,000 Python packages created by the community.
+      </div>
+
+      <p>Think of pip like an app store for Python. Just as you download apps for your phone, you use pip to download packages for Python. The packages on PyPI are free and open-source.</p>
+
+      <p>pip comes automatically with Python 3.4 and later, so if you have Python installed, you likely already have pip.</p>
+
+      <div class="example-box">
+        <h4>Check if pip Is Installed</h4>
+        <div class="terminal-box">
+<span class="prompt">$</span> <span class="cmd">pip --version</span>
+<span class="output-text">pip 23.2.1 from /usr/lib/python3.11/site-packages (python 3.11)</span>
+
+<span class="prompt">$</span> <span class="cmd">pip3 --version</span>
+<span class="output-text">pip 23.2.1 from /usr/lib/python3.11/site-packages (python 3.11)</span>
+        </div>
+        <p style="margin-top: var(--spacing-sm); color: var(--text-secondary); font-size: 0.9rem;">Note: On some systems, you may need to use <code>pip3</code> instead of <code>pip</code> to target Python 3.</p>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Installing Packages</h2>
+      <p>Installing a package is straightforward. You run a command in your terminal (not inside Python):</p>
+
+      <div class="example-box">
+        <h4>Basic pip install</h4>
+        <div class="terminal-box">
+<span class="comment"># Install a package</span>
+<span class="prompt">$</span> <span class="cmd">pip install requests</span>
+
+<span class="comment"># Install a specific version</span>
+<span class="prompt">$</span> <span class="cmd">pip install requests==2.31.0</span>
+
+<span class="comment"># Upgrade an existing package</span>
+<span class="prompt">$</span> <span class="cmd">pip install --upgrade requests</span>
+
+<span class="comment"># Uninstall a package</span>
+<span class="prompt">$</span> <span class="cmd">pip uninstall requests</span>
+
+<span class="comment"># See what's installed</span>
+<span class="prompt">$</span> <span class="cmd">pip list</span>
+        </div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Important:</strong> Run pip commands in your <strong>terminal/command prompt</strong>, not inside a Python script or the Python interpreter. These are command-line tools, not Python code.
+      </div>
+
+      <p>After installing a package, you can import and use it in your Python code just like any built-in module:</p>
+
+      <pre class="code-box"><span class="comment"># After running: pip install requests</span>
+<span class="keyword">import</span> requests
+
+<span class="comment"># Now you can use the requests library</span>
+<span class="comment"># response = requests.get("https://api.example.com/data")</span></pre>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Using requirements.txt</h2>
+      <p>When you share your project with others, they need to know which packages to install. A <code>requirements.txt</code> file lists all the packages your project needs.</p>
+
+      <div class="example-box">
+        <h4>Creating requirements.txt</h4>
+        <pre class="code-box"><span class="comment"># requirements.txt</span>
+<span class="comment"># Each line lists a package (optionally with a version)</span>
+requests==2.31.0
+flask==3.0.0
+pandas>=2.0.0
+numpy</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Installing from requirements.txt</h4>
+        <div class="terminal-box">
+<span class="comment"># Install all packages listed in requirements.txt</span>
+<span class="prompt">$</span> <span class="cmd">pip install -r requirements.txt</span>
+
+<span class="comment"># Generate requirements.txt from currently installed packages</span>
+<span class="prompt">$</span> <span class="cmd">pip freeze > requirements.txt</span>
+        </div>
+      </div>
+
+      <p>The <code>pip freeze</code> command outputs a list of all installed packages with their exact versions. Redirecting this to a file (<code>&gt; requirements.txt</code>) creates a complete snapshot of your environment.</p>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Open your terminal and run <code>pip list</code> to see what packages are already installed on your system. You might be surprised by how many come pre-installed!</p>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Virtual Environments (Introduction)</h2>
+      <p>As you work on different projects, they might need different versions of the same package. Virtual environments solve this problem by creating isolated Python installations for each project.</p>
+
+      <div class="definition-box">
+        <strong>Virtual environment:</strong> An isolated Python environment where you can install packages without affecting your system-wide Python installation or other projects.
+      </div>
+
+      <div class="example-box">
+        <h4>Creating and Using a Virtual Environment</h4>
+        <div class="terminal-box">
+<span class="comment"># Create a virtual environment named "myenv"</span>
+<span class="prompt">$</span> <span class="cmd">python -m venv myenv</span>
+
+<span class="comment"># Activate it (macOS/Linux)</span>
+<span class="prompt">$</span> <span class="cmd">source myenv/bin/activate</span>
+
+<span class="comment"># Activate it (Windows)</span>
+<span class="prompt">$</span> <span class="cmd">myenv\Scripts\activate</span>
+
+<span class="comment"># Your prompt changes to show the active environment</span>
+<span class="prompt">(myenv) $</span> <span class="cmd">pip install requests</span>
+
+<span class="comment"># Deactivate when you're done</span>
+<span class="prompt">(myenv) $</span> <span class="cmd">deactivate</span>
+        </div>
+      </div>
+
+      <p>Think of a virtual environment like a separate workspace. Each workspace has its own set of tools (packages), and installing or removing tools in one workspace does not affect the others.</p>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Popular Python Packages</h2>
+      <p>Here are some popular packages you might want to explore as you continue learning Python:</p>
+
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: var(--background-alt);">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Package</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Purpose</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Install Command</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>requests</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">HTTP requests (web APIs)</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install requests</code></td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>flask</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Web applications</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install flask</code></td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pandas</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Data analysis</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install pandas</code></td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>numpy</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Scientific computing</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install numpy</code></td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>matplotlib</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Charts and graphs</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install matplotlib</code></td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pillow</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Image processing</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>pip install pillow</code></td></tr>
+          <tr><td style="padding: 10px;"><code>pytest</code></td><td style="padding: 10px;">Testing your code</td><td style="padding: 10px;"><code>pip install pytest</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>What is the difference between running <code>pip install requests</code> and <code>import requests</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p><code>pip install requests</code> is a <strong>terminal command</strong> that downloads and installs the requests package onto your computer. You only need to do this once. <code>import requests</code> is a <strong>Python statement</strong> that loads the already-installed package into your current program. You do this in every Python file that needs to use the package.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>pip</strong> is Python's package installer that downloads packages from PyPI</li>
+        <li>Use <code>pip install package_name</code> in your terminal to install packages</li>
+        <li>A <code>requirements.txt</code> file lists all packages a project needs</li>
+        <li>Virtual environments create isolated spaces for each project's packages</li>
+        <li>Install packages once with pip, then import them in your Python code</li>
+        <li>Run pip commands in the terminal, not inside Python files</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-02-import-statements.html">&larr; Previous Lesson</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-organizing-code.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

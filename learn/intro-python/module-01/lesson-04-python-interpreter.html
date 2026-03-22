@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Using the Python Interpreter - Master the REPL for interactive coding, calculations, and exploration">
+  <title>Lesson 4: Using the Python Interpreter – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+
+    .content-section { margin-bottom: var(--spacing-xl); }
+
+    .example-box {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+
+    .definition-box {
+      background: var(--info-light);
+      border: 2px solid var(--info);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+
+    .check-understanding {
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+    .check-understanding h3 { color: var(--primary-color); margin-top: 0; }
+
+    .question {
+      background: var(--background-alt);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+
+    .reveal-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+    .reveal-btn:hover { background: var(--primary-dark); }
+
+    .answer {
+      display: none;
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      background: white;
+      border-left: 3px solid var(--success);
+      border-radius: var(--radius-sm);
+    }
+
+    .key-takeaways {
+      background: var(--success-light);
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+
+    .code-box {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      position: relative;
+    }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .code-box .prompt { color: #608b4e; }
+
+    .output-box {
+      background: #f5f5f5;
+      border-left: 4px solid var(--success);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+    .output-box::before {
+      content: "Output:";
+      display: block;
+      font-weight: 600;
+      color: var(--success);
+      margin-bottom: var(--spacing-xs);
+      font-family: var(--font-primary);
+    }
+
+    .try-it-box {
+      background: #fff3e0;
+      border: 2px solid var(--accent-color);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+
+    @media (max-width: 768px) {
+      .lesson-nav { flex-direction: column; align-items: stretch; }
+      .lesson-nav a { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-03-first-program.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Using the Python Interpreter</h1>
+    <p class="text-muted">&#9201;&#65039; Estimated time: 20-25 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>&#128218; Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Start and exit the Python interactive interpreter</li>
+        <li>Explain what REPL stands for and how it works</li>
+        <li>Use Python as a calculator with arithmetic operators</li>
+        <li>Work with variables in the interpreter</li>
+        <li>Use the built-in <code>help()</code> and <code>type()</code> functions</li>
+        <li>Know when to use the interpreter vs. a script file</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>What is the Python Interpreter?</h2>
+
+      <div class="definition-box">
+        <p>
+          <strong>REPL (Read-Eval-Print Loop)</strong> stands for Read (take your input), Eval (evaluate/run it), Print (show the result), Loop (repeat). It's an interactive environment where you type Python code one line at a time and immediately see the results.
+        </p>
+      </div>
+
+      <p>
+        The Python interpreter is like having a conversation with Python. You type something, Python responds, and you can type something else based on what you learned. It's the best way to experiment, test ideas, and learn new concepts.
+      </p>
+
+      <h3>Starting the Interpreter</h3>
+      <p>Open your terminal and type:</p>
+      <pre class="code-box">python</pre>
+      <p>(On Mac/Linux, you may need to type <code>python3</code>)</p>
+      <p>You'll see something like:</p>
+      <pre class="code-box">Python 3.12.1 (main, Dec  7 2023, 20:45:44)
+Type "help", "copyright", "credits" or "license" for more information.
+<span class="prompt">&gt;&gt;&gt;</span></pre>
+
+      <p>The <code>&gt;&gt;&gt;</code> prompt means Python is waiting for your input. You can also access the REPL by opening IDLE.</p>
+
+      <h3>Exiting the Interpreter</h3>
+      <p>To exit, type any of these:</p>
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="function">exit</span>()
+<span class="comment"># or</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">quit</span>()
+<span class="comment"># or press Ctrl+D (Mac/Linux) or Ctrl+Z then Enter (Windows)</span></pre>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>Python as a Calculator</h2>
+
+      <p>The interpreter is an excellent calculator. Python supports all the standard arithmetic operations:</p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="number">2</span> + <span class="number">3</span>          <span class="comment"># Addition</span>
+<span class="number">5</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">10</span> - <span class="number">4</span>         <span class="comment"># Subtraction</span>
+<span class="number">6</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">6</span> * <span class="number">7</span>          <span class="comment"># Multiplication</span>
+<span class="number">42</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">15</span> / <span class="number">4</span>         <span class="comment"># Division (always returns a decimal)</span>
+<span class="number">3.75</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">15</span> // <span class="number">4</span>        <span class="comment"># Integer division (rounds down)</span>
+<span class="number">3</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">15</span> % <span class="number">4</span>         <span class="comment"># Modulo (remainder)</span>
+<span class="number">3</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="number">2</span> ** <span class="number">10</span>        <span class="comment"># Exponentiation (2 to the power of 10)</span>
+<span class="number">1024</span></pre>
+
+      <div class="example-box">
+        <h4>&#128200; Operator Summary</h4>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 0.5rem;">
+          <thead>
+            <tr style="background: var(--primary-color); color: white;">
+              <th style="padding: 0.5rem; text-align: left;">Operator</th>
+              <th style="padding: 0.5rem; text-align: left;">Name</th>
+              <th style="padding: 0.5rem; text-align: left;">Example</th>
+              <th style="padding: 0.5rem; text-align: left;">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>+</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Addition</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>5 + 3</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">8</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>-</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Subtraction</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>10 - 4</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">6</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>*</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Multiplication</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>6 * 7</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">42</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>/</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Division</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>15 / 4</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">3.75</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>//</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Integer Division</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>15 // 4</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">3</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>%</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Modulo</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>15 % 4</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">3</td></tr>
+            <tr><td style="padding: 0.4rem;"><code>**</code></td><td style="padding: 0.4rem;">Exponentiation</td><td style="padding: 0.4rem;"><code>2 ** 3</code></td><td style="padding: 0.4rem;">8</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Order of Operations</h3>
+      <p>Python follows standard math rules (PEMDAS):</p>
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="number">2</span> + <span class="number">3</span> * <span class="number">4</span>       <span class="comment"># Multiplication first</span>
+<span class="number">14</span>
+<span class="prompt">&gt;&gt;&gt;</span> (<span class="number">2</span> + <span class="number">3</span>) * <span class="number">4</span>     <span class="comment"># Parentheses change the order</span>
+<span class="number">20</span></pre>
+
+      <div class="try-it-box">
+        <h4>&#9997;&#65039; Try It Yourself!</h4>
+        <p>Open the Python interpreter and try these calculations:</p>
+        <ul>
+          <li>How many minutes are in a week? (<code>60 * 24 * 7</code>)</li>
+          <li>If a pizza has 8 slices and 3 people share equally, how many slices does each get and how many are left over? (Use <code>//</code> and <code>%</code>)</li>
+          <li>What is 2 to the power of 16? (<code>2 ** 16</code>)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Variables in the Interpreter</h2>
+
+      <p>
+        You can create variables right in the interpreter to store values and reuse them:
+      </p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> name = <span class="string">"Alice"</span>
+<span class="prompt">&gt;&gt;&gt;</span> age = <span class="number">25</span>
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">print</span>(<span class="string">"Hello,"</span>, name)
+Hello, Alice
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">print</span>(name, <span class="string">"is"</span>, age, <span class="string">"years old"</span>)
+Alice is 25 years old</pre>
+
+      <p>In the interpreter, you can also just type a variable name to see its value:</p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> x = <span class="number">42</span>
+<span class="prompt">&gt;&gt;&gt;</span> x
+<span class="number">42</span>
+<span class="prompt">&gt;&gt;&gt;</span> x + <span class="number">8</span>
+<span class="number">50</span></pre>
+
+      <div class="definition-box">
+        <p>
+          <strong>Variable</strong> is a name that refers to a value stored in the computer's memory. Think of it as a labeled box where you can put data. We'll explore variables in depth in Module 2.
+        </p>
+      </div>
+
+      <div class="example-box">
+        <h4>&#128161; Interpreter Shortcut</h4>
+        <p>
+          In the interpreter (but <em>not</em> in script files), you can see a value by just typing its name without <code>print()</code>. This is because the REPL automatically displays the result of the last expression.
+        </p>
+        <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="number">5</span> + <span class="number">3</span>        <span class="comment"># In the interpreter, this shows 8</span>
+<span class="number">8</span>
+<span class="comment"># In a .py file, you'd need: print(5 + 3)</span></pre>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Exploring with type() and help()</h2>
+
+      <p>Two very useful built-in functions for exploration:</p>
+
+      <h3>The type() Function</h3>
+      <p><code>type()</code> tells you what kind of data you're working with:</p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="function">type</span>(<span class="number">42</span>)
+&lt;class 'int'&gt;
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">type</span>(<span class="number">3.14</span>)
+&lt;class 'float'&gt;
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">type</span>(<span class="string">"hello"</span>)
+&lt;class 'str'&gt;
+<span class="prompt">&gt;&gt;&gt;</span> <span class="function">type</span>(<span class="keyword">True</span>)
+&lt;class 'bool'&gt;</pre>
+
+      <div class="example-box">
+        <h4>&#128270; Python's Basic Data Types (Preview)</h4>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 0.5rem;">
+          <thead>
+            <tr style="background: var(--primary-color); color: white;">
+              <th style="padding: 0.5rem; text-align: left;">Type</th>
+              <th style="padding: 0.5rem; text-align: left;">Name</th>
+              <th style="padding: 0.5rem; text-align: left;">Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>int</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Integer</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">42, -7, 0, 1000</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>float</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">Decimal number</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">3.14, -0.5, 2.0</td></tr>
+            <tr><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;"><code>str</code></td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">String (text)</td><td style="padding: 0.4rem; border-bottom: 1px solid #ddd;">"hello", 'Python'</td></tr>
+            <tr><td style="padding: 0.4rem;"><code>bool</code></td><td style="padding: 0.4rem;">Boolean</td><td style="padding: 0.4rem;">True, False</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-1"><em>We'll study all of these in detail in Module 2!</em></p>
+      </div>
+
+      <h3>The help() Function</h3>
+      <p><code>help()</code> provides documentation about any Python function or object:</p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="function">help</span>(<span class="function">print</span>)
+Help on built-in function print in module builtins:
+
+print(...)
+    print(value, ..., sep=' ', end='\n', file=sys.stdout, flush=False)
+    Prints the values to a stream, or to sys.stdout by default.
+    ...</pre>
+
+      <p>Press <code>q</code> to exit the help viewer when you're done reading.</p>
+
+      <div class="try-it-box">
+        <h4>&#9997;&#65039; Try It Yourself!</h4>
+        <p>In the interpreter, try these explorations:</p>
+        <ul>
+          <li>What type is <code>100</code>? What about <code>100.0</code>? (Use <code>type()</code>)</li>
+          <li>What type is <code>"100"</code>? (Hint: It has quotes!)</li>
+          <li>Try <code>help(type)</code> to learn about the type function itself</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Multi-Line Code in the Interpreter</h2>
+
+      <p>
+        You can write multi-line code in the interpreter. When Python expects more code (like after an <code>if</code> statement or a <code>for</code> loop), it shows <code>...</code> instead of <code>&gt;&gt;&gt;</code>:
+      </p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+<span class="prompt">...</span>     <span class="function">print</span>(i)
+<span class="prompt">...</span>
+<span class="number">0</span>
+<span class="number">1</span>
+<span class="number">2</span>
+<span class="number">3</span>
+<span class="number">4</span></pre>
+
+      <p>After typing the indented code, press Enter on an empty line to execute it.</p>
+
+      <pre class="code-box"><span class="prompt">&gt;&gt;&gt;</span> <span class="keyword">if</span> <span class="number">10</span> > <span class="number">5</span>:
+<span class="prompt">...</span>     <span class="function">print</span>(<span class="string">"Ten is greater than five!"</span>)
+<span class="prompt">...</span>
+Ten is greater than five!</pre>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Interpreter vs. Script: When to Use Each</h2>
+
+      <div class="course-grid mt-2">
+        <div class="card">
+          <h3 style="color: var(--primary-color);">&#128172; Use the Interpreter When...</h3>
+          <ul>
+            <li>Testing a quick idea or calculation</li>
+            <li>Learning a new function or concept</li>
+            <li>Debugging&mdash;checking what a value or expression returns</li>
+            <li>Exploring data types with <code>type()</code></li>
+            <li>Using Python as a calculator</li>
+            <li>Reading documentation with <code>help()</code></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--accent-color);">&#128196; Use a Script File When...</h3>
+          <ul>
+            <li>Writing a program you want to save and reuse</li>
+            <li>Your code is longer than a few lines</li>
+            <li>Building a complete application or project</li>
+            <li>Sharing code with others</li>
+            <li>Writing code you'll run multiple times</li>
+            <li>Working on homework or assignments</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight-box mt-2">
+        <h3>Pro Tip: Use Both Together!</h3>
+        <p>
+          Experienced programmers often have the interpreter open alongside their script editor. They test ideas in the interpreter, and once the code works, they add it to their script file. This workflow speeds up development and reduces errors.
+        </p>
+      </div>
+    </section>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>&#9989; Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. What does REPL stand for?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> REPL stands for <strong>Read-Eval-Print Loop</strong>. Read (take input), Eval (evaluate/execute it), Print (display the result), Loop (repeat the process).
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. What is the result of <code>17 // 5</code> and <code>17 % 5</code>?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> <code>17 // 5</code> gives <strong>3</strong> (integer division, rounds down). <code>17 % 5</code> gives <strong>2</strong> (the remainder when 17 is divided by 5, since 5 goes into 17 three times with 2 left over).
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. In the interpreter, you type <code>x = 10</code> and then <code>x</code> on the next line. What happens?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> The interpreter displays <strong>10</strong>. In the REPL, typing a variable name or expression shows its value automatically. In a script file, you would need to use <code>print(x)</code> to see the value.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. What function tells you the data type of a value?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer:</strong> The <code>type()</code> function. For example, <code>type(42)</code> returns <code>&lt;class 'int'&gt;</code>, and <code>type("hello")</code> returns <code>&lt;class 'str'&gt;</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>&#127919; Key Takeaways</h3>
+      <ul>
+        <li>The <strong>REPL</strong> (Read-Eval-Print Loop) is an interactive Python environment for testing and exploration</li>
+        <li>Start it by typing <code>python</code> (or <code>python3</code>) in your terminal; exit with <code>exit()</code></li>
+        <li>Python supports <strong>7 arithmetic operators</strong>: +, -, *, /, //, %, **</li>
+        <li>Python follows standard <strong>order of operations</strong> (PEMDAS)</li>
+        <li>Use <code>type()</code> to check data types and <code>help()</code> to read documentation</li>
+        <li>Use the <strong>interpreter for quick tests</strong> and <strong>script files for saved programs</strong></li>
+        <li>In the REPL, expressions are automatically displayed; in scripts, use <code>print()</code></li>
+      </ul>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Module 1 Complete!</h2>
+      <p>Congratulations! You've finished all four lessons in Module 1. You now know what Python is, have it installed, can write and run programs, and can use the interactive interpreter. That's a solid foundation!</p>
+
+      <div class="course-grid">
+        <div class="card">
+          <h3>&#128221; Practice Problems</h3>
+          <p>Put your new skills to the test with 10 practice problems covering everything from this module.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>&#127919; Module Quiz</h3>
+          <p>Ready to prove your knowledge? Take the 10-question Module 1 quiz!</p>
+          <a href="quiz.html" class="btn btn-outline mt-2">Take the Quiz</a>
+        </div>
+        <div class="card">
+          <h3>&#128202; Module Home</h3>
+          <p>Review all module materials, study guides, and quick reference cards.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Module 1 Home</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+
+</body>
+</html>

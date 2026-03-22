@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python string slicing: extracting substrings, reversing strings, and the step parameter">
+  <title>Lesson 7.2: String Slicing – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-01-string-methods.html">&larr; Lesson 1</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-searching-replacing.html">Lesson 3 &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 7.2: String Slicing</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Use the same [start:stop:step] syntax from lists on strings</li>
+        <li>Extract substrings from any part of a string</li>
+        <li>Reverse strings using slice notation</li>
+        <li>Use the step parameter to skip characters</li>
+        <li>Combine slicing with string methods</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>Strings Are Sequences</h2>
+
+      <div class="definition-box">
+        <strong>Connection to Lists:</strong> Strings and lists are both <em>sequences</em> in Python. This means everything you learned about list indexing and slicing works exactly the same way with strings!
+      </div>
+
+<pre class="code-box">word = <span class="string">"Python"</span>
+<span class="comment">#        P  y  t  h  o  n</span>
+<span class="comment">#        0  1  2  3  4  5</span>
+<span class="comment">#       -6 -5 -4 -3 -2 -1</span>
+
+<span class="keyword">print</span>(word[<span class="number">0</span>])     <span class="comment"># First character</span>
+<span class="keyword">print</span>(word[<span class="number">-1</span>])    <span class="comment"># Last character</span>
+<span class="keyword">print</span>(<span class="function">len</span>(word))    <span class="comment"># Length</span>
+</pre>
+      <div class="output-box">P
+n
+6</div>
+
+      <p>The key difference: strings are immutable, so you cannot change individual characters. <code>word[0] = "J"</code> would cause an error.</p>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Basic String Slicing</h2>
+
+      <p>Use <code>string[start:stop]</code> to extract a substring. Just like lists, <code>stop</code> is exclusive.</p>
+
+<pre class="code-box">text = <span class="string">"Hello, World!"</span>
+
+<span class="keyword">print</span>(text[<span class="number">0</span>:<span class="number">5</span>])    <span class="comment"># First 5 characters</span>
+<span class="keyword">print</span>(text[<span class="number">7</span>:<span class="number">12</span>])   <span class="comment"># "World"</span>
+<span class="keyword">print</span>(text[:<span class="number">5</span>])     <span class="comment"># From start to index 5</span>
+<span class="keyword">print</span>(text[<span class="number">7</span>:])     <span class="comment"># From index 7 to end</span>
+</pre>
+      <div class="output-box">Hello
+World
+Hello
+World!</div>
+
+      <div class="example-box">
+        <h4>Extracting Parts of Data</h4>
+<pre class="code-box"><span class="comment"># Extract area code from phone number</span>
+phone = <span class="string">"(555) 123-4567"</span>
+area_code = phone[<span class="number">1</span>:<span class="number">4</span>]
+<span class="keyword">print</span>(<span class="string">"Area code:"</span>, area_code)
+
+<span class="comment"># Extract file extension</span>
+filename = <span class="string">"document.pdf"</span>
+extension = filename[<span class="number">-3</span>:]
+<span class="keyword">print</span>(<span class="string">"Extension:"</span>, extension)
+
+<span class="comment"># Extract date parts</span>
+date = <span class="string">"2024-03-15"</span>
+year = date[:<span class="number">4</span>]
+month = date[<span class="number">5</span>:<span class="number">7</span>]
+day = date[<span class="number">8</span>:]
+<span class="keyword">print</span>(<span class="string">f"Year: </span>{year}<span class="string">, Month: </span>{month}<span class="string">, Day: </span>{day}<span class="string">"</span>)
+</pre>
+        <div class="output-box">Area code: 555
+Extension: pdf
+Year: 2024, Month: 03, Day: 15</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Negative Indexing in Slices</h2>
+
+<pre class="code-box">text = <span class="string">"Programming"</span>
+
+<span class="comment"># Last 4 characters</span>
+<span class="keyword">print</span>(text[<span class="number">-4</span>:])
+
+<span class="comment"># Everything except first and last</span>
+<span class="keyword">print</span>(text[<span class="number">1</span>:<span class="number">-1</span>])
+
+<span class="comment"># Everything except last 3</span>
+<span class="keyword">print</span>(text[:<span class="number">-3</span>])
+</pre>
+      <div class="output-box">ming
+rogrammin
+Programm</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>The Step Parameter</h2>
+
+      <p>The third value <code>[start:stop:step]</code> controls how many characters to skip.</p>
+
+<pre class="code-box">text = <span class="string">"abcdefghij"</span>
+
+<span class="comment"># Every other character</span>
+<span class="keyword">print</span>(text[::<span class="number">2</span>])
+
+<span class="comment"># Every third character</span>
+<span class="keyword">print</span>(text[::<span class="number">3</span>])
+
+<span class="comment"># Every other character from index 1 to 8</span>
+<span class="keyword">print</span>(text[<span class="number">1</span>:<span class="number">8</span>:<span class="number">2</span>])
+</pre>
+      <div class="output-box">acegi
+adgj
+bdfh</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Reversing Strings</h2>
+
+      <p>Just like with lists, using a step of <code>-1</code> reverses the string.</p>
+
+<pre class="code-box">word = <span class="string">"Python"</span>
+<span class="keyword">print</span>(word[::<span class="number">-1</span>])
+
+<span class="comment"># Check if a word is a palindrome</span>
+<span class="keyword">def</span> <span class="function">is_palindrome</span>(text):
+    text = text.<span class="function">lower</span>()
+    <span class="keyword">return</span> text == text[::<span class="number">-1</span>]
+
+<span class="keyword">print</span>(<span class="function">is_palindrome</span>(<span class="string">"racecar"</span>))
+<span class="keyword">print</span>(<span class="function">is_palindrome</span>(<span class="string">"hello"</span>))
+<span class="keyword">print</span>(<span class="function">is_palindrome</span>(<span class="string">"Madam"</span>))
+</pre>
+      <div class="output-box">nohtyP
+True
+False
+True</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Write a program that takes a word and checks if it reads the same forwards and backwards (a palindrome). Test it with "level", "python", and "kayak".</p>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Combining Slicing with Methods</h2>
+
+      <p>You can chain slicing with string methods for powerful text processing.</p>
+
+<pre class="code-box">email = <span class="string">"  USER@EXAMPLE.COM  "</span>
+
+<span class="comment"># Clean up and extract the domain</span>
+clean = email.<span class="function">strip</span>().<span class="function">lower</span>()
+domain = clean[clean.<span class="function">index</span>(<span class="string">"@"</span>) + <span class="number">1</span>:]
+<span class="keyword">print</span>(<span class="string">f"Clean email: </span>{clean}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Domain: </span>{domain}<span class="string">"</span>)
+</pre>
+      <div class="output-box">Clean email: user@example.com
+Domain: example.com</div>
+
+      <div class="example-box">
+        <h4>Practical Example: Formatting Names</h4>
+<pre class="code-box">full_name = <span class="string">"john michael smith"</span>
+
+<span class="comment"># Get first initial and last name</span>
+first_initial = full_name[<span class="number">0</span>].<span class="function">upper</span>()
+last_name = full_name.<span class="function">split</span>()[<span class="number">-1</span>].<span class="function">title</span>()
+<span class="keyword">print</span>(<span class="string">f"</span>{first_initial}<span class="string">. </span>{last_name}<span class="string">"</span>)
+</pre>
+        <div class="output-box">J. Smith</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>Given: <code>text = "Introduction"</code></p>
+      <ol>
+        <li>What does <code>text[0:5]</code> return?</li>
+        <li>What does <code>text[-4:]</code> return?</li>
+        <li>What does <code>text[::-1]</code> return?</li>
+        <li>How would you get every other character?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>"Intro"</code></li>
+          <li><code>"tion"</code></li>
+          <li><code>"noitcudortnI"</code></li>
+          <li><code>text[::2]</code> which gives <code>"Itoutin"</code></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>String slicing uses the same <code>[start:stop:step]</code> syntax as list slicing</li>
+        <li>Slicing always returns a new string (strings are immutable)</li>
+        <li>Use negative indexes to slice from the end: <code>text[-4:]</code></li>
+        <li>Reverse a string with <code>text[::-1]</code></li>
+        <li>Combine slicing with methods like <code>.strip()</code>, <code>.lower()</code>, etc.</li>
+        <li>String slicing never raises IndexError for out-of-range values</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="lesson-01-string-methods.html" class="btn btn-outline">&larr; Lesson 1: String Methods</a>
+      <a href="lesson-03-searching-replacing.html" class="btn btn-primary">Lesson 3: Searching &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

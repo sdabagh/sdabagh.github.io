@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about Python Booleans (True/False), checking types with type(), and converting between data types">
+  <title>Lesson 4: Booleans and Type Conversion – Module 2 – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box {
+      background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg);
+      border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.95rem; line-height: 1.5; overflow-x: auto;
+    }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box {
+      background: #f5f5f5; border-left: 4px solid var(--success);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+      font-family: var(--font-mono); font-size: 0.9rem;
+    }
+    .output-box::before {
+      content: "Output:"; display: block; font-weight: 600;
+      color: var(--success); margin-bottom: var(--spacing-xs);
+      font-family: var(--font-primary);
+    }
+    .try-it-box {
+      background: #fff3e0; border: 2px solid var(--accent-color);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--border-color);
+    }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-nav span { font-weight: 600; color: var(--text-secondary); }
+    .lesson-objectives {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-md); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-color); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box {
+      background: #e8f4fd; border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box {
+      background: #f0f8ff; border: 1px solid var(--primary-color);
+      border-radius: var(--radius-md); padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { color: var(--primary-color); margin-top: 0; }
+    .warning-box {
+      background: #fff3e0; border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .check-understanding {
+      background: #f5f5f5; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn {
+      background: var(--primary-color); color: white; border: none;
+      padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer;
+      font-size: 0.9rem; margin-top: var(--spacing-sm);
+    }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h2 { color: var(--primary-dark); margin-bottom: var(--spacing-md); }
+    .lesson-nav-bottom {
+      display: flex; justify-content: space-between; margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color);
+    }
+    .lesson-nav-bottom a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-nav-bottom a:hover { text-decoration: underline; }
+    table.convert-table {
+      width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0;
+    }
+    table.convert-table th, table.convert-table td {
+      padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--border-color); text-align: left;
+    }
+    table.convert-table th { background: var(--primary-color); color: white; }
+    table.convert-table tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-strings-basics.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Booleans and Type Conversion</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>What Booleans are and when to use them</li>
+        <li>How to check a value's type with <code>type()</code></li>
+        <li>Converting between integers, floats, strings, and Booleans</li>
+        <li>What values are "truthy" and "falsy" in Python</li>
+        <li>Common type conversion errors and how to avoid them</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Boolean Values: True and False</h2>
+
+      <div class="definition-box">
+        <strong>Boolean (bool):</strong> A data type that can only have two values: <code>True</code> or <code>False</code>. Booleans represent yes/no, on/off, or true/false conditions.
+      </div>
+
+      <p>Booleans are the foundation of decision-making in programming. You will use them extensively when you learn about <code>if</code> statements in a future module.</p>
+
+<pre class="code-box"><span class="keyword">is_student</span> = <span class="keyword">True</span>
+<span class="keyword">has_permission</span> = <span class="keyword">False</span>
+
+<span class="function">print</span>(is_student)
+<span class="function">print</span>(has_permission)
+<span class="function">print</span>(<span class="function">type</span>(is_student))</pre>
+      <div class="output-box">True
+False
+&lt;class 'bool'&gt;</div>
+
+      <div class="warning-box">
+        <strong>Important:</strong> <code>True</code> and <code>False</code> must be capitalized. Writing <code>true</code> or <code>false</code> (lowercase) will cause a <code>NameError</code> in Python.
+      </div>
+
+      <p>Booleans often come from comparisons:</p>
+
+<pre class="code-box"><span class="function">print</span>(<span class="number">5</span> > <span class="number">3</span>)      <span class="comment"># True (5 is greater than 3)</span>
+<span class="function">print</span>(<span class="number">10</span> == <span class="number">20</span>)   <span class="comment"># False (10 does not equal 20)</span>
+<span class="function">print</span>(<span class="number">7</span> <= <span class="number">7</span>)     <span class="comment"># True (7 is less than or equal to 7)</span>
+<span class="function">print</span>(<span class="string">"a"</span> != <span class="string">"b"</span>) <span class="comment"># True ("a" is not equal to "b")</span></pre>
+      <div class="output-box">True
+False
+True
+True</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Checking Types with type()</h2>
+
+      <p>The <code>type()</code> function tells you what kind of data a value or variable holds:</p>
+
+<pre class="code-box"><span class="function">print</span>(<span class="function">type</span>(<span class="number">42</span>))          <span class="comment"># &lt;class 'int'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(<span class="number">3.14</span>))        <span class="comment"># &lt;class 'float'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(<span class="string">"hello"</span>))     <span class="comment"># &lt;class 'str'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(<span class="keyword">True</span>))        <span class="comment"># &lt;class 'bool'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(<span class="keyword">None</span>))        <span class="comment"># &lt;class 'NoneType'&gt;</span></pre>
+      <div class="output-box">&lt;class 'int'&gt;
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;
+&lt;class 'bool'&gt;
+&lt;class 'NoneType'&gt;</div>
+
+      <div class="example-box">
+        <h4>Why Does Type Matter?</h4>
+        <p>Knowing the type of your data matters because different types support different operations. You can add two numbers, but adding a number and a string causes an error. The <code>type()</code> function helps you debug when things go wrong.</p>
+<pre class="code-box"><span class="keyword">value</span> = <span class="string">"42"</span>
+<span class="function">print</span>(<span class="function">type</span>(value))  <span class="comment"># &lt;class 'str'&gt; -- it's a string, not a number!</span>
+<span class="comment"># value + 10 would cause a TypeError</span></pre>
+        <div class="output-box">&lt;class 'str'&gt;</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Type Conversion Functions</h2>
+
+      <p>Python provides built-in functions to convert between data types:</p>
+
+      <table class="convert-table">
+        <tr><th>Function</th><th>Converts to</th><th>Example</th><th>Result</th></tr>
+        <tr><td><code>int()</code></td><td>Integer</td><td><code>int("42")</code></td><td><code>42</code></td></tr>
+        <tr><td><code>float()</code></td><td>Float</td><td><code>float("3.14")</code></td><td><code>3.14</code></td></tr>
+        <tr><td><code>str()</code></td><td>String</td><td><code>str(42)</code></td><td><code>"42"</code></td></tr>
+        <tr><td><code>bool()</code></td><td>Boolean</td><td><code>bool(1)</code></td><td><code>True</code></td></tr>
+      </table>
+
+<pre class="code-box"><span class="comment"># String to number</span>
+<span class="keyword">age_text</span> = <span class="string">"25"</span>
+<span class="keyword">age_number</span> = <span class="function">int</span>(age_text)
+<span class="function">print</span>(age_number + <span class="number">5</span>)  <span class="comment"># Now we can do math!</span>
+
+<span class="comment"># Number to string</span>
+<span class="keyword">price</span> = <span class="number">19.99</span>
+<span class="keyword">message</span> = <span class="string">"The price is $"</span> + <span class="function">str</span>(price)
+<span class="function">print</span>(message)
+
+<span class="comment"># Integer to float and back</span>
+<span class="function">print</span>(<span class="function">float</span>(<span class="number">10</span>))      <span class="comment"># 10.0</span>
+<span class="function">print</span>(<span class="function">int</span>(<span class="number">9.7</span>))       <span class="comment"># 9 (truncates, does NOT round)</span></pre>
+      <div class="output-box">30
+The price is $19.99
+10.0
+9</div>
+
+      <div class="warning-box">
+        <strong>Careful:</strong> <code>int()</code> truncates (cuts off) the decimal part. It does NOT round. <code>int(9.9)</code> gives <code>9</code>, not <code>10</code>. Use <code>round()</code> if you want rounding.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Common Conversion Errors</h2>
+
+      <p>Not every conversion is possible. Python will raise an error if the conversion does not make sense:</p>
+
+<pre class="code-box"><span class="comment"># These will cause ValueError:</span>
+<span class="comment"># int("hello")        # Cannot convert "hello" to a number</span>
+<span class="comment"># int("3.14")         # Cannot convert "3.14" directly to int</span>
+<span class="comment"># float("abc")        # Cannot convert "abc" to a float</span>
+
+<span class="comment"># Solution for "3.14" to int: convert to float first, then to int</span>
+<span class="keyword">result</span> = <span class="function">int</span>(<span class="function">float</span>(<span class="string">"3.14"</span>))
+<span class="function">print</span>(result)  <span class="comment"># 3</span></pre>
+      <div class="output-box">3</div>
+
+      <div class="example-box">
+        <h4>A Common Beginner Mistake</h4>
+<pre class="code-box"><span class="comment"># This is a very common mistake!</span>
+<span class="keyword">age</span> = <span class="number">25</span>
+<span class="comment"># print("I am " + age + " years old")   # TypeError!</span>
+
+<span class="comment"># The fix: convert age to a string</span>
+<span class="function">print</span>(<span class="string">"I am "</span> + <span class="function">str</span>(age) + <span class="string">" years old"</span>)
+
+<span class="comment"># Or even better, use an f-string (you'll learn this in Module 3!)</span>
+<span class="function">print</span>(<span class="string">f"I am {age} years old"</span>)</pre>
+        <div class="output-box">I am 25 years old
+I am 25 years old</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Truthy and Falsy Values</h2>
+
+      <p>Every value in Python can be treated as a Boolean. The <code>bool()</code> function shows you whether a value is considered "truthy" (converts to <code>True</code>) or "falsy" (converts to <code>False</code>).</p>
+
+      <div class="definition-box">
+        <strong>Falsy values:</strong> <code>0</code>, <code>0.0</code>, <code>""</code> (empty string), <code>None</code>, <code>False</code>. Everything else is truthy.
+      </div>
+
+<pre class="code-box"><span class="comment"># Falsy values</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="number">0</span>))       <span class="comment"># False</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="number">0.0</span>))     <span class="comment"># False</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="string">""</span>))      <span class="comment"># False (empty string)</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="keyword">None</span>))    <span class="comment"># False</span>
+
+<span class="comment"># Truthy values</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="number">42</span>))      <span class="comment"># True (any non-zero number)</span>
+<span class="function">print</span>(<span class="function">bool</span>(-<span class="number">1</span>))      <span class="comment"># True (negative numbers too!)</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="string">"hello"</span>)) <span class="comment"># True (any non-empty string)</span>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="string">" "</span>))     <span class="comment"># True (even a space is not empty!)</span></pre>
+      <div class="output-box">False
+False
+False
+False
+True
+True
+True
+True</div>
+
+      <p>This concept becomes very useful when you start writing <code>if</code> statements. For now, just remember the pattern: zero and empty are <code>False</code>, everything else is <code>True</code>.</p>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Putting It All Together</h2>
+
+      <p>Let us look at a practical example that uses variables, different data types, and type conversion:</p>
+
+<pre class="code-box"><span class="comment"># A simple student info program</span>
+<span class="keyword">student_name</span> = <span class="string">"Maria Garcia"</span>
+<span class="keyword">student_age</span> = <span class="number">19</span>
+<span class="keyword">gpa</span> = <span class="number">3.85</span>
+<span class="keyword">is_full_time</span> = <span class="keyword">True</span>
+
+<span class="comment"># Display info using type conversion</span>
+<span class="function">print</span>(<span class="string">"Student: "</span> + student_name)
+<span class="function">print</span>(<span class="string">"Age: "</span> + <span class="function">str</span>(student_age))
+<span class="function">print</span>(<span class="string">"GPA: "</span> + <span class="function">str</span>(gpa))
+<span class="function">print</span>(<span class="string">"Full-time: "</span> + <span class="function">str</span>(is_full_time))
+
+<span class="comment"># Check all the types</span>
+<span class="function">print</span>(<span class="string">"\nData types:"</span>)
+<span class="function">print</span>(<span class="function">type</span>(student_name))
+<span class="function">print</span>(<span class="function">type</span>(student_age))
+<span class="function">print</span>(<span class="function">type</span>(gpa))
+<span class="function">print</span>(<span class="function">type</span>(is_full_time))</pre>
+      <div class="output-box">Student: Maria Garcia
+Age: 19
+GPA: 3.85
+Full-time: True
+
+Data types:
+&lt;class 'str'&gt;
+&lt;class 'int'&gt;
+&lt;class 'float'&gt;
+&lt;class 'bool'&gt;</div>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question 1:</strong> What does <code>int(7.9)</code> return?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'">Reveal Answer</button>
+      <div class="reveal-answer">
+        <p><strong>Answer: 7</strong></p>
+        <p><code>int()</code> truncates (cuts off) the decimal, it does not round. So 7.9 becomes 7.</p>
+      </div>
+
+      <p style="margin-top: var(--spacing-lg);"><strong>Question 2:</strong> Which of these will <code>bool()</code> convert to <code>False</code>?</p>
+      <p><code>"False"</code>, <code>0</code>, <code>""</code>, <code>" "</code>, <code>-1</code>, <code>None</code></p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'">Reveal Answer</button>
+      <div class="reveal-answer">
+        <p><strong>Falsy:</strong> <code>0</code>, <code>""</code>, <code>None</code></p>
+        <p><strong>Truthy:</strong> <code>"False"</code> (it is a non-empty string!), <code>" "</code> (a space is still a character), <code>-1</code> (any non-zero number)</p>
+      </div>
+    </div>
+
+    <div class="try-it-box">
+      <h4>Try It Yourself!</h4>
+      <ol>
+        <li>Use <code>type()</code> to check the type of: <code>42</code>, <code>42.0</code>, <code>"42"</code>, <code>True</code>.</li>
+        <li>Convert the string <code>"100"</code> to an integer, add 50 to it, then convert the result back to a string.</li>
+        <li>Test <code>bool()</code> on several values: <code>0</code>, <code>1</code>, <code>-5</code>, <code>""</code>, <code>"0"</code>, <code>0.0</code>.</li>
+      </ol>
+    </div>
+
+    <div class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li><strong>Booleans</strong> have exactly two values: <code>True</code> and <code>False</code> (capitalized!).</li>
+        <li><code>type()</code> tells you the data type of any value or variable.</li>
+        <li>Use <code>int()</code>, <code>float()</code>, <code>str()</code>, and <code>bool()</code> to convert between types.</li>
+        <li><code>int()</code> <strong>truncates</strong> decimals (does not round).</li>
+        <li><strong>Falsy</strong> values: <code>0</code>, <code>0.0</code>, <code>""</code>, <code>None</code>, <code>False</code>. Everything else is <strong>truthy</strong>.</li>
+        <li>Not all conversions are valid -- <code>int("hello")</code> will cause an error.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a href="lesson-03-strings-basics.html">&larr; Previous: Strings</a>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python while loops - condition-based repetition, counters, sentinel values, and input validation">
+  <title>Lesson 5.2: while Loops – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; } .code-box .keyword { color: #569cd6; } .code-box .string { color: #ce9178; } .code-box .function { color: #dcdcaa; } .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; } .lesson-nav a:hover { color: var(--primary-dark); }
+    .lesson-nav span { color: var(--text-secondary); font-size: 0.9rem; }
+    .lesson-objectives { background: linear-gradient(135deg, #e8f5e9 0%, #f0f8ff 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: var(--primary-dark); margin-bottom: var(--spacing-sm); }
+    .lesson-objectives ul { margin-left: var(--spacing-md); } .lesson-objectives li { padding: var(--spacing-xs) 0; color: var(--text-secondary); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 3px solid var(--accent-color); display: inline-block; padding-bottom: var(--spacing-xs); margin-bottom: var(--spacing-md); }
+    .definition-box { background: #f0f8ff; border-left: 4px solid var(--primary-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f9f9f9; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--accent-color); margin-bottom: var(--spacing-sm); }
+    .check-understanding { background: #fff8e1; border: 2px solid var(--warning); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #f57f17; margin-bottom: var(--spacing-sm); }
+    .reveal-answer { background: var(--primary-color); color: white; border: none; padding: 8px 20px; border-radius: var(--radius-md); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-answer:hover { background: var(--primary-dark); }
+    .answer-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-top: var(--spacing-xl); }
+    .key-takeaways h3 { color: var(--success); margin-bottom: var(--spacing-md); } .key-takeaways ul { margin-left: var(--spacing-md); } .key-takeaways li { padding: var(--spacing-xs) 0; }
+    .warning-box { background: #ffebee; border-left: 4px solid #d32f2f; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-for-loops.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-break-continue-pass.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 5.2: while Loops</h1>
+
+    <div class="lesson-objectives">
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>How while loops differ from for loops</li>
+        <li>How to write condition-based loops</li>
+        <li>How to use counters and accumulators with while loops</li>
+        <li>The sentinel value pattern for user input</li>
+        <li>How to avoid and fix infinite loops</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>What Is a while Loop?</h2>
+      <p>
+        A <code>while</code> loop repeats a block of code <strong>as long as a condition is True</strong>.
+        Unlike a for loop (which iterates a known number of times), a while loop keeps going until
+        its condition becomes False.
+      </p>
+
+      <div class="definition-box">
+        <strong>while loop:</strong> Repeats a block of code as long as the specified condition
+        evaluates to <code>True</code>. The condition is checked <em>before</em> each iteration.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Count from 1 to 5</span>
+count = <span class="number">1</span>
+
+<span class="keyword">while</span> count <= <span class="number">5</span>:
+    <span class="function">print</span>(count)
+    count += <span class="number">1</span>
+
+<span class="function">print</span>(<span class="string">"Done!"</span>)</pre>
+      <div class="output-box">1
+2
+3
+4
+5
+Done!</div>
+
+      <p>Here is how it works step by step:</p>
+      <ol>
+        <li>Check: Is <code>count &lt;= 5</code>? (1 &lt;= 5 is True) &rarr; run the body</li>
+        <li>Print 1, then count becomes 2</li>
+        <li>Check: Is <code>count &lt;= 5</code>? (2 &lt;= 5 is True) &rarr; run the body</li>
+        <li>...continues until count is 6</li>
+        <li>Check: Is <code>count &lt;= 5</code>? (6 &lt;= 5 is False) &rarr; exit the loop</li>
+      </ol>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>while vs. for: When to Use Which</h2>
+      <p>
+        Use a <strong>for loop</strong> when you know how many times to repeat (or you are iterating
+        over a collection). Use a <strong>while loop</strong> when you do not know in advance and
+        the loop depends on a condition.
+      </p>
+
+      <div class="definition-box">
+        <strong>Rule of thumb:</strong> If you can answer "how many times?" before the loop starts &rarr; use <code>for</code>.
+        If the answer is "keep going until something happens" &rarr; use <code>while</code>.
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Halving Until Small</h4>
+        <pre class="code-box"><span class="comment"># Keep halving a number until it's less than 1</span>
+number = <span class="number">100</span>
+
+<span class="keyword">while</span> number >= <span class="number">1</span>:
+    <span class="function">print</span>(number)
+    number /= <span class="number">2</span>
+
+<span class="function">print</span>(<span class="string">f"Final value: </span>{number}<span class="string">"</span>)</pre>
+        <div class="output-box">100
+50.0
+25.0
+12.5
+6.25
+3.125
+1.5625
+Final value: 0.78125</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Infinite Loops (and How to Avoid Them)</h2>
+      <p>
+        If the condition never becomes False, the loop runs forever. This is called an
+        <strong>infinite loop</strong>, and it will freeze your program.
+      </p>
+
+      <div class="warning-box">
+        <strong>Danger: Infinite Loop!</strong> If your program seems stuck, press <strong>Ctrl+C</strong>
+        to stop it. Always make sure your loop condition will eventually become False.
+      </div>
+
+      <pre class="code-box"><span class="comment"># INFINITE LOOP - DO NOT RUN THIS!</span>
+<span class="comment"># count = 1</span>
+<span class="comment"># while count <= 5:</span>
+<span class="comment">#     print(count)</span>
+<span class="comment">#     # Forgot to increment count!</span>
+<span class="comment">#     # count never changes, so count <= 5 is always True</span>
+
+<span class="comment"># FIXED version:</span>
+count = <span class="number">1</span>
+<span class="keyword">while</span> count <= <span class="number">5</span>:
+    <span class="function">print</span>(count)
+    count += <span class="number">1</span>    <span class="comment"># This makes count eventually > 5</span></pre>
+
+      <p>Three common causes of infinite loops:</p>
+      <ol>
+        <li>Forgetting to update the loop variable</li>
+        <li>Updating the variable in the wrong direction</li>
+        <li>A condition that can never become False</li>
+      </ol>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Input Validation with while Loops</h2>
+      <p>
+        One of the most practical uses of while loops is asking the user for input until they give
+        a valid answer.
+      </p>
+
+      <div class="example-box">
+        <h4>Pattern: Keep Asking Until Valid</h4>
+        <pre class="code-box"><span class="comment"># Ask for a positive number</span>
+number = <span class="number">-1</span>  <span class="comment"># Start with an invalid value</span>
+
+<span class="keyword">while</span> number < <span class="number">0</span>:
+    number = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Enter a positive number: "</span>))
+    <span class="keyword">if</span> number < <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">"That's negative! Try again."</span>)
+
+<span class="function">print</span>(<span class="string">f"You entered: </span>{number}<span class="string">"</span>)</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Pattern: Password Attempts</h4>
+        <pre class="code-box">correct_password = <span class="string">"python123"</span>
+attempts = <span class="number">0</span>
+max_attempts = <span class="number">3</span>
+
+<span class="keyword">while</span> attempts < max_attempts:
+    guess = <span class="function">input</span>(<span class="string">"Enter password: "</span>)
+    attempts += <span class="number">1</span>
+
+    <span class="keyword">if</span> guess == correct_password:
+        <span class="function">print</span>(<span class="string">"Access granted!"</span>)
+        <span class="keyword">break</span>  <span class="comment"># Exit the loop early</span>
+    <span class="keyword">else</span>:
+        remaining = max_attempts - attempts
+        <span class="keyword">if</span> remaining > <span class="number">0</span>:
+            <span class="function">print</span>(<span class="string">f"Wrong! </span>{remaining}<span class="string"> attempts left."</span>)
+        <span class="keyword">else</span>:
+            <span class="function">print</span>(<span class="string">"Account locked."</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Sentinel Values</h2>
+      <p>
+        A <strong>sentinel value</strong> is a special value that signals the loop to stop. It is
+        commonly used when processing a series of user inputs.
+      </p>
+
+      <div class="definition-box">
+        <strong>Sentinel value:</strong> A predefined value that, when entered, tells the program
+        to stop accepting input and exit the loop.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Add up numbers until the user types 'done'</span>
+total = <span class="number">0</span>
+count = <span class="number">0</span>
+
+<span class="function">print</span>(<span class="string">"Enter numbers to add up. Type 'done' to finish."</span>)
+
+<span class="keyword">while</span> <span class="keyword">True</span>:
+    user_input = <span class="function">input</span>(<span class="string">"Number: "</span>)
+
+    <span class="keyword">if</span> user_input.lower() == <span class="string">"done"</span>:
+        <span class="keyword">break</span>
+
+    total += <span class="function">float</span>(user_input)
+    count += <span class="number">1</span>
+
+<span class="keyword">if</span> count > <span class="number">0</span>:
+    <span class="function">print</span>(<span class="string">f"Sum: </span>{total}<span class="string">"</span>)
+    <span class="function">print</span>(<span class="string">f"Average: </span>{total / count}<span class="string">"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"No numbers entered."</span>)</pre>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Practical Examples</h2>
+
+      <div class="example-box">
+        <h4>Example: Countdown Timer</h4>
+        <pre class="code-box">seconds = <span class="number">5</span>
+
+<span class="keyword">while</span> seconds > <span class="number">0</span>:
+    <span class="function">print</span>(<span class="string">f"</span>{seconds}<span class="string">..."</span>)
+    seconds -= <span class="number">1</span>
+
+<span class="function">print</span>(<span class="string">"Go!"</span>)</pre>
+        <div class="output-box">5...
+4...
+3...
+2...
+1...
+Go!</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Guessing Game</h4>
+        <pre class="code-box">secret = <span class="number">42</span>
+guess = <span class="number">0</span>
+attempts = <span class="number">0</span>
+
+<span class="keyword">while</span> guess != secret:
+    guess = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Guess the number (1-100): "</span>))
+    attempts += <span class="number">1</span>
+
+    <span class="keyword">if</span> guess < secret:
+        <span class="function">print</span>(<span class="string">"Too low!"</span>)
+    <span class="keyword">elif</span> guess > secret:
+        <span class="function">print</span>(<span class="string">"Too high!"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">f"Correct! You got it in </span>{attempts}<span class="string"> attempts."</span>)</pre>
+      </div>
+    </div>
+
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>How many times will "Hello" be printed?</p>
+      <pre class="code-box">x = <span class="number">10</span>
+<span class="keyword">while</span> x > <span class="number">1</span>:
+    <span class="function">print</span>(<span class="string">"Hello"</span>)
+    x = x // <span class="number">2</span></pre>
+      <button class="reveal-answer" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+      <div class="answer-content">
+        <p><strong>Answer: 4 times</strong></p>
+        <p>x starts at 10. Each iteration: x = x // 2 (integer division).<br>
+        x=10: print Hello, x becomes 5<br>
+        x=5: print Hello, x becomes 2<br>
+        x=2: print Hello, x becomes 1<br>
+        x=1: condition 1 > 1 is False, loop ends. Wait &mdash; let me recheck. x=10 &rarr; 5 &rarr; 2 &rarr; 1. That is 3 prints, not 4.<br><br>
+        <strong>Corrected: 3 times.</strong> x goes 10 &rarr; 5 &rarr; 2 &rarr; 1. When x is 1, the condition <code>1 &gt; 1</code> is False.</p>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>while loops repeat as long as a condition is True</li>
+        <li>Use while loops when you do not know the number of iterations in advance</li>
+        <li>Always ensure the condition will eventually become False to avoid infinite loops</li>
+        <li>Input validation is one of the most common uses of while loops</li>
+        <li>Sentinel values signal the loop to stop</li>
+        <li>If your program hangs, press Ctrl+C to stop an infinite loop</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none;">
+      <a href="lesson-01-for-loops.html">&larr; for Loops</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-break-continue-pass.html">Next: break, continue, pass &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

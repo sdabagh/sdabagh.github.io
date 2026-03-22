@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to write and append data to files in Python">
+  <title>Lesson 11.2: Writing Files – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .warning-box strong { color: #e65100; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-reading-files.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-with-statement.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 11.2: Writing Files</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to write data to files using write mode (<code>"w"</code>)</li>
+        <li>How to add data to existing files using append mode (<code>"a"</code>)</li>
+        <li>Using <code>write()</code> and <code>writelines()</code></li>
+        <li>Creating new files with Python</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Write Mode ("w")</h2>
+      <p>To write to a file, open it with mode <code>"w"</code> (write). This mode creates the file if it does not exist, or <strong>overwrites</strong> it if it does.</p>
+
+      <div class="warning-box">
+        <strong>Warning:</strong> Write mode (<code>"w"</code>) erases all existing content in the file! If the file already has data, that data will be lost. Use append mode (<code>"a"</code>) if you want to keep existing content.
+      </div>
+
+      <div class="example-box">
+        <h4>Writing to a File</h4>
+        <pre class="code-box"><span class="comment"># Create (or overwrite) a file</span>
+file = <span class="function">open</span>(<span class="string">"output.txt"</span>, <span class="string">"w"</span>)
+file.<span class="function">write</span>(<span class="string">"Hello, World!\n"</span>)
+file.<span class="function">write</span>(<span class="string">"This is my first file.\n"</span>)
+file.<span class="function">write</span>(<span class="string">"Python is great!\n"</span>)
+file.<span class="function">close</span>()</pre>
+        <p style="color: var(--text-secondary); margin-top: var(--spacing-sm);">The file output.txt now contains these three lines.</p>
+      </div>
+
+      <div class="definition-box">
+        <strong>Note:</strong> The <code>write()</code> method does <strong>not</strong> automatically add a newline. You must include <code>\n</code> yourself if you want each piece of text on its own line.
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Append Mode ("a")</h2>
+      <p>Append mode adds new content to the <strong>end</strong> of an existing file without erasing what is already there. If the file does not exist, it creates a new one.</p>
+
+      <div class="example-box">
+        <h4>Appending to a File</h4>
+        <pre class="code-box"><span class="comment"># Add to the end of an existing file</span>
+file = <span class="function">open</span>(<span class="string">"output.txt"</span>, <span class="string">"a"</span>)
+file.<span class="function">write</span>(<span class="string">"This line was added later.\n"</span>)
+file.<span class="function">write</span>(<span class="string">"And so was this one.\n"</span>)
+file.<span class="function">close</span>()</pre>
+        <p style="color: var(--text-secondary); margin-top: var(--spacing-sm);">Now output.txt has the original three lines plus these two new lines.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Practical Example: Logging</h4>
+        <pre class="code-box"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+<span class="keyword">def</span> <span class="function">log_message</span>(message):
+    <span class="string">"""Append a timestamped message to a log file."""</span>
+    timestamp = datetime.<span class="function">now</span>().<span class="function">strftime</span>(<span class="string">"%Y-%m-%d %H:%M:%S"</span>)
+    file = <span class="function">open</span>(<span class="string">"app.log"</span>, <span class="string">"a"</span>)
+    file.<span class="function">write</span>(<span class="string">f"[</span>{timestamp}<span class="string">] </span>{message}<span class="string">\n"</span>)
+    file.<span class="function">close</span>()
+
+<span class="function">log_message</span>(<span class="string">"Program started"</span>)
+<span class="function">log_message</span>(<span class="string">"User logged in"</span>)
+<span class="function">log_message</span>(<span class="string">"Data processed successfully"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Using writelines()</h2>
+      <p>The <code>writelines()</code> method writes a list of strings to a file. Like <code>write()</code>, it does not add newlines automatically.</p>
+
+      <div class="example-box">
+        <h4>Writing a List of Lines</h4>
+        <pre class="code-box">lines = [
+    <span class="string">"Alice: 95\n"</span>,
+    <span class="string">"Bob: 87\n"</span>,
+    <span class="string">"Charlie: 92\n"</span>,
+    <span class="string">"Diana: 88\n"</span>
+]
+
+file = <span class="function">open</span>(<span class="string">"scores.txt"</span>, <span class="string">"w"</span>)
+file.<span class="function">writelines</span>(lines)
+file.<span class="function">close</span>()</pre>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Creating New Files</h2>
+      <p>Using write mode (<code>"w"</code>) or append mode (<code>"a"</code>) automatically creates a new file if it does not already exist. There is also an exclusive creation mode (<code>"x"</code>):</p>
+
+      <div class="example-box">
+        <h4>Exclusive Creation Mode</h4>
+        <pre class="code-box"><span class="comment"># "x" mode: creates a new file, but raises an error if file exists</span>
+<span class="keyword">try</span>:
+    file = <span class="function">open</span>(<span class="string">"new_file.txt"</span>, <span class="string">"x"</span>)
+    file.<span class="function">write</span>(<span class="string">"This is a brand new file!\n"</span>)
+    file.<span class="function">close</span>()
+    <span class="function">print</span>(<span class="string">"File created successfully!"</span>)
+<span class="keyword">except</span> FileExistsError:
+    <span class="function">print</span>(<span class="string">"File already exists!"</span>)</pre>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: var(--spacing-md);">
+        <thead>
+          <tr style="background: var(--background-alt);">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Mode</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">Description</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">If File Exists</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-color);">If File Missing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>"r"</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Read</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Opens it</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Error</td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>"w"</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Write</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Overwrites</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Creates new</td></tr>
+          <tr><td style="padding: 10px; border-bottom: 1px solid var(--border-color);"><code>"a"</code></td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Append</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Adds to end</td><td style="padding: 10px; border-bottom: 1px solid var(--border-color);">Creates new</td></tr>
+          <tr><td style="padding: 10px;"><code>"x"</code></td><td style="padding: 10px;">Exclusive create</td><td style="padding: 10px;">Error</td><td style="padding: 10px;">Creates new</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Writing with Variables and Loops</h2>
+
+      <div class="example-box">
+        <h4>Writing Data from a Loop</h4>
+        <pre class="code-box">students = {
+    <span class="string">"Alice"</span>: <span class="number">95</span>,
+    <span class="string">"Bob"</span>: <span class="number">87</span>,
+    <span class="string">"Charlie"</span>: <span class="number">92</span>,
+    <span class="string">"Diana"</span>: <span class="number">88</span>
+}
+
+file = <span class="function">open</span>(<span class="string">"report.txt"</span>, <span class="string">"w"</span>)
+file.<span class="function">write</span>(<span class="string">"Student Report\n"</span>)
+file.<span class="function">write</span>(<span class="string">"==============\n\n"</span>)
+
+<span class="keyword">for</span> name, score <span class="keyword">in</span> students.<span class="function">items</span>():
+    status = <span class="string">"Pass"</span> <span class="keyword">if</span> score >= <span class="number">90</span> <span class="keyword">else</span> <span class="string">"Needs Improvement"</span>
+    file.<span class="function">write</span>(<span class="string">f"</span>{name}<span class="string">: </span>{score}<span class="string"> - </span>{status}<span class="string">\n"</span>)
+
+file.<span class="function">close</span>()
+<span class="function">print</span>(<span class="string">"Report saved!"</span>)</pre>
+        <div class="output-box">Report saved!</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>What happens if you open an existing file with mode <code>"w"</code> and write to it?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p>The file's existing content is <strong>completely erased</strong> and replaced with the new content you write. This is why write mode can be dangerous if used carelessly. If you want to keep the existing content and add to it, use append mode (<code>"a"</code>) instead.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Write mode (<code>"w"</code>) creates or <strong>overwrites</strong> a file</li>
+        <li>Append mode (<code>"a"</code>) adds to the <strong>end</strong> of a file</li>
+        <li><code>write()</code> does not add newlines automatically - include <code>\n</code> yourself</li>
+        <li><code>writelines()</code> writes a list of strings to a file</li>
+        <li>Both <code>"w"</code> and <code>"a"</code> create a new file if it does not exist</li>
+        <li>Always <code>close()</code> files after writing to ensure data is saved</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-01-reading-files.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-with-statement.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

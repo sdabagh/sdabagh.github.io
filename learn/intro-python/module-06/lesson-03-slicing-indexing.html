@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python list slicing syntax, copying lists, and reversing with slices">
+  <title>Lesson 6.3: Slicing and Indexing – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-02-list-methods.html">&larr; Lesson 2</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-list-comprehensions.html">Lesson 4 &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 6.3: Slicing and Indexing</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Use slice syntax [start:stop:step] to extract sublists</li>
+        <li>Omit start, stop, or step values for common patterns</li>
+        <li>Copy lists safely using slicing</li>
+        <li>Reverse lists using slice notation</li>
+        <li>Combine slicing with negative indexes</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>What is Slicing?</h2>
+
+      <div class="definition-box">
+        <strong>Slicing:</strong> Slicing extracts a portion (sublist) from a list using the syntax <code>list[start:stop:step]</code>. The result is a new list containing the selected elements.
+      </div>
+
+      <p>While indexing gives you a single element, slicing gives you a range of elements. Think of it like cutting a section from a loaf of bread -- you specify where to start cutting and where to stop.</p>
+
+      <h3>Basic Slice Syntax</h3>
+<pre class="code-box">numbers = [<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>, <span class="number">60</span>, <span class="number">70</span>]
+<span class="comment">#           0    1    2    3    4    5    6</span>
+
+<span class="comment"># Get elements from index 1 to 4 (not including 4)</span>
+subset = numbers[<span class="number">1</span>:<span class="number">4</span>]
+<span class="keyword">print</span>(subset)
+
+<span class="comment"># Get elements from index 2 to 6</span>
+<span class="keyword">print</span>(numbers[<span class="number">2</span>:<span class="number">6</span>])
+</pre>
+      <div class="output-box">[20, 30, 40]
+[30, 40, 50, 60]</div>
+
+      <div class="example-box">
+        <h4>Key Rule: Stop Index is Exclusive</h4>
+        <p>The slice <code>[start:stop]</code> includes the element at <code>start</code> but does NOT include the element at <code>stop</code>. This is the same as how <code>range()</code> works.</p>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Omitting Start, Stop, or Step</h2>
+
+      <p>You can omit any of the three values, and Python will use defaults:</p>
+      <ul>
+        <li>Omit <code>start</code>: defaults to the beginning (index 0)</li>
+        <li>Omit <code>stop</code>: defaults to the end of the list</li>
+        <li>Omit <code>step</code>: defaults to 1</li>
+      </ul>
+
+<pre class="code-box">numbers = [<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>, <span class="number">60</span>, <span class="number">70</span>]
+
+<span class="comment"># From beginning to index 3</span>
+<span class="keyword">print</span>(numbers[:<span class="number">3</span>])
+
+<span class="comment"># From index 4 to the end</span>
+<span class="keyword">print</span>(numbers[<span class="number">4</span>:])
+
+<span class="comment"># Get the entire list (copy)</span>
+<span class="keyword">print</span>(numbers[:])
+
+<span class="comment"># First three elements</span>
+<span class="keyword">print</span>(numbers[:<span class="number">3</span>])
+
+<span class="comment"># Last three elements</span>
+<span class="keyword">print</span>(numbers[<span class="number">-3</span>:])
+</pre>
+      <div class="output-box">[10, 20, 30]
+[50, 60, 70]
+[10, 20, 30, 40, 50, 60, 70]
+[10, 20, 30]
+[50, 60, 70]</div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Using the Step Parameter</h2>
+
+      <p>The third value in the slice specifies the <strong>step</strong> -- how many elements to skip between each selected element.</p>
+
+<pre class="code-box">numbers = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]
+
+<span class="comment"># Every other element</span>
+<span class="keyword">print</span>(numbers[::<span class="number">2</span>])
+
+<span class="comment"># Every third element</span>
+<span class="keyword">print</span>(numbers[::<span class="number">3</span>])
+
+<span class="comment"># Every other element from index 1 to 8</span>
+<span class="keyword">print</span>(numbers[<span class="number">1</span>:<span class="number">8</span>:<span class="number">2</span>])
+</pre>
+      <div class="output-box">[0, 2, 4, 6, 8]
+[0, 3, 6, 9]
+[1, 3, 5, 7]</div>
+
+      <div class="example-box">
+        <h4>Practical Example: Extracting Even and Odd Positioned Items</h4>
+<pre class="code-box">students = [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>, <span class="string">"Diana"</span>, <span class="string">"Eve"</span>, <span class="string">"Frank"</span>]
+
+<span class="comment"># Students at even indexes (0, 2, 4)</span>
+team_a = students[::<span class="number">2</span>]
+<span class="keyword">print</span>(<span class="string">"Team A:"</span>, team_a)
+
+<span class="comment"># Students at odd indexes (1, 3, 5)</span>
+team_b = students[<span class="number">1</span>::<span class="number">2</span>]
+<span class="keyword">print</span>(<span class="string">"Team B:"</span>, team_b)
+</pre>
+        <div class="output-box">Team A: ['Alice', 'Charlie', 'Eve']
+Team B: ['Bob', 'Diana', 'Frank']</div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Reversing with Slicing</h2>
+
+      <p>Using a step of <code>-1</code> reverses the list. This creates a new reversed list without modifying the original.</p>
+
+<pre class="code-box">numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+
+<span class="comment"># Reverse the list</span>
+reversed_nums = numbers[::<span class="number">-1</span>]
+<span class="keyword">print</span>(<span class="string">"Reversed:"</span>, reversed_nums)
+<span class="keyword">print</span>(<span class="string">"Original:"</span>, numbers)   <span class="comment"># Original unchanged</span>
+</pre>
+      <div class="output-box">Reversed: [5, 4, 3, 2, 1]
+Original: [1, 2, 3, 4, 5]</div>
+
+      <h3>Negative Step with Start and Stop</h3>
+<pre class="code-box">numbers = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]
+
+<span class="comment"># From index 7 down to index 2 (not including 2)</span>
+<span class="keyword">print</span>(numbers[<span class="number">7</span>:<span class="number">2</span>:<span class="number">-1</span>])
+
+<span class="comment"># Every other element in reverse</span>
+<span class="keyword">print</span>(numbers[::<span class="number">-2</span>])
+</pre>
+      <div class="output-box">[7, 6, 5, 4, 3]
+[9, 7, 5, 3, 1]</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Copying Lists Safely</h2>
+
+      <div class="definition-box">
+        <strong>Important:</strong> In Python, assigning a list to a new variable does NOT create a copy. Both variables point to the same list in memory. Use slicing or <code>.copy()</code> to make a true copy.
+      </div>
+
+<pre class="code-box"><span class="comment"># This does NOT copy the list!</span>
+original = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+not_a_copy = original    <span class="comment"># Both point to same list</span>
+not_a_copy.<span class="function">append</span>(<span class="number">4</span>)
+<span class="keyword">print</span>(<span class="string">"Original:"</span>, original)    <span class="comment"># Original is also changed!</span>
+<span class="keyword">print</span>(<span class="string">"Not a copy:"</span>, not_a_copy)
+</pre>
+      <div class="output-box">Original: [1, 2, 3, 4]
+Not a copy: [1, 2, 3, 4]</div>
+
+<pre class="code-box"><span class="comment"># Use slicing to create a true copy</span>
+original = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+copy1 = original[:]       <span class="comment"># Slice copy</span>
+copy2 = original.<span class="function">copy</span>()   <span class="comment"># .copy() method</span>
+
+copy1.<span class="function">append</span>(<span class="number">99</span>)
+<span class="keyword">print</span>(<span class="string">"Original:"</span>, original)     <span class="comment"># Unchanged!</span>
+<span class="keyword">print</span>(<span class="string">"Copy 1:"</span>, copy1)
+<span class="keyword">print</span>(<span class="string">"Copy 2:"</span>, copy2)
+</pre>
+      <div class="output-box">Original: [1, 2, 3]
+Copy 1: [1, 2, 3, 99]
+Copy 2: [1, 2, 3]</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Create a list <code>data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]</code>. Using slicing, extract: (1) the first five elements, (2) the last three elements, (3) every third element, and (4) the list in reverse.</p>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Slicing with Negative Indexes</h2>
+
+      <p>You can mix positive and negative indexes in slices for flexible data extraction.</p>
+
+<pre class="code-box">letters = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"d"</span>, <span class="string">"e"</span>, <span class="string">"f"</span>, <span class="string">"g"</span>]
+
+<span class="comment"># Everything except the first and last</span>
+<span class="keyword">print</span>(letters[<span class="number">1</span>:<span class="number">-1</span>])
+
+<span class="comment"># Last four elements</span>
+<span class="keyword">print</span>(letters[<span class="number">-4</span>:])
+
+<span class="comment"># Everything except the last two</span>
+<span class="keyword">print</span>(letters[:<span class="number">-2</span>])
+</pre>
+      <div class="output-box">['b', 'c', 'd', 'e', 'f']
+['d', 'e', 'f', 'g']
+['a', 'b', 'c', 'd', 'e']</div>
+
+      <div class="example-box">
+        <h4>Slicing Never Causes IndexError</h4>
+        <p>Unlike individual indexing, slicing gracefully handles out-of-range values. It simply returns what is available.</p>
+<pre class="code-box">short = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+<span class="keyword">print</span>(short[<span class="number">0</span>:<span class="number">100</span>])   <span class="comment"># No error, returns all elements</span>
+<span class="keyword">print</span>(short[<span class="number">10</span>:<span class="number">20</span>])   <span class="comment"># No error, returns empty list</span>
+</pre>
+        <div class="output-box">[1, 2, 3]
+[]</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>Given: <code>data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</code></p>
+      <ol>
+        <li>What does <code>data[2:5]</code> return?</li>
+        <li>What does <code>data[::3]</code> return?</li>
+        <li>What does <code>data[::-1]</code> return?</li>
+        <li>How do you copy a list using slicing?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>[2, 3, 4]</code> (from index 2 up to but not including 5)</li>
+          <li><code>[0, 3, 6, 9]</code> (every third element)</li>
+          <li><code>[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]</code> (reversed)</li>
+          <li><code>copy = data[:]</code> (slice with no start or stop)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Slice syntax: <code>list[start:stop:step]</code> -- stop is exclusive</li>
+        <li>Omit start/stop/step to use defaults (beginning, end, 1)</li>
+        <li>Use <code>[::-1]</code> to reverse a list without modifying the original</li>
+        <li>Use <code>[:]</code> to create a shallow copy of a list</li>
+        <li>Slicing returns a new list and never raises IndexError</li>
+        <li>Assigning a list to a new variable does NOT copy it -- both point to the same data</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="lesson-02-list-methods.html" class="btn btn-outline">&larr; Lesson 2: List Methods</a>
+      <a href="lesson-04-list-comprehensions.html" class="btn btn-primary">Lesson 4: Comprehensions &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

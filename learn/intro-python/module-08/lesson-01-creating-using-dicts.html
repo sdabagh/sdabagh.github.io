@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to create and use Python dictionaries with key-value pairs">
+  <title>Lesson 8.1: Creating and Using Dictionaries – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 8 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-dict-methods.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 8.1: Creating and Using Dictionaries</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>What dictionaries are and why they are useful</li>
+        <li>How to create dictionaries with key-value pairs</li>
+        <li>How to access values using keys</li>
+        <li>How to add, update, and delete key-value pairs</li>
+        <li>How to handle missing keys with <code>get()</code> and avoid <code>KeyError</code></li>
+        <li>How to check if a key exists in a dictionary</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What is a Dictionary?</h2>
+      <p>A <strong>dictionary</strong> is a collection of <strong>key-value pairs</strong>. Think of it like a real dictionary: you look up a word (the key) and get a definition (the value). In Python, you can look up any key and get the value associated with it.</p>
+
+      <div class="definition-box">
+        <strong>Dictionary:</strong> An unordered, mutable collection that maps keys to values. Each key must be unique within a dictionary. Created using curly braces <code>{}</code> or the <code>dict()</code> constructor.
+      </div>
+
+      <p>Unlike lists, which use numeric indices (0, 1, 2...), dictionaries use meaningful keys to organize data:</p>
+
+      <pre class="code-box"><span class="comment"># A list uses numeric indices</span>
+student_list = [<span class="string">"Alice"</span>, <span class="number">20</span>, <span class="string">"Computer Science"</span>]
+<span class="comment"># What does index 1 mean? Hard to tell!</span>
+
+<span class="comment"># A dictionary uses descriptive keys</span>
+student_dict = {
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"age"</span>: <span class="number">20</span>,
+    <span class="string">"major"</span>: <span class="string">"Computer Science"</span>
+}
+<span class="comment"># Much clearer what each value represents!</span></pre>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Creating Dictionaries</h2>
+      <p>There are several ways to create a dictionary in Python:</p>
+
+      <h3>Using Curly Braces (Most Common)</h3>
+      <pre class="code-box"><span class="comment"># Empty dictionary</span>
+empty = {}
+
+<span class="comment"># Dictionary with key-value pairs</span>
+person = {
+    <span class="string">"name"</span>: <span class="string">"Maria"</span>,
+    <span class="string">"age"</span>: <span class="number">25</span>,
+    <span class="string">"city"</span>: <span class="string">"Los Angeles"</span>
+}
+
+<span class="function">print</span>(person)
+<span class="function">print</span>(<span class="function">type</span>(person))</pre>
+      <div class="output-box">{'name': 'Maria', 'age': 25, 'city': 'Los Angeles'}
+&lt;class 'dict'&gt;</div>
+
+      <h3>Using the dict() Constructor</h3>
+      <pre class="code-box"><span class="comment"># Using keyword arguments</span>
+person = <span class="function">dict</span>(name=<span class="string">"Maria"</span>, age=<span class="number">25</span>, city=<span class="string">"Los Angeles"</span>)
+
+<span class="comment"># From a list of tuples</span>
+colors = <span class="function">dict</span>([(<span class="string">"red"</span>, <span class="string">"#FF0000"</span>), (<span class="string">"green"</span>, <span class="string">"#00FF00"</span>)])
+
+<span class="function">print</span>(person)
+<span class="function">print</span>(colors)</pre>
+      <div class="output-box">{'name': 'Maria', 'age': 25, 'city': 'Los Angeles'}
+{'red': '#FF0000', 'green': '#00FF00'}</div>
+
+      <div class="warning-box">
+        <strong>Key Rules:</strong> Dictionary keys must be <strong>immutable</strong> types (strings, numbers, tuples). You cannot use lists or other dictionaries as keys. Keys must also be <strong>unique</strong> &mdash; if you repeat a key, the last value wins.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Keys must be unique - last value wins</span>
+grades = {<span class="string">"math"</span>: <span class="number">90</span>, <span class="string">"math"</span>: <span class="number">95</span>}
+<span class="function">print</span>(grades)  <span class="comment"># {'math': 95} - the 90 is overwritten</span>
+
+<span class="comment"># Values can be any type</span>
+mixed = {
+    <span class="string">"name"</span>: <span class="string">"Bob"</span>,
+    <span class="string">"scores"</span>: [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>],
+    <span class="string">"passed"</span>: <span class="keyword">True</span>,
+    <span class="string">"gpa"</span>: <span class="number">3.5</span>
+}</pre>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Accessing Values</h2>
+      <p>You access dictionary values by placing the key inside square brackets:</p>
+
+      <pre class="code-box">student = {
+    <span class="string">"name"</span>: <span class="string">"Carlos"</span>,
+    <span class="string">"age"</span>: <span class="number">22</span>,
+    <span class="string">"major"</span>: <span class="string">"Biology"</span>
+}
+
+<span class="function">print</span>(student[<span class="string">"name"</span>])
+<span class="function">print</span>(student[<span class="string">"age"</span>])
+<span class="function">print</span>(student[<span class="string">"major"</span>])</pre>
+      <div class="output-box">Carlos
+22
+Biology</div>
+
+      <h3>KeyError: When a Key Doesn't Exist</h3>
+      <p>If you try to access a key that does not exist, Python raises a <code>KeyError</code>:</p>
+
+      <pre class="code-box">student = {<span class="string">"name"</span>: <span class="string">"Carlos"</span>, <span class="string">"age"</span>: <span class="number">22</span>}
+
+<span class="comment"># This will cause a KeyError!</span>
+<span class="function">print</span>(student[<span class="string">"gpa"</span>])</pre>
+      <div class="output-box">KeyError: 'gpa'</div>
+
+      <h3>The get() Method: Safe Access</h3>
+      <p>The <code>get()</code> method returns <code>None</code> (or a default value you choose) instead of raising an error:</p>
+
+      <pre class="code-box">student = {<span class="string">"name"</span>: <span class="string">"Carlos"</span>, <span class="string">"age"</span>: <span class="number">22</span>}
+
+<span class="comment"># Returns None if key doesn't exist</span>
+<span class="function">print</span>(student.<span class="function">get</span>(<span class="string">"gpa"</span>))
+
+<span class="comment"># You can provide a default value</span>
+<span class="function">print</span>(student.<span class="function">get</span>(<span class="string">"gpa"</span>, <span class="number">0.0</span>))
+
+<span class="comment"># Works normally for keys that exist</span>
+<span class="function">print</span>(student.<span class="function">get</span>(<span class="string">"name"</span>))</pre>
+      <div class="output-box">None
+0.0
+Carlos</div>
+
+      <div class="example-box">
+        <h4>When to Use get() vs Square Brackets</h4>
+        <p>Use <strong>square brackets</strong> <code>dict[key]</code> when you are certain the key exists and want an error if it does not (a bug you want to catch early).</p>
+        <p>Use <strong>get()</strong> when the key might not exist and you want to handle that gracefully with a default value.</p>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Adding and Updating Entries</h2>
+      <p>Dictionaries are <strong>mutable</strong>, so you can add new key-value pairs or change existing values at any time:</p>
+
+      <pre class="code-box">profile = {<span class="string">"name"</span>: <span class="string">"Dana"</span>}
+
+<span class="comment"># Add new keys</span>
+profile[<span class="string">"age"</span>] = <span class="number">28</span>
+profile[<span class="string">"email"</span>] = <span class="string">"dana@example.com"</span>
+<span class="function">print</span>(profile)
+
+<span class="comment"># Update existing key</span>
+profile[<span class="string">"age"</span>] = <span class="number">29</span>
+<span class="function">print</span>(profile)</pre>
+      <div class="output-box">{'name': 'Dana', 'age': 28, 'email': 'dana@example.com'}
+{'name': 'Dana', 'age': 29, 'email': 'dana@example.com'}</div>
+
+      <p>The syntax is the same for adding and updating. Python checks: if the key already exists, it updates the value. If the key is new, it adds the pair.</p>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Removing Entries</h2>
+      <p>There are several ways to remove key-value pairs from a dictionary:</p>
+
+      <pre class="code-box">inventory = {
+    <span class="string">"apples"</span>: <span class="number">5</span>,
+    <span class="string">"bananas"</span>: <span class="number">3</span>,
+    <span class="string">"oranges"</span>: <span class="number">8</span>,
+    <span class="string">"grapes"</span>: <span class="number">12</span>
+}
+
+<span class="comment"># del removes a key-value pair</span>
+<span class="keyword">del</span> inventory[<span class="string">"bananas"</span>]
+<span class="function">print</span>(inventory)
+
+<span class="comment"># pop() removes and returns the value</span>
+count = inventory.<span class="function">pop</span>(<span class="string">"oranges"</span>)
+<span class="function">print</span>(f<span class="string">"Removed oranges: {count}"</span>)
+<span class="function">print</span>(inventory)
+
+<span class="comment"># pop() with default avoids KeyError</span>
+count = inventory.<span class="function">pop</span>(<span class="string">"mangoes"</span>, <span class="number">0</span>)
+<span class="function">print</span>(f<span class="string">"Removed mangoes: {count}"</span>)</pre>
+      <div class="output-box">{'apples': 5, 'oranges': 8, 'grapes': 12}
+Removed oranges: 8
+{'apples': 5, 'grapes': 12}
+Removed mangoes: 0</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Checking if a Key Exists</h2>
+      <p>Use the <code>in</code> keyword to check whether a key exists in a dictionary:</p>
+
+      <pre class="code-box">menu = {
+    <span class="string">"coffee"</span>: <span class="number">3.50</span>,
+    <span class="string">"tea"</span>: <span class="number">2.75</span>,
+    <span class="string">"water"</span>: <span class="number">1.00</span>
+}
+
+<span class="function">print</span>(<span class="string">"coffee"</span> <span class="keyword">in</span> menu)
+<span class="function">print</span>(<span class="string">"juice"</span> <span class="keyword">in</span> menu)
+<span class="function">print</span>(<span class="string">"juice"</span> <span class="keyword">not in</span> menu)
+
+<span class="comment"># Common pattern: check before accessing</span>
+item = <span class="string">"coffee"</span>
+<span class="keyword">if</span> item <span class="keyword">in</span> menu:
+    <span class="function">print</span>(f<span class="string">"{item} costs ${menu[item]:.2f}"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(f<span class="string">"Sorry, {item} is not on the menu"</span>)</pre>
+      <div class="output-box">True
+False
+True
+coffee costs $3.50</div>
+
+      <div class="definition-box">
+        <strong>Important:</strong> The <code>in</code> operator checks <strong>keys</strong>, not values. To check if a value exists, use <code>value in dict.values()</code>.
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What will the following code print?</p>
+      <pre class="code-box">info = {<span class="string">"x"</span>: <span class="number">10</span>, <span class="string">"y"</span>: <span class="number">20</span>}
+info[<span class="string">"z"</span>] = <span class="number">30</span>
+info[<span class="string">"x"</span>] = <span class="number">99</span>
+<span class="function">print</span>(<span class="function">len</span>(info))
+<span class="function">print</span>(info.<span class="function">get</span>(<span class="string">"w"</span>, <span class="number">0</span>))</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer:</strong></p>
+        <p><code>3</code> &mdash; the dictionary has keys "x", "y", and "z" (updating "x" does not add a new key).</p>
+        <p><code>0</code> &mdash; key "w" does not exist, so <code>get()</code> returns the default value <code>0</code>.</p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <p>Create a dictionary called <code>contact</code> with keys <code>"name"</code>, <code>"phone"</code>, and <code>"email"</code>. Then:</p>
+      <ol>
+        <li>Print the person's name</li>
+        <li>Add a <code>"city"</code> key</li>
+        <li>Update the phone number</li>
+        <li>Use <code>get()</code> to safely access a <code>"website"</code> key with a default of <code>"N/A"</code></li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Dictionaries store data as <strong>key-value pairs</strong> using curly braces <code>{}</code></li>
+        <li>Keys must be immutable and unique; values can be any type</li>
+        <li>Access values with <code>dict[key]</code> (raises <code>KeyError</code> if missing) or <code>dict.get(key, default)</code> (returns a default instead)</li>
+        <li>Add or update entries with <code>dict[key] = value</code></li>
+        <li>Remove entries with <code>del dict[key]</code> or <code>dict.pop(key)</code></li>
+        <li>Check for keys with <code>key in dict</code></li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="index.html">&larr; Module 8 Home</a>
+      <a href="lesson-02-dict-methods.html">Next: Dictionary Methods &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python error handling with try, except, else, finally, and raising exceptions">
+  <title>Lesson 12.2: try / except / finally – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-common-errors.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-debugging.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 12.2: try / except / finally</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to use <code>try</code>/<code>except</code> to catch errors</li>
+        <li>Catching specific exception types</li>
+        <li>Using multiple <code>except</code> blocks</li>
+        <li>The <code>else</code> and <code>finally</code> clauses</li>
+        <li>Raising your own exceptions</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Basic try/except</h2>
+      <p>Instead of letting errors crash your program, you can <strong>catch</strong> them and handle them gracefully:</p>
+
+      <div class="example-box">
+        <h4>Without Error Handling (Crashes)</h4>
+        <pre class="code-box">age = <span class="function">input</span>(<span class="string">"Enter your age: "</span>)  <span class="comment"># User types "twenty"</span>
+age = <span class="function">int</span>(age)    <span class="comment"># ValueError! Program crashes</span>
+<span class="function">print</span>(<span class="string">f"You are </span>{age}<span class="string"> years old"</span>)</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>With Error Handling (Graceful)</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    age = <span class="function">input</span>(<span class="string">"Enter your age: "</span>)
+    age = <span class="function">int</span>(age)
+    <span class="function">print</span>(<span class="string">f"You are </span>{age}<span class="string"> years old"</span>)
+<span class="keyword">except</span>:
+    <span class="function">print</span>(<span class="string">"Please enter a valid number."</span>)</pre>
+        <div class="output-box">Enter your age: twenty<br>Please enter a valid number.</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>How it works:</strong> Python tries to run the code in the <code>try</code> block. If an error occurs, it jumps to the <code>except</code> block instead of crashing. If no error occurs, the <code>except</code> block is skipped.
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Catching Specific Exceptions</h2>
+      <p>It is best practice to catch <strong>specific</strong> exception types rather than catching everything:</p>
+
+      <div class="example-box">
+        <h4>Catching Specific Errors</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    number = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Enter a number: "</span>))
+    result = <span class="number">100</span> / number
+    <span class="function">print</span>(<span class="string">f"100 / </span>{number}<span class="string"> = </span>{result}<span class="string">"</span>)
+<span class="keyword">except</span> ValueError:
+    <span class="function">print</span>(<span class="string">"That's not a valid number!"</span>)
+<span class="keyword">except</span> ZeroDivisionError:
+    <span class="function">print</span>(<span class="string">"You can't divide by zero!"</span>)</pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Getting the Error Message</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    file = <span class="function">open</span>(<span class="string">"missing.txt"</span>, <span class="string">"r"</span>)
+<span class="keyword">except</span> FileNotFoundError <span class="keyword">as</span> e:
+    <span class="function">print</span>(<span class="string">f"Error: </span>{e}<span class="string">"</span>)</pre>
+        <div class="output-box">Error: [Errno 2] No such file or directory: 'missing.txt'</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. The else Clause</h2>
+      <p>The <code>else</code> block runs only if <strong>no error occurred</strong> in the <code>try</code> block:</p>
+
+      <div class="example-box">
+        <h4>Using else</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    number = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Enter a number: "</span>))
+<span class="keyword">except</span> ValueError:
+    <span class="function">print</span>(<span class="string">"Invalid input!"</span>)
+<span class="keyword">else</span>:
+    <span class="comment"># Only runs if no error occurred</span>
+    <span class="function">print</span>(<span class="string">f"You entered: </span>{number}<span class="string">"</span>)
+    <span class="function">print</span>(<span class="string">f"Doubled: </span>{number * <span class="number">2</span>}<span class="string">"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. The finally Clause</h2>
+      <p>The <code>finally</code> block runs <strong>no matter what</strong> - whether an error occurred or not. It is useful for cleanup tasks:</p>
+
+      <div class="example-box">
+        <h4>Using finally</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    file = <span class="function">open</span>(<span class="string">"data.txt"</span>, <span class="string">"r"</span>)
+    content = file.<span class="function">read</span>()
+    <span class="function">print</span>(content)
+<span class="keyword">except</span> FileNotFoundError:
+    <span class="function">print</span>(<span class="string">"File not found!"</span>)
+<span class="keyword">finally</span>:
+    <span class="function">print</span>(<span class="string">"Finished file operation."</span>)
+    <span class="comment"># This always runs</span></pre>
+      </div>
+
+      <div class="example-box">
+        <h4>Complete try/except/else/finally</h4>
+        <pre class="code-box"><span class="keyword">try</span>:
+    value = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Enter a number: "</span>))
+<span class="keyword">except</span> ValueError:
+    <span class="function">print</span>(<span class="string">"Not a valid number!"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">f"Success! You entered </span>{value}<span class="string">"</span>)
+<span class="keyword">finally</span>:
+    <span class="function">print</span>(<span class="string">"Program complete."</span>)
+
+<span class="comment"># Order: try → except (if error) OR else (if no error) → finally (always)</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Raising Exceptions</h2>
+      <p>You can raise your own exceptions using the <code>raise</code> keyword:</p>
+
+      <div class="example-box">
+        <h4>Raising Exceptions</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">set_age</span>(age):
+    <span class="keyword">if</span> age < <span class="number">0</span>:
+        <span class="keyword">raise</span> ValueError(<span class="string">"Age cannot be negative"</span>)
+    <span class="keyword">if</span> age > <span class="number">150</span>:
+        <span class="keyword">raise</span> ValueError(<span class="string">"Age seems unrealistic"</span>)
+    <span class="keyword">return</span> age
+
+<span class="keyword">try</span>:
+    my_age = <span class="function">set_age</span>(-<span class="number">5</span>)
+<span class="keyword">except</span> ValueError <span class="keyword">as</span> e:
+    <span class="function">print</span>(<span class="string">f"Invalid age: </span>{e}<span class="string">"</span>)</pre>
+        <div class="output-box">Invalid age: Age cannot be negative</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Practical Example: Safe User Input</h2>
+
+      <div class="example-box">
+        <h4>Input Validation Loop</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">get_positive_number</span>():
+    <span class="keyword">while</span> <span class="keyword">True</span>:
+        <span class="keyword">try</span>:
+            num = <span class="function">float</span>(<span class="function">input</span>(<span class="string">"Enter a positive number: "</span>))
+            <span class="keyword">if</span> num <= <span class="number">0</span>:
+                <span class="function">print</span>(<span class="string">"Number must be positive!"</span>)
+            <span class="keyword">else</span>:
+                <span class="keyword">return</span> num
+        <span class="keyword">except</span> ValueError:
+            <span class="function">print</span>(<span class="string">"That's not a valid number. Try again."</span>)
+
+result = <span class="function">get_positive_number</span>()
+<span class="function">print</span>(<span class="string">f"You entered: </span>{result}<span class="string">"</span>)</pre>
+        <div class="output-box">Enter a positive number: abc<br>That's not a valid number. Try again.<br>Enter a positive number: -3<br>Number must be positive!<br>Enter a positive number: 42<br>You entered: 42.0</div>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>In a try/except/else/finally block, when does the <code>else</code> block run?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p>The <code>else</code> block runs only when <strong>no exception occurred</strong> in the <code>try</code> block. If an error happens and the <code>except</code> block runs, the <code>else</code> block is skipped. The <code>finally</code> block, however, always runs regardless.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><code>try/except</code> catches errors and prevents program crashes</li>
+        <li>Always catch <strong>specific</strong> exception types when possible</li>
+        <li>Use <code>as e</code> to capture the error message</li>
+        <li><code>else</code> runs only if no error occurred</li>
+        <li><code>finally</code> always runs, regardless of errors</li>
+        <li>Use <code>raise</code> to create your own exceptions for invalid data</li>
+        <li>Combine <code>try/except</code> with a <code>while</code> loop for input validation</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="lesson-01-common-errors.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-debugging.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

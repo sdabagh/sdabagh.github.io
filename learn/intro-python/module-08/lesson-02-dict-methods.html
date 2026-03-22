@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn essential Python dictionary methods: keys, values, items, update, pop, clear, and nested dictionaries">
+  <title>Lesson 8.2: Dictionary Methods – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-01-creating-using-dicts.html">&larr; Previous Lesson</a>
+      <span>Lesson 2 of 4</span>
+      <a href="lesson-03-tuples.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 8.2: Dictionary Methods</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>How to use <code>keys()</code>, <code>values()</code>, and <code>items()</code> to view dictionary contents</li>
+        <li>How to merge dictionaries with <code>update()</code></li>
+        <li>How to remove entries with <code>pop()</code> and <code>clear()</code></li>
+        <li>How to iterate over dictionaries with for loops</li>
+        <li>How to build and access nested dictionaries</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Viewing Keys, Values, and Items</h2>
+      <p>Python provides three methods to view the contents of a dictionary:</p>
+
+      <pre class="code-box">fruit_prices = {
+    <span class="string">"apple"</span>: <span class="number">1.20</span>,
+    <span class="string">"banana"</span>: <span class="number">0.50</span>,
+    <span class="string">"cherry"</span>: <span class="number">2.00</span>
+}
+
+<span class="comment"># Get all keys</span>
+<span class="function">print</span>(fruit_prices.<span class="function">keys</span>())
+
+<span class="comment"># Get all values</span>
+<span class="function">print</span>(fruit_prices.<span class="function">values</span>())
+
+<span class="comment"># Get all key-value pairs as tuples</span>
+<span class="function">print</span>(fruit_prices.<span class="function">items</span>())</pre>
+      <div class="output-box">dict_keys(['apple', 'banana', 'cherry'])
+dict_values([1.2, 0.5, 2.0])
+dict_items([('apple', 1.2), ('banana', 0.5), ('cherry', 2.0)])</div>
+
+      <div class="definition-box">
+        <strong>View Objects:</strong> The results of <code>keys()</code>, <code>values()</code>, and <code>items()</code> are <em>view objects</em>. They reflect changes made to the dictionary automatically. You can convert them to lists with <code>list()</code>.
+      </div>
+
+      <pre class="code-box"><span class="comment"># Convert to a regular list if needed</span>
+key_list = <span class="function">list</span>(fruit_prices.<span class="function">keys</span>())
+<span class="function">print</span>(key_list)</pre>
+      <div class="output-box">['apple', 'banana', 'cherry']</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Merging with update()</h2>
+      <p>The <code>update()</code> method adds key-value pairs from one dictionary to another. If a key already exists, its value is updated:</p>
+
+      <pre class="code-box">settings = {
+    <span class="string">"theme"</span>: <span class="string">"light"</span>,
+    <span class="string">"font_size"</span>: <span class="number">14</span>,
+    <span class="string">"language"</span>: <span class="string">"English"</span>
+}
+
+new_settings = {
+    <span class="string">"theme"</span>: <span class="string">"dark"</span>,
+    <span class="string">"notifications"</span>: <span class="keyword">True</span>
+}
+
+settings.<span class="function">update</span>(new_settings)
+<span class="function">print</span>(settings)</pre>
+      <div class="output-box">{'theme': 'dark', 'font_size': 14, 'language': 'English', 'notifications': True}</div>
+
+      <p>Notice that <code>"theme"</code> was updated from <code>"light"</code> to <code>"dark"</code>, and <code>"notifications"</code> was added as a new key.</p>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Removing with pop() and clear()</h2>
+
+      <pre class="code-box">scores = {<span class="string">"Alice"</span>: <span class="number">95</span>, <span class="string">"Bob"</span>: <span class="number">87</span>, <span class="string">"Carol"</span>: <span class="number">92</span>}
+
+<span class="comment"># pop() removes a key and returns its value</span>
+bob_score = scores.<span class="function">pop</span>(<span class="string">"Bob"</span>)
+<span class="function">print</span>(f<span class="string">"Bob's score was: {bob_score}"</span>)
+<span class="function">print</span>(scores)
+
+<span class="comment"># pop() with a default value (no error if key missing)</span>
+dave_score = scores.<span class="function">pop</span>(<span class="string">"Dave"</span>, <span class="string">"Not found"</span>)
+<span class="function">print</span>(f<span class="string">"Dave's score: {dave_score}"</span>)
+
+<span class="comment"># clear() removes ALL entries</span>
+scores.<span class="function">clear</span>()
+<span class="function">print</span>(scores)</pre>
+      <div class="output-box">Bob's score was: 87
+{'Alice': 95, 'Carol': 92}
+Dave's score: Not found
+{}</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Iterating Over Dictionaries</h2>
+      <p>You can loop through dictionaries in several ways:</p>
+
+      <h3>Loop Over Keys (Default)</h3>
+      <pre class="code-box">ages = {<span class="string">"Alice"</span>: <span class="number">25</span>, <span class="string">"Bob"</span>: <span class="number">30</span>, <span class="string">"Carol"</span>: <span class="number">28</span>}
+
+<span class="comment"># Looping over a dict gives you the keys</span>
+<span class="keyword">for</span> name <span class="keyword">in</span> ages:
+    <span class="function">print</span>(name)</pre>
+      <div class="output-box">Alice
+Bob
+Carol</div>
+
+      <h3>Loop Over Key-Value Pairs with items()</h3>
+      <pre class="code-box"><span class="comment"># Most common pattern: loop over items()</span>
+<span class="keyword">for</span> name, age <span class="keyword">in</span> ages.<span class="function">items</span>():
+    <span class="function">print</span>(f<span class="string">"{name} is {age} years old"</span>)</pre>
+      <div class="output-box">Alice is 25 years old
+Bob is 30 years old
+Carol is 28 years old</div>
+
+      <h3>Loop Over Values Only</h3>
+      <pre class="code-box"><span class="comment"># Sum all the ages</span>
+total = <span class="number">0</span>
+<span class="keyword">for</span> age <span class="keyword">in</span> ages.<span class="function">values</span>():
+    total += age
+<span class="function">print</span>(f<span class="string">"Total of all ages: {total}"</span>)</pre>
+      <div class="output-box">Total of all ages: 83</div>
+
+      <div class="example-box">
+        <h4>Practical Example: Word Counter</h4>
+        <pre class="code-box">sentence = <span class="string">"the cat sat on the mat the cat"</span>
+word_count = {}
+
+<span class="keyword">for</span> word <span class="keyword">in</span> sentence.<span class="function">split</span>():
+    <span class="keyword">if</span> word <span class="keyword">in</span> word_count:
+        word_count[word] += <span class="number">1</span>
+    <span class="keyword">else</span>:
+        word_count[word] = <span class="number">1</span>
+
+<span class="keyword">for</span> word, count <span class="keyword">in</span> word_count.<span class="function">items</span>():
+    <span class="function">print</span>(f<span class="string">"'{word}' appears {count} time(s)"</span>)</pre>
+        <div class="output-box">'the' appears 3 time(s)
+'cat' appears 2 time(s)
+'sat' appears 1 time(s)
+'on' appears 1 time(s)
+'mat' appears 1 time(s)</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Nested Dictionaries</h2>
+      <p>Dictionary values can themselves be dictionaries, creating nested structures perfect for complex data:</p>
+
+      <pre class="code-box">students = {
+    <span class="string">"alice"</span>: {
+        <span class="string">"age"</span>: <span class="number">20</span>,
+        <span class="string">"major"</span>: <span class="string">"Math"</span>,
+        <span class="string">"gpa"</span>: <span class="number">3.8</span>
+    },
+    <span class="string">"bob"</span>: {
+        <span class="string">"age"</span>: <span class="number">22</span>,
+        <span class="string">"major"</span>: <span class="string">"CS"</span>,
+        <span class="string">"gpa"</span>: <span class="number">3.5</span>
+    }
+}
+
+<span class="comment"># Access nested values with chained brackets</span>
+<span class="function">print</span>(students[<span class="string">"alice"</span>][<span class="string">"major"</span>])
+<span class="function">print</span>(students[<span class="string">"bob"</span>][<span class="string">"gpa"</span>])
+
+<span class="comment"># Loop through nested data</span>
+<span class="keyword">for</span> name, info <span class="keyword">in</span> students.<span class="function">items</span>():
+    <span class="function">print</span>(f<span class="string">"{name}: {info['major']} major, GPA: {info['gpa']}"</span>)</pre>
+      <div class="output-box">Math
+3.5
+alice: Math major, GPA: 3.8
+bob: CS major, GPA: 3.5</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Other Useful Methods</h2>
+
+      <pre class="code-box">data = {<span class="string">"a"</span>: <span class="number">1</span>, <span class="string">"b"</span>: <span class="number">2</span>, <span class="string">"c"</span>: <span class="number">3</span>}
+
+<span class="comment"># len() returns the number of key-value pairs</span>
+<span class="function">print</span>(<span class="function">len</span>(data))
+
+<span class="comment"># setdefault() returns value if key exists,</span>
+<span class="comment"># otherwise inserts key with default and returns it</span>
+val = data.<span class="function">setdefault</span>(<span class="string">"d"</span>, <span class="number">4</span>)
+<span class="function">print</span>(val)
+<span class="function">print</span>(data)
+
+<span class="comment"># copy() creates a shallow copy</span>
+data_copy = data.<span class="function">copy</span>()
+<span class="function">print</span>(data_copy)</pre>
+      <div class="output-box">3
+4
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}</div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What does the following code print?</p>
+      <pre class="code-box">d = {<span class="string">"x"</span>: <span class="number">10</span>, <span class="string">"y"</span>: <span class="number">20</span>}
+d.<span class="function">update</span>({<span class="string">"y"</span>: <span class="number">99</span>, <span class="string">"z"</span>: <span class="number">30</span>})
+<span class="keyword">for</span> k, v <span class="keyword">in</span> d.<span class="function">items</span>():
+    <span class="function">print</span>(f<span class="string">"{k}={v}"</span>)</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer:</strong></p>
+        <pre>x=10
+y=99
+z=30</pre>
+        <p><code>update()</code> changed <code>"y"</code> from 20 to 99 and added <code>"z": 30</code>.</p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <p>Create a dictionary of three friends and their favorite colors. Then:</p>
+      <ol>
+        <li>Print all the names (keys)</li>
+        <li>Print all the colors (values)</li>
+        <li>Loop through items and print "Name likes Color"</li>
+        <li>Add a new friend, then remove one with <code>pop()</code></li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><code>keys()</code>, <code>values()</code>, and <code>items()</code> give you views of a dictionary's contents</li>
+        <li><code>update()</code> merges another dictionary in, updating existing keys and adding new ones</li>
+        <li><code>pop(key)</code> removes and returns a value; <code>clear()</code> empties the entire dictionary</li>
+        <li>The most common loop pattern is <code>for key, value in dict.items()</code></li>
+        <li>Nested dictionaries let you represent complex, structured data</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="lesson-01-creating-using-dicts.html">&larr; Previous: Creating Dictionaries</a>
+      <a href="lesson-03-tuples.html">Next: Tuples &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

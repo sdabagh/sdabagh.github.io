@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn to recognize and understand common Python error types">
+  <title>Lesson 12.1: Common Python Errors – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .error-box { background: #fff5f5; border-left: 4px solid #e53935; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; color: #c62828; }
+    .error-box::before { content: "Error:"; display: block; font-weight: 600; color: #e53935; margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .content-section h2 { color: var(--primary-dark); border-bottom: 2px solid var(--primary-light); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .definition-box { background: var(--background-alt); border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .check-understanding { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--success); margin-top: 0; }
+    .check-understanding .reveal-btn { background: var(--success); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); cursor: pointer; font-size: 0.95rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { opacity: 0.9; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-md); }
+    .key-takeaways { background: #fff3e0; border: 2px solid var(--accent-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--accent-color); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .key-takeaways li { padding: var(--spacing-xs) 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 12 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-try-except.html">Next Lesson &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 12.1: Common Python Errors</h2>
+      <p>What you will learn:</p>
+      <ul>
+        <li>How to read Python error messages (tracebacks)</li>
+        <li>Six common error types and what causes each one</li>
+        <li>How to fix each type of error</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Reading Error Messages</h2>
+      <p>When Python encounters an error, it displays a <strong>traceback</strong> - a message that tells you what went wrong and where. Learning to read these messages is one of the most valuable skills you can develop.</p>
+
+      <div class="definition-box">
+        <strong>Traceback:</strong> Python's error report that shows the file, line number, and type of error that occurred. Always read from the <strong>bottom up</strong> - the last line tells you the error type and message.
+      </div>
+
+      <div class="example-box">
+        <h4>Anatomy of an Error Message</h4>
+        <pre class="code-box">Traceback (most recent call last):
+  File "program.py", line 3, in &lt;module&gt;
+    print(score / 0)
+          ~~~~~~^~~
+ZeroDivisionError: division by zero</pre>
+        <p style="margin-top: var(--spacing-sm);">This tells you: the error is in <strong>program.py</strong>, on <strong>line 3</strong>, and it is a <strong>ZeroDivisionError</strong> caused by dividing by zero.</p>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. SyntaxError</h2>
+      <p>A <code>SyntaxError</code> means Python cannot understand your code because it does not follow Python's grammar rules. This happens <strong>before</strong> your code runs.</p>
+
+      <div class="example-box">
+        <h4>Common Causes</h4>
+        <pre class="code-box"><span class="comment"># Missing colon</span>
+<span class="keyword">if</span> x > <span class="number">5</span>       <span class="comment"># SyntaxError! Missing :</span>
+    <span class="function">print</span>(<span class="string">"big"</span>)
+
+<span class="comment"># Mismatched parentheses</span>
+<span class="function">print</span>(<span class="string">"hello"</span>  <span class="comment"># SyntaxError! Missing closing )</span>
+
+<span class="comment"># Wrong assignment</span>
+<span class="number">5</span> = x            <span class="comment"># SyntaxError! Can't assign to a number</span></pre>
+        <div class="error-box">SyntaxError: expected ':'</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Fix:</strong> Check for missing colons, parentheses, quotes, or commas. Python usually points to where it got confused.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. NameError</h2>
+      <p>A <code>NameError</code> occurs when you use a variable or function name that Python does not recognize.</p>
+
+      <div class="example-box">
+        <h4>Common Causes</h4>
+        <pre class="code-box"><span class="comment"># Misspelled variable name</span>
+username = <span class="string">"Alice"</span>
+<span class="function">print</span>(usrname)     <span class="comment"># NameError! Typo: usrname</span>
+
+<span class="comment"># Using a variable before defining it</span>
+<span class="function">print</span>(score)       <span class="comment"># NameError! score not defined yet</span>
+score = <span class="number">100</span>
+
+<span class="comment"># Forgetting to import a module</span>
+result = math.<span class="function">sqrt</span>(<span class="number">16</span>)  <span class="comment"># NameError! math not imported</span></pre>
+        <div class="error-box">NameError: name 'usrname' is not defined</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Fix:</strong> Check your spelling carefully. Make sure variables are defined before you use them. Import modules before using them.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. TypeError</h2>
+      <p>A <code>TypeError</code> occurs when you try to perform an operation on an incompatible data type.</p>
+
+      <div class="example-box">
+        <h4>Common Causes</h4>
+        <pre class="code-box"><span class="comment"># Adding a string and a number</span>
+result = <span class="string">"Age: "</span> + <span class="number">25</span>    <span class="comment"># TypeError!</span>
+<span class="comment"># Fix: "Age: " + str(25)</span>
+
+<span class="comment"># Calling a non-callable</span>
+length = <span class="number">5</span>
+length()                   <span class="comment"># TypeError! int is not callable</span>
+
+<span class="comment"># Wrong number of arguments</span>
+<span class="keyword">def</span> <span class="function">greet</span>(name):
+    <span class="function">print</span>(<span class="string">f"Hello, </span>{name}<span class="string">"</span>)
+<span class="function">greet</span>()                    <span class="comment"># TypeError! Missing argument</span></pre>
+        <div class="error-box">TypeError: can only concatenate str (not "int") to str</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Fix:</strong> Convert types explicitly with <code>str()</code>, <code>int()</code>, or <code>float()</code>. Check that you are passing the right number of arguments to functions.
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. ValueError</h2>
+      <p>A <code>ValueError</code> occurs when a function receives a value of the right type but an inappropriate value.</p>
+
+      <div class="example-box">
+        <h4>Common Causes</h4>
+        <pre class="code-box"><span class="comment"># Converting non-numeric string to int</span>
+number = <span class="function">int</span>(<span class="string">"hello"</span>)     <span class="comment"># ValueError!</span>
+
+<span class="comment"># Converting float string to int directly</span>
+number = <span class="function">int</span>(<span class="string">"3.14"</span>)      <span class="comment"># ValueError!</span>
+<span class="comment"># Fix: int(float("3.14"))</span>
+
+<span class="comment"># Too many values to unpack</span>
+x, y = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]         <span class="comment"># ValueError!</span></pre>
+        <div class="error-box">ValueError: invalid literal for int() with base 10: 'hello'</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Fix:</strong> Validate user input before converting. Use <code>try/except</code> to handle invalid input gracefully (covered in the next lesson).
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. IndexError and KeyError</h2>
+
+      <div class="example-box">
+        <h4>IndexError: List Index Out of Range</h4>
+        <pre class="code-box">colors = [<span class="string">"red"</span>, <span class="string">"blue"</span>, <span class="string">"green"</span>]
+
+<span class="function">print</span>(colors[<span class="number">0</span>])    <span class="comment"># red - works fine</span>
+<span class="function">print</span>(colors[<span class="number">3</span>])    <span class="comment"># IndexError! Only indices 0, 1, 2 exist</span>
+<span class="function">print</span>(colors[-<span class="number">1</span>])   <span class="comment"># green - negative indices work</span></pre>
+        <div class="error-box">IndexError: list index out of range</div>
+      </div>
+
+      <div class="example-box">
+        <h4>KeyError: Dictionary Key Not Found</h4>
+        <pre class="code-box">student = {<span class="string">"name"</span>: <span class="string">"Alice"</span>, <span class="string">"age"</span>: <span class="number">20</span>}
+
+<span class="function">print</span>(student[<span class="string">"name"</span>])    <span class="comment"># Alice - works fine</span>
+<span class="function">print</span>(student[<span class="string">"grade"</span>])   <span class="comment"># KeyError! "grade" not in dictionary</span>
+
+<span class="comment"># Fix: use .get() with a default value</span>
+<span class="function">print</span>(student.<span class="function">get</span>(<span class="string">"grade"</span>, <span class="string">"N/A"</span>))  <span class="comment"># N/A - no error!</span></pre>
+        <div class="error-box">KeyError: 'grade'</div>
+      </div>
+
+      <div class="definition-box">
+        <strong>Fix for IndexError:</strong> Check list length with <code>len()</code> before accessing. Use negative indices for the end.<br>
+        <strong>Fix for KeyError:</strong> Use <code>.get(key, default)</code> or check with <code>if key in dictionary:</code>.
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p>What type of error would you get from this code: <code>print("Score: " + 95)</code>?</p>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answer</button>
+      <div class="answer">
+        <p><strong>TypeError</strong> - you cannot concatenate a string and an integer. Fix it with <code>print("Score: " + str(95))</code> or use an f-string: <code>print(f"Score: {95}")</code>.</p>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>SyntaxError:</strong> Your code has a grammar mistake (missing colon, parenthesis, etc.)</li>
+        <li><strong>NameError:</strong> You used a name that Python does not recognize (typo or undefined variable)</li>
+        <li><strong>TypeError:</strong> You used the wrong data type for an operation</li>
+        <li><strong>ValueError:</strong> The value is wrong even though the type is right</li>
+        <li><strong>IndexError:</strong> You tried to access a list index that does not exist</li>
+        <li><strong>KeyError:</strong> You tried to access a dictionary key that does not exist</li>
+        <li>Always read error messages from the <strong>bottom up</strong></li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="margin-top: var(--spacing-xl); border-top: 2px solid var(--border-color); border-bottom: none; padding-top: var(--spacing-md);">
+      <a href="index.html">&larr; Module 12 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-try-except.html">Next Lesson &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

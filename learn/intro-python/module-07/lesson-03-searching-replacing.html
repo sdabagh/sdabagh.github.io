@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Python string searching with find, index, rfind, replace, and the in operator">
+  <title>Lesson 7.3: Searching and Replacing – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); }
+    .lesson-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding { background: #f3e5f5; border: 2px solid #9c27b0; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn { background: #9c27b0; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="lesson-02-string-slicing.html">&larr; Lesson 2</a>
+      <span>Lesson 3 of 4</span>
+      <a href="lesson-04-common-string-patterns.html">Lesson 4 &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 7.3: Searching and Replacing</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Find substrings using find() and index()</li>
+        <li>Search from the right using rfind() and rindex()</li>
+        <li>Replace substrings with replace()</li>
+        <li>Check for substring existence with the <code>in</code> operator</li>
+        <li>Understand the basics of pattern matching</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>The <code>in</code> Operator</h2>
+
+      <p>The simplest way to check if a substring exists within a string is the <code>in</code> operator.</p>
+
+<pre class="code-box">sentence = <span class="string">"Python is a powerful programming language"</span>
+
+<span class="keyword">print</span>(<span class="string">"Python"</span> <span class="keyword">in</span> sentence)
+<span class="keyword">print</span>(<span class="string">"java"</span> <span class="keyword">in</span> sentence)
+<span class="keyword">print</span>(<span class="string">"powerful"</span> <span class="keyword">in</span> sentence)
+
+<span class="comment"># Using 'not in'</span>
+<span class="keyword">print</span>(<span class="string">"java"</span> <span class="keyword">not in</span> sentence)
+</pre>
+      <div class="output-box">True
+False
+True
+True</div>
+
+      <div class="definition-box">
+        <strong>Remember:</strong> The <code>in</code> operator is case-sensitive. <code>"python" in "Python is great"</code> returns <code>False</code>. Convert both to lowercase for case-insensitive checks.
+      </div>
+
+<pre class="code-box">text = <span class="string">"Python is Great"</span>
+search = <span class="string">"python"</span>
+
+<span class="comment"># Case-insensitive search</span>
+<span class="keyword">if</span> search.<span class="function">lower</span>() <span class="keyword">in</span> text.<span class="function">lower</span>():
+    <span class="keyword">print</span>(<span class="string">"Found it!"</span>)
+</pre>
+      <div class="output-box">Found it!</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>The find() Method</h2>
+
+      <p><code>find()</code> returns the index of the first occurrence of a substring. If not found, it returns <code>-1</code> (instead of raising an error).</p>
+
+<pre class="code-box">text = <span class="string">"Hello, World! Hello, Python!"</span>
+
+<span class="keyword">print</span>(text.<span class="function">find</span>(<span class="string">"Hello"</span>))     <span class="comment"># First occurrence</span>
+<span class="keyword">print</span>(text.<span class="function">find</span>(<span class="string">"World"</span>))     <span class="comment"># Position of "World"</span>
+<span class="keyword">print</span>(text.<span class="function">find</span>(<span class="string">"Java"</span>))      <span class="comment"># Not found</span>
+</pre>
+      <div class="output-box">0
+7
+-1</div>
+
+      <h3>Searching from a Starting Position</h3>
+      <p>You can specify where to start searching.</p>
+
+<pre class="code-box">text = <span class="string">"Hello, World! Hello, Python!"</span>
+
+<span class="comment"># Find second "Hello" by starting after the first</span>
+first = text.<span class="function">find</span>(<span class="string">"Hello"</span>)
+second = text.<span class="function">find</span>(<span class="string">"Hello"</span>, first + <span class="number">1</span>)
+<span class="keyword">print</span>(<span class="string">f"First 'Hello' at index: </span>{first}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Second 'Hello' at index: </span>{second}<span class="string">"</span>)
+</pre>
+      <div class="output-box">First 'Hello' at index: 0
+Second 'Hello' at index: 14</div>
+
+      <div class="example-box">
+        <h4>Using find() Safely</h4>
+<pre class="code-box">email = <span class="string">"user@example.com"</span>
+at_pos = email.<span class="function">find</span>(<span class="string">"@"</span>)
+
+<span class="keyword">if</span> at_pos != <span class="number">-1</span>:
+    username = email[:at_pos]
+    domain = email[at_pos + <span class="number">1</span>:]
+    <span class="keyword">print</span>(<span class="string">f"Username: </span>{username}<span class="string">"</span>)
+    <span class="keyword">print</span>(<span class="string">f"Domain: </span>{domain}<span class="string">"</span>)
+<span class="keyword">else</span>:
+    <span class="keyword">print</span>(<span class="string">"Invalid email"</span>)
+</pre>
+        <div class="output-box">Username: user
+Domain: example.com</div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>find() vs index()</h2>
+
+      <div class="definition-box">
+        <strong>Key Difference:</strong> <code>find()</code> returns <code>-1</code> when not found. <code>index()</code> raises a <code>ValueError</code> when not found. Use <code>find()</code> when missing values are expected; use <code>index()</code> when missing values are errors.
+      </div>
+
+<pre class="code-box">text = <span class="string">"Python programming"</span>
+
+<span class="comment"># find() returns -1</span>
+<span class="keyword">print</span>(text.<span class="function">find</span>(<span class="string">"Java"</span>))
+
+<span class="comment"># index() raises ValueError</span>
+<span class="comment"># text.index("Java")  # ValueError: substring not found</span>
+
+<span class="comment"># Both work the same when substring IS found</span>
+<span class="keyword">print</span>(text.<span class="function">find</span>(<span class="string">"prog"</span>))
+<span class="keyword">print</span>(text.<span class="function">index</span>(<span class="string">"prog"</span>))
+</pre>
+      <div class="output-box">-1
+7
+7</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Searching from the Right: rfind() and rindex()</h2>
+
+      <p><code>rfind()</code> and <code>rindex()</code> search from the right (end) of the string and return the index of the <strong>last</strong> occurrence.</p>
+
+<pre class="code-box">path = <span class="string">"/home/user/documents/report.pdf"</span>
+
+<span class="comment"># Find last "/" to get the filename</span>
+last_slash = path.<span class="function">rfind</span>(<span class="string">"/"</span>)
+filename = path[last_slash + <span class="number">1</span>:]
+<span class="keyword">print</span>(<span class="string">f"Filename: </span>{filename}<span class="string">"</span>)
+
+<span class="comment"># Find last "." to get the extension</span>
+last_dot = path.<span class="function">rfind</span>(<span class="string">"."</span>)
+extension = path[last_dot + <span class="number">1</span>:]
+<span class="keyword">print</span>(<span class="string">f"Extension: </span>{extension}<span class="string">"</span>)
+</pre>
+      <div class="output-box">Filename: report.pdf
+Extension: pdf</div>
+
+      <div class="example-box">
+        <h4>Finding All Occurrences</h4>
+<pre class="code-box">text = <span class="string">"the cat sat on the mat near the hat"</span>
+search = <span class="string">"the"</span>
+
+positions = []
+start = <span class="number">0</span>
+<span class="keyword">while</span> <span class="keyword">True</span>:
+    pos = text.<span class="function">find</span>(search, start)
+    <span class="keyword">if</span> pos == <span class="number">-1</span>:
+        <span class="keyword">break</span>
+    positions.<span class="function">append</span>(pos)
+    start = pos + <span class="number">1</span>
+
+<span class="keyword">print</span>(<span class="string">f"'{search}' found at positions: </span>{positions}<span class="string">"</span>)
+</pre>
+        <div class="output-box">'the' found at positions: [0, 15, 28]</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Advanced replace()</h2>
+
+      <p>Building on what you learned in Lesson 1, here are more advanced uses of <code>replace()</code>.</p>
+
+<pre class="code-box"><span class="comment"># Censoring words</span>
+message = <span class="string">"The password is secret123"</span>
+censored = message.<span class="function">replace</span>(<span class="string">"secret123"</span>, <span class="string">"*****"</span>)
+<span class="keyword">print</span>(censored)
+
+<span class="comment"># Normalizing whitespace</span>
+messy = <span class="string">"too   many     spaces"</span>
+<span class="keyword">while</span> <span class="string">"  "</span> <span class="keyword">in</span> messy:
+    messy = messy.<span class="function">replace</span>(<span class="string">"  "</span>, <span class="string">" "</span>)
+<span class="keyword">print</span>(messy)
+
+<span class="comment"># Converting separators</span>
+csv_data = <span class="string">"name,age,city"</span>
+tab_data = csv_data.<span class="function">replace</span>(<span class="string">","</span>, <span class="string">"\t"</span>)
+<span class="keyword">print</span>(tab_data)
+</pre>
+      <div class="output-box">The password is *****
+too many spaces
+name	age	city</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Given <code>url = "https://www.example.com/path/to/page"</code>, use <code>find()</code> and slicing to extract just the domain name ("www.example.com").</p>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Introduction to Pattern Matching</h2>
+
+      <p>While <code>find()</code> and <code>replace()</code> work great for exact matches, sometimes you need to search for <em>patterns</em> rather than exact text. Python has a module called <code>re</code> (regular expressions) for this, which you will explore in later modules.</p>
+
+      <div class="definition-box">
+        <strong>Preview:</strong> Regular expressions let you search for patterns like "any digit", "any word that starts with a capital letter", or "any email address format". For now, the string methods you have learned cover most common needs.
+      </div>
+
+      <p>For now, here are some common pattern-checking techniques using the methods you already know:</p>
+
+<pre class="code-box"><span class="comment"># Check if a string contains only digits</span>
+pin = <span class="string">"1234"</span>
+<span class="keyword">print</span>(<span class="string">f"Is PIN all digits? </span>{pin.<span class="function">isdigit</span>()}<span class="string">"</span>)
+
+<span class="comment"># Check if input looks like an email</span>
+email = <span class="string">"user@example.com"</span>
+has_at = <span class="string">"@"</span> <span class="keyword">in</span> email
+has_dot = <span class="string">"."</span> <span class="keyword">in</span> email
+<span class="keyword">print</span>(<span class="string">f"Looks like email? </span>{has_at <span class="keyword">and</span> has_dot}<span class="string">"</span>)
+</pre>
+      <div class="output-box">Is PIN all digits? True
+Looks like email? True</div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <ol>
+        <li>What does <code>"hello world".find("world")</code> return?</li>
+        <li>What does <code>"hello world".find("python")</code> return?</li>
+        <li>What is the difference between <code>find()</code> and <code>index()</code>?</li>
+        <li>How does <code>rfind()</code> differ from <code>find()</code>?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>6</code> (the index where "world" begins)</li>
+          <li><code>-1</code> (not found)</li>
+          <li><code>find()</code> returns -1 when not found; <code>index()</code> raises a ValueError</li>
+          <li><code>rfind()</code> searches from the right and returns the last occurrence</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Use <code>in</code> for quick existence checks: <code>"word" in text</code></li>
+        <li><code>find()</code> returns the index of first occurrence, or -1 if not found</li>
+        <li><code>index()</code> raises ValueError if not found -- use when absence is an error</li>
+        <li><code>rfind()</code> searches from the right -- useful for finding the last occurrence</li>
+        <li><code>replace()</code> returns a new string with substitutions applied</li>
+        <li>All string searching is case-sensitive by default -- use <code>.lower()</code> for case-insensitive searches</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="lesson-02-string-slicing.html" class="btn btn-outline">&larr; Lesson 2: String Slicing</a>
+      <a href="lesson-04-common-string-patterns.html" class="btn btn-primary">Lesson 4: String Patterns &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

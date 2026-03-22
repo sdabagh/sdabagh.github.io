@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to define and call functions in Python using the def keyword">
+  <title>Lesson 9.1: Defining Functions with def – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 9 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-parameters-return.html">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 9.1: Defining Functions with def</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>What functions are and why they matter</li>
+        <li>How to define a function using the <code>def</code> keyword</li>
+        <li>How to call (use) a function</li>
+        <li>How to write docstrings to document your functions</li>
+        <li>The difference between defining and calling a function</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. What is a Function?</h2>
+      <p>A <strong>function</strong> is a reusable block of code that performs a specific task. You have already used many built-in functions like <code>print()</code>, <code>len()</code>, and <code>input()</code>. Now you will learn to create your own.</p>
+
+      <div class="definition-box">
+        <strong>Function:</strong> A named block of code that you can define once and call (run) as many times as you need. Functions help you organize your code, avoid repetition, and make programs easier to read and maintain.
+      </div>
+
+      <h3>Why Functions Matter</h3>
+      <ul>
+        <li><strong>Reusability:</strong> Write code once, use it many times</li>
+        <li><strong>Organization:</strong> Break complex problems into smaller, manageable pieces</li>
+        <li><strong>Readability:</strong> Well-named functions make code self-documenting</li>
+        <li><strong>Testing:</strong> Functions can be tested individually</li>
+        <li><strong>Collaboration:</strong> Teams can work on different functions independently</li>
+      </ul>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. Defining Your First Function</h2>
+      <p>Use the <code>def</code> keyword to define a function:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">greet</span>():
+    <span class="string">"""Print a greeting message."""</span>
+    <span class="function">print</span>(<span class="string">"Hello! Welcome to Python."</span>)</pre>
+
+      <p>Let's break down the syntax:</p>
+      <ul>
+        <li><code>def</code> &mdash; the keyword that tells Python you are defining a function</li>
+        <li><code>greet</code> &mdash; the name of the function (follows the same rules as variable names)</li>
+        <li><code>()</code> &mdash; parentheses for parameters (empty here because this function takes no input)</li>
+        <li><code>:</code> &mdash; a colon marks the end of the function header</li>
+        <li>The indented block below is the <strong>function body</strong> &mdash; the code that runs when the function is called</li>
+      </ul>
+
+      <div class="warning-box">
+        <strong>Important:</strong> Defining a function does <em>not</em> run it. You must <strong>call</strong> the function to execute its code.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. Calling a Function</h2>
+      <p>To run a function, write its name followed by parentheses:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">greet</span>():
+    <span class="string">"""Print a greeting message."""</span>
+    <span class="function">print</span>(<span class="string">"Hello! Welcome to Python."</span>)
+
+<span class="comment"># Call the function</span>
+<span class="function">greet</span>()
+<span class="function">greet</span>()  <span class="comment"># You can call it as many times as you want</span></pre>
+      <div class="output-box">Hello! Welcome to Python.
+Hello! Welcome to Python.</div>
+
+      <div class="example-box">
+        <h4>Define Once, Call Many Times</h4>
+        <pre class="code-box"><span class="keyword">def</span> <span class="function">print_separator</span>():
+    <span class="string">"""Print a visual separator line."""</span>
+    <span class="function">print</span>(<span class="string">"=" * 40</span>)
+
+<span class="function">print_separator</span>()
+<span class="function">print</span>(<span class="string">"Section 1: Introduction"</span>)
+<span class="function">print_separator</span>()
+<span class="function">print</span>(<span class="string">"Section 2: Details"</span>)
+<span class="function">print_separator</span>()</pre>
+        <div class="output-box">========================================
+Section 1: Introduction
+========================================
+Section 2: Details
+========================================</div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. Functions with Simple Parameters</h2>
+      <p>Functions become much more powerful when they accept input. Here is a preview (we cover parameters in depth in the next lesson):</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">greet_person</span>(name):
+    <span class="string">"""Greet a person by name."""</span>
+    <span class="function">print</span>(f<span class="string">"Hello, {name}! Welcome to Python."</span>)
+
+<span class="function">greet_person</span>(<span class="string">"Alice"</span>)
+<span class="function">greet_person</span>(<span class="string">"Bob"</span>)</pre>
+      <div class="output-box">Hello, Alice! Welcome to Python.
+Hello, Bob! Welcome to Python.</div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Docstrings</h2>
+      <p>A <strong>docstring</strong> is a string that describes what a function does. It goes on the first line of the function body, enclosed in triple quotes:</p>
+
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">calculate_area</span>(length, width):
+    <span class="string">"""Calculate the area of a rectangle.
+
+    Args:
+        length: The length of the rectangle.
+        width: The width of the rectangle.
+
+    Returns:
+        The area of the rectangle.
+    """</span>
+    <span class="keyword">return</span> length * width
+
+<span class="comment"># You can view a function's docstring with help()</span>
+<span class="function">help</span>(calculate_area)</pre>
+
+      <div class="definition-box">
+        <strong>Docstring:</strong> A documentation string placed immediately after the <code>def</code> line. It describes the function's purpose, parameters, and return value. Best practice is to always include one.
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Naming Functions</h2>
+      <p>Good function names make your code readable:</p>
+
+      <div class="example-box">
+        <h4>Naming Conventions</h4>
+        <ul>
+          <li>Use <strong>lowercase</strong> with <strong>underscores</strong>: <code>calculate_total</code>, <code>get_user_input</code></li>
+          <li>Start with a <strong>verb</strong> that describes the action: <code>print_report</code>, <code>validate_email</code></li>
+          <li>Be <strong>descriptive</strong> but concise: <code>send_email</code> is better than <code>se</code> or <code>send_the_electronic_mail_message</code></li>
+          <li>Follow the same rules as variable names (no spaces, no starting with numbers)</li>
+        </ul>
+      </div>
+
+      <pre class="code-box"><span class="comment"># Good function names</span>
+<span class="keyword">def</span> <span class="function">calculate_average</span>(numbers):
+    ...
+
+<span class="keyword">def</span> <span class="function">is_valid_email</span>(email):
+    ...
+
+<span class="keyword">def</span> <span class="function">print_welcome_message</span>():
+    ...
+
+<span class="comment"># Avoid these names</span>
+<span class="comment"># def f():        # too short, meaningless</span>
+<span class="comment"># def DoStuff():  # not snake_case</span>
+<span class="comment"># def data():     # noun, not a verb</span></pre>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> What is wrong with this code?</p>
+      <pre class="code-box"><span class="keyword">def</span> <span class="function">say_hello</span>():
+    <span class="function">print</span>(<span class="string">"Hello!"</span>)
+
+<span class="function">print</span>(<span class="string">"The program starts here"</span>)
+say_hello</pre>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <p><strong>Answer:</strong> The last line writes <code>say_hello</code> without parentheses. This references the function object but does <em>not call it</em>. To actually run the function, you need <code>say_hello()</code> with parentheses.</p>
+      </div>
+    </div>
+
+    <!-- Try It -->
+    <div class="try-it-box">
+      <h4>Try It Yourself</h4>
+      <ol>
+        <li>Define a function called <code>introduce</code> that prints your name and favorite hobby</li>
+        <li>Add a docstring to the function</li>
+        <li>Call the function three times</li>
+        <li>Define a function called <code>print_box</code> that prints a small text box using <code>*</code> characters</li>
+      </ol>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Functions are reusable blocks of code defined with the <code>def</code> keyword</li>
+        <li>Defining a function does not run it &mdash; you must <strong>call</strong> it with parentheses</li>
+        <li>The function body is indented and runs each time the function is called</li>
+        <li>Docstrings document what a function does and should be included in every function</li>
+        <li>Use descriptive, verb-based names in <code>snake_case</code></li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="index.html">&larr; Module 9 Home</a>
+      <a href="lesson-02-parameters-return.html">Next: Parameters &amp; Return Values &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

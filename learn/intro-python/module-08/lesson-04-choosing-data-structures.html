@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn when to use lists, tuples, and dictionaries in Python with real-world examples">
+  <title>Lesson 8.4: Choosing the Right Data Structure – Introduction to Python</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box { background: #f5f5f5; border-left: 4px solid var(--success); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-sm) 0 var(--spacing-md) 0; font-family: var(--font-mono); font-size: 0.9rem; }
+    .output-box::before { content: "Output:"; display: block; font-weight: 600; color: var(--success); margin-bottom: var(--spacing-xs); font-family: var(--font-primary); }
+    .try-it-box { background: #fff3e0; border: 2px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin: var(--spacing-lg) 0; }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) 0; margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--border-color); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-nav a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .lesson-nav a:hover { text-decoration: underline; }
+    .lesson-objectives { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h2 { color: white; margin-bottom: var(--spacing-md); }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { padding: var(--spacing-xs) 0; }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .definition-box { background: #e8f4fd; border-left: 4px solid var(--primary-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--primary-dark); }
+    .example-box { background: #f0f7ff; border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0; }
+    .example-box h4 { color: var(--primary-dark); margin-top: 0; }
+    .warning-box { background: #fff3e0; border-left: 4px solid var(--accent-color); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .check-understanding { background: var(--background-alt); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-lg) 0; }
+    .check-understanding h3 { color: var(--primary-dark); margin-top: 0; }
+    .reveal-btn { background: var(--primary-color); color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; margin-top: var(--spacing-sm); }
+    .reveal-btn:hover { background: var(--primary-dark); }
+    .reveal-content { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .key-takeaways { background: #e8f5e9; border: 2px solid var(--success); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .key-takeaways ul { margin-bottom: 0; }
+    .comparison-table { width: 100%; border-collapse: collapse; margin: var(--spacing-md) 0; }
+    .comparison-table th, .comparison-table td { border: 1px solid var(--border-color); padding: var(--spacing-sm) var(--spacing-md); text-align: left; }
+    .comparison-table th { background: var(--primary-color); color: white; }
+    .comparison-table tr:nth-child(even) { background: var(--background-alt); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    <div class="lesson-nav">
+      <a href="lesson-03-tuples.html">&larr; Previous Lesson</a>
+      <span>Lesson 4 of 4</span>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 8.4: Choosing the Right Data Structure</h1>
+
+    <div class="lesson-objectives">
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li>How to compare lists, tuples, and dictionaries</li>
+        <li>Key differences in mutability, ordering, and access patterns</li>
+        <li>Guidelines for choosing the best data structure</li>
+        <li>Real-world examples that demonstrate when to use each type</li>
+        <li>Performance considerations for beginners</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>1. Quick Comparison</h2>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>List</th>
+            <th>Tuple</th>
+            <th>Dictionary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Syntax</strong></td>
+            <td><code>[1, 2, 3]</code></td>
+            <td><code>(1, 2, 3)</code></td>
+            <td><code>{"a": 1}</code></td>
+          </tr>
+          <tr>
+            <td><strong>Ordered?</strong></td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>Yes (Python 3.7+)</td>
+          </tr>
+          <tr>
+            <td><strong>Mutable?</strong></td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><strong>Duplicates?</strong></td>
+            <td>Allowed</td>
+            <td>Allowed</td>
+            <td>Keys: No, Values: Yes</td>
+          </tr>
+          <tr>
+            <td><strong>Access by</strong></td>
+            <td>Index (int)</td>
+            <td>Index (int)</td>
+            <td>Key (any immutable)</td>
+          </tr>
+          <tr>
+            <td><strong>Best for</strong></td>
+            <td>Collections that change</td>
+            <td>Fixed collections</td>
+            <td>Labeled / mapped data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>2. When to Use a List</h2>
+      <p>Use a list when you have an <strong>ordered collection of similar items</strong> that may need to grow, shrink, or be rearranged.</p>
+
+      <div class="example-box">
+        <h4>Good Use Cases for Lists</h4>
+        <pre class="code-box"><span class="comment"># Shopping list - items get added and removed</span>
+shopping = [<span class="string">"milk"</span>, <span class="string">"bread"</span>, <span class="string">"eggs"</span>]
+shopping.<span class="function">append</span>(<span class="string">"butter"</span>)
+shopping.<span class="function">remove</span>(<span class="string">"bread"</span>)
+
+<span class="comment"># Test scores - need to sort and calculate averages</span>
+scores = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">95</span>, <span class="number">88</span>]
+scores.<span class="function">sort</span>()
+average = <span class="function">sum</span>(scores) / <span class="function">len</span>(scores)
+
+<span class="comment"># To-do items - order matters, items get completed</span>
+tasks = [<span class="string">"study"</span>, <span class="string">"exercise"</span>, <span class="string">"cook dinner"</span>]</pre>
+      </div>
+
+      <div class="definition-box">
+        <strong>Rule of Thumb:</strong> If you ask "how many items?" or "what's item number N?" or need to add/remove items, use a list.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>3. When to Use a Tuple</h2>
+      <p>Use a tuple when you have a <strong>fixed collection</strong> that should not change, or when the <strong>position of each element has a specific meaning</strong>.</p>
+
+      <div class="example-box">
+        <h4>Good Use Cases for Tuples</h4>
+        <pre class="code-box"><span class="comment"># Coordinates - x and y should not change independently</span>
+location = (<span class="number">34.05</span>, -<span class="number">118.24</span>)
+
+<span class="comment"># RGB color values - a color is a fixed set of values</span>
+red = (<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
+
+<span class="comment"># Function returning multiple values</span>
+<span class="keyword">def</span> <span class="function">get_dimensions</span>():
+    <span class="keyword">return</span> (<span class="number">1920</span>, <span class="number">1080</span>)
+
+width, height = <span class="function">get_dimensions</span>()
+
+<span class="comment"># Days of the week - they never change</span>
+DAYS = (<span class="string">"Mon"</span>, <span class="string">"Tue"</span>, <span class="string">"Wed"</span>, <span class="string">"Thu"</span>, <span class="string">"Fri"</span>, <span class="string">"Sat"</span>, <span class="string">"Sun"</span>)
+
+<span class="comment"># Using tuples as dictionary keys</span>
+grid = {
+    (<span class="number">0</span>, <span class="number">0</span>): <span class="string">"start"</span>,
+    (<span class="number">3</span>, <span class="number">4</span>): <span class="string">"treasure"</span>
+}</pre>
+      </div>
+
+      <div class="definition-box">
+        <strong>Rule of Thumb:</strong> If the data should never change, if position has meaning (x, y, z), or if you need it as a dictionary key, use a tuple.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>4. When to Use a Dictionary</h2>
+      <p>Use a dictionary when you need to <strong>look up values by a meaningful label</strong> rather than by position.</p>
+
+      <div class="example-box">
+        <h4>Good Use Cases for Dictionaries</h4>
+        <pre class="code-box"><span class="comment"># Student record - each field has a name</span>
+student = {
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"id"</span>: <span class="number">12345</span>,
+    <span class="string">"gpa"</span>: <span class="number">3.8</span>
+}
+
+<span class="comment"># Configuration settings</span>
+config = {
+    <span class="string">"debug"</span>: <span class="keyword">False</span>,
+    <span class="string">"max_retries"</span>: <span class="number">3</span>,
+    <span class="string">"timeout"</span>: <span class="number">30</span>
+}
+
+<span class="comment"># Counting occurrences</span>
+word_counts = {<span class="string">"hello"</span>: <span class="number">5</span>, <span class="string">"world"</span>: <span class="number">3</span>}
+
+<span class="comment"># Phone book - look up by name</span>
+contacts = {
+    <span class="string">"Alice"</span>: <span class="string">"555-0101"</span>,
+    <span class="string">"Bob"</span>: <span class="string">"555-0102"</span>
+}</pre>
+      </div>
+
+      <div class="definition-box">
+        <strong>Rule of Thumb:</strong> If you ask "what is the value for this key?" or need to label your data with meaningful names, use a dictionary.
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>5. Combining Data Structures</h2>
+      <p>Real programs often combine these structures. Here are common patterns:</p>
+
+      <pre class="code-box"><span class="comment"># List of dictionaries - a collection of records</span>
+students = [
+    {<span class="string">"name"</span>: <span class="string">"Alice"</span>, <span class="string">"grade"</span>: <span class="number">95</span>},
+    {<span class="string">"name"</span>: <span class="string">"Bob"</span>, <span class="string">"grade"</span>: <span class="number">87</span>},
+    {<span class="string">"name"</span>: <span class="string">"Carol"</span>, <span class="string">"grade"</span>: <span class="number">92</span>}
+]
+
+<span class="comment"># Find the highest grade</span>
+best = <span class="function">max</span>(students, key=<span class="keyword">lambda</span> s: s[<span class="string">"grade"</span>])
+<span class="function">print</span>(f<span class="string">"Top student: {best['name']} ({best['grade']})"</span>)
+
+<span class="comment"># Dictionary with list values</span>
+class_roster = {
+    <span class="string">"Math 101"</span>: [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>],
+    <span class="string">"CS 201"</span>: [<span class="string">"Carol"</span>, <span class="string">"Dave"</span>, <span class="string">"Eve"</span>]
+}
+
+<span class="comment"># Add a student to a class</span>
+class_roster[<span class="string">"Math 101"</span>].<span class="function">append</span>(<span class="string">"Frank"</span>)
+<span class="function">print</span>(class_roster[<span class="string">"Math 101"</span>])</pre>
+      <div class="output-box">Top student: Alice (95)
+['Alice', 'Bob', 'Frank']</div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>6. Decision Flowchart</h2>
+      <p>When choosing a data structure, ask yourself these questions:</p>
+
+      <div class="example-box">
+        <h4>How to Decide</h4>
+        <ol>
+          <li><strong>Do I need to look up values by a label/name?</strong> &rarr; Use a <strong>dictionary</strong></li>
+          <li><strong>Should the data never change?</strong> &rarr; Use a <strong>tuple</strong></li>
+          <li><strong>Do I need to add, remove, or reorder items?</strong> &rarr; Use a <strong>list</strong></li>
+          <li><strong>Do I need it as a dictionary key?</strong> &rarr; Use a <strong>tuple</strong> (or string/number)</li>
+          <li><strong>Does each position have a specific meaning?</strong> (like x, y) &rarr; Use a <strong>tuple</strong></li>
+          <li><strong>Is it a collection of similar items?</strong> &rarr; Use a <strong>list</strong></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <p><strong>Question:</strong> For each scenario, which data structure would you choose?</p>
+      <ol>
+        <li>Storing the months of the year</li>
+        <li>A phone book that maps names to numbers</li>
+        <li>A playlist where songs can be added and reordered</li>
+        <li>An (x, y) coordinate pair</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Show Answer</button>
+      <div class="reveal-content">
+        <ol>
+          <li><strong>Tuple</strong> &mdash; months never change</li>
+          <li><strong>Dictionary</strong> &mdash; look up numbers by name</li>
+          <li><strong>List</strong> &mdash; songs get added, removed, and reordered</li>
+          <li><strong>Tuple</strong> &mdash; fixed pair where position has meaning</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Use <strong>lists</strong> for ordered, changeable collections of similar items</li>
+        <li>Use <strong>tuples</strong> for fixed data, meaningful positions, or dictionary keys</li>
+        <li>Use <strong>dictionaries</strong> for labeled data and fast lookups by key</li>
+        <li>Real programs often <strong>combine</strong> these structures (lists of dicts, dicts with list values, etc.)</li>
+        <li>The right data structure makes your code clearer and easier to maintain</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav" style="border-top: 2px solid var(--border-color); border-bottom: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-md);">
+      <a href="lesson-03-tuples.html">&larr; Previous: Tuples</a>
+      <a href="practice.html">Practice Problems &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+</body>
+</html>

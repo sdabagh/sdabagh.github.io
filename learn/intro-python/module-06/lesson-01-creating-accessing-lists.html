@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how to create Python lists, access elements with indexing, and check membership">
+  <title>Lesson 6.1: Creating and Accessing Lists – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .code-box {
+      background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg);
+      border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.95rem; line-height: 1.5; overflow-x: auto;
+    }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .output-box {
+      background: #f5f5f5; border-left: 4px solid var(--success);
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+      font-family: var(--font-mono); font-size: 0.9rem;
+    }
+    .output-box::before {
+      content: "Output:"; display: block; font-weight: 600;
+      color: var(--success); margin-bottom: var(--spacing-xs);
+      font-family: var(--font-primary);
+    }
+    .try-it-box {
+      background: #fff3e0; border: 2px solid var(--accent-color);
+      padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .try-it-box h4 { margin-top: 0; color: var(--accent-color); }
+
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) 0;
+      margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--border-color);
+    }
+    .lesson-nav a {
+      text-decoration: none;
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+    .lesson-objectives {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h2 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin-bottom: 0; }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section {
+      margin-bottom: var(--spacing-xl);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .content-section:last-of-type { border-bottom: none; }
+    .definition-box {
+      background: #e8f4fd;
+      border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--primary-color); }
+    .example-box {
+      background: #f0f7ff;
+      border: 2px solid var(--primary-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { margin-top: 0; color: var(--primary-color); }
+    .check-understanding {
+      background: #f3e5f5;
+      border: 2px solid #9c27b0;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    .check-understanding h4 { color: #9c27b0; margin-top: 0; }
+    .check-understanding .reveal-btn {
+      background: #9c27b0; color: white; border: none;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-size: 0.9rem; margin-top: var(--spacing-sm);
+    }
+    .check-understanding .reveal-btn:hover { background: #7b1fa2; }
+    .check-understanding .answer { display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: white; border-radius: var(--radius-sm); }
+    .key-takeaways {
+      background: #e8f5e9;
+      border: 2px solid var(--success);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h3 { color: var(--success); margin-top: 0; }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg);
+      border-top: 2px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="index.html">&larr; Module 6 Home</a>
+      <span>Lesson 1 of 4</span>
+      <a href="lesson-02-list-methods.html">Lesson 2 &rarr;</a>
+    </div>
+
+    <div class="lesson-objectives">
+      <h2>Lesson 6.1: Creating and Accessing Lists</h2>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Create lists using square brackets and the list() constructor</li>
+        <li>Access individual elements using positive indexing</li>
+        <li>Access elements from the end using negative indexing</li>
+        <li>Find the number of items in a list using len()</li>
+        <li>Check if an item exists in a list using the <code>in</code> operator</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="content-section">
+      <h2>What is a List?</h2>
+
+      <div class="definition-box">
+        <strong>List:</strong> A list is an ordered, mutable (changeable) collection of items in Python. Lists can hold items of any data type and can contain duplicate values.
+      </div>
+
+      <p>So far, you have worked with individual variables that each store a single value. But what if you need to store a collection of related items -- like a list of student names, a series of test scores, or a set of temperatures? That is exactly what Python lists are designed for.</p>
+
+      <p>Lists are one of the four built-in collection data types in Python (alongside tuples, sets, and dictionaries). They are by far the most commonly used.</p>
+
+      <div class="example-box">
+        <h4>Real-World Analogy</h4>
+        <p>Think of a list like a numbered shopping list. Each item has a position (1st, 2nd, 3rd...), you can add items, remove items, or change items. Python lists work the same way, except the numbering starts at 0 instead of 1.</p>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="content-section">
+      <h2>Creating Lists</h2>
+
+      <p>You create a list by placing items inside square brackets <code>[]</code>, separated by commas.</p>
+
+      <h3>Basic List Creation</h3>
+<pre class="code-box"><span class="comment"># A list of strings</span>
+fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>]
+<span class="keyword">print</span>(fruits)
+
+<span class="comment"># A list of numbers</span>
+scores = [<span class="number">95</span>, <span class="number">87</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">100</span>]
+<span class="keyword">print</span>(scores)
+
+<span class="comment"># A list with mixed data types</span>
+mixed = [<span class="string">"Alice"</span>, <span class="number">25</span>, <span class="keyword">True</span>, <span class="number">3.14</span>]
+<span class="keyword">print</span>(mixed)
+</pre>
+      <div class="output-box">['apple', 'banana', 'cherry']
+[95, 87, 92, 78, 100]
+['Alice', 25, True, 3.14]</div>
+
+      <h3>Empty Lists</h3>
+      <p>You can create an empty list and add items to it later.</p>
+
+<pre class="code-box"><span class="comment"># Two ways to create an empty list</span>
+empty1 = []
+empty2 = <span class="function">list</span>()
+
+<span class="keyword">print</span>(empty1)
+<span class="keyword">print</span>(empty2)
+<span class="keyword">print</span>(<span class="function">type</span>(empty1))
+</pre>
+      <div class="output-box">[]
+[]
+&lt;class 'list'&gt;</div>
+
+      <h3>Using the list() Constructor</h3>
+      <p>You can also create a list from other sequences using the <code>list()</code> function.</p>
+
+<pre class="code-box"><span class="comment"># Convert a string to a list of characters</span>
+letters = <span class="function">list</span>(<span class="string">"hello"</span>)
+<span class="keyword">print</span>(letters)
+
+<span class="comment"># Convert a range to a list</span>
+numbers = <span class="function">list</span>(<span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>))
+<span class="keyword">print</span>(numbers)
+</pre>
+      <div class="output-box">['h', 'e', 'l', 'l', 'o']
+[1, 2, 3, 4, 5]</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Create a list called <code>colors</code> with at least 4 of your favorite colors. Print the list and its type.</p>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="content-section">
+      <h2>Accessing Elements with Indexing</h2>
+
+      <p>Every item in a list has a position number called an <strong>index</strong>. In Python, indexing starts at <strong>0</strong>, not 1.</p>
+
+      <div class="definition-box">
+        <strong>Index:</strong> The position number of an element in a list. The first element is at index 0, the second at index 1, and so on.
+      </div>
+
+<pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>, <span class="string">"date"</span>, <span class="string">"elderberry"</span>]
+<span class="comment">#          0          1          2         3          4</span>
+
+<span class="keyword">print</span>(fruits[<span class="number">0</span>])   <span class="comment"># First element</span>
+<span class="keyword">print</span>(fruits[<span class="number">1</span>])   <span class="comment"># Second element</span>
+<span class="keyword">print</span>(fruits[<span class="number">4</span>])   <span class="comment"># Fifth element (last)</span>
+</pre>
+      <div class="output-box">apple
+banana
+elderberry</div>
+
+      <h3>Common Mistake: Index Out of Range</h3>
+      <p>If you try to access an index that does not exist, Python raises an <code>IndexError</code>.</p>
+
+<pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>]
+
+<span class="comment"># This will cause an error!</span>
+<span class="keyword">print</span>(fruits[<span class="number">3</span>])   <span class="comment"># IndexError: list index out of range</span>
+</pre>
+      <div class="output-box" style="border-left-color: #e74c3c;">IndexError: list index out of range</div>
+
+      <p>Remember: for a list with 3 items, valid indexes are 0, 1, and 2 (not 3).</p>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="content-section">
+      <h2>Negative Indexing</h2>
+
+      <p>Python allows you to use <strong>negative indexes</strong> to access elements from the end of the list. The last element is at index <code>-1</code>, the second-to-last is at <code>-2</code>, and so on.</p>
+
+<pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>, <span class="string">"date"</span>, <span class="string">"elderberry"</span>]
+<span class="comment">#          -5         -4         -3        -2         -1</span>
+
+<span class="keyword">print</span>(fruits[<span class="number">-1</span>])   <span class="comment"># Last element</span>
+<span class="keyword">print</span>(fruits[<span class="number">-2</span>])   <span class="comment"># Second to last</span>
+<span class="keyword">print</span>(fruits[<span class="number">-5</span>])   <span class="comment"># First element</span>
+</pre>
+      <div class="output-box">elderberry
+date
+apple</div>
+
+      <div class="example-box">
+        <h4>When is Negative Indexing Useful?</h4>
+        <p>Negative indexing is especially handy when you want to access the last element of a list without knowing how long the list is:</p>
+<pre class="code-box"><span class="comment"># Get the most recent score, no matter how many there are</span>
+scores = [<span class="number">88</span>, <span class="number">92</span>, <span class="number">75</span>, <span class="number">95</span>, <span class="number">89</span>]
+latest_score = scores[<span class="number">-1</span>]
+<span class="keyword">print</span>(<span class="string">f"Latest score: </span>{latest_score}<span class="string">"</span>)
+</pre>
+        <div class="output-box">Latest score: 89</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="content-section">
+      <h2>Finding the Length of a List</h2>
+
+      <p>Use the built-in <code>len()</code> function to find out how many items are in a list.</p>
+
+<pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>]
+<span class="keyword">print</span>(<span class="function">len</span>(fruits))
+
+<span class="comment"># Useful for getting the last valid index</span>
+last_index = <span class="function">len</span>(fruits) - <span class="number">1</span>
+<span class="keyword">print</span>(<span class="string">f"Last index: </span>{last_index}<span class="string">"</span>)
+<span class="keyword">print</span>(<span class="string">f"Last item: </span>{fruits[last_index]}<span class="string">"</span>)
+
+<span class="comment"># Empty list has length 0</span>
+empty = []
+<span class="keyword">print</span>(<span class="function">len</span>(empty))
+</pre>
+      <div class="output-box">3
+Last index: 2
+Last item: cherry
+0</div>
+
+      <div class="example-box">
+        <h4>Combining len() with Conditionals</h4>
+<pre class="code-box">shopping = [<span class="string">"milk"</span>, <span class="string">"eggs"</span>, <span class="string">"bread"</span>]
+
+<span class="keyword">if</span> <span class="function">len</span>(shopping) > <span class="number">0</span>:
+    <span class="keyword">print</span>(<span class="string">f"You have </span>{<span class="function">len</span>(shopping)}<span class="string"> items to buy."</span>)
+<span class="keyword">else</span>:
+    <span class="keyword">print</span>(<span class="string">"Your shopping list is empty!"</span>)
+</pre>
+        <div class="output-box">You have 3 items to buy.</div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="content-section">
+      <h2>Checking Membership with <code>in</code></h2>
+
+      <p>Use the <code>in</code> keyword to check whether an item exists in a list. It returns <code>True</code> or <code>False</code>.</p>
+
+<pre class="code-box">fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>]
+
+<span class="keyword">print</span>(<span class="string">"banana"</span> <span class="keyword">in</span> fruits)
+<span class="keyword">print</span>(<span class="string">"grape"</span> <span class="keyword">in</span> fruits)
+
+<span class="comment"># Using 'not in'</span>
+<span class="keyword">print</span>(<span class="string">"grape"</span> <span class="keyword">not in</span> fruits)
+</pre>
+      <div class="output-box">True
+False
+True</div>
+
+      <h3>Using <code>in</code> with Conditionals</h3>
+
+<pre class="code-box">allowed_users = [<span class="string">"alice"</span>, <span class="string">"bob"</span>, <span class="string">"charlie"</span>]
+username = <span class="string">"bob"</span>
+
+<span class="keyword">if</span> username <span class="keyword">in</span> allowed_users:
+    <span class="keyword">print</span>(<span class="string">f"Welcome, </span>{username}<span class="string">!"</span>)
+<span class="keyword">else</span>:
+    <span class="keyword">print</span>(<span class="string">"Access denied."</span>)
+</pre>
+      <div class="output-box">Welcome, bob!</div>
+
+      <div class="try-it-box">
+        <h4>Try It Yourself</h4>
+        <p>Create a list of 5 animals. Then write code that asks whether "cat" is in your list and prints an appropriate message.</p>
+      </div>
+    </div>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h4>Check Your Understanding</h4>
+      <p>Given this list: <code>colors = ["red", "blue", "green", "yellow", "purple"]</code></p>
+      <ol>
+        <li>What does <code>colors[2]</code> return?</li>
+        <li>What does <code>colors[-1]</code> return?</li>
+        <li>What is <code>len(colors)</code>?</li>
+        <li>What does <code>"orange" in colors</code> return?</li>
+      </ol>
+      <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Show Answers</button>
+      <div class="answer">
+        <ol>
+          <li><code>"green"</code> (index 2 is the third element)</li>
+          <li><code>"purple"</code> (the last element)</li>
+          <li><code>5</code> (five items in the list)</li>
+          <li><code>False</code> ("orange" is not in the list)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Lists are created with square brackets: <code>[item1, item2, item3]</code></li>
+        <li>Indexing starts at 0 -- the first element is at index 0</li>
+        <li>Negative indexing accesses elements from the end: <code>-1</code> is the last element</li>
+        <li><code>len()</code> returns the number of items in a list</li>
+        <li>The <code>in</code> keyword checks whether an item exists in a list</li>
+        <li>Lists can contain any data type, including mixed types</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="index.html" class="btn btn-outline">&larr; Module 6 Home</a>
+      <a href="lesson-02-list-methods.html" class="btn btn-primary">Lesson 2: List Methods &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>

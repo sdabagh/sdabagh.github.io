@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Study guide for Module 7: Python Strings in Depth - key concepts, examples, and review questions">
+  <title>Module 7: Strings in Depth – Study Guide – Free Python Course</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .guide-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .guide-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .guide-section {
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .guide-section h2 { color: var(--primary-dark); margin-top: 0; }
+    .key-concept {
+      background: #e8f4fd; border-left: 4px solid var(--primary-color);
+      padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    .key-concept strong { color: var(--primary-color); }
+    .code-box { background: #1e1e1e; color: #d4d4d4; padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.95rem; line-height: 1.5; overflow-x: auto; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .function { color: #dcdcaa; }
+    .code-box .number { color: #b5cea8; }
+    .review-question {
+      background: #f3e5f5; border-left: 4px solid #9c27b0;
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-sm) 0;
+    }
+    .warning-box {
+      background: #fff3e0; border-left: 4px solid #ff9800;
+      padding: var(--spacing-md); border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    @media print {
+      header, footer, .back-link { display: none; }
+      .guide-section { break-inside: avoid; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../math54.html">Math 54</a>
+      <a href="../../../math4.html">Math 4/4C</a>
+      <a href="../../../ai-education.html">AI Journey</a>
+      <a href="../../../publications.html">Publications</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">&larr; Back to Module 7</a>
+
+    <div class="guide-header">
+      <h1>Module 7: Strings in Depth -- Study Guide</h1>
+      <p>Review all key concepts from Module 7. Use this guide to prepare for the quiz or as a reference while coding.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2>1. Strings Are Immutable</h2>
+      <div class="key-concept">
+        <strong>Core Principle:</strong> Strings cannot be changed in place. Every string method returns a NEW string -- the original is never modified. This is the fundamental difference from lists.
+      </div>
+<pre class="code-box">name = <span class="string">"alice"</span>
+upper_name = name.<span class="function">upper</span>()   <span class="comment"># Returns "ALICE"</span>
+<span class="keyword">print</span>(name)                 <span class="comment"># Still "alice"</span>
+
+<span class="comment"># To keep the change, reassign:</span>
+name = name.<span class="function">upper</span>()         <span class="comment"># Now name is "ALICE"</span>
+</pre>
+      <div class="warning-box">
+        <strong>Common mistake:</strong> Calling a string method without saving the result. <code>text.upper()</code> alone does nothing to <code>text</code>. You must write <code>text = text.upper()</code> or <code>result = text.upper()</code>.
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>2. String Methods</h2>
+
+      <h3>Case Conversion</h3>
+      <ul>
+        <li><code>.upper()</code> -- all uppercase</li>
+        <li><code>.lower()</code> -- all lowercase</li>
+        <li><code>.title()</code> -- capitalize each word</li>
+        <li><code>.capitalize()</code> -- capitalize first letter only</li>
+        <li><code>.swapcase()</code> -- swap upper and lower</li>
+      </ul>
+
+      <h3>Whitespace Removal</h3>
+      <ul>
+        <li><code>.strip()</code> -- remove whitespace from both ends</li>
+        <li><code>.lstrip()</code> -- remove from left only</li>
+        <li><code>.rstrip()</code> -- remove from right only</li>
+        <li>All three accept optional characters to strip: <code>.strip("#")</code></li>
+      </ul>
+
+      <h3>Other Key Methods</h3>
+      <ul>
+        <li><code>.replace(old, new)</code> -- substitute all occurrences</li>
+        <li><code>.count(sub)</code> -- count occurrences of substring</li>
+        <li><code>.startswith(sub)</code> / <code>.endswith(sub)</code> -- check boundaries</li>
+      </ul>
+
+      <div class="key-concept">
+        <strong>Tip:</strong> <code>startswith()</code> and <code>endswith()</code> accept tuples for multiple checks: <code>filename.endswith((".jpg", ".png"))</code>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>3. String Slicing</h2>
+      <div class="key-concept">
+        <strong>Same as Lists:</strong> String slicing uses identical syntax to list slicing: <code>string[start:stop:step]</code>
+      </div>
+      <p>Key patterns:</p>
+      <ul>
+        <li><code>s[:n]</code> -- first n characters</li>
+        <li><code>s[-n:]</code> -- last n characters</li>
+        <li><code>s[a:b]</code> -- from index a to b-1</li>
+        <li><code>s[::2]</code> -- every other character</li>
+        <li><code>s[::-1]</code> -- reversed string</li>
+        <li><code>s[1:-1]</code> -- everything except first and last</li>
+      </ul>
+<pre class="code-box">text = <span class="string">"Programming"</span>
+<span class="keyword">print</span>(text[:<span class="number">4</span>])      <span class="comment"># "Prog"</span>
+<span class="keyword">print</span>(text[<span class="number">-4</span>:])     <span class="comment"># "ming"</span>
+<span class="keyword">print</span>(text[::<span class="number">-1</span>])    <span class="comment"># "gnimmargorP"</span>
+</pre>
+    </div>
+
+    <div class="guide-section">
+      <h2>4. Searching Strings</h2>
+
+      <h3>find() vs index()</h3>
+      <ul>
+        <li><code>find(sub)</code> -- returns index of first match, or <strong>-1</strong> if not found</li>
+        <li><code>index(sub)</code> -- returns index of first match, or raises <strong>ValueError</strong> if not found</li>
+        <li><code>rfind(sub)</code> -- like find(), but searches from the right (last occurrence)</li>
+      </ul>
+
+      <div class="key-concept">
+        <strong>When to use which:</strong> Use <code>find()</code> when the substring might not exist (check for -1). Use <code>index()</code> when not finding it would be a bug.
+      </div>
+
+      <h3>The <code>in</code> Operator</h3>
+<pre class="code-box"><span class="keyword">if</span> <span class="string">"python"</span> <span class="keyword">in</span> text.<span class="function">lower</span>():
+    <span class="keyword">print</span>(<span class="string">"Found it!"</span>)
+</pre>
+      <p>Always convert to the same case for case-insensitive searches.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2>5. Splitting and Joining</h2>
+      <div class="key-concept">
+        <strong>split() and join() are inverses:</strong> <code>split()</code> turns a string into a list; <code>join()</code> turns a list into a string.
+      </div>
+<pre class="code-box"><span class="comment"># Split</span>
+words = <span class="string">"Hello World"</span>.<span class="function">split</span>()     <span class="comment"># ["Hello", "World"]</span>
+parts = <span class="string">"a,b,c"</span>.<span class="function">split</span>(<span class="string">","</span>)        <span class="comment"># ["a", "b", "c"]</span>
+
+<span class="comment"># Join</span>
+result = <span class="string">" "</span>.<span class="function">join</span>([<span class="string">"Hello"</span>, <span class="string">"World"</span>])   <span class="comment"># "Hello World"</span>
+result = <span class="string">","</span>.<span class="function">join</span>([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])     <span class="comment"># "a,b,c"</span>
+
+<span class="comment"># Clean up spacing</span>
+clean = <span class="string">" "</span>.<span class="function">join</span>(<span class="string">"  too   many  spaces  "</span>.<span class="function">split</span>())
+<span class="comment"># "too many spaces"</span>
+</pre>
+
+      <div class="warning-box">
+        <strong>Remember:</strong> <code>join()</code> is called on the separator, not the list: <code>",".join(my_list)</code> not <code>my_list.join(",")</code>.
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>6. Special String Types</h2>
+      <ul>
+        <li><strong>f-strings:</strong> <code>f"Hello {name}"</code> -- embed expressions inside strings</li>
+        <li><strong>Raw strings:</strong> <code>r"C:\path\file"</code> -- backslashes are literal</li>
+        <li><strong>Multiline:</strong> <code>"""triple quotes"""</code> -- span multiple lines</li>
+      </ul>
+      <p>Use <code>splitlines()</code> to split multiline strings into a list of lines.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2>7. Common Patterns</h2>
+<pre class="code-box"><span class="comment"># Case-insensitive comparison</span>
+<span class="keyword">if</span> user_input.<span class="function">lower</span>() == <span class="string">"yes"</span>:
+
+<span class="comment"># Extract email parts</span>
+at = email.<span class="function">find</span>(<span class="string">"@"</span>)
+username = email[:at]
+domain = email[at+<span class="number">1</span>:]
+
+<span class="comment"># Extract file extension</span>
+ext = filename[filename.<span class="function">rfind</span>(<span class="string">"."</span>)+<span class="number">1</span>:]
+
+<span class="comment"># Check palindrome</span>
+is_palindrome = word.<span class="function">lower</span>() == word.<span class="function">lower</span>()[::<span class="number">-1</span>]
+
+<span class="comment"># Clean phone number</span>
+clean = <span class="string">""</span>.<span class="function">join</span>(c <span class="keyword">for</span> c <span class="keyword">in</span> phone <span class="keyword">if</span> c.<span class="function">isdigit</span>())
+
+<span class="comment"># Parse CSV</span>
+<span class="keyword">for</span> line <span class="keyword">in</span> csv_text.<span class="function">split</span>(<span class="string">"\n"</span>):
+    fields = line.<span class="function">split</span>(<span class="string">","</span>)
+</pre>
+    </div>
+
+    <div class="guide-section">
+      <h2>8. Strings vs. Lists -- Comparison</h2>
+      <table style="width:100%; border-collapse: collapse; margin: var(--spacing-md) 0;">
+        <tr style="background: var(--primary-color); color: white;"><th style="padding: 10px;">Feature</th><th style="padding: 10px;">Strings</th><th style="padding: 10px;">Lists</th></tr>
+        <tr style="border-bottom: 1px solid var(--border-color);"><td style="padding: 10px;">Mutable?</td><td style="padding: 10px;">No (immutable)</td><td style="padding: 10px;">Yes (mutable)</td></tr>
+        <tr style="border-bottom: 1px solid var(--border-color); background: #f9f9f9;"><td style="padding: 10px;">Indexing</td><td style="padding: 10px;">Yes</td><td style="padding: 10px;">Yes</td></tr>
+        <tr style="border-bottom: 1px solid var(--border-color);"><td style="padding: 10px;">Slicing</td><td style="padding: 10px;">Yes</td><td style="padding: 10px;">Yes</td></tr>
+        <tr style="border-bottom: 1px solid var(--border-color); background: #f9f9f9;"><td style="padding: 10px;"><code>in</code> operator</td><td style="padding: 10px;">Yes</td><td style="padding: 10px;">Yes</td></tr>
+        <tr style="border-bottom: 1px solid var(--border-color);"><td style="padding: 10px;"><code>len()</code></td><td style="padding: 10px;">Yes</td><td style="padding: 10px;">Yes</td></tr>
+        <tr style="border-bottom: 1px solid var(--border-color); background: #f9f9f9;"><td style="padding: 10px;">Methods modify in place?</td><td style="padding: 10px;">No (return new string)</td><td style="padding: 10px;">Yes (most return None)</td></tr>
+        <tr><td style="padding: 10px;"><code>sort()</code> / <code>reverse()</code></td><td style="padding: 10px;">Not available</td><td style="padding: 10px;">Available</td></tr>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <h2>9. Review Questions</h2>
+      <div class="review-question"><p><strong>Q1:</strong> Why do string methods return new strings instead of modifying the original?</p></div>
+      <div class="review-question"><p><strong>Q2:</strong> What is the difference between <code>find()</code> and <code>index()</code>?</p></div>
+      <div class="review-question"><p><strong>Q3:</strong> How do you reverse a string?</p></div>
+      <div class="review-question"><p><strong>Q4:</strong> What does <code>split()</code> return, and what does <code>join()</code> do?</p></div>
+      <div class="review-question"><p><strong>Q5:</strong> How do you perform a case-insensitive search?</p></div>
+      <div class="review-question"><p><strong>Q6:</strong> What is a raw string and when would you use one?</p></div>
+      <div class="review-question"><p><strong>Q7:</strong> How do you check if a filename ends with ".pdf" or ".txt"?</p></div>
+      <div class="review-question"><p><strong>Q8:</strong> What is the most efficient way to build a string from many pieces?</p></div>
+    </div>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="quiz.html" class="btn btn-primary">Take the Module Quiz &rarr;</a>
+      <a href="quick-reference.html" class="btn btn-outline">Quick Reference Card</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../publications.html">Publications</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Free Python Learning Platform</p>
+  </footer>
+
+</body>
+</html>
