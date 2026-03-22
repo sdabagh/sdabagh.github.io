@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 3 Quiz - Test your step-by-step thinking skills with 8 kid-friendly questions.">
+  <title>Module 3 Quiz – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .quiz-intro { background: linear-gradient(135deg, #2D6A4F 0%, #40916C 60%, #52B788 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .quiz-intro h3 { color: white; margin-top: 0; }
+    .quiz-rules { background: var(--info-light); border-left: 4px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-xl); }
+    .question-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .question-card.correct { border-color: var(--success); background: var(--success-light); }
+    .question-card.incorrect { border-color: #c0392b; background: #ffebee; }
+    .question-number { background: #2D6A4F; color: white; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.125rem; margin-right: var(--spacing-sm); }
+    .question-text { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin: var(--spacing-md) 0; }
+    .options { list-style: none; padding: 0; margin: var(--spacing-md) 0; }
+    .options li { padding: var(--spacing-md); margin-bottom: var(--spacing-sm); border: 2px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); display: flex; align-items: flex-start; gap: var(--spacing-sm); }
+    .options li:hover { border-color: #2D6A4F; background: var(--background-alt); }
+    .options li.selected { border-color: #2D6A4F; background: #2D6A4F; color: white; font-weight: 500; }
+    .options li.correct-answer { border-color: var(--success); background: var(--success-light); color: var(--text-primary); font-weight: 600; }
+    .options li.wrong-answer { border-color: #c0392b; background: #ffebee; color: var(--text-primary); }
+    .options input[type="radio"] { margin-top: 0.25rem; cursor: pointer; }
+    .submit-section { text-align: center; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    #results { display: none; margin-top: var(--spacing-xl); }
+    .result-card { border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-lg); }
+    .result-card.pass { background: var(--success-light); border: 3px solid var(--success); }
+    .result-card.fail { background: #fff9e6; border: 3px solid var(--warning); }
+    .result-card h2 { margin-top: 0; font-size: 2rem; }
+    .result-card.pass h2 { color: var(--success); }
+    .result-card.fail h2 { color: #996300; }
+    .score-display { font-size: 3rem; font-weight: 700; margin: var(--spacing-md) 0; }
+    .question-feedback { margin-top: var(--spacing-md); padding: var(--spacing-md); border-radius: var(--radius-sm); display: none; }
+    .question-feedback.show { display: block; }
+    .question-feedback.correct { background: var(--success-light); border-left: 4px solid var(--success); }
+    .question-feedback.incorrect { background: #ffebee; border-left: 4px solid #c0392b; }
+    .progress-indicator { background: white; border: 2px solid #2D6A4F; border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+    .progress-indicator h4 { margin-top: 0; color: #2D6A4F; }
+    .question-status { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .status-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-color); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+    .status-dot.answered { background: #2D6A4F; color: white; border-color: #2D6A4F; }
+    @media (max-width: 768px) { .score-display { font-size: 2rem; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">&larr; Back to Module 3</a>
+
+    <h1>Module 3 Quiz</h1>
+
+    <div class="quiz-intro">
+      <h3>Test Your Step-by-Step Thinking!</h3>
+      <p>This quiz has 8 questions about everything you learned in Module 3: decomposition, sequencing, instructions, flowcharts, and Scratch. You can do this together with your parent. Have fun!</p>
+    </div>
+
+    <div class="quiz-rules">
+      <h4>How This Works</h4>
+      <ul class="icon-list">
+        <li><strong>8 questions</strong> about Module 3 topics</li>
+        <li><strong>Passing score:</strong> 6 or more correct</li>
+        <li><strong>Try as many times as you want</strong> -- learning is the goal!</li>
+        <li>Click an answer, then submit when you have answered all questions</li>
+      </ul>
+    </div>
+
+    <div class="progress-indicator">
+      <h4>Progress</h4>
+      <p class="text-muted" style="margin-bottom: var(--spacing-sm); font-size: 0.875rem;">Questions answered: <span id="answeredCount">0</span> / 8</p>
+      <div class="question-status" id="questionStatus"></div>
+    </div>
+
+    <form id="quizForm">
+
+      <!-- Question 1 -->
+      <div class="question-card" data-question="1">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">1</span>
+          <span class="question-text">What does "decomposition" mean?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(1, 'a')"><input type="radio" name="q1" value="a" id="q1a"><label for="q1a">Making something rot and fall apart</label></li>
+          <li onclick="selectAnswer(1, 'b')"><input type="radio" name="q1" value="b" id="q1b"><label for="q1b">Breaking a big task into smaller, easier steps</label></li>
+          <li onclick="selectAnswer(1, 'c')"><input type="radio" name="q1" value="c" id="q1c"><label for="q1c">Putting things together to make something bigger</label></li>
+          <li onclick="selectAnswer(1, 'd')"><input type="radio" name="q1" value="d" id="q1d"><label for="q1d">Memorizing a list of rules</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback1"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question-card" data-question="2">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">2</span>
+          <span class="question-text">You want to make a sandwich. Which step should come FIRST?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(2, 'a')"><input type="radio" name="q2" value="a" id="q2a"><label for="q2a">Put the two slices of bread together</label></li>
+          <li onclick="selectAnswer(2, 'b')"><input type="radio" name="q2" value="b" id="q2b"><label for="q2b">Spread peanut butter on the bread</label></li>
+          <li onclick="selectAnswer(2, 'c')"><input type="radio" name="q2" value="c" id="q2c"><label for="q2c">Get out the bread and peanut butter</label></li>
+          <li onclick="selectAnswer(2, 'd')"><input type="radio" name="q2" value="d" id="q2d"><label for="q2d">Eat the sandwich</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback2"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question-card" data-question="3">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">3</span>
+          <span class="question-text">What are the two main parts of a flowchart?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(3, 'a')"><input type="radio" name="q3" value="a" id="q3a"><label for="q3a">Colors and shapes</label></li>
+          <li onclick="selectAnswer(3, 'b')"><input type="radio" name="q3" value="b" id="q3b"><label for="q3b">Boxes (for steps) and arrows (for order)</label></li>
+          <li onclick="selectAnswer(3, 'c')"><input type="radio" name="q3" value="c" id="q3c"><label for="q3c">Numbers and letters</label></li>
+          <li onclick="selectAnswer(3, 'd')"><input type="radio" name="q3" value="d" id="q3d"><label for="q3d">Pictures and words</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback3"></div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="question-card" data-question="4">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">4</span>
+          <span class="question-text">In Scratch, which block does the computer run first in a stack?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(4, 'a')"><input type="radio" name="q4" value="a" id="q4a"><label for="q4a">The block at the bottom</label></li>
+          <li onclick="selectAnswer(4, 'b')"><input type="radio" name="q4" value="b" id="q4b"><label for="q4b">The biggest block</label></li>
+          <li onclick="selectAnswer(4, 'c')"><input type="radio" name="q4" value="c" id="q4c"><label for="q4c">The block at the top</label></li>
+          <li onclick="selectAnswer(4, 'd')"><input type="radio" name="q4" value="d" id="q4d"><label for="q4d">A random block</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback4"></div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="question-card" data-question="5">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">5</span>
+          <span class="question-text">Why is it important to put steps in the right order?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(5, 'a')"><input type="radio" name="q5" value="a" id="q5a"><label for="q5a">It does not really matter -- any order works</label></li>
+          <li onclick="selectAnswer(5, 'b')"><input type="radio" name="q5" value="b" id="q5b"><label for="q5b">Because steps in the wrong order will give wrong results or not work at all</label></li>
+          <li onclick="selectAnswer(5, 'c')"><input type="radio" name="q5" value="c" id="q5c"><label for="q5c">Only because teachers say so</label></li>
+          <li onclick="selectAnswer(5, 'd')"><input type="radio" name="q5" value="d" id="q5d"><label for="q5d">So the list looks neat on paper</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback5"></div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="question-card" data-question="6">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">6</span>
+          <span class="question-text">What does the "pen down" block do in Scratch?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(6, 'a')"><input type="radio" name="q6" value="a" id="q6a"><label for="q6a">It makes the sprite disappear</label></li>
+          <li onclick="selectAnswer(6, 'b')"><input type="radio" name="q6" value="b" id="q6b"><label for="q6b">It makes the sprite draw a line as it moves</label></li>
+          <li onclick="selectAnswer(6, 'c')"><input type="radio" name="q6" value="c" id="q6c"><label for="q6c">It drops a pen picture onto the stage</label></li>
+          <li onclick="selectAnswer(6, 'd')"><input type="radio" name="q6" value="d" id="q6d"><label for="q6d">It writes the word "pen" on the screen</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback6"></div>
+      </div>
+
+      <!-- Question 7 -->
+      <div class="question-card" data-question="7">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">7</span>
+          <span class="question-text">To draw a square in Scratch, how many times do you need to "move and turn"?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(7, 'a')"><input type="radio" name="q7" value="a" id="q7a"><label for="q7a">2 times</label></li>
+          <li onclick="selectAnswer(7, 'b')"><input type="radio" name="q7" value="b" id="q7b"><label for="q7b">3 times</label></li>
+          <li onclick="selectAnswer(7, 'c')"><input type="radio" name="q7" value="c" id="q7c"><label for="q7c">4 times</label></li>
+          <li onclick="selectAnswer(7, 'd')"><input type="radio" name="q7" value="d" id="q7d"><label for="q7d">5 times</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback7"></div>
+      </div>
+
+      <!-- Question 8 -->
+      <div class="question-card" data-question="8">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">8</span>
+          <span class="question-text">What is one good rule for writing clear instructions?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(8, 'a')"><input type="radio" name="q8" value="a" id="q8a"><label for="q8a">Put as many actions as possible into one step</label></li>
+          <li onclick="selectAnswer(8, 'b')"><input type="radio" name="q8" value="b" id="q8b"><label for="q8b">Skip the easy steps since everyone already knows them</label></li>
+          <li onclick="selectAnswer(8, 'c')"><input type="radio" name="q8" value="c" id="q8c"><label for="q8c">Each step should have only one action and be specific</label></li>
+          <li onclick="selectAnswer(8, 'd')"><input type="radio" name="q8" value="d" id="q8d"><label for="q8d">Write the steps in any order since it does not matter</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback8"></div>
+      </div>
+
+      <div class="submit-section">
+        <button type="submit" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">Submit Quiz</button>
+        <p class="text-muted mt-2">Make sure you have answered all questions!</p>
+      </div>
+
+    </form>
+
+    <!-- Results Section -->
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+      </div>
+
+      <div class="highlight-box">
+        <h3 style="margin-top: 0;">What is Next?</h3>
+        <p id="nextStepsMessage"></p>
+        <div class="cta-group mt-2" id="nextStepButtons"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder - Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    var answers = {
+      q1: { correct: 'b', explanation: 'Decomposition means breaking a big task into smaller, easier steps. It is one of the most important ideas in computer science and in everyday life.' },
+      q2: { correct: 'c', explanation: 'You need to get out the ingredients first before you can do anything with them. Always start at the very beginning!' },
+      q3: { correct: 'b', explanation: 'Flowcharts use boxes to hold each step and arrows to show the order. You follow the arrows from start to finish.' },
+      q4: { correct: 'c', explanation: 'Scratch reads blocks from top to bottom, just like reading a list. The top block runs first, then the next one, and so on.' },
+      q5: { correct: 'b', explanation: 'Order matters because many steps depend on earlier steps. You cannot eat a sandwich before you make it! Computers follow steps exactly in the order you give them.' },
+      q6: { correct: 'b', explanation: 'The "pen down" block makes the sprite leave a trail (draw a line) wherever it moves. It is like putting a marker down on paper.' },
+      q7: { correct: 'c', explanation: 'A square has 4 sides, so you move forward and turn 4 times. Each "move and turn" draws one side and one corner of the square.' },
+      q8: { correct: 'c', explanation: 'Good instructions have one action per step and are specific. This makes them clear and easy to follow, whether you are a person or a computer.' }
+    };
+
+    var answeredQuestions = new Set();
+    var totalQuestions = 8;
+
+    function initializeQuestionStatus() {
+      var statusContainer = document.getElementById('questionStatus');
+      for (var i = 1; i <= totalQuestions; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'status-dot';
+        dot.id = 'status' + i;
+        dot.textContent = i;
+        statusContainer.appendChild(dot);
+      }
+    }
+
+    function selectAnswer(questionNum, value) {
+      var options = document.querySelectorAll('input[name="q' + questionNum + '"]');
+      options.forEach(function(input) { input.parentElement.classList.remove('selected'); });
+      event.currentTarget.classList.add('selected');
+      document.getElementById('q' + questionNum + value).checked = true;
+      answeredQuestions.add(questionNum);
+      document.getElementById('status' + questionNum).classList.add('answered');
+      document.getElementById('answeredCount').textContent = answeredQuestions.size;
+    }
+
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (answeredQuestions.size < totalQuestions) {
+        alert('Please answer all ' + totalQuestions + ' questions before submitting!');
+        return;
+      }
+
+      var score = 0;
+      for (var i = 1; i <= totalQuestions; i++) {
+        var questionName = 'q' + i;
+        var selected = document.querySelector('input[name="' + questionName + '"]:checked');
+        var userAnswer = selected ? selected.value : null;
+        var correctAnswer = answers[questionName].correct;
+        var isCorrect = userAnswer === correctAnswer;
+        if (isCorrect) score++;
+
+        var questionCard = document.querySelector('[data-question="' + i + '"]');
+        var feedback = document.getElementById('feedback' + i);
+        var optionElements = questionCard.querySelectorAll('.options li');
+
+        questionCard.classList.add(isCorrect ? 'correct' : 'incorrect');
+        optionElements.forEach(function(li) {
+          var input = li.querySelector('input');
+          if (input.value === correctAnswer) li.classList.add('correct-answer');
+          if (input.value === userAnswer && !isCorrect) li.classList.add('wrong-answer');
+        });
+
+        feedback.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct!' : 'Not quite.') + '</strong><br>' + answers[questionName].explanation;
+      }
+
+      displayResults(score);
+      document.querySelector('.submit-section').style.display = 'none';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function displayResults(score) {
+      var percentage = Math.round((score / totalQuestions) * 100);
+      var passed = score >= 6;
+
+      var resultCard = document.getElementById('resultCard');
+      resultCard.classList.add(passed ? 'pass' : 'fail');
+
+      if (passed) {
+        document.getElementById('resultTitle').textContent = 'Great Job!';
+        document.getElementById('scoreDisplay').textContent = score + ' / ' + totalQuestions + ' (' + percentage + '%)';
+        document.getElementById('resultMessage').textContent = 'You really understand step-by-step thinking! You are ready for Module 4.';
+        document.getElementById('nextStepsMessage').textContent = 'Move on to Module 4: Making Decisions, where you will learn about if/then thinking!';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="../module-04/index.html" class="btn btn-primary">Start Module 4</a> <a href="index.html" class="btn btn-outline">Back to Module 3</a>';
+      } else {
+        document.getElementById('resultTitle').textContent = 'Keep Practicing!';
+        document.getElementById('scoreDisplay').textContent = score + ' / ' + totalQuestions + ' (' + percentage + '%)';
+        document.getElementById('resultMessage').textContent = 'You need 6 correct to pass. Look at the feedback above to see which topics to review. You can try again anytime!';
+        document.getElementById('nextStepsMessage').textContent = 'Review the lessons and practice activities, then try the quiz again. You have got this!';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="practice.html" class="btn btn-primary">Practice More</a> <a href="index.html" class="btn btn-outline">Review Lessons</a> <a href="quiz.html" class="btn btn-outline">Try Again</a>';
+      }
+
+      document.getElementById('results').style.display = 'block';
+    }
+
+    initializeQuestionStatus();
+  </script>
+
+</body>
+</html>

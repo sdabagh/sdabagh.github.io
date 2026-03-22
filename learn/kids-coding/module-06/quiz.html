@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 6 Quiz - Test your debugging knowledge with 8 kid-friendly questions">
+  <title>Module 6 Quiz – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .quiz-intro {
+      background: linear-gradient(135deg, #2D6A4F 0%, #40916C 60%, #52B788 100%);
+      color: white; padding: var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .quiz-intro h3 { color: white; margin-top: 0; }
+
+    .quiz-rules {
+      background: var(--info-light); border-left: 4px solid var(--info);
+      padding: var(--spacing-lg); border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .question-card {
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .question-card.correct { border-color: var(--success); background: var(--success-light); }
+    .question-card.incorrect { border-color: #c0392b; background: #ffebee; }
+
+    .question-number {
+      background: #2D6A4F; color: white; width: 40px; height: 40px;
+      border-radius: 50%; display: inline-flex; align-items: center;
+      justify-content: center; font-weight: 700; font-size: 1.125rem;
+      margin-right: var(--spacing-sm);
+    }
+
+    .question-text {
+      font-size: 1.125rem; font-weight: 600;
+      color: var(--text-primary); margin: var(--spacing-md) 0;
+    }
+
+    .options { list-style: none; padding: 0; margin: var(--spacing-md) 0; }
+    .options li {
+      padding: var(--spacing-md); margin-bottom: var(--spacing-sm);
+      border: 2px solid var(--border-color); border-radius: var(--radius-sm);
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: flex-start; gap: var(--spacing-sm);
+    }
+    .options li:hover { border-color: #2D6A4F; background: var(--background-alt); }
+    .options li.selected { border-color: #2D6A4F; background: #2D6A4F; color: white; font-weight: 500; }
+    .options li.correct-answer { border-color: var(--success); background: var(--success-light); color: var(--text-primary); font-weight: 600; }
+    .options li.wrong-answer { border-color: #c0392b; background: #ffebee; color: var(--text-primary); }
+    .options input[type="radio"] { margin-top: 0.25rem; cursor: pointer; }
+
+    .submit-section {
+      text-align: center; margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color);
+    }
+
+    #results { display: none; margin-top: var(--spacing-xl); }
+
+    .result-card {
+      border-radius: var(--radius-lg); padding: var(--spacing-xl);
+      text-align: center; margin-bottom: var(--spacing-lg);
+    }
+    .result-card.pass { background: var(--success-light); border: 3px solid var(--success); }
+    .result-card.fail { background: #fff9e6; border: 3px solid var(--warning); }
+    .result-card h2 { margin-top: 0; font-size: 2rem; }
+    .result-card.pass h2 { color: var(--success); }
+    .result-card.fail h2 { color: #996300; }
+
+    .score-display { font-size: 3rem; font-weight: 700; margin: var(--spacing-md) 0; }
+
+    .question-feedback {
+      margin-top: var(--spacing-md); padding: var(--spacing-md);
+      border-radius: var(--radius-sm); display: none;
+    }
+    .question-feedback.show { display: block; }
+    .question-feedback.correct { background: var(--success-light); border-left: 4px solid var(--success); }
+    .question-feedback.incorrect { background: #ffebee; border-left: 4px solid #c0392b; }
+
+    .progress-indicator {
+      background: white; border: 2px solid #2D6A4F;
+      border-radius: var(--radius-md); padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg); position: sticky; top: 80px;
+    }
+    .progress-indicator h4 { margin-top: 0; color: #2D6A4F; }
+    .question-status { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .status-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border-color); background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .status-dot.answered { background: #2D6A4F; color: white; border-color: #2D6A4F; }
+
+    @media (max-width: 768px) {
+      .score-display { font-size: 2rem; }
+      .progress-indicator { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">&larr; Back to Module 6</a>
+
+    <h1>Module 6 Quiz</h1>
+
+    <div class="quiz-intro">
+      <h3>Test Your Debugging Knowledge!</h3>
+      <p>This quiz covers everything from Module 6: growth mindset, the debugging detective steps, everyday debugging, and fixing Scratch projects. Pass with 6 out of 8!</p>
+    </div>
+
+    <div class="quiz-rules">
+      <h4>Quiz Rules</h4>
+      <ul class="icon-list">
+        <li><strong>8 questions</strong> covering all Module 6 lessons</li>
+        <li><strong>Passing score:</strong> 6 or more correct answers</li>
+        <li><strong>Multiple attempts allowed</strong> -- learning is the goal!</li>
+        <li><strong>Immediate feedback</strong> after submission with explanations</li>
+        <li>Answer all questions before submitting</li>
+      </ul>
+    </div>
+
+    <div class="progress-indicator">
+      <h4>Progress</h4>
+      <p class="text-muted" style="margin-bottom: var(--spacing-sm); font-size: 0.875rem;">Questions answered: <span id="answeredCount">0</span> / 8</p>
+      <div class="question-status" id="questionStatus"></div>
+    </div>
+
+    <form id="quizForm">
+
+      <!-- Question 1 -->
+      <div class="question-card" data-question="1">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">1</span>
+          <span class="question-text">What is a "bug" in coding?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(1, 'a')"><input type="radio" name="q1" value="a" id="q1a"><label for="q1a">An insect that lives inside your computer</label></li>
+          <li onclick="selectAnswer(1, 'b')"><input type="radio" name="q1" value="b" id="q1b"><label for="q1b">A mistake or error that makes something not work as expected</label></li>
+          <li onclick="selectAnswer(1, 'c')"><input type="radio" name="q1" value="c" id="q1c"><label for="q1c">A special type of coding block</label></li>
+          <li onclick="selectAnswer(1, 'd')"><input type="radio" name="q1" value="d" id="q1d"><label for="q1d">A feature that makes code run faster</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback1"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question-card" data-question="2">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">2</span>
+          <span class="question-text">Who found the first real computer "bug" (a moth stuck in a machine)?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(2, 'a')"><input type="radio" name="q2" value="a" id="q2a"><label for="q2a">Thomas Edison</label></li>
+          <li onclick="selectAnswer(2, 'b')"><input type="radio" name="q2" value="b" id="q2b"><label for="q2b">Grace Hopper and her team</label></li>
+          <li onclick="selectAnswer(2, 'c')"><input type="radio" name="q2" value="c" id="q2c"><label for="q2c">The Wright Brothers</label></li>
+          <li onclick="selectAnswer(2, 'd')"><input type="radio" name="q2" value="d" id="q2d"><label for="q2d">Albert Einstein</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback2"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question-card" data-question="3">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">3</span>
+          <span class="question-text">What does having a "growth mindset" mean?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(3, 'a')"><input type="radio" name="q3" value="a" id="q3a"><label for="q3a">Believing you are already perfect and do not need to learn</label></li>
+          <li onclick="selectAnswer(3, 'b')"><input type="radio" name="q3" value="b" id="q3b"><label for="q3b">Believing you can get better at anything through effort and practice</label></li>
+          <li onclick="selectAnswer(3, 'c')"><input type="radio" name="q3" value="c" id="q3c"><label for="q3c">Believing mistakes mean you should give up</label></li>
+          <li onclick="selectAnswer(3, 'd')"><input type="radio" name="q3" value="d" id="q3d"><label for="q3d">Believing only some people can learn to code</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback3"></div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="question-card" data-question="4">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">4</span>
+          <span class="question-text">What is the FIRST thing you should do when debugging?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(4, 'a')"><input type="radio" name="q4" value="a" id="q4a"><label for="q4a">Change everything and hope it works</label></li>
+          <li onclick="selectAnswer(4, 'b')"><input type="radio" name="q4" value="b" id="q4b"><label for="q4b">Delete all the code and start over</label></li>
+          <li onclick="selectAnswer(4, 'c')"><input type="radio" name="q4" value="c" id="q4c"><label for="q4c">Figure out what you expected to happen vs. what actually happened</label></li>
+          <li onclick="selectAnswer(4, 'd')"><input type="radio" name="q4" value="d" id="q4d"><label for="q4d">Ask someone else to fix it for you</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback4"></div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="question-card" data-question="5">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">5</span>
+          <span class="question-text">Why should you only change one thing at a time when debugging?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(5, 'a')"><input type="radio" name="q5" value="a" id="q5a"><label for="q5a">Because the computer can only handle one change at a time</label></li>
+          <li onclick="selectAnswer(5, 'b')"><input type="radio" name="q5" value="b" id="q5b"><label for="q5b">Because if you change two things, you will not know which one fixed the problem</label></li>
+          <li onclick="selectAnswer(5, 'c')"><input type="radio" name="q5" value="c" id="q5c"><label for="q5c">Because Scratch does not allow more than one change</label></li>
+          <li onclick="selectAnswer(5, 'd')"><input type="radio" name="q5" value="d" id="q5d"><label for="q5d">Because changing things is not allowed in coding</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback5"></div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="question-card" data-question="6">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">6</span>
+          <span class="question-text">What is "rubber duck debugging"?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(6, 'a')"><input type="radio" name="q6" value="a" id="q6a"><label for="q6a">Using a rubber duck to press the keyboard keys</label></li>
+          <li onclick="selectAnswer(6, 'b')"><input type="radio" name="q6" value="b" id="q6b"><label for="q6b">Explaining your problem out loud, step by step, to find what you missed</label></li>
+          <li onclick="selectAnswer(6, 'c')"><input type="radio" name="q6" value="c" id="q6c"><label for="q6c">A special Scratch block shaped like a duck</label></li>
+          <li onclick="selectAnswer(6, 'd')"><input type="radio" name="q6" value="d" id="q6d"><label for="q6d">Playing with toys instead of debugging</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback6"></div>
+      </div>
+
+      <!-- Question 7 -->
+      <div class="question-card" data-question="7">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">7</span>
+          <span class="question-text">Your Scratch code does not run when you click the green flag. What is the most likely problem?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(7, 'a')"><input type="radio" name="q7" value="a" id="q7a"><label for="q7a">The green flag button is broken</label></li>
+          <li onclick="selectAnswer(7, 'b')"><input type="radio" name="q7" value="b" id="q7b"><label for="q7b">The code is missing a "when green flag clicked" block at the top</label></li>
+          <li onclick="selectAnswer(7, 'c')"><input type="radio" name="q7" value="c" id="q7c"><label for="q7c">Scratch needs to be reinstalled</label></li>
+          <li onclick="selectAnswer(7, 'd')"><input type="radio" name="q7" value="d" id="q7d"><label for="q7d">The computer is too old to run Scratch</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback7"></div>
+      </div>
+
+      <!-- Question 8 -->
+      <div class="question-card" data-question="8">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">8</span>
+          <span class="question-text">Which of these is NOT one of the three most common types of bugs?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(8, 'a')"><input type="radio" name="q8" value="a" id="q8a"><label for="q8a">A wrong step (incorrect information)</label></li>
+          <li onclick="selectAnswer(8, 'b')"><input type="radio" name="q8" value="b" id="q8b"><label for="q8b">A missing step</label></li>
+          <li onclick="selectAnswer(8, 'c')"><input type="radio" name="q8" value="c" id="q8c"><label for="q8c">Steps in the wrong order</label></li>
+          <li onclick="selectAnswer(8, 'd')"><input type="radio" name="q8" value="d" id="q8d"><label for="q8d">The computer not liking your code</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback8"></div>
+      </div>
+
+      <div class="submit-section">
+        <button type="submit" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">Submit Quiz</button>
+        <p class="text-muted mt-2">Make sure you have answered all questions!</p>
+      </div>
+
+    </form>
+
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+      </div>
+
+      <div class="highlight-box">
+        <h3>What's Next?</h3>
+        <p id="nextStepsMessage"></p>
+        <div class="cta-group mt-2" id="nextStepButtons"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder - Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    const answers = {
+      q1: { correct: 'b', explanation: 'A bug is a mistake or error in code (or instructions) that causes something to not work the way you expected. The word comes from a real moth found in an early computer in 1947.' },
+      q2: { correct: 'b', explanation: 'Grace Hopper and her team at Harvard found a moth stuck in the Mark II computer in 1947. They taped it into their logbook and called it the first actual "bug." Grace Hopper went on to become one of the most important computer scientists in history.' },
+      q3: { correct: 'b', explanation: 'A growth mindset means believing you can improve at anything with effort and practice. People with a growth mindset see mistakes as chances to learn, not reasons to quit. The word "yet" is a growth mindset word!' },
+      q4: { correct: 'c', explanation: 'The first debugging step is to figure out what you expected to happen and what actually happened. The difference between those two things is your biggest clue to finding the bug.' },
+      q5: { correct: 'b', explanation: 'If you change two things at once and the code starts working, you will not know which change actually fixed the problem. Changing one thing at a time and testing lets you know exactly what worked.' },
+      q6: { correct: 'b', explanation: 'Rubber duck debugging means explaining your problem out loud, step by step, to someone or something (like a rubber duck). The act of explaining often helps you discover what you missed. Many professional coders use this technique!' },
+      q7: { correct: 'b', explanation: 'The most common reason Scratch code does not run when you click the green flag is a missing "when green flag clicked" event block at the top of the stack. Without it, Scratch does not know when to start.' },
+      q8: { correct: 'd', explanation: 'Computers do not "like" or "dislike" code -- they just follow instructions exactly. The three most common bug types are: a wrong step (incorrect info), a missing step, and steps in the wrong order.' }
+    };
+
+    let answeredQuestions = new Set();
+    const totalQuestions = 8;
+    const passingScore = 6;
+
+    function initializeQuestionStatus() {
+      const statusContainer = document.getElementById('questionStatus');
+      for (let i = 1; i <= totalQuestions; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'status-dot';
+        dot.id = 'status' + i;
+        dot.textContent = i;
+        statusContainer.appendChild(dot);
+      }
+    }
+
+    function selectAnswer(questionNum, value) {
+      document.querySelectorAll('input[name="q' + questionNum + '"]').forEach(function(input) {
+        input.parentElement.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      document.getElementById('q' + questionNum + value).checked = true;
+      answeredQuestions.add(questionNum);
+      document.getElementById('status' + questionNum).classList.add('answered');
+      document.getElementById('answeredCount').textContent = answeredQuestions.size;
+    }
+
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (answeredQuestions.size < totalQuestions) {
+        alert('Please answer all ' + totalQuestions + ' questions before submitting!');
+        return;
+      }
+
+      var score = 0;
+
+      for (var i = 1; i <= totalQuestions; i++) {
+        var questionName = 'q' + i;
+        var selected = document.querySelector('input[name="' + questionName + '"]:checked');
+        var userAnswer = selected ? selected.value : null;
+        var correctAnswer = answers[questionName].correct;
+        var isCorrect = userAnswer === correctAnswer;
+
+        if (isCorrect) score++;
+
+        var questionCard = document.querySelector('[data-question="' + i + '"]');
+        var feedback = document.getElementById('feedback' + i);
+        var options = questionCard.querySelectorAll('.options li');
+
+        questionCard.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        options.forEach(function(li) {
+          var input = li.querySelector('input');
+          if (input.value === correctAnswer) li.classList.add('correct-answer');
+          if (input.value === userAnswer && !isCorrect) li.classList.add('wrong-answer');
+        });
+
+        feedback.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct!' : 'Not quite.') + '</strong><br>' + answers[questionName].explanation;
+      }
+
+      displayResults(score);
+      document.querySelector('.submit-section').style.display = 'none';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function displayResults(score) {
+      var percentage = Math.round((score / totalQuestions) * 100);
+      var passed = score >= passingScore;
+
+      var resultCard = document.getElementById('resultCard');
+      resultCard.classList.add(passed ? 'pass' : 'fail');
+
+      if (passed) {
+        document.getElementById('resultTitle').textContent = 'Great Job! You Passed!';
+        document.getElementById('scoreDisplay').textContent = score + ' / ' + totalQuestions + ' (' + percentage + '%)';
+        document.getElementById('resultMessage').textContent = 'You are a true Debugging Detective! You have shown that you know how to find and fix bugs.';
+        document.getElementById('nextStepsMessage').textContent = 'You are ready to move on to Module 7! Keep using your debugging skills in every project you build.';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="../module-07/index.html" class="btn btn-primary">Start Module 7</a> <a href="index.html" class="btn btn-outline">Back to Module 6</a>';
+      } else {
+        document.getElementById('resultTitle').textContent = 'Keep Practicing!';
+        document.getElementById('scoreDisplay').textContent = score + ' / ' + totalQuestions + ' (' + percentage + '%)';
+        document.getElementById('resultMessage').innerHTML = 'You need ' + passingScore + ' correct to pass. You got ' + score + '. <strong>Remember: not getting it right yet just means you need more practice!</strong>';
+        document.getElementById('nextStepsMessage').textContent = 'Look at the feedback above to see which topics need more attention. You can retake the quiz as many times as you want!';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="practice.html" class="btn btn-primary">More Practice</a> <a href="index.html" class="btn btn-outline">Review Lessons</a> <a href="quiz.html" class="btn btn-outline">Retake Quiz</a>';
+      }
+
+      document.getElementById('results').style.display = 'block';
+    }
+
+    initializeQuestionStatus();
+  </script>
+
+</body>
+</html>

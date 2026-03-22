@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Finding Bugs Step by Step - Learn the detective approach to debugging: check one thing at a time">
+  <title>Lesson 2: Finding Bugs Step by Step – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt); padding: var(--spacing-md);
+      border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--spacing-sm);
+    }
+    .lesson-objectives {
+      background: linear-gradient(135deg, #2D6A4F 0%, #40916C 60%, #52B788 100%);
+      color: white; padding: var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box {
+      background: var(--accent-light); border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box {
+      background: var(--info-light); border: 2px solid var(--info);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .unplugged-box { border: 2px solid #2D6A4F; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0faf4; }
+    .unplugged-box h4 { color: #2D6A4F; margin-top: 0; }
+    .talk-box { border: 2px solid #D97D54; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #fef6f0; }
+    .talk-box h4 { color: #D97D54; margin-top: 0; }
+    .scratch-box { border: 2px solid #4C9BE8; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0f6fe; }
+    .scratch-box h4 { color: #4C9BE8; margin-top: 0; }
+    .check-understanding {
+      background: white; border: 2px solid #2D6A4F;
+      border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0;
+    }
+    .check-understanding h3 { color: #2D6A4F; margin-top: 0; }
+    .question {
+      background: var(--background-alt); padding: var(--spacing-md);
+      border-radius: var(--radius-sm); margin-bottom: var(--spacing-md);
+    }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn {
+      background: #2D6A4F; color: white; border: none;
+      padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 0.875rem; transition: var(--transition);
+    }
+    .reveal-btn:hover { background: #1B4332; }
+    .answer {
+      display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm);
+      background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm);
+    }
+    .key-takeaways {
+      background: var(--success-light); border-left: 4px solid var(--success);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+
+    .debug-steps {
+      counter-reset: debug-step;
+      list-style: none;
+      padding: 0;
+    }
+    .debug-steps li {
+      counter-increment: debug-step;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      background: #f0faf4;
+      border-left: 4px solid #2D6A4F;
+      border-radius: var(--radius-sm);
+      position: relative;
+      padding-left: 3.5rem;
+    }
+    .debug-steps li::before {
+      content: counter(debug-step);
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #2D6A4F;
+      color: white;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .lesson-nav { flex-direction: column; align-items: stretch; }
+      .lesson-nav a { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 6 Home</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-debugging-everyday.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Finding Bugs Step by Step</h1>
+    <p class="text-muted">Estimated time: 15-20 minutes | Screen-Free Activity</p>
+
+    <div class="lesson-objectives">
+      <h3>What You Will Learn</h3>
+      <p>By the end of this lesson, your child will be able to:</p>
+      <ul>
+        <li>Use the "Debugging Detective" steps to find a problem</li>
+        <li>Check one thing at a time instead of guessing</li>
+        <li>Test after each change to see if the fix worked</li>
+        <li>Narrow down where a bug is hiding</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Think Like a Detective</h2>
+
+      <p>
+        When a detective is trying to solve a mystery, they do not just guess who did it. They look for clues, check the facts one at a time, and slowly figure out the answer. Debugging works the same way!
+      </p>
+
+      <p>
+        The worst thing you can do when something is not working is change a bunch of things all at once and hope for the best. That is like a detective arresting everyone in town and hoping the right person is among them. Instead, good debuggers check one thing at a time.
+      </p>
+
+      <div class="definition-box">
+        <p>
+          <strong>Systematic Debugging:</strong> Finding bugs by checking one thing at a time in a careful, organized way. Instead of guessing randomly, you follow a plan to narrow down where the problem is.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>The Debugging Detective Steps</h2>
+
+      <p>
+        Here are four steps you can follow every time something is not working. These steps work for code bugs, broken toys, recipes that taste wrong, and almost any problem:
+      </p>
+
+      <ol class="debug-steps">
+        <li><strong>What did you expect to happen?</strong> Before you can find the bug, you need to know what the right answer looks like. Say it out loud: "I expected the cat to move to the right."</li>
+        <li><strong>What actually happened?</strong> Look carefully at what went wrong. Be specific! Not "it does not work" but "the cat moved to the left instead of the right." The difference between what you expected and what happened is your biggest clue.</li>
+        <li><strong>Check one thing at a time.</strong> Look at each step or each block and ask: "Is this one correct?" Start from the beginning and go through each part. When you find something that looks wrong, stop.</li>
+        <li><strong>Change one thing, then test.</strong> Fix the one thing you found, then test to see if it works now. If it does, great! If not, undo your change and try the next possible problem. Never change two things at once -- you will not know which one fixed it.</li>
+      </ol>
+
+      <div class="talk-box">
+        <h4>Talk About It (Parent and Child)</h4>
+        <p>Practice saying the four steps together. You might even make up a hand motion for each one: (1) Point up (what should happen), (2) Point down (what actually happened), (3) Hold up one finger (check one thing), (4) Give a thumbs up (test it). Having a physical memory trick makes the steps easier to remember.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Example: The Broken Sandwich</h2>
+
+      <p>
+        Let us practice the detective steps with a fun example. Imagine you gave someone these instructions to make a peanut butter sandwich, and the sandwich came out wrong -- the peanut butter is on the outside of the bread!
+      </p>
+
+      <div class="example-box">
+        <h4>The Instructions (With a Bug!)</h4>
+        <ol>
+          <li>Get two slices of bread</li>
+          <li>Put peanut butter on the outside of one slice</li>
+          <li>Press the two slices together</li>
+        </ol>
+      </div>
+
+      <p>Let us use our detective steps:</p>
+
+      <div class="example-box">
+        <h4>Debugging the Sandwich</h4>
+        <p><strong>Step 1 -- What did I expect?</strong> A sandwich with peanut butter between the two slices of bread.</p>
+        <p><strong>Step 2 -- What actually happened?</strong> The peanut butter is on the outside of the bread, making a mess.</p>
+        <p><strong>Step 3 -- Check one thing at a time:</strong></p>
+        <ul>
+          <li>Step 1: "Get two slices of bread." That seems fine.</li>
+          <li>Step 2: "Put peanut butter on the <strong>outside</strong> of one slice." There it is! It should say "on top of one slice" or "on the inside."</li>
+        </ul>
+        <p><strong>Step 4 -- Fix and test:</strong> Change "outside" to "top" and make the sandwich again. Does it work now? Yes! Bug fixed.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Example: The Wrong Shape</h2>
+
+      <p>
+        Here is another example. You told a friend to draw a square, and they drew a triangle instead. Here were the instructions:
+      </p>
+
+      <div class="example-box">
+        <h4>The Instructions (With a Bug!)</h4>
+        <ol>
+          <li>Draw a line going right</li>
+          <li>Turn right</li>
+          <li>Draw a line going down</li>
+          <li>Turn right</li>
+          <li>Draw a line going left</li>
+        </ol>
+      </div>
+
+      <p>Let us debug:</p>
+
+      <div class="example-box">
+        <h4>Debugging the Shape</h4>
+        <p><strong>Step 1 -- What did I expect?</strong> A square (4 sides).</p>
+        <p><strong>Step 2 -- What actually happened?</strong> Only 3 sides were drawn -- it looks like an incomplete shape.</p>
+        <p><strong>Step 3 -- Check one thing at a time:</strong> Count the sides: right, down, left. That is only 3 lines. A square needs 4 sides. The fourth side (going back up) is missing!</p>
+        <p><strong>Step 4 -- Fix and test:</strong> Add a step 6: "Turn right. Draw a line going up." Now test -- does it make a square? Yes!</p>
+      </div>
+
+      <div class="talk-box">
+        <h4>Talk About It (Parent and Child)</h4>
+        <p>Ask your child: "What kind of bug was this -- was a step wrong, or was a step missing?" (It was a missing step.) Then ask: "Can you think of a time when you forgot a step in something and it did not turn out right?" Forgetting steps and getting steps wrong are the two most common bugs.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>The Three Most Common Bugs</h2>
+
+      <p>
+        Most bugs fall into one of three categories. Knowing this helps you know what to look for:
+      </p>
+
+      <div class="definition-box">
+        <p>
+          <strong>1. Wrong Step:</strong> One of the steps has the wrong information. Like saying "turn left" when you meant "turn right," or using the number 5 when you meant 50.
+        </p>
+      </div>
+
+      <div class="definition-box">
+        <p>
+          <strong>2. Missing Step:</strong> A step is completely left out. Everything else is correct, but there is a gap. Like forgetting to say "pick up the pencil" before "draw a line."
+        </p>
+      </div>
+
+      <div class="definition-box">
+        <p>
+          <strong>3. Wrong Order:</strong> All the steps are there and correct, but they are in the wrong order. Like putting on your shoes before your socks.
+        </p>
+      </div>
+
+      <p>
+        When you are debugging, ask yourself: "Is a step wrong? Is a step missing? Are the steps in the wrong order?" One of those three is almost always the answer.
+      </p>
+    </section>
+
+    <!-- Section 6: Activity -->
+    <section class="content-section">
+      <h2>Activity: Bug Detective Challenge</h2>
+
+      <div class="unplugged-box">
+        <h4>Screen-Free Activity (10 minutes)</h4>
+        <p><strong>What you need:</strong> Paper and a pencil.</p>
+        <p><strong>What to do:</strong> Each set of instructions below has a bug. Use the four detective steps to find and fix each one.</p>
+
+        <p><strong>Bug Hunt 1: Brushing Your Teeth</strong></p>
+        <ol>
+          <li>Pick up the toothbrush</li>
+          <li>Brush your teeth for two minutes</li>
+          <li>Put toothpaste on the brush</li>
+          <li>Rinse your mouth</li>
+          <li>Put the toothbrush away</li>
+        </ol>
+        <p><em>What kind of bug is it? Find it and fix it!</em></p>
+
+        <p><strong>Bug Hunt 2: Drawing a Happy Face</strong></p>
+        <ol>
+          <li>Draw a big circle for the head</li>
+          <li>Draw two small circles for the eyes</li>
+          <li>Draw a curved line for the mouth (curve it downward)</li>
+        </ol>
+        <p><em>Hint: If the mouth curves downward, is the face happy or sad?</em></p>
+
+        <p><strong>Bug Hunt 3: Making Lemonade</strong></p>
+        <ol>
+          <li>Get a glass</li>
+          <li>Fill it with water</li>
+          <li>Squeeze a lemon into it</li>
+          <li>Stir well</li>
+          <li>Drink and enjoy</li>
+        </ol>
+        <p><em>Hint: Something is missing. Would this taste good?</em></p>
+
+        <p><strong>Answers:</strong> (1) Wrong order -- step 3 should come before step 2 (toothpaste before brushing). (2) Wrong step -- the mouth should curve upward for a happy face, not downward. (3) Missing step -- you need to add sugar!</p>
+      </div>
+    </section>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. What are the four Debugging Detective steps?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> (1) What did you expect to happen? (2) What actually happened? (3) Check one thing at a time. (4) Change one thing, then test.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Why should you only change one thing at a time when debugging?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> If you change two things at once and it works, you do not know which change fixed the problem. If you change one thing and test, you know exactly what made the difference.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. What are the three most common types of bugs?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> (1) A wrong step (incorrect information), (2) a missing step (something left out), and (3) steps in the wrong order.
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Debug like a <strong>detective</strong>: look for clues, check facts, and be organized</li>
+        <li>Follow the four steps: <strong>expect, observe, check one thing, fix and test</strong></li>
+        <li>Never change more than <strong>one thing at a time</strong> -- then test to see if it helped</li>
+        <li>Most bugs are a <strong>wrong step</strong>, a <strong>missing step</strong>, or steps in the <strong>wrong order</strong></li>
+        <li><strong>Be specific</strong> about what went wrong -- "it does not work" is not specific enough</li>
+      </ul>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, you will apply your debugging skills to <strong>everyday life</strong> -- troubleshooting things that go wrong around the house.</p>
+          <a href="lesson-03-debugging-everyday.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2! Two more lessons to go in Module 6.</p>
+          <div class="mt-2">
+            <a href="index.html" class="btn btn-outline">Back to Module Home</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder - Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+
+</body>
+</html>

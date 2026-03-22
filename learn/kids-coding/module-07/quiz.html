@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 7 Quiz - Test your understanding of design thinking, planning, building, and testing.">
+  <title>Module 7 Quiz – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .quiz-intro {
+      background: linear-gradient(135deg, #2D6A4F 0%, #40916C 100%);
+      color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .quiz-intro h3 { color: white; margin-top: 0; }
+
+    .quiz-rules {
+      background: #f0faf4; border-left: 4px solid #2D6A4F;
+      padding: var(--spacing-lg); border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .question-card {
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .question-card.correct { border-color: #2D6A4F; background: #f0faf4; }
+    .question-card.incorrect { border-color: #c0392b; background: #ffebee; }
+
+    .question-number {
+      background: #2D6A4F; color: white; width: 40px; height: 40px;
+      border-radius: 50%; display: inline-flex; align-items: center;
+      justify-content: center; font-weight: 700; font-size: 1.125rem;
+      margin-right: var(--spacing-sm);
+    }
+    .question-text {
+      font-size: 1.125rem; font-weight: 600; color: var(--text-primary);
+      margin: var(--spacing-md) 0;
+    }
+
+    .options { list-style: none; padding: 0; margin: var(--spacing-md) 0; }
+    .options li {
+      padding: var(--spacing-md); margin-bottom: var(--spacing-sm);
+      border: 2px solid var(--border-color); border-radius: var(--radius-sm);
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: flex-start; gap: var(--spacing-sm);
+    }
+    .options li:hover { border-color: #2D6A4F; background: #f0faf4; }
+    .options li.selected { border-color: #2D6A4F; background: #2D6A4F; color: white; font-weight: 500; }
+    .options li.correct-answer { border-color: #2D6A4F; background: #f0faf4; color: var(--text-primary); font-weight: 600; }
+    .options li.wrong-answer { border-color: #c0392b; background: #ffebee; color: var(--text-primary); }
+    .options input[type="radio"] { margin-top: 0.25rem; cursor: pointer; }
+
+    .submit-section {
+      text-align: center; margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color);
+    }
+
+    #results { display: none; margin-top: var(--spacing-xl); }
+    .result-card {
+      border-radius: var(--radius-lg); padding: var(--spacing-xl);
+      text-align: center; margin-bottom: var(--spacing-lg);
+    }
+    .result-card.pass { background: #f0faf4; border: 3px solid #2D6A4F; }
+    .result-card.fail { background: #fff9e6; border: 3px solid #D4A843; }
+    .result-card h2 { margin-top: 0; font-size: 2rem; }
+    .result-card.pass h2 { color: #2D6A4F; }
+    .result-card.fail h2 { color: #996300; }
+    .score-display { font-size: 3rem; font-weight: 700; margin: var(--spacing-md) 0; }
+
+    .question-feedback {
+      margin-top: var(--spacing-md); padding: var(--spacing-md);
+      border-radius: var(--radius-sm); display: none;
+    }
+    .question-feedback.show { display: block; }
+    .question-feedback.correct { background: #f0faf4; border-left: 4px solid #2D6A4F; }
+    .question-feedback.incorrect { background: #ffebee; border-left: 4px solid #c0392b; }
+
+    .progress-indicator {
+      background: white; border: 2px solid #2D6A4F; border-radius: var(--radius-md);
+      padding: var(--spacing-md); margin-bottom: var(--spacing-lg);
+    }
+    .progress-indicator h4 { margin-top: 0; color: #2D6A4F; }
+    .question-status { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .status-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border-color); background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .status-dot.answered { background: #2D6A4F; color: white; border-color: #2D6A4F; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <a href="index.html" class="back-link">&larr; Back to Module 7</a>
+
+    <h1>Module 7 Quiz</h1>
+
+    <div class="quiz-intro">
+      <h3>Test Your Design Thinking Skills!</h3>
+      <p>This quiz is about the design process -- how to plan, build, test, and improve a project. You do not need to remember specific code blocks. This is all about thinking!</p>
+    </div>
+
+    <div class="quiz-rules">
+      <h4>Quiz Info</h4>
+      <ul class="icon-list">
+        <li><strong>8 questions</strong> about design thinking and the project process</li>
+        <li><strong>Passing score:</strong> 6 or more correct answers</li>
+        <li><strong>Try as many times as you want</strong> -- learning is the goal!</li>
+        <li>Read each question carefully and pick the best answer</li>
+      </ul>
+    </div>
+
+    <div class="progress-indicator">
+      <h4>Progress</h4>
+      <p class="text-muted" style="margin-bottom: var(--spacing-sm); font-size: 0.875rem;">Questions answered: <span id="answeredCount">0</span> / 8</p>
+      <div class="question-status" id="questionStatus"></div>
+    </div>
+
+    <form id="quizForm">
+
+      <div class="question-card" data-question="1">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">1</span>
+          <span class="question-text">What are the three big questions you should ask before starting a project?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(1, 'a')"><input type="radio" name="q1" value="a" id="q1a"><label for="q1a">What, Where, When</label></li>
+          <li onclick="selectAnswer(1, 'b')"><input type="radio" name="q1" value="b" id="q1b"><label for="q1b">Who, What, How</label></li>
+          <li onclick="selectAnswer(1, 'c')"><input type="radio" name="q1" value="c" id="q1c"><label for="q1c">Start, Stop, Restart</label></li>
+          <li onclick="selectAnswer(1, 'd')"><input type="radio" name="q1" value="d" id="q1d"><label for="q1d">Code, Test, Delete</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback1"></div>
+      </div>
+
+      <div class="question-card" data-question="2">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">2</span>
+          <span class="question-text">What is a storyboard?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(2, 'a')"><input type="radio" name="q2" value="a" id="q2a"><label for="q2a">A type of Scratch block</label></li>
+          <li onclick="selectAnswer(2, 'b')"><input type="radio" name="q2" value="b" id="q2b"><label for="q2b">A set of drawings that show what happens in your project, scene by scene</label></li>
+          <li onclick="selectAnswer(2, 'c')"><input type="radio" name="q2" value="c" id="q2c"><label for="q2c">A game you play on a board</label></li>
+          <li onclick="selectAnswer(2, 'd')"><input type="radio" name="q2" value="d" id="q2d"><label for="q2d">A list of all Scratch sprites</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback2"></div>
+      </div>
+
+      <div class="question-card" data-question="3">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">3</span>
+          <span class="question-text">When building a project, what should you do after adding a few blocks?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(3, 'a')"><input type="radio" name="q3" value="a" id="q3a"><label for="q3a">Delete everything and start over</label></li>
+          <li onclick="selectAnswer(3, 'b')"><input type="radio" name="q3" value="b" id="q3b"><label for="q3b">Add 50 more blocks before testing</label></li>
+          <li onclick="selectAnswer(3, 'c')"><input type="radio" name="q3" value="c" id="q3c"><label for="q3c">Click the green flag and test to see if it works</label></li>
+          <li onclick="selectAnswer(3, 'd')"><input type="radio" name="q3" value="d" id="q3d"><label for="q3d">Close Scratch and take a nap</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback3"></div>
+      </div>
+
+      <div class="question-card" data-question="4">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">4</span>
+          <span class="question-text">Why is it important to have someone else try your project?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(4, 'a')"><input type="radio" name="q4" value="a" id="q4a"><label for="q4a">Because you are not allowed to test your own project</label></li>
+          <li onclick="selectAnswer(4, 'b')"><input type="radio" name="q4" value="b" id="q4b"><label for="q4b">Because they might find confusing parts that you did not notice</label></li>
+          <li onclick="selectAnswer(4, 'c')"><input type="radio" name="q4" value="c" id="q4c"><label for="q4c">Because only other people can click the green flag</label></li>
+          <li onclick="selectAnswer(4, 'd')"><input type="radio" name="q4" value="d" id="q4d"><label for="q4d">Because your project will not save unless someone else sees it</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback4"></div>
+      </div>
+
+      <div class="question-card" data-question="5">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">5</span>
+          <span class="question-text">What does "iteration" mean?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(5, 'a')"><input type="radio" name="q5" value="a" id="q5a"><label for="q5a">Deleting your project and giving up</label></li>
+          <li onclick="selectAnswer(5, 'b')"><input type="radio" name="q5" value="b" id="q5b"><label for="q5b">Making something better by trying, testing, and improving</label></li>
+          <li onclick="selectAnswer(5, 'c')"><input type="radio" name="q5" value="c" id="q5c"><label for="q5c">Copying someone else's project</label></li>
+          <li onclick="selectAnswer(5, 'd')"><input type="radio" name="q5" value="d" id="q5d"><label for="q5d">A type of loop in Scratch</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback5"></div>
+      </div>
+
+      <div class="question-card" data-question="6">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">6</span>
+          <span class="question-text">Which of these is an example of KIND and HELPFUL feedback?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(6, 'a')"><input type="radio" name="q6" value="a" id="q6a"><label for="q6a">"This is boring."</label></li>
+          <li onclick="selectAnswer(6, 'b')"><input type="radio" name="q6" value="b" id="q6b"><label for="q6b">"I liked the story! Maybe the text could stay a little longer so I can finish reading it."</label></li>
+          <li onclick="selectAnswer(6, 'c')"><input type="radio" name="q6" value="c" id="q6c"><label for="q6c">"Mine is way better than yours."</label></li>
+          <li onclick="selectAnswer(6, 'd')"><input type="radio" name="q6" value="d" id="q6d"><label for="q6d">"It does not work."</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback6"></div>
+      </div>
+
+      <div class="question-card" data-question="7">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">7</span>
+          <span class="question-text">What should you do BEFORE opening Scratch to build your project?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(7, 'a')"><input type="radio" name="q7" value="a" id="q7a"><label for="q7a">Memorize every Scratch block</label></li>
+          <li onclick="selectAnswer(7, 'b')"><input type="radio" name="q7" value="b" id="q7b"><label for="q7b">Plan your project on paper -- draw a storyboard and list what you need</label></li>
+          <li onclick="selectAnswer(7, 'c')"><input type="radio" name="q7" value="c" id="q7c"><label for="q7c">Watch 10 hours of coding videos</label></li>
+          <li onclick="selectAnswer(7, 'd')"><input type="radio" name="q7" value="d" id="q7d"><label for="q7d">Nothing -- just start clicking blocks right away</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback7"></div>
+      </div>
+
+      <div class="question-card" data-question="8">
+        <div style="display: flex; align-items: center; margin-bottom: var(--spacing-md);">
+          <span class="question-number">8</span>
+          <span class="question-text">Your project does not work perfectly the first time. What does this mean?</span>
+        </div>
+        <ul class="options">
+          <li onclick="selectAnswer(8, 'a')"><input type="radio" name="q8" value="a" id="q8a"><label for="q8a">You are bad at coding and should stop</label></li>
+          <li onclick="selectAnswer(8, 'b')"><input type="radio" name="q8" value="b" id="q8b"><label for="q8b">Your computer is broken</label></li>
+          <li onclick="selectAnswer(8, 'c')"><input type="radio" name="q8" value="c" id="q8c"><label for="q8c">That is completely normal -- even professional programmers fix things many times</label></li>
+          <li onclick="selectAnswer(8, 'd')"><input type="radio" name="q8" value="d" id="q8d"><label for="q8d">You need to delete everything and use a different computer</label></li>
+        </ul>
+        <div class="question-feedback" id="feedback8"></div>
+      </div>
+
+      <div class="submit-section">
+        <button type="submit" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">Submit Quiz</button>
+        <p class="text-muted mt-2">Make sure you have answered all questions!</p>
+      </div>
+
+    </form>
+
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+      </div>
+      <div class="highlight-box">
+        <h3>What is Next?</h3>
+        <p id="nextStepsMessage"></p>
+        <div class="cta-group mt-2" id="nextStepButtons"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder – Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    var answers = {
+      q1: { correct: 'b', explanation: 'The three big questions are WHO will use it, WHAT should it do, and HOW will I make it. These questions help you think clearly before you start building.' },
+      q2: { correct: 'b', explanation: 'A storyboard is a set of drawings that show what happens in your project, scene by scene. Movie makers, game designers, and app builders all use storyboards!' },
+      q3: { correct: 'c', explanation: 'You should test after adding just a few blocks. This way, if something is wrong, you know exactly where the problem is. This is called building and testing in small steps.' },
+      q4: { correct: 'b', explanation: 'When someone else tries your project, they see it with fresh eyes. They might get confused by something that seems obvious to you, and that helps you make it better.' },
+      q5: { correct: 'b', explanation: 'Iteration means making something better by trying, testing, and improving. Real creators do this all the time -- they keep making their work better step by step.' },
+      q6: { correct: 'b', explanation: 'Kind and helpful feedback tells someone what they did well AND gives a specific idea for improvement. Saying "I liked the story" is kind, and "maybe the text could stay longer" is helpful.' },
+      q7: { correct: 'b', explanation: 'Planning on paper first -- drawing a storyboard and listing what you need -- helps you know what to build. It saves time and helps you stay focused.' },
+      q8: { correct: 'c', explanation: 'Things almost never work perfectly the first time, and that is completely normal! Even professional programmers fix and improve their code many, many times. Mistakes are part of learning.' }
+    };
+
+    var answeredQuestions = new Set();
+
+    function initializeQuestionStatus() {
+      var statusContainer = document.getElementById('questionStatus');
+      for (var i = 1; i <= 8; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'status-dot';
+        dot.id = 'status' + i;
+        dot.textContent = i;
+        statusContainer.appendChild(dot);
+      }
+    }
+
+    function selectAnswer(questionNum, value) {
+      var options = document.querySelectorAll('input[name="q' + questionNum + '"]');
+      options.forEach(function(input) { input.parentElement.classList.remove('selected'); });
+      event.currentTarget.classList.add('selected');
+      document.getElementById('q' + questionNum + value).checked = true;
+      answeredQuestions.add(questionNum);
+      document.getElementById('status' + questionNum).classList.add('answered');
+      document.getElementById('answeredCount').textContent = answeredQuestions.size;
+    }
+
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (answeredQuestions.size < 8) {
+        alert('Please answer all 8 questions before submitting!');
+        return;
+      }
+
+      var score = 0;
+      for (var i = 1; i <= 8; i++) {
+        var questionName = 'q' + i;
+        var selected = document.querySelector('input[name="' + questionName + '"]:checked');
+        var userAnswer = selected ? selected.value : null;
+        var correctAnswer = answers[questionName].correct;
+        var isCorrect = userAnswer === correctAnswer;
+        if (isCorrect) score++;
+
+        var questionCard = document.querySelector('[data-question="' + i + '"]');
+        var feedback = document.getElementById('feedback' + i);
+        var optionItems = questionCard.querySelectorAll('.options li');
+
+        questionCard.classList.add(isCorrect ? 'correct' : 'incorrect');
+        optionItems.forEach(function(li) {
+          var input = li.querySelector('input');
+          if (input.value === correctAnswer) li.classList.add('correct-answer');
+          if (input.value === userAnswer && !isCorrect) li.classList.add('wrong-answer');
+        });
+
+        feedback.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct!' : 'Not quite.') + '</strong><br>' + answers[questionName].explanation;
+      }
+
+      displayResults(score);
+      document.querySelector('.submit-section').style.display = 'none';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function displayResults(score) {
+      var percentage = Math.round((score / 8) * 100);
+      var passed = score >= 6;
+
+      var resultCard = document.getElementById('resultCard');
+      resultCard.classList.add(passed ? 'pass' : 'fail');
+
+      if (passed) {
+        document.getElementById('resultTitle').textContent = 'Great Job!';
+        document.getElementById('scoreDisplay').textContent = score + ' / 8 (' + percentage + '%)';
+        document.getElementById('resultMessage').textContent = 'You really understand how to think like a creator! Planning, building, testing, and improving -- you have got it!';
+        document.getElementById('nextStepsMessage').textContent = 'You are ready for Module 8 -- the final module! Get ready for logic puzzles, strategy games, and a celebration of everything you have learned.';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="../module-08/index.html" class="btn btn-primary">Start Module 8</a> <a href="index.html" class="btn btn-outline">Back to Module 7</a>';
+      } else {
+        document.getElementById('resultTitle').textContent = 'Keep Going!';
+        document.getElementById('scoreDisplay').textContent = score + ' / 8 (' + percentage + '%)';
+        document.getElementById('resultMessage').innerHTML = 'You need 6 correct answers to pass. You got ' + score + '. <strong>That is okay!</strong> Look at the explanations above and try again. You will get it!';
+        document.getElementById('nextStepsMessage').textContent = 'Review the feedback above, then try the quiz again. You can take it as many times as you need!';
+        document.getElementById('nextStepButtons').innerHTML = '<a href="index.html" class="btn btn-primary">Review Lessons</a> <a href="quiz.html" class="btn btn-outline">Retake Quiz</a>';
+      }
+
+      document.getElementById('results').style.display = 'block';
+    }
+
+    initializeQuestionStatus();
+  </script>
+
+</body>
+</html>

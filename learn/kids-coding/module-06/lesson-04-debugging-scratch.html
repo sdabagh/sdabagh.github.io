@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Debugging in Scratch - Find and fix common Scratch mistakes in broken projects">
+  <title>Lesson 4: Debugging in Scratch – Think Like a Coder</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav {
+      background: var(--background-alt); padding: var(--spacing-md);
+      border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--spacing-sm);
+    }
+    .lesson-objectives {
+      background: linear-gradient(135deg, #2D6A4F 0%, #40916C 60%, #52B788 100%);
+      color: white; padding: var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box {
+      background: var(--accent-light); border-left: 4px solid var(--accent-color);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+    }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box {
+      background: var(--info-light); border: 2px solid var(--info);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0;
+    }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .unplugged-box { border: 2px solid #2D6A4F; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0faf4; }
+    .unplugged-box h4 { color: #2D6A4F; margin-top: 0; }
+    .talk-box { border: 2px solid #D97D54; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #fef6f0; }
+    .talk-box h4 { color: #D97D54; margin-top: 0; }
+    .scratch-box { border: 2px solid #4C9BE8; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; background: #f0f6fe; }
+    .scratch-box h4 { color: #4C9BE8; margin-top: 0; }
+    .check-understanding {
+      background: white; border: 2px solid #2D6A4F;
+      border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0;
+    }
+    .check-understanding h3 { color: #2D6A4F; margin-top: 0; }
+    .question {
+      background: var(--background-alt); padding: var(--spacing-md);
+      border-radius: var(--radius-sm); margin-bottom: var(--spacing-md);
+    }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn {
+      background: #2D6A4F; color: white; border: none;
+      padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 0.875rem; transition: var(--transition);
+    }
+    .reveal-btn:hover { background: #1B4332; }
+    .answer {
+      display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm);
+      background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm);
+    }
+    .key-takeaways {
+      background: var(--success-light); border-left: 4px solid var(--success);
+      padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0;
+    }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+
+    .scratch-block {
+      display: inline-block; padding: 0.3rem 0.8rem;
+      border-radius: 4px; font-weight: 600; font-size: 0.9rem; margin: 0.1rem 0;
+    }
+    .block-control { background: #FFAB19; color: white; }
+    .block-motion { background: #4C97FF; color: white; }
+    .block-looks { background: #9966FF; color: white; }
+    .block-pen { background: #0fBD8C; color: white; }
+    .block-events { background: #FFBF00; color: white; }
+    .block-sensing { background: #5CB1D6; color: white; }
+
+    .scratch-stack {
+      background: #f8f8f8; border: 2px solid var(--border-color);
+      border-radius: var(--radius-md); padding: var(--spacing-md);
+      margin: var(--spacing-sm) 0; font-family: monospace; line-height: 2;
+    }
+
+    .bug-card {
+      background: #ffebee; border: 2px solid #c0392b;
+      border-radius: var(--radius-md); padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+    }
+    .bug-card h4 { color: #c0392b; margin-top: 0; }
+
+    .fix-card {
+      background: #f0faf4; border: 2px solid #2D6A4F;
+      border-radius: var(--radius-md); padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+    }
+    .fix-card h4 { color: #2D6A4F; margin-top: 0; }
+
+    @media (max-width: 768px) {
+      .lesson-nav { flex-direction: column; align-items: stretch; }
+      .lesson-nav a { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 6 Home</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Activities &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Debugging in Scratch</h1>
+    <p class="text-muted">Estimated time: 15-20 minutes | Scratch Activity</p>
+
+    <div class="lesson-objectives">
+      <h3>What You Will Learn</h3>
+      <p>By the end of this lesson, your child will be able to:</p>
+      <ul>
+        <li>Recognize the 5 most common bugs in Scratch projects</li>
+        <li>Use the debugging detective steps to fix broken Scratch code</li>
+        <li>Fix at least 3 intentionally broken Scratch programs</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>The 5 Most Common Scratch Bugs</h2>
+
+      <p>
+        After working with many young coders, we have found that most Scratch problems come from the same five mistakes. Once you know what they are, you can spot them quickly!
+      </p>
+
+      <div class="bug-card">
+        <h4>Bug 1: Missing "When Green Flag Clicked"</h4>
+        <p>You built a great stack of blocks, but nothing happens when you click the green flag. The most common reason? Your stack of blocks does not start with <span class="scratch-block block-events">when green flag clicked</span>. Without this block on top, Scratch does not know when to run your code.</p>
+      </div>
+      <div class="fix-card">
+        <h4>Fix: Add the event block on top</h4>
+        <p>Go to the Events category (yellow blocks) and drag <span class="scratch-block block-events">when green flag clicked</span> to the top of your stack. Now click the green flag and your code will run.</p>
+      </div>
+
+      <div class="bug-card">
+        <h4>Bug 2: Blocks Not Connected</h4>
+        <p>Your blocks look right, but some of them are floating separately on the screen instead of snapped together. Scratch only runs blocks that are connected in a stack. If there is a gap, Scratch stops at the gap.</p>
+      </div>
+      <div class="fix-card">
+        <h4>Fix: Snap all blocks together</h4>
+        <p>Drag the loose blocks and snap them onto the bottom of the stack. You will see them click into place. Make sure there are no gaps anywhere in your stack.</p>
+      </div>
+
+      <div class="bug-card">
+        <h4>Bug 3: Wrong Numbers</h4>
+        <p>Your sprite moves too far, turns the wrong amount, or waits too long. The blocks are in the right order, but the numbers inside them are wrong. For example, <span class="scratch-block block-motion">move (1000) steps</span> will send the cat flying off the screen!</p>
+      </div>
+      <div class="fix-card">
+        <h4>Fix: Check and change the numbers</h4>
+        <p>Click on the number inside any block to change it. Try smaller numbers first. For movement, 10-100 steps is usually good. For turns, common angles are 90 (quarter turn), 120, and 360 (full spin).</p>
+      </div>
+
+      <div class="bug-card">
+        <h4>Bug 4: Wrong Sprite Selected</h4>
+        <p>You are adding blocks, but they are going to the wrong sprite! If you have more than one sprite, you need to make sure the right one is selected (highlighted in blue) before you add blocks to it.</p>
+      </div>
+      <div class="fix-card">
+        <h4>Fix: Click the correct sprite first</h4>
+        <p>Look at the sprite list below the stage. Click on the sprite you want to give blocks to. It will have a blue border when selected. Now any blocks you add will belong to that sprite.</p>
+      </div>
+
+      <div class="bug-card">
+        <h4>Bug 5: Sprite Is Hidden or Off Screen</h4>
+        <p>Your code runs, but you cannot see anything happening. The sprite might be invisible (someone used a <span class="scratch-block block-looks">hide</span> block) or it might have moved off the edge of the stage.</p>
+      </div>
+      <div class="fix-card">
+        <h4>Fix: Show the sprite and reset its position</h4>
+        <p>Add <span class="scratch-block block-looks">show</span> and <span class="scratch-block block-motion">go to x: (0) y: (0)</span> at the start of your code to make sure the sprite is visible and centered.</p>
+      </div>
+
+      <div class="talk-box">
+        <h4>Talk About It (Parent and Child)</h4>
+        <p>Ask your child: "Which of these 5 bugs do you think is the most common?" (Bug 1 -- missing the green flag block -- happens most often!) "Have you ever had one of these problems before?" Connecting to their own experience helps the lesson stick.</p>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>Debug Challenge 1: The Cat That Will Not Move</h2>
+
+      <div class="scratch-box">
+        <h4>Scratch Activity: Find the Bug</h4>
+        <p><strong>The goal:</strong> When you click the green flag, the cat should walk across the screen.</p>
+        <p><strong>The broken code:</strong></p>
+        <div class="scratch-stack">
+          <span class="scratch-block block-motion">move (10) steps</span><br>
+          <span class="scratch-block block-motion">move (10) steps</span><br>
+          <span class="scratch-block block-motion">move (10) steps</span><br>
+          <span class="scratch-block block-motion">move (10) steps</span><br>
+          <span class="scratch-block block-motion">move (10) steps</span>
+        </div>
+        <p><strong>What happens:</strong> You click the green flag and... nothing.</p>
+        <p><strong>Your job:</strong> Build this code in Scratch and fix it so the cat walks when you click the green flag.</p>
+      </div>
+
+      <button class="reveal-btn" onclick="toggleAnswer('fix1')">Show the Fix</button>
+      <div id="fix1" class="answer">
+        <strong>The bug:</strong> There is no <span class="scratch-block block-events">when green flag clicked</span> block on top. Without it, Scratch does not know when to start. Add it to the top of the stack and the cat will move!
+        <br><strong>Bonus fix:</strong> You could also replace the 5 separate move blocks with a loop: <span class="scratch-block block-control">repeat (5)</span> with <span class="scratch-block block-motion">move (10) steps</span> inside.
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Debug Challenge 2: The Wonky Square</h2>
+
+      <div class="scratch-box">
+        <h4>Scratch Activity: Find the Bug</h4>
+        <p><strong>The goal:</strong> Draw a square using a loop.</p>
+        <p><strong>The broken code:</strong></p>
+        <div class="scratch-stack">
+          <span class="scratch-block block-events">when green flag clicked</span><br>
+          <span class="scratch-block block-pen">erase all</span><br>
+          <span class="scratch-block block-pen">pen down</span><br>
+          <span class="scratch-block block-control">repeat (4)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="scratch-block block-motion">move (100) steps</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="scratch-block block-motion">turn right (80) degrees</span>
+        </div>
+        <p><strong>What happens:</strong> The shape does not close. It looks weird and is not a square.</p>
+        <p><strong>Your job:</strong> Build this code and find the bug.</p>
+      </div>
+
+      <button class="reveal-btn" onclick="toggleAnswer('fix2')">Show the Fix</button>
+      <div id="fix2" class="answer">
+        <strong>The bug:</strong> The turn angle is 80 degrees instead of 90. A square needs 90-degree turns (because 90 x 4 = 360, a full rotation). Change 80 to 90 and the square will close perfectly.
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Debug Challenge 3: The Invisible Cat</h2>
+
+      <div class="scratch-box">
+        <h4>Scratch Activity: Find the Bug</h4>
+        <p><strong>The goal:</strong> The cat should say "Hello!" and walk to the right.</p>
+        <p><strong>The broken code:</strong></p>
+        <div class="scratch-stack">
+          <span class="scratch-block block-events">when green flag clicked</span><br>
+          <span class="scratch-block block-looks">hide</span><br>
+          <span class="scratch-block block-looks">say "Hello!" for (2) seconds</span><br>
+          <span class="scratch-block block-motion">move (50) steps</span>
+        </div>
+        <p><strong>What happens:</strong> You click the green flag and the cat disappears. You cannot see it saying "Hello!" or moving.</p>
+        <p><strong>Your job:</strong> Build this code and fix it.</p>
+      </div>
+
+      <button class="reveal-btn" onclick="toggleAnswer('fix3')">Show the Fix</button>
+      <div id="fix3" class="answer">
+        <strong>The bug:</strong> The <span class="scratch-block block-looks">hide</span> block makes the cat invisible before anything else happens. Either remove the hide block entirely, or change it to <span class="scratch-block block-looks">show</span>. The cat needs to be visible to say hello and walk!
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Debug Challenge 4: The Endless Wait</h2>
+
+      <div class="scratch-box">
+        <h4>Scratch Activity: Find the Bug</h4>
+        <p><strong>The goal:</strong> The cat should say "Ready," wait 1 second, then say "Go!" and run forward.</p>
+        <p><strong>The broken code:</strong></p>
+        <div class="scratch-stack">
+          <span class="scratch-block block-events">when green flag clicked</span><br>
+          <span class="scratch-block block-looks">say "Ready!" for (2) seconds</span><br>
+          <span class="scratch-block block-control">wait (100) seconds</span><br>
+          <span class="scratch-block block-looks">say "Go!" for (2) seconds</span><br>
+          <span class="scratch-block block-control">repeat (10)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="scratch-block block-motion">move (20) steps</span>
+        </div>
+        <p><strong>What happens:</strong> The cat says "Ready!" but then nothing happens for a very long time.</p>
+        <p><strong>Your job:</strong> Build this code and figure out why it takes so long.</p>
+      </div>
+
+      <button class="reveal-btn" onclick="toggleAnswer('fix4')">Show the Fix</button>
+      <div id="fix4" class="answer">
+        <strong>The bug:</strong> The wait block says 100 seconds. That is almost two minutes! Change 100 to 1 (for a 1-second pause) and the cat will say "Go!" right away. Always check your numbers -- wrong numbers are one of the most common bugs.
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Your Debugging Toolkit</h2>
+
+      <p>
+        Now you have a complete toolkit for debugging Scratch projects:
+      </p>
+
+      <div class="example-box">
+        <h4>Scratch Debugging Checklist</h4>
+        <ol>
+          <li>Does the code start with <span class="scratch-block block-events">when green flag clicked</span> (or another event block)?</li>
+          <li>Are all the blocks snapped together with no gaps?</li>
+          <li>Are the numbers correct (not too big, not too small)?</li>
+          <li>Is the correct sprite selected?</li>
+          <li>Is the sprite visible (not hidden) and on the stage (not off screen)?</li>
+          <li>Are the blocks in the right order?</li>
+          <li>If using a loop, is the repeat number correct?</li>
+        </ol>
+        <p>Go through this checklist every time something is not working. Most bugs will be caught by one of these checks!</p>
+      </div>
+
+      <div class="scratch-box">
+        <h4>Scratch Activity: Break and Fix</h4>
+        <p>Here is a fun way to practice: build a simple project that works, then <strong>intentionally break it</strong> by changing one thing. Have your parent or sibling try to find and fix the bug you created! Then switch roles and have them break a project for you to debug.</p>
+        <p>Making bugs on purpose is a great way to understand how they work.</p>
+      </div>
+    </section>
+
+    <!-- Check Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. What is the most common reason code does not run when you click the green flag?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> The most common reason is a missing "when green flag clicked" block at the top of the stack. Without an event block, Scratch does not know when to start running the code.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Your sprite draws an open shape instead of a closed one. What should you check?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> Check the turn angle and the repeat number. For a closed shape, the turn angle multiplied by the repeat number should equal 360. If it does not, the shape will not close properly.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Your sprite disappears when you run the code. What are two things to check?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> (1) Check if there is a "hide" block making the sprite invisible. Replace it with "show" or remove it. (2) Check if the sprite moved off the edge of the stage. Add a "go to x: 0 y: 0" block at the start to bring it back to the center.
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The <strong>5 most common Scratch bugs</strong> are: missing event block, disconnected blocks, wrong numbers, wrong sprite selected, and hidden/off-screen sprite</li>
+        <li>Use the <strong>Scratch Debugging Checklist</strong> to systematically check for problems</li>
+        <li>Always check <strong>numbers carefully</strong> -- wrong numbers are one of the sneakiest bugs</li>
+        <li><strong>Breaking code on purpose</strong> is a great way to learn how bugs work</li>
+        <li>The debugging skills you learned in this whole module work for <strong>Scratch, everyday life, and all future coding</strong></li>
+      </ul>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>You Finished All the Lessons!</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Activities</h3>
+          <p>More debugging challenges to sharpen your detective skills. Can you find all the bugs?</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Activities</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Ready to prove your debugging knowledge? Take the Module 6 quiz!</p>
+          <a href="quiz.html" class="btn btn-outline mt-2">Take the Quiz</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Think Like a Coder - Free Kids Coding Course</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+
+</body>
+</html>
