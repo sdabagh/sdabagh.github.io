@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 8 Quiz - Money, Values &amp; You</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .quiz-intro { background: linear-gradient(135deg, #5C4033 0%, #C4A747 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .quiz-intro h3 { color: white; margin-top: 0; }
+    .quiz-rules { background: #FFF8E1; border-left: 4px solid #C4A747; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-xl); }
+    .question-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .question-card.correct { border-color: var(--success); background: #e8f5e9; }
+    .question-card.incorrect { border-color: #c0392b; background: #ffebee; }
+    .question-number { background: #5C4033; color: white; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.125rem; margin-right: var(--spacing-sm); }
+    .question-text { font-size: 1.125rem; font-weight: 600; margin: var(--spacing-md) 0; }
+    .options { list-style: none; padding: 0; margin: var(--spacing-md) 0; }
+    .options li { padding: var(--spacing-md); margin-bottom: var(--spacing-sm); border: 2px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); display: flex; align-items: flex-start; gap: var(--spacing-sm); }
+    .options li:hover { border-color: #5C4033; background: var(--background-alt); }
+    .options li.selected { border-color: #5C4033; background: #5C4033; color: white; font-weight: 500; }
+    .options li.correct-answer { border-color: var(--success); background: #e8f5e9; color: var(--text-primary); font-weight: 600; }
+    .options li.wrong-answer { border-color: #c0392b; background: #ffebee; }
+    .options input[type="radio"] { margin-top: 0.25rem; cursor: pointer; }
+    .submit-section { text-align: center; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    #results { display: none; margin-top: var(--spacing-xl); }
+    .result-card { border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-lg); }
+    .result-card.pass { background: #e8f5e9; border: 3px solid var(--success); }
+    .result-card.fail { background: #fff9e6; border: 3px solid var(--warning); }
+    .result-card h2 { margin-top: 0; font-size: 2rem; }
+    .result-card.pass h2 { color: var(--success); }
+    .result-card.fail h2 { color: #996300; }
+    .score-display { font-size: 3rem; font-weight: 700; margin: var(--spacing-md) 0; }
+    .question-feedback { margin-top: var(--spacing-md); padding: var(--spacing-md); border-radius: var(--radius-sm); display: none; }
+    .question-feedback.show { display: block; }
+    .question-feedback.correct { background: #e8f5e9; border-left: 4px solid var(--success); }
+    .question-feedback.incorrect { background: #ffebee; border-left: 4px solid #c0392b; }
+    .progress-indicator { background: white; border: 2px solid #5C4033; border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg); position: sticky; top: 80px; }
+    .progress-indicator h4 { margin-top: 0; color: #5C4033; }
+    .question-status { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .status-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-color); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
+    .status-dot.answered { background: #5C4033; color: white; border-color: #5C4033; }
+    @media (max-width: 768px) { .score-display { font-size: 2rem; } .progress-indicator { position: static; } }
+  </style>
+</head>
+<body>
+  <header><div class="site-title">Safaa Dabagh</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a></nav></header>
+  <main class="container">
+    <a href="index.html" class="back-link">&larr; Back to Session 8</a>
+    <h1>Session 8 Quiz</h1>
+    <div class="quiz-intro"><h3>Test What You Learned!</h3><p>8 multiple-choice questions about Session 8: Giving and Putting It All Together. Get 6 or more right to pass!</p></div>
+    <div class="quiz-rules"><p><strong>How it works:</strong></p><ul><li>8 multiple-choice questions</li><li>Select one answer per question</li><li>Click "Submit Quiz" when done</li><li>Need 6/8 to pass</li><li>Retake as many times as you want</li></ul></div>
+    <div class="progress-indicator"><h4>Progress</h4><div class="question-status" id="questionStatus"></div></div>
+    <form id="quizForm">
+      <div class="question-card" id="q1">
+        <span class="question-number">1</span>
+        <p class="question-text">What is the difference between Zakat and Sadaqah?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q1','a')"><input type="radio" name="q1" value="a"> There is no difference</li>
+          <li onclick="selectAnswer(this,'q1','b')"><input type="radio" name="q1" value="b"> Zakat is obligatory; Sadaqah is voluntary</li>
+          <li onclick="selectAnswer(this,'q1','c')"><input type="radio" name="q1" value="c"> Sadaqah is obligatory; Zakat is voluntary</li>
+          <li onclick="selectAnswer(this,'q1','d')"><input type="radio" name="q1" value="d"> Zakat is for the rich; Sadaqah is for the poor</li>
+        </ul>
+        <div class="question-feedback" id="fb1"></div>
+      </div>
+      <div class="question-card" id="q2">
+        <span class="question-number">2</span>
+        <p class="question-text">How much is Zakat as a percentage of savings?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q2','a')"><input type="radio" name="q2" value="a"> 1%</li>
+          <li onclick="selectAnswer(this,'q2','b')"><input type="radio" name="q2" value="b"> 2.5%</li>
+          <li onclick="selectAnswer(this,'q2','c')"><input type="radio" name="q2" value="c"> 5%</li>
+          <li onclick="selectAnswer(this,'q2','d')"><input type="radio" name="q2" value="d"> 10%</li>
+        </ul>
+        <div class="question-feedback" id="fb2"></div>
+      </div>
+      <div class="question-card" id="q3">
+        <span class="question-number">3</span>
+        <p class="question-text">How does giving circulate wealth?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q3','a')"><input type="radio" name="q3" value="a"> It does not — giving just reduces your money</li>
+          <li onclick="selectAnswer(this,'q3','b')"><input type="radio" name="q3" value="b"> The recipient spends it, moving money through the community</li>
+          <li onclick="selectAnswer(this,'q3','c')"><input type="radio" name="q3" value="c"> Giving only helps one person</li>
+          <li onclick="selectAnswer(this,'q3','d')"><input type="radio" name="q3" value="d"> Wealth cannot be circulated</li>
+        </ul>
+        <div class="question-feedback" id="fb3"></div>
+      </div>
+      <div class="question-card" id="q4">
+        <span class="question-number">4</span>
+        <p class="question-text">What is Barakah?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q4','a')"><input type="radio" name="q4" value="a"> A type of bank account</li>
+          <li onclick="selectAnswer(this,'q4','b')"><input type="radio" name="q4" value="b"> Divine blessing that multiplies good in honest, generous financial lives</li>
+          <li onclick="selectAnswer(this,'q4','c')"><input type="radio" name="q4" value="c"> A budgeting method</li>
+          <li onclick="selectAnswer(this,'q4','d')"><input type="radio" name="q4" value="d"> The Arabic word for money</li>
+        </ul>
+        <div class="question-feedback" id="fb4"></div>
+      </div>
+      <div class="question-card" id="q5">
+        <span class="question-number">5</span>
+        <p class="question-text">What are the five parts of a personal financial plan?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q5','a')"><input type="radio" name="q5" value="a"> Save, spend, save more, spend more, borrow</li>
+          <li onclick="selectAnswer(this,'q5','b')"><input type="radio" name="q5" value="b"> Income, budget, savings goal, giving commitment, one thing to stop spending on</li>
+          <li onclick="selectAnswer(this,'q5','c')"><input type="radio" name="q5" value="c"> Earn, save, invest, retire, donate</li>
+          <li onclick="selectAnswer(this,'q5','d')"><input type="radio" name="q5" value="d"> Budget, borrow, spend, repay, repeat</li>
+        </ul>
+        <div class="question-feedback" id="fb5"></div>
+      </div>
+      <div class="question-card" id="q6">
+        <span class="question-number">6</span>
+        <p class="question-text">Why is having a financial plan important?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q6','a')"><input type="radio" name="q6" value="a"> Banks require one</li>
+          <li onclick="selectAnswer(this,'q6','b')"><input type="radio" name="q6" value="b"> It ensures money goes where it matters most instead of disappearing</li>
+          <li onclick="selectAnswer(this,'q6','c')"><input type="radio" name="q6" value="c"> The government mandates it</li>
+          <li onclick="selectAnswer(this,'q6','d')"><input type="radio" name="q6" value="d"> It guarantees you will be rich</li>
+        </ul>
+        <div class="question-feedback" id="fb6"></div>
+      </div>
+      <div class="question-card" id="q7">
+        <span class="question-number">7</span>
+        <p class="question-text">What does it mean that giving 'does not diminish wealth'?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q7','a')"><input type="radio" name="q7" value="a"> You always get the money back</li>
+          <li onclick="selectAnswer(this,'q7','b')"><input type="radio" name="q7" value="b"> The blessing (Barakah) in what remains makes it feel like more</li>
+          <li onclick="selectAnswer(this,'q7','c')"><input type="radio" name="q7" value="c"> Giving is actually free</li>
+          <li onclick="selectAnswer(this,'q7','d')"><input type="radio" name="q7" value="d"> You earn interest on charity</li>
+        </ul>
+        <div class="question-feedback" id="fb7"></div>
+      </div>
+      <div class="question-card" id="q8">
+        <span class="question-number">8</span>
+        <p class="question-text">What should you do with your personal financial plan after this course?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this,'q8','a')"><input type="radio" name="q8" value="a"> Throw it away — it was just practice</li>
+          <li onclick="selectAnswer(this,'q8','b')"><input type="radio" name="q8" value="b"> Keep it, review it weekly, and adjust as needed</li>
+          <li onclick="selectAnswer(this,'q8','c')"><input type="radio" name="q8" value="c"> Give it to your teacher</li>
+          <li onclick="selectAnswer(this,'q8','d')"><input type="radio" name="q8" value="d"> Post it on social media</li>
+        </ul>
+        <div class="question-feedback" id="fb8"></div>
+      </div>
+
+      <div class="submit-section"><button type="button" class="btn btn-primary" onclick="submitQuiz()" style="font-size:1.1rem;padding:1rem 3rem;">Submit Quiz</button></div>
+    </form>
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+        <div class="cta-group mt-3" style="justify-content:center;">
+          <a href="index.html" class="btn btn-outline">Back to Session 8</a>
+          <a href="../index.html" class="btn btn-primary" id="nextBtn" style="display:none;">Back to Course Home</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Safaa Dabagh. All rights reserved.</p><p class="text-muted">Money, Values &amp; You - Financial Literacy Course</p></footer>
+  <script>
+    const answers = { q1:'b', q2:'b', q3:'b', q4:'b', q5:'b', q6:'b', q7:'b', q8:'b' };
+    const explanations = {
+      q1: 'Zakat is obligatory (2.5% of savings annually). Sadaqah is voluntary and can be any amount at any time.',
+      q2: 'Zakat is 2.5% of savings above the nisab (minimum threshold), paid annually.',
+      q3: 'When you give to someone in need, they spend it, moving money through businesses and the wider community.',
+      q4: 'Barakah is divine blessing — the idea that honest, generous handling of wealth makes it go further.',
+      q5: 'Income, budget, savings goal, giving commitment, and one thing to stop spending on.',
+      q6: 'A plan turns intentions into actions and ensures your money serves your priorities.',
+      q7: 'Through Barakah, generous giving blesses what remains, making it go further than expected.',
+      q8: 'Keep your plan, review it regularly, and adjust it as your income or goals change. It is real and meant to be used.'
+    };
+    const selected = {};
+    function selectAnswer(li, qId, val) {
+      const options = li.parentElement.children;
+      for (let o of options) { o.classList.remove('selected'); o.querySelector('input').checked = false; }
+      li.classList.add('selected'); li.querySelector('input').checked = true;
+      selected[qId] = val; updateProgress();
+    }
+    function updateProgress() {
+      const c = document.getElementById('questionStatus'); c.innerHTML = '';
+      for (let i = 1; i <= 8; i++) { const d = document.createElement('div'); d.className = 'status-dot' + (selected['q'+i] ? ' answered' : ''); d.textContent = i; c.appendChild(d); }
+    }
+    updateProgress();
+    function submitQuiz() {
+      let score = 0;
+      for (let i = 1; i <= 8; i++) {
+        const qId = 'q'+i, card = document.getElementById(qId), fb = document.getElementById('fb'+i);
+        const options = card.querySelectorAll('.options li'), correct = answers[qId], userAnswer = selected[qId];
+        options.forEach(li => { li.style.cursor = 'default'; li.onclick = null; const val = li.querySelector('input').value;
+          if (val === correct) li.classList.add('correct-answer');
+          if (val === userAnswer && val !== correct) li.classList.add('wrong-answer'); });
+        if (userAnswer === correct) { score++; card.classList.add('correct'); fb.className = 'question-feedback show correct'; fb.innerHTML = '<strong>Correct!</strong> ' + explanations[qId]; }
+        else { card.classList.add('incorrect'); fb.className = 'question-feedback show incorrect'; fb.innerHTML = '<strong>Not quite.</strong> ' + explanations[qId]; }
+      }
+      document.getElementById('results').style.display = 'block';
+      const rc = document.getElementById('resultCard'), sd = document.getElementById('scoreDisplay');
+      sd.textContent = score + ' / 8';
+      if (score >= 6) { rc.className = 'result-card pass'; document.getElementById('resultTitle').textContent = 'Great Job!';
+        document.getElementById('resultMessage').textContent = 'Congratulations! You have completed the entire Money, Values & You course! You now have the knowledge and tools to manage your money wisely.';
+        document.getElementById('nextBtn').style.display = 'inline-block'; }
+      else { rc.className = 'result-card fail'; document.getElementById('resultTitle').textContent = 'Keep Practicing!';
+        document.getElementById('resultMessage').textContent = 'You got ' + score + ' out of 8. Review the lessons and try again.'; }
+      document.querySelector('.submit-section').style.display = 'none';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
