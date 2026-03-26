@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Session 1 Quiz - Test what you learned about money, barter, value, and stewardship.">
+  <title>Session 1 Quiz - Money, Values & You</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .quiz-intro { background: linear-gradient(135deg, #5C4033 0%, #C4A747 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .quiz-intro h3 { color: white; margin-top: 0; }
+    .quiz-rules { background: #FFF8E1; border-left: 4px solid #C4A747; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-xl); }
+    .question-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .question-card.correct { border-color: var(--success); background: #e8f5e9; }
+    .question-card.incorrect { border-color: #c0392b; background: #ffebee; }
+    .question-number { background: #5C4033; color: white; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.125rem; margin-right: var(--spacing-sm); }
+    .question-text { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin: var(--spacing-md) 0; }
+    .options { list-style: none; padding: 0; margin: var(--spacing-md) 0; }
+    .options li { padding: var(--spacing-md); margin-bottom: var(--spacing-sm); border: 2px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); display: flex; align-items: flex-start; gap: var(--spacing-sm); }
+    .options li:hover { border-color: #5C4033; background: var(--background-alt); }
+    .options li.selected { border-color: #5C4033; background: #5C4033; color: white; font-weight: 500; }
+    .options li.correct-answer { border-color: var(--success); background: #e8f5e9; color: var(--text-primary); font-weight: 600; }
+    .options li.wrong-answer { border-color: #c0392b; background: #ffebee; color: var(--text-primary); }
+    .options input[type="radio"] { margin-top: 0.25rem; cursor: pointer; }
+    .submit-section { text-align: center; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 2px solid var(--border-color); }
+    #results { display: none; margin-top: var(--spacing-xl); }
+    .result-card { border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-lg); }
+    .result-card.pass { background: #e8f5e9; border: 3px solid var(--success); }
+    .result-card.fail { background: #fff9e6; border: 3px solid var(--warning); }
+    .result-card h2 { margin-top: 0; font-size: 2rem; }
+    .result-card.pass h2 { color: var(--success); }
+    .result-card.fail h2 { color: #996300; }
+    .score-display { font-size: 3rem; font-weight: 700; margin: var(--spacing-md) 0; }
+    .question-feedback { margin-top: var(--spacing-md); padding: var(--spacing-md); border-radius: var(--radius-sm); display: none; }
+    .question-feedback.show { display: block; }
+    .question-feedback.correct { background: #e8f5e9; border-left: 4px solid var(--success); }
+    .question-feedback.incorrect { background: #ffebee; border-left: 4px solid #c0392b; }
+    .progress-indicator { background: white; border: 2px solid #5C4033; border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg); position: sticky; top: 80px; }
+    .progress-indicator h4 { margin-top: 0; color: #5C4033; }
+    .question-status { display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+    .status-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-color); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
+    .status-dot.answered { background: #5C4033; color: white; border-color: #5C4033; }
+    @media (max-width: 768px) { .score-display { font-size: 2rem; } .progress-indicator { position: static; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+  <main class="container">
+    <a href="index.html" class="back-link">&larr; Back to Session 1</a>
+    <h1>Session 1 Quiz</h1>
+    <div class="quiz-intro">
+      <h3>Test What You Learned!</h3>
+      <p>This quiz covers everything from Session 1: the origins of money, what gives it value, money as a tool, and the concept of Amana. Get 6 or more right and you have mastered Session 1!</p>
+    </div>
+    <div class="quiz-rules">
+      <p><strong>How it works:</strong></p>
+      <ul>
+        <li>8 multiple-choice questions</li>
+        <li>Select one answer for each question</li>
+        <li>Click "Submit Quiz" when you are done</li>
+        <li>You need 6 out of 8 correct to pass</li>
+        <li>You can retake the quiz as many times as you want</li>
+      </ul>
+    </div>
+    <div class="progress-indicator">
+      <h4>Progress</h4>
+      <div class="question-status" id="questionStatus"></div>
+    </div>
+    <form id="quizForm">
+      <div class="question-card" id="q1">
+        <span class="question-number">1</span>
+        <p class="question-text">What is barter?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q1', 'a')"><input type="radio" name="q1" value="a"> Using coins to buy things at a market</li>
+          <li onclick="selectAnswer(this, 'q1', 'b')"><input type="radio" name="q1" value="b"> The direct exchange of goods or services without money</li>
+          <li onclick="selectAnswer(this, 'q1', 'c')"><input type="radio" name="q1" value="c"> Saving money in a bank account</li>
+          <li onclick="selectAnswer(this, 'q1', 'd')"><input type="radio" name="q1" value="d"> Borrowing money from a friend</li>
+        </ul>
+        <div class="question-feedback" id="fb1"></div>
+      </div>
+      <div class="question-card" id="q2">
+        <span class="question-number">2</span>
+        <p class="question-text">What is the "double coincidence of wants"?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q2', 'a')"><input type="radio" name="q2" value="a"> When two people both want the same item</li>
+          <li onclick="selectAnswer(this, 'q2', 'b')"><input type="radio" name="q2" value="b"> When both people in a trade must want what the other has</li>
+          <li onclick="selectAnswer(this, 'q2', 'c')"><input type="radio" name="q2" value="c"> When you accidentally buy two of the same thing</li>
+          <li onclick="selectAnswer(this, 'q2', 'd')"><input type="radio" name="q2" value="d"> When a store runs out of what you want</li>
+        </ul>
+        <div class="question-feedback" id="fb2"></div>
+      </div>
+      <div class="question-card" id="q3">
+        <span class="question-number">3</span>
+        <p class="question-text">Why does money have value?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q3', 'a')"><input type="radio" name="q3" value="a"> Because it is made of expensive materials</li>
+          <li onclick="selectAnswer(this, 'q3', 'b')"><input type="radio" name="q3" value="b"> Because the government forces people to use it</li>
+          <li onclick="selectAnswer(this, 'q3', 'c')"><input type="radio" name="q3" value="c"> Because everyone agrees it has value (shared trust)</li>
+          <li onclick="selectAnswer(this, 'q3', 'd')"><input type="radio" name="q3" value="d"> Because banks print it on special paper</li>
+        </ul>
+        <div class="question-feedback" id="fb3"></div>
+      </div>
+      <div class="question-card" id="q4">
+        <span class="question-number">4</span>
+        <p class="question-text">What is the difference between intrinsic value and assigned value?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q4', 'a')"><input type="radio" name="q4" value="a"> Intrinsic value comes from the thing itself; assigned value comes from agreement</li>
+          <li onclick="selectAnswer(this, 'q4', 'b')"><input type="radio" name="q4" value="b"> Intrinsic value is for expensive items; assigned value is for cheap items</li>
+          <li onclick="selectAnswer(this, 'q4', 'c')"><input type="radio" name="q4" value="c"> They mean the same thing</li>
+          <li onclick="selectAnswer(this, 'q4', 'd')"><input type="radio" name="q4" value="d"> Intrinsic value changes every day; assigned value stays the same</li>
+        </ul>
+        <div class="question-feedback" id="fb4"></div>
+      </div>
+      <div class="question-card" id="q5">
+        <span class="question-number">5</span>
+        <p class="question-text">When we say "money is a tool," what do we mean?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q5', 'a')"><input type="radio" name="q5" value="a"> Money is made in a factory like other tools</li>
+          <li onclick="selectAnswer(this, 'q5', 'b')"><input type="radio" name="q5" value="b"> Money helps you accomplish goals, just like a hammer helps you build</li>
+          <li onclick="selectAnswer(this, 'q5', 'c')"><input type="radio" name="q5" value="c"> You should collect as much money as possible</li>
+          <li onclick="selectAnswer(this, 'q5', 'd')"><input type="radio" name="q5" value="d"> Money is heavy and hard to carry, like tools</li>
+        </ul>
+        <div class="question-feedback" id="fb5"></div>
+      </div>
+      <div class="question-card" id="q6">
+        <span class="question-number">6</span>
+        <p class="question-text">What does Amana mean?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q6', 'a')"><input type="radio" name="q6" value="a"> A type of savings account</li>
+          <li onclick="selectAnswer(this, 'q6', 'b')"><input type="radio" name="q6" value="b"> Trust or stewardship &mdash; the idea that what we have is entrusted to us</li>
+          <li onclick="selectAnswer(this, 'q6', 'c')"><input type="radio" name="q6" value="c"> A rule about not spending money</li>
+          <li onclick="selectAnswer(this, 'q6', 'd')"><input type="radio" name="q6" value="d"> The Arabic word for money</li>
+        </ul>
+        <div class="question-feedback" id="fb6"></div>
+      </div>
+      <div class="question-card" id="q7">
+        <span class="question-number">7</span>
+        <p class="question-text">What is the difference between an owner mindset and a steward mindset about money?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q7', 'a')"><input type="radio" name="q7" value="a"> An owner spends more; a steward saves more</li>
+          <li onclick="selectAnswer(this, 'q7', 'b')"><input type="radio" name="q7" value="b"> An owner says "it is mine to do whatever I want"; a steward says "I am responsible for using it wisely"</li>
+          <li onclick="selectAnswer(this, 'q7', 'c')"><input type="radio" name="q7" value="c"> There is no real difference</li>
+          <li onclick="selectAnswer(this, 'q7', 'd')"><input type="radio" name="q7" value="d"> An owner is rich; a steward is poor</li>
+        </ul>
+        <div class="question-feedback" id="fb7"></div>
+      </div>
+      <div class="question-card" id="q8">
+        <span class="question-number">8</span>
+        <p class="question-text">Which of these is an example of using money as a tool rather than treating it as a goal?</p>
+        <ul class="options">
+          <li onclick="selectAnswer(this, 'q8', 'a')"><input type="radio" name="q8" value="a"> "I want to be the richest person in my school."</li>
+          <li onclick="selectAnswer(this, 'q8', 'b')"><input type="radio" name="q8" value="b"> "I am saving $15 to buy art supplies for a project I want to make."</li>
+          <li onclick="selectAnswer(this, 'q8', 'c')"><input type="radio" name="q8" value="c"> "I just want more and more money."</li>
+          <li onclick="selectAnswer(this, 'q8', 'd')"><input type="radio" name="q8" value="d"> "Money is the most important thing in life."</li>
+        </ul>
+        <div class="question-feedback" id="fb8"></div>
+      </div>
+      <div class="submit-section">
+        <button type="button" class="btn btn-primary" onclick="submitQuiz()" style="font-size: 1.1rem; padding: 1rem 3rem;">Submit Quiz</button>
+      </div>
+    </form>
+    <div id="results">
+      <div class="result-card" id="resultCard">
+        <h2 id="resultTitle"></h2>
+        <div class="score-display" id="scoreDisplay"></div>
+        <p id="resultMessage"></p>
+        <div class="cta-group mt-3" style="justify-content: center;">
+          <a href="index.html" class="btn btn-outline">Back to Session 1</a>
+          <a href="../session-02/index.html" class="btn btn-primary" id="nextBtn" style="display:none;">Start Session 2 &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Money, Values & You - Financial Literacy Course</p>
+  </footer>
+  <script>
+    const answers = { q1:'b', q2:'b', q3:'c', q4:'a', q5:'b', q6:'b', q7:'b', q8:'b' };
+    const explanations = {
+      q1: 'Barter is the direct exchange of goods or services without using money.',
+      q2: 'Both people must want what the other has at the same time for barter to work.',
+      q3: 'Money has value because of shared trust and agreement, not because of its material.',
+      q4: 'Intrinsic value comes from the thing itself (water quenches thirst). Assigned value comes from what people agree (a $20 bill).',
+      q5: 'Money is a tool that helps you accomplish goals, just like a hammer helps you build.',
+      q6: 'Amana means trust or stewardship. It is the Islamic concept that everything we have is entrusted to us by Allah.',
+      q7: 'A steward recognizes responsibility; an owner feels entitled to use money however they please.',
+      q8: 'Saving $15 for art supplies uses money with a clear purpose. The other options treat money as the goal itself.'
+    };
+    const selected = {};
+    function selectAnswer(li, qId, val) {
+      const options = li.parentElement.children;
+      for (let o of options) { o.classList.remove('selected'); o.querySelector('input').checked = false; }
+      li.classList.add('selected');
+      li.querySelector('input').checked = true;
+      selected[qId] = val;
+      updateProgress();
+    }
+    function updateProgress() {
+      const container = document.getElementById('questionStatus');
+      container.innerHTML = '';
+      for (let i = 1; i <= 8; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'status-dot' + (selected['q'+i] ? ' answered' : '');
+        dot.textContent = i;
+        container.appendChild(dot);
+      }
+    }
+    updateProgress();
+    function submitQuiz() {
+      let score = 0;
+      for (let i = 1; i <= 8; i++) {
+        const qId = 'q' + i;
+        const card = document.getElementById(qId);
+        const fb = document.getElementById('fb' + i);
+        const options = card.querySelectorAll('.options li');
+        const correct = answers[qId];
+        const userAnswer = selected[qId];
+        options.forEach(li => {
+          li.style.cursor = 'default';
+          li.onclick = null;
+          const val = li.querySelector('input').value;
+          if (val === correct) li.classList.add('correct-answer');
+          if (val === userAnswer && val !== correct) li.classList.add('wrong-answer');
+        });
+        if (userAnswer === correct) {
+          score++;
+          card.classList.add('correct');
+          fb.className = 'question-feedback show correct';
+          fb.innerHTML = '<strong>Correct!</strong> ' + explanations[qId];
+        } else {
+          card.classList.add('incorrect');
+          fb.className = 'question-feedback show incorrect';
+          fb.innerHTML = '<strong>Not quite.</strong> ' + explanations[qId];
+        }
+      }
+      document.getElementById('results').style.display = 'block';
+      const rc = document.getElementById('resultCard');
+      const title = document.getElementById('resultTitle');
+      const sd = document.getElementById('scoreDisplay');
+      const msg = document.getElementById('resultMessage');
+      sd.textContent = score + ' / 8';
+      if (score >= 6) {
+        rc.className = 'result-card pass';
+        title.textContent = 'Great Job!';
+        msg.textContent = 'You have mastered Session 1! You are ready to move on to Session 2: Needs vs. Wants.';
+        document.getElementById('nextBtn').style.display = 'inline-block';
+      } else {
+        rc.className = 'result-card fail';
+        title.textContent = 'Keep Practicing!';
+        msg.textContent = 'You got ' + score + ' out of 8. Review the lessons and try again. You need 6 correct to pass.';
+      }
+      document.querySelector('.submit-section').style.display = 'none';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
