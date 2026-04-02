@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 5: Use Claude to Learn Anything — How to turn Claude into your personal tutor, calibrated to your learning style.">
+  <title>Module 5: Use Claude to Learn Anything - Speaking the Language of AI</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .sticky-nav { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--border-color); padding: 0.75rem var(--spacing-md); display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-sm); }
+    .sticky-nav a { font-size: 0.8rem; color: #1565C0; text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid #BBDEFB; transition: var(--transition); white-space: nowrap; }
+    .sticky-nav a:hover { background: #E3F2FD; }
+    .sticky-nav .nav-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-right: 0.25rem; }
+    .module-header { background: linear-gradient(135deg, #1a237e 0%, #1565C0 60%, #7B1FA2 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .module-header h1 { color: white; font-size: 2rem; margin-bottom: var(--spacing-xs); }
+    .module-header .module-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .module-header p { opacity: 0.92; font-size: 1.05rem; }
+    .time-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: var(--spacing-sm); }
+    .before-start { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .big-idea { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .see-it { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .try-it { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .brain-break { background: #FFF3E0; border-left: 4px solid #E65100; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    .wrap-up { background: #E8F5E9; border: 2px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .before-start .section-title { color: #1565C0; }
+    .big-idea .section-title { color: #E65100; }
+    .see-it .section-title { color: #7B1FA2; }
+    .try-it .section-title { color: #2E7D32; }
+    .brain-break .section-title { color: #E65100; }
+    .wrap-up .section-title { color: #1B5E20; }
+    .prompt-box { background: #1a1a2e; color: #e0e0e0; padding: 1rem 1.5rem; border-radius: 8px; font-family: monospace; margin: 1rem 0; position: relative; font-size: 0.95rem; line-height: 1.6; }
+    .prompt-label { font-size: 0.8rem; color: #90CAF9; margin-bottom: 0.5rem; font-family: sans-serif; font-weight: 600; }
+    .step-list { list-style: none; padding: 0; margin: 1rem 0; }
+    .step-list li { display: grid; grid-template-columns: 40px 1fr; gap: 0.75rem; align-items: start; margin-bottom: 1.25rem; }
+    .step-num { background: #2E7D32; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .step-content { padding-top: 0.4rem; font-size: 0.95rem; line-height: 1.6; }
+    .stop-here { text-align: center; color: #888; font-size: 0.85rem; margin: 1.5rem 0; padding: 0.5rem; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    .one-thing { font-size: 1.15rem; font-weight: 700; color: #1B5E20; background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2E7D32; margin-top: 0.75rem; }
+    .module-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .module-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+    .nav-prev { background: white; border: 2px solid var(--border-color); color: var(--text-primary); }
+    .nav-prev:hover { border-color: #1565C0; color: #1565C0; }
+    .nav-next { background: #1565C0; color: white; }
+    .nav-next:hover { background: #0D47A1; }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 0.4rem 0; padding-left: 1.5rem; position: relative; font-size: 0.95rem; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; color: #1565C0; font-weight: 700; }
+    .brain-break-activities { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .activity-pill { background: white; border: 2px solid #E65100; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #E65100; font-weight: 600; }
+    .tutor-modifiers { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .modifier-chip { background: #FFF8E1; border: 1px solid #F9A825; border-radius: 20px; padding: 5px 14px; font-size: 0.85rem; color: #E65100; font-weight: 600; font-family: monospace; }
+    .see-grid { display: grid; gap: 1rem; margin: 1rem 0; }
+    .see-card { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; }
+    .see-card-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .see-card-prompt { background: #E3F2FD; padding: 0.6rem 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.5rem; font-style: italic; }
+    .see-card-result { background: #F3E5F5; padding: 0.6rem 0.75rem; border-radius: 6px; font-size: 0.85rem; }
+    @media (max-width: 768px) { .sticky-nav { position: relative; } .module-nav { flex-direction: column; } .module-nav a { text-align: center; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <div class="sticky-nav">
+    <span class="nav-label">Jump to:</span>
+    <a href="#before">&#x1F4CC; Before</a>
+    <a href="#big-idea">&#x1F4A1; Big Idea</a>
+    <a href="#see-it">&#x1F440; See It</a>
+    <a href="#try-it">&#x1F590;&#xFE0F; Try It</a>
+    <a href="#brain-break">&#x1F9E0; Break</a>
+    <a href="#wrap-up">&#x2705; Wrap Up</a>
+  </div>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Course Home</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 5 of 8</div>
+      <h1>Use Claude to Learn Anything</h1>
+      <p>How to turn Claude into your personal tutor, calibrated to your learning style.</p>
+      <span class="time-badge">~20 minutes</span>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <section id="before" class="before-start">
+      <div class="section-title">&#x1F4CC; Before You Start</div>
+      <p><strong>What you need:</strong></p>
+      <ul class="checklist">
+        <li>Claude open in another tab at <strong>claude.ai</strong></li>
+        <li>Something you&rsquo;ve been curious about &mdash; anything you&rsquo;ve always wanted to understand</li>
+      </ul>
+      <p style="margin-top: 1rem;"><strong>What you&rsquo;ll do:</strong></p>
+      <p>Tell Claude exactly how you want to learn. You&rsquo;ll have Claude teach you something step by step, in your style, at your pace.</p>
+    </section>
+
+    <!-- THE BIG IDEA -->
+    <section id="big-idea" class="big-idea">
+      <div class="section-title">&#x1F4A1; The Big Idea</div>
+
+      <p><strong>You can tell Claude exactly how you want to learn. It adapts to you &mdash; not the other way around.</strong></p>
+
+      <p style="margin-top: 1rem;">Most of us had to learn things the way the teacher taught them. Claude is different. You can customize everything.</p>
+
+      <p style="margin-top: 1rem;">You can say things like:</p>
+
+      <div class="tutor-modifiers">
+        <span class="modifier-chip">explain this to me like I&rsquo;m 10</span>
+        <span class="modifier-chip">use an analogy</span>
+        <span class="modifier-chip">I learn best with examples</span>
+        <span class="modifier-chip">go slow</span>
+        <span class="modifier-chip">don&rsquo;t use jargon</span>
+        <span class="modifier-chip">I know a little about X &mdash; build from there</span>
+        <span class="modifier-chip">give me one idea at a time</span>
+        <span class="modifier-chip">ask me questions to check my understanding</span>
+      </div>
+
+      <p style="margin-top: 1rem;">This makes Claude your personal tutor &mdash; available 24/7, infinitely patient, never making you feel dumb for asking &ldquo;basic&rdquo; questions.</p>
+
+      <p style="margin-top: 1rem;"><strong>That last part matters.</strong> There is no judgment. No sighing. No &ldquo;we already covered this.&rdquo; You can ask the same thing 10 different ways until it clicks.</p>
+    </section>
+
+    <!-- SEE IT -->
+    <section id="see-it" class="see-it">
+      <div class="section-title">&#x1F440; See It</div>
+
+      <p>Here&rsquo;s the same concept &mdash; how the internet works &mdash; explained three completely different ways. All from the same Claude, just with different framing:</p>
+
+      <div class="see-grid">
+        <div class="see-card">
+          <div class="see-card-label">For a curious 8-year-old</div>
+          <div class="see-card-prompt">"Explain how the internet works to a curious 8-year-old."</div>
+          <div class="see-card-result">Imagine every computer in the world is like a house, and the internet is like a giant postal system. When you want to visit a website, you&rsquo;re sending a letter to another house asking for information, and that house sends back a package. The postal system (cables, satellites, routers) makes sure everything gets to the right address.</div>
+        </div>
+        <div class="see-card">
+          <div class="see-card-label">For someone with a tech background</div>
+          <div class="see-card-prompt">"Explain how the internet works. I have a CS background."</div>
+          <div class="see-card-result">The internet is a packet-switched network built on TCP/IP. Data is broken into packets, each routed independently through nodes using BGP, then reassembled at the destination. DNS resolves domain names to IP addresses. HTTP/HTTPS is the application layer protocol most users interact with.</div>
+        </div>
+        <div class="see-card">
+          <div class="see-card-label">Using only a food analogy</div>
+          <div class="see-card-prompt">"Explain how the internet works using only a restaurant analogy."</div>
+          <div class="see-card-result">The internet is like a city full of restaurants (servers) and hungry customers (you). A URL is a restaurant&rsquo;s address. Your browser is the car. DNS is like a phone book that turns the restaurant&rsquo;s name into a real address. Packets are individual dishes sent in boxes. Your router is the highway system. The meal arrives and gets assembled on your table (screen).</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 1rem;">Same concept. Completely different explanations. The key is telling Claude upfront how you want it to explain things.</p>
+    </section>
+
+    <!-- TRY IT -->
+    <section id="try-it" class="try-it">
+      <div class="section-title">&#x1F590;&#xFE0F; Try It</div>
+
+      <p>Think of something you&rsquo;ve always wanted to understand but never got a clear explanation of. Now you&rsquo;re going to have Claude teach you in your way.</p>
+
+      <ol class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-content">Pick your topic. It could be anything: quantum physics, why inflation happens, how vaccines work, what the stock market actually is, how music production works &mdash; anything you genuinely want to understand.</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-content">
+            Copy this template into Claude and fill in your topic:
+            <div class="prompt-label">Copy this into Claude &#x1F447;</div>
+            <div class="prompt-box">Explain [your topic] to me. I'm new to this. Use a real-world analogy if possible. Keep each explanation short — no more than 3 sentences at a time, then pause and ask if I want more.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-content">Have Claude teach you step by step. When it pauses and asks if you want more, respond. When you don&rsquo;t understand something, say &ldquo;I don&rsquo;t get that part &mdash; explain it differently.&rdquo;</div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-content">
+            When you feel like you&rsquo;ve got the basics, copy this into the same conversation:
+            <div class="prompt-label">Copy this into Claude &#x1F447;</div>
+            <div class="prompt-box">Summarize what I just learned in 5 bullet points.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <div class="step-content">Save those bullet points somewhere &mdash; a note app, a physical notebook, anywhere. That is your new knowledge. You earned it.</div>
+        </li>
+      </ol>
+    </section>
+
+    <div class="stop-here">&#x1F6D1; You can stop here if you need a break. Learning is tiring. Rest is part of the process.</div>
+
+    <!-- BRAIN BREAK -->
+    <section id="brain-break" class="brain-break">
+      <div class="section-title">&#x1F9E0; Brain Break</div>
+      <p>You just learned something new. That takes real energy. Honor it.</p>
+      <div class="brain-break-activities">
+        <span class="activity-pill">Drink some water</span>
+        <span class="activity-pill">Rest your eyes for 1 minute</span>
+        <span class="activity-pill">Stretch your arms up</span>
+        <span class="activity-pill">Deep breath</span>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Your brain consolidates learning during rest. This pause is doing work even when it doesn&rsquo;t feel like it.</p>
+    </section>
+
+    <!-- WRAP UP -->
+    <section id="wrap-up" class="wrap-up">
+      <div class="section-title">&#x2705; Wrap Up</div>
+      <p>The ONE thing to remember from this module:</p>
+      <div class="one-thing">You can tell Claude HOW you want to learn. It adjusts to you &mdash; not the other way around.</div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">The most powerful words you can say to Claude as a learner: &ldquo;I don&rsquo;t get that &mdash; explain it differently.&rdquo; You can say that as many times as you need.</p>
+    </section>
+
+    <div class="module-nav">
+      <a href="../module-04/index.html" class="nav-prev">&larr; Module 4: Talk to Claude Like a Person</a>
+      <a href="../index.html" style="text-decoration:none; color: var(--text-secondary); font-size: 0.85rem;">&#x1F4CB; All Modules</a>
+      <a href="../module-06/index.html" class="nav-next">Module 6: Use Claude to Write Better &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Speaking the Language of AI &mdash; Module 5</p>
+  </footer>
+
+</body>
+</html>
