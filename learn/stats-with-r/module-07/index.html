@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 7: Multiple Regression — Statistics with R. Predict outcomes with multiple variables, interpret coefficients, and check residuals in R.">
+  <title>Module 7: Multiple Regression - Statistics with R</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .module-header p{opacity:0.92;font-size:1rem;margin:0}
+    .module-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .module-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#00695C;color:#00695C;text-decoration:none}
+    .nav-next{background:#00695C;color:white}
+    .nav-next:hover{background:#004D40;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .concept-box{background:#E0F2F1;border-left:4px solid #00695C;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-box h2{margin-top:0;color:#00695C;font-size:1.1rem}
+    .formula-box{background:#F3E5F5;border:2px solid #6A1B9A;border-radius:12px;padding:1.25rem;margin-bottom:2rem;text-align:center}
+    .formula-box h2{margin-top:0;color:#6A1B9A;font-size:1rem}
+    .formula{font-size:1.2rem;font-family:monospace;color:#1a1a2e;margin:0.5rem 0;display:block}
+    .r-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .r-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#00695C}
+    .code-editor{width:100%;min-height:140px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#00695C}
+    .run-btn{background:#00695C;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem}
+    .run-btn:hover:not(:disabled){background:#004D40}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#80CBC4;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem}
+    .brain-break{background:#FFF3E0;border-left:4px solid #E65100;padding:1.25rem;border-radius:0 12px 12px 0;margin-bottom:2rem;text-align:center}
+    .key-takeaway{background:#E0F2F1;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .key-takeaway h2{margin-top:0;color:#00695C;font-size:1rem}
+    .module-complete{background:linear-gradient(135deg,#00695C,#004D40);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .module-complete h2{color:white;margin-top:0}
+    .module-complete a{color:#B2DFDB;font-weight:700}
+    .before-start{background:#E8F5E9;border:2px solid #2E7D32;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+    .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 620, height: 460 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 7 of 8 &mdash; Statistics with R</div>
+      <h1>Multiple Regression</h1>
+      <p>Predicting with multiple variables</p>
+    </div>
+
+    <div class="module-nav">
+      <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Correlation &amp; Regression</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span>
+      <a href="../module-08/index.html" class="nav-next">Module 8: Capstone &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#x1F4CC; Before You Start</h2>
+      <p><strong>What you need:</strong> Module 6 completed &mdash; especially simple linear regression with <code>lm()</code> and interpretation of R&sup2;.</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How to extend regression to multiple predictors. How to interpret each coefficient "holding all other variables constant." The difference between R&sup2; and adjusted R&sup2;. How to check residual plots to validate assumptions.</p>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <div class="concept-box">
+      <h2>&#x1F4D6; The Concept: Multiple Regression</h2>
+      <p>Multiple regression extends simple regression to include several predictor variables simultaneously. This lets us:</p>
+      <ul>
+        <li><strong>Control for confounders</strong> &mdash; hold other variables constant while studying one variable&rsquo;s effect</li>
+        <li><strong>Improve predictions</strong> &mdash; multiple predictors usually explain more variance than one alone</li>
+        <li><strong>Understand relative importance</strong> &mdash; which predictors matter most?</li>
+      </ul>
+      <p><strong>Interpreting coefficients:</strong> Each &beta; represents the change in y for a one-unit increase in that predictor, <em>holding all other predictors constant</em>. This "holding constant" part is key.</p>
+      <p><strong>Adjusted R&sup2;</strong> penalizes for adding predictors that don&rsquo;t help. It only increases if a new predictor genuinely explains more variance than expected by chance. Always use adjusted R&sup2; to compare models with different numbers of predictors.</p>
+      <p style="margin-bottom:0"><strong>Residual assumptions:</strong> Residuals (actual &minus; predicted) should be: (1) randomly scattered around zero, (2) have constant variance (no fanning), (3) be approximately normal for inference to be valid.</p>
+    </div>
+
+    <!-- THE FORMULA -->
+    <div class="formula-box">
+      <h2>&#x1F522; The Formula</h2>
+      <div class="formula">y = &beta;&sub0; + &beta;&sub1;x&sub1; + &beta;&sub2;x&sub2; + &hellip; + &beta;<sub>k</sub>x<sub>k</sub> + &epsilon;</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0 0.75rem">Each &beta;<sub>i</sub> = effect of x<sub>i</sub> holding all other predictors constant &nbsp;|&nbsp; &epsilon; = residual error</p>
+      <div class="formula">Adj R&sup2; = 1 &minus; (1 &minus; R&sup2;) &times; (n &minus; 1) / (n &minus; k &minus; 1)</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0">n = sample size &nbsp;|&nbsp; k = number of predictors &nbsp;|&nbsp; Penalizes unnecessary variables</p>
+    </div>
+
+    <!-- IN R -->
+    <div class="r-example">
+      <h2>&#x1F4BB; In R &mdash; Worked Example (read-only)</h2>
+      <p>Predicting exam scores from three variables: study hours, sleep hours, and prior GPA. Each coefficient is interpreted holding the other two constant.</p>
+      <div class="worked-code">set.seed(42)
+n &lt;- 100
+study_hours &lt;- runif(n, 1, 10)
+sleep_hours &lt;- rnorm(n, 7, 1)
+prior_gpa   &lt;- runif(n, 2.5, 4.0)
+exam_score  &lt;- 20 + 4*study_hours + 3*sleep_hours + 10*prior_gpa + rnorm(n, 0, 8)
+exam_score  &lt;- pmin(100, pmax(0, exam_score))
+df &lt;- data.frame(study_hours, sleep_hours, prior_gpa, exam_score)
+
+model &lt;- lm(exam_score ~ study_hours + sleep_hours + prior_gpa, data=df)
+cat("=== Multiple Regression Results ===\n")
+print(summary(model)$coefficients)
+cat("\nAdjusted R²:", round(summary(model)$adj.r.squared, 3), "\n")
+cat("\nInterpretation:\n")
+coefs &lt;- coef(model)
+cat("- Each extra study hour adds", round(coefs['study_hours'],2),
+    "points (holding others constant)\n")
+cat("- Each extra sleep hour adds", round(coefs['sleep_hours'],2), "points\n")
+cat("- Each GPA point adds",        round(coefs['prior_gpa'],2),   "points\n")</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <h2 style="color:#00695C;">&#x1F590;&#xFE0F; Your Turn</h2>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-block">
+      <h3>Exercise 1 &mdash; Salary Prediction with Multiple Predictors</h3>
+      <p>Build a model predicting salary from years_experience, education_level (1&ndash;4), and dept_size. Which predictor has the strongest impact? Interpret each coefficient.</p>
+      <textarea class="code-editor" id="editor1">set.seed(33)
+n <- 80
+years_exp   <- runif(n, 0, 25)
+education   <- sample(1:4, n, replace = TRUE)  # 1=HS, 2=AA, 3=BA, 4=Graduate
+dept_size   <- round(runif(n, 10, 200))
+
+salary <- 30000 +
+          2800  * years_exp +
+          8000  * education +
+          50    * dept_size +
+          rnorm(n, 0, 12000)
+
+df <- data.frame(years_exp, education, dept_size, salary)
+
+model <- lm(salary ~ years_exp + education + dept_size, data = df)
+cat("=== Salary Prediction Model ===\n")
+cat("Coefficients:\n")
+print(round(summary(model)$coefficients, 2))
+cat("\nAdjusted R²:", round(summary(model)$adj.r.squared, 3), "\n\n")
+
+coefs <- coef(model)
+cat("Interpretation:\n")
+cat("- Each year of experience adds $", round(coefs['years_exp'], 0), "\n")
+cat("- Each education level adds $",    round(coefs['education'], 0), "\n")
+cat("- Each additional employee adds $", round(coefs['dept_size'], 1), "\n\n")
+
+cat("Which predictor is most important? Look at the largest absolute coefficient.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Note on comparison:</strong> Raw coefficients can&rsquo;t be directly compared across predictors with different scales (years vs. dollars vs. headcount). For fair comparison, you&rsquo;d need standardized coefficients (scale each variable to mean 0, SD 1 first).</div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-block">
+      <h3>Exercise 2 &mdash; Model Comparison: Does Adding Variables Help?</h3>
+      <p>Fit three models for exam score data: one predictor, two predictors, all three. Compare R&sup2; and adjusted R&sup2;. Does adding variables always improve the model?</p>
+      <textarea class="code-editor" id="editor2">set.seed(42)
+n <- 100
+study_hours <- runif(n, 1, 10)
+sleep_hours <- rnorm(n, 7, 1)
+prior_gpa   <- runif(n, 2.5, 4.0)
+exam_score  <- 20 + 4*study_hours + 3*sleep_hours + 10*prior_gpa + rnorm(n, 0, 8)
+exam_score  <- pmin(100, pmax(0, exam_score))
+df <- data.frame(study_hours, sleep_hours, prior_gpa, exam_score)
+
+# Model 1: study hours only
+m1 <- lm(exam_score ~ study_hours, data = df)
+
+# Model 2: study hours + sleep hours
+m2 <- lm(exam_score ~ study_hours + sleep_hours, data = df)
+
+# Model 3: all three predictors
+m3 <- lm(exam_score ~ study_hours + sleep_hours + prior_gpa, data = df)
+
+cat("=== Model Comparison ===\n\n")
+cat(sprintf("%-35s  R²     Adj R²\n", "Model"))
+cat(sprintf("%-35s  %.3f  %.3f\n",
+    "1: study hours only",
+    summary(m1)$r.squared, summary(m1)$adj.r.squared))
+cat(sprintf("%-35s  %.3f  %.3f\n",
+    "2: study hours + sleep",
+    summary(m2)$r.squared, summary(m2)$adj.r.squared))
+cat(sprintf("%-35s  %.3f  %.3f\n",
+    "3: study + sleep + gpa",
+    summary(m3)$r.squared, summary(m3)$adj.r.squared))
+
+cat("\nConclusion:\n")
+cat("- R² always increases or stays same when you add predictors.\n")
+cat("- Adjusted R² penalizes unnecessary predictors — more honest.\n")
+cat("- Use adjusted R² to decide if an additional variable helps.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>What to notice:</strong> R&sup2; goes up every time you add a variable (even noise). Adjusted R&sup2; may go up or down &mdash; it only increases when the new variable genuinely helps.</div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-block">
+      <h3>Exercise 3 &mdash; Residual Analysis</h3>
+      <p>For the salary model from Exercise 1, plot the residuals vs. fitted values. Random scatter around zero = good. Any pattern = problem (the model is missing something).</p>
+      <textarea class="code-editor" id="editor3">set.seed(33)
+n <- 80
+years_exp <- runif(n, 0, 25)
+education <- sample(1:4, n, replace = TRUE)
+dept_size <- round(runif(n, 10, 200))
+salary    <- 30000 + 2800*years_exp + 8000*education + 50*dept_size + rnorm(n, 0, 12000)
+df        <- data.frame(years_exp, education, dept_size, salary)
+
+model <- lm(salary ~ years_exp + education + dept_size, data = df)
+
+# Residual diagnostics — the four standard plots
+par(mfrow = c(2, 2))
+plot(model,
+     col = "#00695C",
+     pch = 19,
+     cex = 0.7)
+par(mfrow = c(1, 1))
+
+cat("=== Reading the Residual Plots ===\n\n")
+cat("1. Residuals vs Fitted: Should see random scatter around zero.\n")
+cat("   A curve = nonlinear relationship; a fan = heteroscedasticity.\n\n")
+cat("2. Q-Q Plot: Residuals should lie on the diagonal line.\n")
+cat("   Points off the line = residuals are not normally distributed.\n\n")
+cat("3. Scale-Location: Should see a flat line with random scatter.\n")
+cat("   An upward slope = variance increases with fitted values.\n\n")
+cat("4. Residuals vs Leverage: Watch for points in the upper-right corner.\n")
+cat("   High leverage + high residual = influential observation.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div id="plot3" class="plot-output"></div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#x1F9E0; Brain Break</h2>
+      <p style="margin-bottom:0.5rem">Multiple regression is how real-world statistical analysis works. We almost never study one variable in isolation.</p>
+      <p style="font-size:1.05rem;margin:0"><strong>Think about it:</strong> If you run a simple regression of salary on education and find a big coefficient, it might look like education &ldquo;causes&rdquo; high salaries. But if experienced workers also happen to be more educated, multiple regression lets you separate those effects &mdash; holding years_experience constant.</p>
+    </div>
+
+    <!-- KEY TAKEAWAY -->
+    <div class="key-takeaway">
+      <h2>&#x2705; Key Takeaway</h2>
+      <p style="margin:0;font-size:1.05rem">Multiple regression controls for confounders by holding other variables constant. <strong>Adjusted R&sup2;</strong> is more honest than R&sup2; for comparing models. Always check residual plots &mdash; random scatter around zero means your model&rsquo;s assumptions are met.</p>
+    </div>
+
+    <!-- MODULE COMPLETE -->
+    <div class="module-complete">
+      <h2>&#x1F3C6; Module 7 Complete!</h2>
+      <p>You now know how to build and interpret multiple regression models &mdash; one of the most widely used statistical tools in research and industry. One module left: bring it all together in a full analysis.</p>
+      <p style="margin-bottom:0"><a href="../module-08/index.html">Continue to Module 8: Capstone &rarr;</a></p>
+    </div>
+
+    <div class="module-nav" style="margin-top:2rem">
+      <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Correlation &amp; Regression</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span>
+      <a href="../module-08/index.html" class="nav-next">Module 8: Capstone &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Statistics with R &mdash; Module 7: Multiple Regression</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

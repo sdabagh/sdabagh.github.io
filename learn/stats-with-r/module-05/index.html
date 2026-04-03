@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 5: Hypothesis Testing — Statistics with R. Run t-tests and interpret p-values in R using WebR.">
+  <title>Module 5: Hypothesis Testing - Statistics with R</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .module-header p{opacity:0.92;font-size:1rem;margin:0}
+    .module-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .module-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#00695C;color:#00695C;text-decoration:none}
+    .nav-next{background:#00695C;color:white}
+    .nav-next:hover{background:#004D40;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .concept-box{background:#E0F2F1;border-left:4px solid #00695C;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-box h2{margin-top:0;color:#00695C;font-size:1.1rem}
+    .formula-box{background:#F3E5F5;border:2px solid #6A1B9A;border-radius:12px;padding:1.25rem;margin-bottom:2rem;text-align:center}
+    .formula-box h2{margin-top:0;color:#6A1B9A;font-size:1rem}
+    .formula{font-size:1.3rem;font-family:monospace;color:#1a1a2e;margin:0.5rem 0;display:block}
+    .r-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .r-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#00695C}
+    .code-editor{width:100%;min-height:140px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#00695C}
+    .run-btn{background:#00695C;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem}
+    .run-btn:hover:not(:disabled){background:#004D40}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#80CBC4;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem}
+    .brain-break{background:#FFF3E0;border-left:4px solid #E65100;padding:1.25rem;border-radius:0 12px 12px 0;margin-bottom:2rem;text-align:center}
+    .key-takeaway{background:#E0F2F1;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .key-takeaway h2{margin-top:0;color:#00695C;font-size:1rem}
+    .module-complete{background:linear-gradient(135deg,#00695C,#004D40);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .module-complete h2{color:white;margin-top:0}
+    .module-complete a{color:#B2DFDB;font-weight:700}
+    .before-start{background:#E8F5E9;border:2px solid #2E7D32;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+    .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .error-types-table{width:100%;border-collapse:collapse;font-size:0.9rem;margin:0.75rem 0}
+    .error-types-table th{background:#004D40;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .error-types-table td{padding:0.5rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .error-types-table tr:nth-child(even){background:#f5f5f5}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 5 of 8 &mdash; Statistics with R</div>
+      <h1>Hypothesis Testing</h1>
+      <p>Testing claims with data &mdash; the core of inferential statistics</p>
+    </div>
+
+    <div class="module-nav">
+      <a href="../module-04/index.html" class="nav-prev">&larr; Module 4: Confidence Intervals</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 5 of 8</span>
+      <a href="../module-06/index.html" class="nav-next">Module 6: Correlation &amp; Regression &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#x1F4CC; Before You Start</h2>
+      <p><strong>What you need:</strong> Modules 3 (CLT, standard error) and 4 (confidence intervals) completed. Understanding of p-values at a basic conceptual level is helpful.</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> The logic of null hypothesis significance testing (H&sub0; vs. H&alpha;). What p-values actually mean. How to run one-sample and two-sample t-tests in R. Type I and Type II errors. Why statistical significance doesn&rsquo;t equal practical significance.</p>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <div class="concept-box">
+      <h2>&#x1F4D6; The Concept: Hypothesis Testing</h2>
+      <p><strong>Hypothesis testing</strong> gives us a formal framework for asking: "Is this result surprising enough to be convincing evidence against the default assumption?"</p>
+      <ul>
+        <li><strong>H&sub0; (Null Hypothesis)</strong> &mdash; the default claim. "No effect, no difference, status quo." We assume H&sub0; is true and see if the data contradicts it.</li>
+        <li><strong>H&alpha; (Alternative Hypothesis)</strong> &mdash; what we&rsquo;re testing for. "There IS an effect / difference."</li>
+        <li><strong>p-value</strong> &mdash; P(observing results this extreme, or more, IF H&sub0; is true). Small p-value = surprising result under H&sub0;.</li>
+        <li><strong>&alpha; (significance level)</strong> &mdash; our threshold. Usually 0.05. If p &lt; &alpha;, we reject H&sub0;.</li>
+      </ul>
+      <table class="error-types-table">
+        <tr><th></th><th>H&sub0; Is True</th><th>H&sub0; Is False</th></tr>
+        <tr><td><strong>Reject H&sub0;</strong></td><td>Type I Error (&alpha;) &mdash; false positive</td><td>Correct!</td></tr>
+        <tr><td><strong>Fail to Reject H&sub0;</strong></td><td>Correct!</td><td>Type II Error (&beta;) &mdash; false negative</td></tr>
+      </table>
+    </div>
+
+    <!-- THE FORMULA -->
+    <div class="formula-box">
+      <h2>&#x1F522; The t-statistic</h2>
+      <div class="formula">t = (x&#772; &minus; &mu;&sub0;) / (s / &radic;n)</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0 0.75rem">x&#772; = sample mean &nbsp;|&nbsp; &mu;&sub0; = hypothesized mean &nbsp;|&nbsp; s = sample SD &nbsp;|&nbsp; n = sample size</p>
+      <div class="formula">Reject H&sub0; if |t| &gt; t* &nbsp; or &nbsp; p-value &lt; &alpha;</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0">In R: <code>t.test(data, mu = &mu;&sub0;)</code> for one-sample; <code>t.test(x, y)</code> for two-sample</p>
+    </div>
+
+    <!-- IN R -->
+    <div class="r-example">
+      <h2>&#x1F4BB; In R &mdash; Worked Example (read-only)</h2>
+      <p>A one-sample t-test asking whether a population mean differs from 70. R reports the t-statistic, p-value, and confidence interval all at once.</p>
+      <div class="worked-code"># One-sample t-test
+# H0: population mean = 70
+# Ha: population mean ≠ 70 (two-tailed)
+set.seed(42)
+sample_data &lt;- rnorm(30, mean=73, sd=10)
+
+result &lt;- t.test(sample_data, mu=70)
+cat("=== One-Sample t-test ===\n")
+cat("t-statistic:", round(result$statistic, 3), "\n")
+cat("p-value:    ", round(result$p.value, 4), "\n")
+cat("95% CI:     (", round(result$conf.int[1],2), ",",
+                     round(result$conf.int[2],2), ")\n")
+cat("\nConclusion:",
+    ifelse(result$p.value &lt; 0.05,
+           "Reject H0 (p < 0.05)",
+           "Fail to reject H0 (p >= 0.05)"), "\n")</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <h2 style="color:#00695C;">&#x1F590;&#xFE0F; Your Turn</h2>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-block">
+      <h3>Exercise 1 &mdash; One-Sample t-test: Coffee Shop</h3>
+      <p>A coffee shop claims their drinks are 12 oz on average. A consumer group samples 20 drinks and finds mean = 11.6 oz, SD = 0.8 oz. Test H&sub0;: &mu; = 12 at &alpha; = 0.05. Report your conclusion.</p>
+      <textarea class="code-editor" id="editor1">set.seed(101)
+# Simulate data consistent with the sample statistics
+# (mean ≈ 11.6, sd ≈ 0.8, n = 20)
+set.seed(101)
+drinks <- rnorm(20, mean = 11.6, sd = 0.8)
+
+# One-sample t-test: H0: mu = 12
+result <- t.test(drinks, mu = 12)
+
+cat("=== Coffee Shop Drink Volume Test ===\n")
+cat("H0: Average drink = 12 oz\n")
+cat("Ha: Average drink ≠ 12 oz\n\n")
+cat("Sample mean:", round(mean(drinks), 3), "oz\n")
+cat("Sample SD:  ", round(sd(drinks), 3), "oz\n\n")
+cat("t-statistic:", round(result$statistic, 3), "\n")
+cat("df:         ", result$parameter, "\n")
+cat("p-value:    ", round(result$p.value, 4), "\n")
+cat("95% CI:     (", round(result$conf.int[1], 3),
+    ",", round(result$conf.int[2], 3), ")\n\n")
+
+alpha <- 0.05
+if (result$p.value < alpha) {
+  cat("Decision: REJECT H0 (p =", round(result$p.value, 4), "< 0.05)\n")
+  cat("Conclusion: There IS statistically significant evidence that\n")
+  cat("the drinks are NOT 12 oz on average.\n")
+} else {
+  cat("Decision: FAIL TO REJECT H0 (p =", round(result$p.value, 4), ">= 0.05)\n")
+  cat("Conclusion: Insufficient evidence to challenge the 12 oz claim.\n")
+}</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Notice:</strong> Rejecting H&sub0; means the data are surprising IF the claim is true. It doesn&rsquo;t prove the claim is false with certainty &mdash; it just says the evidence is strong enough to be skeptical.</div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-block">
+      <h3>Exercise 2 &mdash; Two-Sample t-test: Teaching Methods</h3>
+      <p>Two teaching methods are compared. Method A (n=25) averages 82 points. Method B (n=25) averages 78 points. Is the difference statistically significant at &alpha; = 0.05?</p>
+      <textarea class="code-editor" id="editor2">set.seed(55)
+# Generate two groups with the given means
+# (We'll use sd=10 for both — a reasonable assumption)
+group_a <- rnorm(25, mean = 82, sd = 10)
+group_b <- rnorm(25, mean = 78, sd = 10)
+
+cat("=== Two Teaching Methods: Score Comparison ===\n\n")
+cat("Method A: mean =", round(mean(group_a), 2),
+    " | SD =", round(sd(group_a), 2), "\n")
+cat("Method B: mean =", round(mean(group_b), 2),
+    " | SD =", round(sd(group_b), 2), "\n\n")
+
+# Two-sample t-test (Welch's by default — doesn't assume equal variances)
+result <- t.test(group_a, group_b)
+
+cat("H0: mu_A = mu_B (no difference between methods)\n")
+cat("Ha: mu_A ≠ mu_B (methods differ)\n\n")
+cat("t-statistic:", round(result$statistic, 3), "\n")
+cat("p-value:    ", round(result$p.value, 4), "\n")
+cat("95% CI for difference: (",
+    round(result$conf.int[1], 2), ",",
+    round(result$conf.int[2], 2), ")\n\n")
+
+if (result$p.value < 0.05) {
+  cat("Decision: REJECT H0 — Methods are significantly different.\n")
+} else {
+  cat("Decision: FAIL TO REJECT H0 — Insufficient evidence of a difference.\n")
+}
+cat("\nNote: With 4-point difference and SD~10, a sample of 25 may not\n")
+cat("have enough power to detect this difference reliably.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Run it a few times:</strong> Delete <code>set.seed(55)</code> and run several times. Results may flip between significant and not-significant. Small samples + small effects = inconsistent results. That&rsquo;s statistical power.</div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-block">
+      <h3>Exercise 3 &mdash; Type I Error Simulation</h3>
+      <p>Run 200 t-tests where H&sub0; is TRUE (both groups sampled from the same distribution). Count how many return p &lt; 0.05. Should be about 10 (5% of 200) &mdash; those are false positives.</p>
+      <textarea class="code-editor" id="editor3">set.seed(2025)
+n_tests <- 200
+p_values <- numeric(n_tests)
+
+for (i in 1:n_tests) {
+  # Both groups from SAME distribution — H0 is TRUE
+  group1 <- rnorm(30, mean = 50, sd = 10)
+  group2 <- rnorm(30, mean = 50, sd = 10)
+  p_values[i] <- t.test(group1, group2)$p.value
+}
+
+# Count false positives
+false_positives <- sum(p_values < 0.05)
+cat("=== Type I Error Simulation ===\n\n")
+cat("Number of tests run:", n_tests, "\n")
+cat("H0 is TRUE in all tests (same population)\n\n")
+cat("False positives (p < 0.05):", false_positives, "\n")
+cat("False positive rate:", round(false_positives / n_tests * 100, 1), "%\n")
+cat("Expected rate: ~5% (that's what alpha = 0.05 means!)\n\n")
+
+# Histogram of all p-values
+hist(p_values,
+     main = "Distribution of p-values when H0 is True",
+     xlab = "p-value", col = "#B2DFDB", border = "white",
+     breaks = 20, freq = TRUE)
+abline(v = 0.05, col = "#C62828", lwd = 2, lty = 2)
+text(0.05, par("usr")[4] * 0.9, " alpha = 0.05",
+     col = "#C62828", font = 2, adj = 0)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div id="plot3" class="plot-output"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Key insight:</strong> When H&sub0; is true, p-values are uniformly distributed between 0 and 1. About 5% fall below 0.05 by pure chance. This is the Type I error rate &mdash; the price you pay for using &alpha; = 0.05.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#x1F9E0; Brain Break</h2>
+      <p style="margin-bottom:0.5rem">The p-value is one of the most misunderstood concepts in science. It does NOT measure the probability that H&sub0; is true.</p>
+      <p style="font-size:1.05rem;margin:0"><strong>Remember:</strong> p-value = P(data this extreme | H&sub0; true). A small p-value means "if the null were true, this result would be surprising." That&rsquo;s evidence against H&sub0; &mdash; not proof.</p>
+    </div>
+
+    <!-- KEY TAKEAWAY -->
+    <div class="key-takeaway">
+      <h2>&#x2705; Key Takeaway</h2>
+      <p style="margin:0;font-size:1.05rem">p-value &lt; 0.05 means the result is unlikely under H&sub0; &mdash; not that H&sub0; is definitely false, and not that the effect is large or important. <strong>Statistical significance &ne; practical significance.</strong> Always report effect sizes and confidence intervals alongside p-values.</p>
+    </div>
+
+    <!-- MODULE COMPLETE -->
+    <div class="module-complete">
+      <h2>&#x1F3C6; Module 5 Complete!</h2>
+      <p>You now understand hypothesis testing &mdash; the foundation of scientific inference. You can run t-tests in R, interpret p-values correctly, and understand what false positives mean. Next: relationships between variables.</p>
+      <p style="margin-bottom:0"><a href="../module-06/index.html">Continue to Module 6: Correlation &amp; Simple Regression &rarr;</a></p>
+    </div>
+
+    <div class="module-nav" style="margin-top:2rem">
+      <a href="../module-04/index.html" class="nav-prev">&larr; Module 4: Confidence Intervals</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 5 of 8</span>
+      <a href="../module-06/index.html" class="nav-next">Module 6: Correlation &amp; Regression &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Statistics with R &mdash; Module 5: Hypothesis Testing</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

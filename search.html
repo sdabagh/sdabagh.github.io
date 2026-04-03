@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search all free courses and labs on this platform. Find Python, SQL, R, statistics, data science, AI, and more.">
+  <title>Search Courses - Safaa Dabagh</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ---- Hero ---- */
+    .search-hero {
+      background: linear-gradient(135deg, #1A237E 0%, #1565C0 60%, #6A1B9A 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+      text-align: center;
+    }
+    .search-hero h1 { color: white; font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .search-hero p  { font-size: 1.1rem; opacity: 0.95; max-width: 620px; margin: 0 auto 1.5rem; }
+
+    /* ---- Search bar ---- */
+    .search-bar-wrap {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .search-bar-wrap input[type="text"] {
+      width: 100%;
+      padding: 0.9rem 1.25rem 0.9rem 3rem;
+      border-radius: 50px;
+      border: 3px solid rgba(255,255,255,0.5);
+      font-size: 1.1rem;
+      background: white;
+      color: var(--text-primary);
+      outline: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: border-color 0.2s;
+    }
+    .search-bar-wrap input[type="text"]:focus {
+      border-color: white;
+    }
+    .search-icon {
+      position: absolute;
+      left: 1.1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      color: #999;
+      pointer-events: none;
+    }
+
+    /* ---- Popular chips ---- */
+    .popular-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .chip {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-weight: 500;
+    }
+    .chip:hover { background: rgba(255,255,255,0.35); }
+
+    /* ---- Filter pills ---- */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.75rem;
+    }
+    .filter-pill {
+      padding: 6px 18px;
+      border-radius: 20px;
+      border: 2px solid var(--border-color);
+      background: white;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover { border-color: #1565C0; color: #1565C0; }
+    .filter-pill.active { background: #1565C0; color: white; border-color: #1565C0; }
+
+    /* ---- Counter ---- */
+    .results-counter {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ---- Results grid ---- */
+    #results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ---- Result card ---- */
+    .result-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .result-card:hover {
+      border-color: #1565C0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    .result-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .result-card h4 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--primary-dark);
+      line-height: 1.35;
+      flex: 1;
+    }
+    .cat-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      color: white;
+    }
+    .cat-badge-yl      { background: #2E7D32; }
+    .cat-badge-math    { background: #1565C0; }
+    .cat-badge-python  { background: #1B5E20; }
+    .cat-badge-ai      { background: #6A1B9A; }
+    .cat-badge-sql     { background: #0277BD; }
+    .cat-badge-r       { background: #B71C1C; }
+    .cat-badge-career  { background: #00695C; }
+    .cat-badge-default { background: #607D8B; }
+
+    .result-level {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .result-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .result-card a.btn-go {
+      display: inline-block;
+      background: #1565C0;
+      color: white;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-decoration: none;
+      align-self: flex-start;
+      transition: background 0.15s;
+    }
+    .result-card a.btn-go:hover { background: #0D47A1; text-decoration: none; }
+
+    /* ---- Empty state ---- */
+    #empty-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+    #empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    #empty-state p { font-size: 1rem; }
+    #empty-state .try-label { font-weight: 600; color: var(--text-primary); }
+
+    @media (max-width: 600px) {
+      #results-grid { grid-template-columns: 1fr; }
+      .filter-bar { gap: 0.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">Safaa Dabagh</div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="student-resources.html">Student Resources</a>
+    <a href="young-learners.html">Young Learners</a>
+    <a href="free-courses.html">Free Courses</a>
+    <a href="research.html">Research</a>
+    <a href="books.html">Books</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <div class="search-hero">
+    <h1>Search Courses</h1>
+    <p>Find exactly what you are looking for across all courses and labs.</p>
+    <div class="search-bar-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Try: python, SQL, statistics, SAP, AI, kids..." autocomplete="off" autofocus>
+    </div>
+    <div class="popular-chips">
+      <span class="chip" onclick="setSearch('Python')">Python</span>
+      <span class="chip" onclick="setSearch('SQL')">SQL</span>
+      <span class="chip" onclick="setSearch('R')">R</span>
+      <span class="chip" onclick="setSearch('Statistics')">Statistics</span>
+      <span class="chip" onclick="setSearch('SAP')">SAP</span>
+      <span class="chip" onclick="setSearch('AI')">AI</span>
+      <span class="chip" onclick="setSearch('Data Science')">Data Science</span>
+      <span class="chip" onclick="setSearch('kids')">Kids</span>
+    </div>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="filter-bar">
+    <button class="filter-pill active" data-cat="All" onclick="setFilter(this)">All</button>
+    <button class="filter-pill" data-cat="Young Learners" onclick="setFilter(this)">Young Learners</button>
+    <button class="filter-pill" data-cat="Math" onclick="setFilter(this)">Math &amp; Stats</button>
+    <button class="filter-pill" data-cat="Python" onclick="setFilter(this)">Python &amp; Data Science</button>
+    <button class="filter-pill" data-cat="AI" onclick="setFilter(this)">AI &amp; Technology</button>
+    <button class="filter-pill" data-cat="SQL" onclick="setFilter(this)">SQL Labs</button>
+    <button class="filter-pill" data-cat="R" onclick="setFilter(this)">R Labs</button>
+    <button class="filter-pill" data-cat="Career" onclick="setFilter(this)">Career Track</button>
+  </div>
+
+  <div class="results-counter" id="results-counter">Showing all 21 courses &amp; labs</div>
+
+  <div id="results-grid"></div>
+  <div id="empty-state">
+    <div class="empty-icon">&#128269;</div>
+    <p>No results for "<span id="empty-query"></span>".</p>
+    <p><span class="try-label">Try:</span> python, SQL, statistics, SAP, AI, Data Science, kids&hellip;</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="student-resources.html">Student Resources</a>
+    <a href="young-learners.html">Young Learners</a>
+    <a href="free-courses.html">Free Courses</a>
+    <a href="research.html">Research</a>
+    <a href="books.html">Books</a>
+    <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+  </div>
+  <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+  <p class="text-muted">Santa Monica College &middot; West Los Angeles College &middot; UCLA Statistics PhD Candidate</p>
+</footer>
+
+<script>
+const COURSES = [
+  // Young Learners
+  {title:"Think Like a Coder",category:"Young Learners",level:"Ages 6-10",desc:"Critical thinking, logical reasoning, and introductory coding with Scratch. Screen-free activities first.",tags:"coding scratch logic kids children programming beginner",url:"learn/kids-coding/index.html"},
+  {title:"Money, Values & You",category:"Young Learners",level:"Ages 11-12",desc:"Financial literacy with Islamic values integration. Real-world math, hands-on activities.",tags:"money finance financial literacy islamic values kids grade 6",url:"learn/financial-literacy/index.html"},
+  {title:"Data Science for Young Minds",category:"Young Learners",level:"Grades 1-5",desc:"Sorting, graphing, data collection, and analysis. Physical activities first, screens second.",tags:"data science graphs charts kids elementary grades statistics",url:"learn/data-science/index.html"},
+  // Math & Stats
+  {title:"College Algebra",category:"Math & Statistics",level:"College",desc:"Algebra foundations for college math, statistics, and data science. Functions, graphs, equations.",tags:"algebra math functions graphs equations college",url:"learn/college-algebra/index.html"},
+  {title:"Introduction to Statistics",category:"Math & Statistics",level:"College",desc:"Distributions, hypothesis testing, regression, confidence intervals. Data becomes knowledge.",tags:"statistics stats probability distributions hypothesis testing regression r",url:"learn/intro-stats/index.html"},
+  // Python & Data Science
+  {title:"Introduction to Python",category:"Python & Data Science",level:"Beginner",desc:"Variables, loops, functions, data structures. No prior coding experience needed.",tags:"python programming beginner variables loops functions lists dictionaries",url:"learn/intro-python/index.html"},
+  {title:"Python Practice Labs",category:"Python & Data Science",level:"Intermediate",desc:"10 hands-on labs with live Python in browser. pandas, matplotlib, data analysis.",tags:"python labs practice pyodide pandas matplotlib data analysis exercises",url:"learn/python-labs/index.html"},
+  {title:"R Practice Labs",category:"Python & Data Science",level:"Intermediate",desc:"10 R labs with live WebR execution. dplyr, ggplot2, statistics, tidyr.",tags:"r rlabs ggplot2 dplyr tidyr statistics visualization webr data frames",url:"learn/r-labs/index.html"},
+  {title:"SQL Practice Labs",category:"Python & Data Science",level:"Beginner-Advanced",desc:"10 SQL labs with live SQLite database. SELECT, JOINs, subqueries, aggregates.",tags:"sql database sqlite select joins where group by subqueries aggregate",url:"learn/sql-labs/index.html"},
+  {title:"Data Analyst: Designed with Neurodivergence in Mind",category:"Python & Data Science",level:"Career Track",desc:"Complete career path. SQL, Python, Tableau, Power BI, SAP FI/CO deep dive. 14 modules.",tags:"data analyst career sql python tableau power bi sap fi co neurodivergent nd adhd",url:"learn/data-analyst/index.html"},
+  // AI & Technology
+  {title:"Speaking the Language of AI",category:"AI & Technology",level:"All Ages",desc:"What AI really is, how it works, how to use Claude. ND-friendly. 8 modules, 20 min each.",tags:"ai artificial intelligence claude chatgpt llm neurodivergent prompting",url:"learn/ai-course/index.html"},
+  // Individual SQL labs
+  {title:"SQL: SELECT & FROM",category:"SQL Practice Labs",level:"Beginner",desc:"Your first SQL queries. SELECT columns FROM tables. Aliases and calculations.",tags:"sql select from beginner query database",url:"learn/sql-labs/lab-01/index.html"},
+  {title:"SQL: WHERE Filtering",category:"SQL Practice Labs",level:"Beginner",desc:"Filter rows with WHERE. AND, OR, IN, BETWEEN, LIKE. Pattern matching.",tags:"sql where filter and or in between like",url:"learn/sql-labs/lab-02/index.html"},
+  {title:"SQL: JOINs",category:"SQL Practice Labs",level:"Intermediate",desc:"Combine tables. INNER JOIN, LEFT JOIN. Multi-table queries.",tags:"sql joins inner left outer combine tables relationships",url:"learn/sql-labs/lab-06/index.html"},
+  {title:"SQL: Subqueries",category:"SQL Practice Labs",level:"Advanced",desc:"Queries inside queries. Correlated subqueries. EXISTS.",tags:"sql subqueries nested correlated exists advanced",url:"learn/sql-labs/lab-07/index.html"},
+  // Individual Python labs
+  {title:"Python: pandas Basics",category:"Python Practice Labs",level:"Intermediate",desc:"DataFrames, filtering, groupby, describe. The data analyst's core tool.",tags:"python pandas dataframe groupby filter merge data analysis",url:"learn/python-labs/lab-08/index.html"},
+  {title:"Python: Matplotlib Visualization",category:"Python Practice Labs",level:"Intermediate",desc:"Bar charts, line charts, scatter plots, histograms. Data visualization in Python.",tags:"python matplotlib visualization charts graphs plots bar line scatter",url:"learn/python-labs/lab-09/index.html"},
+  // Individual R labs
+  {title:"R: ggplot2 Visualization",category:"R Practice Labs",level:"Intermediate",desc:"Grammar of graphics. Beautiful charts with ggplot2. Scatter, bar, line, facets.",tags:"r ggplot2 visualization grammar graphics charts plots facets themes",url:"learn/r-labs/lab-06/index.html"},
+  {title:"R: dplyr Data Wrangling",category:"R Practice Labs",level:"Intermediate",desc:"filter, select, mutate, group_by, summarize. The tidyverse way.",tags:"r dplyr tidyverse filter select mutate group_by summarize pipe",url:"learn/r-labs/lab-03/index.html"},
+  // SAP
+  {title:"SAP FI/CO",category:"Data Analyst Course",level:"Advanced",desc:"SAP Financial Accounting and Controlling deep dive. GL, AP, AR, cost centers.",tags:"sap fi co financial accounting controlling erp enterprise gl ap ar cost center",url:"learn/data-analyst/phase-5/module-11/index.html"},
+];
+
+// category filter state
+let activeFilter = 'All';
+
+function catBadgeClass(cat) {
+  if (!cat) return 'cat-badge-default';
+  const c = cat.toLowerCase();
+  if (c.includes('young') || c.includes('learner')) return 'cat-badge-yl';
+  if (c.includes('math') || c.includes('stat')) return 'cat-badge-math';
+  if (c.includes('python')) return 'cat-badge-python';
+  if (c.includes('ai') || c.includes('tech')) return 'cat-badge-ai';
+  if (c.includes('sql')) return 'cat-badge-sql';
+  if (c.includes('r pract') || c.includes('r labs') || cat === 'R Practice Labs') return 'cat-badge-r';
+  if (c.includes('career') || c.includes('data analyst')) return 'cat-badge-career';
+  return 'cat-badge-default';
+}
+
+function filterByCat(courses) {
+  if (activeFilter === 'All') return courses;
+  if (activeFilter === 'Math') return courses.filter(c => c.category.includes('Math') || c.category.includes('Stat'));
+  if (activeFilter === 'Python') return courses.filter(c => c.category.toLowerCase().includes('python'));
+  if (activeFilter === 'AI') return courses.filter(c => c.category.toLowerCase().includes('ai') || c.category.toLowerCase().includes('tech'));
+  if (activeFilter === 'SQL') return courses.filter(c => c.category.toLowerCase().includes('sql'));
+  if (activeFilter === 'R') return courses.filter(c => c.category.toLowerCase().startsWith('r ') || c.category === 'R Practice Labs');
+  if (activeFilter === 'Career') return courses.filter(c => c.level === 'Career Track' || c.category.toLowerCase().includes('data analyst'));
+  return courses.filter(c => c.category.toLowerCase().includes(activeFilter.toLowerCase()));
+}
+
+function search(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) return COURSES;
+  return COURSES.filter(c =>
+    c.title.toLowerCase().includes(q) ||
+    c.desc.toLowerCase().includes(q) ||
+    c.tags.toLowerCase().includes(q) ||
+    c.category.toLowerCase().includes(q)
+  );
+}
+
+function renderCards(courses) {
+  const grid = document.getElementById('results-grid');
+  const empty = document.getElementById('empty-state');
+  const counter = document.getElementById('results-counter');
+  const q = document.getElementById('search-input').value.trim();
+
+  if (courses.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('empty-query').textContent = q;
+    counter.textContent = '0 results found';
+    return;
+  }
+
+  empty.style.display = 'none';
+  counter.textContent = courses.length === COURSES.length
+    ? 'Showing all ' + COURSES.length + ' courses & labs'
+    : courses.length + ' result' + (courses.length === 1 ? '' : 's') + ' found';
+
+  grid.innerHTML = courses.map(c => `
+    <div class="result-card">
+      <div class="result-card-top">
+        <h4>${escHtml(c.title)}</h4>
+        <span class="cat-badge ${catBadgeClass(c.category)}">${escHtml(c.category)}</span>
+      </div>
+      <div class="result-level">${escHtml(c.level)}</div>
+      <p class="result-desc">${escHtml(c.desc)}</p>
+      <a href="${escHtml(c.url)}" class="btn-go">Go to Course &rarr;</a>
+    </div>
+  `).join('');
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function update() {
+  const q = document.getElementById('search-input').value;
+  const searched = search(q);
+  const filtered = filterByCat(searched);
+  renderCards(filtered);
+}
+
+function setSearch(term) {
+  document.getElementById('search-input').value = term;
+  update();
+  document.getElementById('results-grid').scrollIntoView({ behavior: 'smooth' });
+}
+
+function setFilter(btn) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.cat;
+  update();
+}
+
+document.getElementById('search-input').addEventListener('input', update);
+
+// initial render
+update();
+</script>
+
+  <script src="accessibility.js"></script>
+</body>
+</html>

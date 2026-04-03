@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 2: Probability Distributions — Statistics with R. Explore normal, uniform, binomial, and Poisson distributions using WebR in the browser.">
+  <title>Module 2: Probability Distributions - Statistics with R</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .module-header p{opacity:0.92;font-size:1rem;margin:0}
+    .module-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .module-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#00695C;color:#00695C;text-decoration:none}
+    .nav-next{background:#00695C;color:white}
+    .nav-next:hover{background:#004D40;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .concept-box{background:#E0F2F1;border-left:4px solid #00695C;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-box h2{margin-top:0;color:#00695C;font-size:1.1rem}
+    .formula-box{background:#F3E5F5;border:2px solid #6A1B9A;border-radius:12px;padding:1.25rem;margin-bottom:2rem;text-align:center}
+    .formula-box h2{margin-top:0;color:#6A1B9A;font-size:1rem}
+    .formula{font-size:1.2rem;font-family:monospace;color:#1a1a2e;margin:0.5rem 0;display:block}
+    .r-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .r-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#00695C}
+    .code-editor{width:100%;min-height:140px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#00695C}
+    .run-btn{background:#00695C;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem}
+    .run-btn:hover:not(:disabled){background:#004D40}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#80CBC4;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem}
+    .brain-break{background:#FFF3E0;border-left:4px solid #E65100;padding:1.25rem;border-radius:0 12px 12px 0;margin-bottom:2rem;text-align:center}
+    .key-takeaway{background:#E0F2F1;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .key-takeaway h2{margin-top:0;color:#00695C;font-size:1rem}
+    .module-complete{background:linear-gradient(135deg,#00695C,#004D40);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .module-complete h2{color:white;margin-top:0}
+    .module-complete a{color:#B2DFDB;font-weight:700}
+    .before-start{background:#E8F5E9;border:2px solid #2E7D32;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+    .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .dpqr-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem}
+    .dpqr-table th{background:#00695C;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .dpqr-table td{padding:0.5rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .dpqr-table tr:nth-child(even){background:#f5f5f5}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 2 of 8 &mdash; Statistics with R</div>
+      <h1>Probability Distributions</h1>
+      <p>The shape of randomness</p>
+    </div>
+
+    <div class="module-nav">
+      <a href="../module-01/index.html" class="nav-prev">&larr; Module 1: Descriptive Statistics</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 2 of 8</span>
+      <a href="../module-03/index.html" class="nav-next">Module 3: CLT &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#x1F4CC; Before You Start</h2>
+      <p><strong>What you need:</strong> Module 1 completed or familiarity with basic descriptive stats. Understanding of mean and standard deviation.</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How to work with probability distributions in R using the d/p/q/r function family. You&rsquo;ll calculate probabilities, find quantiles, and generate random samples from the normal, uniform, binomial, and Poisson distributions.</p>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <div class="concept-box">
+      <h2>&#x1F4D6; The Concept: Probability Distributions</h2>
+      <p>A <strong>probability distribution</strong> describes all possible outcomes of a random variable and how likely each outcome is. It&rsquo;s the mathematical model for randomness.</p>
+      <p><strong>The Normal Distribution</strong> is the most important in statistics. It is:</p>
+      <ul>
+        <li>Symmetric and bell-shaped</li>
+        <li>Completely defined by its mean (&mu;) and standard deviation (&sigma;)</li>
+        <li>Governed by the <strong>68-95-99.7 rule</strong>: 68% of data within 1 SD, 95% within 2 SD, 99.7% within 3 SD</li>
+      </ul>
+      <p><strong>Other key distributions:</strong></p>
+      <ul>
+        <li><strong>Uniform</strong> &mdash; every value in a range is equally likely (e.g., rolling a fair die)</li>
+        <li><strong>Binomial</strong> &mdash; number of successes in n independent yes/no trials</li>
+        <li><strong>Poisson</strong> &mdash; number of events in a fixed time/space interval</li>
+      </ul>
+      <p style="margin-bottom:0"><strong>In R, every distribution has 4 functions</strong> using the pattern d/p/q/r + distribution name.</p>
+    </div>
+
+    <!-- THE FORMULA (d/p/q/r table) -->
+    <div class="formula-box">
+      <h2>&#x1F522; R&rsquo;s Distribution Function System</h2>
+      <table class="dpqr-table" style="text-align:left">
+        <tr><th>Prefix</th><th>What it does</th><th>Example</th></tr>
+        <tr><td><code>d*(x)</code></td><td>Density / probability at x</td><td><code>dnorm(0)</code> &rarr; height of curve at 0</td></tr>
+        <tr><td><code>p*(q)</code></td><td>Cumulative probability P(X &le; q)</td><td><code>pnorm(1.96)</code> &rarr; 0.975</td></tr>
+        <tr><td><code>q*(p)</code></td><td>Quantile: value at probability p</td><td><code>qnorm(0.95)</code> &rarr; 1.645</td></tr>
+        <tr><td><code>r*(n)</code></td><td>Generate n random values</td><td><code>rnorm(100)</code> &rarr; 100 random normals</td></tr>
+      </table>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0">Replace <code>*</code> with: <code>norm</code>, <code>unif</code>, <code>binom</code>, <code>pois</code>, etc.</p>
+    </div>
+
+    <!-- IN R -->
+    <div class="r-example">
+      <h2>&#x1F4BB; In R &mdash; Worked Example (read-only)</h2>
+      <p>The normal distribution in R. <code>pnorm</code> gives cumulative probability; <code>qnorm</code> gives the reverse.</p>
+      <div class="worked-code"># Working with the normal distribution in R
+# dnorm: density, pnorm: cumulative prob, qnorm: quantile, rnorm: random
+
+# P(X < 90) where X ~ Normal(mean=80, sd=10)
+prob_below_90 &lt;- pnorm(90, mean=80, sd=10)
+cat("P(score < 90):", round(prob_below_90, 4), "\n")
+
+# P(70 < X < 90) — probability between two values
+prob_between &lt;- pnorm(90, mean=80, sd=10) - pnorm(70, mean=80, sd=10)
+cat("P(70 < score < 90):", round(prob_between, 4), "\n")
+
+# What score is at the 95th percentile?
+p95 &lt;- qnorm(0.95, mean=80, sd=10)
+cat("95th percentile:", round(p95, 2), "\n")
+
+# Generate 1000 random normal values
+set.seed(42)
+samples &lt;- rnorm(1000, mean=80, sd=10)
+cat("Sample mean:", round(mean(samples), 2), "\n")
+cat("Sample SD:  ", round(sd(samples), 2), "\n")</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <h2 style="color:#00695C;">&#x1F590;&#xFE0F; Your Turn</h2>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-block">
+      <h3>Exercise 1 &mdash; SAT Score Probabilities</h3>
+      <p>SAT scores are approximately normally distributed with mean = 500 and SD = 100. Use <code>pnorm()</code> and <code>qnorm()</code> to answer three probability questions.</p>
+      <textarea class="code-editor" id="editor1"># SAT scores: Normal(mean=500, sd=100)
+mu <- 500
+sigma <- 100
+
+# 1. P(score > 600) — probability of scoring above 600
+# pnorm gives P(X <= x), so we use 1 - pnorm for "above"
+p_above_600 <- 1 - pnorm(600, mean=mu, sd=sigma)
+cat("P(score > 600):", round(p_above_600, 4), "\n")
+cat("That's about", round(p_above_600 * 100, 1), "% of test-takers\n\n")
+
+# 2. P(400 < score < 600) — probability between 400 and 600
+p_between <- pnorm(600, mean=mu, sd=sigma) - pnorm(400, mean=mu, sd=sigma)
+cat("P(400 < score < 600):", round(p_between, 4), "\n")
+cat("That's the 68-95-99.7 rule! 400 and 600 are 1 SD away.\n\n")
+
+# 3. Score at the 90th percentile
+p90_score <- qnorm(0.90, mean=mu, sd=sigma)
+cat("90th percentile score:", round(p90_score, 1), "\n")
+cat("A score of", round(p90_score, 0), "beats 90% of test-takers.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Note:</strong> <code>pnorm</code> gives P(X &le; x). For P(X &gt; x), use <code>1 - pnorm(x, ...)</code>. For P(a &lt; X &lt; b), use <code>pnorm(b) - pnorm(a)</code>.</div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-block">
+      <h3>Exercise 2 &mdash; Visualize the Normal Distribution</h3>
+      <p>Generate 500 random normal values. Create a density histogram and overlay the theoretical normal curve. The histogram should roughly match the curve.</p>
+      <textarea class="code-editor" id="editor2">set.seed(99)
+# Generate 500 random values from Normal(80, 10)
+x_vals <- rnorm(500, mean = 80, sd = 10)
+
+# Density histogram (freq=FALSE makes it a density, not count)
+hist(x_vals,
+     freq = FALSE,
+     main = "Sample vs. Theoretical Normal Distribution",
+     xlab = "Value",
+     col = "#B2DFDB",
+     border = "white",
+     breaks = 20)
+
+# Overlay the theoretical normal curve
+curve(dnorm(x, mean = 80, sd = 10),
+      add = TRUE,
+      col = "#004D40",
+      lwd = 2.5)
+
+# Add mean line
+abline(v = 80, col = "#C62828", lwd = 2, lty = 2)
+legend("topright",
+       legend = c("Sample (n=500)", "Theoretical N(80,10)", "True mean = 80"),
+       fill = c("#B2DFDB", NA, NA),
+       lty = c(NA, 1, 2),
+       col = c(NA, "#004D40", "#C62828"),
+       lwd = c(NA, 2.5, 2))</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div id="plot2" class="plot-output"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Try it:</strong> Change n from 500 to 50. The histogram will be less smooth. That&rsquo;s sampling variability &mdash; small samples are noisy.</div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-block">
+      <h3>Exercise 3 &mdash; Normal vs. Uniform: Shape Comparison</h3>
+      <p>Generate 1000 values from a normal and a uniform distribution (same rough range). Plot both histograms. Observe: the normal concentrates near the center; the uniform is flat.</p>
+      <textarea class="code-editor" id="editor3">set.seed(7)
+# Normal distribution: mean=50, sd=10
+normal_data <- rnorm(1000, mean = 50, sd = 10)
+
+# Uniform distribution: same general range (roughly 20 to 80)
+uniform_data <- runif(1000, min = 20, max = 80)
+
+# Stats comparison
+cat("=== Normal Distribution ===\n")
+cat("Mean:", round(mean(normal_data), 2), " | SD:", round(sd(normal_data), 2), "\n")
+cat("Min:", round(min(normal_data), 1), " | Max:", round(max(normal_data), 1), "\n\n")
+
+cat("=== Uniform Distribution ===\n")
+cat("Mean:", round(mean(uniform_data), 2), " | SD:", round(sd(uniform_data), 2), "\n")
+cat("Min:", round(min(uniform_data), 1), " | Max:", round(max(uniform_data), 1), "\n\n")
+
+cat("Similar means — but very different shapes!\n")
+
+# Side-by-side histograms
+par(mfrow = c(1, 2))
+hist(normal_data,
+     main = "Normal(50, 10)\n— Bell-shaped",
+     xlab = "Value", col = "#B2DFDB", border = "white",
+     xlim = c(15, 85), breaks = 20)
+
+hist(uniform_data,
+     main = "Uniform(20, 80)\n— Flat",
+     xlab = "Value", col = "#F8BBD9", border = "white",
+     xlim = c(15, 85), breaks = 20)
+par(mfrow = c(1, 1))</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div id="plot3" class="plot-output"></div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#x1F9E0; Brain Break</h2>
+      <p style="margin-bottom:0.5rem">You now have a probability calculator in R. <code>pnorm</code> and <code>qnorm</code> replace z-tables entirely.</p>
+      <p style="font-size:1.05rem;margin:0"><strong>Quick check:</strong> If X ~ Normal(100, 15) (IQ scores), what is <code>pnorm(130, 100, 15)</code>? Try to estimate mentally first (130 is 2 SD above mean &rarr; ~97.7%), then run it in Exercise 1&rsquo;s editor to verify.</p>
+    </div>
+
+    <!-- KEY TAKEAWAY -->
+    <div class="key-takeaway">
+      <h2>&#x2705; Key Takeaway</h2>
+      <p style="margin:0;font-size:1.05rem">The normal distribution is the most important in statistics. <strong><code>pnorm()</code></strong> calculates cumulative probabilities (replacing z-tables), and <strong><code>qnorm()</code></strong> gives the value at any percentile. The d/p/q/r system works for every distribution in R.</p>
+    </div>
+
+    <!-- MODULE COMPLETE -->
+    <div class="module-complete">
+      <h2>&#x1F3C6; Module 2 Complete!</h2>
+      <p>You can now calculate probabilities and generate random samples from any distribution in R. Next, we&rsquo;ll use these skills to demonstrate one of the most important results in all of statistics.</p>
+      <p style="margin-bottom:0"><a href="../module-03/index.html">Continue to Module 3: Sampling &amp; The Central Limit Theorem &rarr;</a></p>
+    </div>
+
+    <div class="module-nav" style="margin-top:2rem">
+      <a href="../module-01/index.html" class="nav-prev">&larr; Module 1: Descriptive Statistics</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 2 of 8</span>
+      <a href="../module-03/index.html" class="nav-next">Module 3: CLT &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Statistics with R &mdash; Module 2: Probability Distributions</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 4: Confidence Intervals — Statistics with R. Build and interpret confidence intervals in R using WebR.">
+  <title>Module 4: Confidence Intervals - Statistics with R</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .module-header p{opacity:0.92;font-size:1rem;margin:0}
+    .module-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .module-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#00695C;color:#00695C;text-decoration:none}
+    .nav-next{background:#00695C;color:white}
+    .nav-next:hover{background:#004D40;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .concept-box{background:#E0F2F1;border-left:4px solid #00695C;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-box h2{margin-top:0;color:#00695C;font-size:1.1rem}
+    .formula-box{background:#F3E5F5;border:2px solid #6A1B9A;border-radius:12px;padding:1.25rem;margin-bottom:2rem;text-align:center}
+    .formula-box h2{margin-top:0;color:#6A1B9A;font-size:1rem}
+    .formula{font-size:1.3rem;font-family:monospace;color:#1a1a2e;margin:0.5rem 0;display:block}
+    .r-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .r-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#00695C}
+    .code-editor{width:100%;min-height:140px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#00695C}
+    .run-btn{background:#00695C;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem}
+    .run-btn:hover:not(:disabled){background:#004D40}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#80CBC4;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem}
+    .brain-break{background:#FFF3E0;border-left:4px solid #E65100;padding:1.25rem;border-radius:0 12px 12px 0;margin-bottom:2rem;text-align:center}
+    .key-takeaway{background:#E0F2F1;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .key-takeaway h2{margin-top:0;color:#00695C;font-size:1rem}
+    .module-complete{background:linear-gradient(135deg,#00695C,#004D40);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .module-complete h2{color:white;margin-top:0}
+    .module-complete a{color:#B2DFDB;font-weight:700}
+    .before-start{background:#E8F5E9;border:2px solid #2E7D32;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+    .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .misconception-box{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .misconception-box h3{margin-top:0;color:#C62828;font-size:1rem}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 500 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 4 of 8 &mdash; Statistics with R</div>
+      <h1>Confidence Intervals</h1>
+      <p>How certain are we? Quantifying uncertainty</p>
+    </div>
+
+    <div class="module-nav">
+      <a href="../module-03/index.html" class="nav-prev">&larr; Module 3: Sampling &amp; CLT</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 4 of 8</span>
+      <a href="../module-05/index.html" class="nav-next">Module 5: Hypothesis Testing &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#x1F4CC; Before You Start</h2>
+      <p><strong>What you need:</strong> Module 3 (CLT and standard error) completed. Understanding of the normal distribution.</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> What a confidence interval actually means. How to calculate one manually and with <code>t.test()</code>. How confidence level affects interval width. The correct &mdash; and incorrect &mdash; ways to interpret a CI.</p>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <div class="concept-box">
+      <h2>&#x1F4D6; The Concept: Confidence Intervals</h2>
+      <p>A <strong>confidence interval (CI)</strong> gives a range of plausible values for a population parameter (like &mu;). It pairs our best estimate with a measure of uncertainty.</p>
+      <p>A <strong>95% confidence interval</strong> means: if we repeated this study many times and built a CI each time, about 95% of those intervals would contain the true population parameter.</p>
+      <ul>
+        <li><strong>Wider CI</strong> = less precision, more uncertainty (small n, high variability, or high confidence level)</li>
+        <li><strong>Narrower CI</strong> = more precision (larger n, lower variability)</li>
+        <li>The <strong>t-distribution</strong> is used instead of the normal when we don&rsquo;t know the population SD (which is almost always in practice)</li>
+        <li>The <strong>t*</strong> critical value depends on the confidence level and degrees of freedom (df = n &minus; 1)</li>
+      </ul>
+    </div>
+
+    <!-- THE FORMULA -->
+    <div class="formula-box">
+      <h2>&#x1F522; The Formula</h2>
+      <div class="formula">CI = x&#772; &plusmn; t* &times; (s / &radic;n)</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0 0.75rem">x&#772; = sample mean &nbsp;|&nbsp; t* = critical value &nbsp;|&nbsp; s = sample SD &nbsp;|&nbsp; n = sample size</p>
+      <div class="formula">t* = qt(1 - &alpha;/2, df = n - 1)</div>
+      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0">For 95% CI: &alpha; = 0.05, so <code>qt(0.975, df=n-1)</code></p>
+    </div>
+
+    <!-- IN R -->
+    <div class="r-example">
+      <h2>&#x1F4BB; In R &mdash; Worked Example (read-only)</h2>
+      <p>Two ways to get a confidence interval &mdash; manual calculation and the quick way with <code>t.test()</code>. Both give the same result.</p>
+      <div class="worked-code"># Confidence intervals in R
+set.seed(42)
+sample_data &lt;- rnorm(25, mean=70, sd=12)
+
+# Method 1: Manual calculation
+n &lt;- length(sample_data)
+x_bar &lt;- mean(sample_data)
+s &lt;- sd(sample_data)
+se &lt;- s / sqrt(n)
+t_star &lt;- qt(0.975, df=n-1)  # 95% CI, two-tailed
+
+lower &lt;- x_bar - t_star * se
+upper &lt;- x_bar + t_star * se
+cat(sprintf("95%% CI (manual):   (%.2f, %.2f)\n", lower, upper))
+
+# Method 2: Using t.test (easier!)
+result &lt;- t.test(sample_data)
+cat("95% CI (t.test):  (", round(result$conf.int[1],2), ",",
+    round(result$conf.int[2],2), ")\n")
+cat("Same result both ways!\n")</div>
+    </div>
+
+    <!-- COMMON MISCONCEPTION -->
+    <div class="misconception-box">
+      <h3>&#x26A0;&#xFE0F; Common Misconception</h3>
+      <p style="margin:0">A 95% CI does <strong>NOT</strong> mean "there is a 95% probability the true mean is in this interval." The true mean is either in the interval or it isn&rsquo;t &mdash; probability doesn&rsquo;t apply to a fixed (unknown) constant. The correct interpretation: the <em>method</em> produces intervals that contain the true mean 95% of the time across many repetitions.</p>
+    </div>
+
+    <!-- YOUR TURN -->
+    <h2 style="color:#00695C;">&#x1F590;&#xFE0F; Your Turn</h2>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-block">
+      <h3>Exercise 1 &mdash; Three Confidence Levels</h3>
+      <p>A sample of 20 students has mean = 78 and SD = 9. Calculate 90%, 95%, and 99% confidence intervals. Notice how the interval <em>widens</em> as you demand more confidence.</p>
+      <textarea class="code-editor" id="editor1">n <- 20
+x_bar <- 78
+s <- 9
+se <- s / sqrt(n)
+
+cat("Sample: n =", n, "| mean =", x_bar, "| SD =", s, "\n")
+cat("Standard Error:", round(se, 3), "\n\n")
+
+# Calculate CIs for three confidence levels
+for (conf_level in c(0.90, 0.95, 0.99)) {
+  alpha <- 1 - conf_level
+  t_star <- qt(1 - alpha/2, df = n - 1)
+  lower <- x_bar - t_star * se
+  upper <- x_bar + t_star * se
+  width <- upper - lower
+  cat(sprintf("%d%% CI: (%.2f, %.2f)  width = %.2f  t* = %.3f\n",
+              round(conf_level * 100), lower, upper, width, t_star))
+}
+
+cat("\nKey observation: Higher confidence = wider interval.\n")
+cat("More certainty always comes at the cost of precision.\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>What to notice:</strong> The 99% CI is wider than the 95% CI, which is wider than the 90% CI. You pay for higher confidence with a less precise interval.</div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-block">
+      <h3>Exercise 2 &mdash; Simulate 50 Confidence Intervals</h3>
+      <p>Generate 50 random samples of n = 30 from a Normal(70, 10) population. Build a 95% CI for each. Count how many intervals contain the true mean of 70. It should be close to 47&ndash;48 (95% of 50).</p>
+      <textarea class="code-editor" id="editor2" style="min-height:200px">set.seed(2024)
+true_mean <- 70
+true_sd   <- 10
+n         <- 30
+n_sims    <- 50
+
+# Storage
+lowers <- numeric(n_sims)
+uppers <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  samp <- rnorm(n, mean = true_mean, sd = true_sd)
+  result <- t.test(samp, conf.level = 0.95)
+  lowers[i] <- result$conf.int[1]
+  uppers[i] <- result$conf.int[2]
+}
+
+# Count how many intervals contain the true mean
+contains_true <- (lowers <= true_mean) & (uppers >= true_mean)
+n_contain <- sum(contains_true)
+cat("Number of CIs that contain true mean (70):", n_contain, "out of", n_sims, "\n")
+cat("That's", round(n_contain/n_sims * 100, 1), "% — should be close to 95%\n\n")
+
+# Visualize: plot all 50 CIs
+plot(NULL, xlim = c(min(lowers)-1, max(uppers)+1), ylim = c(0, n_sims+1),
+     xlab = "Value", ylab = "Simulation #",
+     main = "50 Confidence Intervals (red = misses true mean)")
+abline(v = true_mean, col = "#004D40", lwd = 2, lty = 2)
+
+for (i in 1:n_sims) {
+  col <- ifelse(contains_true[i], "#80CBC4", "#C62828")
+  segments(lowers[i], i, uppers[i], i, col = col, lwd = 1.5)
+  points(c(lowers[i], uppers[i]), c(i, i), col = col, pch = 19, cex = 0.4)
+}
+legend("topright", legend = c("Contains true mean", "Misses true mean"),
+       col = c("#80CBC4", "#C62828"), lwd = 2)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div id="plot2" class="plot-output"></div>
+      <div class="hint-box">&#x1F4A1; <strong>This is the real meaning of "95% CI."</strong> The red intervals in the plot are the ones that missed. With 50 simulations at 95% confidence, you expect about 2&ndash;3 misses.</div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-block">
+      <h3>Exercise 3 &mdash; Interpret Three Real CIs</h3>
+      <p>Plain-language interpretation practice. Three studies report confidence intervals. For each, interpret what the CI tells us &mdash; and what it does NOT tell us.</p>
+      <textarea class="code-editor" id="editor3">cat("=== Interpreting Confidence Intervals ===\n\n")
+
+cat("Study 1: Average daily sleep\n")
+cat("95% CI: (6.8, 7.4) hours\n")
+cat("Interpretation: We are 95% confident that the true population\n")
+cat("mean sleep time is between 6.8 and 7.4 hours per day.\n")
+cat("The interval does NOT contain 0, so this is a meaningful estimate.\n\n")
+
+cat("Study 2: Effect of a new treatment on blood pressure\n")
+cat("95% CI: (-2.3, 8.7) mmHg reduction\n")
+cat("Interpretation: The interval CONTAINS 0. This means the treatment\n")
+cat("could have no effect, a small negative effect, or a positive effect.\n")
+cat("With this CI, we cannot conclude the treatment is effective.\n\n")
+
+cat("Study 3: Proportion voting 'Yes' on a ballot measure\n")
+cat("95% CI: (0.51, 0.58)\n")
+cat("Interpretation: We are 95% confident the true proportion is between\n")
+cat("51% and 58% — entirely above 0.50, suggesting majority support.\n")
+cat("The entire interval is above 0.5, so we have evidence of majority support.\n\n")
+
+cat("--- General rule ---\n")
+cat("If CI contains 0: cannot claim effect is non-zero.\n")
+cat("If CI is entirely positive or negative: evidence of a real effect.")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#x1F9E0; Brain Break</h2>
+      <p style="margin-bottom:0.5rem">A confidence interval is not about the probability that the parameter is inside &mdash; it&rsquo;s about how often the <em>method</em> works.</p>
+      <p style="font-size:1.05rem;margin:0"><strong>Quick check:</strong> If you want a <em>narrower</em> CI without changing the confidence level, what would you do? (Collect a larger sample! SE = s/&radic;n decreases as n increases.)</p>
+    </div>
+
+    <!-- KEY TAKEAWAY -->
+    <div class="key-takeaway">
+      <h2>&#x2705; Key Takeaway</h2>
+      <p style="margin:0;font-size:1.05rem">A 95% CI means the <strong>method</strong> captures the true parameter 95% of the time &mdash; not that there&rsquo;s a 95% chance the parameter is in this specific interval. Use <strong><code>t.test()</code></strong> in R for confidence intervals. Wider CI = lower precision; narrower CI = higher precision.</p>
+    </div>
+
+    <!-- MODULE COMPLETE -->
+    <div class="module-complete">
+      <h2>&#x1F3C6; Module 4 Complete!</h2>
+      <p>You can now build and correctly interpret confidence intervals &mdash; one of the most commonly misunderstood concepts in all of statistics. Next up: the closely related idea of hypothesis testing.</p>
+      <p style="margin-bottom:0"><a href="../module-05/index.html">Continue to Module 5: Hypothesis Testing &rarr;</a></p>
+    </div>
+
+    <div class="module-nav" style="margin-top:2rem">
+      <a href="../module-03/index.html" class="nav-prev">&larr; Module 3: Sampling &amp; CLT</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 4 of 8</span>
+      <a href="../module-05/index.html" class="nav-next">Module 5: Hypothesis Testing &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Statistics with R &mdash; Module 4: Confidence Intervals</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

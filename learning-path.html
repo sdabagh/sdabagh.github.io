@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your Learning Path — a visual roadmap showing how all courses connect, from Young Learners through Career Ready.">
+  <title>Your Learning Path - Safaa Dabagh</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ---- Hero ---- */
+    .lp-hero {
+      background: linear-gradient(135deg, #1565C0 0%, #42A5F5 50%, #1B5E20 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+      text-align: center;
+    }
+    .lp-hero h1 { color: white; font-size: 2.5rem; margin-bottom: var(--spacing-sm); }
+    .lp-hero p  { font-size: 1.15rem; opacity: 0.95; max-width: 680px; margin: 0 auto; }
+
+    /* ---- Track grid ---- */
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    /* ---- Individual track column ---- */
+    .track-col { display: flex; flex-direction: column; align-items: center; }
+
+    .track-header {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .track-header .track-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.25rem; }
+
+    /* track colour themes */
+    .track-green   .track-header { background: #2E7D32; }
+    .track-blue    .track-header { background: #1565C0; }
+    .track-python  .track-header { background: #1B5E20; }
+    .track-teal    .track-header { background: #00695C; }
+
+    /* ---- Step cards ---- */
+    .step-card {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+      text-align: center;
+    }
+    .step-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+    .step-card h4 {
+      font-size: 0.95rem;
+      margin: 0 0 0.3rem;
+      line-height: 1.3;
+    }
+    .step-card .step-meta {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .step-card a {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 3px 10px;
+      border-radius: 4px;
+      color: white;
+      display: inline-block;
+    }
+    .step-card a:hover { opacity: 0.85; text-decoration: none; }
+
+    /* link button colours by track */
+    .track-green  .step-card a { background: #2E7D32; }
+    .track-blue   .step-card a { background: #1565C0; }
+    .track-python .step-card a { background: #1B5E20; }
+    .track-teal   .step-card a { background: #00695C; }
+
+    /* border left accent */
+    .track-green  .step-card { border-left: 4px solid #2E7D32; }
+    .track-blue   .step-card { border-left: 4px solid #1565C0; }
+    .track-python .step-card { border-left: 4px solid #1B5E20; }
+    .track-teal   .step-card { border-left: 4px solid #00695C; }
+
+    /* ---- Arrows between cards ---- */
+    .step-arrow {
+      font-size: 1.5rem;
+      color: #999;
+      line-height: 1;
+      margin: 0.35rem 0;
+      text-align: center;
+      user-select: none;
+    }
+
+    /* ---- "Ready for next track" pill ---- */
+    .next-track-pill {
+      margin-top: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: white;
+      text-align: center;
+    }
+    .track-green  .next-track-pill { background: #2E7D32; }
+    .track-blue   .next-track-pill { background: #1565C0; }
+    .track-python .next-track-pill { background: #1B5E20; }
+    .track-teal   .next-track-pill { background: #00695C; }
+
+    /* ---- "Also from" note ---- */
+    .also-from {
+      font-size: 0.72rem;
+      color: #777;
+      font-style: italic;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ---- You Are Here badge ---- */
+    .you-are-here-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #D97D54;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* ---- START HERE pill ---- */
+    .start-here {
+      background: #D97D54;
+      color: white;
+      font-weight: 700;
+      padding: 0.5rem 1.2rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    /* ---- JOB READY card ---- */
+    .job-ready-card {
+      width: 100%;
+      background: linear-gradient(135deg, #00695C, #00897B);
+      color: white;
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 0.35rem;
+    }
+    .job-ready-card span { font-size: 1.8rem; display: block; margin-bottom: 0.25rem; }
+
+    /* ---- You-are-here track controls ---- */
+    .yah-controls {
+      background: var(--background-alt);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .yah-controls label { font-weight: 600; font-size: 0.95rem; }
+    .yah-controls select {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: 2px solid var(--border-color);
+      font-size: 0.9rem;
+      background: white;
+    }
+    .yah-controls button {
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .yah-controls button:hover { background: var(--primary-dark); }
+
+    /* ---- Quiz ---- */
+    .quiz-box {
+      background: white;
+      border: 2px solid #1565C0;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 3rem;
+    }
+    .quiz-box h3 { color: #1565C0; margin-top: 0; }
+    .quiz-q { margin-bottom: 1.25rem; }
+    .quiz-q p { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .quiz-q label { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; cursor: pointer; }
+    .quiz-q input[type="radio"] { margin-right: 0.5rem; }
+    #quiz-result {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 1rem 1.25rem;
+      background: #E3F2FD;
+      border-left: 4px solid #1565C0;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .btn-quiz {
+      background: #1565C0;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .btn-quiz:hover { background: #0D47A1; }
+
+    /* ---- All Courses Table ---- */
+    .courses-table-wrap { overflow-x: auto; margin-top: 1rem; }
+    .courses-table-wrap table td a {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    .level-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--background-alt);
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 700px) {
+      .tracks-grid { grid-template-columns: 1fr; }
+      .quiz-box { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">Safaa Dabagh</div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="student-resources.html">Student Resources</a>
+    <a href="young-learners.html">Young Learners</a>
+    <a href="free-courses.html">Free Courses</a>
+    <a href="research.html">Research</a>
+    <a href="books.html">Books</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <div class="lp-hero">
+    <h1>Your Learning Path</h1>
+    <p>Not sure where to start? Follow the path — from your very first lesson to career-ready skills, every step connects to the next.</p>
+  </div>
+
+  <!-- You-Are-Here controls -->
+  <div class="yah-controls">
+    <label for="yah-select">Mark your current track:</label>
+    <select id="yah-select">
+      <option value="">-- Choose a track --</option>
+      <option value="track-1">Track 1: Young Learners</option>
+      <option value="track-2">Track 2: Math &amp; Stats Foundation</option>
+      <option value="track-3">Track 3: Programming &amp; Data</option>
+      <option value="track-4">Track 4: Career Ready</option>
+    </select>
+    <button onclick="saveYAH()">Save</button>
+    <span id="yah-saved" style="font-size:0.85rem;color:#2E7D32;display:none;">Saved!</span>
+  </div>
+
+  <!-- TRACKS -->
+  <div class="tracks-grid">
+
+    <!-- Track 1: Young Learners -->
+    <div class="track-col track-green" id="col-track-1">
+      <div class="track-header">
+        <span class="track-emoji">&#127807;</span>
+        Track 1: Young Learners<br>
+        <small style="font-weight:400;font-size:0.78rem;">Ages 6–12</small>
+      </div>
+
+      <div class="start-here">START HERE (Ages 6+)</div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-1-1">
+        <h4>Think Like a Coder</h4>
+        <p class="step-meta">Ages 6–10 &middot; ~6 hrs</p>
+        <a href="learn/kids-coding/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-1-2">
+        <h4>Data Science for Young Minds</h4>
+        <p class="step-meta">Grades 1–5 &middot; ~5 hrs</p>
+        <a href="learn/data-science/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-1-3">
+        <h4>Money, Values &amp; You</h4>
+        <p class="step-meta">Ages 11–12 &middot; ~4 hrs</p>
+        <a href="learn/financial-literacy/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="next-track-pill">&rarr; Ready for Track 2!</div>
+    </div>
+
+    <!-- Track 2: Math & Stats -->
+    <div class="track-col track-blue" id="col-track-2">
+      <div class="track-header">
+        <span class="track-emoji">&#128208;</span>
+        Track 2: Math &amp; Stats<br>
+        <small style="font-weight:400;font-size:0.78rem;">Foundation</small>
+      </div>
+
+      <div class="step-card" id="yah-step-2-1">
+        <h4>College Algebra</h4>
+        <p class="step-meta">8 Modules &middot; ~20 hrs</p>
+        <a href="learn/college-algebra/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-2-2">
+        <h4>Introduction to Statistics</h4>
+        <p class="step-meta">12 Modules &middot; ~30 hrs</p>
+        <a href="learn/intro-stats/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="next-track-pill">&rarr; Ready for Track 3!</div>
+    </div>
+
+    <!-- Track 3: Programming & Data -->
+    <div class="track-col track-python" id="col-track-3">
+      <div class="track-header">
+        <span class="track-emoji">&#128013;</span>
+        Track 3: Programming &amp; Data
+      </div>
+
+      <div class="step-card" id="yah-step-3-1">
+        <h4>Introduction to Python</h4>
+        <p class="step-meta">12 Modules &middot; ~18 hrs</p>
+        <a href="learn/intro-python/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-3-2">
+        <p class="also-from">&#8592; also from Track 2</p>
+        <h4>Python Practice Labs</h4>
+        <p class="step-meta">10 Labs &middot; Live in browser</p>
+        <a href="learn/python-labs/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-3-3">
+        <p class="also-from">&#8592; also from Track 2</p>
+        <h4>R Practice Labs</h4>
+        <p class="step-meta">10 Labs &middot; WebR powered</p>
+        <a href="learn/r-labs/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-3-4">
+        <h4>SQL Practice Labs</h4>
+        <p class="step-meta">10 Labs &middot; Live SQLite</p>
+        <a href="learn/sql-labs/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="next-track-pill">&rarr; Ready for Track 4!</div>
+    </div>
+
+    <!-- Track 4: Career Ready -->
+    <div class="track-col track-teal" id="col-track-4">
+      <div class="track-header">
+        <span class="track-emoji">&#128640;</span>
+        Track 4: Career Ready
+      </div>
+
+      <div class="step-card" id="yah-step-4-1">
+        <p class="also-from">&#8592; any time!</p>
+        <h4>Speaking the Language of AI</h4>
+        <p class="step-meta">8 Modules &middot; ~20 min each</p>
+        <a href="learn/ai-course/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="step-card" id="yah-step-4-2">
+        <h4>Data Analyst: Designed with Neurodivergence in Mind</h4>
+        <p class="step-meta">14 Modules: SQL &rarr; Python &rarr; Tableau &rarr; SAP FI/CO</p>
+        <a href="learn/data-analyst/index.html">Start &rarr;</a>
+      </div>
+      <div class="step-arrow">&#8595;</div>
+
+      <div class="job-ready-card">
+        <span>&#127891;</span>
+        JOB READY
+      </div>
+    </div>
+
+  </div><!-- /tracks-grid -->
+
+  <hr style="border:none;border-top:2px solid var(--border-color);margin:3rem 0;">
+
+  <!-- NOT SURE WHICH TRACK QUIZ -->
+  <div class="quiz-box">
+    <h3>Not sure which track? Take the 3-question quiz.</h3>
+
+    <div class="quiz-q">
+      <p>1. How old are you, or who are you choosing a course for?</p>
+      <label><input type="radio" name="q1" value="child"> Under 12 years old</label>
+      <label><input type="radio" name="q1" value="adult"> Teen or adult (13+)</label>
+    </div>
+
+    <div class="quiz-q">
+      <p>2. Do you (or the learner) have programming experience?</p>
+      <label><input type="radio" name="q2" value="yes"> Yes — I have coded before</label>
+      <label><input type="radio" name="q2" value="no"> No — starting from scratch</label>
+    </div>
+
+    <div class="quiz-q">
+      <p>3. What is your main goal?</p>
+      <label><input type="radio" name="q3" value="enrich"> Personal enrichment or fun</label>
+      <label><input type="radio" name="q3" value="career"> Career change or job-ready skills</label>
+      <label><input type="radio" name="q3" value="academic"> Academic support (college courses)</label>
+    </div>
+
+    <button class="btn-quiz" onclick="runQuiz()">Show My Recommendation</button>
+
+    <div id="quiz-result"></div>
+  </div>
+
+  <!-- ALL COURSES TABLE -->
+  <h2>All Courses at a Glance</h2>
+  <div class="courses-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Category</th>
+          <th>Level</th>
+          <th>Est. Time</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Think Like a Coder</strong></td>
+          <td>Young Learners</td>
+          <td><span class="level-badge">Ages 6–10</span></td>
+          <td>~6 hrs</td>
+          <td><a href="learn/kids-coding/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Data Science for Young Minds</strong></td>
+          <td>Young Learners</td>
+          <td><span class="level-badge">Grades 1–5</span></td>
+          <td>~5 hrs</td>
+          <td><a href="learn/data-science/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Money, Values &amp; You</strong></td>
+          <td>Young Learners</td>
+          <td><span class="level-badge">Ages 11–12</span></td>
+          <td>~4 hrs</td>
+          <td><a href="learn/financial-literacy/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>College Algebra</strong></td>
+          <td>Math &amp; Statistics</td>
+          <td><span class="level-badge">College</span></td>
+          <td>~20 hrs</td>
+          <td><a href="learn/college-algebra/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Introduction to Statistics</strong></td>
+          <td>Math &amp; Statistics</td>
+          <td><span class="level-badge">College</span></td>
+          <td>~30 hrs</td>
+          <td><a href="learn/intro-stats/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Introduction to Python</strong></td>
+          <td>Python &amp; Data Science</td>
+          <td><span class="level-badge">Beginner</span></td>
+          <td>~18 hrs</td>
+          <td><a href="learn/intro-python/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Python Practice Labs</strong></td>
+          <td>Python &amp; Data Science</td>
+          <td><span class="level-badge">Intermediate</span></td>
+          <td>~10 hrs</td>
+          <td><a href="learn/python-labs/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>R Practice Labs</strong></td>
+          <td>Python &amp; Data Science</td>
+          <td><span class="level-badge">Intermediate</span></td>
+          <td>~10 hrs</td>
+          <td><a href="learn/r-labs/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>SQL Practice Labs</strong></td>
+          <td>Python &amp; Data Science</td>
+          <td><span class="level-badge">Beginner–Advanced</span></td>
+          <td>~12 hrs</td>
+          <td><a href="learn/sql-labs/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Speaking the Language of AI</strong></td>
+          <td>AI &amp; Technology</td>
+          <td><span class="level-badge">All Ages</span></td>
+          <td>~3 hrs</td>
+          <td><a href="learn/ai-course/index.html">Start &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Data Analyst: Designed with Neurodivergence in Mind</strong></td>
+          <td>Career Track</td>
+          <td><span class="level-badge">Intermediate–Advanced</span></td>
+          <td>~60 hrs</td>
+          <td><a href="learn/data-analyst/index.html">Start &rarr;</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="student-resources.html">Student Resources</a>
+    <a href="young-learners.html">Young Learners</a>
+    <a href="free-courses.html">Free Courses</a>
+    <a href="research.html">Research</a>
+    <a href="books.html">Books</a>
+    <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+  </div>
+  <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+  <p class="text-muted">Santa Monica College &middot; West Los Angeles College &middot; UCLA Statistics PhD Candidate</p>
+</footer>
+
+<script>
+  /* ---- You Are Here ---- */
+  const SELECT = document.getElementById('yah-select');
+  const SAVED  = document.getElementById('yah-saved');
+
+  function applyYAH(trackId) {
+    // remove all badges
+    document.querySelectorAll('.you-are-here-badge').forEach(el => el.remove());
+    if (!trackId) return;
+
+    const colMap = {
+      'track-1': 'col-track-1',
+      'track-2': 'col-track-2',
+      'track-3': 'col-track-3',
+      'track-4': 'col-track-4',
+    };
+    const col = document.getElementById(colMap[trackId]);
+    if (!col) return;
+
+    // first step-card in this column gets the badge
+    const firstCard = col.querySelector('.step-card');
+    if (firstCard) {
+      const badge = document.createElement('div');
+      badge.className = 'you-are-here-badge';
+      badge.textContent = 'You are here';
+      firstCard.style.position = 'relative';
+      firstCard.appendChild(badge);
+    }
+    col.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function saveYAH() {
+    const val = SELECT.value;
+    localStorage.setItem('sdabagh_lp_track', val);
+    applyYAH(val);
+    SAVED.style.display = 'inline';
+    setTimeout(() => { SAVED.style.display = 'none'; }, 2000);
+  }
+
+  // restore on load
+  (function() {
+    const saved = localStorage.getItem('sdabagh_lp_track');
+    if (saved) {
+      SELECT.value = saved;
+      applyYAH(saved);
+    }
+  })();
+
+  /* ---- Quiz ---- */
+  function runQuiz() {
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    const q3 = document.querySelector('input[name="q3"]:checked');
+    const result = document.getElementById('quiz-result');
+
+    if (!q1 || !q2 || !q3) {
+      result.style.display = 'block';
+      result.style.borderLeftColor = '#D97D54';
+      result.style.background = '#FFF3E0';
+      result.innerHTML = 'Please answer all 3 questions.';
+      return;
+    }
+
+    let rec = '';
+    let link = '';
+
+    if (q1.value === 'child') {
+      rec = '<strong>Start with Track 1: Young Learners.</strong> Begin with <em>Think Like a Coder</em> for ages 6–10, then <em>Data Science for Young Minds</em>, then <em>Money, Values &amp; You</em>.';
+      link = '<a href="learn/kids-coding/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Go to Think Like a Coder &rarr;</a>';
+    } else if (q3.value === 'career') {
+      if (q2.value === 'yes') {
+        rec = '<strong>Jump to Track 4.</strong> You are ready for the <em>Data Analyst Career Course</em>. Start <em>Speaking the Language of AI</em> alongside it.';
+        link = '<a href="learn/data-analyst/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Go to Data Analyst Course &rarr;</a>';
+      } else {
+        rec = '<strong>Start with Track 2, then move to Track 3 and Track 4.</strong> Begin with <em>College Algebra</em> or <em>Introduction to Statistics</em>, then learn SQL and Python before the career course.';
+        link = '<a href="learn/college-algebra/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Start with College Algebra &rarr;</a>';
+      }
+    } else if (q3.value === 'academic') {
+      rec = '<strong>Track 2 is your home base.</strong> <em>College Algebra</em> and <em>Introduction to Statistics</em> are designed for exactly your college coursework. Supplement with Python or R labs as needed.';
+      link = '<a href="learn/intro-stats/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Go to Introduction to Statistics &rarr;</a>';
+    } else {
+      // enrichment
+      if (q2.value === 'yes') {
+        rec = '<strong>Track 3 suits you well.</strong> Jump into <em>Python Practice Labs</em>, <em>R Practice Labs</em>, or <em>SQL Practice Labs</em> — pick the language that interests you most.';
+        link = '<a href="learn/python-labs/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Go to Python Labs &rarr;</a>';
+      } else {
+        rec = '<strong>Start with Track 2.</strong> <em>Introduction to Statistics</em> or <em>Introduction to Python</em> are both great entry points for curious learners with no prior experience.';
+        link = '<a href="learn/intro-python/index.html" class="btn btn-primary" style="margin-top:0.75rem;display:inline-block;">Go to Introduction to Python &rarr;</a>';
+      }
+    }
+
+    result.style.display = 'block';
+    result.style.borderLeftColor = '#1565C0';
+    result.style.background = '#E3F2FD';
+    result.innerHTML = rec + '<br>' + link;
+  }
+</script>
+
+  <script src="accessibility.js"></script>
+</body>
+</html>

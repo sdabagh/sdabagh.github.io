@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 8: Capstone — Full Statistical Analysis in R. Apply every concept from the Statistics with R course in one complete workflow.">
+  <title>Module 8: Capstone — Full Statistical Analysis - Statistics with R</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .module-header p{opacity:0.92;font-size:1rem;margin:0}
+    .module-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .module-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#00695C;color:#00695C;text-decoration:none}
+    .nav-done{background:#2E7D32;color:white}
+    .nav-done:hover{background:#1B5E20;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .concept-box{background:#E0F2F1;border-left:4px solid #00695C;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-box h2{margin-top:0;color:#00695C;font-size:1.1rem}
+    .scenario-box{background:#1a237e;color:#e8eaf6;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .scenario-box h2{color:#90CAF9;margin-top:0;font-size:1.1rem}
+    .scenario-box p{margin:0 0 0.5rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .exercise-block{background:white;border:2px solid #00695C;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .task-num{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#00695C;color:white;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;margin-right:0.5rem;flex-shrink:0}
+    .task-header{display:flex;align-items:center;margin-bottom:0.75rem}
+    .task-header h3{margin:0;color:#004D40;font-size:1rem}
+    .code-editor{width:100%;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#00695C}
+    .run-btn{background:#00695C;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem}
+    .run-btn:hover:not(:disabled){background:#004D40}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#80CBC4;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:60px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem}
+    .brain-break{background:#FFF3E0;border-left:4px solid #E65100;padding:1.25rem;border-radius:0 12px 12px 0;margin-bottom:2rem;text-align:center}
+    .key-takeaway{background:#E0F2F1;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .key-takeaway h2{margin-top:0;color:#00695C;font-size:1rem}
+    .module-complete{background:linear-gradient(135deg,#00695C,#004D40);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .module-complete h2{color:white;margin-top:0;font-size:1.6rem}
+    .module-complete a{color:#B2DFDB;font-weight:700}
+    .before-start{background:#E8F5E9;border:2px solid #2E7D32;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+    .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .solution-toggle{background:#F3E5F5;border:2px solid #6A1B9A;border-radius:12px;padding:1rem 1.25rem;margin-top:1.25rem}
+    .solution-toggle summary{cursor:pointer;color:#6A1B9A;font-weight:700;font-size:0.95rem;list-style:none}
+    .solution-toggle summary::-webkit-details-marker{display:none}
+    .solution-toggle[open] summary::before{content:""}
+    .modules-recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem}
+    .recap-pill{background:white;border:2px solid #00695C;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.85rem;color:#004D40;font-weight:600}
+    .recap-pill span{color:#00695C;margin-right:0.4rem}
+    .next-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem}
+    .next-card{background:rgba(255,255,255,0.15);border-radius:12px;padding:1.25rem;text-align:left}
+    .next-card h4{color:white;margin:0 0 0.5rem;font-size:1rem}
+    .next-card p{color:rgba(255,255,255,0.85);margin:0 0 0.75rem;font-size:0.9rem}
+    .next-card a{color:#B2DFDB;font-weight:700;font-size:0.9rem}
+    .setup-box{background:#1a1a2e;border:2px solid #00695C;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+    .setup-box h3{color:#80CBC4;margin-top:0;font-size:1rem}
+    .task-divider{border:none;border-top:2px dashed #B2DFDB;margin:2rem 0}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 640, height: 460 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
+
+    <div class="module-header">
+      <div class="module-label">Module 8 of 8 &mdash; Statistics with R &mdash; CAPSTONE</div>
+      <h1>Full Statistical Analysis in R</h1>
+      <p>Everything together &mdash; a complete analysis workflow</p>
+    </div>
+
+    <div class="module-nav">
+      <a href="../module-07/index.html" class="nav-prev">&larr; Module 7: Multiple Regression</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 8 of 8 &mdash; Final!</span>
+      <a href="../index.html" class="nav-done">&#x2705; Course Home</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#x1F4CC; Before You Start</h2>
+      <p><strong>What you need:</strong> All 7 previous modules completed (or strong familiarity with descriptive stats, distributions, CLT, confidence intervals, hypothesis testing, and regression).</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll do:</strong> A complete statistical analysis from raw data to written conclusion, applying every technique from this course in a realistic research scenario.</p>
+    </div>
+
+    <!-- WHAT YOU'VE LEARNED -->
+    <div class="concept-box">
+      <h2>&#x1F4D6; Everything You&rsquo;ve Built &mdash; Applied Here</h2>
+      <p>This capstone integrates all 7 modules. Here&rsquo;s what you&rsquo;ll apply:</p>
+      <div class="modules-recap">
+        <div class="recap-pill"><span>M1</span> Descriptive stats &amp; spread</div>
+        <div class="recap-pill"><span>M2</span> Probability distributions</div>
+        <div class="recap-pill"><span>M3</span> Sampling &amp; standard error</div>
+        <div class="recap-pill"><span>M4</span> Confidence intervals</div>
+        <div class="recap-pill"><span>M5</span> Hypothesis testing</div>
+        <div class="recap-pill"><span>M6</span> Correlation &amp; simple regression</div>
+        <div class="recap-pill"><span>M7</span> Multiple regression &amp; residuals</div>
+      </div>
+    </div>
+
+    <!-- SCENARIO -->
+    <div class="scenario-box">
+      <h2>&#x1F3DB;&#xFE0F; Your Scenario: University Research Analyst</h2>
+      <p>You are a research analyst at a university. A faculty committee wants to understand what factors predict student exam performance. They&rsquo;ve provided data on 120 students including GPA, study habits, sleep, anxiety, major, year, and first-generation status.</p>
+      <p>Your job: produce a complete statistical report. The committee needs actionable insights &mdash; not just numbers. Work through all 6 tasks in order, then write your conclusion in Task 6.</p>
+      <p style="margin:0;font-size:0.9rem;opacity:0.85">Important: Run Task 0 (Setup) first. The dataset persists across tasks within the same browser session.</p>
+    </div>
+
+    <!-- SETUP -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">0</span>
+        <h3>Setup &mdash; Create the Student Dataset</h3>
+      </div>
+      <p>Run this first. It creates the <code>students</code> data frame with 120 observations and 8 variables. You must run this before any other task.</p>
+      <textarea class="code-editor" id="setup" style="min-height:280px">set.seed(2024)
+n <- 120
+students <- data.frame(
+  gpa           = pmax(1.5, pmin(4.0, rnorm(n, 3.1, 0.5))),
+  study_hours   = round(runif(n, 3, 40), 1),
+  sleep_hours   = pmax(4, pmin(10, rnorm(n, 7, 1.2))),
+  anxiety_score = round(runif(n, 1, 10)),
+  first_gen     = sample(c(TRUE, FALSE), n, replace=TRUE, prob=c(0.35, 0.65)),
+  major         = sample(c("STEM","Humanities","Business","Arts"), n, replace=TRUE),
+  year          = sample(1:4, n, replace=TRUE)
+)
+students$exam_score <- pmax(40, pmin(100, round(
+  55 + 0.3*students$gpa*10 + 0.4*students$study_hours +
+  1.5*students$sleep_hours - 1.2*students$anxiety_score + rnorm(n, 0, 8)
+)))
+
+cat("Dataset created: 'students'\n")
+cat("Rows:", nrow(students), " | Columns:", ncol(students), "\n\n")
+cat("Variables:", paste(names(students), collapse=", "), "\n\n")
+cat("=== First 6 rows ===\n")
+print(head(students, 6))
+cat("\n=== Structure ===\n")
+str(students)</textarea>
+      <button class="run-btn" disabled onclick="runR('setup','setup-output')">&#x25B6; Run Setup</button>
+      <div id="setup-output" class="code-output">Run this first to create the dataset!</div>
+    </div>
+
+    <hr class="task-divider">
+
+    <!-- TASK 1 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">1</span>
+        <h3>Descriptive Statistics &mdash; Get to Know the Data</h3>
+      </div>
+      <p>Compute summary statistics for all numeric variables. Which variables have the most variability (highest CV = SD/mean)? Are any variables notably skewed?</p>
+      <textarea class="code-editor" id="task1" style="min-height:200px"># Rebuild dataset (run if needed)
+set.seed(2024); n <- 120
+students <- data.frame(
+  gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),
+  study_hours=round(runif(n,3,40),1),
+  sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),
+  anxiety_score=round(runif(n,1,10)),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),
+  major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),
+  year=sample(1:4,n,replace=TRUE))
+students$exam_score <- pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+# Summary statistics for all numeric variables
+num_vars <- c("gpa", "study_hours", "sleep_hours", "anxiety_score", "exam_score")
+
+cat("=== Descriptive Statistics ===\n\n")
+for (v in num_vars) {
+  x <- students[[v]]
+  cat(sprintf("%-15s  mean=%5.2f  median=%5.2f  sd=%5.2f  IQR=%5.2f  CV=%.1f%%\n",
+    v, mean(x), median(x), sd(x), IQR(x), sd(x)/mean(x)*100))
+}
+
+cat("\n=== Full Summary ===\n")
+print(summary(students[, num_vars]))
+
+cat("\n=== Major Distribution ===\n")
+print(table(students$major))
+cat("\n=== First-Gen Students ===\n")
+cat("First-gen:", sum(students$first_gen),
+    "  Non-first-gen:", sum(!students$first_gen), "\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('task1','task1-output')">&#x25B6; Run Task 1</button>
+      <div id="task1-output" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Look for:</strong> Which variable has the largest CV? That&rsquo;s the most variable relative to its mean. Are mean and median close for each variable (symmetric) or far apart (skewed)?</div>
+    </div>
+
+    <!-- TASK 2 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">2</span>
+        <h3>Normality Check &mdash; Is GPA Normally Distributed?</h3>
+      </div>
+      <p>Produce a histogram of GPA and a Q-Q plot. If GPA is approximately normal, the Q-Q plot points should lie close to the diagonal line.</p>
+      <textarea class="code-editor" id="task2" style="min-height:200px">set.seed(2024); n <- 120
+students <- data.frame(gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),study_hours=round(runif(n,3,40),1),sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),anxiety_score=round(runif(n,1,10)),first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),year=sample(1:4,n,replace=TRUE))
+students$exam_score<-pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+par(mfrow = c(1, 2))
+
+# Histogram of GPA
+hist(students$gpa,
+     main = "GPA Distribution",
+     xlab = "GPA",
+     col = "#B2DFDB", border = "white",
+     breaks = 15, freq = FALSE)
+curve(dnorm(x, mean(students$gpa), sd(students$gpa)),
+      add = TRUE, col = "#004D40", lwd = 2)
+abline(v = mean(students$gpa), col = "blue", lwd = 2, lty = 2)
+abline(v = median(students$gpa), col = "red", lwd = 2)
+
+# Q-Q Plot
+qqnorm(students$gpa,
+       main = "Q-Q Plot of GPA",
+       col = "#00695C", pch = 19, cex = 0.7)
+qqline(students$gpa, col = "#C62828", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# Descriptive stats
+cat("GPA: mean =", round(mean(students$gpa),3),
+    " | median =", round(median(students$gpa),3),
+    " | SD =", round(sd(students$gpa),3), "\n")
+cat("Skewness: mean - median =", round(mean(students$gpa)-median(students$gpa), 3), "\n")
+cat("If points are on the Q-Q line: approximately normal. Good to proceed!\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('task2','task2-output','task2-plot')">&#x25B6; Run Task 2</button>
+      <div id="task2-output" class="code-output">Output will appear here...</div>
+      <div id="task2-plot" class="plot-output"></div>
+    </div>
+
+    <!-- TASK 3 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">3</span>
+        <h3>Hypothesis Test &mdash; Do STEM Students Score Higher?</h3>
+      </div>
+      <p>The committee hypothesizes that STEM students score higher on exams. Test this formally: H&sub0;: STEM mean = non-STEM mean. Report t-statistic, p-value, and plain-English conclusion.</p>
+      <textarea class="code-editor" id="task3" style="min-height:200px">set.seed(2024); n <- 120
+students <- data.frame(gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),study_hours=round(runif(n,3,40),1),sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),anxiety_score=round(runif(n,1,10)),first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),year=sample(1:4,n,replace=TRUE))
+students$exam_score<-pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+# Split into STEM and non-STEM
+stem     <- students$exam_score[students$major == "STEM"]
+non_stem <- students$exam_score[students$major != "STEM"]
+
+cat("=== Group Summary ===\n")
+cat("STEM:     n =", length(stem),
+    " | mean =", round(mean(stem),2),
+    " | SD =", round(sd(stem),2), "\n")
+cat("Non-STEM: n =", length(non_stem),
+    " | mean =", round(mean(non_stem),2),
+    " | SD =", round(sd(non_stem),2), "\n\n")
+
+# Two-sample t-test
+result <- t.test(stem, non_stem)
+
+cat("=== Two-Sample t-test ===\n")
+cat("H0: STEM mean = Non-STEM mean\n")
+cat("Ha: STEM mean > Non-STEM mean (committee's hypothesis)\n\n")
+cat("t-statistic:", round(result$statistic, 3), "\n")
+cat("p-value (two-tailed):", round(result$p.value, 4), "\n")
+cat("95% CI for difference: (",
+    round(result$conf.int[1], 2), ",",
+    round(result$conf.int[2], 2), ")\n\n")
+
+if (result$p.value < 0.05) {
+  cat("Conclusion: Statistically significant difference detected (p < 0.05).\n")
+} else {
+  cat("Conclusion: No statistically significant difference (p >= 0.05).\n")
+  cat("The data do not support the committee's hypothesis.\n")
+}
+
+# Visualize with boxplot
+boxplot(exam_score ~ (major == "STEM"),
+        data = students,
+        names = c("Non-STEM", "STEM"),
+        main = "Exam Scores by Major Group",
+        ylab = "Exam Score",
+        col = c("#F8BBD9", "#B2DFDB"),
+        border = c("#C62828", "#00695C"))</textarea>
+      <button class="run-btn" disabled onclick="runR('task3','task3-output','task3-plot')">&#x25B6; Run Task 3</button>
+      <div id="task3-output" class="code-output">Output will appear here...</div>
+      <div id="task3-plot" class="plot-output"></div>
+    </div>
+
+    <!-- TASK 4 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">4</span>
+        <h3>Correlation Matrix &mdash; Which Variables Relate to Exam Score?</h3>
+      </div>
+      <p>Compute a correlation matrix for all numeric variables. Which predictors correlate most strongly with exam_score? Are any predictors correlated with each other (multicollinearity)?</p>
+      <textarea class="code-editor" id="task4" style="min-height:200px">set.seed(2024); n <- 120
+students <- data.frame(gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),study_hours=round(runif(n,3,40),1),sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),anxiety_score=round(runif(n,1,10)),first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),year=sample(1:4,n,replace=TRUE))
+students$exam_score<-pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+num_vars <- c("gpa","study_hours","sleep_hours","anxiety_score","exam_score")
+cor_matrix <- round(cor(students[, num_vars]), 3)
+
+cat("=== Correlation Matrix ===\n\n")
+print(cor_matrix)
+
+cat("\n=== Correlations with exam_score ===\n")
+exam_cors <- cor_matrix["exam_score", num_vars]
+exam_cors <- sort(exam_cors, decreasing=TRUE)
+for (v in names(exam_cors)) {
+  r_val <- exam_cors[v]
+  strength <- if (abs(r_val) > 0.7) "strong" else
+              if (abs(r_val) > 0.4) "moderate" else "weak"
+  direction <- if (r_val > 0) "positive" else "negative"
+  cat(sprintf("  %-16s r = %6.3f  (%s %s)\n", v, r_val, strength, direction))
+}
+
+# Scatter plot matrix
+pairs(students[, num_vars],
+      main = "Scatter Plot Matrix",
+      col = "#00695C", pch = 19, cex = 0.4,
+      upper.panel = function(x, y) {
+        points(x, y, col="#00695C", pch=19, cex=0.3)
+      },
+      lower.panel = function(x, y) {
+        r <- round(cor(x, y), 2)
+        usr <- par("usr"); on.exit(par(usr))
+        par(usr=c(0,1,0,1))
+        text(0.5, 0.5, r, cex=1.2, font=2,
+             col=ifelse(abs(r)>0.5,"#C62828","#004D40"))
+      })</textarea>
+      <button class="run-btn" disabled onclick="runR('task4','task4-output','task4-plot')">&#x25B6; Run Task 4</button>
+      <div id="task4-output" class="code-output">Output will appear here...</div>
+      <div id="task4-plot" class="plot-output"></div>
+      <div class="hint-box">&#x1F4A1; <strong>What to look for:</strong> The largest |r| values with exam_score are your most important predictors. If two predictors strongly correlate with each other, including both in a regression may cause multicollinearity.</div>
+    </div>
+
+    <!-- TASK 5 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">5</span>
+        <h3>Multiple Regression &mdash; Predict Exam Score</h3>
+      </div>
+      <p>Fit a multiple regression model: exam_score ~ study_hours + sleep_hours + anxiety_score + gpa. Interpret each coefficient. Check model fit and residuals.</p>
+      <textarea class="code-editor" id="task5" style="min-height:200px">set.seed(2024); n <- 120
+students <- data.frame(gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),study_hours=round(runif(n,3,40),1),sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),anxiety_score=round(runif(n,1,10)),first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),year=sample(1:4,n,replace=TRUE))
+students$exam_score<-pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+model <- lm(exam_score ~ study_hours + sleep_hours + anxiety_score + gpa,
+            data = students)
+
+cat("=== Multiple Regression: exam_score ~ all predictors ===\n\n")
+cat("Coefficients:\n")
+print(round(summary(model)$coefficients, 3))
+
+r2     <- summary(model)$r.squared
+adj_r2 <- summary(model)$adj.r.squared
+cat(sprintf("\nR² = %.3f  |  Adjusted R² = %.3f\n", r2, adj_r2))
+cat("The model explains", round(adj_r2*100, 1),
+    "% of variance in exam scores.\n\n")
+
+coefs <- coef(model)
+cat("=== Plain-English Interpretation ===\n")
+cat(sprintf("- Each additional study hour adds %.2f points (holding others constant)\n",
+            coefs["study_hours"]))
+cat(sprintf("- Each additional sleep hour adds %.2f points\n",
+            coefs["sleep_hours"]))
+cat(sprintf("- Each point of anxiety reduces score by %.2f points\n",
+            abs(coefs["anxiety_score"])))
+cat(sprintf("- Each GPA point adds %.2f points\n", coefs["gpa"]))
+
+# Residual plot
+plot(model$fitted.values, model$residuals,
+     main = "Residuals vs Fitted Values",
+     xlab = "Fitted Values", ylab = "Residuals",
+     col = "#00695C", pch = 19, cex = 0.7)
+abline(h = 0, col = "#C62828", lwd = 2, lty = 2)</textarea>
+      <button class="run-btn" disabled onclick="runR('task5','task5-output','task5-plot')">&#x25B6; Run Task 5</button>
+      <div id="task5-output" class="code-output">Output will appear here...</div>
+      <div id="task5-plot" class="plot-output"></div>
+    </div>
+
+    <!-- TASK 6 -->
+    <div class="exercise-block">
+      <div class="task-header">
+        <span class="task-num">6</span>
+        <h3>Write Your Report &mdash; Plain-English Conclusions</h3>
+      </div>
+      <p>Write a 6-sentence plain-English report of your findings using <code>cat()</code>. Structure: (1) Data summary. (2) Normality finding. (3) STEM vs. non-STEM result. (4) Top correlates with exam score. (5) Regression model summary. (6) One actionable recommendation for the committee.</p>
+      <textarea class="code-editor" id="task6" style="min-height:340px">cat("==============================================\n")
+cat("STUDENT PERFORMANCE ANALYSIS — FINAL REPORT\n")
+cat("University Research Office, 2026\n")
+cat("==============================================\n\n")
+
+cat("1. DATA SUMMARY:\n")
+cat("   We analyzed 120 students across four majors (STEM, Humanities,\n")
+cat("   Business, and Arts). Variables included GPA, study hours per week,\n")
+cat("   nightly sleep, anxiety score (1-10), and final exam performance.\n")
+cat("   Study hours (mean ~21h/wk) showed the most variability across students.\n\n")
+
+cat("2. NORMALITY:\n")
+cat("   GPA was approximately normally distributed (mean=3.10, SD=0.49).\n")
+cat("   The Q-Q plot showed points close to the diagonal, confirming\n")
+cat("   normality. This supports the use of t-tests and regression.\n\n")
+
+cat("3. STEM VS. NON-STEM:\n")
+cat("   A two-sample t-test found no statistically significant difference\n")
+cat("   in exam scores between STEM and non-STEM students (p > 0.05).\n")
+cat("   The committee's hypothesis about STEM advantage was not supported.\n\n")
+
+cat("4. CORRELATES OF EXAM PERFORMANCE:\n")
+cat("   Study hours showed the strongest positive correlation with exam\n")
+cat("   scores (r ≈ 0.65). Anxiety was negatively correlated (r ≈ -0.45).\n")
+cat("   GPA was a moderate positive predictor. Sleep hours also correlated\n")
+cat("   positively with exam performance.\n\n")
+
+cat("5. REGRESSION MODEL:\n")
+cat("   A multiple regression model (exam ~ study_hours + sleep + anxiety + GPA)\n")
+cat("   explained approximately 60-65% of variance in exam scores (adj. R²).\n")
+cat("   All four predictors were statistically significant. Each additional\n")
+cat("   study hour added ~0.4 points; each anxiety point reduced score by ~1.2.\n\n")
+
+cat("6. RECOMMENDATION:\n")
+cat("   Interventions targeting study hours and anxiety management are most\n")
+cat("   likely to improve student outcomes. Sleep hygiene programs may also\n")
+cat("   provide meaningful benefit. Major-based interventions are not supported\n")
+cat("   by the current data.\n")
+cat("==============================================\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('task6','task6-output')">&#x25B6; Run Task 6 &mdash; Generate Report</button>
+      <div id="task6-output" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Make it yours:</strong> Edit the report based on what you actually found in Tasks 1&ndash;5. Did you see different results? Update the numbers and interpretations to reflect your actual output.</div>
+    </div>
+
+    <!-- SAMPLE SOLUTION -->
+    <details class="solution-toggle">
+      <summary>&#x1F4A1; View Sample Solution: All Tasks Together</summary>
+      <div style="margin-top:1rem">
+        <p style="color:#6A1B9A;font-size:0.9rem">This shows one complete approach to all 6 tasks. Your analysis may differ &mdash; that&rsquo;s expected! Statistics involves judgment.</p>
+        <div class="worked-code"># ============================================
+# COMPLETE CAPSTONE SOLUTION
+# ============================================
+set.seed(2024); n &lt;- 120
+students &lt;- data.frame(
+  gpa=pmax(1.5,pmin(4.0,rnorm(n,3.1,0.5))),
+  study_hours=round(runif(n,3,40),1),
+  sleep_hours=pmax(4,pmin(10,rnorm(n,7,1.2))),
+  anxiety_score=round(runif(n,1,10)),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.35,0.65)),
+  major=sample(c("STEM","Humanities","Business","Arts"),n,replace=TRUE),
+  year=sample(1:4,n,replace=TRUE))
+students$exam_score&lt;-pmax(40,pmin(100,round(55+0.3*students$gpa*10+0.4*students$study_hours+1.5*students$sleep_hours-1.2*students$anxiety_score+rnorm(n,0,8))))
+
+# Task 1: Descriptive stats
+cat("=== Task 1: Descriptive Stats ===\n")
+num_vars &lt;- c("gpa","study_hours","sleep_hours","anxiety_score","exam_score")
+print(summary(students[, num_vars]))
+
+# Task 2: Normality
+cat("\n=== Task 2: GPA Normality ===\n")
+cat("GPA mean:", round(mean(students$gpa),3), "| SD:", round(sd(students$gpa),3),"\n")
+
+# Task 3: T-test
+cat("\n=== Task 3: STEM vs Non-STEM ===\n")
+result &lt;- t.test(exam_score ~ (major=="STEM"), data=students)
+cat("p-value:", round(result$p.value, 4), "\n")
+
+# Task 4: Correlations
+cat("\n=== Task 4: Correlations with exam_score ===\n")
+cors &lt;- sort(cor(students[,num_vars])["exam_score",], decreasing=TRUE)
+print(round(cors, 3))
+
+# Task 5: Multiple regression
+cat("\n=== Task 5: Multiple Regression ===\n")
+model &lt;- lm(exam_score ~ study_hours + sleep_hours + anxiety_score + gpa, data=students)
+cat("Adj R²:", round(summary(model)$adj.r.squared, 3), "\n")
+print(round(coef(model), 3))</div>
+      </div>
+    </details>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break" style="margin-top:2rem">
+      <h2>&#x1F9E0; Final Brain Break</h2>
+      <p style="margin-bottom:0.5rem">You just did a complete statistical analysis &mdash; the same workflow used in real research, policy analysis, and data science.</p>
+      <p style="font-size:1.05rem;margin:0"><strong>Reflect:</strong> Which part of the analysis felt most uncertain? Statistical analysis always involves judgment calls &mdash; which variables to include, how to interpret results, what to recommend. The numbers only tell part of the story.</p>
+    </div>
+
+    <!-- KEY TAKEAWAY -->
+    <div class="key-takeaway">
+      <h2>&#x2705; Key Takeaway</h2>
+      <p style="margin:0;font-size:1.05rem">A complete statistical analysis follows a workflow: (1) explore and describe, (2) check assumptions, (3) test hypotheses, (4) examine relationships, (5) build a model, (6) communicate findings. The technical skills matter &mdash; but so does the plain-English interpretation that makes results actionable.</p>
+    </div>
+
+    <!-- MODULE COMPLETE -->
+    <div class="module-complete">
+      <h2>&#x1F393; You&rsquo;ve Completed Statistics with R!</h2>
+      <p style="font-size:1.1rem;opacity:0.95">You can now run complete statistical analyses in R &mdash; from raw data to written conclusions &mdash; using the tools that statisticians, researchers, and data scientists use every day.</p>
+      <p>You&rsquo;ve mastered: descriptive statistics, probability distributions, the Central Limit Theorem, confidence intervals, hypothesis testing, correlation, simple and multiple regression, and full analysis workflows. All in R. All in the browser.</p>
+      <div class="next-steps">
+        <div class="next-card">
+          <h4>&#x1F52C; R Practice Labs</h4>
+          <p>10 labs focused on R programming skills &mdash; data frames, dplyr, ggplot2, and more. The perfect complement to this course.</p>
+          <a href="../../r-labs/index.html">Open R Practice Labs &rarr;</a>
+        </div>
+        <div class="next-card">
+          <h4>&#x1F4CA; Data Analyst Course</h4>
+          <p>Apply your statistical and R skills to real-world data analysis scenarios in the full Data Analyst learning path.</p>
+          <a href="../../data-analyst/index.html">Open Data Analyst Course &rarr;</a>
+        </div>
+        <div class="next-card">
+          <h4>&#x1F4D6; Introduction to Statistics</h4>
+          <p>Want to deepen the theory behind what you just practiced? The Introduction to Statistics course covers the conceptual foundations in depth.</p>
+          <a href="../../intro-stats/index.html">Open Intro to Statistics &rarr;</a>
+        </div>
+      </div>
+      <p style="margin-top:1.5rem;margin-bottom:0;font-size:0.95rem;opacity:0.85"><a href="../index.html">Back to Statistics with R Course Home &rarr;</a></p>
+    </div>
+
+    <div class="module-nav" style="margin-top:2rem">
+      <a href="../module-07/index.html" class="nav-prev">&larr; Module 7: Multiple Regression</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 8 of 8 &mdash; Complete!</span>
+      <a href="../index.html" class="nav-done">&#x2705; Course Home</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Statistics with R &mdash; Module 8: Capstone</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>
