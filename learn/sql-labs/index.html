@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Practice Labs — 10 hands-on labs powered by sql.js (SQLite in WebAssembly). Write and run real SQL queries directly in your browser. No installs, no accounts.">
+  <title>SQL Practice Labs - Safaa Dabagh</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .course-header {
+      background: linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center;
+    }
+    .course-header h1 { color: white; margin-bottom: var(--spacing-sm); font-size: 2.5rem; line-height: 1.2; }
+    .course-header .tagline { font-size: 1.2rem; opacity: 0.95; margin-bottom: var(--spacing-md); max-width: 620px; margin-left: auto; margin-right: auto; }
+    .course-meta { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .meta-pill { background: rgba(255,255,255,0.2); color: white; padding: 6px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; }
+
+    .sqljs-callout {
+      background: #E3F2FD; border: 2px solid #1565C0; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+      display: flex; gap: var(--spacing-md); align-items: flex-start;
+    }
+    .sqljs-callout .icon { font-size: 2.5rem; flex-shrink: 0; }
+    .sqljs-callout h3 { color: #0D47A1; margin-bottom: var(--spacing-xs); font-size: 1.1rem; }
+    .sqljs-callout p { color: #1565C0; margin: 0; line-height: 1.6; }
+
+    .prereq-callout {
+      background: #FFF8E1; border: 2px solid #F9A825; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+    }
+    .prereq-callout h3 { color: #E65100; margin-top: 0; margin-bottom: var(--spacing-xs); }
+    .prereq-callout p { color: #5D4037; margin: 0; }
+    .prereq-callout a { color: #1565C0; font-weight: 600; }
+
+    .stats-row { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--spacing-xl); }
+    .stat-box { background: var(--background-alt); border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; min-width: 130px; }
+    .stat-num { font-size: 2rem; font-weight: 700; color: #1565C0; }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+
+    .section-heading { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: var(--spacing-lg); border-bottom: 3px solid #1565C0; display: inline-block; padding-bottom: 0.25rem; }
+
+    .difficulty-group { margin-bottom: var(--spacing-xl); }
+    .difficulty-label {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: var(--spacing-md);
+    }
+    .diff-foundations { background: #E3F2FD; color: #1565C0; }
+    .diff-intermediate { background: #E8F5E9; color: #2E7D32; }
+    .diff-advanced { background: #FCE4EC; color: #C62828; }
+
+    .labs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-lg); }
+    .lab-card {
+      background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .lab-card:hover { border-color: #1565C0; box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .lab-num {
+      background: #1565C0; color: white; width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+      font-size: 1rem; margin-bottom: var(--spacing-sm);
+    }
+    .lab-badge {
+      position: absolute; top: 16px; right: 16px; background: #28A745; color: white;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    }
+    .lab-card h3 { color: var(--primary-dark); margin-bottom: 0.25rem; font-size: 1.1rem; margin-top: 0; }
+    .lab-card .lab-subtitle { color: var(--text-secondary); font-size: 0.85rem; font-style: italic; margin-bottom: var(--spacing-sm); }
+    .lab-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: var(--spacing-sm); }
+    .lab-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: var(--spacing-sm); }
+    .lab-tag { background: #F3F4F6; color: #374151; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .lab-card a.lab-link {
+      display: inline-block; background: #1565C0; color: white; padding: 0.5rem 1.25rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: var(--transition);
+    }
+    .lab-card a.lab-link:hover { background: #0D47A1; text-decoration: none; }
+
+    .how-it-works { background: var(--background-alt); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+    .how-it-works h2 { margin-top: 0; border-bottom: none; display: block; font-size: 1.5rem; }
+    .steps-row { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .step-item { flex: 1; min-width: 160px; text-align: center; }
+    .step-circle {
+      width: 56px; height: 56px; border-radius: 50%; background: #1565C0; color: white;
+      font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--spacing-sm);
+    }
+    .step-item h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--primary-dark); }
+    .step-item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../../free-courses.html" class="back-link">&larr; Back to Free Courses</a>
+
+    <div class="course-header">
+      <h1>&#x1F5C4;&#xFE0F; SQL Practice Labs</h1>
+      <p class="tagline">Write real SQL. See real results. No setup required.</p>
+      <p style="opacity:0.9; font-size:1rem; margin-bottom:0;">10 hands-on labs using SQLite in your browser. Type a query, click Run &mdash; results appear as a table instantly.</p>
+      <div class="course-meta">
+        <span class="meta-pill">10 Labs</span>
+        <span class="meta-pill">Runs in Browser</span>
+        <span class="meta-pill">Free</span>
+        <span class="meta-pill">No Installs</span>
+        <span class="meta-pill">Real SQLite</span>
+      </div>
+    </div>
+
+    <div class="sqljs-callout">
+      <div class="icon">&#x1F4BE;</div>
+      <div>
+        <h3>Powered by sql.js &mdash; SQLite runs right here</h3>
+        <p>No accounts. No downloads. No database server to set up. SQLite runs directly in your browser using sql.js &mdash; a full SQLite database engine compiled to WebAssembly. Type a query, click &#x25B6; Run, and your results appear as a real table instantly. Everything stays right here on this page.</p>
+      </div>
+    </div>
+
+    <div class="prereq-callout">
+      <h3>&#x1F4CB; Before You Start</h3>
+      <p>Some SQL experience is helpful but not required for Lab 1. Labs build progressively &mdash; each one introduces new concepts. Perfect companion to the <a href="../data-analyst/index.html">Data Analyst course</a>. If you&rsquo;ve seen a SELECT statement before, you&rsquo;re ready to begin.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Labs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Exercises</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Databases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">Always</div>
+      </div>
+    </div>
+
+    <!-- FOUNDATIONS -->
+    <div class="difficulty-group">
+      <div class="section-heading">The 10 Labs</div>
+      <br>
+      <span class="difficulty-label diff-foundations">&#x1F7E6; Foundations &mdash; Labs 1&ndash;3</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">1</div>
+          <h3>SELECT &amp; FROM</h3>
+          <div class="lab-subtitle">Ask your first question of a database</div>
+          <p>Learn the two most fundamental SQL keywords. Query the students table, choose columns, and create calculated fields with aliases.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">SELECT</span>
+            <span class="lab-tag">FROM</span>
+            <span class="lab-tag">aliases</span>
+            <span class="lab-tag">*</span>
+          </div>
+          <a href="lab-01/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">2</div>
+          <h3>WHERE: Filtering Results</h3>
+          <div class="lab-subtitle">Find exactly what you're looking for</div>
+          <p>Filter rows with comparison operators, AND/OR/NOT, IN(), BETWEEN, LIKE wildcards, and IS NULL. Play the role of a financial aid officer.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">WHERE</span>
+            <span class="lab-tag">AND/OR</span>
+            <span class="lab-tag">LIKE</span>
+            <span class="lab-tag">IN/BETWEEN</span>
+          </div>
+          <a href="lab-02/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">3</div>
+          <h3>ORDER BY, LIMIT &amp; DISTINCT</h3>
+          <div class="lab-subtitle">Sort, limit, and deduplicate your results</div>
+          <p>Sort results ascending or descending, restrict output with LIMIT, and eliminate duplicates with DISTINCT. Build a student directory.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">ORDER BY</span>
+            <span class="lab-tag">LIMIT</span>
+            <span class="lab-tag">DISTINCT</span>
+            <span class="lab-tag">ASC/DESC</span>
+          </div>
+          <a href="lab-03/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INTERMEDIATE -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-intermediate">&#x1F7E9; Intermediate &mdash; Labs 4&ndash;6</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">4</div>
+          <h3>Aggregate Functions</h3>
+          <div class="lab-subtitle">COUNT, SUM, AVG, MIN, MAX</div>
+          <p>Turn rows into insights. Aggregate across the retail database to answer business questions about orders, revenue, and inventory.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">COUNT</span>
+            <span class="lab-tag">SUM</span>
+            <span class="lab-tag">AVG</span>
+            <span class="lab-tag">MIN/MAX</span>
+          </div>
+          <a href="lab-04/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">5</div>
+          <h3>GROUP BY &amp; HAVING</h3>
+          <div class="lab-subtitle">Aggregate by groups — and filter those groups</div>
+          <p>Group rows before aggregating, then filter groups with HAVING. Master the difference between WHERE and HAVING. Build a sales report.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">GROUP BY</span>
+            <span class="lab-tag">HAVING</span>
+            <span class="lab-tag">WHERE vs HAVING</span>
+          </div>
+          <a href="lab-05/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">6</div>
+          <h3>JOINs: Combining Tables</h3>
+          <div class="lab-subtitle">The most powerful concept in SQL</div>
+          <p>Combine customers, orders, and products with INNER JOIN and LEFT JOIN. Learn table aliases. Find customers who never ordered.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">INNER JOIN</span>
+            <span class="lab-tag">LEFT JOIN</span>
+            <span class="lab-tag">aliases</span>
+            <span class="lab-tag">ON</span>
+          </div>
+          <a href="lab-06/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ADVANCED -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-advanced">&#x1F534; Advanced &mdash; Labs 7&ndash;10</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">7</div>
+          <h3>Subqueries</h3>
+          <div class="lab-subtitle">Queries inside queries</div>
+          <p>Use subqueries in WHERE, FROM, and HAVING clauses. Write correlated subqueries. Query the company database to answer complex HR questions.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">subquery</span>
+            <span class="lab-tag">IN/EXISTS</span>
+            <span class="lab-tag">correlated</span>
+            <span class="lab-tag">nested</span>
+          </div>
+          <a href="lab-07/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">8</div>
+          <h3>String &amp; Date Functions</h3>
+          <div class="lab-subtitle">Manipulating text and dates in SQL</div>
+          <p>Use UPPER, LOWER, SUBSTR, LENGTH, INSTR, strftime, julianday, and CASE WHEN. Format employee names and calculate tenure.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">SUBSTR</span>
+            <span class="lab-tag">strftime</span>
+            <span class="lab-tag">CASE WHEN</span>
+            <span class="lab-tag">dates</span>
+          </div>
+          <a href="lab-08/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">9</div>
+          <h3>INSERT, UPDATE, DELETE &amp; CREATE</h3>
+          <div class="lab-subtitle">Not just reading data — writing it too</div>
+          <p>Create tables, insert rows, update records, and delete data safely. Build a student registration system from scratch. Each page load resets the database.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">INSERT</span>
+            <span class="lab-tag">UPDATE</span>
+            <span class="lab-tag">DELETE</span>
+            <span class="lab-tag">CREATE TABLE</span>
+          </div>
+          <a href="lab-09/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">10</div>
+          <h3>Capstone: Full Analysis</h3>
+          <div class="lab-subtitle">A real analyst's workflow — start to finish</div>
+          <p>No fill-in-the-blanks. Six real business questions from your manager. You write the SQL to answer them using the full company + sales database.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">joins</span>
+            <span class="lab-tag">aggregates</span>
+            <span class="lab-tag">subqueries</span>
+            <span class="lab-tag">capstone</span>
+          </div>
+          <a href="lab-10/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>How Each Lab Works</h2>
+      <p style="color:var(--text-secondary);">Every lab follows the same structure so you always know what to expect.</p>
+      <div class="steps-row">
+        <div class="step-item">
+          <div class="step-circle">&#x1F4D6;</div>
+          <h4>Concept Recap</h4>
+          <p>A quick review of the key SQL concepts &mdash; no new theory, just a focused reminder before you practice.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F440;</div>
+          <h4>Worked Example</h4>
+          <p>A complete, runnable SQL example showing the concepts in action against the lab&rsquo;s database.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x270F;&#xFE0F;</div>
+          <h4>Guided Exercise</h4>
+          <p>Starter SQL with blanks to fill in. Lower stakes, with hints to get you moving.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F4AA;</div>
+          <h4>Independent + Challenge</h4>
+          <p>Two exercises where you write the SQL from scratch. The challenge pushes further.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F3C6;</div>
+          <h4>Mini Project</h4>
+          <p>A real-world scenario tying the whole lab together. Multiple queries, one goal.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3 style="margin-top:0;">Technical notes</h3>
+      <ul class="icon-list">
+        <li>All labs load within 1&ndash;2 seconds &mdash; sql.js is compact and fast.</li>
+        <li>Each lab pre-loads a relevant database schema with sample data automatically.</li>
+        <li>Everything runs locally in your browser tab. Nothing is sent to a server.</li>
+        <li>Works best in Chrome or Firefox. Safari is also supported.</li>
+        <li>Your queries are NOT saved between page refreshes. Copy anything you want to keep.</li>
+        <li>Labs 1&ndash;3 use the students database. Labs 4&ndash;6 use a retail database. Labs 7&ndash;10 use a company database.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Powered by sql.js (SQLite in WebAssembly)</p>
+  </footer>
+
+</body>
+</html>

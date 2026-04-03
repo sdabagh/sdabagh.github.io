@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 1: Vectors & Data Types — R Practice Labs. Practice creating and manipulating R vectors.">
+  <title>Lab 1: Vectors &amp; Data Types - R Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
+    .nav-next{background:#C62828;color:white}
+    .nav-next:hover{background:#B71C1C;text-decoration:none}
+    .nav-home{color:var(--text-secondary);font-size:0.85rem}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#C62828}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#C62828}
+    .run-btn{background:#C62828;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#B71C1C}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#ef9a9a;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ff5252}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#C62828;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#C62828,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#ffcdd2;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+
+    const webR = new WebR();
+    let webRReady = false;
+
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true,
+          captureStreams: true,
+          captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output
+          .filter(o => o.type === 'stdout' || o.type === 'stderr')
+          .map(o => o.data)
+          .join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally {
+        shelter.purge();
+      }
+    }
+
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 1 of 10</div>
+      <h1>Vectors &amp; Data Types</h1>
+      <p>R&rsquo;s building blocks &mdash; everything is a vector</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
+      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <p>In R, <strong>everything is a vector</strong> &mdash; even a single number is a vector of length 1. Vectors are R&rsquo;s most fundamental data structure.</p>
+      <ul>
+        <li><strong>numeric</strong> &mdash; numbers: <code>c(1.5, 2.7, 3.0)</code></li>
+        <li><strong>character</strong> &mdash; text: <code>c("Alice", "Bob")</code></li>
+        <li><strong>logical</strong> &mdash; TRUE or FALSE: <code>c(TRUE, FALSE, TRUE)</code></li>
+        <li><strong>integer</strong> &mdash; whole numbers: <code>c(1L, 2L, 3L)</code></li>
+        <li><strong>factor</strong> &mdash; categorical with levels: <code>factor(c("A","B","A"))</code></li>
+      </ul>
+      <p style="margin-bottom:0">Key functions: <code>c()</code> creates vectors, <code>length()</code> counts elements, <code>class()</code> checks type, <code>str()</code> shows structure, <code>summary()</code> gives stats. R is <strong>vectorized</strong> &mdash; operations apply to every element automatically.</p>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <p>Study this code carefully before diving into the exercises:</p>
+      <div class="worked-code"># Creating vectors
+ages &lt;- c(22, 25, 19, 31, 28)
+names_vec &lt;- c("Alice", "Bob", "Carol", "David", "Eve")
+enrolled &lt;- c(TRUE, TRUE, FALSE, TRUE, FALSE)
+
+# Exploring vectors
+print(ages)
+cat("Length:", length(ages), "\n")
+cat("Class:", class(ages), "\n")
+cat("Mean age:", mean(ages), "\n")
+
+# Vector operations — R is vectorized!
+ages_in_months &lt;- ages * 12
+print(ages_in_months)
+
+# Logical indexing
+adults &lt;- ages[ages &gt;= 21]
+cat("Adults:", adults, "\n")</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Exam Score Vector</h3>
+      <p>Fill in the blanks to complete the exam score analysis. Replace each <code>___</code> with the correct value or function name.</p>
+      <textarea class="code-editor" id="editor1"># Create a vector of 6 exam scores
+scores &lt;- c(88, 92, 75, 84, 95, 79)  # feel free to change these
+
+# Calculate statistics
+cat("Mean:", mean(scores), "\n")
+cat("Median:", median(scores), "\n")
+cat("Highest:", max(scores), "\n")
+cat("Lowest:", min(scores), "\n")
+cat("Standard Deviation:", round(sd(scores), 2), "\n")
+
+# How many scores are above 85?
+above_85 &lt;- scores[scores &gt; 85]
+cat("Scores above 85:", above_85, "\n")
+cat("Count above 85:", length(above_85), "\n")
+
+# What percentage passed (score &gt;= 70)?
+pass_rate &lt;- sum(scores &gt;= 70) / length(scores) * 100
+cat("Pass rate:", pass_rate, "%\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> R applies functions like <code>mean()</code> and <code>sd()</code> to the whole vector at once. <code>scores &gt; 85</code> returns a logical vector &mdash; use it inside <code>[]</code> to filter.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; City Data Vectors</h3>
+      <p>Create a character vector of 5 city names, a numeric vector of their populations (in millions), and a logical vector for whether they are in California. Then:</p>
+      <ol>
+        <li>Print only the California cities using logical indexing</li>
+        <li>Print the city with the highest population using <code>which.max()</code></li>
+        <li>Print a formatted summary using <code>paste()</code> or <code>cat()</code></li>
+      </ol>
+      <textarea class="code-editor" id="editor2"># Your code here — create 3 vectors and answer the 3 questions
+</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>cities[in_california]</code> filters cities where the logical vector is TRUE. <code>cities[which.max(populations)]</code> gives the city with the largest population.</div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Vector Operations Without Loops</h3>
+      <p>Create a vector of numbers 1 to 20 using <code>1:20</code> or <code>seq()</code>. Then using <strong>vector operations only</strong> (no for loops):</p>
+      <ol>
+        <li>Find all even numbers (hint: use <code>%%</code> for modulo)</li>
+        <li>Find numbers divisible by 3</li>
+        <li>Find numbers that are BOTH even AND divisible by 3</li>
+        <li>Calculate the sum of all odd numbers</li>
+      </ol>
+      <textarea class="code-editor" id="editor3"># Create the vector
+nums &lt;- 1:20
+
+# 1. Even numbers (divisible by 2)
+
+# 2. Numbers divisible by 3
+
+# 3. Divisible by BOTH 2 and 3
+
+# 4. Sum of all odd numbers
+</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>nums[nums %% 2 == 0]</code> finds even numbers. Combine conditions with <code>&amp;</code>: <code>nums[nums %% 2 == 0 &amp; nums %% 3 == 0]</code>. Use <code>sum()</code> on a filtered vector.</div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Student Profile Dataset</span>
+      <h3>Build a Student Dataset from Vectors</h3>
+      <p>Build a complete student dataset using vectors. Create: <code>student_names</code> (6 students), <code>gpas</code> (numeric, realistic values), <code>majors</code> (character), <code>years</code> (integer 1&ndash;4), <code>on_honor_roll</code> (logical: TRUE if gpa &ge; 3.7).</p>
+      <p>Then answer these questions using only vector operations:</p>
+      <ol>
+        <li>Who is on honor roll? (print names)</li>
+        <li>What is the average GPA by major? (use <code>tapply(gpas, majors, mean)</code>)</li>
+        <li>Who has the highest GPA? (use <code>which.max()</code>)</li>
+        <li>Print a formatted summary for each student using a for loop and <code>cat()</code></li>
+      </ol>
+      <textarea class="code-editor" id="editor4" style="min-height:240px;"># Build your vectors here
+student_names &lt;- c()
+gpas &lt;- c()
+majors &lt;- c()
+years &lt;- c()
+on_honor_roll &lt;- gpas &gt;= 3.7
+
+# Answer the 4 questions
+</textarea>
+      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
+      <div id="output4" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>student_names[on_honor_roll]</code> gives honor roll names. <code>tapply(gpas, majors, mean)</code> computes the mean GPA for each unique major automatically.</div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 1 Complete!</h2>
+      <p>You&rsquo;ve mastered R&rsquo;s foundational data structure &mdash; the vector. Vectorized operations, logical indexing, and the apply family are the core of R&rsquo;s power and elegance.</p>
+      <p style="margin-bottom:0"><a href="../lab-02/index.html">Continue to Lab 2: Data Frames &rarr;</a></p>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
+      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 1: Vectors &amp; Data Types</p>
+  </footer>
+
+</body>
+</html>

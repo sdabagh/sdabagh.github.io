@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="R Practice Labs — 10 hands-on labs powered by WebR. Write and run real R code directly in your browser. No RStudio, no installs, no accounts.">
+  <title>R Practice Labs - Safaa Dabagh</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .course-header {
+      background: linear-gradient(135deg, #7B1FA2 0%, #C62828 50%, #B71C1C 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center;
+    }
+    .course-header h1 { color: white; margin-bottom: var(--spacing-sm); font-size: 2.5rem; line-height: 1.2; }
+    .course-header .tagline { font-size: 1.2rem; opacity: 0.95; margin-bottom: var(--spacing-md); max-width: 620px; margin-left: auto; margin-right: auto; }
+    .course-meta { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .meta-pill { background: rgba(255,255,255,0.2); color: white; padding: 6px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; }
+
+    .webr-callout {
+      background: #FFEBEE; border: 2px solid #C62828; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+      display: flex; gap: var(--spacing-md); align-items: flex-start;
+    }
+    .webr-callout .icon { font-size: 2.5rem; flex-shrink: 0; }
+    .webr-callout h3 { color: #B71C1C; margin-bottom: var(--spacing-xs); font-size: 1.1rem; }
+    .webr-callout p { color: #C62828; margin: 0; line-height: 1.6; }
+
+    .prereq-callout {
+      background: #FFF8E1; border: 2px solid #F9A825; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+    }
+    .prereq-callout h3 { color: #E65100; margin-top: 0; margin-bottom: var(--spacing-xs); }
+    .prereq-callout p { color: #5D4037; margin: 0; }
+    .prereq-callout a { color: #C62828; font-weight: 600; }
+
+    .stats-row { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--spacing-xl); }
+    .stat-box { background: var(--background-alt); border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; min-width: 130px; }
+    .stat-num { font-size: 2rem; font-weight: 700; color: #C62828; }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+
+    .section-heading { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: var(--spacing-lg); border-bottom: 3px solid #C62828; display: inline-block; padding-bottom: 0.25rem; }
+
+    .difficulty-group { margin-bottom: var(--spacing-xl); }
+    .difficulty-label {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: var(--spacing-md);
+    }
+    .diff-foundations { background: #FFEBEE; color: #C62828; }
+    .diff-intermediate { background: #E8F5E9; color: #2E7D32; }
+    .diff-advanced { background: #F3E5F5; color: #6A1B9A; }
+
+    .labs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-lg); }
+    .lab-card {
+      background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .lab-card:hover { border-color: #C62828; box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .lab-num {
+      background: #C62828; color: white; width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+      font-size: 1rem; margin-bottom: var(--spacing-sm);
+    }
+    .lab-badge {
+      position: absolute; top: 16px; right: 16px; background: #2E7D32; color: white;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    }
+    .lab-card h3 { color: var(--primary-dark); margin-bottom: 0.25rem; font-size: 1.1rem; margin-top: 0; }
+    .lab-card .lab-subtitle { color: var(--text-secondary); font-size: 0.85rem; font-style: italic; margin-bottom: var(--spacing-sm); }
+    .lab-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: var(--spacing-sm); }
+    .lab-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: var(--spacing-sm); }
+    .lab-tag { background: #F3F4F6; color: #374151; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .lab-card a.lab-link {
+      display: inline-block; background: #C62828; color: white; padding: 0.5rem 1.25rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: var(--transition);
+    }
+    .lab-card a.lab-link:hover { background: #B71C1C; text-decoration: none; }
+
+    .how-it-works { background: var(--background-alt); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+    .how-it-works h2 { margin-top: 0; border-bottom: none; display: block; font-size: 1.5rem; }
+    .steps-row { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .step-item { flex: 1; min-width: 160px; text-align: center; }
+    .step-circle {
+      width: 56px; height: 56px; border-radius: 50%; background: #C62828; color: white;
+      font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--spacing-sm);
+    }
+    .step-item h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--primary-dark); }
+    .step-item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../../free-courses.html" class="back-link">&larr; Back to Free Courses</a>
+
+    <div class="course-header">
+      <h1>R Practice Labs</h1>
+      <p class="tagline">Real R. In your browser. Powered by WebR.</p>
+      <p style="opacity:0.9; font-size:1rem; margin-bottom:0;">10 hands-on labs for students who&rsquo;ve completed Introduction to Statistics. Write R code, click Run, see results &mdash; right in your browser. No RStudio required.</p>
+      <div class="course-meta">
+        <span class="meta-pill">10 Labs</span>
+        <span class="meta-pill">Runs in Browser</span>
+        <span class="meta-pill">Free</span>
+        <span class="meta-pill">No Installs</span>
+        <span class="meta-pill">Self-Paced</span>
+      </div>
+    </div>
+
+    <div class="webr-callout">
+      <div class="icon">&#x1F9EA;</div>
+      <div>
+        <h3>Powered by WebR &mdash; R runs right here</h3>
+        <p>No accounts. No downloads. No RStudio. No cloud IDE. R runs directly in your browser using WebR &mdash; a full R runtime compiled to WebAssembly. All packages, all output, all plots &mdash; everything stays right here on this page.</p>
+      </div>
+    </div>
+
+    <div class="prereq-callout">
+      <h3>&#x1F4CB; Before You Start</h3>
+      <p>These labs are designed for students with basic R familiarity &mdash; ideally after completing Introduction to Statistics. You should know what a variable is, how to call a function, and have seen a vector before. If you&rsquo;re brand new to R, start with a beginner tutorial first.</p>
+      <p style="margin-top:0.75rem;"><a href="../intro-stats/index.html">&larr; Take Introduction to Statistics first</a></p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Labs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Exercises</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Installs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">Always</div>
+      </div>
+    </div>
+
+    <!-- FOUNDATIONS -->
+    <div class="difficulty-group">
+      <div class="section-heading">The 10 Labs</div>
+      <br>
+      <span class="difficulty-label diff-foundations">&#x1F7E5; Foundations &mdash; Labs 1&ndash;3</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">1</div>
+          <h3>Vectors &amp; Data Types</h3>
+          <div class="lab-subtitle">R&rsquo;s building blocks &mdash; everything is a vector</div>
+          <p>Practice creating and manipulating numeric, character, logical, and factor vectors. Master indexing, vectorized operations, and logical subsetting.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">c()</span>
+            <span class="lab-tag">vectors</span>
+            <span class="lab-tag">indexing</span>
+            <span class="lab-tag">class()</span>
+          </div>
+          <a href="lab-01/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">2</div>
+          <h3>Data Frames</h3>
+          <div class="lab-subtitle">R&rsquo;s version of a spreadsheet &mdash; and so much more</div>
+          <p>Create, explore, filter, and sort data frames. Access columns with $, subset rows with conditions, add new columns, and produce summary statistics.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">data.frame()</span>
+            <span class="lab-tag">$</span>
+            <span class="lab-tag">subset</span>
+            <span class="lab-tag">order()</span>
+          </div>
+          <a href="lab-02/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">3</div>
+          <h3>dplyr: Data Wrangling</h3>
+          <div class="lab-subtitle">The grammar of data manipulation</div>
+          <p>Master filter(), select(), mutate(), arrange(), group_by(), and summarize(). Chain operations with the pipe |&gt; for clean, readable analysis.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">dplyr</span>
+            <span class="lab-tag">pipe</span>
+            <span class="lab-tag">group_by</span>
+            <span class="lab-tag">summarize</span>
+          </div>
+          <a href="lab-03/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INTERMEDIATE -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-intermediate">&#x1F7E9; Intermediate &mdash; Labs 4&ndash;7</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">4</div>
+          <h3>Functions &amp; Control Flow</h3>
+          <div class="lab-subtitle">Writing reusable, intelligent R code</div>
+          <p>Write your own R functions, use if/else, for loops, and the apply family. Build a complete statistics toolkit of reusable functions.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">function()</span>
+            <span class="lab-tag">if/else</span>
+            <span class="lab-tag">sapply</span>
+            <span class="lab-tag">lapply</span>
+          </div>
+          <a href="lab-04/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">5</div>
+          <h3>String Manipulation</h3>
+          <div class="lab-subtitle">Cleaning and transforming text in R</div>
+          <p>Use base R string functions and the stringr package to clean messy data, detect patterns with regex, and extract structured info from text.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">stringr</span>
+            <span class="lab-tag">gsub</span>
+            <span class="lab-tag">regex</span>
+            <span class="lab-tag">str_detect</span>
+          </div>
+          <a href="lab-05/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">6</div>
+          <h3>ggplot2: Data Visualization</h3>
+          <div class="lab-subtitle">The grammar of graphics</div>
+          <p>Build publication-quality charts with ggplot2. Bar charts, scatter plots, histograms, boxplots, and faceted figures. Plots render right in the browser.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">ggplot2</span>
+            <span class="lab-tag">geom_*</span>
+            <span class="lab-tag">aes()</span>
+            <span class="lab-tag">themes</span>
+          </div>
+          <a href="lab-06/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">7</div>
+          <h3>Statistical Analysis</h3>
+          <div class="lab-subtitle">From data to insights &mdash; the core of R</div>
+          <p>Run t-tests, correlations, and linear regression. Interpret coefficients, p-values, and R&sup2;. Simulate data and test statistical hypotheses.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">t.test()</span>
+            <span class="lab-tag">lm()</span>
+            <span class="lab-tag">cor()</span>
+            <span class="lab-tag">summary()</span>
+          </div>
+          <a href="lab-07/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ADVANCED -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-advanced">&#x1F7E3; Advanced &mdash; Labs 8&ndash;10</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">8</div>
+          <h3>Tidyr &amp; Data Import</h3>
+          <div class="lab-subtitle">Tidy data is happy data</div>
+          <p>Transform wide data to long and back with pivot_longer() and pivot_wider(). Use separate() and unite(). Learn what &ldquo;tidy data&rdquo; really means.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">tidyr</span>
+            <span class="lab-tag">pivot_longer</span>
+            <span class="lab-tag">pivot_wider</span>
+            <span class="lab-tag">separate</span>
+          </div>
+          <a href="lab-08/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">9</div>
+          <h3>R Markdown Style Reports</h3>
+          <div class="lab-subtitle">Communicating your analysis like a professional</div>
+          <p>Build formatted, professional-looking reports using cat(), sprintf(), and structured output functions. Write code that tells a story.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">sprintf()</span>
+            <span class="lab-tag">cat()</span>
+            <span class="lab-tag">formatting</span>
+            <span class="lab-tag">reports</span>
+          </div>
+          <a href="lab-09/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">10</div>
+          <h3>Capstone: Full R Analysis</h3>
+          <div class="lab-subtitle">Everything together &mdash; a complete real analysis</div>
+          <p>You&rsquo;re a university analyst. Analyze student outcomes data end-to-end: descriptive stats, visualizations, hypothesis tests, regression, and a written executive summary.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">capstone</span>
+            <span class="lab-tag">regression</span>
+            <span class="lab-tag">t-test</span>
+            <span class="lab-tag">report</span>
+          </div>
+          <a href="lab-10/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>How Each Lab Works</h2>
+      <p style="color:var(--text-secondary);">Every lab follows the same 5-part structure so you always know what to expect.</p>
+      <div class="steps-row">
+        <div class="step-item">
+          <div class="step-circle">&#x1F4D6;</div>
+          <h4>Concept Recap</h4>
+          <p>A quick review of the key R concepts you&rsquo;ll practice &mdash; no new theory, just a crisp reminder.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F440;</div>
+          <h4>Worked Example</h4>
+          <p>A complete code example showing the concepts in action &mdash; study it before writing your own.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x270F;&#xFE0F;</div>
+          <h4>Guided Exercise</h4>
+          <p>Starter code with blanks to fill in. Lower stakes, lots of hints to get you going.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F4AA;</div>
+          <h4>Independent + Challenge</h4>
+          <p>Two exercises where you write more on your own. The challenge pushes further.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F3C6;</div>
+          <h4>Mini Project</h4>
+          <p>A complete real-world R task that ties the whole lab together.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3 style="margin-top:0;">Technical notes</h3>
+      <ul class="icon-list">
+        <li>All labs load WebR, which compiles R to WebAssembly &mdash; allow 15&ndash;20 seconds on first load.</li>
+        <li>Labs 1&ndash;5 and 7&ndash;9 use text output. Lab 6 renders ggplot2 charts directly on the page.</li>
+        <li>Everything runs locally in your browser tab. Nothing is sent to a server.</li>
+        <li>Works best in Chrome or Firefox. Safari should work too.</li>
+        <li>Your code is NOT saved between page refreshes. Copy anything you want to keep.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">R Practice Labs &mdash; Powered by WebR</p>
+  </footer>
+
+</body>
+</html>
