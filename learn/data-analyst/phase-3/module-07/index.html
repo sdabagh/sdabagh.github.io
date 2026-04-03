@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 7: Python for Data — pandas in Google Colab. Write Python in your browser, no installation required.">
+  <title>Module 7: Python for Data — Data Analyst Course</title>
+  <link rel="stylesheet" href="../../../../style.css">
+  <style>
+    .sticky-nav { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--border-color); padding: 0.75rem var(--spacing-md); display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-sm); }
+    .sticky-nav a { font-size: 0.8rem; color: #2E7D32; text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid #A5D6A7; transition: var(--transition); white-space: nowrap; }
+    .sticky-nav a:hover { background: #E8F5E9; }
+    .sticky-nav .nav-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-right: 0.25rem; }
+    .module-header { background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .module-header h1 { color: white; font-size: 2rem; margin-bottom: var(--spacing-xs); }
+    .module-header .module-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .module-header p { opacity: 0.92; font-size: 1.05rem; }
+    .time-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: var(--spacing-sm); }
+    .phase-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.2); color: white; margin-bottom: 0.75rem; }
+    .before-start { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .concept { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .why-matters { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .tool-setup { background: #E8EAF6; border-left: 4px solid #3949AB; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .practice { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .brain-break { background: #FFF3E0; border-left: 4px solid #E65100; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    .wrap-up { background: #E8F5E9; border: 2px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .before-start .section-title { color: #1565C0; }
+    .concept .section-title { color: #E65100; }
+    .why-matters .section-title { color: #7B1FA2; }
+    .tool-setup .section-title { color: #1A237E; }
+    .practice .section-title { color: #2E7D32; }
+    .brain-break .section-title { color: #E65100; }
+    .wrap-up .section-title { color: #1B5E20; }
+    .step { display: flex; align-items: flex-start; margin-bottom: 1.25rem; }
+    .step-num { background: #2E7D32; color: white; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.95rem; }
+    .step-content { flex: 1; padding-top: 0.3rem; line-height: 1.6; font-size: 0.95rem; }
+    .setup-step { display: flex; align-items: flex-start; margin-bottom: 1rem; }
+    .setup-num { background: #3949AB; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.85rem; }
+    .setup-content { flex: 1; padding-top: 0.25rem; line-height: 1.6; font-size: 0.9rem; }
+    .code-box { background: #1a1a2e; color: #e0e0e0; padding: 1rem 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.9rem; margin: 1rem 0; overflow-x: auto; line-height: 1.6; }
+    .code-label { font-size: 0.8rem; color: #90CAF9; margin-bottom: 0.5rem; font-family: sans-serif; font-weight: 600; }
+    .py-comment { color: #81C784; }
+    .py-string { color: #FFCC80; }
+    .py-keyword { color: #90CAF9; }
+    .stop-here { text-align: center; color: #888; font-size: 0.85rem; margin: 1.5rem 0; padding: 0.5rem; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    .one-thing { font-size: 1.15rem; font-weight: 700; color: #1B5E20; background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2E7D32; margin-top: 0.75rem; }
+    .module-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .module-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+    .nav-prev { background: white; border: 2px solid var(--border-color); color: var(--text-primary); }
+    .nav-prev:hover { border-color: #2E7D32; color: #2E7D32; }
+    .nav-next { background: #2E7D32; color: white; }
+    .nav-next:hover { background: #1B5E20; }
+    .nav-home { color: var(--text-secondary); font-size: 0.85rem; }
+    .brain-break-activities { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .activity-pill { background: white; border: 2px solid #E65100; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #E65100; font-weight: 600; }
+    .sql-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .compare-col { background: white; border-radius: 8px; padding: 1rem; border: 1px solid #ddd; }
+    .compare-col h4 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .compare-col.sql-col h4 { color: #1565C0; }
+    .compare-col.py-col h4 { color: #2E7D32; }
+    .compare-col code { font-size: 0.85rem; font-family: monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+    @media (max-width: 768px) { .sticky-nav { position: relative; } .module-nav { flex-direction: column; } .module-nav a { text-align: center; } .sql-compare { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <div class="sticky-nav">
+    <span class="nav-label">Jump to:</span>
+    <a href="#before">&#x1F4CC; Before</a>
+    <a href="#concept">&#x1F4A1; Concept</a>
+    <a href="#why">&#x1F517; Why It Matters</a>
+    <a href="#setup">&#x1F6E0;&#xFE0F; Tool Setup</a>
+    <a href="#practice">&#x1F590;&#xFE0F; Practice</a>
+    <a href="#brain-break">&#x1F9E0; Break</a>
+    <a href="#wrap-up">&#x2705; Wrap Up</a>
+  </div>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Phase 3</a>
+
+    <div class="module-header">
+      <div class="phase-badge">Phase 3 &mdash; Python for Data</div>
+      <div class="module-label">Module 7 of 14</div>
+      <h1>Python for Data &mdash; pandas in Google Colab</h1>
+      <p>Write Python in your browser. Zero installation. Real data analysis in minutes.</p>
+      <span class="time-badge">~22 minutes</span>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <section id="before" class="before-start">
+      <div class="section-title">&#x1F4CC; Before You Start</div>
+      <p><strong>What you need:</strong> Open <a href="https://colab.research.google.com" target="_blank"><strong>colab.research.google.com</strong></a> in a new tab. Sign in with your Google account. No installation required. Python runs entirely in your browser.</p>
+      <p style="margin-top: 0.75rem;"><strong>What you&rsquo;ll do:</strong> Create a new notebook, import pandas, build a DataFrame (a table of data), filter rows, group and sum by category, and get instant statistics. These four operations cover 80% of daily analyst work in Python.</p>
+    </section>
+
+    <!-- THE CONCEPT -->
+    <section id="concept" class="concept">
+      <div class="section-title">&#x1F4A1; The Concept</div>
+
+      <p><strong>Python is the most popular programming language for data analysis.</strong> pandas is the Python library that makes working with data easy &mdash; think of it as a supercharged spreadsheet inside Python.</p>
+
+      <p style="margin-top: 1rem;"><strong>Why Python instead of just Sheets?</strong></p>
+      <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
+        <li><strong>Scale:</strong> Google Sheets struggles with 100,000 rows. pandas handles 10 million rows without breaking a sweat.</li>
+        <li><strong>Speed:</strong> Operations that take minutes in Sheets take milliseconds in pandas.</li>
+        <li><strong>Reproducibility:</strong> Your code is a recipe. Run the same analysis again, instantly, on new data. No clicking. No errors.</li>
+        <li><strong>Power:</strong> Merge multiple datasets, reshape data, calculate complex formulas &mdash; all in a few lines.</li>
+      </ul>
+
+      <p style="margin-top: 1rem;"><strong>SQL &rarr; Python comparison</strong> (you already know SQL from Phase 1 &mdash; this will feel familiar):</p>
+      <div class="sql-compare">
+        <div class="compare-col sql-col">
+          <h4>SQL</h4>
+          <div style="font-size: 0.85rem; line-height: 1.7;">
+            Filter: <code>WHERE sales &gt; 400</code><br>
+            Group: <code>GROUP BY region</code><br>
+            Sort: <code>ORDER BY sales DESC</code>
+          </div>
+        </div>
+        <div class="compare-col py-col">
+          <h4>Python/pandas</h4>
+          <div style="font-size: 0.85rem; line-height: 1.7;">
+            Filter: <code>df[df['Sales'] &gt; 400]</code><br>
+            Group: <code>df.groupby('Region')</code><br>
+            Sort: <code>df.sort_values('Sales', ascending=False)</code>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-secondary);">Different syntax. Same logic. Your SQL brain will help you learn pandas faster than you think.</p>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section id="why" class="why-matters">
+      <div class="section-title">&#x1F517; Why It Matters</div>
+      <p>Python + pandas appears on nearly every data analyst and data scientist job posting. Even basic Python knowledge puts you ahead of 60% of applicants who only know spreadsheets.</p>
+      <p style="margin-top: 0.75rem;">Google Colab means you can practice Python from any computer with a browser &mdash; no setup, no installation, no IT department. You can show your work in a Colab notebook that anyone can view online. That is another portfolio piece.</p>
+    </section>
+
+    <!-- TOOL SETUP -->
+    <section id="setup" class="tool-setup">
+      <div class="section-title">&#x1F6E0;&#xFE0F; Tool Setup &mdash; Google Colab</div>
+
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-content">Go to <a href="https://colab.research.google.com" target="_blank"><strong>colab.research.google.com</strong></a> and sign in with your Google account.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-content">Click <strong>&ldquo;New Notebook&rdquo;</strong> in the top left (or File &rarr; New Notebook). A blank notebook appears.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">3</div>
+        <div class="setup-content">You will see a <strong>cell</strong> (a gray box). That is where you type Python code. Click the <strong>&#x25B6; play button</strong> on the left of the cell to run it, or press <strong>Shift + Enter</strong>.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">4</div>
+        <div class="setup-content">To add a new cell: click the <strong>&ldquo;+ Code&rdquo;</strong> button at the top, or hover below any cell and click the code button that appears. Each cell runs independently.</div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="practice">
+      <div class="section-title">&#x1F590;&#xFE0F; Practice</div>
+      <p style="margin-bottom: 1rem;">Switch to your Colab notebook. Type each block of code into a new cell and run it with Shift+Enter. Do not copy-paste &mdash; typing it yourself builds the skill.</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          In your first cell, type and run:
+          <div class="code-label">Cell 1: Import pandas</div>
+          <div class="code-box">import pandas as pd</div>
+          No output = success. This loads the pandas library. You only need to do this once per notebook.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          New cell. Create your first DataFrame:
+          <div class="code-label">Cell 2: Create a DataFrame</div>
+          <div class="code-box">data = {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="py-string">'Name'</span>: [<span class="py-string">'Alice'</span>, <span class="py-string">'Bob'</span>, <span class="py-string">'Carol'</span>, <span class="py-string">'David'</span>],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="py-string">'Sales'</span>: [500, 300, 750, 200],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="py-string">'Region'</span>: [<span class="py-string">'North'</span>, <span class="py-string">'South'</span>, <span class="py-string">'North'</span>, <span class="py-string">'East'</span>]<br>
+}<br>
+df = pd.DataFrame(data)<br>
+print(df)</div>
+          You just created a DataFrame &mdash; pandas&rsquo; version of a table. See how it prints with row numbers, column headers, and values? That is your data, organized.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          New cell. Filter rows (this is your SQL WHERE clause):
+          <div class="code-label">Cell 3: Filter rows</div>
+          <div class="code-box">print(df[df[<span class="py-string">'Sales'</span>] &gt; 400])</div>
+          This shows only rows where Sales is greater than 400. Alice (500) and Carol (750) appear. Bob (300) and David (200) are filtered out. Compare this to <code>WHERE Sales &gt; 400</code> in SQL.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          New cell. Group and sum (this is your SQL GROUP BY):
+          <div class="code-label">Cell 4: Group by Region</div>
+          <div class="code-box">print(df.groupby(<span class="py-string">'Region'</span>)[<span class="py-string">'Sales'</span>].sum())</div>
+          Total sales by region. North = Alice + Carol = 500 + 750 = 1250. South = 300. East = 200. One line of code. This is what GROUP BY SUM() does in SQL.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          New cell. Get instant statistics:
+          <div class="code-label">Cell 5: Describe the data</div>
+          <div class="code-box">print(df.describe())</div>
+          One line produces: count, mean, standard deviation, min, 25th percentile, median, 75th percentile, max. This is descriptive statistics on demand. In Sheets, this would take a dozen separate formulas.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          New cell. Select a single column:
+          <div class="code-label">Cell 6: Select one column</div>
+          <div class="code-box">print(df[<span class="py-string">'Name'</span>])</div>
+          This prints just the Name column. Compare: in SQL this is <code>SELECT Name FROM table</code>. Same concept, Python syntax.
+        </div>
+      </div>
+    </section>
+
+    <div class="stop-here">&#x1F6D1; Good stopping point. Module 8 uses Power BI &mdash; come back when ready.</div>
+
+    <!-- BRAIN BREAK -->
+    <section id="brain-break" class="brain-break">
+      <div class="section-title">&#x1F9E0; Brain Break</div>
+      <p>You just wrote Python. Real Python. Hands that have never written a line of Python just wrote six working programs. Take your hands off the keyboard. Shake them out gently. Breathe.</p>
+      <div class="brain-break-activities">
+        <span class="activity-pill">Shake out your hands</span>
+        <span class="activity-pill">Roll your wrists</span>
+        <span class="activity-pill">Look away from the screen</span>
+        <span class="activity-pill">3 slow breaths</span>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Take at least 2 full minutes. Your brain is processing new syntax patterns. It needs this.</p>
+    </section>
+
+    <!-- WRAP UP -->
+    <section id="wrap-up" class="wrap-up">
+      <div class="section-title">&#x2705; You Got This</div>
+      <p>The ONE thing to remember from this module:</p>
+      <div class="one-thing">pandas = spreadsheet superpowers in Python. Import data. Filter it. Summarize it. Three skills that cover 80% of daily analyst work.</div>
+      <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>What comes next:</strong> Module 8 introduces Power BI &mdash; Microsoft&rsquo;s data visualization tool. If you know Tableau (Phase 2), Power BI will feel familiar. Knowing both makes you more versatile.</p>
+    </section>
+
+    <div class="module-nav">
+      <a href="../../phase-2/module-06/index.html" class="nav-prev">&larr; Module 6: Dashboards</a>
+      <a href="../../../index.html" class="nav-home">&#x1F4CB; Course Home</a>
+      <a href="../module-08/index.html" class="nav-next">Module 8: Power BI &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Data Analyst: Designed with Neurodivergence in Mind &mdash; Module 7</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 2: SQL Foundations — Ask Questions of Data. Write your first SQL query in a browser, no installation required.">
+  <title>Module 2: SQL Foundations - Data Analyst Course</title>
+  <link rel="stylesheet" href="../../../../style.css">
+  <style>
+    .sticky-nav { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--border-color); padding: 0.75rem var(--spacing-md); display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-sm); }
+    .sticky-nav a { font-size: 0.8rem; color: #1565C0; text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid #BBDEFB; transition: var(--transition); white-space: nowrap; }
+    .sticky-nav a:hover { background: #E3F2FD; }
+    .sticky-nav .nav-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-right: 0.25rem; }
+    .module-header { background: linear-gradient(135deg, #0D3B6E 0%, #1565C0 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .module-header h1 { color: white; font-size: 2rem; margin-bottom: var(--spacing-xs); }
+    .module-header .module-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .module-header p { opacity: 0.92; font-size: 1.05rem; }
+    .time-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: var(--spacing-sm); }
+    .phase-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.2); color: white; margin-bottom: 0.75rem; }
+    .before-start { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .concept { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .why-matters { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .tool-setup { background: #E8EAF6; border-left: 4px solid #3949AB; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .practice { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .brain-break { background: #FFF3E0; border-left: 4px solid #E65100; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    .wrap-up { background: #E8F5E9; border: 2px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .before-start .section-title { color: #1565C0; }
+    .concept .section-title { color: #E65100; }
+    .why-matters .section-title { color: #7B1FA2; }
+    .tool-setup .section-title { color: #1A237E; }
+    .practice .section-title { color: #2E7D32; }
+    .brain-break .section-title { color: #E65100; }
+    .wrap-up .section-title { color: #1B5E20; }
+    .step { display: flex; align-items: flex-start; margin-bottom: 1.25rem; }
+    .step-num { background: #2E7D32; color: white; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.95rem; }
+    .step-content { flex: 1; padding-top: 0.3rem; line-height: 1.6; font-size: 0.95rem; }
+    .setup-step { display: flex; align-items: flex-start; margin-bottom: 1rem; }
+    .setup-num { background: #3949AB; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.85rem; }
+    .setup-content { flex: 1; padding-top: 0.25rem; line-height: 1.6; font-size: 0.9rem; }
+    .code-box { background: #1a1a2e; color: #e0e0e0; padding: 1rem 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.95rem; margin: 1rem 0; overflow-x: auto; }
+    .code-label { font-size: 0.8rem; color: #90CAF9; margin-bottom: 0.5rem; font-family: sans-serif; font-weight: 600; }
+    .stop-here { text-align: center; color: #888; font-size: 0.85rem; margin: 1.5rem 0; padding: 0.5rem; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    .one-thing { font-size: 1.15rem; font-weight: 700; color: #1B5E20; background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2E7D32; margin-top: 0.75rem; }
+    .module-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .module-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+    .nav-prev { background: white; border: 2px solid var(--border-color); color: var(--text-primary); }
+    .nav-prev:hover { border-color: #1565C0; color: #1565C0; }
+    .nav-next { background: #1565C0; color: white; }
+    .nav-next:hover { background: #0D47A1; }
+    .nav-home { color: var(--text-secondary); font-size: 0.85rem; }
+    .brain-break-activities { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .activity-pill { background: white; border: 2px solid #E65100; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #E65100; font-weight: 600; }
+    .sql-keyword { color: #90CAF9; font-weight: 700; }
+    .sql-comment { color: #81C784; font-style: italic; }
+    @media (max-width: 768px) { .sticky-nav { position: relative; } .module-nav { flex-direction: column; } .module-nav a { text-align: center; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <div class="sticky-nav">
+    <span class="nav-label">Jump to:</span>
+    <a href="#before">&#x1F4CC; Before</a>
+    <a href="#concept">&#x1F4A1; Concept</a>
+    <a href="#why">&#x1F517; Why It Matters</a>
+    <a href="#setup">&#x1F6E0;&#xFE0F; Tool Setup</a>
+    <a href="#practice">&#x1F590;&#xFE0F; Practice</a>
+    <a href="#brain-break">&#x1F9E0; Break</a>
+    <a href="#wrap-up">&#x2705; Wrap Up</a>
+  </div>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Phase 1</a>
+
+    <div class="module-header">
+      <div class="phase-badge">Phase 1 &mdash; Data Foundations</div>
+      <div class="module-label">Module 2 of 14</div>
+      <h1>SQL Foundations</h1>
+      <p>Ask questions of data. Write your first query &mdash; live, in your browser, right now.</p>
+      <span class="time-badge">~20 minutes</span>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <section id="before" class="before-start">
+      <div class="section-title">&#x1F4CC; Before You Start</div>
+      <p><strong>What you need:</strong> Open <a href="https://sqliteonline.com" target="_blank"><strong>sqliteonline.com</strong></a> in a new tab. No account needed. No installation. SQL runs directly in your browser.</p>
+      <p style="margin-top: 0.75rem;"><strong>What you&rsquo;ll do:</strong> Write your first SQL query today. By the end of this module, you will have used SELECT, FROM, WHERE, and ORDER BY &mdash; the four keywords that cover 80% of real analyst work.</p>
+    </section>
+
+    <!-- THE CONCEPT -->
+    <section id="concept" class="concept">
+      <div class="section-title">&#x1F4A1; The Concept</div>
+
+      <p><strong>SQL (pronounced &ldquo;sequel&rdquo;) stands for Structured Query Language.</strong> It&rsquo;s how you talk to databases.</p>
+
+      <p style="margin-top: 1rem;">A database is a collection of organized tables &mdash; like spreadsheets, but more powerful and designed to handle millions of rows. Every company stores their important data in databases: customers, orders, employees, inventory, transactions.</p>
+
+      <p style="margin-top: 1rem;">You use SQL to ask questions of that data:</p>
+      <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
+        <li>&ldquo;Show me all customers who spent more than $500.&rdquo;</li>
+        <li>&ldquo;How many orders came in last month?&rdquo;</li>
+        <li>&ldquo;Which product sold the most?&rdquo;</li>
+        <li>&ldquo;Show me all employees in the North region, sorted by hire date.&rdquo;</li>
+      </ul>
+
+      <p style="margin-top: 1rem;"><strong>Four keywords get you 80% of the way:</strong></p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
+        <div style="background: white; border-radius: 8px; padding: 0.75rem; border: 1px solid #ddd;">
+          <div style="font-weight: 700; color: #1565C0; font-family: monospace; font-size: 1rem;">SELECT</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Which columns to show</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 0.75rem; border: 1px solid #ddd;">
+          <div style="font-weight: 700; color: #1565C0; font-family: monospace; font-size: 1rem;">FROM</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Which table to get data from</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 0.75rem; border: 1px solid #ddd;">
+          <div style="font-weight: 700; color: #1565C0; font-family: monospace; font-size: 1rem;">WHERE</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Filter rows by condition</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 0.75rem; border: 1px solid #ddd;">
+          <div style="font-weight: 700; color: #1565C0; font-family: monospace; font-size: 1rem;">ORDER BY</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Sort the results</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section id="why" class="why-matters">
+      <div class="section-title">&#x1F517; Why It Matters</div>
+      <p><strong>SQL is the #1 skill for data analysts.</strong> It appears on almost every data job posting &mdash; entry level through senior.</p>
+      <p style="margin-top: 0.75rem;">Companies store everything in databases. You need SQL to get to that data. It is not optional &mdash; it is the foundation. The good news: basic SQL is simple and learnable in a single sitting. You are doing it today.</p>
+      <p style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-secondary);">SQL is also the first step toward understanding SAP (Phase 5). SAP stores all its data in massive databases. Analysts who can write SQL queries against SAP data are extremely valuable.</p>
+    </section>
+
+    <!-- TOOL SETUP -->
+    <section id="setup" class="tool-setup">
+      <div class="section-title">&#x1F6E0;&#xFE0F; Tool Setup &mdash; SQLiteOnline.com</div>
+      <p style="margin-bottom: 1rem;">One-time setup. Takes 60 seconds.</p>
+
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-content">Go to <a href="https://sqliteonline.com" target="_blank"><strong>sqliteonline.com</strong></a> in a new tab.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-content">Click <strong>&ldquo;Demo&rdquo;</strong> in the top menu. This loads a sample database with real tables to query.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">3</div>
+        <div class="setup-content">You will see: a panel on the left (list of tables), a text area in the middle (where you write SQL), and a results area below. That&rsquo;s the whole interface.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">4</div>
+        <div class="setup-content">That&rsquo;s it. You are ready to write SQL.</div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="practice">
+      <div class="section-title">&#x1F590;&#xFE0F; Practice</div>
+      <p style="margin-bottom: 1rem;">Switch to your SQLiteOnline.com tab. Type each query into the text area and click <strong>Run</strong> (or press Ctrl+Enter / Cmd+Enter).</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          Type this into the SQL text area and click Run:
+          <div class="code-label">Type this in SQLiteOnline.com &#x2193;</div>
+          <div class="code-box">SELECT * FROM demo;</div>
+          You just asked: &ldquo;Show me everything from the demo table.&rdquo; The <code>*</code> means &ldquo;all columns.&rdquo; Read the results. What columns do you see?
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          Now try a WHERE filter:
+          <div class="code-label">Type this &#x2193;</div>
+          <div class="code-box">SELECT * FROM demo WHERE id = 1;</div>
+          This asks: &ldquo;Show me only the row where the id column equals 1.&rdquo; You should see exactly one row. WHERE filters your results.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          Now sort your results:
+          <div class="code-label">Type this &#x2193;</div>
+          <div class="code-box">SELECT * FROM demo ORDER BY id DESC;</div>
+          This asks: &ldquo;Show me everything, sorted by id from highest to lowest.&rdquo; DESC means descending. ASC (ascending) is the default.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          Select only specific columns:
+          <div class="code-label">Type this &#x2193;</div>
+          <div class="code-box">SELECT id, name FROM demo;</div>
+          Instead of <code>*</code> (all columns), you named exactly which columns you want. This is how you reduce output to only what matters.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          Combine WHERE and ORDER BY:
+          <div class="code-label">Type this &#x2193;</div>
+          <div class="code-box">SELECT id, name FROM demo WHERE id &gt; 2 ORDER BY name ASC;</div>
+          &ldquo;Show me only the id and name columns, but only rows where id is greater than 2, sorted alphabetically by name.&rdquo;
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content"><strong>Experiment freely.</strong> Change the WHERE value. Change the column names. Change ORDER BY to a different column. Try breaking it &mdash; see the error message. Breaking things and reading error messages is a core analyst skill. You cannot hurt anything here.</div>
+      </div>
+    </section>
+
+    <div class="stop-here">&#x1F6D1; Good stopping point. Bookmark this page and come back anytime.</div>
+
+    <!-- BRAIN BREAK -->
+    <section id="brain-break" class="brain-break">
+      <div class="section-title">&#x1F9E0; Brain Break</div>
+      <p>SQL is a language. You just spoke it for the first time. Your brain is building new neural pathways right now &mdash; that is literally what learning feels like, and it takes real energy.</p>
+      <div class="brain-break-activities">
+        <span class="activity-pill">Stand up and stretch</span>
+        <span class="activity-pill">Arms overhead, hold 5 seconds</span>
+        <span class="activity-pill">Shake out your hands</span>
+        <span class="activity-pill">Drink some water</span>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Take at least 2 minutes. You earned it.</p>
+    </section>
+
+    <!-- WRAP UP -->
+    <section id="wrap-up" class="wrap-up">
+      <div class="section-title">&#x2705; You Got This</div>
+      <p>The four things you now know how to do:</p>
+      <div class="one-thing">SELECT gets columns &bull; FROM names the table &bull; WHERE filters rows &bull; ORDER BY sorts results. You know SQL.</div>
+      <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>What comes next:</strong> Module 3 is about data cleaning &mdash; why real data is always messy and how to fix it before you analyze it. Same tools: Google Sheets.</p>
+    </section>
+
+    <div class="module-nav">
+      <a href="../module-01/index.html" class="nav-prev">&larr; Module 1: What Is Data Analytics?</a>
+      <a href="../../index.html" class="nav-home">&#x1F4CB; Course Home</a>
+      <a href="../module-03/index.html" class="nav-next">Module 3: Data Cleaning &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Data Analyst: Designed with Neurodivergence in Mind &mdash; Module 2</p>
+  </footer>
+
+</body>
+</html>

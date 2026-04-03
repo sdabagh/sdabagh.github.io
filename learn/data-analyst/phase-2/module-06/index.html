@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 6: Dashboards — Tell the Full Story. Combine multiple Tableau visualizations into one interactive, shareable dashboard.">
+  <title>Module 6: Dashboards — Data Analyst Course</title>
+  <link rel="stylesheet" href="../../../../style.css">
+  <style>
+    .sticky-nav { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--border-color); padding: 0.75rem var(--spacing-md); display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-sm); }
+    .sticky-nav a { font-size: 0.8rem; color: #6A1B9A; text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid #CE93D8; transition: var(--transition); white-space: nowrap; }
+    .sticky-nav a:hover { background: #F3E5F5; }
+    .sticky-nav .nav-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-right: 0.25rem; }
+    .module-header { background: linear-gradient(135deg, #4A0072 0%, #6A1B9A 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .module-header h1 { color: white; font-size: 2rem; margin-bottom: var(--spacing-xs); }
+    .module-header .module-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .module-header p { opacity: 0.92; font-size: 1.05rem; }
+    .time-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: var(--spacing-sm); }
+    .phase-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.2); color: white; margin-bottom: 0.75rem; }
+    .before-start { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .concept { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .why-matters { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .practice { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .brain-break { background: #FFF3E0; border-left: 4px solid #E65100; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    .wrap-up { background: #E8F5E9; border: 2px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .before-start .section-title { color: #1565C0; }
+    .concept .section-title { color: #E65100; }
+    .why-matters .section-title { color: #7B1FA2; }
+    .practice .section-title { color: #2E7D32; }
+    .brain-break .section-title { color: #E65100; }
+    .wrap-up .section-title { color: #1B5E20; }
+    .step { display: flex; align-items: flex-start; margin-bottom: 1.25rem; }
+    .step-num { background: #2E7D32; color: white; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.95rem; }
+    .step-content { flex: 1; padding-top: 0.3rem; line-height: 1.6; font-size: 0.95rem; }
+    .stop-here { text-align: center; color: #888; font-size: 0.85rem; margin: 1.5rem 0; padding: 0.5rem; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    .one-thing { font-size: 1.15rem; font-weight: 700; color: #1B5E20; background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2E7D32; margin-top: 0.75rem; }
+    .module-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .module-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+    .nav-prev { background: white; border: 2px solid var(--border-color); color: var(--text-primary); }
+    .nav-prev:hover { border-color: #6A1B9A; color: #6A1B9A; }
+    .nav-next { background: #2E7D32; color: white; }
+    .nav-next:hover { background: #1B5E20; }
+    .nav-home { color: var(--text-secondary); font-size: 0.85rem; }
+    .brain-break-activities { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .activity-pill { background: white; border: 2px solid #E65100; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #E65100; font-weight: 600; }
+    .portfolio-callout { background: #F3E5F5; border: 2px solid #6A1B9A; border-radius: 12px; padding: 1.25rem; margin-top: 1rem; }
+    .portfolio-callout strong { color: #6A1B9A; }
+    .phase-complete { background: linear-gradient(135deg, #F3E5F5 0%, #E8F5E9 100%); border: 2px solid #6A1B9A; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center; }
+    .phase-complete h3 { color: #6A1B9A; margin-bottom: 0.5rem; }
+    .phase-complete p { color: var(--text-secondary); margin: 0; }
+    @media (max-width: 768px) { .sticky-nav { position: relative; } .module-nav { flex-direction: column; } .module-nav a { text-align: center; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <div class="sticky-nav">
+    <span class="nav-label">Jump to:</span>
+    <a href="#before">&#x1F4CC; Before</a>
+    <a href="#concept">&#x1F4A1; Concept</a>
+    <a href="#why">&#x1F517; Why It Matters</a>
+    <a href="#practice">&#x1F590;&#xFE0F; Practice</a>
+    <a href="#brain-break">&#x1F9E0; Break</a>
+    <a href="#wrap-up">&#x2705; Wrap Up</a>
+  </div>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Phase 2</a>
+
+    <div class="module-header">
+      <div class="phase-badge">Phase 2 &mdash; Visualization</div>
+      <div class="module-label">Module 6 of 14</div>
+      <h1>Dashboards &mdash; Tell the Full Story</h1>
+      <p>Combine multiple charts into one interactive, shareable view. This is what executives use to make decisions.</p>
+      <span class="time-badge">~20 minutes</span>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <section id="before" class="before-start">
+      <div class="section-title">&#x1F4CC; Before You Start</div>
+      <p><strong>What you need:</strong> Tableau Public open with your work from Module 5. You need your bar chart (Sheet 1) and your line chart (Sheet 2) already built. If you did not complete Module 5, go back and do it first &mdash; this module builds directly on it.</p>
+      <p style="margin-top: 0.75rem;"><strong>What you&rsquo;ll do:</strong> Combine your two charts into one dashboard, add a title, add interactivity (clicking one chart filters the other), and publish it to a live public URL. That URL goes in your portfolio.</p>
+    </section>
+
+    <!-- THE CONCEPT -->
+    <section id="concept" class="concept">
+      <div class="section-title">&#x1F4A1; The Concept</div>
+
+      <p><strong>A dashboard is multiple visualizations combined into one view.</strong></p>
+
+      <p style="margin-top: 1rem;">Instead of showing your manager 5 separate charts in 5 separate emails, you show one dashboard that tells the whole story at once. They can see the big picture AND drill into the details &mdash; all in one place.</p>
+
+      <p style="margin-top: 1rem;"><strong>What makes a great dashboard:</strong></p>
+      <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
+        <li>Answers 3&ndash;5 specific business questions on a single screen</li>
+        <li>Designed for a specific audience (not &ldquo;everyone&rdquo;)</li>
+        <li>Uses the <em>minimum</em> number of charts needed &mdash; not the maximum</li>
+        <li>Has clear, descriptive titles</li>
+        <li>Uses consistent colors and logical flow (most important = top left)</li>
+        <li>Has interactive filters so users can explore on their own</li>
+      </ul>
+
+      <p style="margin-top: 1rem;"><strong>What separates junior from senior analysts:</strong> Juniors know how to make charts. Seniors know how to design dashboards that actually get used. This module is where you start crossing that line.</p>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section id="why" class="why-matters">
+      <div class="section-title">&#x1F517; Why It Matters</div>
+      <p>Executives and managers make decisions from dashboards. They do not read data tables. They do not look at 10 separate charts. They look at one well-designed dashboard and act on it.</p>
+      <p style="margin-top: 0.75rem;">If you can build a clear, honest, useful dashboard &mdash; one that helps people make better decisions &mdash; you are valuable. Add the fact that it is live and interactive on the internet, and it is your portfolio proof.</p>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="practice">
+      <div class="section-title">&#x1F590;&#xFE0F; Practice</div>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          In Tableau, look at the tabs at the bottom of the screen. Click the <strong>New Dashboard</strong> button (it looks like a small grid icon, or right-click in the tab area). A blank dashboard canvas appears.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          On the left panel, you see your Sheets listed (Sheet 1 = bar chart, Sheet 2 = line chart). Drag <strong>Sheet 1 (bar chart)</strong> onto the dashboard canvas. It fills the space automatically.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          Drag <strong>Sheet 2 (line chart)</strong> below the bar chart on the canvas. Tableau will show a blue highlight guide to help you place it. Drop it in the lower half of the canvas.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          Add a title. In the top menu: <strong>Dashboard &rarr; Show Title</strong>. Double-click the title area at the top. Type: <strong>Sales Performance Overview</strong>. Click outside to confirm.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          Add interactivity. Click your bar chart on the dashboard to select it. A small toolbar appears at the top right of the chart. Click the <strong>funnel icon (Use as Filter)</strong>. Now when someone clicks a category bar, it will filter the line chart below to show only that category&rsquo;s profit trend. Try it.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          Save it: <strong>File &rarr; Save to Tableau Public As&hellip;</strong>. Name it &ldquo;Sales Dashboard &mdash; [Your Name].&rdquo; After saving, Tableau opens the live URL in your browser.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-content">
+          Copy the URL from your browser. That is your live, interactive dashboard. Paste it into a document you keep for your portfolio. This is the beginning of your professional presence online.
+        </div>
+      </div>
+
+      <div class="portfolio-callout">
+        <strong>&#x1F4BC; Portfolio note:</strong> You now have a live URL that employers can click and interact with. This is real. This is yours. Add it to your resume, your LinkedIn, and your GitHub profile once you set those up in Phase 4.
+      </div>
+    </section>
+
+    <div class="stop-here">&#x1F6D1; Phase 2 complete when you are done. Phase 3 starts fresh.</div>
+
+    <!-- BRAIN BREAK -->
+    <section id="brain-break" class="brain-break">
+      <div class="section-title">&#x1F9E0; Brain Break</div>
+      <p>You built something shareable. That URL is the beginning of your portfolio. Take a real moment to feel good about that &mdash; not in a performative way, but genuinely. You did this.</p>
+      <div class="brain-break-activities">
+        <span class="activity-pill">Sit with that feeling</span>
+        <span class="activity-pill">Take a real breath</span>
+        <span class="activity-pill">Get up and stretch</span>
+        <span class="activity-pill">Tell someone what you built</span>
+      </div>
+    </section>
+
+    <!-- WRAP UP -->
+    <section id="wrap-up" class="wrap-up">
+      <div class="section-title">&#x2705; You Got This</div>
+      <p>The ONE thing to remember from this module:</p>
+      <div class="one-thing">One dashboard. Multiple insights. Shareable. Interactive. Yours. That URL is your first portfolio piece.</div>
+
+      <div class="phase-complete">
+        <h3>&#x1F3C1; Phase 2 Complete</h3>
+        <p>You completed Visualization. You can build charts and interactive dashboards in Tableau Public and publish them online. Phase 3 is Python for Data &mdash; pandas in Google Colab and Power BI. Browser-based. Zero installation for Python.</p>
+      </div>
+    </section>
+
+    <div class="module-nav">
+      <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Tableau Public</a>
+      <a href="../../../index.html" class="nav-home">&#x1F4CB; Course Home</a>
+      <a href="../../phase-3/module-07/index.html" class="nav-next">Phase 3: Python for Data &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Data Analyst: Designed with Neurodivergence in Mind &mdash; Module 6</p>
+  </footer>
+
+</body>
+</html>

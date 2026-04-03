@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 4: SQL + Sheets — Putting It Together. The complete analyst workflow from SQL query to spreadsheet to chart.">
+  <title>Module 4: SQL + Sheets — Data Analyst Course</title>
+  <link rel="stylesheet" href="../../../../style.css">
+  <style>
+    .sticky-nav { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--border-color); padding: 0.75rem var(--spacing-md); display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-sm); }
+    .sticky-nav a { font-size: 0.8rem; color: #1565C0; text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid #BBDEFB; transition: var(--transition); white-space: nowrap; }
+    .sticky-nav a:hover { background: #E3F2FD; }
+    .sticky-nav .nav-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-right: 0.25rem; }
+    .module-header { background: linear-gradient(135deg, #0D3B6E 0%, #1565C0 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center; }
+    .module-header h1 { color: white; font-size: 2rem; margin-bottom: var(--spacing-xs); }
+    .module-header .module-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .module-header p { opacity: 0.92; font-size: 1.05rem; }
+    .time-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: var(--spacing-sm); }
+    .phase-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.2); color: white; margin-bottom: 0.75rem; }
+    .before-start { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .concept { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .why-matters { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .practice { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .brain-break { background: #FFF3E0; border-left: 4px solid #E65100; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    .wrap-up { background: #E8F5E9; border: 2px solid #2E7D32; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+    .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .before-start .section-title { color: #1565C0; }
+    .concept .section-title { color: #E65100; }
+    .why-matters .section-title { color: #7B1FA2; }
+    .practice .section-title { color: #2E7D32; }
+    .brain-break .section-title { color: #E65100; }
+    .wrap-up .section-title { color: #1B5E20; }
+    .step { display: flex; align-items: flex-start; margin-bottom: 1.25rem; }
+    .step-num { background: #2E7D32; color: white; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 0.75rem; flex-shrink: 0; font-size: 0.95rem; }
+    .step-content { flex: 1; padding-top: 0.3rem; line-height: 1.6; font-size: 0.95rem; }
+    .code-box { background: #1a1a2e; color: #e0e0e0; padding: 1rem 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.95rem; margin: 1rem 0; overflow-x: auto; }
+    .code-label { font-size: 0.8rem; color: #90CAF9; margin-bottom: 0.5rem; font-family: sans-serif; font-weight: 600; }
+    .workflow-flow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .workflow-step { background: white; border: 2px solid #1565C0; border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 700; color: #1565C0; }
+    .workflow-arrow { font-size: 1.2rem; color: #1565C0; }
+    .stop-here { text-align: center; color: #888; font-size: 0.85rem; margin: 1.5rem 0; padding: 0.5rem; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    .one-thing { font-size: 1.15rem; font-weight: 700; color: #1B5E20; background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2E7D32; margin-top: 0.75rem; }
+    .module-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .module-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+    .nav-prev { background: white; border: 2px solid var(--border-color); color: var(--text-primary); }
+    .nav-prev:hover { border-color: #1565C0; color: #1565C0; }
+    .nav-next { background: #6A1B9A; color: white; }
+    .nav-next:hover { background: #4A0072; }
+    .nav-home { color: var(--text-secondary); font-size: 0.85rem; }
+    .brain-break-activities { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .activity-pill { background: white; border: 2px solid #E65100; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #E65100; font-weight: 600; }
+    .phase-complete { background: linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%); border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center; }
+    .phase-complete h3 { color: #1B5E20; margin-bottom: 0.5rem; }
+    .phase-complete p { color: #2E7D32; margin: 0; }
+    @media (max-width: 768px) { .sticky-nav { position: relative; } .module-nav { flex-direction: column; } .module-nav a { text-align: center; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <div class="sticky-nav">
+    <span class="nav-label">Jump to:</span>
+    <a href="#before">&#x1F4CC; Before</a>
+    <a href="#concept">&#x1F4A1; Concept</a>
+    <a href="#why">&#x1F517; Why It Matters</a>
+    <a href="#practice">&#x1F590;&#xFE0F; Practice</a>
+    <a href="#brain-break">&#x1F9E0; Break</a>
+    <a href="#wrap-up">&#x2705; Wrap Up</a>
+  </div>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Phase 1</a>
+
+    <div class="module-header">
+      <div class="phase-badge">Phase 1 &mdash; Data Foundations</div>
+      <div class="module-label">Module 4 of 14 &mdash; Final Phase 1 Module</div>
+      <h1>SQL + Sheets &mdash; Putting It Together</h1>
+      <p>The complete analyst workflow from database to spreadsheet to chart. This is literally your daily job.</p>
+      <span class="time-badge">~20 minutes</span>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <section id="before" class="before-start">
+      <div class="section-title">&#x1F4CC; Before You Start</div>
+      <p><strong>What you need:</strong> Have both <a href="https://sqliteonline.com" target="_blank"><strong>SQLiteOnline.com</strong></a> and <a href="https://sheets.google.com" target="_blank"><strong>Google Sheets</strong></a> open in separate tabs. This module connects what you have learned in Modules 1&ndash;3.</p>
+      <p style="margin-top: 0.75rem;"><strong>What you&rsquo;ll do:</strong> You will run a SQL query with GROUP BY (a new keyword), copy the results into Google Sheets, calculate a percentage, and build a chart. That is the complete analyst workflow from start to finish.</p>
+    </section>
+
+    <!-- THE CONCEPT -->
+    <section id="concept" class="concept">
+      <div class="section-title">&#x1F4A1; The Concept</div>
+
+      <p><strong>SQL and spreadsheets are partners.</strong> They are not competing tools &mdash; they do different things.</p>
+
+      <p style="margin-top: 1rem;">SQL is for querying and filtering large datasets &mdash; asking the database specific questions and getting structured results. Spreadsheets are for presenting, calculating, formatting, and sharing those results with other people.</p>
+
+      <p style="margin-top: 1rem;">The real-world flow every entry-level analyst uses:</p>
+
+      <div class="workflow-flow">
+        <div class="workflow-step">Write SQL query</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Run it on the database</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Export as CSV</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Open in Sheets</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Clean &amp; calculate</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Visualize</div>
+        <div class="workflow-arrow">&#x2192;</div>
+        <div class="workflow-step">Share</div>
+      </div>
+
+      <p style="margin-top: 1rem;"><strong>New SQL keyword today: GROUP BY</strong></p>
+      <p style="margin-top: 0.5rem;">GROUP BY lets you aggregate data &mdash; grouping rows together and calculating totals, counts, or averages for each group. This is how you answer &ldquo;total sales by region&rdquo; or &ldquo;number of orders by product.&rdquo; It is one of the most used SQL features in real analyst work.</p>
+      <div class="code-box">SELECT region, SUM(sales) as total_sales<br>FROM orders<br>GROUP BY region<br>ORDER BY total_sales DESC;</div>
+      <p style="font-size: 0.9rem; color: var(--text-secondary);">&ldquo;Show me total sales for each region, sorted from highest to lowest.&rdquo;</p>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section id="why" class="why-matters">
+      <div class="section-title">&#x1F517; Why It Matters</div>
+      <p>This SQL &rarr; Sheets &rarr; Chart workflow is literally the daily workflow of most entry-level data analysts. You will do this every single day in a real job.</p>
+      <p style="margin-top: 0.75rem;">Getting comfortable with the <em>flow</em> &mdash; not just the individual tools &mdash; is what makes you employable. Employers do not just want someone who knows SQL OR Sheets. They want someone who can move fluidly between them to produce usable results.</p>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="practice">
+      <div class="section-title">&#x1F590;&#xFE0F; Practice</div>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          In SQLiteOnline.com (Demo database), run this query:
+          <div class="code-label">Type this in SQLiteOnline.com &#x2193;</div>
+          <div class="code-box">SELECT name, SUM(value) as total<br>FROM demo<br>GROUP BY name<br>ORDER BY total DESC;</div>
+          This groups the demo data by name and sums the values for each group, showing the highest total first. Read the results carefully.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          Look at the results. How many distinct names are there? What is the highest total? What is the lowest? This is descriptive analytics &mdash; you are describing what the data shows.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Copy the results manually into Google Sheets.</strong> In a real job you would click Export &rarr; CSV and open the file. For this exercise, type the values into a new Sheet. Create a sheet titled &ldquo;SQL Results&rdquo; with two columns: <strong>Name</strong> and <strong>Total</strong>.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          Add a third column called <strong>% of Total</strong>. In the first data row of that column, write a formula: <code>=B2/SUM($B$2:$B$10)</code> (adjust the range for your actual data). Format that column as a percentage. This shows each name&rsquo;s share of the total.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          Highlight your Name and Total columns (not the % column). Click <strong>Insert &rarr; Chart</strong>. Google Sheets will auto-suggest a chart type. Choose <strong>Bar chart</strong>. Give it a title: &ldquo;Total by Name.&rdquo;
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <strong>Stop and look at what you just built.</strong> You queried a database &rarr; brought data into a spreadsheet &rarr; calculated a derived column &rarr; built a visualization. That complete workflow is the data analyst job. You just did it.
+        </div>
+      </div>
+    </section>
+
+    <div class="stop-here">&#x1F6D1; Solid stopping point. Phase 2 starts fresh &mdash; come back when ready.</div>
+
+    <!-- BRAIN BREAK -->
+    <section id="brain-break" class="brain-break">
+      <div class="section-title">&#x1F9E0; Brain Break</div>
+      <p>You connected two tools today. That is integration thinking &mdash; a genuinely high-level cognitive skill. Your brain just did a lot of work moving between contexts. That deserves a real pause.</p>
+      <div class="brain-break-activities">
+        <span class="activity-pill">Get some water</span>
+        <span class="activity-pill">Stand up</span>
+        <span class="activity-pill">Look out a window</span>
+        <span class="activity-pill">Take 3 slow breaths</span>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Take at least 2 full minutes. Your brain needs it to consolidate what you just learned.</p>
+    </section>
+
+    <!-- WRAP UP -->
+    <section id="wrap-up" class="wrap-up">
+      <div class="section-title">&#x2705; You Got This</div>
+      <p>The ONE thing to remember from this module:</p>
+      <div class="one-thing">SQL pulls the data. Sheets shapes and shows it. Together they are your core daily toolkit.</div>
+
+      <div class="phase-complete">
+        <h3>&#x1F3C1; Phase 1 Complete</h3>
+        <p>You completed all 4 modules of Data Foundations. You know what data analytics is, how to write SQL queries, how to clean messy data, and how to run the complete analyst workflow. Phase 2 is Visualization &mdash; turning your data into charts and dashboards with Tableau Public.</p>
+      </div>
+    </section>
+
+    <div class="module-nav">
+      <a href="../module-03/index.html" class="nav-prev">&larr; Module 3: Data Cleaning</a>
+      <a href="../../index.html" class="nav-home">&#x1F4CB; Course Home</a>
+      <a href="../../phase-2/module-05/index.html" class="nav-next">Phase 2: Tableau Public &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../../index.html">Home</a>
+      <a href="../../../../about.html">About</a>
+      <a href="../../../../student-resources.html">Student Resources</a>
+      <a href="../../../../young-learners.html">Young Learners</a>
+      <a href="../../../../research.html">Research</a>
+      <a href="../../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Data Analyst: Designed with Neurodivergence in Mind &mdash; Module 4</p>
+  </footer>
+
+</body>
+</html>
