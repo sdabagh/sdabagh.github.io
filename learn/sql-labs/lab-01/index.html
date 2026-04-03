@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Lab 01 — SELECT & FROM. Write your first SQL queries against a students database.">
+  <title>Lab 01: SELECT &amp; FROM — SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto;white-space:pre}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;display:block;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Labs</a>
+
+    <div class="lab-nav">
+      <span style="color:#9E9E9E;font-weight:600;">&#x2190; First Lab</span>
+      <span style="font-weight:700;color:#1565C0;">Lab 1 of 10 &mdash; SELECT &amp; FROM</span>
+      <a href="../lab-02/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">Next Lab &#x2192;</a>
+    </div>
+
+    <h1 style="color:#1565C0;margin-bottom:0.25rem;">Lab 01 &mdash; SELECT &amp; FROM</h1>
+    <p style="color:#555;font-size:1.05rem;margin-bottom:1.5rem;">Ask your first question of a database. Learn to choose columns, rename them, and compute new ones.</p>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box"><span class="schema-label">&#x1F4CB; AVAILABLE TABLE: students</span>columns: id, name, major, gpa, year, scholarship, city, age
+
+id  name          major             gpa   year  scholarship  city           age
+1   Alice Chen    Computer Science  3.8   3     1            Los Angeles    21
+2   Bob Smith     Mathematics       3.2   2     0            San Francisco  20
+3   Carol Wu      Computer Science  3.9   4     1            Los Angeles    22
+...10 rows total</div>
+
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap: SELECT &amp; FROM</h2>
+      <ul style="margin:0;padding-left:1.25rem;line-height:1.9;">
+        <li><strong>SELECT</strong> tells SQL which columns to return.</li>
+        <li><strong>FROM</strong> tells SQL which table to read.</li>
+        <li><code>SELECT *</code> returns every column in the table.</li>
+        <li>List specific column names separated by commas to select only those columns.</li>
+        <li>Use <strong>AS</strong> to rename a column in the output (alias): <code>gpa * 4 AS scaled_score</code>.</li>
+        <li>You can compute math expressions directly in SELECT: <code>gpa * year</code>.</li>
+        <li>Every SQL statement ends with a <strong>semicolon</strong> (<code>;</code>).</li>
+      </ul>
+    </div>
+
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example (read-only)</h2>
+      <p style="margin-top:0;color:#6A1B9A;font-size:0.9rem;">Study these queries before writing your own.</p>
+<pre class="code-editor" style="pointer-events:none;opacity:0.8;">-- Get everything from the table
+SELECT * FROM students;
+
+-- Select specific columns only
+SELECT name, major, gpa FROM students;
+
+-- Computed column with an alias
+SELECT name, gpa, gpa * 4 AS scaled_score FROM students;</pre>
+    </div>
+
+    <!-- Exercise 1: Guided -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F; Guided</span>
+      <h3>Exercise 1 &mdash; Your First SELECT</h3>
+      <p>Show the <strong>name</strong> and <strong>city</strong> of all students. Replace each <code>___</code> with the correct column name.</p>
+      <div class="hint-box">&#x1F4A1; Hint: You need two column names separated by a comma. Check the schema box above for exact column names.</div>
+      <textarea class="code-editor" id="ex1" spellcheck="false">-- Show name and city of all students
+SELECT ___, ___ FROM students;</textarea>
+      <button class="run-btn" id="btn1" onclick="runQuery('ex1','out1')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out1"></div>
+    </div>
+
+    <!-- Exercise 2: Independent -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; Multiple Columns with an Alias</h3>
+      <p>Show <strong>name</strong>, <strong>major</strong>, <strong>year</strong>, and <strong>scholarship</strong> for all students. Rename the <code>scholarship</code> column as <code>on_scholarship</code> using AS.</p>
+      <div class="hint-box">&#x1F4A1; Hint: <code>SELECT col1, col2, col3, col4 AS new_name FROM table;</code></div>
+      <textarea class="code-editor" id="ex2" spellcheck="false">-- Show name, major, year, scholarship aliased as on_scholarship
+SELECT name, major, year, scholarship AS on_scholarship FROM students;</textarea>
+      <button class="run-btn" id="btn2" onclick="runQuery('ex2','out2')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out2"></div>
+    </div>
+
+    <!-- Exercise 3: Challenge -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Computed Column</h3>
+      <p>Calculate a <strong>weighted_score</strong> = <code>gpa * year</code>. Show <strong>name</strong>, <strong>gpa</strong>, <strong>year</strong>, and <strong>weighted_score</strong>. Students who stay longer and maintain high GPA score highest.</p>
+      <div class="hint-box">&#x1F4A1; Hint: Multiply two column names and give the result an alias: <code>gpa * year AS weighted_score</code></div>
+      <textarea class="code-editor" id="ex3" spellcheck="false">-- Calculate weighted_score = gpa * year
+SELECT name, gpa, year, gpa * year AS weighted_score FROM students;</textarea>
+      <button class="run-btn" id="btn3" onclick="runQuery('ex3','out3')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out3"></div>
+    </div>
+
+    <!-- Mini Project -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Understanding the Student Population</h3>
+      <p>You are a new academic advisor. Write <strong>3 different SELECT queries</strong> to get to know the students table. Run each one individually by selecting and running, or run all at once.</p>
+      <ol>
+        <li>The full roster &mdash; every column, every row.</li>
+        <li>Key identifiers only &mdash; name, major, and year.</li>
+        <li>An interesting calculated field (e.g., <code>gpa / 4.0 * 100 AS gpa_percent</code> or <code>age - 18 AS years_since_hs</code>).</li>
+      </ol>
+      <textarea class="code-editor" id="proj" style="min-height:200px;" spellcheck="false">-- Query 1: Full roster
+SELECT * FROM students;
+
+-- Query 2: Key identifiers
+SELECT name, major, year FROM students;
+
+-- Query 3: Calculated fields
+SELECT name, gpa / 4.0 * 100 AS gpa_percent, age - 18 AS years_since_hs FROM students;</textarea>
+      <button class="run-btn" id="btnp" onclick="runQuery('proj','outp')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="outp"></div>
+    </div>
+
+    <div class="lab-complete">
+      <h2>&#x1F3C1; Lab 01 Complete!</h2>
+      <p>You can now write SELECT queries to retrieve any combination of columns from a table, create aliases, and compute new columns on the fly.</p>
+      <p style="margin-bottom:1.5rem;">Ready for the next challenge?</p>
+      <a href="../lab-02/index.html" style="background:white;color:#1565C0;padding:0.75rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Continue to Lab 02 &mdash; WHERE &rarr;</a>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Powered by sql.js (SQLite in WebAssembly)</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script>
+let db = null;
+
+async function initSQL() {
+    const statusEl = document.getElementById('sql-status');
+    if(statusEl) statusEl.textContent = '\u23F3 Loading SQL engine...';
+    const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+    });
+    db = new SQL.Database();
+    loadSchema();
+    if(statusEl) {
+        statusEl.textContent = '\u2705 Database ready! Write a query and click \u25B6 Run.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+    }
+    document.querySelectorAll('.run-btn').forEach(btn => btn.disabled = false);
+}
+
+function loadSchema() {
+    db.run(`CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT, major TEXT, gpa REAL, year INTEGER, scholarship INTEGER, city TEXT, age INTEGER);`);
+    db.run(`INSERT INTO students VALUES (1,'Alice Chen','Computer Science',3.8,3,1,'Los Angeles',21),(2,'Bob Smith','Mathematics',3.2,2,0,'San Francisco',20),(3,'Carol Wu','Computer Science',3.9,4,1,'Los Angeles',22),(4,'David Park','English',2.9,1,0,'San Diego',19),(5,'Eve Johnson','Mathematics',3.7,3,1,'Los Angeles',21),(6,'Frank Lee','Computer Science',3.5,2,0,'Oakland',20),(7,'Grace Kim','Psychology',3.1,4,0,'San Jose',22),(8,'Henry Brown','Mathematics',3.6,1,0,'Los Angeles',19),(9,'Iris White','Computer Science',3.4,3,1,'San Francisco',21),(10,'Jack Davis','English',3.8,2,0,'Los Angeles',20);`);
+}
+
+function runQuery(editorId, outputId) {
+    if(!db) return;
+    const sql = document.getElementById(editorId).value;
+    const outputEl = document.getElementById(outputId);
+    outputEl.innerHTML = '';
+    try {
+        const results = db.exec(sql);
+        if(!results.length) { outputEl.innerHTML = '<div class="sql-success">\u2713 Query executed successfully.</div>'; return; }
+        results.forEach(result => {
+            const table = document.createElement('table');
+            table.className = 'result-table';
+            const thead = table.createTHead();
+            const hrow = thead.insertRow();
+            result.columns.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
+            const tbody = table.createTBody();
+            result.values.forEach(row => {
+                const tr = tbody.insertRow();
+                row.forEach(val => { const td = tr.insertCell(); td.textContent = val !== null ? val : 'NULL'; });
+            });
+            outputEl.appendChild(table);
+            const cnt = document.createElement('div');
+            cnt.className = 'row-count';
+            cnt.textContent = result.values.length + ' row' + (result.values.length !== 1 ? 's' : '') + ' returned';
+            outputEl.appendChild(cnt);
+        });
+    } catch(e) { outputEl.innerHTML = '<div class="sql-error">\u274C ' + e.message + '</div>'; }
+}
+
+initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-01';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

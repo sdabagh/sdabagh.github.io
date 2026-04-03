@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 1: Vectors & Data Types — R Practice Labs. Practice creating and manipulating R vectors.">
-  <title>Lab 1: Vectors &amp; Data Types - R Practice Labs</title>
+  <meta name="description" content="Lab 3: dplyr Data Wrangling — R Practice Labs. Master the grammar of data manipulation with filter, select, mutate, arrange, and summarize.">
+  <title>Lab 3: dplyr Data Wrangling - R Practice Labs</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
@@ -13,7 +13,6 @@
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
     .nav-next{background:#C62828;color:white}
     .nav-next:hover{background:#B71C1C;text-decoration:none}
-    .nav-home{color:var(--text-secondary);font-size:0.85rem}
     .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
     .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
     .exercise-block h3{margin-top:0;color:#C62828}
@@ -45,10 +44,8 @@
   </style>
   <script type="module">
     import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
-
     const webR = new WebR();
     let webRReady = false;
-
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
       if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
@@ -62,7 +59,6 @@
       }
       document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
     }
-
     async function runR(editorId, outputId, plotId) {
       if (!webRReady) return;
       const code = document.getElementById(editorId).value;
@@ -71,19 +67,13 @@
       outputEl.className = 'code-output';
       outputEl.textContent = 'Running...';
       if(plotEl) plotEl.innerHTML = '';
-
       const shelter = await new webR.Shelter();
       try {
         const result = await shelter.captureR(code, {
-          withAutoprint: true,
-          captureStreams: true,
-          captureConditions: false,
+          withAutoprint: true, captureStreams: true, captureConditions: false,
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
-        const text = result.output
-          .filter(o => o.type === 'stdout' || o.type === 'stderr')
-          .map(o => o.data)
-          .join('\n');
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
         outputEl.textContent = text || '✓ Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
@@ -98,11 +88,8 @@
       } catch(e) {
         outputEl.textContent = '❌ ' + e.message;
         outputEl.classList.add('error');
-      } finally {
-        shelter.purge();
-      }
+      } finally { shelter.purge(); }
     }
-
     window.runR = runR;
     initWebR();
   </script>
@@ -125,15 +112,15 @@
     <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
 
     <div class="lab-header">
-      <div class="lab-label">Lab 1 of 10</div>
-      <h1>Vectors &amp; Data Types</h1>
-      <p>R&rsquo;s building blocks &mdash; everything is a vector</p>
+      <div class="lab-label">Lab 3 of 10</div>
+      <h1>dplyr: Data Wrangling</h1>
+      <p>The grammar of data manipulation</p>
     </div>
 
     <div class="lab-nav">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
+      <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a>
     </div>
 
     <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
@@ -141,144 +128,163 @@
     <!-- CONCEPT RECAP -->
     <div class="concept-recap">
       <h2>&#x1F4D6; Concept Recap</h2>
-      <p>In R, <strong>everything is a vector</strong> &mdash; even a single number is a vector of length 1. Vectors are R&rsquo;s most fundamental data structure.</p>
+      <p>dplyr provides <strong>5 main verbs</strong> that cover nearly all data manipulation needs:</p>
       <ul>
-        <li><strong>numeric</strong> &mdash; numbers: <code>c(1.5, 2.7, 3.0)</code></li>
-        <li><strong>character</strong> &mdash; text: <code>c("Alice", "Bob")</code></li>
-        <li><strong>logical</strong> &mdash; TRUE or FALSE: <code>c(TRUE, FALSE, TRUE)</code></li>
-        <li><strong>integer</strong> &mdash; whole numbers: <code>c(1L, 2L, 3L)</code></li>
-        <li><strong>factor</strong> &mdash; categorical with levels: <code>factor(c("A","B","A"))</code></li>
+        <li><strong>filter()</strong> &mdash; keep rows matching a condition</li>
+        <li><strong>select()</strong> &mdash; choose specific columns</li>
+        <li><strong>mutate()</strong> &mdash; add or transform columns</li>
+        <li><strong>arrange()</strong> &mdash; sort rows (use <code>desc()</code> to reverse)</li>
+        <li><strong>summarize() + group_by()</strong> &mdash; aggregate by group</li>
       </ul>
-      <p style="margin-bottom:0">Key functions: <code>c()</code> creates vectors, <code>length()</code> counts elements, <code>class()</code> checks type, <code>str()</code> shows structure, <code>summary()</code> gives stats. R is <strong>vectorized</strong> &mdash; operations apply to every element automatically.</p>
+      <p style="margin-bottom:0">The <strong>pipe</strong> <code>|&gt;</code> chains operations: output of the left becomes input on the right. No need to install in WebR &mdash; just <code>library(dplyr)</code>. Use <code>n()</code> inside summarize to count rows per group.</p>
     </div>
 
     <!-- WORKED EXAMPLE -->
     <div class="worked-example">
       <h2>&#x1F440; Worked Example</h2>
-      <p>Study this code carefully before diving into the exercises:</p>
-      <div class="worked-code"># Creating vectors
-ages &lt;- c(22, 25, 19, 31, 28)
-names_vec &lt;- c("Alice", "Bob", "Carol", "David", "Eve")
-enrolled &lt;- c(TRUE, TRUE, FALSE, TRUE, FALSE)
-
-# Exploring vectors
-print(ages)
-cat("Length:", length(ages), "\n")
-cat("Class:", class(ages), "\n")
-cat("Mean age:", mean(ages), "\n")
-
-# Vector operations — R is vectorized!
-ages_in_months &lt;- ages * 12
-print(ages_in_months)
-
-# Logical indexing
-adults &lt;- ages[ages &gt;= 21]
-cat("Adults:", adults, "\n")</div>
+      <p>Study this complete dplyr pipeline before starting the exercises:</p>
+      <div class="worked-code">library(dplyr)
+sales &lt;- data.frame(
+  rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
+  region = c("West","East","West","West","South","East","West","South"),
+  month  = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb"),
+  revenue= c(18500,12300,22100,19800,15600,16900,25400,13200),
+  stringsAsFactors = FALSE
+)
+result &lt;- sales |&gt;
+  group_by(rep) |&gt;
+  summarize(total = sum(revenue), avg = mean(revenue), n = n()) |&gt;
+  arrange(desc(total))
+print(result)
+west &lt;- sales |&gt; filter(region == "West") |&gt;
+  mutate(quota_met = revenue &gt; 15000) |&gt;
+  select(rep, month, revenue, quota_met)
+print(west)</div>
     </div>
 
     <!-- EXERCISE 1 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Exam Score Vector</h3>
-      <p>Fill in the blanks to complete the exam score analysis. Replace each <code>___</code> with the correct value or function name.</p>
-      <textarea class="code-editor" id="editor1"># Create a vector of 6 exam scores
-scores &lt;- c(88, 92, 75, 84, 95, 79)  # feel free to change these
+      <h3>Exercise 1 &mdash; Student Wrangling</h3>
+      <p>The blanks have been filled in for you &mdash; run the code and study the output, then experiment by changing the filter threshold or sort order.</p>
+      <textarea class="code-editor" id="editor1">library(dplyr)
+students &lt;- data.frame(
+  name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
+  major = c("CS","Math","CS","English","CS","Math","English","CS"),
+  gpa   = c(3.8, 3.2, 3.9, 2.9, 3.5, 3.7, 3.1, 3.6),
+  year  = c(3, 2, 4, 1, 2, 3, 4, 1),
+  stringsAsFactors = FALSE)
 
-# Calculate statistics
-cat("Mean:", mean(scores), "\n")
-cat("Median:", median(scores), "\n")
-cat("Highest:", max(scores), "\n")
-cat("Lowest:", min(scores), "\n")
-cat("Standard Deviation:", round(sd(scores), 2), "\n")
+# Filter GPA > 3.5, arrange descending
+top &lt;- students |&gt; filter(gpa &gt; 3.5) |&gt; arrange(desc(gpa))
+print(top)
 
-# How many scores are above 85?
-above_85 &lt;- scores[scores &gt; 85]
-cat("Scores above 85:", above_85, "\n")
-cat("Count above 85:", length(above_85), "\n")
+# Average GPA by major
+by_major &lt;- students |&gt; group_by(major) |&gt;
+  summarize(avg_gpa = mean(gpa), count = n())
+print(by_major)
 
-# What percentage passed (score &gt;= 70)?
-pass_rate &lt;- sum(scores &gt;= 70) / length(scores) * 100
-cat("Pass rate:", pass_rate, "%\n")</textarea>
+# Add rank column
+ranked &lt;- students |&gt; mutate(rank = rank(-gpa)) |&gt;
+  select(name, gpa, rank) |&gt; arrange(rank)
+print(ranked)</textarea>
       <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
       <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> R applies functions like <code>mean()</code> and <code>sd()</code> to the whole vector at once. <code>scores &gt; 85</code> returns a logical vector &mdash; use it inside <code>[]</code> to filter.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>filter(gpa &gt; 3.5)</code> keeps rows where GPA exceeds 3.5. <code>group_by(major)</code> splits the data before <code>summarize()</code> computes per-group stats. <code>rank(-gpa)</code> ranks from highest to lowest.</div>
     </div>
 
     <!-- EXERCISE 2 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; City Data Vectors</h3>
-      <p>Create a character vector of 5 city names, a numeric vector of their populations (in millions), and a logical vector for whether they are in California. Then:</p>
+      <h3>Exercise 2 &mdash; Advanced Student Summaries</h3>
+      <p>Using the same <code>students</code> data frame, write three separate pipelines:</p>
       <ol>
-        <li>Print only the California cities using logical indexing</li>
-        <li>Print the city with the highest population using <code>which.max()</code></li>
-        <li>Print a formatted summary using <code>paste()</code> or <code>cat()</code></li>
+        <li>Find the top student per major using <code>group_by(major) |&gt; slice_max(gpa, n=1)</code></li>
+        <li>Count students per year+major combination using <code>group_by(year, major) |&gt; summarize(count = n())</code></li>
+        <li>Create a summary by major showing count, average GPA, and max GPA, arranged by avg_gpa descending</li>
       </ol>
-      <textarea class="code-editor" id="editor2"># Your code here — create 3 vectors and answer the 3 questions
+      <textarea class="code-editor" id="editor2">library(dplyr)
+students &lt;- data.frame(
+  name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
+  major = c("CS","Math","CS","English","CS","Math","English","CS"),
+  gpa   = c(3.8, 3.2, 3.9, 2.9, 3.5, 3.7, 3.1, 3.6),
+  year  = c(3, 2, 4, 1, 2, 3, 4, 1),
+  stringsAsFactors = FALSE)
+
+# 1. Top student per major
+
+# 2. Count by year + major combo
+
+# 3. Summary by major (count, avg_gpa, max_gpa) arranged by avg_gpa desc
 </textarea>
       <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
       <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>cities[in_california]</code> filters cities where the logical vector is TRUE. <code>cities[which.max(populations)]</code> gives the city with the largest population.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>slice_max(gpa, n=1)</code> picks the row with the highest GPA per group. Chain multiple group_by columns for crossed summaries. Use <code>summarize(count=n(), avg=mean(gpa), top=max(gpa))</code> followed by <code>arrange(desc(avg))</code>.</div>
     </div>
 
     <!-- EXERCISE 3 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Vector Operations Without Loops</h3>
-      <p>Create a vector of numbers 1 to 20 using <code>1:20</code> or <code>seq()</code>. Then using <strong>vector operations only</strong> (no for loops):</p>
-      <ol>
-        <li>Find all even numbers (hint: use <code>%%</code> for modulo)</li>
-        <li>Find numbers divisible by 3</li>
-        <li>Find numbers that are BOTH even AND divisible by 3</li>
-        <li>Calculate the sum of all odd numbers</li>
-      </ol>
-      <textarea class="code-editor" id="editor3"># Create the vector
-nums &lt;- 1:20
+      <h3>Exercise 3 &mdash; Performance Classification Pipeline</h3>
+      <p>Build a single pipeline on <code>students</code> that: (1) filters to year &ge; 2, (2) adds a <code>performance</code> column using <code>case_when()</code> &mdash; &ldquo;Excellent&rdquo; if gpa &ge; 3.7, &ldquo;Good&rdquo; if gpa &ge; 3.3, &ldquo;Fair&rdquo; otherwise, (3) groups by major and performance, (4) counts, (5) arranges by major then count descending.</p>
+      <textarea class="code-editor" id="editor3">library(dplyr)
+students &lt;- data.frame(
+  name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
+  major = c("CS","Math","CS","English","CS","Math","English","CS"),
+  gpa   = c(3.8, 3.2, 3.9, 2.9, 3.5, 3.7, 3.1, 3.6),
+  year  = c(3, 2, 4, 1, 2, 3, 4, 1),
+  stringsAsFactors = FALSE)
 
-# 1. Even numbers (divisible by 2)
-
-# 2. Numbers divisible by 3
-
-# 3. Divisible by BOTH 2 and 3
-
-# 4. Sum of all odd numbers
-</textarea>
+result &lt;- students |&gt;
+  filter(year &gt;= 2) |&gt;
+  mutate(performance = case_when(
+    gpa &gt;= 3.7 ~ "Excellent",
+    gpa &gt;= 3.3 ~ "Good",
+    TRUE        ~ "Fair"
+  )) |&gt;
+  group_by(major, performance) |&gt;
+  summarize(count = n(), .groups = "drop") |&gt;
+  arrange(major, desc(count))
+print(result)</textarea>
       <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
       <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>nums[nums %% 2 == 0]</code> finds even numbers. Combine conditions with <code>&amp;</code>: <code>nums[nums %% 2 == 0 &amp; nums %% 3 == 0]</code>. Use <code>sum()</code> on a filtered vector.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>case_when()</code> works like nested if/else &mdash; each condition uses <code>~</code> to separate the test from the result. <code>TRUE ~ "Fair"</code> is the catch-all default. Add <code>.groups = "drop"</code> after summarize to avoid a warning.</div>
     </div>
 
     <!-- MINI PROJECT -->
     <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Student Profile Dataset</span>
-      <h3>Build a Student Dataset from Vectors</h3>
-      <p>Build a complete student dataset using vectors. Create: <code>student_names</code> (6 students), <code>gpas</code> (numeric, realistic values), <code>majors</code> (character), <code>years</code> (integer 1&ndash;4), <code>on_honor_roll</code> (logical: TRUE if gpa &ge; 3.7).</p>
-      <p>Then answer these questions using only vector operations:</p>
-      <ol>
-        <li>Who is on honor roll? (print names)</li>
-        <li>What is the average GPA by major? (use <code>tapply(gpas, majors, mean)</code>)</li>
-        <li>Who has the highest GPA? (use <code>which.max()</code>)</li>
-        <li>Print a formatted summary for each student using a for loop and <code>cat()</code></li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:240px;"># Build your vectors here
-student_names &lt;- c()
-gpas &lt;- c()
-majors &lt;- c()
-years &lt;- c()
-on_honor_roll &lt;- gpas &gt;= 3.7
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Sales Analysis</span>
+      <h3>Full Sales Pipeline Analysis</h3>
+      <p>Using the <code>sales</code> data frame below, use dplyr pipelines to answer all 5 questions. Use <code>|&gt;</code> throughout.</p>
+      <textarea class="code-editor" id="editor4" style="min-height:320px;">library(dplyr)
+sales &lt;- data.frame(
+  rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
+  region = c("West","East","West","West","South","East","West","South"),
+  month  = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb"),
+  revenue= c(18500,12300,22100,19800,15600,16900,25400,13200),
+  stringsAsFactors = FALSE
+)
 
-# Answer the 4 questions
+# Q1: Total and average revenue by rep (arrange by total desc)
+
+# Q2: Which region had the highest total revenue?
+
+# Q3: Compare Jan vs Feb total revenue
+
+# Q4: Which reps exceeded a $15,000 quota in ANY month? (distinct reps)
+
+# Q5: Top performer — their name, total, and % above team average
 </textarea>
       <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
       <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>student_names[on_honor_roll]</code> gives honor roll names. <code>tapply(gpas, majors, mean)</code> computes the mean GPA for each unique major automatically.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Q4: <code>filter(revenue &gt; 15000) |&gt; distinct(rep)</code>. Q5: compute team average with <code>mean(revenue)</code> then calculate percentage above. Use <code>pull()</code> to extract a single value from a pipeline result.</div>
     </div>
 
     <!-- LAB COMPLETE -->
     <div class="lab-complete">
-      <h2>&#x2705; Lab 1 Complete!</h2>
-      <p>You&rsquo;ve mastered R&rsquo;s foundational data structure &mdash; the vector. Vectorized operations, logical indexing, and the apply family are the core of R&rsquo;s power and elegance.</p>
-      <p style="margin-bottom:0"><a href="../lab-02/index.html">Continue to Lab 2: Data Frames &rarr;</a></p>
+      <h2>&#x2705; Lab 3 Complete!</h2>
+      <p>You&rsquo;ve mastered dplyr &mdash; the most widely used R package for data wrangling. The five verbs plus pipes let you express complex transformations in clean, readable code.</p>
+      <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Functions &amp; Control Flow &rarr;</a></p>
         <div style="margin-top:1.5rem">
         <button id="complete-btn" onclick="markComplete()" 
             style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
@@ -289,11 +295,10 @@ on_honor_roll &lt;- gpas &gt;= 3.7
     </div>
 
     <div class="lab-nav" style="margin-top:2rem">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
+      <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a>
     </div>
-
   </main>
 
   <footer>
@@ -308,12 +313,11 @@ on_honor_roll &lt;- gpas &gt;= 3.7
       <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
     </div>
     <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 1: Vectors &amp; Data Types</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 3: dplyr Data Wrangling</p>
   </footer>
-
 <script>
 // Progress tracking via localStorage
-const LAB_ID = 'r-lab-01';
+const LAB_ID = 'r-lab-03';
 
 function isComplete() {
     return localStorage.getItem(LAB_ID) === 'complete';

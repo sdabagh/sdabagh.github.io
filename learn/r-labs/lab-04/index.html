@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 1: Vectors & Data Types — R Practice Labs. Practice creating and manipulating R vectors.">
-  <title>Lab 1: Vectors &amp; Data Types - R Practice Labs</title>
+  <meta name="description" content="Lab 4: Functions and Control Flow — R Practice Labs. Write reusable, intelligent R code with functions, if/else, loops, and apply.">
+  <title>Lab 4: Functions &amp; Control Flow - R Practice Labs</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
@@ -13,7 +13,6 @@
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
     .nav-next{background:#C62828;color:white}
     .nav-next:hover{background:#B71C1C;text-decoration:none}
-    .nav-home{color:var(--text-secondary);font-size:0.85rem}
     .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
     .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
     .exercise-block h3{margin-top:0;color:#C62828}
@@ -45,10 +44,8 @@
   </style>
   <script type="module">
     import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
-
     const webR = new WebR();
     let webRReady = false;
-
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
       if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
@@ -62,7 +59,6 @@
       }
       document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
     }
-
     async function runR(editorId, outputId, plotId) {
       if (!webRReady) return;
       const code = document.getElementById(editorId).value;
@@ -71,19 +67,13 @@
       outputEl.className = 'code-output';
       outputEl.textContent = 'Running...';
       if(plotEl) plotEl.innerHTML = '';
-
       const shelter = await new webR.Shelter();
       try {
         const result = await shelter.captureR(code, {
-          withAutoprint: true,
-          captureStreams: true,
-          captureConditions: false,
+          withAutoprint: true, captureStreams: true, captureConditions: false,
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
-        const text = result.output
-          .filter(o => o.type === 'stdout' || o.type === 'stderr')
-          .map(o => o.data)
-          .join('\n');
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
         outputEl.textContent = text || '✓ Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
@@ -98,11 +88,8 @@
       } catch(e) {
         outputEl.textContent = '❌ ' + e.message;
         outputEl.classList.add('error');
-      } finally {
-        shelter.purge();
-      }
+      } finally { shelter.purge(); }
     }
-
     window.runR = runR;
     initWebR();
   </script>
@@ -125,15 +112,15 @@
     <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
 
     <div class="lab-header">
-      <div class="lab-label">Lab 1 of 10</div>
-      <h1>Vectors &amp; Data Types</h1>
-      <p>R&rsquo;s building blocks &mdash; everything is a vector</p>
+      <div class="lab-label">Lab 4 of 10</div>
+      <h1>Functions &amp; Control Flow</h1>
+      <p>Writing reusable, intelligent R code</p>
     </div>
 
     <div class="lab-nav">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: dplyr</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: Strings &rarr;</a>
     </div>
 
     <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
@@ -141,144 +128,185 @@
     <!-- CONCEPT RECAP -->
     <div class="concept-recap">
       <h2>&#x1F4D6; Concept Recap</h2>
-      <p>In R, <strong>everything is a vector</strong> &mdash; even a single number is a vector of length 1. Vectors are R&rsquo;s most fundamental data structure.</p>
+      <p>Functions are the building blocks of reusable R code. Control flow lets your code make decisions and repeat actions.</p>
       <ul>
-        <li><strong>numeric</strong> &mdash; numbers: <code>c(1.5, 2.7, 3.0)</code></li>
-        <li><strong>character</strong> &mdash; text: <code>c("Alice", "Bob")</code></li>
-        <li><strong>logical</strong> &mdash; TRUE or FALSE: <code>c(TRUE, FALSE, TRUE)</code></li>
-        <li><strong>integer</strong> &mdash; whole numbers: <code>c(1L, 2L, 3L)</code></li>
-        <li><strong>factor</strong> &mdash; categorical with levels: <code>factor(c("A","B","A"))</code></li>
+        <li><strong>Define functions:</strong> <code>my_fn &lt;- function(arg1, arg2 = default) { body }</code></li>
+        <li><strong>if/else:</strong> <code>if (condition) { ... } else { ... }</code></li>
+        <li><strong>Vectorized if:</strong> <code>ifelse(condition, yes, no)</code></li>
+        <li><strong>for loops:</strong> <code>for (item in vector) { ... }</code></li>
+        <li><strong>while loops:</strong> <code>while (condition) { ... }</code></li>
+        <li><strong>sapply():</strong> apply a function to each element of a vector, return a vector</li>
+        <li><strong>lapply():</strong> apply a function to each element, return a list</li>
       </ul>
-      <p style="margin-bottom:0">Key functions: <code>c()</code> creates vectors, <code>length()</code> counts elements, <code>class()</code> checks type, <code>str()</code> shows structure, <code>summary()</code> gives stats. R is <strong>vectorized</strong> &mdash; operations apply to every element automatically.</p>
+      <p style="margin-bottom:0">R returns the <strong>last expression</strong> in a function automatically &mdash; no explicit <code>return()</code> needed (though you can use it for early returns).</p>
     </div>
 
     <!-- WORKED EXAMPLE -->
     <div class="worked-example">
       <h2>&#x1F440; Worked Example</h2>
-      <p>Study this code carefully before diving into the exercises:</p>
-      <div class="worked-code"># Creating vectors
-ages &lt;- c(22, 25, 19, 31, 28)
-names_vec &lt;- c("Alice", "Bob", "Carol", "David", "Eve")
-enrolled &lt;- c(TRUE, TRUE, FALSE, TRUE, FALSE)
-
-# Exploring vectors
-print(ages)
-cat("Length:", length(ages), "\n")
-cat("Class:", class(ages), "\n")
-cat("Mean age:", mean(ages), "\n")
-
-# Vector operations — R is vectorized!
-ages_in_months &lt;- ages * 12
-print(ages_in_months)
-
-# Logical indexing
-adults &lt;- ages[ages &gt;= 21]
-cat("Adults:", adults, "\n")</div>
+      <p>A function with input validation, default arguments, and a named list return:</p>
+      <div class="worked-code">calculate_stats &lt;- function(x, na.rm = TRUE) {
+  if (!is.numeric(x)) stop("Input must be numeric")
+  list(
+    n      = length(x),
+    mean   = mean(x, na.rm = na.rm),
+    median = median(x, na.rm = na.rm),
+    sd     = sd(x, na.rm = na.rm),
+    range  = range(x, na.rm = na.rm)
+  )
+}
+scores &lt;- c(88, 92, 75, 95, 84, 91, 78, NA)
+stats &lt;- calculate_stats(scores)
+cat("N:",      stats$n, "\n")
+cat("Mean:",   round(stats$mean,   2), "\n")
+cat("Median:", stats$median,          "\n")
+cat("SD:",     round(stats$sd,     2), "\n")</div>
     </div>
 
     <!-- EXERCISE 1 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Exam Score Vector</h3>
-      <p>Fill in the blanks to complete the exam score analysis. Replace each <code>___</code> with the correct value or function name.</p>
-      <textarea class="code-editor" id="editor1"># Create a vector of 6 exam scores
-scores &lt;- c(88, 92, 75, 84, 95, 79)  # feel free to change these
+      <h3>Exercise 1 &mdash; Grade Converter</h3>
+      <p>Complete the <code>score_to_grade()</code> function using if/else, then test it on a vector of scores with <code>sapply()</code>.</p>
+      <textarea class="code-editor" id="editor1">score_to_grade &lt;- function(score) {
+  if (score &gt;= 90) {
+    "A"
+  } else if (score &gt;= 80) {
+    "B"
+  } else if (score &gt;= 70) {
+    "C"
+  } else if (score &gt;= 60) {
+    "D"
+  } else {
+    "F"
+  }
+}
 
-# Calculate statistics
-cat("Mean:", mean(scores), "\n")
-cat("Median:", median(scores), "\n")
-cat("Highest:", max(scores), "\n")
-cat("Lowest:", min(scores), "\n")
-cat("Standard Deviation:", round(sd(scores), 2), "\n")
+test_scores &lt;- c(95, 83, 71, 65, 42, 88, 55, 90)
 
-# How many scores are above 85?
-above_85 &lt;- scores[scores &gt; 85]
-cat("Scores above 85:", above_85, "\n")
-cat("Count above 85:", length(above_85), "\n")
+# Apply the function to every score at once
+grades &lt;- sapply(test_scores, score_to_grade)
+cat("Scores:", test_scores, "\n")
+cat("Grades:", grades, "\n")
 
-# What percentage passed (score &gt;= 70)?
-pass_rate &lt;- sum(scores &gt;= 70) / length(scores) * 100
-cat("Pass rate:", pass_rate, "%\n")</textarea>
+# Count each grade
+print(table(grades))</textarea>
       <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
       <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> R applies functions like <code>mean()</code> and <code>sd()</code> to the whole vector at once. <code>scores &gt; 85</code> returns a logical vector &mdash; use it inside <code>[]</code> to filter.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>sapply(vector, function_name)</code> applies the function to each element and returns a vector of results. <code>table()</code> counts how many times each unique value appears.</div>
     </div>
 
     <!-- EXERCISE 2 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; City Data Vectors</h3>
-      <p>Create a character vector of 5 city names, a numeric vector of their populations (in millions), and a logical vector for whether they are in California. Then:</p>
-      <ol>
-        <li>Print only the California cities using logical indexing</li>
-        <li>Print the city with the highest population using <code>which.max()</code></li>
-        <li>Print a formatted summary using <code>paste()</code> or <code>cat()</code></li>
-      </ol>
-      <textarea class="code-editor" id="editor2"># Your code here — create 3 vectors and answer the 3 questions
-</textarea>
+      <h3>Exercise 2 &mdash; Vector Descriptor</h3>
+      <p>Write a function <code>describe_vector(x)</code> that prints: N, mean, range (min–max), standard deviation, and count of outliers (values more than 2 SD from the mean). Test it on three different numeric vectors.</p>
+      <textarea class="code-editor" id="editor2">describe_vector &lt;- function(x) {
+  # Your function body here
+  # Print: N, mean, range, SD, and outlier count
+}
+
+# Test on three vectors
+v1 &lt;- c(10, 12, 11, 13, 10, 45, 12, 11)   # has an outlier
+v2 &lt;- rnorm(20, mean = 100, sd = 15)
+v3 &lt;- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+cat("=== Vector 1 ===\n");  describe_vector(v1)
+cat("=== Vector 2 ===\n");  describe_vector(v2)
+cat("=== Vector 3 ===\n");  describe_vector(v3)</textarea>
       <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
       <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>cities[in_california]</code> filters cities where the logical vector is TRUE. <code>cities[which.max(populations)]</code> gives the city with the largest population.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Outliers: <code>sum(abs(x - mean(x)) &gt; 2 * sd(x))</code>. Use <code>cat()</code> to format output. Range: <code>range(x)</code> returns a 2-element vector &mdash; use <code>range(x)[1]</code> and <code>range(x)[2]</code> for min and max.</div>
     </div>
 
     <!-- EXERCISE 3 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Vector Operations Without Loops</h3>
-      <p>Create a vector of numbers 1 to 20 using <code>1:20</code> or <code>seq()</code>. Then using <strong>vector operations only</strong> (no for loops):</p>
-      <ol>
-        <li>Find all even numbers (hint: use <code>%%</code> for modulo)</li>
-        <li>Find numbers divisible by 3</li>
-        <li>Find numbers that are BOTH even AND divisible by 3</li>
-        <li>Calculate the sum of all odd numbers</li>
-      </ol>
-      <textarea class="code-editor" id="editor3"># Create the vector
-nums &lt;- 1:20
+      <h3>Exercise 3 &mdash; FizzBuzz &amp; Higher-Order Functions</h3>
+      <p>Part A: Write <code>fizzbuzz_r(n)</code> that returns a character vector of length n: &ldquo;FizzBuzz&rdquo; for multiples of 15, &ldquo;Fizz&rdquo; for 3, &ldquo;Buzz&rdquo; for 5, otherwise the number as a string. Part B: Write <code>run_multiple(fn, values)</code> that applies <code>fn</code> to each element of <code>values</code> and prints the results. Use it to call <code>fizzbuzz_r</code> on <code>c(10, 20, 30)</code>.</p>
+      <textarea class="code-editor" id="editor3"># Part A: FizzBuzz
+fizzbuzz_r &lt;- function(n) {
+  # Return a character vector of length n
+}
 
-# 1. Even numbers (divisible by 2)
+# Part B: Higher-order function
+run_multiple &lt;- function(fn, values) {
+  # Apply fn to each value and print each result
+}
 
-# 2. Numbers divisible by 3
-
-# 3. Divisible by BOTH 2 and 3
-
-# 4. Sum of all odd numbers
-</textarea>
+# Test
+cat("FizzBuzz(15):\n")
+print(fizzbuzz_r(15))
+cat("\nrun_multiple on c(10, 20, 30):\n")
+run_multiple(fizzbuzz_r, c(10, 20, 30))</textarea>
       <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
       <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>nums[nums %% 2 == 0]</code> finds even numbers. Combine conditions with <code>&amp;</code>: <code>nums[nums %% 2 == 0 &amp; nums %% 3 == 0]</code>. Use <code>sum()</code> on a filtered vector.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Use <code>ifelse()</code> vectorized: <code>ifelse(x %% 15 == 0, "FizzBuzz", ifelse(x %% 3 == 0, "Fizz", ...))</code>. For <code>run_multiple</code>, use <code>for (v in values)</code> or <code>lapply(values, fn)</code>.</div>
     </div>
 
     <!-- MINI PROJECT -->
     <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Student Profile Dataset</span>
-      <h3>Build a Student Dataset from Vectors</h3>
-      <p>Build a complete student dataset using vectors. Create: <code>student_names</code> (6 students), <code>gpas</code> (numeric, realistic values), <code>majors</code> (character), <code>years</code> (integer 1&ndash;4), <code>on_honor_roll</code> (logical: TRUE if gpa &ge; 3.7).</p>
-      <p>Then answer these questions using only vector operations:</p>
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Analysis Toolkit</span>
+      <h3>Build a 4-Function Analysis Toolkit</h3>
+      <p>Write and test all four functions below, then demonstrate them working together on a sample dataset.</p>
       <ol>
-        <li>Who is on honor roll? (print names)</li>
-        <li>What is the average GPA by major? (use <code>tapply(gpas, majors, mean)</code>)</li>
-        <li>Who has the highest GPA? (use <code>which.max()</code>)</li>
-        <li>Print a formatted summary for each student using a for loop and <code>cat()</code></li>
+        <li><strong>clean_vector(x)</strong> &mdash; removes NAs and values &gt; 3 SD from the mean, returns cleaned vector</li>
+        <li><strong>compare_groups(data, group_col, value_col)</strong> &mdash; returns a data frame with mean, sd, and n per group</li>
+        <li><strong>flag_outliers(x)</strong> &mdash; returns a logical vector: TRUE where value is &gt; 2 SD from mean</li>
+        <li><strong>full_report(x, label)</strong> &mdash; prints a formatted report using the other functions</li>
       </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:240px;"># Build your vectors here
-student_names &lt;- c()
-gpas &lt;- c()
-majors &lt;- c()
-years &lt;- c()
-on_honor_roll &lt;- gpas &gt;= 3.7
+      <textarea class="code-editor" id="editor4" style="min-height:320px;">clean_vector &lt;- function(x) {
+  # Remove NAs first
+  x &lt;- x[!is.na(x)]
+  # Remove extreme outliers (&gt; 3 SD from mean)
+  x[abs(x - mean(x)) &lt;= 3 * sd(x)]
+}
 
-# Answer the 4 questions
-</textarea>
+compare_groups &lt;- function(data, group_col, value_col) {
+  # Return data frame with mean, sd, n per group
+  groups &lt;- unique(data[[group_col]])
+  result &lt;- data.frame(group=groups, mean=NA, sd=NA, n=NA)
+  for (i in seq_along(groups)) {
+    vals &lt;- data[[value_col]][data[[group_col]] == groups[i]]
+    result$mean[i] &lt;- round(mean(vals), 2)
+    result$sd[i]   &lt;- round(sd(vals), 2)
+    result$n[i]    &lt;- length(vals)
+  }
+  result
+}
+
+flag_outliers &lt;- function(x) {
+  abs(x - mean(x, na.rm=TRUE)) &gt; 2 * sd(x, na.rm=TRUE)
+}
+
+full_report &lt;- function(x, label = "Data") {
+  clean &lt;- clean_vector(x)
+  outlier_count &lt;- sum(flag_outliers(x), na.rm=TRUE)
+  cat("===", label, "Report ===\n")
+  cat("Raw N:", length(x), " | Clean N:", length(clean), "\n")
+  cat("Mean:", round(mean(clean), 2), " | SD:", round(sd(clean), 2), "\n")
+  cat("Range:", min(clean), "to", max(clean), "\n")
+  cat("Outliers flagged:", outlier_count, "\n\n")
+}
+
+# Test data
+set.seed(1)
+salaries &lt;- c(rnorm(18, 60000, 10000), 200000, NA)
+dept &lt;- sample(c("Eng","Sales","HR"), 19, replace=TRUE)
+df &lt;- data.frame(dept=dept, salary=salaries[1:19])
+
+full_report(salaries, "Salaries")
+print(compare_groups(df, "dept", "salary"))</textarea>
       <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
       <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>student_names[on_honor_roll]</code> gives honor roll names. <code>tapply(gpas, majors, mean)</code> computes the mean GPA for each unique major automatically.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Functions can call other functions you defined earlier in the same script. Build and test each function individually before combining them in <code>full_report()</code>.</div>
     </div>
 
     <!-- LAB COMPLETE -->
     <div class="lab-complete">
-      <h2>&#x2705; Lab 1 Complete!</h2>
-      <p>You&rsquo;ve mastered R&rsquo;s foundational data structure &mdash; the vector. Vectorized operations, logical indexing, and the apply family are the core of R&rsquo;s power and elegance.</p>
-      <p style="margin-bottom:0"><a href="../lab-02/index.html">Continue to Lab 2: Data Frames &rarr;</a></p>
+      <h2>&#x2705; Lab 4 Complete!</h2>
+      <p>You can now write reusable, intelligent R functions with input validation, default arguments, control flow, and the apply family. These skills transform scripts into maintainable analysis tools.</p>
+      <p style="margin-bottom:0"><a href="../lab-05/index.html">Continue to Lab 5: String Manipulation &rarr;</a></p>
         <div style="margin-top:1.5rem">
         <button id="complete-btn" onclick="markComplete()" 
             style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
@@ -289,11 +317,10 @@ on_honor_roll &lt;- gpas &gt;= 3.7
     </div>
 
     <div class="lab-nav" style="margin-top:2rem">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: dplyr</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: Strings &rarr;</a>
     </div>
-
   </main>
 
   <footer>
@@ -308,12 +335,11 @@ on_honor_roll &lt;- gpas &gt;= 3.7
       <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
     </div>
     <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 1: Vectors &amp; Data Types</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 4: Functions &amp; Control Flow</p>
   </footer>
-
 <script>
 // Progress tracking via localStorage
-const LAB_ID = 'r-lab-01';
+const LAB_ID = 'r-lab-04';
 
 function isComplete() {
     return localStorage.getItem(LAB_ID) === 'complete';

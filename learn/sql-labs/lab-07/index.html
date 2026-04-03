@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Lab 07 — Subqueries: queries inside queries. Use subqueries in WHERE, FROM, and HAVING clauses.">
+  <title>Lab 07: Subqueries — SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto;white-space:pre}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;display:block;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Labs</a>
+
+    <div class="lab-nav">
+      <a href="../lab-06/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">&#x2190; Previous Lab</a>
+      <span style="font-weight:700;color:#1565C0;">Lab 7 of 10 &mdash; Subqueries</span>
+      <a href="../lab-08/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">Next Lab &#x2192;</a>
+    </div>
+
+    <h1 style="color:#1565C0;margin-bottom:0.25rem;">Lab 07 &mdash; Subqueries</h1>
+    <p style="color:#555;font-size:1.05rem;margin-bottom:1.5rem;">Queries inside queries. Use subqueries to filter by computed values, create derived tables, and answer complex HR questions.</p>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box"><span class="schema-label">&#x1F4CB; AVAILABLE TABLES: departments, employees, projects, assignments</span>departments(id, name, budget, location)
+employees(id, name, dept_id, salary, years, manager_id, hire_date)
+projects(id, name, dept_id, budget, status, start_date)
+assignments(employee_id, project_id, hours_per_week, role)
+
+Key relationships:
+  employees.dept_id       --> departments.id
+  projects.dept_id        --> departments.id
+  assignments.employee_id --> employees.id
+  assignments.project_id  --> projects.id</div>
+
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap: Subqueries</h2>
+      <ul style="margin:0;padding-left:1.25rem;line-height:1.9;">
+        <li>A <strong>subquery</strong> is a SELECT statement nested inside another query, enclosed in parentheses.</li>
+        <li><strong>Subquery in WHERE</strong>: filter rows by a computed value &mdash; <code>WHERE salary &gt; (SELECT AVG(salary) FROM employees)</code></li>
+        <li><strong>Subquery in FROM</strong>: treat the result as a temporary table (derived table) &mdash; <code>FROM (SELECT ...) AS sub</code></li>
+        <li><strong>Correlated subquery</strong>: inner query references the outer row &mdash; executes once per outer row.</li>
+        <li>Use <strong>IN</strong> with subqueries that return a list: <code>WHERE dept_id IN (SELECT id FROM departments WHERE ...)</code></li>
+        <li>Use <strong>NOT IN / NOT EXISTS</strong> to find rows with no matching counterpart.</li>
+      </ul>
+    </div>
+
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example (read-only)</h2>
+      <p style="margin-top:0;color:#6A1B9A;font-size:0.9rem;">Find employees earning above the company-wide average.</p>
+<pre class="code-editor" style="pointer-events:none;opacity:0.8;">-- Employees earning above the overall average salary
+SELECT name, salary, dept_id
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees)
+ORDER BY salary DESC;</pre>
+    </div>
+
+    <!-- Exercise 1: Guided -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F; Guided</span>
+      <h3>Exercise 1 &mdash; Employees in the Highest-Budget Department</h3>
+      <p>Find all employees who work in the department with the largest budget. Fill in the aggregate function name to complete the nested subquery.</p>
+      <div class="hint-box">&#x1F4A1; Hint: The inner query finds the department with the highest budget: <code>WHERE budget = (SELECT MAX(budget) FROM departments)</code></div>
+      <textarea class="code-editor" id="ex1" spellcheck="false">SELECT e.name, e.salary, e.years, d.name AS department, d.budget
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+WHERE e.dept_id = (
+    SELECT id FROM departments
+    WHERE budget = (SELECT ___(budget) FROM departments)
+)
+ORDER BY e.salary DESC;</textarea>
+      <button class="run-btn" id="btn1" onclick="runQuery('ex1','out1')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out1"></div>
+    </div>
+
+    <!-- Exercise 2: Independent -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; Correlated Subquery: Above Their Own Department Average</h3>
+      <p>Find employees who earn more than the average salary of their own specific department. The subquery must reference the outer row's <code>dept_id</code>.</p>
+      <div class="hint-box">&#x1F4A1; Hint: <code>WHERE e.salary &gt; (SELECT AVG(salary) FROM employees e2 WHERE e2.dept_id = e.dept_id)</code></div>
+      <textarea class="code-editor" id="ex2" spellcheck="false">SELECT e.name,
+       e.salary,
+       d.name AS department,
+       ROUND((SELECT AVG(salary) FROM employees e2
+              WHERE e2.dept_id = e.dept_id), 0) AS dept_avg
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+WHERE e.salary > (
+    SELECT AVG(salary) FROM employees e2
+    WHERE e2.dept_id = e.dept_id
+)
+ORDER BY d.name, e.salary DESC;</textarea>
+      <button class="run-btn" id="btn2" onclick="runQuery('ex2','out2')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out2"></div>
+    </div>
+
+    <!-- Exercise 3: Challenge -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Departments Where ALL Employees Earn Above $80,000</h3>
+      <p>Use NOT IN to find departments that do <strong>not appear</strong> in the set of department IDs where any employee earns $80,000 or less. Show department stats.</p>
+      <div class="hint-box">&#x1F4A1; Hint: <code>WHERE d.id NOT IN (SELECT DISTINCT dept_id FROM employees WHERE salary &lt;= 80000)</code></div>
+      <textarea class="code-editor" id="ex3" spellcheck="false">-- Departments where every single employee earns above $80,000
+SELECT d.id, d.name AS department, d.budget, d.location,
+       COUNT(e.id) AS headcount,
+       ROUND(AVG(e.salary), 0) AS avg_salary,
+       MIN(e.salary) AS lowest_salary
+FROM departments d
+INNER JOIN employees e ON d.id = e.dept_id
+WHERE d.id NOT IN (
+    SELECT DISTINCT dept_id FROM employees
+    WHERE salary <= 80000
+)
+GROUP BY d.id, d.name, d.budget, d.location
+ORDER BY avg_salary DESC;</textarea>
+      <button class="run-btn" id="btn3" onclick="runQuery('ex3','out3')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out3"></div>
+    </div>
+
+    <!-- Mini Project -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; HR Subquery Analysis</h3>
+      <p>Answer these four HR questions using subqueries:</p>
+      <ol>
+        <li>Which employees are assigned to the highest-budget project?</li>
+        <li>Which departments have an above-average budget (above the mean of all departments)?</li>
+        <li>Which employees are assigned to more projects than the average number of assignments per employee (use a derived table subquery in FROM)?</li>
+        <li>The top earner in each department (correlated subquery in WHERE).</li>
+      </ol>
+      <textarea class="code-editor" id="proj" style="min-height:380px;" spellcheck="false">-- Q1: Employees on the highest-budget project
+SELECT e.name, e.salary, p.name AS project, p.budget, a.role
+FROM employees e
+INNER JOIN assignments a ON e.id = a.employee_id
+INNER JOIN projects p ON a.project_id = p.id
+WHERE p.id = (SELECT id FROM projects WHERE budget = (SELECT MAX(budget) FROM projects))
+ORDER BY e.salary DESC;
+
+-- Q2: Departments with above-average budget
+SELECT name, budget, location
+FROM departments
+WHERE budget > (SELECT AVG(budget) FROM departments)
+ORDER BY budget DESC;
+
+-- Q3: Employees assigned to more projects than average (derived table)
+SELECT e.name, d.name AS dept, sub.proj_count AS projects_assigned
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+INNER JOIN (
+    SELECT employee_id, COUNT(*) AS proj_count
+    FROM assignments GROUP BY employee_id
+) sub ON e.id = sub.employee_id
+WHERE sub.proj_count > (
+    SELECT AVG(cnt) FROM (SELECT COUNT(*) AS cnt FROM assignments GROUP BY employee_id)
+)
+ORDER BY projects_assigned DESC;
+
+-- Q4: Top earner in each department
+SELECT e.name, e.salary, d.name AS department
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+WHERE e.salary = (
+    SELECT MAX(salary) FROM employees e2 WHERE e2.dept_id = e.dept_id
+)
+ORDER BY e.salary DESC;</textarea>
+      <button class="run-btn" id="btnp" onclick="runQuery('proj','outp')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="outp"></div>
+    </div>
+
+    <div class="lab-complete">
+      <h2>&#x1F3C1; Lab 07 Complete!</h2>
+      <p>You can now write scalar subqueries in WHERE, derived table subqueries in FROM, and correlated subqueries that reference the outer query.</p>
+      <p style="margin-bottom:1.5rem;">Next: manipulating text and dates with SQL functions.</p>
+      <a href="../lab-08/index.html" style="background:white;color:#1565C0;padding:0.75rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Continue to Lab 08 &mdash; String &amp; Date Functions &rarr;</a>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Powered by sql.js (SQLite in WebAssembly)</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script>
+let db = null;
+
+async function initSQL() {
+    const statusEl = document.getElementById('sql-status');
+    if(statusEl) statusEl.textContent = '\u23F3 Loading SQL engine...';
+    const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+    });
+    db = new SQL.Database();
+    loadSchema();
+    if(statusEl) {
+        statusEl.textContent = '\u2705 Database ready! Write a query and click \u25B6 Run.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+    }
+    document.querySelectorAll('.run-btn').forEach(btn => btn.disabled = false);
+}
+
+function loadSchema() {
+    db.run(`CREATE TABLE departments (id INTEGER PRIMARY KEY, name TEXT, budget REAL, location TEXT);`);
+    db.run(`CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, dept_id INTEGER, salary REAL, years INTEGER, manager_id INTEGER, hire_date TEXT);`);
+    db.run(`CREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT, dept_id INTEGER, budget REAL, status TEXT, start_date TEXT);`);
+    db.run(`CREATE TABLE assignments (employee_id INTEGER, project_id INTEGER, hours_per_week INTEGER, role TEXT);`);
+    db.run(`INSERT INTO departments VALUES (1,'Engineering',500000,'San Francisco'),(2,'Marketing',200000,'Los Angeles'),(3,'Finance',300000,'New York'),(4,'HR',150000,'Chicago'),(5,'Data Science',400000,'Seattle');`);
+    db.run(`INSERT INTO employees VALUES (1,'Alice Chen',1,95000,5,NULL,'2019-03-15'),(2,'Bob Smith',2,72000,3,NULL,'2021-06-01'),(3,'Carol Wu',1,105000,8,NULL,'2016-01-10'),(4,'David Park',4,68000,2,NULL,'2022-09-01'),(5,'Eve Johnson',2,78000,6,NULL,'2018-04-20'),(6,'Frank Lee',5,92000,4,3,'2020-07-15'),(7,'Grace Kim',3,88000,7,NULL,'2017-02-28'),(8,'Henry Brown',5,98000,5,3,'2019-11-01'),(9,'Iris White',1,110000,9,3,'2015-08-15'),(10,'Jack Davis',3,82000,3,7,'2021-01-20'),(11,'Karen Liu',5,115000,10,NULL,'2014-05-01'),(12,'Leo Martinez',2,69000,1,2,'2023-03-01');`);
+    db.run(`INSERT INTO projects VALUES (1,'ML Pipeline',5,180000,'Active','2024-01-01'),(2,'Brand Refresh',2,75000,'Active','2024-02-01'),(3,'API Redesign',1,120000,'Completed','2023-06-01'),(4,'Data Warehouse',5,250000,'Active','2024-01-15'),(5,'Hiring System',4,45000,'Planning','2024-04-01'),(6,'Financial Model',3,90000,'Active','2024-01-01');`);
+    db.run(`INSERT INTO assignments VALUES (1,3,20,'Lead'),(1,1,15,'Contributor'),(3,3,10,'Reviewer'),(6,1,30,'Lead'),(8,1,25,'Developer'),(8,4,15,'Contributor'),(11,4,35,'Lead'),(11,1,10,'Advisor'),(2,2,40,'Lead'),(5,2,20,'Contributor'),(12,2,30,'Designer'),(7,6,25,'Lead'),(10,6,20,'Analyst'),(4,5,15,'Lead'),(9,3,5,'Reviewer');`);
+}
+
+function runQuery(editorId, outputId) {
+    if(!db) return;
+    const sql = document.getElementById(editorId).value;
+    const outputEl = document.getElementById(outputId);
+    outputEl.innerHTML = '';
+    try {
+        const results = db.exec(sql);
+        if(!results.length) { outputEl.innerHTML = '<div class="sql-success">\u2713 Query executed successfully.</div>'; return; }
+        results.forEach(result => {
+            const table = document.createElement('table');
+            table.className = 'result-table';
+            const thead = table.createTHead();
+            const hrow = thead.insertRow();
+            result.columns.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
+            const tbody = table.createTBody();
+            result.values.forEach(row => {
+                const tr = tbody.insertRow();
+                row.forEach(val => { const td = tr.insertCell(); td.textContent = val !== null ? val : 'NULL'; });
+            });
+            outputEl.appendChild(table);
+            const cnt = document.createElement('div');
+            cnt.className = 'row-count';
+            cnt.textContent = result.values.length + ' row' + (result.values.length !== 1 ? 's' : '') + ' returned';
+            outputEl.appendChild(cnt);
+        });
+    } catch(e) { outputEl.innerHTML = '<div class="sql-error">\u274C ' + e.message + '</div>'; }
+}
+
+initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-07';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

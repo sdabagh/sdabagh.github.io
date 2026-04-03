@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 3: ORDER BY, LIMIT & DISTINCT — SQL Practice Labs. Sort, limit, and deduplicate your SQL results.">
+  <title>Lab 3: ORDER BY, LIMIT &amp; DISTINCT - SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
+    .nav-next{background:#1565C0;color:white}
+    .nav-next:hover{background:#0D47A1;text-decoration:none}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#1565C0}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left;font-weight:600}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace;font-size:0.9rem}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#90CAF9;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#0D47A1 0%,#1565C0 60%,#1976D2 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 3 of 10 &mdash; Foundations</div>
+      <h1>ORDER BY, LIMIT &amp; DISTINCT</h1>
+      <p>Sort, limit, and deduplicate your results</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
+      <a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a>
+    </div>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box">
+      <div class="schema-label">&#x1F4CB; DATABASE SCHEMA &mdash; Available Tables</div>
+      TABLE: students (id, name, major, gpa, year, scholarship, city, age)
+    </div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <ul>
+        <li><strong>ORDER BY column ASC</strong> &mdash; sorts A&rarr;Z, 0&rarr;9 (ASC is the default)</li>
+        <li><strong>ORDER BY column DESC</strong> &mdash; sorts Z&rarr;A, 9&rarr;0</li>
+        <li><strong>ORDER BY col1, col2</strong> &mdash; sort by multiple columns; second column breaks ties</li>
+        <li><strong>LIMIT n</strong> &mdash; return only the first n rows (comes after ORDER BY)</li>
+        <li><strong>SELECT DISTINCT column</strong> &mdash; removes duplicate values in the result</li>
+      </ul>
+      <p style="margin-bottom:0;">Full clause order: <code>SELECT &rarr; FROM &rarr; WHERE &rarr; ORDER BY &rarr; LIMIT</code></p>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <div class="worked-code">-- Top 3 students by GPA
+SELECT name, major, gpa
+FROM students
+ORDER BY gpa DESC
+LIMIT 3;
+
+-- All unique majors (no duplicates)
+SELECT DISTINCT major FROM students ORDER BY major;
+
+-- Students sorted by year, then by GPA within each year
+SELECT name, year, gpa
+FROM students
+ORDER BY year ASC, gpa DESC;</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Lowest GPA Students</h3>
+      <p>Fill in the blanks to find the 3 students with the lowest GPA (students who may need academic support).</p>
+      <textarea class="code-editor" id="editor1">-- Bottom 3 GPA students
+SELECT name, major, gpa
+FROM students
+ORDER BY gpa ___   -- ascending or descending?
+LIMIT ___;</textarea>
+      <button class="run-btn" id="run1" onclick="runQuery('editor1','output1')" disabled>&#x25B6; Run</button>
+      <div id="output1" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> To get the lowest GPA first, sort ascending (<code>ASC</code>). Then limit to 3 rows.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; City Top Students</h3>
+      <p>Write a query that sorts students by city (A&rarr;Z), then by GPA (highest first) within each city. Show name, city, and GPA. Note what you observe &mdash; we&rsquo;ll learn how to get exactly one per city with GROUP BY later.</p>
+      <textarea class="code-editor" id="editor2">-- Sort by city, then by GPA within each city
+</textarea>
+      <button class="run-btn" id="run2" onclick="runQuery('editor2','output2')" disabled>&#x25B6; Run</button>
+      <div id="output2" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>ORDER BY city ASC, gpa DESC</code> &mdash; two columns separated by a comma.</div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; DISTINCT Combinations</h3>
+      <p>Write <strong>two queries</strong>:</p>
+      <ol>
+        <li>Unique cities where students live, ordered alphabetically</li>
+        <li>Unique major + year combinations (use both columns in SELECT with DISTINCT), ordered by major then year</li>
+      </ol>
+      <textarea class="code-editor" id="editor3">-- Query 1: Unique cities alphabetically
+SELECT DISTINCT city FROM students ORDER BY city;
+
+-- Query 2: Unique major + year combinations
+</textarea>
+      <button class="run-btn" id="run3" onclick="runQuery('editor3','output3')" disabled>&#x25B6; Run</button>
+      <div id="output3" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>SELECT DISTINCT major, year FROM students ORDER BY major, year;</code> &mdash; DISTINCT applies to the combination of both columns.</div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Student Directory</h3>
+      <p>You&rsquo;re building a student directory. Write 4 queries:</p>
+      <ol>
+        <li><strong>Full directory A&ndash;Z</strong> &mdash; all students sorted by name ascending</li>
+        <li><strong>Dean&rsquo;s list</strong> &mdash; top 3 students by GPA (use LIMIT 3)</li>
+        <li><strong>Freshmen roster</strong> &mdash; only year = 1 students, sorted by name</li>
+        <li><strong>Unique majors offered</strong> &mdash; use DISTINCT, show distinct major names ordered alphabetically</li>
+      </ol>
+      <textarea class="code-editor" id="editor4" style="min-height:240px;">-- Query 1: Full directory A-Z
+
+
+-- Query 2: Dean's list (top 3 by GPA)
+
+
+-- Query 3: Freshmen roster
+
+
+-- Query 4: Unique majors offered
+</textarea>
+      <button class="run-btn" id="run4" onclick="runQuery('editor4','output4')" disabled>&#x25B6; Run</button>
+      <div id="output4" class="output-area"></div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 3 Complete!</h2>
+      <p>You can now sort results, limit output, and eliminate duplicates. These three tools are essential in every analyst&rsquo;s toolkit. Next up: aggregate functions &mdash; where we turn rows into insights.</p>
+      <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Aggregate Functions &rarr;</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
+      <a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Lab 3: ORDER BY, LIMIT &amp; DISTINCT</p>
+  </footer>
+
+  <script>
+    let db = null;
+    let sqlReady = false;
+
+    async function initSQL() {
+      const statusEl = document.getElementById('sql-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading SQL engine...';
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+      });
+      db = new SQL.Database();
+      loadSchema();
+      sqlReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ Database ready! Tables loaded. Click ▶ Run to execute your query.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    function loadSchema() {
+      db.run(`CREATE TABLE students (
+        id INTEGER PRIMARY KEY, name TEXT, major TEXT, gpa REAL, year INTEGER,
+        scholarship INTEGER, city TEXT, age INTEGER
+      );`);
+      db.run(`INSERT INTO students VALUES
+        (1,'Alice Chen','Computer Science',3.8,3,1,'Los Angeles',21),
+        (2,'Bob Smith','Mathematics',3.2,2,0,'San Francisco',20),
+        (3,'Carol Wu','Computer Science',3.9,4,1,'Los Angeles',22),
+        (4,'David Park','English',2.9,1,0,'San Diego',19),
+        (5,'Eve Johnson','Mathematics',3.7,3,1,'Los Angeles',21),
+        (6,'Frank Lee','Computer Science',3.5,2,0,'Oakland',20),
+        (7,'Grace Kim','Psychology',3.1,4,0,'San Jose',22),
+        (8,'Henry Brown','Mathematics',3.6,1,0,'Los Angeles',19),
+        (9,'Iris White','Computer Science',3.4,3,1,'San Francisco',21),
+        (10,'Jack Davis','English',3.8,2,0,'Los Angeles',20);`);
+    }
+
+    function runQuery(editorId, outputId) {
+      if (!db) return;
+      const sql = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.innerHTML = '';
+      try {
+        const results = db.exec(sql);
+        if (!results.length) {
+          outputEl.innerHTML = '<div class="sql-success">✓ Query executed successfully.</div>';
+          return;
+        }
+        results.forEach(result => {
+          const table = document.createElement('table');
+          table.className = 'result-table';
+          const thead = table.createTHead();
+          const headerRow = thead.insertRow();
+          result.columns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+          });
+          const tbody = table.createTBody();
+          result.values.forEach(row => {
+            const tr = tbody.insertRow();
+            row.forEach(val => {
+              const td = tr.insertCell();
+              td.textContent = val !== null ? val : 'NULL';
+            });
+          });
+          outputEl.appendChild(table);
+          const count = document.createElement('div');
+          count.className = 'row-count';
+          count.textContent = `${result.values.length} row${result.values.length !== 1 ? 's' : ''} returned`;
+          outputEl.appendChild(count);
+        });
+      } catch(e) {
+        outputEl.innerHTML = `<div class="sql-error">❌ ${e.message}</div>`;
+      }
+    }
+
+    initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-03';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

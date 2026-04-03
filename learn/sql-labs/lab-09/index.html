@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Lab 09 — INSERT, UPDATE, DELETE and CREATE TABLE. Write and modify data in SQLite.">
+  <title>Lab 09: INSERT, UPDATE, DELETE &amp; CREATE — SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto;white-space:pre}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;display:block;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .warning-box{background:#FFEBEE;border-left:4px solid #C62828;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem;color:#C62828}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Labs</a>
+
+    <div class="lab-nav">
+      <a href="../lab-08/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">&#x2190; Previous Lab</a>
+      <span style="font-weight:700;color:#1565C0;">Lab 9 of 10 &mdash; INSERT, UPDATE, DELETE &amp; CREATE</span>
+      <a href="../lab-10/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">Next Lab &#x2192;</a>
+    </div>
+
+    <h1 style="color:#1565C0;margin-bottom:0.25rem;">Lab 09 &mdash; INSERT, UPDATE, DELETE &amp; CREATE</h1>
+    <p style="color:#555;font-size:1.05rem;margin-bottom:1.5rem;">Not just reading data &mdash; writing it. Create tables, insert rows, update records, and safely delete data. The database resets on every page reload so experiment freely!</p>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box"><span class="schema-label">&#x1F4CB; STARTING TABLE: students (starts EMPTY &mdash; you will populate it!)</span>TABLE: students
+  id      INTEGER PRIMARY KEY AUTOINCREMENT
+  name    TEXT NOT NULL
+  major   TEXT
+  gpa     REAL
+  year    INTEGER
+
+The table is empty. Your INSERT statements will fill it.
+Page reload resets everything -- experiment without fear!</div>
+
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap: DDL &amp; DML</h2>
+      <p style="margin-top:0;font-weight:600;color:#1565C0;margin-bottom:0.25rem;">DDL (Data Definition Language) &mdash; defines structure:</p>
+      <ul style="margin:0 0 0.75rem;padding-left:1.25rem;line-height:1.9;">
+        <li><code>CREATE TABLE name (col type, ...)</code> &mdash; create a new table</li>
+        <li><code>CREATE TABLE IF NOT EXISTS</code> &mdash; safe version that won't error if it exists</li>
+        <li><code>DROP TABLE name</code> &mdash; delete a table and all its data</li>
+        <li>Column constraints: <code>PRIMARY KEY</code>, <code>AUTOINCREMENT</code>, <code>NOT NULL</code>, <code>DEFAULT value</code>, <code>UNIQUE</code></li>
+      </ul>
+      <p style="font-weight:600;color:#1565C0;margin:0 0 0.25rem;">DML (Data Manipulation Language) &mdash; modifies data:</p>
+      <ul style="margin:0;padding-left:1.25rem;line-height:1.9;">
+        <li><code>INSERT INTO table (col1, col2) VALUES (v1, v2)</code> &mdash; add a row</li>
+        <li><code>INSERT INTO table VALUES (v1, v2, ...)</code> &mdash; insert with all columns in order</li>
+        <li><code>UPDATE table SET col = val WHERE condition</code> &mdash; modify existing rows</li>
+        <li><code>DELETE FROM table WHERE condition</code> &mdash; remove rows</li>
+        <li style="color:#C62828;font-weight:600;">Always use WHERE with UPDATE and DELETE &mdash; omitting it affects every row!</li>
+      </ul>
+    </div>
+
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example (read-only)</h2>
+      <p style="margin-top:0;color:#6A1B9A;font-size:0.9rem;">Create a table, insert rows, update a price, and verify the result.</p>
+<pre class="code-editor" style="pointer-events:none;opacity:0.8;">CREATE TABLE IF NOT EXISTS products (
+    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    name  TEXT NOT NULL,
+    price REAL,
+    stock INTEGER DEFAULT 0
+);
+INSERT INTO products (name, price, stock) VALUES ('Laptop', 999.99, 50);
+INSERT INTO products (name, price, stock) VALUES ('Mouse', 29.99, 200);
+UPDATE products SET price = 899.99 WHERE name = 'Laptop';
+SELECT * FROM products;</pre>
+    </div>
+
+    <!-- Exercise 1: Guided -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F; Guided</span>
+      <h3>Exercise 1 &mdash; Your First INSERT</h3>
+      <p>Insert 3 students into the students table. Fill in the VALUES for students 2 and 3, then run a SELECT to verify they were added.</p>
+      <div class="hint-box">&#x1F4A1; Hint: Column order is (name, major, gpa, year). The id is AUTOINCREMENT so omit it.</div>
+      <textarea class="code-editor" id="ex1" spellcheck="false">-- Insert 3 students
+INSERT INTO students (name, major, gpa, year) VALUES ('Alice Chen', 'Computer Science', 3.8, 3);
+INSERT INTO students (name, major, gpa, year) VALUES (___, ___, ___, ___);
+INSERT INTO students (name, major, gpa, year) VALUES (___, ___, ___, ___);
+
+-- Verify they were added
+SELECT * FROM students;</textarea>
+      <button class="run-btn" id="btn1" onclick="runQuery('ex1','out1')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out1"></div>
+    </div>
+
+    <!-- Exercise 2: Independent -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; INSERT, UPDATE, and DELETE a Full Workflow</h3>
+      <p>Build up the table step by step. Run each block individually to see changes. Do the following in sequence:</p>
+      <ol>
+        <li>Insert 5 students (mix of majors, GPAs 2.8&ndash;3.9, years 1&ndash;4).</li>
+        <li>Update Alice's GPA to 3.95 (use WHERE name = 'Alice Chen').</li>
+        <li>Update all 'English' major students to year 2.</li>
+        <li>Delete all students with GPA below 3.0.</li>
+        <li>Run SELECT * to verify final state.</li>
+      </ol>
+      <div class="warning-box">&#x26A0; Remember: Always use WHERE with UPDATE and DELETE!</div>
+      <textarea class="code-editor" id="ex2" style="min-height:200px;" spellcheck="false">-- Step 1: Insert 5 students
+INSERT INTO students (name, major, gpa, year) VALUES ('Alice Chen', 'Computer Science', 3.8, 3);
+INSERT INTO students (name, major, gpa, year) VALUES ('Bob Smith', 'Mathematics', 3.2, 2);
+INSERT INTO students (name, major, gpa, year) VALUES ('Carol Wu', 'English', 2.8, 1);
+INSERT INTO students (name, major, gpa, year) VALUES ('David Park', 'Computer Science', 3.6, 4);
+INSERT INTO students (name, major, gpa, year) VALUES ('Eve Johnson', 'Mathematics', 2.9, 3);
+
+-- Step 2: Update Alice's GPA
+UPDATE students SET gpa = 3.95 WHERE name = 'Alice Chen';
+
+-- Step 3: Update all English majors to year 2
+UPDATE students SET year = 2 WHERE major = 'English';
+
+-- Step 4: Delete students with GPA below 3.0
+DELETE FROM students WHERE gpa < 3.0;
+
+-- Step 5: Verify final state
+SELECT * FROM students;</textarea>
+      <button class="run-btn" id="btn2" onclick="runQuery('ex2','out2')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out2"></div>
+    </div>
+
+    <!-- Exercise 3: Challenge -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Build Two Related Tables and JOIN Them</h3>
+      <p>Create a <strong>courses</strong> table and an <strong>enrollments</strong> table. Insert data, then write a JOIN query to show which students are enrolled in which courses.</p>
+      <div class="hint-box">&#x1F4A1; Hint: courses(id, course_name, credits), enrollments(student_id, course_id, grade). Use AUTOINCREMENT for the id columns.</div>
+      <textarea class="code-editor" id="ex3" style="min-height:300px;" spellcheck="false">-- First add some students
+INSERT INTO students (name, major, gpa, year) VALUES ('Alice Chen', 'CS', 3.8, 3);
+INSERT INTO students (name, major, gpa, year) VALUES ('Bob Smith', 'Math', 3.2, 2);
+INSERT INTO students (name, major, gpa, year) VALUES ('Carol Wu', 'CS', 3.9, 4);
+
+-- Create courses table
+CREATE TABLE courses (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_name TEXT NOT NULL,
+    credits     INTEGER DEFAULT 3
+);
+
+-- Insert 4 courses
+INSERT INTO courses (course_name, credits) VALUES ('Intro to SQL', 3);
+INSERT INTO courses (course_name, credits) VALUES ('Data Structures', 4);
+INSERT INTO courses (course_name, credits) VALUES ('Statistics', 3);
+INSERT INTO courses (course_name, credits) VALUES ('Machine Learning', 4);
+
+-- Create enrollments table
+CREATE TABLE enrollments (
+    student_id INTEGER,
+    course_id  INTEGER,
+    grade      TEXT
+);
+
+-- Insert 6 enrollments
+INSERT INTO enrollments VALUES (1, 1, 'A');
+INSERT INTO enrollments VALUES (1, 2, 'B+');
+INSERT INTO enrollments VALUES (2, 1, 'A-');
+INSERT INTO enrollments VALUES (2, 3, 'B');
+INSERT INTO enrollments VALUES (3, 2, 'A');
+INSERT INTO enrollments VALUES (3, 4, 'A-');
+
+-- JOIN to show students with their enrolled courses
+SELECT s.name, s.major, c.course_name, c.credits, e.grade
+FROM students s
+INNER JOIN enrollments e ON s.id = e.student_id
+INNER JOIN courses c ON e.course_id = c.id
+ORDER BY s.name, c.course_name;</textarea>
+      <button class="run-btn" id="btn3" onclick="runQuery('ex3','out3')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out3"></div>
+    </div>
+
+    <!-- Mini Project -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Full Student Registration System</h3>
+      <p>Build a complete student registration system from scratch in a single editor. The database starts fresh every page reload, so you can run the whole block at once.</p>
+      <ol>
+        <li>INSERT a full class of 6 students.</li>
+        <li>UPDATE 2 students &mdash; one GPA correction, one major change.</li>
+        <li>DELETE 1 student who withdrew.</li>
+        <li>CREATE a grades table: <code>grades(id, student_id, subject, score, grade_letter)</code>.</li>
+        <li>INSERT grades for 4 remaining students across at least 2 subjects each.</li>
+        <li>Final SELECT: join students with grades to show complete academic status.</li>
+      </ol>
+      <textarea class="code-editor" id="proj" style="min-height:400px;" spellcheck="false">-- Step 1: Insert 6 students
+INSERT INTO students (name, major, gpa, year) VALUES ('Alice Chen', 'Computer Science', 3.8, 3);
+INSERT INTO students (name, major, gpa, year) VALUES ('Bob Smith', 'Mathematics', 3.2, 2);
+INSERT INTO students (name, major, gpa, year) VALUES ('Carol Wu', 'Computer Science', 3.9, 4);
+INSERT INTO students (name, major, gpa, year) VALUES ('David Park', 'English', 2.9, 1);
+INSERT INTO students (name, major, gpa, year) VALUES ('Eve Johnson', 'Mathematics', 3.7, 3);
+INSERT INTO students (name, major, gpa, year) VALUES ('Frank Lee', 'Psychology', 3.1, 2);
+
+-- Step 2: Updates
+UPDATE students SET gpa = 3.95 WHERE name = 'Carol Wu';
+UPDATE students SET major = 'Data Science' WHERE name = 'Bob Smith';
+
+-- Step 3: David Park withdrew
+DELETE FROM students WHERE name = 'David Park';
+
+-- Step 4: Create grades table
+CREATE TABLE grades (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id   INTEGER NOT NULL,
+    subject      TEXT NOT NULL,
+    score        REAL,
+    grade_letter TEXT
+);
+
+-- Step 5: Insert grades
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (1, 'SQL Fundamentals', 96, 'A');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (1, 'Algorithms', 88, 'B+');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (2, 'Statistics', 91, 'A-');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (2, 'SQL Fundamentals', 84, 'B');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (3, 'Algorithms', 99, 'A');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (3, 'Machine Learning', 95, 'A');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (5, 'Statistics', 87, 'B+');
+INSERT INTO grades (student_id, subject, score, grade_letter) VALUES (5, 'SQL Fundamentals', 90, 'A-');
+
+-- Step 6: Final status report
+SELECT s.name, s.major, s.gpa, s.year,
+       g.subject, g.score, g.grade_letter
+FROM students s
+LEFT JOIN grades g ON s.id = g.student_id
+ORDER BY s.name, g.subject;</textarea>
+      <button class="run-btn" id="btnp" onclick="runQuery('proj','outp')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="outp"></div>
+    </div>
+
+    <div class="lab-complete">
+      <h2>&#x1F3C1; Lab 09 Complete!</h2>
+      <p>You can now create tables with constraints, insert rows, update specific records, and safely delete data. You also know why WHERE is non-negotiable with UPDATE and DELETE.</p>
+      <p style="margin-bottom:1.5rem;">One lab to go &mdash; the capstone. No fill-in-the-blanks. Real analyst questions.</p>
+      <a href="../lab-10/index.html" style="background:white;color:#1565C0;padding:0.75rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Continue to Lab 10 &mdash; Capstone &rarr;</a>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Powered by sql.js (SQLite in WebAssembly)</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script>
+let db = null;
+
+async function initSQL() {
+    const statusEl = document.getElementById('sql-status');
+    if(statusEl) statusEl.textContent = '\u23F3 Loading SQL engine...';
+    const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+    });
+    db = new SQL.Database();
+    loadSchema();
+    if(statusEl) {
+        statusEl.textContent = '\u2705 Database ready! Write a query and click \u25B6 Run.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+    }
+    document.querySelectorAll('.run-btn').forEach(btn => btn.disabled = false);
+}
+
+function loadSchema() {
+    db.run(`CREATE TABLE students (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, major TEXT, gpa REAL, year INTEGER);`);
+}
+
+function runQuery(editorId, outputId) {
+    if(!db) return;
+    const sql = document.getElementById(editorId).value;
+    const outputEl = document.getElementById(outputId);
+    outputEl.innerHTML = '';
+    try {
+        const results = db.exec(sql);
+        if(!results.length) { outputEl.innerHTML = '<div class="sql-success">\u2713 Query executed successfully.</div>'; return; }
+        results.forEach(result => {
+            const table = document.createElement('table');
+            table.className = 'result-table';
+            const thead = table.createTHead();
+            const hrow = thead.insertRow();
+            result.columns.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
+            const tbody = table.createTBody();
+            result.values.forEach(row => {
+                const tr = tbody.insertRow();
+                row.forEach(val => { const td = tr.insertCell(); td.textContent = val !== null ? val : 'NULL'; });
+            });
+            outputEl.appendChild(table);
+            const cnt = document.createElement('div');
+            cnt.className = 'row-count';
+            cnt.textContent = result.values.length + ' row' + (result.values.length !== 1 ? 's' : '') + ' returned';
+            outputEl.appendChild(cnt);
+        });
+    } catch(e) { outputEl.innerHTML = '<div class="sql-error">\u274C ' + e.message + '</div>'; }
+}
+
+initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-09';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

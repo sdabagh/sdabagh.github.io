@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 4: Aggregate Functions — SQL Practice Labs. COUNT, SUM, AVG, MIN, MAX against a retail database.">
+  <title>Lab 4: Aggregate Functions - SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
+    .nav-next{background:#1565C0;color:white}
+    .nav-next:hover{background:#0D47A1;text-decoration:none}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#1565C0}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left;font-weight:600}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace;font-size:0.9rem}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#90CAF9;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#0D47A1 0%,#1565C0 60%,#1976D2 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 4 of 10 &mdash; Intermediate</div>
+      <h1>Aggregate Functions</h1>
+      <p>COUNT, SUM, AVG, MIN, MAX &mdash; turning rows into insights</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: ORDER BY</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: GROUP BY &rarr;</a>
+    </div>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box">
+      <div class="schema-label">&#x1F4CB; DATABASE SCHEMA &mdash; Available Tables</div>
+      TABLE: products (id, name, category, price, stock)
+      TABLE: customers (id, name, city, email, member_since)
+      TABLE: orders (id, customer_id, product_id, quantity, order_date, total)
+    </div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <p>Aggregate functions collapse multiple rows into a single value:</p>
+      <ul>
+        <li><strong>COUNT(*)</strong> &mdash; count all rows; <strong>COUNT(column)</strong> &mdash; count non-null values</li>
+        <li><strong>SUM(column)</strong> &mdash; total of all values</li>
+        <li><strong>AVG(column)</strong> &mdash; arithmetic mean</li>
+        <li><strong>MIN(column)</strong> &mdash; smallest value</li>
+        <li><strong>MAX(column)</strong> &mdash; largest value</li>
+      </ul>
+      <p>Use <code>AS</code> to give your aggregated columns meaningful names. Use <code>ROUND(value, 2)</code> to round decimals. Without GROUP BY, aggregates apply to the whole table and return one row.</p>
+      <p style="margin-bottom:0;">Add <code>GROUP BY category</code> to get one row per category (we dig deep into GROUP BY in Lab 5).</p>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <div class="worked-code">-- Overall order statistics
+SELECT
+    COUNT(*) AS total_orders,
+    SUM(total) AS total_revenue,
+    ROUND(AVG(total), 2) AS avg_order_value,
+    MIN(total) AS smallest_order,
+    MAX(total) AS largest_order
+FROM orders;
+
+-- Product count and average price by category
+SELECT category, COUNT(*) AS product_count, ROUND(AVG(price), 2) AS avg_price
+FROM products
+GROUP BY category;</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Revenue Summary</h3>
+      <p>Fill in the blanks to get total orders, total revenue, and average order value from the orders table.</p>
+      <textarea class="code-editor" id="editor1">-- Total revenue and order count
+SELECT
+    ___(*)  AS total_orders,
+    ___(total) AS total_revenue,
+    ROUND(___(total), 2) AS avg_order_value
+FROM orders;</textarea>
+      <button class="run-btn" id="run1" onclick="runQuery('editor1','output1')" disabled>&#x25B6; Run</button>
+      <div id="output1" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> The three functions are COUNT, SUM, and AVG &mdash; in that order.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; Inventory Overview</h3>
+      <p>Write a query showing:</p>
+      <ul>
+        <li>Total number of products (COUNT)</li>
+        <li>Total inventory value: <code>SUM(price * stock)</code></li>
+        <li>Most expensive product price (MAX)</li>
+        <li>Cheapest product price (MIN)</li>
+        <li>Average product price (AVG, rounded to 2 decimal places)</li>
+      </ul>
+      <textarea class="code-editor" id="editor2">-- Inventory overview
+</textarea>
+      <button class="run-btn" id="run2" onclick="runQuery('editor2','output2')" disabled>&#x25B6; Run</button>
+      <div id="output2" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> For inventory value: <code>SUM(price * stock) AS total_inventory_value</code></div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Monthly Order Stats</h3>
+      <p>Write a query showing order statistics by month. Use <code>substr(order_date, 1, 7)</code> to extract the year-month (e.g., &ldquo;2024-01&rdquo;). Show: month, order count, total revenue, average order value. Order by month.</p>
+      <textarea class="code-editor" id="editor3">-- Order statistics by month
+</textarea>
+      <button class="run-btn" id="run3" onclick="runQuery('editor3','output3')" disabled>&#x25B6; Run</button>
+      <div id="output3" class="output-area"></div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>SELECT substr(order_date, 1, 7) AS month, COUNT(*) AS orders, ... FROM orders GROUP BY substr(order_date, 1, 7) ORDER BY month;</code></div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Quarterly Business Review</h3>
+      <p>You&rsquo;re a business analyst presenting a quarterly review. Write 4 aggregate queries:</p>
+      <ol>
+        <li><strong>Overall metrics</strong> &mdash; total orders, total revenue, total customers (from customers table), average order value</li>
+        <li><strong>Product performance by category</strong> &mdash; category, product count, avg price, total stock</li>
+        <li><strong>Customer engagement</strong> &mdash; total customers, total orders, average orders per customer (use subquery or just divide the counts)</li>
+        <li><strong>High-value orders summary</strong> &mdash; count, total, and average of orders where total &gt; 500</li>
+      </ol>
+      <textarea class="code-editor" id="editor4" style="min-height:260px;">-- Query 1: Overall business metrics
+
+
+-- Query 2: Product performance by category
+
+
+-- Query 3: Customer engagement
+
+
+-- Query 4: High-value orders (total > 500)
+</textarea>
+      <button class="run-btn" id="run4" onclick="runQuery('editor4','output4')" disabled>&#x25B6; Run</button>
+      <div id="output4" class="output-area"></div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 4 Complete!</h2>
+      <p>Aggregate functions are how analysts answer &ldquo;how many?&rdquo;, &ldquo;how much?&rdquo;, and &ldquo;what&rsquo;s the average?&rdquo; questions. Next, learn to slice those aggregates into groups.</p>
+      <p style="margin-bottom:0"><a href="../lab-05/index.html">Continue to Lab 5: GROUP BY &amp; HAVING &rarr;</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: ORDER BY</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: GROUP BY &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Lab 4: Aggregate Functions</p>
+  </footer>
+
+  <script>
+    let db = null;
+    let sqlReady = false;
+
+    async function initSQL() {
+      const statusEl = document.getElementById('sql-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading SQL engine...';
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+      });
+      db = new SQL.Database();
+      loadSchema();
+      sqlReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ Database ready! Tables loaded. Click ▶ Run to execute your query.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    function loadSchema() {
+      db.run(`CREATE TABLE products (
+        id INTEGER PRIMARY KEY, name TEXT, category TEXT, price REAL, stock INTEGER
+      );`);
+      db.run(`CREATE TABLE customers (
+        id INTEGER PRIMARY KEY, name TEXT, city TEXT, email TEXT, member_since INTEGER
+      );`);
+      db.run(`CREATE TABLE orders (
+        id INTEGER PRIMARY KEY, customer_id INTEGER, product_id INTEGER,
+        quantity INTEGER, order_date TEXT, total REAL
+      );`);
+      db.run(`INSERT INTO products VALUES
+        (1,'Laptop Pro','Electronics',1299.99,45),
+        (2,'Wireless Mouse','Electronics',29.99,200),
+        (3,'Python Book','Books',49.99,80),
+        (4,'Standing Desk','Furniture',599.99,15),
+        (5,'Coffee Maker','Appliances',89.99,60),
+        (6,'SQL Guide','Books',39.99,100),
+        (7,'Monitor 27"','Electronics',449.99,30),
+        (8,'Ergonomic Chair','Furniture',299.99,25),
+        (9,'Headphones','Electronics',199.99,70),
+        (10,'Data Science Book','Books',54.99,90);`);
+      db.run(`INSERT INTO customers VALUES
+        (1,'Maria Garcia','Los Angeles','maria@email.com',2020),
+        (2,'James Wilson','Chicago','james@email.com',2021),
+        (3,'Yuki Tanaka','Seattle','yuki@email.com',2019),
+        (4,'Ahmed Hassan','New York','ahmed@email.com',2022),
+        (5,'Sofia Russo','Los Angeles','sofia@email.com',2020),
+        (6,'Chris Taylor','Chicago','chris@email.com',2021),
+        (7,'Priya Patel','Seattle','priya@email.com',2023),
+        (8,'Marcus Johnson','New York','marcus@email.com',2019);`);
+      db.run(`INSERT INTO orders VALUES
+        (1,1,1,1,'2024-01-15',1299.99),(2,1,3,2,'2024-01-20',99.98),
+        (3,2,2,3,'2024-01-22',89.97),(4,3,7,1,'2024-01-25',449.99),
+        (5,4,1,1,'2024-02-01',1299.99),(6,4,9,1,'2024-02-03',199.99),
+        (7,5,4,1,'2024-02-10',599.99),(8,5,8,1,'2024-02-10',299.99),
+        (9,6,6,3,'2024-02-15',119.97),(10,7,3,1,'2024-02-20',49.99),
+        (11,7,6,2,'2024-02-20',79.98),(12,8,5,1,'2024-03-01',89.99),
+        (13,1,9,1,'2024-03-05',199.99),(14,2,1,1,'2024-03-10',1299.99),
+        (15,3,10,2,'2024-03-15',109.98);`);
+    }
+
+    function runQuery(editorId, outputId) {
+      if (!db) return;
+      const sql = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.innerHTML = '';
+      try {
+        const results = db.exec(sql);
+        if (!results.length) {
+          outputEl.innerHTML = '<div class="sql-success">✓ Query executed successfully.</div>';
+          return;
+        }
+        results.forEach(result => {
+          const table = document.createElement('table');
+          table.className = 'result-table';
+          const thead = table.createTHead();
+          const headerRow = thead.insertRow();
+          result.columns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+          });
+          const tbody = table.createTBody();
+          result.values.forEach(row => {
+            const tr = tbody.insertRow();
+            row.forEach(val => {
+              const td = tr.insertCell();
+              td.textContent = val !== null ? val : 'NULL';
+            });
+          });
+          outputEl.appendChild(table);
+          const count = document.createElement('div');
+          count.className = 'row-count';
+          count.textContent = `${result.values.length} row${result.values.length !== 1 ? 's' : ''} returned`;
+          outputEl.appendChild(count);
+        });
+      } catch(e) {
+        outputEl.innerHTML = `<div class="sql-error">❌ ${e.message}</div>`;
+      }
+    }
+
+    initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-04';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

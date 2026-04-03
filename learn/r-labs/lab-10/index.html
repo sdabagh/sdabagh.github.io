@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 10: Capstone Full R Analysis — R Practice Labs. Everything together — a complete real analysis of student outcomes data.">
+  <title>Lab 10: Capstone — Full R Analysis - R Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
+    .nav-next{background:#C62828;color:white}
+    .nav-next:hover{background:#B71C1C;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#C62828}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#C62828}
+    .run-btn{background:#C62828;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#B71C1C}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#ef9a9a;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ff5252}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#C62828;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#C62828,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#ffcdd2;font-weight:700;display:block;margin:0.5rem 0}
+    .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+    .capstone-intro{background:#E8F5E9;border-left:4px solid #2E7D32;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .capstone-intro h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
+    .question-list{counter-reset:q-counter;list-style:none;padding:0}
+    .question-list li{counter-increment:q-counter;padding:0.6rem 0 0.6rem 3rem;position:relative;border-bottom:1px solid #e0e0e0}
+    .question-list li:last-child{border-bottom:none}
+    .question-list li::before{content:counter(q-counter);position:absolute;left:0;top:0.55rem;background:#C62828;color:white;width:1.6rem;height:1.6rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;line-height:1.6rem;text-align:center}
+    details summary{cursor:pointer;font-weight:700;color:#6A1B9A;padding:0.5rem 0}
+    details summary:hover{color:#C62828}
+    details[open] summary{margin-bottom:0.75rem}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true, captureStreams: true, captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally { shelter.purge(); }
+    }
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 10 of 10 &mdash; Capstone</div>
+      <h1>Full R Analysis</h1>
+      <p>Everything together &mdash; a complete real analysis</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-09/index.html" class="nav-prev">&larr; Lab 9: Reporting</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 10 of 10</span>
+      <a href="../index.html" class="nav-next">Lab Home &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- INTRO -->
+    <div class="capstone-intro">
+      <h2>&#x1F393; Capstone Project</h2>
+      <p>This is not a fill-in-the-blanks exercise. This is a <strong>real mini analysis project</strong> using everything you have learned across all 10 labs.</p>
+      <p><strong>Scenario:</strong> You are a university research analyst examining student outcomes data. The registrar has given you a dataset of 100 students with GPA, study habits, demographics, and enrollment details. Your job is to answer six research questions and write an executive summary.</p>
+      <p style="margin-bottom:0">There are no pre-written answers here &mdash; write your own R code from scratch. A collapsed sample solution is provided at the bottom for reference after you try.</p>
+    </div>
+
+    <!-- DATASET -->
+    <div class="exercise-block">
+      <span class="exercise-tag" style="background:#E8F5E9;color:#2E7D32">&#x1F4CA; Dataset</span>
+      <h3>Step 1 &mdash; Generate the Dataset</h3>
+      <p>Run this code first to create the <code>students</code> data frame. It will be available for all subsequent questions in the same session.</p>
+      <textarea class="code-editor" id="editor0" style="min-height:200px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id                = 1:n,
+  major             = sample(c("CS","Statistics","Math","Psychology","Economics"),
+                             n, replace=TRUE),
+  gpa               = pmax(1.5, pmin(4.0, round(rnorm(n, 3.2, 0.4), 2))),
+  study_hours_week  = round(runif(n, 5, 40), 1),
+  sleep_hours       = pmax(4, pmin(10, round(rnorm(n, 7, 1), 1))),
+  first_gen         = sample(c(TRUE, FALSE), n, replace=TRUE, prob=c(0.3, 0.7)),
+  scholarship       = sample(c(TRUE, FALSE), n, replace=TRUE, prob=c(0.25, 0.75)),
+  year              = sample(1:4, n, replace=TRUE)
+)
+cat("Dataset created:", nrow(students), "students,", ncol(students), "variables\n")
+cat("Majors:", paste(sort(unique(students$major)), collapse=", "), "\n")
+str(students)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor0','output0')">&#x25B6; Run (Generate Data)</button>
+      <div id="output0" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- RESEARCH QUESTIONS -->
+    <div style="background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem">
+      <h2 style="margin-top:0;color:#C62828;font-size:1.1rem">&#x1F4CB; Six Research Questions</h2>
+      <p>Answer all six questions below using your own R code. Each question has its own editor.</p>
+      <ol class="question-list">
+        <li><strong>Population Description:</strong> How many students per major? What is the year distribution? What percentage are first-generation students? What percentage hold scholarships?</li>
+        <li><strong>GPA Distribution:</strong> What are the overall summary statistics for GPA? Break down mean GPA by major using <code>tapply()</code>. Which major has the highest average GPA?</li>
+        <li><strong>Study Hours &amp; GPA Relationship:</strong> What is the Pearson correlation between study_hours_week and gpa? Fit a simple linear regression and interpret the slope.</li>
+        <li><strong>First-Generation Student Equity:</strong> Do first-generation students have significantly different GPAs from non-first-gen students? Run a t-test and state your conclusion.</li>
+        <li><strong>Multiple Regression:</strong> Predict GPA from study_hours_week + sleep_hours + first_gen + year. Which predictors are statistically significant?</li>
+        <li><strong>Executive Summary:</strong> Write an 8-sentence plain-English executive summary of your findings using <code>cat()</code>. Address: sample size, average GPA, top major, study-GPA correlation, first-gen equity finding, and recommendations.</li>
+      </ol>
+    </div>
+
+    <!-- Q1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">Question 1</span>
+      <h3>Population Description</h3>
+      <textarea class="code-editor" id="editor1" style="min-height:200px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Q1: Describe the population
+cat("Students per major:\n"); print(sort(table(students$major), decreasing=TRUE))
+cat("\nYear distribution:\n"); print(table(students$year))
+cat("\nFirst-generation:", round(mean(students$first_gen)*100,1), "%\n")
+cat("Scholarship holders:", round(mean(students$scholarship)*100,1), "%\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run Q1</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">Question 2</span>
+      <h3>GPA Distribution</h3>
+      <textarea class="code-editor" id="editor2" style="min-height:200px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Q2: GPA distribution — your code here
+cat("Overall GPA summary:\n")
+print(summary(students$gpa))
+cat("\nMean GPA by major:\n")
+by_major &lt;- sort(tapply(students$gpa, students$major, mean), decreasing=TRUE)
+print(round(by_major, 3))
+cat("\nHighest-GPA major:", names(by_major)[1], "\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run Q2</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">Question 3</span>
+      <h3>Study Hours &amp; GPA Relationship</h3>
+      <textarea class="code-editor" id="editor3" style="min-height:220px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Q3: Correlation and simple linear regression
+r &lt;- cor(students$study_hours_week, students$gpa)
+cat("Pearson r (study hours ~ GPA):", round(r, 3), "\n")
+
+model &lt;- lm(gpa ~ study_hours_week, data=students)
+cat("\nRegression: GPA ~ study_hours_week\n")
+cat("Intercept:", round(coef(model)[1], 3), "\n")
+cat("Slope:",     round(coef(model)[2], 4), "(GPA units per hour)\n")
+cat("R-squared:", round(summary(model)$r.squared, 3), "\n")
+cat("p-value (slope):", round(summary(model)$coefficients[2,4], 4), "\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run Q3</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">Question 4</span>
+      <h3>First-Generation Student Equity</h3>
+      <textarea class="code-editor" id="editor4" style="min-height:220px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Q4: t-test on first-gen vs non-first-gen GPA
+fg_gpa  &lt;- students$gpa[students$first_gen == TRUE]
+nfg_gpa &lt;- students$gpa[students$first_gen == FALSE]
+cat("First-gen mean GPA:     ", round(mean(fg_gpa),  3), "\n")
+cat("Non-first-gen mean GPA: ", round(mean(nfg_gpa), 3), "\n")
+result &lt;- t.test(fg_gpa, nfg_gpa)
+cat("\nt-test results:\n")
+cat("  t =", round(result$statistic, 3), "\n")
+cat("  p =", round(result$p.value, 4), "\n")
+cat("  Significant:", result$p.value &lt; 0.05, "\n")
+cat("\nConclusion:", if(result$p.value &lt; 0.05)
+  "First-gen students have significantly different GPAs (p&lt;0.05)." else
+  "No significant GPA difference between first-gen and non-first-gen (p>=0.05).") ; cat("\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run Q4</button>
+      <div id="output4" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">Question 5</span>
+      <h3>Multiple Regression</h3>
+      <textarea class="code-editor" id="editor5" style="min-height:240px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Q5: Multiple regression
+model &lt;- lm(gpa ~ study_hours_week + sleep_hours + first_gen + year, data=students)
+cat("Multiple Regression: GPA ~ study_hours + sleep_hours + first_gen + year\n\n")
+s &lt;- summary(model)
+cat("R-squared:", round(s$r.squared, 3), "\n")
+cat("Adjusted R-squared:", round(s$adj.r.squared, 3), "\n\n")
+cat("Coefficients:\n")
+coef_table &lt;- round(s$coefficients, 4)
+print(coef_table)
+cat("\nSignificant predictors (p&lt;0.05):\n")
+sig &lt;- rownames(coef_table)[coef_table[,4] &lt; 0.05 &amp; rownames(coef_table) != "(Intercept)"]
+if(length(sig) == 0) cat("  None at p&lt;0.05\n") else cat(" ", paste(sig, collapse=", "), "\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor5','output5')">&#x25B6; Run Q5</button>
+      <div id="output5" class="code-output">Output will appear here...</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">Question 6 &mdash; Executive Summary</span>
+      <h3>Write Your Executive Summary</h3>
+      <p>Write an 8-sentence plain-English executive summary using <code>cat()</code>. Address: sample size, average GPA, top major, study-GPA correlation, first-gen equity finding, multiple regression result, and at least one recommendation.</p>
+      <textarea class="code-editor" id="editor6" style="min-height:380px;">set.seed(2024)
+n &lt;- 100
+students &lt;- data.frame(
+  id=1:n, major=sample(c("CS","Statistics","Math","Psychology","Economics"),n,replace=TRUE),
+  gpa=pmax(1.5,pmin(4.0,round(rnorm(n,3.2,0.4),2))),
+  study_hours_week=round(runif(n,5,40),1),
+  sleep_hours=pmax(4,pmin(10,round(rnorm(n,7,1),1))),
+  first_gen=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.3,0.7)),
+  scholarship=sample(c(TRUE,FALSE),n,replace=TRUE,prob=c(0.25,0.75)),
+  year=sample(1:4,n,replace=TRUE))
+
+# Recompute key values
+avg_gpa     &lt;- round(mean(students$gpa), 2)
+r_study     &lt;- round(cor(students$study_hours_week, students$gpa), 3)
+top_major   &lt;- names(sort(tapply(students$gpa, students$major, mean), decreasing=TRUE))[1]
+fg_mean     &lt;- round(mean(students$gpa[students$first_gen]),  2)
+nfg_mean    &lt;- round(mean(students$gpa[!students$first_gen]), 2)
+ttest_p     &lt;- round(t.test(students$gpa[students$first_gen],
+                              students$gpa[!students$first_gen])$p.value, 3)
+pct_first   &lt;- round(mean(students$first_gen) * 100, 1)
+
+cat(strrep("=", 55), "\n")
+cat("  STUDENT OUTCOMES ANALYSIS — EXECUTIVE SUMMARY\n")
+cat(strrep("=", 55), "\n\n")
+
+cat(sprintf("This analysis examined %d university students across 5 majors.\n", n))
+cat(sprintf("The overall mean GPA was %.2f (range: 1.5 to 4.0).\n", avg_gpa))
+cat(sprintf("%s students had the highest average GPA among all majors.\n", top_major))
+cat(sprintf("Weekly study hours showed a %s correlation with GPA (r = %s).\n",
+            if(abs(r_study) &gt; 0.3) "moderate" else "weak", r_study))
+cat(sprintf("First-generation students (%s%% of the sample) averaged a GPA of %s,\n",
+            pct_first, fg_mean))
+cat(sprintf("  compared to %s for non-first-gen students (t-test p = %s).\n",
+            nfg_mean, ttest_p))
+cat(if(ttest_p &lt; 0.05)
+  "  This difference is statistically significant and warrants targeted support programs.\n" else
+  "  This difference was not statistically significant at the 0.05 level.\n")
+cat("Recommendation: Invest in study skills programming and first-gen mentoring to improve equity.\n")
+
+cat("\n", strrep("=", 55), "\n", sep="")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor6','output6')">&#x25B6; Run Q6 — Executive Summary</button>
+      <div id="output6" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Compute key statistics at the top of your script and save them as named variables. Then reference those variables inside <code>cat(sprintf(...))</code> calls. This way your summary automatically updates if the data changes.</div>
+    </div>
+
+    <!-- SAMPLE SOLUTION -->
+    <div class="exercise-block">
+      <h3 style="color:#6A1B9A">&#x1F4D6; Sample Solution</h3>
+      <p>Try all six questions yourself before opening this. There is no single &ldquo;right&rdquo; answer &mdash; good R code is readable, well-commented, and gets the correct result.</p>
+      <details>
+        <summary>Click to reveal sample solution approach</summary>
+        <div class="worked-code"># Key techniques used across the 6 questions:
+#
+# Q1: table() for counts, mean() for proportions
+#     sort(table(major), decreasing=TRUE)
+#
+# Q2: summary(gpa) for distribution
+#     tapply(gpa, major, mean) for group means
+#
+# Q3: cor(x, y) for Pearson r
+#     lm(gpa ~ study_hours_week) for regression
+#     summary(model)$r.squared for R-squared
+#
+# Q4: Subset into two vectors by first_gen==TRUE/FALSE
+#     t.test(fg_gpa, nfg_gpa) and check p.value &lt; 0.05
+#
+# Q5: lm(gpa ~ study_hours_week + sleep_hours + first_gen + year)
+#     summary(model)$coefficients — Pr(&gt;|t|) column for p-values
+#
+# Q6: Pre-compute all statistics, then write cat() sentences
+#     Use sprintf() for inline number formatting
+#     Let the data drive the text: if/else for significance statements</div>
+      </details>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x1F3C6; You&rsquo;ve Completed All 10 R Practice Labs!</h2>
+      <p>You have built a complete R toolkit: vectors, data frames, dplyr, functions, strings, ggplot2, statistics, tidyr, reporting, and a full end-to-end capstone analysis. These skills cover the core of professional data science in R.</p>
+      <a href="../index.html">&#x2190; Back to R Practice Labs Home</a>
+      <a href="../../data-science/index.html">Explore the Full Data Science Course &rarr;</a>
+      <a href="../../ai-course/index.html">Try the AI for Educators Course &rarr;</a>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-09/index.html" class="nav-prev">&larr; Lab 9: Reporting</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 10 of 10</span>
+      <a href="../index.html" class="nav-next">Lab Home &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 10: Capstone Full R Analysis</p>
+  </footer>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'r-lab-10';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

@@ -330,6 +330,13 @@ plt.show()</div>
       <p>You&rsquo;ve completed all 10 Python Practice Labs! You can now write Python functions, analyze data structures, build pandas pipelines, and create matplotlib visualizations &mdash; the core toolkit of a working data analyst.</p>
       <p>Keep practicing. The best way to get better is to find real data you care about and start asking questions of it.</p>
       <p style="margin-bottom:0"><a href="../index.html">&larr; Return to Python Practice Labs Home</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
     </div>
 
     <div class="lab-nav" style="margin-top:2rem">
@@ -438,5 +445,42 @@ plt.close('all')
 
     initPyodide();
   </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'python-lab-10';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
 </body>
 </html>

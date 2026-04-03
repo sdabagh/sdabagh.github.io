@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 1: Vectors & Data Types — R Practice Labs. Practice creating and manipulating R vectors.">
-  <title>Lab 1: Vectors &amp; Data Types - R Practice Labs</title>
+  <meta name="description" content="Lab 8: Tidyr and Data Reshaping — R Practice Labs. Tidy data is happy data — pivot_longer, pivot_wider, separate, and unite.">
+  <title>Lab 8: Tidyr &amp; Data Reshaping - R Practice Labs</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
@@ -13,7 +13,6 @@
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
     .nav-next{background:#C62828;color:white}
     .nav-next:hover{background:#B71C1C;text-decoration:none}
-    .nav-home{color:var(--text-secondary);font-size:0.85rem}
     .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
     .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
     .exercise-block h3{margin-top:0;color:#C62828}
@@ -45,10 +44,8 @@
   </style>
   <script type="module">
     import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
-
     const webR = new WebR();
     let webRReady = false;
-
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
       if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
@@ -62,7 +59,6 @@
       }
       document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
     }
-
     async function runR(editorId, outputId, plotId) {
       if (!webRReady) return;
       const code = document.getElementById(editorId).value;
@@ -71,19 +67,13 @@
       outputEl.className = 'code-output';
       outputEl.textContent = 'Running...';
       if(plotEl) plotEl.innerHTML = '';
-
       const shelter = await new webR.Shelter();
       try {
         const result = await shelter.captureR(code, {
-          withAutoprint: true,
-          captureStreams: true,
-          captureConditions: false,
+          withAutoprint: true, captureStreams: true, captureConditions: false,
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
-        const text = result.output
-          .filter(o => o.type === 'stdout' || o.type === 'stderr')
-          .map(o => o.data)
-          .join('\n');
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
         outputEl.textContent = text || '✓ Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
@@ -98,11 +88,8 @@
       } catch(e) {
         outputEl.textContent = '❌ ' + e.message;
         outputEl.classList.add('error');
-      } finally {
-        shelter.purge();
-      }
+      } finally { shelter.purge(); }
     }
-
     window.runR = runR;
     initWebR();
   </script>
@@ -125,15 +112,15 @@
     <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
 
     <div class="lab-header">
-      <div class="lab-label">Lab 1 of 10</div>
-      <h1>Vectors &amp; Data Types</h1>
-      <p>R&rsquo;s building blocks &mdash; everything is a vector</p>
+      <div class="lab-label">Lab 8 of 10</div>
+      <h1>Tidyr &amp; Data Reshaping</h1>
+      <p>Tidy data is happy data</p>
     </div>
 
     <div class="lab-nav">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
+      <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a>
     </div>
 
     <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
@@ -141,144 +128,207 @@
     <!-- CONCEPT RECAP -->
     <div class="concept-recap">
       <h2>&#x1F4D6; Concept Recap</h2>
-      <p>In R, <strong>everything is a vector</strong> &mdash; even a single number is a vector of length 1. Vectors are R&rsquo;s most fundamental data structure.</p>
+      <p><strong>Tidy data</strong> has one rule: each variable is a column, each observation is a row. Real-world data is often &ldquo;wide&rdquo; (one row per subject, one column per time point), but tidy &ldquo;long&rdquo; format is needed for ggplot2 and dplyr.</p>
       <ul>
-        <li><strong>numeric</strong> &mdash; numbers: <code>c(1.5, 2.7, 3.0)</code></li>
-        <li><strong>character</strong> &mdash; text: <code>c("Alice", "Bob")</code></li>
-        <li><strong>logical</strong> &mdash; TRUE or FALSE: <code>c(TRUE, FALSE, TRUE)</code></li>
-        <li><strong>integer</strong> &mdash; whole numbers: <code>c(1L, 2L, 3L)</code></li>
-        <li><strong>factor</strong> &mdash; categorical with levels: <code>factor(c("A","B","A"))</code></li>
+        <li><strong>pivot_longer()</strong> &mdash; wide &rarr; long: stack multiple columns into key-value pairs</li>
+        <li><strong>pivot_wider()</strong> &mdash; long &rarr; wide: spread a key-value pair into columns</li>
+        <li><strong>separate()</strong> &mdash; split one column into two (e.g. &ldquo;2024-01&rdquo; &rarr; year, month)</li>
+        <li><strong>unite()</strong> &mdash; combine two columns into one</li>
       </ul>
-      <p style="margin-bottom:0">Key functions: <code>c()</code> creates vectors, <code>length()</code> counts elements, <code>class()</code> checks type, <code>str()</code> shows structure, <code>summary()</code> gives stats. R is <strong>vectorized</strong> &mdash; operations apply to every element automatically.</p>
+      <p style="margin-bottom:0">Use <code>library(tidyr)</code> together with <code>library(dplyr)</code>. Both load without installation in WebR.</p>
     </div>
 
     <!-- WORKED EXAMPLE -->
     <div class="worked-example">
       <h2>&#x1F440; Worked Example</h2>
-      <p>Study this code carefully before diving into the exercises:</p>
-      <div class="worked-code"># Creating vectors
-ages &lt;- c(22, 25, 19, 31, 28)
-names_vec &lt;- c("Alice", "Bob", "Carol", "David", "Eve")
-enrolled &lt;- c(TRUE, TRUE, FALSE, TRUE, FALSE)
+      <p>Pivoting exam scores from wide format to long, then summarizing per student:</p>
+      <div class="worked-code">library(tidyr); library(dplyr)
+wide &lt;- data.frame(
+  student = c("Alice","Bob","Carol"),
+  exam_1  = c(88, 75, 92),
+  exam_2  = c(91, 80, 88),
+  exam_3  = c(85, 78, 95)
+)
+cat("Wide format:\n"); print(wide)
 
-# Exploring vectors
-print(ages)
-cat("Length:", length(ages), "\n")
-cat("Class:", class(ages), "\n")
-cat("Mean age:", mean(ages), "\n")
+long &lt;- wide |&gt; pivot_longer(
+  cols      = starts_with("exam"),
+  names_to  = "exam",
+  values_to = "score"
+)
+cat("\nLong format:\n"); print(long)
 
-# Vector operations — R is vectorized!
-ages_in_months &lt;- ages * 12
-print(ages_in_months)
-
-# Logical indexing
-adults &lt;- ages[ages &gt;= 21]
-cat("Adults:", adults, "\n")</div>
+long |&gt; group_by(student) |&gt;
+  summarize(avg = mean(score), best = max(score)) |&gt; print()</div>
     </div>
 
     <!-- EXERCISE 1 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Exam Score Vector</h3>
-      <p>Fill in the blanks to complete the exam score analysis. Replace each <code>___</code> with the correct value or function name.</p>
-      <textarea class="code-editor" id="editor1"># Create a vector of 6 exam scores
-scores &lt;- c(88, 92, 75, 84, 95, 79)  # feel free to change these
+      <h3>Exercise 1 &mdash; Monthly Sales Pivot</h3>
+      <p>Pivot the wide monthly sales table to long format so each row represents one rep&ndash;month combination.</p>
+      <textarea class="code-editor" id="editor1">library(tidyr); library(dplyr)
+monthly_sales &lt;- data.frame(
+  rep = c("Alice","Bob","Carol","David"),
+  Jan = c(18500, 12300, 22100, 15600),
+  Feb = c(19800, 16900, 25400, 13200),
+  Mar = c(20500, 14200, 26800, 15100)
+)
+cat("Wide:\n"); print(monthly_sales)
 
-# Calculate statistics
-cat("Mean:", mean(scores), "\n")
-cat("Median:", median(scores), "\n")
-cat("Highest:", max(scores), "\n")
-cat("Lowest:", min(scores), "\n")
-cat("Standard Deviation:", round(sd(scores), 2), "\n")
+# Pivot to long format
+long_sales &lt;- monthly_sales |&gt;
+  pivot_longer(cols = c(Jan, Feb, Mar),
+               names_to  = "month",
+               values_to = "revenue")
+cat("\nLong:\n"); print(long_sales)
 
-# How many scores are above 85?
-above_85 &lt;- scores[scores &gt; 85]
-cat("Scores above 85:", above_85, "\n")
-cat("Count above 85:", length(above_85), "\n")
-
-# What percentage passed (score &gt;= 70)?
-pass_rate &lt;- sum(scores &gt;= 70) / length(scores) * 100
-cat("Pass rate:", pass_rate, "%\n")</textarea>
+# Summary: total revenue by rep
+cat("\nTotal by rep:\n")
+long_sales |&gt; group_by(rep) |&gt;
+  summarize(total = sum(revenue), avg = round(mean(revenue), 0)) |&gt;
+  arrange(desc(total)) |&gt; print()</textarea>
       <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
       <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> R applies functions like <code>mean()</code> and <code>sd()</code> to the whole vector at once. <code>scores &gt; 85</code> returns a logical vector &mdash; use it inside <code>[]</code> to filter.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>pivot_longer(cols = c(Jan, Feb, Mar), ...)</code> stacks the three month columns. Alternatively use <code>cols = -rep</code> to pivot all columns except <code>rep</code>. The <code>names_to</code> argument names the new key column.</div>
     </div>
 
     <!-- EXERCISE 2 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; City Data Vectors</h3>
-      <p>Create a character vector of 5 city names, a numeric vector of their populations (in millions), and a logical vector for whether they are in California. Then:</p>
-      <ol>
-        <li>Print only the California cities using logical indexing</li>
-        <li>Print the city with the highest population using <code>which.max()</code></li>
-        <li>Print a formatted summary using <code>paste()</code> or <code>cat()</code></li>
-      </ol>
-      <textarea class="code-editor" id="editor2"># Your code here — create 3 vectors and answer the 3 questions
-</textarea>
+      <h3>Exercise 2 &mdash; City Population Growth</h3>
+      <p>Start with a wide city population table (2020&ndash;2023). Pivot to long, calculate year-over-year growth rates, and find the fastest-growing city each year.</p>
+      <textarea class="code-editor" id="editor2">library(tidyr); library(dplyr)
+cities &lt;- data.frame(
+  city     = c("Springfield","Riverside","Lakewood","Hillcrest"),
+  pop_2020 = c(142000, 98000, 215000, 67000),
+  pop_2021 = c(145500, 101200, 219800, 69400),
+  pop_2022 = c(148100, 105600, 222300, 72100),
+  pop_2023 = c(153000, 112000, 224800, 76500)
+)
+
+# 1. Pivot to long format (city, year, population)
+long_cities &lt;- cities |&gt;
+  pivot_longer(cols = starts_with("pop_"),
+               names_to  = "year",
+               values_to = "population") |&gt;
+  mutate(year = as.integer(sub("pop_", "", year)))
+
+cat("Long format (first 8 rows):\n")
+print(head(long_cities, 8))
+
+# 2. Calculate year-over-year growth rate
+growth &lt;- long_cities |&gt;
+  group_by(city) |&gt;
+  arrange(city, year) |&gt;
+  mutate(growth_pct = round((population / lag(population) - 1) * 100, 2)) |&gt;
+  filter(!is.na(growth_pct))
+
+cat("\nGrowth rates:\n"); print(growth)
+
+# 3. Fastest growing city each year
+cat("\nFastest growing city per year:\n")
+growth |&gt; group_by(year) |&gt; slice_max(growth_pct, n=1) |&gt;
+  select(year, city, growth_pct) |&gt; print()</textarea>
       <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
       <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>cities[in_california]</code> filters cities where the logical vector is TRUE. <code>cities[which.max(populations)]</code> gives the city with the largest population.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>lag(population)</code> gets the previous row&rsquo;s value within each city group &mdash; perfect for year-over-year growth. <code>sub("pop_", "", year)</code> strips the prefix to get just the year number.</div>
     </div>
 
     <!-- EXERCISE 3 -->
     <div class="exercise-block">
       <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Vector Operations Without Loops</h3>
-      <p>Create a vector of numbers 1 to 20 using <code>1:20</code> or <code>seq()</code>. Then using <strong>vector operations only</strong> (no for loops):</p>
-      <ol>
-        <li>Find all even numbers (hint: use <code>%%</code> for modulo)</li>
-        <li>Find numbers divisible by 3</li>
-        <li>Find numbers that are BOTH even AND divisible by 3</li>
-        <li>Calculate the sum of all odd numbers</li>
-      </ol>
-      <textarea class="code-editor" id="editor3"># Create the vector
-nums &lt;- 1:20
+      <h3>Exercise 3 &mdash; separate() and unite()</h3>
+      <p>Use <code>separate()</code> to split full_name into first and last columns, and split date_range into start and end dates. Then use <code>unite()</code> to create a <code>name_id</code> column by combining last name and ID.</p>
+      <textarea class="code-editor" id="editor3">library(tidyr); library(dplyr)
+records &lt;- data.frame(
+  id         = 1:5,
+  full_name  = c("Smith, John","Lee, Sarah","Brown, Carlos","Kim, Diana","Wang, Ethan"),
+  date_range = c("2024-01 to 2024-06","2024-02 to 2024-08",
+                 "2024-03 to 2024-09","2024-01 to 2024-12","2024-04 to 2024-10"),
+  score      = c(88, 92, 76, 95, 83)
+)
 
-# 1. Even numbers (divisible by 2)
+# Split full_name into last and first
+split1 &lt;- records |&gt;
+  separate(full_name, into = c("last", "first"), sep = ", ")
 
-# 2. Numbers divisible by 3
+# Split date_range into start_date and end_date
+split2 &lt;- split1 |&gt;
+  separate(date_range, into = c("start_date", "end_date"), sep = " to ")
 
-# 3. Divisible by BOTH 2 and 3
+cat("After separating:\n"); print(split2)
 
-# 4. Sum of all odd numbers
-</textarea>
+# Unite last name and id into name_id (e.g. "Smith_1")
+final &lt;- split2 |&gt;
+  unite("name_id", last, id, sep = "_")
+cat("\nAfter uniting name_id:\n"); print(final)</textarea>
       <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
       <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>nums[nums %% 2 == 0]</code> finds even numbers. Combine conditions with <code>&amp;</code>: <code>nums[nums %% 2 == 0 &amp; nums %% 3 == 0]</code>. Use <code>sum()</code> on a filtered vector.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>separate(col, into=c("a","b"), sep="pattern")</code> splits on a regex pattern. <code>unite("new_col", col1, col2, sep="_")</code> combines two columns with a separator. Both functions modify the data frame in a pipeline.</div>
     </div>
 
     <!-- MINI PROJECT -->
     <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Student Profile Dataset</span>
-      <h3>Build a Student Dataset from Vectors</h3>
-      <p>Build a complete student dataset using vectors. Create: <code>student_names</code> (6 students), <code>gpas</code> (numeric, realistic values), <code>majors</code> (character), <code>years</code> (integer 1&ndash;4), <code>on_honor_roll</code> (logical: TRUE if gpa &ge; 3.7).</p>
-      <p>Then answer these questions using only vector operations:</p>
-      <ol>
-        <li>Who is on honor roll? (print names)</li>
-        <li>What is the average GPA by major? (use <code>tapply(gpas, majors, mean)</code>)</li>
-        <li>Who has the highest GPA? (use <code>which.max()</code>)</li>
-        <li>Print a formatted summary for each student using a for loop and <code>cat()</code></li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:240px;"># Build your vectors here
-student_names &lt;- c()
-gpas &lt;- c()
-majors &lt;- c()
-years &lt;- c()
-on_honor_roll &lt;- gpas &gt;= 3.7
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Gradebook Transformation</span>
+      <h3>Wide &rarr; Long &rarr; Letter Grades &rarr; Wide Again</h3>
+      <p>Transform a wide gradebook through a complete pipeline: pivot to long, add letter grade column, then pivot back wide with letter grades, and generate a summary table.</p>
+      <textarea class="code-editor" id="editor4" style="min-height:300px;">library(tidyr); library(dplyr)
+gradebook &lt;- data.frame(
+  student = c("Alice","Bob","Carol","Diana","Ethan","Fiona"),
+  hw1     = c(92, 78, 88, 95, 71, 85),
+  hw2     = c(87, 82, 91, 90, 68, 88),
+  midterm = c(85, 76, 93, 88, 72, 90),
+  hw3     = c(90, 80, 87, 92, 75, 83),
+  stringsAsFactors = FALSE
+)
 
-# Answer the 4 questions
-</textarea>
+cat("Original (wide):\n"); print(gradebook)
+
+# Step 1: Pivot to long
+long_gb &lt;- gradebook |&gt;
+  pivot_longer(cols = -student, names_to = "assignment", values_to = "score")
+
+# Step 2: Add letter grade
+long_gb &lt;- long_gb |&gt;
+  mutate(grade = case_when(
+    score &gt;= 90 ~ "A",
+    score &gt;= 80 ~ "B",
+    score &gt;= 70 ~ "C",
+    score &gt;= 60 ~ "D",
+    TRUE        ~ "F"
+  ))
+
+cat("\nLong format with grades (first 8 rows):\n")
+print(head(long_gb, 8))
+
+# Step 3: Pivot back wide with letter grades
+wide_grades &lt;- long_gb |&gt;
+  select(student, assignment, grade) |&gt;
+  pivot_wider(names_from = assignment, values_from = grade)
+
+cat("\nWide format (letter grades):\n"); print(wide_grades)
+
+# Step 4: Summary table
+cat("\nStudent summary:\n")
+long_gb |&gt; group_by(student) |&gt;
+  summarize(avg_score = round(mean(score), 1),
+            final_grade = case_when(
+              mean(score) &gt;= 90 ~ "A",
+              mean(score) &gt;= 80 ~ "B",
+              mean(score) &gt;= 70 ~ "C",
+              TRUE ~ "C-")) |&gt;
+  arrange(desc(avg_score)) |&gt; print()</textarea>
       <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
       <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>student_names[on_honor_roll]</code> gives honor roll names. <code>tapply(gpas, majors, mean)</code> computes the mean GPA for each unique major automatically.</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> When pivoting back wide, use <code>pivot_wider(names_from = assignment, values_from = grade)</code>. The <code>names_from</code> column provides the new column names and <code>values_from</code> provides the cell values.</div>
     </div>
 
     <!-- LAB COMPLETE -->
     <div class="lab-complete">
-      <h2>&#x2705; Lab 1 Complete!</h2>
-      <p>You&rsquo;ve mastered R&rsquo;s foundational data structure &mdash; the vector. Vectorized operations, logical indexing, and the apply family are the core of R&rsquo;s power and elegance.</p>
-      <p style="margin-bottom:0"><a href="../lab-02/index.html">Continue to Lab 2: Data Frames &rarr;</a></p>
+      <h2>&#x2705; Lab 8 Complete!</h2>
+      <p>You can now reshape any dataset between wide and long formats, split and combine columns, and build complete data pipelines. Tidy data enables all the visualization and analysis techniques from earlier labs.</p>
+      <p style="margin-bottom:0"><a href="../lab-09/index.html">Continue to Lab 9: Professional Output &amp; Reporting &rarr;</a></p>
         <div style="margin-top:1.5rem">
         <button id="complete-btn" onclick="markComplete()" 
             style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
@@ -289,11 +339,10 @@ on_honor_roll &lt;- gpas &gt;= 3.7
     </div>
 
     <div class="lab-nav" style="margin-top:2rem">
-      <a href="../index.html" class="nav-prev">&larr; Lab Home</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 1 of 10</span>
-      <a href="../lab-02/index.html" class="nav-next">Lab 2: Data Frames &rarr;</a>
+      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
+      <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a>
     </div>
-
   </main>
 
   <footer>
@@ -308,12 +357,11 @@ on_honor_roll &lt;- gpas &gt;= 3.7
       <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
     </div>
     <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 1: Vectors &amp; Data Types</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 8: Tidyr &amp; Data Reshaping</p>
   </footer>
-
 <script>
 // Progress tracking via localStorage
-const LAB_ID = 'r-lab-01';
+const LAB_ID = 'r-lab-08';
 
 function isComplete() {
     return localStorage.getItem(LAB_ID) === 'complete';

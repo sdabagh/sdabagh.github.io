@@ -201,6 +201,13 @@ scores = [88, 92, 79, 95, 84, 91]
       <h2>&#x2705; Lab 2 Complete!</h2>
       <p>You&rsquo;ve mastered conditionals, comparison operators, logical operators, and built a complete grade calculator. Decision-making is at the heart of every useful program.</p>
       <p style="margin-bottom:0"><a href="../lab-03/index.html">Continue to Lab 3: Loops &amp; Iteration &rarr;</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
     </div>
 
     <div class="lab-nav" style="margin-top:2rem">
@@ -260,5 +267,42 @@ scores = [88, 92, 79, 95, 84, 91]
 
     initPyodide();
   </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'python-lab-02';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
 </body>
 </html>

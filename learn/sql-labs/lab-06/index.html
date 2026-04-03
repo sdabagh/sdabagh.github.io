@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Lab 06 — JOINs: Combining Tables. Master INNER JOIN and LEFT JOIN on a retail database.">
+  <title>Lab 06: JOINs — SQL Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .sql-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .schema-box{background:#1a1a2e;color:#90CAF9;font-family:monospace;font-size:0.85rem;padding:1.25rem;border-radius:8px;margin-bottom:1.5rem;overflow-x:auto;white-space:pre}
+    .schema-label{color:#FFD54F;font-weight:700;font-size:0.8rem;display:block;margin-bottom:0.5rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:120px;font-family:monospace;font-size:0.95rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .run-btn{background:#1565C0;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#0D47A1}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .output-area{margin-top:0.75rem;min-height:48px}
+    .result-table{width:100%;border-collapse:collapse;font-size:0.875rem;margin-top:0.5rem}
+    .result-table th{background:#1565C0;color:white;padding:0.5rem 0.75rem;text-align:left}
+    .result-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e0e0e0}
+    .result-table tr:nth-child(even){background:#f5f5f5}
+    .result-table tr:hover{background:#E3F2FD}
+    .row-count{color:#666;font-size:0.8rem;margin-top:0.4rem;font-style:italic}
+    .sql-success{color:#2E7D32;font-weight:600;padding:0.75rem;background:#E8F5E9;border-radius:8px}
+    .sql-error{color:#C62828;font-weight:600;padding:0.75rem;background:#FFEBEE;border-radius:8px;font-family:monospace}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to SQL Labs</a>
+
+    <div class="lab-nav">
+      <a href="../lab-05/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">&#x2190; Previous Lab</a>
+      <span style="font-weight:700;color:#1565C0;">Lab 6 of 10 &mdash; JOINs</span>
+      <a href="../lab-07/index.html" style="font-weight:600;color:#1565C0;text-decoration:none;">Next Lab &#x2192;</a>
+    </div>
+
+    <h1 style="color:#1565C0;margin-bottom:0.25rem;">Lab 06 &mdash; JOINs: Combining Tables</h1>
+    <p style="color:#555;font-size:1.05rem;margin-bottom:1.5rem;">The most powerful concept in SQL. Link customers, orders, and products together into one result set.</p>
+
+    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
+
+    <div class="schema-box"><span class="schema-label">&#x1F4CB; AVAILABLE TABLES: products, customers, orders</span>products(id, name, category, price, stock)
+customers(id, name, city, email, member_since)
+orders(id, customer_id, product_id, quantity, order_date, total)
+
+Key relationships:
+  orders.customer_id --> customers.id
+  orders.product_id  --> products.id</div>
+
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap: JOINs</h2>
+      <ul style="margin:0;padding-left:1.25rem;line-height:1.9;">
+        <li><strong>INNER JOIN</strong> returns only rows where a match exists in both tables.</li>
+        <li><strong>LEFT JOIN</strong> returns all rows from the left table plus matched rows from the right. Unmatched right-side columns are NULL.</li>
+        <li><strong>ON</strong> specifies the join condition: <code>ON orders.customer_id = customers.id</code></li>
+        <li>Use table aliases (<code>o</code>, <code>p</code>, <code>c</code>) to keep queries readable: <code>FROM orders o</code></li>
+        <li>Prefix ambiguous columns with the alias: <code>o.id</code> vs <code>c.name</code> vs <code>p.name</code></li>
+        <li>You can chain multiple JOIN clauses to link three or more tables.</li>
+      </ul>
+    </div>
+
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example (read-only)</h2>
+      <p style="margin-top:0;color:#6A1B9A;font-size:0.9rem;">Full order history joining all three tables at once.</p>
+<pre class="code-editor" style="pointer-events:none;opacity:0.8;">SELECT o.id AS order_id,
+       c.name AS customer,
+       c.city,
+       p.name AS product,
+       p.category,
+       o.quantity,
+       o.total,
+       o.order_date
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.id
+INNER JOIN products p ON o.product_id = p.id
+ORDER BY o.order_date;</pre>
+    </div>
+
+    <!-- Exercise 1: Guided -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F; Guided</span>
+      <h3>Exercise 1 &mdash; Basic INNER JOIN</h3>
+      <p>Show each order with the customer name and product name. Fill in the blanks: the correct column names and JOIN conditions.</p>
+      <div class="hint-box">&#x1F4A1; Hint: <code>o</code> = orders alias, <code>c</code> = customers alias, <code>p</code> = products alias. The linking columns are <code>customer_id</code> and <code>product_id</code>.</div>
+      <textarea class="code-editor" id="ex1" spellcheck="false">SELECT o.id AS order_id,
+       c.___ AS customer_name,
+       p.___ AS product_name,
+       o.quantity,
+       o.total
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.___
+INNER JOIN products p ON o.product_id = p.___
+ORDER BY o.id;</textarea>
+      <button class="run-btn" id="btn1" onclick="runQuery('ex1','out1')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out1"></div>
+    </div>
+
+    <!-- Exercise 2: Independent -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; LEFT JOIN: All Customers Including Those with No Orders</h3>
+      <p>Show <strong>all customers</strong> with their total amount spent. Customers who have never placed an order should appear with 0 total (use COALESCE). Sort by total spent descending.</p>
+      <div class="hint-box">&#x1F4A1; Hint: Start <code>FROM customers c LEFT JOIN orders o ON c.id = o.customer_id</code>, then GROUP BY and use <code>COALESCE(SUM(o.total), 0)</code>.</div>
+      <textarea class="code-editor" id="ex2" spellcheck="false">SELECT c.id,
+       c.name,
+       c.city,
+       c.member_since,
+       COUNT(o.id) AS order_count,
+       COALESCE(ROUND(SUM(o.total), 2), 0) AS total_spent
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id
+GROUP BY c.id, c.name, c.city, c.member_since
+ORDER BY total_spent DESC;</textarea>
+      <button class="run-btn" id="btn2" onclick="runQuery('ex2','out2')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out2"></div>
+    </div>
+
+    <!-- Exercise 3: Challenge -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Products That Have Never Been Ordered</h3>
+      <p>Use a LEFT JOIN from products to orders, then filter <code>WHERE orders.id IS NULL</code> to find products with no order history. These are dead-stock items.</p>
+      <div class="hint-box">&#x1F4A1; Hint: <code>FROM products p LEFT JOIN orders o ON p.id = o.product_id WHERE o.id IS NULL</code></div>
+      <textarea class="code-editor" id="ex3" spellcheck="false">-- Products that have NEVER been ordered (dead stock)
+SELECT p.id,
+       p.name AS product_name,
+       p.category,
+       p.price,
+       p.stock AS units_in_stock
+FROM products p
+LEFT JOIN orders o ON p.id = o.product_id
+WHERE o.id IS NULL
+ORDER BY p.category, p.name;</textarea>
+      <button class="run-btn" id="btn3" onclick="runQuery('ex3','out3')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="out3"></div>
+    </div>
+
+    <!-- Mini Project -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Complete Order Intelligence Report</h3>
+      <p>As a business analyst, write <strong>4 JOIN queries</strong> to understand purchasing behaviour fully:</p>
+      <ol>
+        <li>Full order history: order ID, customer name, product name, category, quantity, total, date.</li>
+        <li>Customer purchase summary: name, city, number of orders, total spent &mdash; sorted by total DESC.</li>
+        <li>Product popularity: product name, category, times ordered, total quantity sold.</li>
+        <li>Which customers bought which categories: customer name, category, total spent in that category.</li>
+      </ol>
+      <textarea class="code-editor" id="proj" style="min-height:350px;" spellcheck="false">-- 1. Full order history
+SELECT o.id, c.name AS customer, p.name AS product,
+       p.category, o.quantity, o.total, o.order_date
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.id
+INNER JOIN products p ON o.product_id = p.id
+ORDER BY o.order_date;
+
+-- 2. Customer purchase summary
+SELECT c.name, c.city,
+       COUNT(o.id) AS orders,
+       ROUND(SUM(o.total), 2) AS total_spent
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id
+GROUP BY c.id, c.name, c.city
+ORDER BY total_spent DESC;
+
+-- 3. Product popularity
+SELECT p.name, p.category,
+       COUNT(o.id) AS times_ordered,
+       SUM(o.quantity) AS units_sold
+FROM products p
+LEFT JOIN orders o ON p.id = o.product_id
+GROUP BY p.id, p.name, p.category
+ORDER BY times_ordered DESC;
+
+-- 4. Category spending per customer
+SELECT c.name, p.category,
+       ROUND(SUM(o.total), 2) AS category_spend
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.id
+INNER JOIN products p ON o.product_id = p.id
+GROUP BY c.id, p.category
+ORDER BY c.name, category_spend DESC;</textarea>
+      <button class="run-btn" id="btnp" onclick="runQuery('proj','outp')" disabled>&#x25B6; Run</button>
+      <div class="output-area" id="outp"></div>
+    </div>
+
+    <div class="lab-complete">
+      <h2>&#x1F3C1; Lab 06 Complete!</h2>
+      <p>You can now combine multiple tables using INNER JOIN and LEFT JOIN, use table aliases, and find rows with no matching records using the IS NULL trick.</p>
+      <p style="margin-bottom:1.5rem;">Next up: queries inside queries.</p>
+      <a href="../lab-07/index.html" style="background:white;color:#1565C0;padding:0.75rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Continue to Lab 07 &mdash; Subqueries &rarr;</a>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">SQL Practice Labs &mdash; Powered by sql.js (SQLite in WebAssembly)</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script>
+let db = null;
+
+async function initSQL() {
+    const statusEl = document.getElementById('sql-status');
+    if(statusEl) statusEl.textContent = '\u23F3 Loading SQL engine...';
+    const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+    });
+    db = new SQL.Database();
+    loadSchema();
+    if(statusEl) {
+        statusEl.textContent = '\u2705 Database ready! Write a query and click \u25B6 Run.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#1565C0';
+        statusEl.style.color = '#1565C0';
+    }
+    document.querySelectorAll('.run-btn').forEach(btn => btn.disabled = false);
+}
+
+function loadSchema() {
+    db.run(`CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price REAL, stock INTEGER);`);
+    db.run(`CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, city TEXT, email TEXT, member_since INTEGER);`);
+    db.run(`CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, product_id INTEGER, quantity INTEGER, order_date TEXT, total REAL);`);
+    db.run(`INSERT INTO products VALUES (1,'Laptop Pro','Electronics',1299.99,45),(2,'Wireless Mouse','Electronics',29.99,200),(3,'Python Book','Books',49.99,80),(4,'Standing Desk','Furniture',599.99,15),(5,'Coffee Maker','Appliances',89.99,60),(6,'SQL Guide','Books',39.99,100),(7,'Monitor 27"','Electronics',449.99,30),(8,'Ergonomic Chair','Furniture',299.99,25),(9,'Headphones','Electronics',199.99,70),(10,'Data Science Book','Books',54.99,90);`);
+    db.run(`INSERT INTO customers VALUES (1,'Maria Garcia','Los Angeles','maria@email.com',2020),(2,'James Wilson','Chicago','james@email.com',2021),(3,'Yuki Tanaka','Seattle','yuki@email.com',2019),(4,'Ahmed Hassan','New York','ahmed@email.com',2022),(5,'Sofia Russo','Los Angeles','sofia@email.com',2020),(6,'Chris Taylor','Chicago','chris@email.com',2021),(7,'Priya Patel','Seattle','priya@email.com',2023),(8,'Marcus Johnson','New York','marcus@email.com',2019);`);
+    db.run(`INSERT INTO orders VALUES (1,1,1,1,'2024-01-15',1299.99),(2,1,3,2,'2024-01-20',99.98),(3,2,2,3,'2024-01-22',89.97),(4,3,7,1,'2024-01-25',449.99),(5,4,1,1,'2024-02-01',1299.99),(6,4,9,1,'2024-02-03',199.99),(7,5,4,1,'2024-02-10',599.99),(8,5,8,1,'2024-02-10',299.99),(9,6,6,3,'2024-02-15',119.97),(10,7,3,1,'2024-02-20',49.99),(11,7,6,2,'2024-02-20',79.98),(12,8,5,1,'2024-03-01',89.99),(13,1,9,1,'2024-03-05',199.99),(14,2,1,1,'2024-03-10',1299.99),(15,3,10,2,'2024-03-15',109.98);`);
+}
+
+function runQuery(editorId, outputId) {
+    if(!db) return;
+    const sql = document.getElementById(editorId).value;
+    const outputEl = document.getElementById(outputId);
+    outputEl.innerHTML = '';
+    try {
+        const results = db.exec(sql);
+        if(!results.length) { outputEl.innerHTML = '<div class="sql-success">\u2713 Query executed successfully.</div>'; return; }
+        results.forEach(result => {
+            const table = document.createElement('table');
+            table.className = 'result-table';
+            const thead = table.createTHead();
+            const hrow = thead.insertRow();
+            result.columns.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
+            const tbody = table.createTBody();
+            result.values.forEach(row => {
+                const tr = tbody.insertRow();
+                row.forEach(val => { const td = tr.insertCell(); td.textContent = val !== null ? val : 'NULL'; });
+            });
+            outputEl.appendChild(table);
+            const cnt = document.createElement('div');
+            cnt.className = 'row-count';
+            cnt.textContent = result.values.length + ' row' + (result.values.length !== 1 ? 's' : '') + ' returned';
+            outputEl.appendChild(cnt);
+        });
+    } catch(e) { outputEl.innerHTML = '<div class="sql-error">\u274C ' + e.message + '</div>'; }
+}
+
+initSQL();
+  </script>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'sql-lab-06';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

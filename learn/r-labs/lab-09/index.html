@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 9: Professional Output and Reporting — R Practice Labs. Communicate your analysis like a professional using cat, sprintf, and formatted reports.">
+  <title>Lab 9: Professional Output &amp; Reporting - R Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
+    .nav-next{background:#C62828;color:white}
+    .nav-next:hover{background:#B71C1C;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#C62828}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#C62828}
+    .run-btn{background:#C62828;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#B71C1C}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#ef9a9a;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ff5252}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#C62828;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#C62828,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#ffcdd2;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true, captureStreams: true, captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally { shelter.purge(); }
+    }
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 9 of 10</div>
+      <h1>Professional Output &amp; Reporting</h1>
+      <p>Communicating your analysis like a professional</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span>
+      <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <p>R gives you powerful tools for formatting output that looks like a real professional report:</p>
+      <ul>
+        <li><strong>cat()</strong> &mdash; print text with <code>\n</code> newlines and <code>\t</code> tabs; concatenates multiple values</li>
+        <li><strong>sprintf()</strong> &mdash; C-style string formatting: <code>%s</code> (string), <code>%d</code> (integer), <code>%.2f</code> (float 2 decimal), <code>%-20s</code> (left-aligned 20 wide)</li>
+        <li><strong>paste() / paste0()</strong> &mdash; combine strings; <code>paste0()</code> with no separator</li>
+        <li><strong>format()</strong> &mdash; format numbers with <code>big.mark=","</code>, <code>nsmall=2</code></li>
+        <li><strong>strrep()</strong> &mdash; repeat a string: <code>strrep("=", 50)</code> makes a 50-char divider</li>
+      </ul>
+      <p style="margin-bottom:0">The key is building <strong>report generator functions</strong> that take data and produce formatted, readable output automatically.</p>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <p>A professional report generator using aligned columns and dividers:</p>
+      <div class="worked-code">generate_report &lt;- function(data, title = "Analysis Report") {
+  cat(strrep("=", 50), "\n", title, "\n", strrep("=", 50), "\n\n", sep="")
+  cat("SUMMARY STATISTICS\n", strrep("-", 30), "\n", sep="")
+  cat(sprintf("%-20s %10s\n", "Metric", "Value"))
+  cat(strrep("-", 30), "\n", sep="")
+  cat(sprintf("%-20s %10d\n", "Observations:", nrow(data)))
+  cat(sprintf("%-20s %10.2f\n", "Mean Revenue:",   mean(data$revenue)))
+  cat(sprintf("%-20s %10.2f\n", "Median Revenue:", median(data$revenue)))
+  cat(sprintf("%-20s %10.2f\n", "Std Deviation:",  sd(data$revenue)))
+  cat(strrep("-", 30), "\n", sep="")
+}
+sales &lt;- data.frame(rep=c("Alice","Bob","Carol","David"), revenue=c(38300,29200,47500,28800))
+generate_report(sales, "Q1 Sales Report")</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Sales Leaderboard with Medals</h3>
+      <p>Run this leaderboard printer and study the sprintf formatting. Then try adding a 4th and 5th place row without medals.</p>
+      <textarea class="code-editor" id="editor1">sales &lt;- data.frame(
+  rep     = c("Carol","Alice","David","Bob","Eve"),
+  revenue = c(47500, 38300, 31200, 29200, 24800),
+  deals   = c(12, 9, 8, 7, 6)
+)
+
+print_leaderboard &lt;- function(df) {
+  medals &lt;- c("\U0001F947", "\U0001F948", "\U0001F949")  # gold, silver, bronze
+  cat(strrep("=", 48), "\n", sep="")
+  cat("       SALES LEADERBOARD\n")
+  cat(strrep("=", 48), "\n", sep="")
+  cat(sprintf("%-4s %-12s %12s %8s\n", "Rank", "Rep", "Revenue", "Deals"))
+  cat(strrep("-", 48), "\n", sep="")
+  for (i in 1:nrow(df)) {
+    medal &lt;- if (i &lt;= 3) medals[i] else "   "
+    cat(sprintf("%s #%-2d %-12s $%10s %8d\n",
+                medal, i, df$rep[i],
+                format(df$revenue[i], big.mark=","), df$deals[i]))
+  }
+  cat(strrep("-", 48), "\n", sep="")
+  cat(sprintf("%-16s $%10s\n", "TEAM TOTAL:",
+              format(sum(df$revenue), big.mark=",")))
+}
+
+print_leaderboard(sales)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>%-12s</code> means left-aligned, 12 characters wide &mdash; the <code>-</code> flag left-justifies text. <code>%10s</code> right-aligns to 10 chars. <code>format(n, big.mark=",")</code> adds thousands separators like &ldquo;47,500&rdquo;.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; Monthly Report Function</h3>
+      <p>Write a <code>monthly_report(sales_df)</code> function that prints a complete professional report with: a header, summary stats table, top 3 performers section, monthly totals section, and a footer with a simulated timestamp.</p>
+      <textarea class="code-editor" id="editor2">sales_df &lt;- data.frame(
+  rep     = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
+  month   = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb"),
+  revenue = c(18500,12300,22100,19800,15600,16900,25400,13200),
+  stringsAsFactors = FALSE
+)
+
+monthly_report &lt;- function(df) {
+  # --- Header ---
+  cat(strrep("*", 50), "\n")
+  cat("  MONTHLY SALES PERFORMANCE REPORT\n")
+  cat(strrep("*", 50), "\n\n")
+
+  # --- Summary Stats ---
+  cat("OVERALL SUMMARY\n", strrep("-", 30), "\n", sep="")
+  cat(sprintf("  Total Revenue:  $%s\n", format(sum(df$revenue), big.mark=",")))
+  cat(sprintf("  Average Deal:   $%s\n", format(round(mean(df$revenue)), big.mark=",")))
+  cat(sprintf("  Total Records:  %d\n\n", nrow(df)))
+
+  # --- Top 3 Performers ---
+  cat("TOP 3 PERFORMERS\n", strrep("-", 30), "\n", sep="")
+  totals &lt;- sort(tapply(df$revenue, df$rep, sum), decreasing=TRUE)
+  for (i in 1:min(3, length(totals))) {
+    cat(sprintf("  %d. %-10s $%s\n", i, names(totals)[i],
+                format(totals[i], big.mark=",")))
+  }
+
+  # --- Monthly Totals ---
+  cat("\nMONTHLY TOTALS\n", strrep("-", 30), "\n", sep="")
+  monthly &lt;- sort(tapply(df$revenue, df$month, sum), decreasing=TRUE)
+  for (m in names(monthly)) {
+    cat(sprintf("  %-6s $%s\n", m, format(monthly[m], big.mark=",")))
+  }
+
+  # --- Footer ---
+  cat("\n", strrep("-", 50), "\n", sep="")
+  cat("Report generated: 2026-04-02  |  R Practice Labs\n")
+  cat(strrep("-", 50), "\n", sep="")
+}
+
+monthly_report(sales_df)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>tapply(revenue, rep, sum)</code> gives total revenue per rep. Wrap in <code>sort(..., decreasing=TRUE)</code> for the leaderboard order. Use <code>names()</code> to get the rep names from the sorted result.</div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Side-by-Side Comparison Report</h3>
+      <p>Write <code>comparison_report(group1, group2, label1, label2)</code> that prints: side-by-side stats, marks which group is higher with &#9650;, a plain-English t-test interpretation, and a text bar chart of the two means.</p>
+      <textarea class="code-editor" id="editor3">set.seed(42)
+group1 &lt;- rnorm(25, mean=78, sd=10)
+group2 &lt;- rnorm(25, mean=72, sd=12)
+
+comparison_report &lt;- function(g1, g2, label1="Group A", label2="Group B") {
+  m1 &lt;- round(mean(g1), 2); m2 &lt;- round(mean(g2), 2)
+  s1 &lt;- round(sd(g1), 2);   s2 &lt;- round(sd(g2), 2)
+  ttest &lt;- t.test(g1, g2)
+
+  cat(strrep("=", 50), "\n")
+  cat(sprintf("  COMPARISON: %s vs %s\n", label1, label2))
+  cat(strrep("=", 50), "\n\n")
+
+  # Side-by-side stats
+  cat(sprintf("%-12s %12s %12s\n", "Statistic", label1, label2))
+  cat(strrep("-", 36), "\n")
+  hi1 &lt;- if(m1 &gt; m2) " \u25B2" else ""
+  hi2 &lt;- if(m2 &gt; m1) " \u25B2" else ""
+  cat(sprintf("%-12s %11.2f%s %11.2f%s\n", "Mean:",   m1, hi1, m2, hi2))
+  cat(sprintf("%-12s %12.2f %12.2f\n",     "SD:",     s1, s2))
+  cat(sprintf("%-12s %12d %12d\n",          "N:",     length(g1), length(g2)))
+
+  # T-test interpretation
+  p &lt;- round(ttest$p.value, 4)
+  cat("\nT-TEST RESULT\n", strrep("-", 36), "\n", sep="")
+  cat(sprintf("  p-value = %.4f\n", p))
+  if (p &lt; 0.05) {
+    cat(sprintf("  The difference is statistically significant (p&lt;0.05).\n"))
+    cat(sprintf("  %s has a significantly higher mean than %s.\n",
+                if(m1 &gt; m2) label1 else label2,
+                if(m1 &gt; m2) label2 else label1))
+  } else {
+    cat("  No statistically significant difference detected (p&gt;=0.05).\n")
+  }
+
+  # Text bar chart
+  cat("\nMEAN COMPARISON (text chart)\n", strrep("-", 36), "\n", sep="")
+  max_m &lt;- max(m1, m2)
+  bar1  &lt;- strrep("|", round(m1 / max_m * 20))
+  bar2  &lt;- strrep("|", round(m2 / max_m * 20))
+  cat(sprintf("  %-10s %s %.1f\n", label1, bar1, m1))
+  cat(sprintf("  %-10s %s %.1f\n", label2, bar2, m2))
+}
+
+comparison_report(group1, group2, "Treatment", "Control")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>\u25B2</code> is the Unicode up-arrow &#9650;. <code>strrep("|", n)</code> creates a text bar of length n. Scale bars to the maximum mean so the wider bar always fills to 20 characters.</div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Executive Summary Generator</span>
+      <h3>Auto-Generated Executive Report</h3>
+      <p>Build a complete <code>exec_summary(sales)</code> function that automatically generates a multi-section executive report from any sales data frame, including auto-written insight sentences.</p>
+      <textarea class="code-editor" id="editor4" style="min-height:360px;">sales &lt;- data.frame(
+  rep     = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David","Eve","Eve"),
+  region  = c("West","East","West","West","South","East","West","South","North","North"),
+  month   = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb","Jan","Feb"),
+  revenue = c(18500,12300,22100,19800,15600,16900,25400,13200,11800,14200),
+  stringsAsFactors = FALSE
+)
+
+exec_summary &lt;- function(df) {
+  # Computed values
+  rep_totals  &lt;- sort(tapply(df$revenue, df$rep,    sum),    decreasing=TRUE)
+  reg_totals  &lt;- sort(tapply(df$revenue, df$region, sum),    decreasing=TRUE)
+  mo_totals   &lt;- tapply(df$revenue, df$month,  sum)
+  team_avg    &lt;- mean(df$revenue)
+  top_rep     &lt;- names(rep_totals)[1]
+  top_rev     &lt;- rep_totals[1]
+  pct_above   &lt;- round((top_rev / sum(rep_totals) * 100), 1)
+  best_region &lt;- names(reg_totals)[1]
+
+  # --- Header ---
+  cat(strrep("#", 52), "\n")
+  cat("#   EXECUTIVE SALES SUMMARY REPORT                 #\n")
+  cat(strrep("#", 52), "\n\n")
+
+  # --- Overview ---
+  cat("1. OVERVIEW\n", strrep("-", 40), "\n", sep="")
+  cat(sprintf("   Team size:        %d reps\n",       length(unique(df$rep))))
+  cat(sprintf("   Total revenue:    $%s\n",
+              format(sum(df$revenue), big.mark=",")))
+  cat(sprintf("   Avg per deal:     $%s\n",
+              format(round(team_avg), big.mark=",")))
+  cat(sprintf("   Months covered:   %s\n\n",
+              paste(sort(unique(df$month)), collapse=", ")))
+
+  # --- Team Rankings ---
+  cat("2. TEAM RANKINGS\n", strrep("-", 40), "\n", sep="")
+  for (i in seq_along(rep_totals)) {
+    pct &lt;- round(rep_totals[i] / sum(rep_totals) * 100, 1)
+    cat(sprintf("   %d. %-8s $%s (%s%%)\n", i, names(rep_totals)[i],
+                format(rep_totals[i], big.mark=","), pct))
+  }
+
+  # --- Regional Breakdown ---
+  cat("\n3. REGIONAL BREAKDOWN\n", strrep("-", 40), "\n", sep="")
+  for (r in names(reg_totals)) {
+    cat(sprintf("   %-8s $%s\n", r, format(reg_totals[r], big.mark=",")))
+  }
+
+  # --- Monthly Trend ---
+  cat("\n4. MONTHLY TREND\n", strrep("-", 40), "\n", sep="")
+  for (m in sort(names(mo_totals))) {
+    bar &lt;- strrep("|", round(mo_totals[m] / max(mo_totals) * 15))
+    cat(sprintf("   %-4s %s $%s\n", m, bar,
+                format(mo_totals[m], big.mark=",")))
+  }
+
+  # --- Auto-Generated Insights ---
+  cat("\n5. KEY INSIGHTS\n", strrep("-", 40), "\n", sep="")
+  cat(sprintf("   - %s had the highest revenue at $%s, accounting for %s%% of team total.\n",
+              top_rep, format(top_rev, big.mark=","), pct_above))
+  cat(sprintf("   - The %s region led all regions in total revenue.\n", best_region))
+  quota_met &lt;- sum(df$revenue &gt; 15000)
+  cat(sprintf("   - %d of %d deals exceeded the $15,000 quota threshold.\n",
+              quota_met, nrow(df)))
+
+  cat("\n", strrep("#", 52), "\n", sep="")
+}
+
+exec_summary(sales)</textarea>
+      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
+      <div id="output4" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Store computed values in named variables at the top of the function so the insight sentences can reference them naturally: <code>cat(sprintf("... %s ...", top_rep))</code>. This makes the report auto-update when the data changes.</div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 9 Complete!</h2>
+      <p>You can now build professional, auto-generated reports in R using sprintf, cat, and structured formatting. This skill transforms raw analysis into polished deliverables that communicate clearly to any audience.</p>
+      <p style="margin-bottom:0"><a href="../lab-10/index.html">Continue to Lab 10: Capstone Analysis &rarr;</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span>
+      <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 9: Professional Output &amp; Reporting</p>
+  </footer>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'r-lab-09';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>

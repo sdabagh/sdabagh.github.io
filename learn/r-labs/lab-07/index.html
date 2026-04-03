@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 7: Statistical Analysis — R Practice Labs. From data to insights — correlation, regression, t-tests, and simulation in R.">
+  <title>Lab 7: Statistical Analysis - R Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
+    .nav-next{background:#C62828;color:white}
+    .nav-next:hover{background:#B71C1C;text-decoration:none}
+    .webr-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#C62828}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#C62828}
+    .run-btn{background:#C62828;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#B71C1C}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#ef9a9a;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ff5252}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#C62828;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#C62828,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#ffcdd2;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+  </style>
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    const webR = new WebR();
+    let webRReady = false;
+    async function initWebR() {
+      const statusEl = document.getElementById('webr-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      await webR.init();
+      webRReady = true;
+      if(statusEl) {
+        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runR(editorId, outputId, plotId) {
+      if (!webRReady) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = plotId ? document.getElementById(plotId) : null;
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      if(plotEl) plotEl.innerHTML = '';
+      const shelter = await new webR.Shelter();
+      try {
+        const result = await shelter.captureR(code, {
+          withAutoprint: true, captureStreams: true, captureConditions: false,
+          captureGraphics: plotEl ? { width: 600, height: 400 } : false
+        });
+        const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
+        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        if(plotEl && result.images && result.images.length > 0) {
+          result.images.forEach(img => {
+            const blob = new Blob([img], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            const imgEl = document.createElement('img');
+            imgEl.src = url;
+            imgEl.style.cssText = 'max-width:100%;border-radius:8px;margin-top:0.5rem;display:block;';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) {
+        outputEl.textContent = '❌ ' + e.message;
+        outputEl.classList.add('error');
+      } finally { shelter.purge(); }
+    }
+    window.runR = runR;
+    initWebR();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 7 of 10</div>
+      <h1>Statistical Analysis</h1>
+      <p>From data to insights &mdash; the core of R</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: ggplot2</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span>
+      <a href="../lab-08/index.html" class="nav-next">Lab 8: Tidyr &rarr;</a>
+    </div>
+
+    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <p>R was built for statistics. Its core functions cover everything from descriptive stats to hypothesis testing:</p>
+      <ul>
+        <li><strong>Descriptive:</strong> <code>mean()</code>, <code>median()</code>, <code>sd()</code>, <code>var()</code>, <code>summary()</code></li>
+        <li><strong>Correlation:</strong> <code>cor(x, y)</code> &mdash; Pearson r between &minus;1 and +1</li>
+        <li><strong>t-test:</strong> <code>t.test(x, y)</code> &mdash; compare two group means, check p-value</li>
+        <li><strong>Linear regression:</strong> <code>lm(y ~ x, data=df)</code> then <code>summary(model)</code> for R&sup2;, coefficients, and p-values</li>
+        <li><strong>Simulation:</strong> <code>rnorm(n, mean, sd)</code>, <code>runif(n, min, max)</code>, <code>set.seed()</code> for reproducibility</li>
+      </ul>
+      <p style="margin-bottom:0">A <strong>p-value &lt; 0.05</strong> is conventionally called &ldquo;statistically significant&rdquo; &mdash; it means the result is unlikely under the null hypothesis. <strong>R&sup2;</strong> tells you how much variance in y is explained by x.</p>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <p>Simulating data, computing correlation, and fitting a linear regression:</p>
+      <div class="worked-code">set.seed(42)
+n &lt;- 50
+study_hours  &lt;- runif(n, 1, 8)
+exam_score   &lt;- pmin(pmax(50 + 5 * study_hours + rnorm(n, 0, 8), 0), 100)
+df &lt;- data.frame(study_hours, exam_score)
+
+cat("Correlation:", round(cor(study_hours, exam_score), 3), "\n")
+model &lt;- lm(exam_score ~ study_hours, data = df)
+cat("Intercept:", round(coef(model)[1], 2), "\n")
+cat("Slope:",     round(coef(model)[2], 2), "\n")
+cat("R-squared:", round(summary(model)$r.squared, 3), "\n")</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Two-Group Comparison &amp; t-Test</h3>
+      <p>Run this complete group comparison. Study the t-test output and Cohen&rsquo;s d calculation, then try changing the group means or SDs to see how the p-value responds.</p>
+      <textarea class="code-editor" id="editor1">set.seed(99)
+group_a &lt;- rnorm(30, mean = 75, sd = 10)  # Treatment group
+group_b &lt;- rnorm(30, mean = 70, sd = 10)  # Control group
+
+cat("Group A: mean =", round(mean(group_a), 2), ", sd =", round(sd(group_a), 2), "\n")
+cat("Group B: mean =", round(mean(group_b), 2), ", sd =", round(sd(group_b), 2), "\n")
+
+# Independent samples t-test
+result &lt;- t.test(group_a, group_b)
+cat("\nt-test results:\n")
+cat("  t =", round(result$statistic, 3), "\n")
+cat("  df =", round(result$parameter, 1), "\n")
+cat("  p-value =", round(result$p.value, 4), "\n")
+cat("  Significant (p&lt;0.05):", result$p.value &lt; 0.05, "\n")
+
+# Cohen's d effect size
+pooled_sd &lt;- sqrt((sd(group_a)^2 + sd(group_b)^2) / 2)
+cohens_d  &lt;- (mean(group_a) - mean(group_b)) / pooled_sd
+cat("\nCohen's d =", round(cohens_d, 3), "\n")
+cat("Effect size:", ifelse(abs(cohens_d) &lt; 0.2, "negligible",
+                   ifelse(abs(cohens_d) &lt; 0.5, "small",
+                   ifelse(abs(cohens_d) &lt; 0.8, "medium", "large"))), "\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Cohen&rsquo;s d measures practical significance (effect size), not just statistical significance. A small p-value with a tiny Cohen&rsquo;s d means the difference is statistically detectable but may not matter in practice.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; Multiple Regression</h3>
+      <p>Create a 100-student dataset with <code>study_hours</code>, <code>sleep_hours</code>, and <code>exam_score</code>. Compute a correlation matrix, fit a multiple regression, and interpret the coefficients in plain English comments.</p>
+      <textarea class="code-editor" id="editor2">set.seed(7)
+n &lt;- 100
+study_hours &lt;- runif(n, 2, 10)
+sleep_hours &lt;- runif(n, 4, 9)
+exam_score  &lt;- pmin(pmax(
+  40 + 4 * study_hours + 2 * sleep_hours + rnorm(n, 0, 8),
+  0), 100)
+students &lt;- data.frame(study_hours, sleep_hours, exam_score)
+
+# 1. Correlation matrix
+cat("Correlation matrix:\n")
+print(round(cor(students), 3))
+
+# 2. Multiple regression
+model &lt;- lm(exam_score ~ study_hours + sleep_hours, data = students)
+cat("\nModel summary:\n")
+print(summary(model))
+
+# 3. Your plain-English interpretation (write comments):
+# The study_hours coefficient is ___: each additional study hour increases score by ___ points.
+# The sleep_hours coefficient is ___: ...
+# R-squared = ___: the model explains ___% of variance in exam scores.
+</textarea>
+      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>cor(df)</code> computes pairwise correlations for all numeric columns. In <code>summary(model)</code>, look at the <code>Estimate</code> column for coefficients and <code>Pr(&gt;|t|)</code> for p-values. Stars (*) indicate significance levels.</div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Coin Flip Simulation &amp; False Positives</h3>
+      <p>Simulate coin flipping to understand false positive rates: (1) flip a fair coin 30 times using <code>rbinom(30, 1, 0.5)</code> and test for fairness with <code>binom.test()</code>, (2) repeat this 100 times, and (3) report the percentage of trials where p &lt; 0.05 even though the coin is fair.</p>
+      <textarea class="code-editor" id="editor3">set.seed(42)
+
+# Single trial: flip 30 times, test for fairness
+flips &lt;- rbinom(30, 1, 0.5)
+result &lt;- binom.test(sum(flips), 30, p = 0.5)
+cat("Single trial: heads =", sum(flips), ", p-value =", round(result$p.value, 4), "\n")
+
+# Simulation: repeat 100 times
+n_trials &lt;- 100
+p_values &lt;- numeric(n_trials)
+for (i in 1:n_trials) {
+  flips_i    &lt;- rbinom(30, 1, 0.5)
+  test_i     &lt;- binom.test(sum(flips_i), 30, p = 0.5)
+  p_values[i] &lt;- test_i$p.value
+}
+
+false_positives &lt;- sum(p_values &lt; 0.05)
+cat("\nOut of", n_trials, "trials with a FAIR coin:\n")
+cat("  False positives (p&lt;0.05):", false_positives, "\n")
+cat("  False positive rate:", round(false_positives / n_trials * 100, 1), "%\n")
+cat("\n(Expected ~5% by definition of p=0.05)\n")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> This demonstrates the <strong>Type I error rate</strong>. At a significance level of 0.05, about 5% of tests on truly null effects will appear &ldquo;significant&rdquo; by chance alone. This is why multiple testing correction matters!</div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Salary Analysis</span>
+      <h3>Department Salary Study</h3>
+      <p>Analyze a simulated salary dataset: compute overall and by-department stats, run a t-test between two departments, fit a regression of salary on years of experience, and write a plain-English summary using <code>cat()</code>.</p>
+      <textarea class="code-editor" id="editor4" style="min-height:320px;">set.seed(2024)
+n &lt;- 60
+salary_data &lt;- data.frame(
+  dept            = rep(c("Engineering","Marketing","HR"), each=20),
+  years_exp       = round(runif(n, 1, 15)),
+  salary          = c(
+    round(rnorm(20, 95000, 12000)),
+    round(rnorm(20, 72000, 9000)),
+    round(rnorm(20, 65000, 8000))
+  )
+)
+
+# 1. Overall summary stats
+cat("=== Overall Salary Stats ===\n")
+cat("Mean:", round(mean(salary_data$salary)), "\n")
+cat("Median:", round(median(salary_data$salary)), "\n")
+cat("SD:", round(sd(salary_data$salary)), "\n\n")
+
+# 2. By-department breakdown
+cat("=== By Department ===\n")
+dept_stats &lt;- tapply(salary_data$salary, salary_data$dept, function(x)
+  c(mean=round(mean(x)), sd=round(sd(x)), n=length(x)))
+for (dept in names(dept_stats)) {
+  cat(dept, "- mean:", dept_stats[[dept]]["mean"],
+      "  sd:", dept_stats[[dept]]["sd"], "\n")
+}
+
+# 3. t-test: Engineering vs Marketing
+eng &lt;- salary_data$salary[salary_data$dept == "Engineering"]
+mkt &lt;- salary_data$salary[salary_data$dept == "Marketing"]
+ttest &lt;- t.test(eng, mkt)
+cat("\nt-test (Eng vs Marketing): p =", round(ttest$p.value, 4), "\n")
+
+# 4. Regression: salary ~ years_experience
+model &lt;- lm(salary ~ years_exp, data = salary_data)
+cat("\nRegression salary ~ years_exp:\n")
+cat("  Slope:", round(coef(model)[2]), "per year\n")
+cat("  R-squared:", round(summary(model)$r.squared, 3), "\n")
+
+# 5. Plain-English summary
+cat("\n=== Summary ===\n")
+cat("The average salary across all departments is $",
+    format(round(mean(salary_data$salary)), big.mark=","), ".\n", sep="")
+cat("Engineering earns significantly more than Marketing (p =",
+    round(ttest$p.value, 3), ").\n")
+cat("Each additional year of experience adds approximately $",
+    round(coef(model)[2]), "in salary.\n", sep="")</textarea>
+      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
+      <div id="output4" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>tapply(salary, dept, function(x) ...)</code> applies a function to salary values grouped by department. The result is a list &mdash; access elements with <code>dept_stats[["Engineering"]]</code>.</div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 7 Complete!</h2>
+      <p>You&rsquo;ve run t-tests, fitted regression models, interpreted R&sup2; and p-values, and understood simulation-based false positive rates. These are the statistical foundations of evidence-based analysis.</p>
+      <p style="margin-bottom:0"><a href="../lab-08/index.html">Continue to Lab 8: Tidyr &amp; Data Reshaping &rarr;</a></p>
+        <div style="margin-top:1.5rem">
+        <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+            Mark Complete
+        </button>
+        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
+    </div>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: ggplot2</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span>
+      <a href="../lab-08/index.html" class="nav-next">Lab 8: Tidyr &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">R Practice Labs &mdash; Lab 7: Statistical Analysis</p>
+  </footer>
+<script>
+// Progress tracking via localStorage
+const LAB_ID = 'r-lab-07';
+
+function isComplete() {
+    return localStorage.getItem(LAB_ID) === 'complete';
+}
+
+function markComplete() {
+    localStorage.setItem(LAB_ID, 'complete');
+    updateCompleteBtn();
+}
+
+function markIncomplete() {
+    localStorage.removeItem(LAB_ID);
+    updateCompleteBtn();
+}
+
+function updateCompleteBtn() {
+    const btn = document.getElementById('complete-btn');
+    const status = document.getElementById('complete-status');
+    if (!btn) return;
+    if (isComplete()) {
+        btn.textContent = '✓ Completed!';
+        btn.style.background = '#2E7D32';
+        btn.onclick = markIncomplete;
+        if (status) status.textContent = 'Click to mark incomplete';
+    } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+        btn.onclick = markComplete;
+        if (status) status.textContent = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+</script>
+</body>
+</html>
