@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Hub — Money, Values & You | Financial Literacy</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .course-hero {
+      background: linear-gradient(135deg, #7B5E00 0%, #B8860B 50%, #DAA520 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .course-hero .breadcrumb { font-size: 0.82rem; opacity: 0.8; margin-bottom: 0.75rem; }
+    .course-hero .breadcrumb a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .course-hero .breadcrumb a:hover { color: white; }
+    .course-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.4rem; }
+    .course-hero p { opacity: 0.92; font-size: 1.05rem; max-width: 700px; margin-bottom: 1.25rem; }
+    .hero-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .stat-num { font-size: 1.8rem; font-weight: 900; display: block; }
+    .hero-stat .stat-label { font-size: 0.78rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Section headers */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #7B5E00;
+      border-bottom: 3px solid #DAA520;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Session cards */
+    .session-card {
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      background: white;
+      transition: box-shadow 0.2s;
+    }
+    .session-card:hover { box-shadow: var(--shadow-lg); }
+
+    .session-card-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .session-num {
+      background: #7B5E00;
+      color: white;
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .session-card-header h3 { margin: 0 0 0.15rem; font-size: 1.1rem; }
+    .session-card-header p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+    .session-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-pill {
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .status-full { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .status-soon { background: #F5F5F5; color: #9E9E9E; border: 1px solid #E0E0E0; }
+
+    /* Materials grid inside each session card */
+    .materials-grid {
+      padding: 1rem 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .material-card {
+      background: #FAFAFA;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    .material-card:hover { border-color: #DAA520; background: #FFF8E1; text-decoration: none; box-shadow: var(--shadow-sm); }
+    .material-card.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    .material-icon { font-size: 1.5rem; }
+    .material-label { font-weight: 700; font-size: 0.88rem; color: #333; }
+    .material-desc { font-size: 0.75rem; color: var(--text-secondary); }
+    .material-tag {
+      display: inline-block;
+      margin-top: 0.3rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .tag-instructor { background: #1A237E; color: white; }
+    .tag-student { background: #E3F2FD; color: #0D47A1; }
+    .tag-family { background: #FCE4EC; color: #C62828; }
+    .tag-download { background: #E8F5E9; color: #2E7D32; }
+
+    /* Coming soon overlay */
+    .session-coming-soon {
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .session-coming-soon .cs-actions { display: flex; gap: 0.75rem; justify-content: center; margin-top: 0.75rem; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 0.35rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 2px solid;
+      transition: all 0.2s;
+    }
+    .btn-gold { background: #7B5E00; color: white; border-color: #7B5E00; }
+    .btn-gold:hover { background: #5c4700; text-decoration: none; }
+    .btn-ghost { background: white; color: #7B5E00; border-color: #DAA520; }
+    .btn-ghost:hover { background: #FFF8E1; text-decoration: none; }
+
+    /* Tips box */
+    .tips-box {
+      background: #FFF8E1;
+      border: 2px solid #F9A825;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .tips-box h3 { margin: 0 0 0.75rem; color: #7B5E00; font-size: 1rem; }
+    .tips-box ul { padding-left: 1.25rem; margin: 0; }
+    .tips-box li { font-size: 0.9rem; margin-bottom: 0.4rem; line-height: 1.5; }
+
+    /* Print download strip */
+    .download-strip {
+      background: #E8F5E9;
+      border: 2px solid #A5D6A7;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .download-strip .ds-icon { font-size: 1.8rem; }
+    .download-strip .ds-text h4 { margin: 0 0 0.15rem; font-size: 0.95rem; color: #1B5E20; }
+    .download-strip .ds-text p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .download-strip .ds-actions { margin-left: auto; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero -->
+    <div class="course-hero">
+      <div class="breadcrumb">
+        <a href="../index.html">← Instructor Resources</a> / Money, Values & You
+      </div>
+      <h1>💰 Money, Values & You</h1>
+      <p>Instructor hub for the financial literacy course for 6th graders. Every session's teaching materials in one place — cheat sheets, slides, lesson guides, quizzes, and family resources.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-num">8</span>
+          <span class="stat-label">Sessions</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">32</span>
+          <span class="stat-label">Lessons</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">8</span>
+          <span class="stat-label">Quizzes</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">8</span>
+          <span class="stat-label">Family Guides</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">11–12</span>
+          <span class="stat-label">Target Age</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick download strip for Session 1 -->
+    <div class="download-strip">
+      <div class="ds-icon">📦</div>
+      <div class="ds-text">
+        <h4>Session 1 Instructor Pack — Ready to Use!</h4>
+        <p>Cheat sheet, HTML slides, and PowerPoint all available for Session 1.</p>
+      </div>
+      <div class="ds-actions">
+        <a href="../../learn/financial-literacy/session-01/teacher-cheatsheet.html" class="btn-sm btn-gold" target="_blank">🖨️ Print Cheat Sheet</a>
+        <a href="../../learn/financial-literacy/session-01/slides-day1.html" class="btn-sm btn-ghost" target="_blank">📺 Open Slides</a>
+        <a href="../../learn/financial-literacy/session-01/Session1-WhatIsMoney.pptx" class="btn-sm btn-ghost" download>⬇️ Download PPTX</a>
+      </div>
+    </div>
+
+    <!-- ND Tips -->
+    <div class="tips-box">
+      <h3>🧠 Teaching This Course to ND Students (Ages 11–12)</h3>
+      <ul>
+        <li><strong>Show the agenda first every session</strong> — predictability reduces anxiety. Use the slide deck opener every time.</li>
+        <li><strong>One concept per chunk</strong> — each lesson is ~30 min. Don't rush. Let concepts breathe before moving on.</li>
+        <li><strong>Hands-on before abstract</strong> — the barter simulation precedes the definition of money for a reason. Experience first, label it second.</li>
+        <li><strong>Journal time is sacred</strong> — protect the quiet writing window. It's a processing break, not an assignment.</li>
+        <li><strong>Celebrate "wrong" answers</strong> — 11-year-olds will say "to buy stuff." That's a great starting point, not a wrong answer.</li>
+        <li><strong>Warn before transitions</strong> — "In 2 minutes we're switching to the activity." Abrupt changes disrupt focus.</li>
+        <li><strong>Movement = reset</strong> — the barter simulation is also a sensory and movement break. Build in physical activity every session.</li>
+      </ul>
+    </div>
+
+    <!-- All 8 sessions -->
+    <div class="section-title">📚 All Sessions</div>
+
+    <!-- SESSION 1 — Full pack -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">1</div>
+        <div>
+          <h3>What Is Money — and What Is It For?</h3>
+          <p>Barter, double coincidence of wants, money as shared agreement, money as a tool</p>
+        </div>
+        <div class="session-status">
+          <span class="status-pill status-full">✅ Full Instructor Pack</span>
+        </div>
+      </div>
+      <div class="materials-grid">
+        <a href="../../learn/financial-literacy/session-01/teacher-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">90-min agenda, discussion Qs, barter sim setup, ND tips</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/slides-day1.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">HTML Slide Deck</div>
+          <div class="material-desc">15 slides, keyboard navigation, fullscreen mode</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/Session1-WhatIsMoney.pptx" class="material-card" download>
+          <div class="material-icon">📊</div>
+          <div class="material-label">PowerPoint Deck</div>
+          <div class="material-desc">Fully editable .pptx — export to video or customize</div>
+          <span class="material-tag tag-download">Download</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Learning objectives, 4 lessons, progress tracker</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/lesson-01-origins-of-money.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Lesson 1: Origins of Money</div>
+          <div class="material-desc">Barter, double coincidence of wants, invention of money</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/lesson-02-what-gives-money-value.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Lesson 2: What Gives Money Value?</div>
+          <div class="material-desc">Shared trust, why paper money works</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/lesson-03-money-as-a-tool.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Lesson 3: Money as a Tool</div>
+          <div class="material-desc">Tool vs. goal, values and money</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/lesson-04-amana-stewardship.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Lesson 4: Amana — Stewardship</div>
+          <div class="material-desc">Islamic concept of wealth as a trust</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/practice.html" class="material-card" target="_blank">
+          <div class="material-icon">🎮</div>
+          <div class="material-label">Practice Activities</div>
+          <div class="material-desc">6 activities incl. barter simulation</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/study-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">📚</div>
+          <div class="material-label">Study Guide</div>
+          <div class="material-desc">Vocabulary, key ideas, review questions</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../learn/financial-literacy/session-01/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Tips for parents — continue the conversation at home</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- SESSIONS 2–8 — Coming soon for instructor materials -->
+    <!-- Helper macro: sessions 2-8 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">2</div>
+        <div>
+          <h3>Needs vs. Wants</h3>
+          <p>Opportunity cost, advertising, Israf (wastefulness), Qasad (moderation)</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-02/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 2 Student Page</a>
+          <a href="../../learn/financial-literacy/session-02/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-02/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">3</div>
+        <div>
+          <h3>Budgeting Basics</h3>
+          <p>Income vs. expenses, budget categories, Sadaqah as a budget line</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-03/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 3 Student Page</a>
+          <a href="../../learn/financial-literacy/session-03/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-03/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">4</div>
+        <div>
+          <h3>Saving & Goals</h3>
+          <p>Why saving matters, emergency funds, math of saving, save before you buy</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-04/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 4 Student Page</a>
+          <a href="../../learn/financial-literacy/session-04/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-04/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">5</div>
+        <div>
+          <h3>Banking Basics</h3>
+          <p>How banks work, Riba (interest), Islamic banking alternatives, credit unions</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-05/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 5 Student Page</a>
+          <a href="../../learn/financial-literacy/session-05/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-05/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">6</div>
+        <div>
+          <h3>Smart Spending</h3>
+          <p>Unit pricing, comparison shopping, price vs. value, halal consumption, Shukr</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-06/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 6 Student Page</a>
+          <a href="../../learn/financial-literacy/session-06/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-06/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">7</div>
+        <div>
+          <h3>Investing & Growing Money</h3>
+          <p>Ownership vs. lending, risk vs. reward, halal investing, sukuk</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-07/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 7 Student Page</a>
+          <a href="../../learn/financial-literacy/session-07/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-07/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">8</div>
+        <div>
+          <h3>Giving & Putting It All Together</h3>
+          <p>Zakat, Sadaqah, Barakah, personal financial plan — course capstone</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-soon">Instructor Pack Coming Soon</span></div>
+      </div>
+      <div class="session-coming-soon">
+        Student materials are ready. Instructor cheat sheet and slides coming soon.
+        <div class="cs-actions">
+          <a href="../../learn/financial-literacy/session-08/index.html" class="btn-sm btn-ghost" target="_blank">📖 Session 8 Student Page</a>
+          <a href="../../learn/financial-literacy/session-08/quiz.html" class="btn-sm btn-ghost" target="_blank">📝 Quiz</a>
+          <a href="../../learn/financial-literacy/session-08/family-guide.html" class="btn-sm btn-ghost" target="_blank">👨‍👩‍👧 Family Guide</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </nav>
+    <p>© 2026 Safaa Dabagh. All rights reserved.</p>
+    <p>Money, Values & You — Financial Literacy Course</p>
+  </footer>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

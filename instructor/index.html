@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Resources — Safaa Dabagh</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .instructor-hero {
+      background: linear-gradient(135deg, #1A237E 0%, #283593 50%, #3949AB 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+    }
+    .instructor-hero h1 { color: white; font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .instructor-hero p { opacity: 0.9; font-size: 1.1rem; max-width: 650px; margin: 0 auto 1.5rem; }
+    .hero-badges { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .hero-badge {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Info callout */
+    .info-callout {
+      background: #E3F2FD;
+      border: 2px solid #1565C0;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .info-callout .icon { font-size: 1.5rem; flex-shrink: 0; }
+    .info-callout p { margin: 0; font-size: 0.95rem; color: #1a1a1a; }
+    .info-callout strong { color: #0D47A1; }
+
+    /* Course cards */
+    .course-section { margin-bottom: 3rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--border-color);
+    }
+    .section-header h2 { margin: 0; font-size: 1.4rem; }
+    .section-badge {
+      background: #1A237E;
+      color: white;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .instructor-course-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.2s;
+    }
+    .instructor-course-card:hover { box-shadow: var(--shadow-lg); }
+
+    .course-card-header {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .course-card-header .course-icon { font-size: 2.2rem; }
+    .course-card-header h3 { margin: 0 0 0.2rem; font-size: 1.2rem; }
+    .course-card-header p { margin: 0; font-size: 0.88rem; color: var(--text-secondary); }
+    .course-card-header .course-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+    .meta-pill {
+      background: #f0f0f0;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #555;
+    }
+    .card-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn-course { padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; text-decoration: none; border: 2px solid; transition: all 0.2s; }
+    .btn-view { background: #1A237E; color: white; border-color: #1A237E; }
+    .btn-view:hover { background: #0D47A1; text-decoration: none; }
+    .btn-outline { background: white; color: #1A237E; border-color: #1A237E; }
+    .btn-outline:hover { background: #E8EAF6; text-decoration: none; }
+
+    /* Sessions grid inside card */
+    .sessions-preview {
+      padding: 0 1.5rem 1.25rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.6rem;
+    }
+    .session-pill {
+      background: #f8f8f8;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.82rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .session-pill .s-name { font-weight: 600; color: #333; }
+    .session-pill .s-status {
+      font-size: 0.7rem;
+      border-radius: 20px;
+      padding: 2px 6px;
+      font-weight: 700;
+    }
+    .status-full { background: #E8F5E9; color: #2E7D32; }
+    .status-partial { background: #FFF8E1; color: #F57F17; }
+    .status-soon { background: #F5F5F5; color: #9E9E9E; }
+
+    /* Coming soon cards */
+    .coming-soon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .coming-soon-card {
+      background: #FAFAFA;
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    .coming-soon-card .cs-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .coming-soon-card h4 { margin: 0 0 0.25rem; color: #555; font-size: 1rem; }
+    .coming-soon-card p { font-size: 0.82rem; margin: 0; }
+
+    /* Quick links */
+    .quick-links {
+      background: #F3E5F5;
+      border: 2px solid #CE93D8;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .quick-links h3 { margin: 0 0 1rem; color: #4A148C; font-size: 1rem; }
+    .quick-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.6rem;
+    }
+    .quick-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: 1px solid #CE93D8;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      text-decoration: none;
+      color: #4A148C;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .quick-link-btn:hover { background: #F3E5F5; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../about.html">About</a>
+      <a href="../student-resources.html">Student Resources</a>
+      <a href="../young-learners.html">Young Learners</a>
+      <a href="../free-courses.html">Free Courses</a>
+      <a href="../research.html">Research</a>
+      <a href="../books.html">Books</a>
+      <a href="../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero -->
+    <div class="instructor-hero">
+      <div style="font-size:0.85rem;opacity:0.75;text-transform:uppercase;letter-spacing:2px;margin-bottom:0.5rem;">Instructor Portal</div>
+      <h1>📚 Instructor Resources</h1>
+      <p>Lesson plans, slide decks, cheat sheets, and teaching guides — everything you need to deliver these courses with confidence.</p>
+      <div class="hero-badges">
+        <span class="hero-badge">🎯 Session Plans</span>
+        <span class="hero-badge">📋 Cheat Sheets</span>
+        <span class="hero-badge">📺 Slide Decks</span>
+        <span class="hero-badge">🧠 ND-Friendly Tips</span>
+        <span class="hero-badge">👨‍👩‍👧 Family Guides</span>
+        <span class="hero-badge">📝 Quizzes</span>
+      </div>
+    </div>
+
+    <!-- Info callout -->
+    <div class="info-callout">
+      <div class="icon">💡</div>
+      <p>All materials are <strong>free to use and adapt</strong>. Each course has student-facing content (lessons, practice, quizzes) plus instructor-specific materials (cheat sheets, slides, teaching notes). New instructor packs are added regularly — check back before each session!</p>
+    </div>
+
+    <!-- Quick links -->
+    <div class="quick-links">
+      <h3>⚡ Quick Jump</h3>
+      <div class="quick-links-grid">
+        <a href="financial-literacy/index.html" class="quick-link-btn">💰 Financial Literacy</a>
+        <a href="../learn/research-methods/index.html" class="quick-link-btn">🔬 Research Methods</a>
+        <a href="../learn/writing-with-ai/index.html" class="quick-link-btn">✍️ Writing with AI</a>
+        <a href="../learn/stats-with-r/index.html" class="quick-link-btn">📊 Statistics with R</a>
+        <a href="../learn/ml-basics/index.html" class="quick-link-btn">🤖 Machine Learning</a>
+        <a href="../learn/sheets/index.html" class="quick-link-btn">📋 Google Sheets</a>
+      </div>
+    </div>
+
+    <!-- Financial Literacy — FULL instructor pack -->
+    <div class="course-section">
+      <div class="section-header">
+        <span style="font-size:1.8rem;">💰</span>
+        <h2>Money, Values & You — Financial Literacy</h2>
+        <span class="section-badge">Instructor Pack Available</span>
+      </div>
+
+      <div class="instructor-course-card">
+        <div class="course-card-header">
+          <div class="course-icon">💰</div>
+          <div>
+            <h3>Money, Values & You</h3>
+            <p>A financial literacy course for 6th graders with Islamic finance integration</p>
+            <div class="course-meta">
+              <span class="meta-pill">Ages 11–12</span>
+              <span class="meta-pill">8 Sessions</span>
+              <span class="meta-pill">Once a Week</span>
+              <span class="meta-pill">Activity-Based</span>
+              <span class="meta-pill">ND-Friendly</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <a href="financial-literacy/index.html" class="btn-course btn-view">📂 Full Instructor Hub</a>
+            <a href="../learn/financial-literacy/index.html" class="btn-course btn-outline">👁️ Student View</a>
+          </div>
+        </div>
+
+        <!-- Session status grid -->
+        <div class="sessions-preview">
+          <div class="session-pill">
+            <span class="s-name">Session 1: What Is Money?</span>
+            <span class="s-status status-full">Full Pack ✅</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 2: Needs vs. Wants</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 3: Budgeting</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 4: Saving & Goals</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 5: Banking Basics</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 6: Smart Spending</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 7: Investing</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+          <div class="session-pill">
+            <span class="s-name">Session 8: Giving & Wrap Up</span>
+            <span class="s-status status-soon">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other courses — coming soon -->
+    <div class="course-section">
+      <div class="section-header">
+        <span style="font-size:1.8rem;">🔜</span>
+        <h2>More Instructor Packs — Coming Soon</h2>
+      </div>
+      <div class="coming-soon-grid">
+        <div class="coming-soon-card">
+          <span class="cs-icon">🔬</span>
+          <h4>Research Methods</h4>
+          <p>8-module college-level course</p>
+        </div>
+        <div class="coming-soon-card">
+          <span class="cs-icon">✍️</span>
+          <h4>Academic Writing with AI</h4>
+          <p>Ethics-first, 8 modules</p>
+        </div>
+        <div class="coming-soon-card">
+          <span class="cs-icon">📊</span>
+          <h4>Statistics with R</h4>
+          <p>8 modules, live R code</p>
+        </div>
+        <div class="coming-soon-card">
+          <span class="cs-icon">🤖</span>
+          <h4>Machine Learning Basics</h4>
+          <p>8 modules, scikit-learn</p>
+        </div>
+        <div class="coming-soon-card">
+          <span class="cs-icon">📋</span>
+          <h4>Excel & Google Sheets</h4>
+          <p>8 modules, practical skills</p>
+        </div>
+        <div class="coming-soon-card">
+          <span class="cs-icon">🐍</span>
+          <h4>Introduction to Python</h4>
+          <p>Beginner programming</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../about.html">About</a>
+      <a href="../student-resources.html">Student Resources</a>
+      <a href="../young-learners.html">Young Learners</a>
+      <a href="../free-courses.html">Free Courses</a>
+      <a href="../research.html">Research</a>
+      <a href="../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </nav>
+    <p>© 2026 Safaa Dabagh. All rights reserved.</p>
+    <p>Santa Monica College · West Los Angeles College · UCLA Statistics PhD Candidate</p>
+  </footer>
+  <script src="../accessibility.js"></script>
+</body>
+</html>
