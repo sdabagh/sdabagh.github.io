@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 10: Capstone Mini Data Analysis Project — Python Practice Labs. Apply everything: pandas, matplotlib, data analysis, and visualization.">
+  <title>Lab 10: Capstone Project - Python Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
+    .nav-next{background:#1565C0;color:white}
+    .nav-next:hover{background:#0D47A1;text-decoration:none}
+    .pyodide-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#1565C0}
+    .run-btn{background:#2E7D32;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#1B5E20}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#a5d6a7;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .plot-output{margin-top:0.75rem;}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#a5d6a7;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#1a237e 0%,#1565C0 60%,#2E7D32 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+    .loading-note{background:#E8F5E9;border:2px solid #2E7D32;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.9rem;color:#1B5E20}
+    .scenario-box{background:#FFF8E1;border:2px solid #F9A825;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .scenario-box h3{color:#E65100;margin-top:0}
+    .question-list{list-style:none;padding:0;counter-reset:q-counter}
+    .question-list li{counter-increment:q-counter;padding:0.75rem 0 0.75rem 3rem;position:relative;border-bottom:1px solid #e0e0e0;font-size:0.95rem}
+    .question-list li:last-child{border-bottom:none}
+    .question-list li::before{content:counter(q-counter);position:absolute;left:0;top:0.7rem;background:#1565C0;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem}
+    .capstone-editor{width:100%;min-height:500px;font-family:monospace;font-size:0.875rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .capstone-editor:focus{outline:none;border-color:#1565C0}
+    details{background:var(--background-alt);border:2px solid var(--border-color);border-radius:12px;margin-top:2rem;overflow:hidden}
+    details summary{padding:1rem 1.5rem;cursor:pointer;font-weight:700;color:#1565C0;font-size:1rem;list-style:none;display:flex;align-items:center;gap:0.5rem}
+    details summary::before{content:'▶';font-size:0.8rem;transition:transform 0.2s}
+    details[open] summary::before{transform:rotate(90deg)}
+    details .solution-content{padding:1.5rem;border-top:2px solid var(--border-color)}
+    .solution-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.82rem;padding:1.25rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 10 of 10 &mdash; Capstone</div>
+      <h1>Mini Data Analysis Project</h1>
+      <p>Put everything together &mdash; this is what analysts actually do</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-09/index.html" class="nav-prev">&larr; Lab 9: Visualization</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 10 of 10</span>
+      <a href="../index.html" class="nav-next">Lab Home &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python + pandas + matplotlib... (this may take 15&ndash;20 seconds)</div>
+
+    <div class="loading-note">&#x1F4E6; <strong>This lab loads pandas, numpy, and matplotlib</strong> &mdash; allow extra time on first load.</div>
+
+    <!-- INTRODUCTION -->
+    <div class="concept-recap">
+      <h2>&#x1F4CB; What This Lab Is</h2>
+      <p>This is not a lab with exercises and fill-in-the-blanks. <strong>This is a real mini analysis project.</strong></p>
+      <p>You will use everything you&rsquo;ve learned: data structures, functions, pandas, and matplotlib. The scenario: you&rsquo;re a data analyst at a retail company. Your manager wants answers to <strong>5 business questions</strong> from this quarter&rsquo;s sales data.</p>
+      <p style="margin-bottom:0">Your job: write the code, analyze the data, and present your findings. There is starter code below to help you get started. A full sample solution is available collapsed at the bottom &mdash; try it yourself first!</p>
+    </div>
+
+    <!-- THE SCENARIO -->
+    <div class="scenario-box">
+      <h3>&#x1F3E2; The Scenario</h3>
+      <p>You are a data analyst at RetailCo. It&rsquo;s the end of Q1 2024. Your manager has sent you this message:</p>
+      <blockquote style="border-left:4px solid #F9A825;padding:0.75rem 1rem;margin:1rem 0;font-style:italic;color:#5D4037;">
+        &ldquo;I need a quick Q1 data summary before the board meeting tomorrow. Can you pull together: total revenue and units, category breakdown, salesperson rankings, any weekly pattern, and a dashboard chart? Thanks.&rdquo;
+      </blockquote>
+      <p><strong>The dataset:</strong> 90 days of Q1 sales data with revenue, units, category, region, and salesperson columns. It&rsquo;s already built into the starter code below.</p>
+    </div>
+
+    <!-- THE 5 QUESTIONS -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; 5 Business Questions</span>
+      <h3>Your Tasks</h3>
+      <ul class="question-list">
+        <li><strong>Q1:</strong> What was our <strong>total revenue</strong> and <strong>total units sold</strong> in Q1? What was the average daily revenue?</li>
+        <li><strong>Q2:</strong> Which <strong>category</strong> generated the most revenue? Which had the highest <strong>average order value</strong> (revenue per unit)?</li>
+        <li><strong>Q3:</strong> Who was the <strong>top salesperson</strong>? Show complete rankings for all 5 reps with their total revenue.</li>
+        <li><strong>Q4:</strong> Is there a <strong>weekly pattern</strong> in revenue? Compare the average daily revenue on weekdays (Mon&ndash;Fri) vs. weekends (Sat&ndash;Sun).</li>
+        <li><strong>Q5:</strong> Create a <strong>visualization dashboard</strong> (2&times;2 subplots): daily revenue trend, revenue by category (bar), revenue by salesperson (bar), revenue by region (horizontal bar).</li>
+      </ul>
+    </div>
+
+    <!-- THE MAIN EDITOR -->
+    <div class="exercise-block">
+      <h3>&#x1F4BB; Your Analysis Editor</h3>
+      <p>The starter code includes the dataset and section headers. Fill in each section to answer all 5 questions. Then hit Run to see your results and charts.</p>
+      <textarea class="capstone-editor" id="capstone-editor">
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+# ── The Dataset ────────────────────────────────────────────────
+sales = pd.DataFrame({
+    'Date': pd.date_range('2024-01-01', periods=90, freq='D'),
+    'Revenue': [round(8000 + 2000*abs((i%30)-15)/15 + (i%7)*500 + (i%3)*300, 2) for i in range(90)],
+    'Units':   [int(50 + 20*abs((i%30)-15)/15 + (i%7)*5) for i in range(90)],
+    'Category':    ['Electronics','Clothing','Food']*30,
+    'Region':      ['West','East','South','North','West','East']*15,
+    'Salesperson': ['Alice','Bob','Carol','David','Eve']*18
+})
+
+# ── Q1: Total Revenue & Units ──────────────────────────────────
+print("=" * 45)
+print("Q1: OVERALL TOTALS")
+print("=" * 45)
+# Your code here:
+# - Total revenue (use .sum())
+# - Total units sold
+# - Average daily revenue
+
+
+# ── Q2: Category Analysis ──────────────────────────────────────
+print("\n" + "=" * 45)
+print("Q2: CATEGORY PERFORMANCE")
+print("=" * 45)
+# Your code here:
+# - Revenue by category (groupby + sum)
+# - Average order value = revenue / units per category
+
+
+# ── Q3: Salesperson Rankings ───────────────────────────────────
+print("\n" + "=" * 45)
+print("Q3: SALESPERSON RANKINGS")
+print("=" * 45)
+# Your code here:
+# - Total revenue by salesperson (groupby + sum, sorted)
+# - Print ranked list with rank numbers
+
+
+# ── Q4: Weekly Pattern ─────────────────────────────────────────
+print("\n" + "=" * 45)
+print("Q4: WEEKDAY vs WEEKEND REVENUE")
+print("=" * 45)
+sales['DayOfWeek'] = sales['Date'].dt.dayofweek  # 0=Mon, 6=Sun
+# Hint: sales['IsWeekend'] = sales['DayOfWeek'] >= 5
+# Your code here:
+
+
+# ── Q5: Dashboard ──────────────────────────────────────────────
+fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+fig.suptitle('Q1 2024 Sales Dashboard', fontsize=16, fontweight='bold')
+
+# Top-left: Daily revenue trend
+ax1 = axes[0, 0]
+# Your plot here
+
+# Top-right: Revenue by category
+ax2 = axes[0, 1]
+# Your plot here
+
+# Bottom-left: Revenue by salesperson
+ax3 = axes[1, 0]
+# Your plot here
+
+# Bottom-right: Revenue by region (horizontal bar)
+ax4 = axes[1, 1]
+# Your plot here
+
+plt.tight_layout()
+plt.show()
+</textarea>
+      <button class="run-btn" id="capstone-run" onclick="runCodeWithPlot('capstone-editor','capstone-output','capstone-plot')" disabled>&#x25B6; Run My Analysis</button>
+      <div id="capstone-output" class="code-output">Output will appear here...</div>
+      <div id="capstone-plot" class="plot-output"></div>
+    </div>
+
+    <!-- SAMPLE SOLUTION (collapsed by default) -->
+    <details>
+      <summary>&#x1F511; Sample Solution (try it yourself first!)</summary>
+      <div class="solution-content">
+        <p style="color:var(--text-secondary);margin-bottom:1rem;">This is one complete working solution. Your approach may differ &mdash; that&rsquo;s fine! There&rsquo;s no single right answer.</p>
+        <div class="solution-code">import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+sales = pd.DataFrame({
+    'Date': pd.date_range('2024-01-01', periods=90, freq='D'),
+    'Revenue': [round(8000 + 2000*abs((i%30)-15)/15 + (i%7)*500 + (i%3)*300, 2) for i in range(90)],
+    'Units':   [int(50 + 20*abs((i%30)-15)/15 + (i%7)*5) for i in range(90)],
+    'Category':    ['Electronics','Clothing','Food']*30,
+    'Region':      ['West','East','South','North','West','East']*15,
+    'Salesperson': ['Alice','Bob','Carol','David','Eve']*18
+})
+
+# ── Q1 ──────────────────────────────────────────────────
+print("=" * 45)
+print("Q1: OVERALL TOTALS")
+print("=" * 45)
+total_rev = sales['Revenue'].sum()
+total_units = sales['Units'].sum()
+avg_daily = sales['Revenue'].mean()
+print(f"Total Revenue:      ${total_rev:,.2f}")
+print(f"Total Units Sold:   {total_units:,}")
+print(f"Avg Daily Revenue:  ${avg_daily:,.2f}")
+
+# ── Q2 ──────────────────────────────────────────────────
+print("\n" + "=" * 45)
+print("Q2: CATEGORY PERFORMANCE")
+print("=" * 45)
+cat_rev = sales.groupby('Category')['Revenue'].sum().sort_values(ascending=False)
+cat_units = sales.groupby('Category')['Units'].sum()
+cat_aov = (sales.groupby('Category')['Revenue'].sum() /
+           sales.groupby('Category')['Units'].sum()).round(2)
+print("Revenue by Category:")
+for cat, rev in cat_rev.items():
+    print(f"  {cat:<15} ${rev:>10,.2f}   AOV: ${cat_aov[cat]:.2f}/unit")
+print(f"\nTop category:  {cat_rev.idxmax()}")
+print(f"Highest AOV:   {cat_aov.idxmax()} (${cat_aov.max():.2f}/unit)")
+
+# ── Q3 ──────────────────────────────────────────────────
+print("\n" + "=" * 45)
+print("Q3: SALESPERSON RANKINGS")
+print("=" * 45)
+rep_rev = sales.groupby('Salesperson')['Revenue'].sum().sort_values(ascending=False)
+for rank, (rep, rev) in enumerate(rep_rev.items(), 1):
+    marker = " ← TOP PERFORMER" if rank == 1 else ""
+    print(f"  #{rank}  {rep:<8} ${rev:>10,.2f}{marker}")
+
+# ── Q4 ──────────────────────────────────────────────────
+print("\n" + "=" * 45)
+print("Q4: WEEKDAY vs WEEKEND REVENUE")
+print("=" * 45)
+sales['DayOfWeek'] = sales['Date'].dt.dayofweek
+sales['IsWeekend'] = sales['DayOfWeek'] >= 5
+weekday_avg = sales[sales['IsWeekend'] == False]['Revenue'].mean()
+weekend_avg = sales[sales['IsWeekend'] == True]['Revenue'].mean()
+diff = weekend_avg - weekday_avg
+print(f"Weekday avg revenue:  ${weekday_avg:,.2f}")
+print(f"Weekend avg revenue:  ${weekend_avg:,.2f}")
+print(f"Difference:           ${diff:+,.2f} ({'weekends higher' if diff > 0 else 'weekdays higher'})")
+
+# ── Q5: Dashboard ────────────────────────────────────────
+fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+fig.suptitle('Q1 2024 Sales Dashboard', fontsize=16, fontweight='bold')
+
+# Daily trend
+ax1 = axes[0, 0]
+ax1.plot(range(90), sales['Revenue'], color='#1565C0', linewidth=1.5, alpha=0.8)
+ax1.fill_between(range(90), sales['Revenue'], alpha=0.15, color='#1565C0')
+ax1.set_title('Daily Revenue Trend', fontweight='bold')
+ax1.set_xlabel('Day of Q1')
+ax1.set_ylabel('Revenue ($)')
+ax1.grid(True, alpha=0.3)
+
+# Revenue by category
+ax2 = axes[0, 1]
+cat_rev_sorted = cat_rev.sort_values()
+colors_cat = ['#E65100', '#2E7D32', '#1565C0']
+ax2.bar(cat_rev_sorted.index, cat_rev_sorted.values, color=colors_cat)
+ax2.set_title('Revenue by Category', fontweight='bold')
+ax2.set_ylabel('Total Revenue ($)')
+for i, (cat, val) in enumerate(cat_rev_sorted.items()):
+    ax2.text(i, val + 500, f'${val/1000:.0f}K', ha='center', fontsize=9)
+
+# Revenue by salesperson
+ax3 = axes[1, 0]
+rep_rev_sorted = rep_rev.sort_values()
+ax3.bar(rep_rev_sorted.index, rep_rev_sorted.values, color='#6A1B9A')
+ax3.set_title('Revenue by Salesperson', fontweight='bold')
+ax3.set_ylabel('Total Revenue ($)')
+for i, (rep, val) in enumerate(rep_rev_sorted.items()):
+    ax3.text(i, val + 200, f'${val/1000:.0f}K', ha='center', fontsize=9)
+
+# Revenue by region (horizontal bar)
+ax4 = axes[1, 1]
+region_rev = sales.groupby('Region')['Revenue'].sum().sort_values()
+ax4.barh(region_rev.index, region_rev.values, color='#00695C')
+ax4.set_title('Revenue by Region', fontweight='bold')
+ax4.set_xlabel('Total Revenue ($)')
+for i, (reg, val) in enumerate(region_rev.items()):
+    ax4.text(val + 100, i, f'${val/1000:.0f}K', va='center', fontsize=9)
+
+plt.tight_layout()
+plt.show()</div>
+        <p style="margin-top:1rem;color:var(--text-secondary);font-size:0.9rem;">You can copy this into the editor above and run it to see the full output and dashboard.</p>
+      </div>
+    </details>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete" style="margin-top:2rem">
+      <h2>&#x1F3C6; Capstone Complete &mdash; Labs Finished!</h2>
+      <p>You&rsquo;ve completed all 10 Python Practice Labs! You can now write Python functions, analyze data structures, build pandas pipelines, and create matplotlib visualizations &mdash; the core toolkit of a working data analyst.</p>
+      <p>Keep practicing. The best way to get better is to find real data you care about and start asking questions of it.</p>
+      <p style="margin-bottom:0"><a href="../index.html">&larr; Return to Python Practice Labs Home</a></p>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-09/index.html" class="nav-prev">&larr; Lab 9: Visualization</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 10 of 10</span>
+      <a href="../index.html" class="nav-next">Lab Home &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Python Practice Labs &mdash; Lab 10: Capstone Project</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading Python + pandas + matplotlib... (this may take 15–20 seconds)';
+      pyodide = await loadPyodide();
+      await pyodide.loadPackage(['pandas', 'numpy', 'matplotlib']);
+      if(statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run My Analysis to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+
+    async function runCodeWithPlot(editorId, outputId, plotId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      const plotEl = document.getElementById(plotId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running... (analysis may take a moment)';
+      if(plotEl) plotEl.innerHTML = '';
+      try {
+        const fullCode = `
+import sys, io, base64
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+plt.close('all')
+${code}
+_out = sys.stdout.getvalue()
+_err = sys.stderr.getvalue()
+_figs = [plt.figure(i) for i in plt.get_fignums()]
+_imgs = []
+for _fig in _figs:
+    _buf = io.BytesIO()
+    _fig.savefig(_buf, format='png', bbox_inches='tight', dpi=100)
+    _buf.seek(0)
+    _imgs.append(base64.b64encode(_buf.read()).decode())
+plt.close('all')
+`;
+        pyodide.runPython(fullCode);
+        const out = pyodide.runPython('_out');
+        const err = pyodide.runPython('_err');
+        const imgs = pyodide.runPython('_imgs').toJs();
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully'; }
+        if (plotEl && imgs.length > 0) {
+          imgs.forEach(img => {
+            const imgEl = document.createElement('img');
+            imgEl.src = 'data:image/png;base64,' + img;
+            imgEl.style.maxWidth = '100%';
+            imgEl.style.borderRadius = '8px';
+            imgEl.style.marginTop = '0.5rem';
+            plotEl.appendChild(imgEl);
+          });
+        }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+
+    initPyodide();
+  </script>
+</body>
+</html>

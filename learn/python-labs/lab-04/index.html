@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 4: Functions — Python Practice Labs. Build functions with default parameters, return values, and build a complete unit converter toolkit.">
+  <title>Lab 4: Functions - Python Practice Labs</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+    .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
+    .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
+    .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
+    .nav-next{background:#1565C0;color:white}
+    .nav-next:hover{background:#0D47A1;text-decoration:none}
+    .pyodide-status{background:#FFF8E1;border:2px solid #F9A825;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1.5rem;font-weight:600;font-size:0.95rem}
+    .exercise-block{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:2rem}
+    .exercise-block h3{margin-top:0;color:#1565C0}
+    .exercise-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;margin-bottom:0.75rem}
+    .tag-guided{background:#E3F2FD;color:#1565C0}
+    .tag-independent{background:#E8F5E9;color:#2E7D32}
+    .tag-challenge{background:#FCE4EC;color:#C62828}
+    .tag-project{background:#F3E5F5;color:#6A1B9A}
+    .code-editor{width:100%;min-height:160px;font-family:monospace;font-size:0.9rem;padding:1rem;border:2px solid #e0e0e0;border-radius:8px;background:#1a1a2e;color:#e0e0e0;resize:vertical;box-sizing:border-box;line-height:1.6}
+    .code-editor:focus{outline:none;border-color:#1565C0}
+    .run-btn{background:#2E7D32;color:white;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.75rem;transition:background 0.2s}
+    .run-btn:hover:not(:disabled){background:#1B5E20}
+    .run-btn:disabled{background:#9E9E9E;cursor:not-allowed}
+    .code-output{background:#1a1a2e;color:#a5d6a7;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;margin-top:0.75rem;min-height:48px;white-space:pre-wrap;word-break:break-word}
+    .code-output.error{color:#ef9a9a}
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
+    .concept-recap{background:#E3F2FD;border-left:4px solid #1565C0;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .concept-recap h2{margin-top:0;color:#1565C0;font-size:1.1rem}
+    .worked-example{background:#F3E5F5;border-left:4px solid #6A1B9A;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
+    .worked-example h2{margin-top:0;color:#6A1B9A;font-size:1.1rem}
+    .worked-code{background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;white-space:pre;overflow-x:auto;line-height:1.6}
+    .lab-complete{background:linear-gradient(135deg,#1565C0,#6A1B9A);color:white;padding:2rem;border-radius:12px;text-align:center;margin-top:2rem}
+    .lab-complete h2{color:white;margin-top:0}
+    .lab-complete a{color:#a5d6a7;font-weight:700}
+    .lab-header{background:linear-gradient(135deg,#1a237e 0%,#1565C0 60%,#2E7D32 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+    .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
+    .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a>
+
+    <div class="lab-header">
+      <div class="lab-label">Lab 4 of 10</div>
+      <h1>Functions</h1>
+      <p>Write once, use anywhere</p>
+    </div>
+
+    <div class="lab-nav">
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: Loops</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: Lists &amp; Dicts &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python... (first load takes ~10 seconds)</div>
+
+    <!-- CONCEPT RECAP -->
+    <div class="concept-recap">
+      <h2>&#x1F4D6; Concept Recap</h2>
+      <ul>
+        <li><strong>def</strong> defines a function. <strong>return</strong> sends a value back to the caller.</li>
+        <li><strong>Default parameters</strong> make arguments optional: <code>def greet(name, greeting="Hello")</code></li>
+        <li><strong>Multiple return values:</strong> <code>return a, b</code> returns a tuple &mdash; unpack with <code>x, y = func()</code></li>
+        <li><strong>Good functions do ONE thing</strong> and do it well. Name them with verbs: <code>calculate_total()</code>, <code>format_name()</code>.</li>
+        <li><strong>Docstrings</strong> (optional but good): describe what a function does with a string on the first line inside.</li>
+      </ul>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="worked-example">
+      <h2>&#x1F440; Worked Example</h2>
+      <p>A BMI calculator with default parameters and multiple return values:</p>
+      <div class="worked-code">def calculate_bmi(weight_kg, height_m, unit="metric"):
+    if unit == "imperial":
+        weight_kg = weight_kg * 0.453592
+        height_m = height_m * 0.0254
+    bmi = weight_kg / (height_m ** 2)
+    if bmi &lt; 18.5:
+        category = "Underweight"
+    elif bmi &lt; 25:
+        category = "Normal weight"
+    elif bmi &lt; 30:
+        category = "Overweight"
+    else:
+        category = "Obese"
+    return round(bmi, 1), category
+
+bmi, category = calculate_bmi(70, 1.75)
+print(f"BMI: {bmi} — {category}")
+
+bmi2, cat2 = calculate_bmi(154, 69, unit="imperial")
+print(f"BMI: {bmi2} — {cat2}")</div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
+      <h3>Exercise 1 &mdash; Temperature Converter</h3>
+      <p>Complete the temperature converter by filling in the blanks. The formulas are:</p>
+      <ul>
+        <li>F to C: <code>(F - 32) &times; 5/9</code></li>
+        <li>C to F: <code>C &times; 9/5 + 32</code></li>
+        <li>C to K: <code>C + 273.15</code></li>
+        <li>K to C: <code>K - 273.15</code></li>
+      </ul>
+      <textarea class="code-editor" id="editor1">
+def convert_temperature(value, from_unit, to_unit):
+    # Convert to Celsius first
+    if from_unit == "F":
+        celsius = (value - 32) * ___    # fill in: 5/9
+    elif from_unit == "K":
+        celsius = value - ___           # fill in: 273.15
+    else:
+        celsius = value
+
+    # Convert from Celsius to target unit
+    if to_unit == "F":
+        return celsius * ___ + ___      # fill in: 9/5 and 32
+    elif to_unit == "K":
+        return celsius + ___            # fill in: 273.15
+    else:
+        return celsius
+
+# Expected outputs:
+print(convert_temperature(100, "C", "F"))   # 212.0
+print(convert_temperature(32, "F", "C"))    # 0.0
+print(convert_temperature(0, "C", "K"))     # 273.15
+print(convert_temperature(300, "K", "C"))   # 26.85</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button>
+      <div id="output1" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> In Python, <code>5/9</code> gives a float automatically. You can write <code>5/9</code> directly.</div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
+      <h3>Exercise 2 &mdash; List Statistics</h3>
+      <p>Write a function <code>summarize_list(numbers)</code> that takes a list of numbers and returns a <strong>dictionary</strong> with these keys: <code>min</code>, <code>max</code>, <code>sum</code>, <code>average</code>, <code>count</code>, <code>range</code> (max - min).</p>
+      <p>Test it with: <code>[4, 8, 15, 16, 23, 42]</code> and print all the results neatly.</p>
+      <textarea class="code-editor" id="editor2">
+# Your code here
+</textarea>
+      <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button>
+      <div id="output2" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Use Python&rsquo;s built-ins: <code>min()</code>, <code>max()</code>, <code>sum()</code>, <code>len()</code>. Return a dict: <code>return {"min": ..., "max": ..., ...}</code></div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
+      <h3>Exercise 3 &mdash; Table Formatter</h3>
+      <p>Write a function <code>format_table(headers, rows)</code> that prints data as a formatted table with <code>|</code> separators and a header divider line. Example output:</p>
+      <div style="background:#1a1a2e;color:#a5d6a7;font-family:monospace;font-size:0.85rem;padding:1rem;border-radius:8px;margin:0.75rem 0;">| Name        | Score | Grade |
+|-------------|-------|-------|
+| Alice Smith |    95 | A     |
+| Bob Jones   |    82 | B     |
+| Carol Wu    |    74 | C     |</div>
+      <textarea class="code-editor" id="editor3">
+# Your format_table function here
+
+# Test it:
+headers = ['Name', 'Score', 'Grade']
+rows = [
+    ['Alice Smith', 95, 'A'],
+    ['Bob Jones', 82, 'B'],
+    ['Carol Wu', 74, 'C']
+]
+format_table(headers, rows)</textarea>
+      <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button>
+      <div id="output3" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Find the max width for each column. Use <code>str(val).ljust(width)</code> or <code>rjust(width)</code> for alignment. Join columns with <code>" | ".join(...)</code>.</div>
+    </div>
+
+    <!-- MINI PROJECT -->
+    <div class="exercise-block">
+      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
+      <h3>Mini Project &mdash; Unit Converter Toolkit</h3>
+      <p>Build a toolkit of 4 converter functions. Then write a master function that runs all four on any input value and prints a neat summary. Test with <code>value = 100</code>.</p>
+      <ul>
+        <li><code>miles_to_km(miles)</code> &mdash; 1 mile = 1.60934 km</li>
+        <li><code>kg_to_lbs(kg)</code> &mdash; 1 kg = 2.20462 lbs</li>
+        <li><code>celsius_to_fahrenheit(c)</code> &mdash; standard formula</li>
+        <li><code>usd_to_eur(usd, rate=0.92)</code> &mdash; with a default exchange rate</li>
+        <li><code>run_conversions(value)</code> &mdash; runs all four and prints a formatted summary</li>
+      </ul>
+      <textarea class="code-editor" id="editor4" style="min-height:200px;">
+# Build your converter toolkit here
+
+# Test it:
+run_conversions(100)</textarea>
+      <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button>
+      <div id="output4" class="code-output">Output will appear here...</div>
+      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Each converter is 1-2 lines. The <code>run_conversions</code> function calls all four and uses f-strings to print results. E.g.: <code>print(f"100 miles = {miles_to_km(100):.2f} km")</code></div>
+    </div>
+
+    <!-- LAB COMPLETE -->
+    <div class="lab-complete">
+      <h2>&#x2705; Lab 4 Complete!</h2>
+      <p>You&rsquo;ve built functions with default parameters, multiple return values, and created a reusable toolkit. Functions are the key to writing code that&rsquo;s clean, testable, and reusable.</p>
+      <p style="margin-bottom:0"><a href="../lab-05/index.html">Continue to Lab 5: Lists &amp; Dictionaries &rarr;</a></p>
+    </div>
+
+    <div class="lab-nav" style="margin-top:2rem">
+      <a href="../lab-03/index.html" class="nav-prev">&larr; Lab 3: Loops</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Lab 4 of 10</span>
+      <a href="../lab-05/index.html" class="nav-next">Lab 5: Lists &amp; Dicts &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Python Practice Labs &mdash; Lab 4: Functions</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if(statusEl) statusEl.textContent = '⏳ Loading Python... (first load takes ~10 seconds)';
+      pyodide = await loadPyodide();
+      if(statusEl) {
+        statusEl.textContent = '✅ Python ready! Click any ▶ Run button to start.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+
+    initPyodide();
+  </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Python Practice Labs — 10 hands-on labs powered by Pyodide. Write and run real Python code directly in your browser. No installs, no accounts.">
+  <title>Python Practice Labs - Safaa Dabagh</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .course-header {
+      background: linear-gradient(135deg, #1a237e 0%, #1565C0 50%, #2E7D32 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); text-align: center;
+    }
+    .course-header h1 { color: white; margin-bottom: var(--spacing-sm); font-size: 2.5rem; line-height: 1.2; }
+    .course-header .tagline { font-size: 1.2rem; opacity: 0.95; margin-bottom: var(--spacing-md); max-width: 620px; margin-left: auto; margin-right: auto; }
+    .course-meta { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .meta-pill { background: rgba(255,255,255,0.2); color: white; padding: 6px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; }
+
+    .pyodide-callout {
+      background: #E3F2FD; border: 2px solid #1565C0; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+      display: flex; gap: var(--spacing-md); align-items: flex-start;
+    }
+    .pyodide-callout .icon { font-size: 2.5rem; flex-shrink: 0; }
+    .pyodide-callout h3 { color: #0D47A1; margin-bottom: var(--spacing-xs); font-size: 1.1rem; }
+    .pyodide-callout p { color: #1565C0; margin: 0; line-height: 1.6; }
+
+    .prereq-callout {
+      background: #FFF8E1; border: 2px solid #F9A825; border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);
+    }
+    .prereq-callout h3 { color: #E65100; margin-top: 0; margin-bottom: var(--spacing-xs); }
+    .prereq-callout p { color: #5D4037; margin: 0; }
+    .prereq-callout a { color: #1565C0; font-weight: 600; }
+
+    .stats-row { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--spacing-xl); }
+    .stat-box { background: var(--background-alt); border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; min-width: 130px; }
+    .stat-num { font-size: 2rem; font-weight: 700; color: #1565C0; }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+
+    .section-heading { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: var(--spacing-lg); border-bottom: 3px solid #1565C0; display: inline-block; padding-bottom: 0.25rem; }
+
+    .difficulty-group { margin-bottom: var(--spacing-xl); }
+    .difficulty-label {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: var(--spacing-md);
+    }
+    .diff-foundations { background: #E3F2FD; color: #1565C0; }
+    .diff-intermediate { background: #E8F5E9; color: #2E7D32; }
+    .diff-advanced { background: #FCE4EC; color: #C62828; }
+
+    .labs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-lg); }
+    .lab-card {
+      background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg);
+      padding: var(--spacing-lg); transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .lab-card:hover { border-color: #1565C0; box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .lab-num {
+      background: #1565C0; color: white; width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+      font-size: 1rem; margin-bottom: var(--spacing-sm);
+    }
+    .lab-badge {
+      position: absolute; top: 16px; right: 16px; background: #28A745; color: white;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    }
+    .lab-card h3 { color: var(--primary-dark); margin-bottom: 0.25rem; font-size: 1.1rem; margin-top: 0; }
+    .lab-card .lab-subtitle { color: var(--text-secondary); font-size: 0.85rem; font-style: italic; margin-bottom: var(--spacing-sm); }
+    .lab-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: var(--spacing-sm); }
+    .lab-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: var(--spacing-sm); }
+    .lab-tag { background: #F3F4F6; color: #374151; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .lab-card a.lab-link {
+      display: inline-block; background: #1565C0; color: white; padding: 0.5rem 1.25rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: var(--transition);
+    }
+    .lab-card a.lab-link:hover { background: #0D47A1; text-decoration: none; }
+
+    .how-it-works { background: var(--background-alt); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+    .how-it-works h2 { margin-top: 0; border-bottom: none; display: block; font-size: 1.5rem; }
+    .steps-row { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .step-item { flex: 1; min-width: 160px; text-align: center; }
+    .step-circle {
+      width: 56px; height: 56px; border-radius: 50%; background: #1565C0; color: white;
+      font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--spacing-sm);
+    }
+    .step-item h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--primary-dark); }
+    .step-item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../../free-courses.html" class="back-link">&larr; Back to Free Courses</a>
+
+    <div class="course-header">
+      <h1>Python Practice Labs</h1>
+      <p class="tagline">Real Python. In your browser. No installs.</p>
+      <p style="opacity:0.9; font-size:1rem; margin-bottom:0;">10 hands-on labs for students who&rsquo;ve completed Introduction to Python. Write code, click Run, see results &mdash; instantly.</p>
+      <div class="course-meta">
+        <span class="meta-pill">10 Labs</span>
+        <span class="meta-pill">Runs in Browser</span>
+        <span class="meta-pill">Free</span>
+        <span class="meta-pill">No Installs</span>
+        <span class="meta-pill">Self-Paced</span>
+      </div>
+    </div>
+
+    <div class="pyodide-callout">
+      <div class="icon">&#x1F40D;</div>
+      <div>
+        <h3>Powered by Pyodide &mdash; Python runs right here</h3>
+        <p>No accounts. No downloads. No Jupyter. No Replit. Python runs directly in your browser using Pyodide &mdash; a full Python runtime compiled to WebAssembly. Everything stays right here on this page.</p>
+      </div>
+    </div>
+
+    <div class="prereq-callout">
+      <h3>&#x1F4CB; Before You Start</h3>
+      <p>These labs assume you know the basics &mdash; variables, loops, functions, lists. If you&rsquo;ve completed our Introduction to Python course, you&rsquo;re ready. If not, start there first!</p>
+      <p style="margin-top:0.75rem;"><a href="../intro-python/index.html">&larr; Take Introduction to Python first</a></p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Labs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Exercises</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Installs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">Always</div>
+      </div>
+    </div>
+
+    <!-- FOUNDATIONS -->
+    <div class="difficulty-group">
+      <div class="section-heading">The 10 Labs</div>
+      <br>
+      <span class="difficulty-label diff-foundations">&#x1F7E6; Foundations &mdash; Labs 1&ndash;4</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">1</div>
+          <h3>Variables &amp; Data Types</h3>
+          <div class="lab-subtitle">Back to basics &mdash; but faster and deeper</div>
+          <p>Review int, float, str, bool, type conversion, and f-strings. Build a complete student profile.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">variables</span>
+            <span class="lab-tag">types</span>
+            <span class="lab-tag">f-strings</span>
+            <span class="lab-tag">type()</span>
+          </div>
+          <a href="lab-01/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">2</div>
+          <h3>Conditionals &amp; Logic</h3>
+          <div class="lab-subtitle">Making decisions in code</div>
+          <p>Master if/elif/else, comparison and logical operators, and nested conditions. Write FizzBuzz and a grade calculator.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">if/elif/else</span>
+            <span class="lab-tag">and/or/not</span>
+            <span class="lab-tag">FizzBuzz</span>
+          </div>
+          <a href="lab-02/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">3</div>
+          <h3>Loops &amp; Iteration</h3>
+          <div class="lab-subtitle">Making Python do the repetitive work</div>
+          <p>Practice for loops, while loops, range(), enumerate(), zip(), break, and continue. Analyze weekly sales data.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">for/while</span>
+            <span class="lab-tag">range()</span>
+            <span class="lab-tag">enumerate</span>
+            <span class="lab-tag">zip</span>
+          </div>
+          <a href="lab-03/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">4</div>
+          <h3>Functions</h3>
+          <div class="lab-subtitle">Write once, use anywhere</div>
+          <p>Build functions with defaults, return values, *args, and **kwargs. Create a full unit converter toolkit.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">def</span>
+            <span class="lab-tag">return</span>
+            <span class="lab-tag">defaults</span>
+            <span class="lab-tag">*args</span>
+          </div>
+          <a href="lab-04/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INTERMEDIATE -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-intermediate">&#x1F7E9; Intermediate &mdash; Labs 5&ndash;7</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">5</div>
+          <h3>Lists &amp; Dictionaries</h3>
+          <div class="lab-subtitle">Python&rsquo;s most powerful built-ins</div>
+          <p>Master list comprehensions, dict operations, .get(), .items(), and sorting with key=. Build a shopping cart system.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">lists</span>
+            <span class="lab-tag">dicts</span>
+            <span class="lab-tag">comprehensions</span>
+            <span class="lab-tag">sorted()</span>
+          </div>
+          <a href="lab-05/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">6</div>
+          <h3>String Methods</h3>
+          <div class="lab-subtitle">Python&rsquo;s most underrated superpower</div>
+          <p>Deep dive into .strip(), .split(), .join(), .replace(), slicing, and f-strings. Build a Caesar cipher and text analyzer.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">strings</span>
+            <span class="lab-tag">methods</span>
+            <span class="lab-tag">slicing</span>
+            <span class="lab-tag">f-strings</span>
+          </div>
+          <a href="lab-06/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">7</div>
+          <h3>Working with Data</h3>
+          <div class="lab-subtitle">Structuring real-world data</div>
+          <p>Work with lists of dicts, sort/filter/aggregate without pandas. The foundation of data analysis. Build a sales processor.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">records</span>
+            <span class="lab-tag">groupby</span>
+            <span class="lab-tag">sorting</span>
+            <span class="lab-tag">aggregation</span>
+          </div>
+          <a href="lab-07/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ADVANCED -->
+    <div class="difficulty-group">
+      <span class="difficulty-label diff-advanced">&#x1F534; Advanced &mdash; Labs 8&ndash;10</span>
+      <div class="labs-grid">
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">8</div>
+          <h3>pandas Basics</h3>
+          <div class="lab-subtitle">The data analyst&rsquo;s essential library</div>
+          <p>Create DataFrames, filter rows, groupby, .describe(), and basic aggregations. Answer business questions with pandas.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">pandas</span>
+            <span class="lab-tag">DataFrame</span>
+            <span class="lab-tag">groupby</span>
+            <span class="lab-tag">filter</span>
+          </div>
+          <a href="lab-08/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">9</div>
+          <h3>Data Visualization</h3>
+          <div class="lab-subtitle">Turning numbers into pictures</div>
+          <p>Build bar, line, scatter, and histogram charts with matplotlib. Create multi-panel dashboards with subplots.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">matplotlib</span>
+            <span class="lab-tag">bar</span>
+            <span class="lab-tag">scatter</span>
+            <span class="lab-tag">subplots</span>
+          </div>
+          <a href="lab-09/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+        <div class="lab-card">
+          <span class="lab-badge">Available</span>
+          <div class="lab-num">10</div>
+          <h3>Capstone Project</h3>
+          <div class="lab-subtitle">Put everything together</div>
+          <p>A real mini data analysis project. You&rsquo;re a data analyst with 5 business questions to answer &mdash; using pandas, matplotlib, and everything you&rsquo;ve learned.</p>
+          <div class="lab-tags">
+            <span class="lab-tag">pandas</span>
+            <span class="lab-tag">matplotlib</span>
+            <span class="lab-tag">analysis</span>
+            <span class="lab-tag">capstone</span>
+          </div>
+          <a href="lab-10/index.html" class="lab-link">Open Lab &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>How Each Lab Works</h2>
+      <p style="color:var(--text-secondary);">Every lab follows the same 5-part structure so you always know what to expect.</p>
+      <div class="steps-row">
+        <div class="step-item">
+          <div class="step-circle">&#x1F4D6;</div>
+          <h4>Concept Recap</h4>
+          <p>A quick review of the key ideas you&rsquo;ll practice &mdash; no new theory, just a reminder.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F440;</div>
+          <h4>Worked Example</h4>
+          <p>A complete, runnable code example showing the concepts in action.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x270F;&#xFE0F;</div>
+          <h4>Guided Exercise</h4>
+          <p>Starter code with blanks to fill in. Lower stakes, lots of hints.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F4AA;</div>
+          <h4>Independent + Challenge</h4>
+          <p>Two exercises where you write more on your own. The challenge pushes further.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">&#x1F3C6;</div>
+          <h4>Mini Project</h4>
+          <p>A complete real-world task that ties the whole lab together.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3 style="margin-top:0;">Technical notes</h3>
+      <ul class="icon-list">
+        <li>Labs 1&ndash;7 load instantly &mdash; just pure Python, no external packages.</li>
+        <li>Labs 8&ndash;10 load pandas, numpy, and matplotlib from the web &mdash; allow 10&ndash;20 seconds on first load.</li>
+        <li>Everything runs locally in your browser tab. Nothing is sent to a server.</li>
+        <li>Works best in Chrome or Firefox. Safari should work too.</li>
+        <li>Your code is NOT saved between page refreshes. Copy anything you want to keep.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Python Practice Labs &mdash; Powered by Pyodide</p>
+  </footer>
+
+</body>
+</html>
