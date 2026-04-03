@@ -153,6 +153,7 @@
     .cat-badge-sql     { background: #0277BD; }
     .cat-badge-r       { background: #B71C1C; }
     .cat-badge-career  { background: #00695C; }
+    .cat-badge-sheets  { background: #0277BD; }
     .cat-badge-default { background: #607D8B; }
 
     .result-level {
@@ -244,10 +245,11 @@
     <button class="filter-pill" data-cat="AI" onclick="setFilter(this)">AI &amp; Technology</button>
     <button class="filter-pill" data-cat="SQL" onclick="setFilter(this)">SQL Labs</button>
     <button class="filter-pill" data-cat="R" onclick="setFilter(this)">R Labs</button>
+    <button class="filter-pill" data-cat="Sheets" onclick="setFilter(this)">Spreadsheets</button>
     <button class="filter-pill" data-cat="Career" onclick="setFilter(this)">Career Track</button>
   </div>
 
-  <div class="results-counter" id="results-counter">Showing all 21 courses &amp; labs</div>
+  <div class="results-counter" id="results-counter">Showing all 22 courses &amp; labs</div>
 
   <div id="results-grid"></div>
   <div id="empty-state">
@@ -288,6 +290,8 @@ const COURSES = [
   {title:"R Practice Labs",category:"Python & Data Science",level:"Intermediate",desc:"10 R labs with live WebR execution. dplyr, ggplot2, statistics, tidyr.",tags:"r rlabs ggplot2 dplyr tidyr statistics visualization webr data frames",url:"learn/r-labs/index.html"},
   {title:"SQL Practice Labs",category:"Python & Data Science",level:"Beginner-Advanced",desc:"10 SQL labs with live SQLite database. SELECT, JOINs, subqueries, aggregates.",tags:"sql database sqlite select joins where group by subqueries aggregate",url:"learn/sql-labs/index.html"},
   {title:"Data Analyst: Designed with Neurodivergence in Mind",category:"Python & Data Science",level:"Career Track",desc:"Complete career path. SQL, Python, Tableau, Power BI, SAP FI/CO deep dive. 14 modules.",tags:"data analyst career sql python tableau power bi sap fi co neurodivergent nd adhd",url:"learn/data-analyst/index.html"},
+  // Spreadsheets & Tools
+  {title:"Excel & Google Sheets for Data",category:"Spreadsheets & Tools",level:"Beginner",desc:"Formulas, pivot tables, charts, data cleaning, and a full capstone project. Free with Google Sheets — no downloads needed. 8 modules.",tags:"excel google sheets spreadsheet formulas pivot table charts vlookup data cleaning beginner sum average if countif",url:"learn/sheets/index.html"},
   // AI & Technology
   {title:"Speaking the Language of AI",category:"AI & Technology",level:"All Ages",desc:"What AI really is, how it works, how to use Claude. ND-friendly. 8 modules, 20 min each.",tags:"ai artificial intelligence claude chatgpt llm neurodivergent prompting",url:"learn/ai-course/index.html"},
   // Individual SQL labs
@@ -317,6 +321,7 @@ function catBadgeClass(cat) {
   if (c.includes('ai') || c.includes('tech')) return 'cat-badge-ai';
   if (c.includes('sql')) return 'cat-badge-sql';
   if (c.includes('r pract') || c.includes('r labs') || cat === 'R Practice Labs') return 'cat-badge-r';
+  if (c.includes('spreadsheet') || c.includes('sheets') || c.includes('excel')) return 'cat-badge-sheets';
   if (c.includes('career') || c.includes('data analyst')) return 'cat-badge-career';
   return 'cat-badge-default';
 }
@@ -328,6 +333,7 @@ function filterByCat(courses) {
   if (activeFilter === 'AI') return courses.filter(c => c.category.toLowerCase().includes('ai') || c.category.toLowerCase().includes('tech'));
   if (activeFilter === 'SQL') return courses.filter(c => c.category.toLowerCase().includes('sql'));
   if (activeFilter === 'R') return courses.filter(c => c.category.toLowerCase().startsWith('r ') || c.category === 'R Practice Labs');
+  if (activeFilter === 'Sheets') return courses.filter(c => c.category.toLowerCase().includes('spreadsheet') || c.category.toLowerCase().includes('sheets') || c.category.toLowerCase().includes('excel'));
   if (activeFilter === 'Career') return courses.filter(c => c.level === 'Career Track' || c.category.toLowerCase().includes('data analyst'));
   return courses.filter(c => c.category.toLowerCase().includes(activeFilter.toLowerCase()));
 }
@@ -359,7 +365,7 @@ function renderCards(courses) {
 
   empty.style.display = 'none';
   counter.textContent = courses.length === COURSES.length
-    ? 'Showing all ' + COURSES.length + ' courses & labs'
+    ? 'Showing all ' + COURSES.length + ' courses &amp; labs'
     : courses.length + ' result' + (courses.length === 1 ? '' : 's') + ' found';
 
   grid.innerHTML = courses.map(c => `

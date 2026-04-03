@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 04: Working with Data — Sort, Filter, Freeze, Data Validation, Named Ranges in Google Sheets and Excel.">
+  <title>Module 04: Working with Data – Excel &amp; Google Sheets for Data</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .mod-header { background: linear-gradient(135deg, #1B5E20 0%, #43A047 60%, #66BB6A 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .mod-header h1 { color: white; margin-bottom: 0.5rem; font-size: 2rem; }
+    .mod-header p { opacity: 0.95; max-width: 680px; margin: 0; font-size: 1.05rem; }
+    .mod-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; opacity: 0.9; font-size: 0.9rem; }
+    .mod-nav { display: flex; align-items: center; justify-content: space-between; background: #F1F8E9; border: 2px solid #A5D6A7; border-radius: var(--radius-md); padding: 0.75rem 1.25rem; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { color: #2E7D32; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+    .mod-nav a:hover { text-decoration: underline; }
+    .sec-before  { background: #E3F2FD; border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-concept { background: white; border: 2px solid var(--border-color); border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-steps   { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-data    { background: #F8F9FA; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-yourturn{ background: #FFF9C4; border-left: 5px solid #F9A825; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-brain   { background: #F3E5F5; border-left: 5px solid #7B1FA2; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-wrapup  { background: #E8F5E9; border-left: 5px solid #2E7D32; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; opacity: 0.75; }
+    .sec-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-dark); }
+    .steps { list-style: none; padding: 0; margin: 0; counter-reset: step-counter; }
+    .steps li { counter-increment: step-counter; padding: 0.9rem 0.9rem 0.9rem 3.5rem; position: relative; border-bottom: 1px solid var(--border-color); line-height: 1.6; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before { content: counter(step-counter); position: absolute; left: 0.5rem; top: 0.9rem; width: 2rem; height: 2rem; background: #43A047; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+    code { background: #263238; color: #80CBC4; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9em; }
+    .formula-block { background: #263238; color: #A5D6A7; font-family: var(--font-mono); font-size: 0.95rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 0.75rem 0; overflow-x: auto; line-height: 1.7; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0; }
+    .data-table th { background: #1B5E20; color: white; padding: 0.6rem 1rem; text-align: left; font-weight: 600; }
+    .data-table td { padding: 0.5rem 1rem; border-bottom: 1px solid #E0E0E0; }
+    .data-table tr:nth-child(even) td { background: #F1F8E9; }
+    .hint { background: white; border: 1px dashed #81C784; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.875rem; margin-top: 1rem; color: var(--text-secondary); }
+    .hint strong { color: #2E7D32; }
+    .takeaways { list-style: none; padding: 0; margin: 0; }
+    .takeaways li { padding: 0.4rem 0 0.4rem 1.75rem; position: relative; }
+    .takeaways li::before { content: "✅"; position: absolute; left: 0; }
+    .complete-section { text-align: center; padding: var(--spacing-lg) 0; border-top: 2px solid #C8E6C9; margin-top: var(--spacing-xl); }
+    #complete-btn { background: #43A047; color: white; border: none; padding: 0.85rem 2.5rem; border-radius: 30px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    #complete-btn:hover { background: #2E7D32; transform: translateY(-2px); }
+    #complete-status { margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .tip-box { background: #E8F5E9; border: 2px solid #A5D6A7; border-radius: var(--radius-md); padding: 0.75rem 1.25rem; margin: 0.75rem 0; font-size: 0.9rem; }
+    .tip-box strong { color: #1B5E20; }
+    @media (max-width: 600px) { .mod-header h1 { font-size: 1.5rem; } .mod-nav { flex-direction: column; text-align: center; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="mod-nav">
+      <a href="../module-03/index.html">&#8592; Module 03: Logic &amp; Lookup</a>
+      <a href="../index.html">&#127968; Course Home</a>
+      <a href="../module-05/index.html">Module 05: Pivot Tables &#8594;</a>
+    </div>
+
+    <div class="mod-header">
+      <div style="font-size:0.85rem; opacity:0.8; margin-bottom:0.5rem;">Module 04 of 08 &nbsp;|&nbsp; Excel &amp; Google Sheets for Data</div>
+      <h1>&#128202; Working with Data</h1>
+      <p>You've got the formulas. Now learn to manage the data itself — sorting it, filtering it, locking headers in place, controlling what users can enter, and giving ranges memorable names.</p>
+      <div class="mod-meta">
+        <span>&#9200; ~40 minutes</span>
+        <span>&#127891; Beginner–Intermediate</span>
+        <span>&#128203; Requires: Module 01–02</span>
+      </div>
+    </div>
+
+    <div class="sec-before">
+      <div class="sec-label">&#128204; Before You Start</div>
+      <div class="sec-title">Set up the sample dataset</div>
+      <p>You'll need a 20-row sales dataset for this module. You can type it in yourself or use the one below — it covers all the exercises. Open a new Google Sheet and enter it starting at cell A1.</p>
+    </div>
+
+    <!-- SAMPLE DATA -->
+    <div class="sec-data">
+      <div class="sec-label">&#128203; Sample Data — 20-Row Sales Dataset</div>
+      <div class="sec-title">Type or copy this into your spreadsheet</div>
+      <table class="data-table">
+        <thead><tr><th>A — Date</th><th>B — Salesperson</th><th>C — Category</th><th>D — Product</th><th>E — Units</th><th>F — Revenue</th></tr></thead>
+        <tbody>
+          <tr><td>2024-01-05</td><td>Alice</td><td>Electronics</td><td>Laptop</td><td>2</td><td>2400</td></tr>
+          <tr><td>2024-01-08</td><td>Bob</td><td>Books</td><td>Python Guide</td><td>10</td><td>350</td></tr>
+          <tr><td>2024-01-12</td><td>Alice</td><td>Clothing</td><td>Jacket</td><td>5</td><td>445</td></tr>
+          <tr><td>2024-01-15</td><td>Carol</td><td>Electronics</td><td>Tablet</td><td>3</td><td>1350</td></tr>
+          <tr><td>2024-01-20</td><td>Bob</td><td>Electronics</td><td>Headphones</td><td>8</td><td>960</td></tr>
+          <tr><td>2024-02-03</td><td>Carol</td><td>Books</td><td>Stats Textbook</td><td>12</td><td>540</td></tr>
+          <tr><td>2024-02-07</td><td>Alice</td><td>Electronics</td><td>Keyboard</td><td>15</td><td>750</td></tr>
+          <tr><td>2024-02-14</td><td>David</td><td>Clothing</td><td>Sneakers</td><td>6</td><td>660</td></tr>
+          <tr><td>2024-02-18</td><td>Bob</td><td>Books</td><td>Data Viz Book</td><td>7</td><td>245</td></tr>
+          <tr><td>2024-02-25</td><td>Carol</td><td>Electronics</td><td>Monitor</td><td>1</td><td>450</td></tr>
+          <tr><td>2024-03-01</td><td>David</td><td>Electronics</td><td>Webcam</td><td>10</td><td>790</td></tr>
+          <tr><td>2024-03-05</td><td>Alice</td><td>Clothing</td><td>T-Shirt Pack</td><td>20</td><td>400</td></tr>
+          <tr><td>2024-03-10</td><td>Bob</td><td>Electronics</td><td>USB Hub</td><td>25</td><td>388</td></tr>
+          <tr><td>2024-03-15</td><td>Carol</td><td>Clothing</td><td>Scarf</td><td>30</td><td>270</td></tr>
+          <tr><td>2024-03-20</td><td>David</td><td>Books</td><td>SQL Guide</td><td>8</td><td>280</td></tr>
+          <tr><td>2024-03-25</td><td>Alice</td><td>Electronics</td><td>Laptop Stand</td><td>12</td><td>360</td></tr>
+          <tr><td>2024-04-02</td><td>Bob</td><td>Clothing</td><td>Hat</td><td>40</td><td>320</td></tr>
+          <tr><td>2024-04-08</td><td>Carol</td><td>Electronics</td><td>Charger</td><td>50</td><td>1500</td></tr>
+          <tr><td>2024-04-14</td><td>David</td><td>Books</td><td>AI Handbook</td><td>15</td><td>525</td></tr>
+          <tr><td>2024-04-20</td><td>Alice</td><td>Electronics</td><td>Mouse</td><td>20</td><td>600</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SORT -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Sorting: Reorder Your Data in Seconds</div>
+      <p>Sorting rearranges your rows based on the values in one or more columns. It does not delete anything — it just reorders.</p>
+
+      <h3>Single-column sort:</h3>
+      <ol class="steps">
+        <li>Click any cell inside your data (e.g., F1 — the Revenue header).</li>
+        <li>Go to <strong>Data → Sort sheet → Sort sheet by column F (A to Z)</strong> for ascending (lowest first), or <strong>Z to A</strong> for descending (highest first).</li>
+        <li>Your rows are now reordered by revenue.</li>
+      </ol>
+
+      <h3>Multi-column sort (sort by Category, then by Revenue):</h3>
+      <ol class="steps">
+        <li>Go to <strong>Data → Sort range → Advanced range sorting options</strong>.</li>
+        <li>Check "Data has header row" so your headers don't get sorted.</li>
+        <li>First sort column: <strong>Column C (Category)</strong>, A to Z.</li>
+        <li>Click <strong>"Add another sort column"</strong>.</li>
+        <li>Second sort: <strong>Column F (Revenue)</strong>, Z to A (descending).</li>
+        <li>Click Sort.</li>
+      </ol>
+      <p>Result: rows are grouped by category alphabetically, and within each category the highest revenue rows appear first.</p>
+
+      <div class="tip-box"><strong>Excel tip:</strong> In Excel, go to the <strong>Data</strong> tab → <strong>Sort</strong>. The dialog is similar but uses a different interface. You can add multiple sort levels there too.</div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Filtering: Show Only the Rows You Need</div>
+      <p>Filters <em>hide</em> rows that don't match your criteria — they don't delete them. Click the filter icon to reveal or re-hide rows.</p>
+
+      <h3>Turn on filters:</h3>
+      <ol class="steps">
+        <li>Click any cell inside your data.</li>
+        <li>Press <strong>Ctrl+Shift+L</strong> (or go to <strong>Data → Create a filter</strong>). A small dropdown arrow (&#9660;) appears on each header cell.</li>
+        <li>Click the &#9660; on the <strong>Category</strong> header (column C).</li>
+        <li>Uncheck everything except "Electronics". Click OK. Now only Electronics rows are visible.</li>
+      </ol>
+
+      <h3>Filter by condition (Revenue > 500):</h3>
+      <ol class="steps">
+        <li>Click the &#9660; on the <strong>Revenue</strong> header (column F).</li>
+        <li>Choose <strong>"Filter by condition"</strong> → <strong>"Greater than"</strong>.</li>
+        <li>Type <strong>500</strong> and click OK.</li>
+        <li>Now only rows with Revenue greater than $500 are shown.</li>
+      </ol>
+
+      <h3>Clear all filters:</h3>
+      <p>Go to <strong>Data → Remove filter</strong>, or press <strong>Ctrl+Shift+L</strong> again to toggle the filter off entirely.</p>
+
+      <div class="tip-box"><strong>Important:</strong> Filtered rows are hidden, not deleted. All your data is still there. You can always remove the filter to see everything again. Formulas like SUM still count hidden rows — use SUBTOTAL if you want to sum only visible rows.</div>
+    </div>
+
+    <!-- FREEZE -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Freeze Rows and Columns: Keep Headers Visible While Scrolling</div>
+      <p>When you have 20, 100, or 1000 rows, scrolling down means your headers disappear. Freezing fixes that.</p>
+      <ol class="steps">
+        <li>Go to <strong>View → Freeze → 1 row</strong>. Row 1 is now frozen.</li>
+        <li>Scroll down — your header row stays visible at the top no matter how far you scroll.</li>
+        <li>To freeze a column (e.g., keep the Date visible): click the column header B to put your cursor in column A, then go to <strong>View → Freeze → 1 column</strong>.</li>
+        <li>To unfreeze: go to <strong>View → Freeze → No rows</strong> (or No columns).</li>
+      </ol>
+      <div class="tip-box"><strong>Excel equivalent:</strong> <strong>View</strong> tab → <strong>Freeze Panes</strong> → "Freeze Top Row". Or click a cell below/right of where you want to freeze and select "Freeze Panes".</div>
+    </div>
+
+    <!-- DATA VALIDATION -->
+    <div class="sec-concept">
+      <div class="sec-label">&#128161; The Concept</div>
+      <div class="sec-title">Data Validation: Control What Gets Entered</div>
+      <p><strong>Data Validation</strong> restricts what can be typed into a cell. This prevents errors at the source — better to prevent a typo than to clean it up later.</p>
+
+      <h3>Create a dropdown list for Category:</h3>
+      <ol class="steps">
+        <li>Select the cells where you want the dropdown (e.g., C2:C100 for future data entry).</li>
+        <li>Go to <strong>Data → Data validation</strong>.</li>
+        <li>Under "Criteria", choose <strong>"List of items"</strong>.</li>
+        <li>Type: <strong>Electronics, Books, Clothing</strong> (comma-separated).</li>
+        <li>Enable "Show dropdown list in cell". Click Save.</li>
+        <li>Now clicking any cell in that range shows a &#9660; dropdown with your three options.</li>
+      </ol>
+
+      <h3>Validate a number range (Revenue must be &gt; 0):</h3>
+      <ol class="steps">
+        <li>Select F2:F100.</li>
+        <li>Data → Data validation → Criteria: <strong>"Number" → "Greater than" → 0</strong>.</li>
+        <li>Choose "Show warning" or "Reject input" for invalid entries.</li>
+        <li>Add a custom message: "Revenue must be a positive number."</li>
+      </ol>
+      <div class="tip-box"><strong>Why this matters:</strong> If you're building a sheet others will fill in, data validation prevents them from typing "Elecronics" (typo) or entering a negative revenue. It keeps your data clean automatically.</div>
+    </div>
+
+    <!-- NAMED RANGES -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Named Ranges: Give Ranges Human-Readable Names</div>
+      <p>Instead of writing <code>=SUM(F2:F21)</code>, imagine writing <code>=SUM(Revenue)</code>. Named ranges make formulas self-documenting and easier to maintain.</p>
+      <ol class="steps">
+        <li>Select the range you want to name — for example, F2:F21 (all Revenue values).</li>
+        <li>Go to <strong>Data → Named ranges</strong>. A sidebar opens.</li>
+        <li>Click <strong>"Add a range"</strong>. Type the name: <strong>Revenue</strong>. Confirm the range is correct. Click Done.</li>
+        <li>Now in any formula, you can type <code>=SUM(Revenue)</code> instead of <code>=SUM(F2:F21)</code>.</li>
+        <li>Add another: select C2:C21 and name it <strong>Category</strong>.</li>
+        <li>Now you can write: <code>=COUNTIF(Category, "Electronics")</code> — which is much clearer.</li>
+      </ol>
+      <div class="tip-box"><strong>Naming rules:</strong> Names can't have spaces (use underscores: <code>Total_Revenue</code>) or start with a number. They're case-insensitive.</div>
+      <div class="hint"><strong>Excel equivalent:</strong> Select a range, click the Name Box (top left, shows cell address), type your name, and press Enter. Or use Formulas → Define Name.</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="sec-yourturn">
+      <div class="sec-label">&#128400; Your Turn</div>
+      <div class="sec-title">Exercise: Sales Data Analysis</div>
+      <p>Using the 20-row sales dataset you entered at the start of this module:</p>
+      <ol style="padding-left:1.5rem; line-height:2;">
+        <li><strong>Freeze the header row</strong> (View → Freeze → 1 row). Scroll down to confirm it works.</li>
+        <li><strong>Sort by Revenue descending</strong> (highest revenue first). Which product had the highest revenue?</li>
+        <li><strong>Turn on filters</strong> and filter the Category column to show only "Electronics". How many Electronics rows are there?</li>
+        <li><strong>Add a second filter:</strong> within Electronics, filter Revenue to show only rows greater than 500. Which rows remain?</li>
+        <li><strong>Clear your filters</strong> (Data → Remove filter) to restore all rows.</li>
+        <li><strong>Create a Data Validation dropdown</strong> for column C (Category): choose Electronics, Books, Clothing. Try typing a new category name — it should give you a warning.</li>
+        <li><strong>Name the range F2:F21</strong> as "Revenue". Then in a blank cell, write <code>=SUM(Revenue)</code> and verify it gives you the correct total.</li>
+      </ol>
+      <div class="hint"><strong>Hint:</strong> After filtering, the row numbers shown in column headers go from gray to blue — that's your visual confirmation that a filter is active.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="sec-brain">
+      <div class="sec-label">&#129504; Brain Break</div>
+      <div class="sec-title">The SUBTOTAL Secret</div>
+      <p>When you apply a filter and want to sum only the <em>visible</em> rows, regular SUM doesn't work — it adds everything, including hidden rows. The solution is <code>=SUBTOTAL(9, F2:F21)</code>. The number 9 tells SUBTOTAL to use SUM, but only on visible cells. Other codes: 1=AVERAGE, 2=COUNT, 5=MIN, 4=MAX.</p>
+      <p style="margin:0;">When you use AutoSum (&#931;) on a filtered range, Google Sheets automatically inserts SUBTOTAL instead of SUM — a small but thoughtful detail that saves a lot of confusion.</p>
+    </div>
+
+    <!-- WRAP UP -->
+    <div class="sec-wrapup">
+      <div class="sec-label">&#9989; Wrap Up</div>
+      <div class="sec-title">Module 04 Key Takeaways</div>
+      <ul class="takeaways">
+        <li><strong>Sort</strong> reorders rows by one or more columns. Use multi-level sort for complex ordering.</li>
+        <li><strong>Filter</strong> hides rows that don't match your criteria — it doesn't delete them. Toggle with Ctrl+Shift+L.</li>
+        <li><strong>Freeze</strong> rows or columns to keep headers visible while scrolling (View → Freeze).</li>
+        <li><strong>Data Validation</strong> restricts cell input to dropdowns, number ranges, or date constraints — preventing errors at entry.</li>
+        <li><strong>Named Ranges</strong> let you refer to <code>Revenue</code> instead of <code>F2:F21</code> — making formulas self-documenting.</li>
+        <li>Use <code>SUBTOTAL(9, range)</code> instead of SUM when you want to sum only the visible (filtered) rows.</li>
+      </ul>
+    </div>
+
+    <div class="complete-section">
+      <button id="complete-btn" onclick="markComplete()">Mark Module Complete</button>
+      <div id="complete-status"></div>
+      <p style="margin-top:1.25rem;"><a href="../module-05/index.html" class="btn btn-primary" style="background:#43A047;">Next: Module 05 — Pivot Tables &#8594;</a></p>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Santa Monica College &middot; West Los Angeles College &middot; UCLA Statistics PhD Candidate</p>
+  </footer>
+
+  <script>
+    const MODULE_ID = 'sheets-module-04';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      const status = document.getElementById('complete-status');
+      if (localStorage.getItem(MODULE_ID) === 'complete') {
+        btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32';
+        if (status) status.textContent = 'You completed this module!';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+  </script>
+
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

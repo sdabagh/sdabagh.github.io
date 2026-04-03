@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 4: Your First Classifier — K-Nearest Neighbors. Train a real KNN model with scikit-learn in your browser using Pyodide.">
+  <title>Module 4: Your First Classifier (KNN) - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; min-height: 240px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .sklearn-note { background: #EDE7F6; border: 2px solid #7B1FA2; border-radius: 10px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+    .sklearn-note p { margin: 0; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; min-width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+    .loading-note { background: #FFF3E0; border: 1px solid #FF6F00; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: #E65100; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 4 of 8 &mdash; Machine Learning Basics</div>
+      <h1>Your First Classifier &mdash; K-Nearest Neighbors</h1>
+      <p>Find the closest examples, take a vote, make a prediction</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-03/index.html" class="nav-prev">&larr; Module 3: Preparing Data</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 4 of 8</span>
+      <a href="../module-05/index.html" class="nav-next">Module 5: Decision Trees &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <div class="sklearn-note">
+      <p>&#128218; <strong>This module uses scikit-learn.</strong> The first time you run a code block, it will install scikit-learn via micropip (~5&ndash;10 seconds). Be patient &mdash; subsequent runs are instant!</p>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>Modules 1&ndash;3 completed (especially understanding train/test split)</li>
+        <li>Patience for the first scikit-learn load (~10&ndash;20 seconds total)</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~55 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How K-Nearest Neighbors works, how to use scikit-learn&rsquo;s API (fit → predict → score), and how the choice of k affects results.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem">KNN asks: <em>&ldquo;What do the k most similar examples in my training set look like?&rdquo;</em> Then it takes a majority vote among those neighbors.</p>
+      <p>No complicated math. No training phase. When you call <code>.predict()</code> on a new flower, KNN just finds the 3 (or 5, or k) closest flowers in the training set and says &ldquo;it&rsquo;s probably the same species as most of them.&rdquo;</p>
+      <p>It&rsquo;s like asking your k nearest neighbors what they think &mdash; and going with the majority.</p>
+      <p style="margin-bottom:0">Simple, intuitive, and surprisingly effective for many problems. And it&rsquo;s a perfect starting point for understanding the scikit-learn API that <em>all</em> ML algorithms share.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">KNN Step by Step</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div><strong>Store all training examples</strong> &mdash; KNN doesn&rsquo;t really &ldquo;train&rdquo;; it just memorizes. This is why it&rsquo;s called a <em>lazy learner</em>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div><strong>Receive a new sample</strong> to classify (e.g., a flower with petal_length=1.5, petal_width=0.3).</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div><strong>Calculate distance</strong> from the new sample to every training sample. Usually Euclidean distance: <em>d = &radic;((x&sub1;&minus;x&sub2;)&sup2; + (y&sub1;&minus;y&sub2;)&sup2; + &hellip;)</em></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div><strong>Find the k nearest neighbors</strong> &mdash; the k training samples with the smallest distance.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div><strong>Vote</strong> &mdash; whichever class appears most among the k neighbors wins. That&rsquo;s the prediction.</div>
+      </div>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">Why k Matters</h3>
+      <ul>
+        <li><strong>k = 1:</strong> Follows training data perfectly. Very sensitive to noise. Often overfit.</li>
+        <li><strong>k = 3 or 5:</strong> Good balance for many datasets. Filters noise while staying responsive.</li>
+        <li><strong>k = 50+:</strong> Smooths over everything. May miss local patterns (underfit).</li>
+      </ul>
+      <p>There&rsquo;s no universal &ldquo;best k.&rdquo; You find it by <em>experimenting</em> &mdash; exactly what your exercise will do.</p>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">The sklearn API (same for every algorithm!)</h3>
+      <div style="background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;">
+# 1. Import the algorithm
+from sklearn.neighbors import KNeighborsClassifier
+
+# 2. Create the model (set hyperparameters)
+model = KNeighborsClassifier(n_neighbors=3)
+
+# 3. Fit (train) on training data
+model.fit(X_train, y_train)
+
+# 4. Predict on new data
+predictions = model.predict(X_test)
+
+# 5. Score (accuracy on test set)
+accuracy = model.score(X_test, y_test)
+      </div>
+      <p style="margin-top:0.75rem">This 5-step pattern works for <em>every</em> sklearn classifier: decision trees, random forests, SVMs. Learn it once, use it everywhere.</p>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">A complete KNN pipeline on the Iris dataset. <strong>This will install scikit-learn &mdash; first run takes 10&ndash;20 seconds.</strong></p>
+      <div class="loading-note">&#9203; First run will install scikit-learn (~10 seconds). Watch the output area for progress.</div>
+      <div class="worked-code">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+import numpy as np
+
+print("Loading Iris dataset...")
+iris = load_iris()
+X, y = iris.data, iris.target
+
+print(f"Dataset shape: {X.shape[0]} samples × {X.shape[1]} features")
+print(f"Classes: {list(iris.target_names)}")
+print(f"Class counts: {[sum(y==i) for i in range(3)]}")
+
+# Split into train and test (80/20)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+print(f"\nTraining samples: {len(X_train)}, Test samples: {len(X_test)}")
+
+# Train KNN with k=3
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+accuracy = knn.score(X_test, y_test)
+print(f"\nKNN (k=3) Test Accuracy: {accuracy:.1%}")
+
+# Make predictions on all test samples
+y_pred = knn.predict(X_test)
+correct = sum(y_pred == y_test)
+print(f"Correct predictions: {correct}/{len(y_test)}")
+
+# Predict a single new flower
+sample = np.array([[5.1, 3.5, 1.4, 0.2]])  # typical setosa
+pred = knn.predict(sample)[0]
+prob = knn.predict_proba(sample)[0]
+print(f"\nNew flower {sample[0].tolist()} →")
+print(f"  Predicted: {iris.target_names[pred]}")
+print(f"  Confidence: {max(prob):.1%}")
+</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>Run the code below and find out which value of k gives the best accuracy on the Iris test set. Try k = 1, 5, and 10. Record the results and explain what you observe.</p>
+      <textarea class="code-editor" id="editor1">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X, y = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("=== KNN Accuracy for Different k Values ===\n")
+
+# Try k = 1, 5, and 10
+# YOUR CODE HERE: add more k values to this list!
+k_values = [1, 5, 10]
+
+best_k = None
+best_acc = 0
+
+for k in k_values:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train, y_train)
+    acc = knn.score(X_test, y_test)
+    print(f"  k={k:>3}: Accuracy = {acc:.1%}")
+    if acc > best_acc:
+        best_acc = acc
+        best_k = k
+
+print(f"\nBest k: {best_k} with accuracy {best_acc:.1%}")
+print("\nTry adding more k values (e.g., 3, 7, 15, 20) to find the true best!")</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (first run installs scikit-learn, ~10 seconds)</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> Add more values to <code>k_values</code> like <code>[1, 3, 5, 7, 10, 15, 20]</code>. Notice how accuracy changes. Which tends to be better &mdash; very small k or very large k?</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p>You&rsquo;re new to a city and trying to decide where to eat. You ask your <strong>3 nearest neighbors</strong>:</p>
+      <ul>
+        <li>Neighbor 1: &ldquo;Go to the pizza place on 5th!&rdquo;</li>
+        <li>Neighbor 2: &ldquo;Pizza on 5th is great!&rdquo;</li>
+        <li>Neighbor 3: &ldquo;Try the sushi place instead.&rdquo;</li>
+      </ul>
+      <p>Majority vote: 2 pizza vs 1 sushi &rarr; you go for pizza. That&rsquo;s exactly KNN.</p>
+      <p>Now imagine asking 100 neighbors. Some live far away and don&rsquo;t even know the pizza place exists. Their votes might not be helpful. This is why k matters &mdash; <strong>too many neighbors can drown out the signal</strong>.</p>
+      <p style="margin-bottom:0">The right number of &ldquo;neighbors&rdquo; to consult is almost always somewhere in the middle.</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li>KNN classifies by finding the <strong>k most similar training examples</strong> and taking a majority vote. No training phase &mdash; it just memorizes.</li>
+        <li>The standard <strong>sklearn API pattern</strong> is: import &rarr; create &rarr; fit &rarr; predict &rarr; score. This works for every algorithm.</li>
+        <li><strong>k too small</strong> (k=1): overfits, sensitive to noise. <strong>k too large</strong>: underfits, ignores local patterns. The sweet spot is usually between 3 and 15.</li>
+        <li>Always set a <strong>random_state</strong> in train_test_split to get reproducible results.</li>
+        <li>KNN requires <strong>feature scaling</strong> (see Module 3) because it&rsquo;s purely distance-based. Unscaled features will bias the results.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 4 Complete!</h2>
+      <p>You&rsquo;ve trained your first real ML model! Next, we&rsquo;ll explore a completely different approach &mdash; one that makes decisions by asking yes/no questions.</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-05/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 5: Decision Trees &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-03/index.html" class="nav-prev">&larr; Module 3: Preparing Data</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 4 of 8</span>
+      <a href="../module-05/index.html" class="nav-next">Module 5: Decision Trees &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 4: Your First Classifier (KNN)</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running... (installing scikit-learn if needed — ~10 seconds)';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-04';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 3: Preparing Data — Machine Learning Basics. Clean messy data, encode categories, scale features, and split into train/test sets.">
+  <title>Module 3: Preparing Data - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; min-height: 220px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .concept-pill { display: inline-block; background: #F3E5F5; color: #4A148C; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin: 4px; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; min-width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 3 of 8 &mdash; Machine Learning Basics</div>
+      <h1>Preparing Data</h1>
+      <p>Raw data is messy &mdash; ML models need clean, numeric data in the right format</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-02/index.html" class="nav-prev">&larr; Module 2: Your First Dataset</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 3 of 8</span>
+      <a href="../module-04/index.html" class="nav-next">Module 4: Your First Classifier &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>Modules 1 and 2 completed</li>
+        <li>Comfortable with Python lists, loops, and dictionaries</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~50 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> <span class="concept-pill">Missing Values</span> <span class="concept-pill">Label Encoding</span> <span class="concept-pill">Feature Scaling</span> <span class="concept-pill">Train/Test Split</span></p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem">Real-world data is rarely clean. It has <strong>missing values</strong>, <strong>text categories</strong> that models can&rsquo;t read, and <strong>features on wildly different scales</strong> that confuse distance-based algorithms.</p>
+      <p>Data preparation (also called <em>preprocessing</em>) turns raw messy data into the structured numeric format that ML algorithms require. This step is not glamorous &mdash; but data scientists report spending <strong>60-80% of their time</strong> here. Getting it right makes or breaks your model.</p>
+      <p style="margin-bottom:0">The four core preparation steps: handle missing values &rarr; encode categories &rarr; scale features &rarr; split into train and test.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">Step 1 &mdash; Handling Missing Values</h3>
+      <p>Missing data appears as gaps, <code>None</code>, <code>NaN</code>, or empty cells. Two main strategies:</p>
+      <ul>
+        <li><strong>Drop:</strong> Remove rows (or columns) with missing values. Safe when you have lots of data and few missing values.</li>
+        <li><strong>Impute (fill):</strong> Replace missing values with a calculated substitute. Common choices: <em>mean</em> (for numeric data), <em>median</em> (more robust to outliers), or <em>most frequent value</em> (for categories).</li>
+      </ul>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">Step 2 &mdash; Encoding Categorical Features</h3>
+      <p>ML algorithms work with numbers only. Categories like <code>"sales"</code>, <code>"tech"</code>, <code>"hr"</code> must be converted:</p>
+      <ul>
+        <li><strong>Label Encoding:</strong> Assign each category a number (sales=0, tech=1, hr=2). Quick, but implies an ordering that may not exist.</li>
+        <li><strong>One-Hot Encoding:</strong> Create a new binary column for each category (is_sales, is_tech, is_hr). No ordering implied. Best for tree-based methods.</li>
+      </ul>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">Step 3 &mdash; Feature Scaling</h3>
+      <p>Consider a dataset with <code>age</code> (20&ndash;70) and <code>salary</code> (30,000&ndash;200,000). Distance-based algorithms like KNN would be dominated by salary just because the numbers are larger &mdash; even if age is equally important. Scaling fixes this:</p>
+      <ul>
+        <li><strong>Min-Max Scaling (Normalization):</strong> Scale all features to [0, 1]. Formula: <code>(x - min) / (max - min)</code></li>
+        <li><strong>Standardization (Z-score):</strong> Center at 0 with std=1. Formula: <code>(x - mean) / std</code>. Better when data has outliers.</li>
+      </ul>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">Step 4 &mdash; Train/Test Split</h3>
+      <p>You need to know how your model performs on <strong>data it has never seen</strong>. That&rsquo;s why you hold out a test set before training:</p>
+      <div class="step">
+        <div class="step-num">80%</div>
+        <div><strong>Training set</strong> &mdash; The model learns from this. Larger = more learning material.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">20%</div>
+        <div><strong>Test set</strong> &mdash; Held out completely until final evaluation. Never shown to the model during training. This is the true performance measure.</div>
+      </div>
+      <p style="color:#C62828"><strong>Important:</strong> Never use the test set for any decisions during development. If you do, you're leaking information and your results will be overly optimistic.</p>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">All 4 preprocessing steps in sequence on a simulated messy dataset.</p>
+      <div class="worked-code">import numpy as np
+
+# ---- Simulated messy dataset ----
+data = {
+    'age':        [25, None, 35, 28, 42, None, 31],
+    'salary':     [50000, 60000, None, 45000, 75000, 55000, 62000],
+    'department': ['sales', 'tech', 'sales', 'hr', 'tech', 'hr', 'tech'],
+    'promoted':   [0, 1, 0, 0, 1, 0, 1]
+}
+n = len(data['promoted'])
+
+# ---- STEP 1: Check and handle missing values ----
+print("=== Step 1: Missing Values ===")
+for col, vals in data.items():
+    missing = sum(1 for v in vals if v is None)
+    print(f"  {col}: {missing} missing")
+
+ages = [v for v in data['age'] if v is not None]
+mean_age = sum(ages) / len(ages)
+data['age'] = [v if v is not None else mean_age for v in data['age']]
+
+salaries = [v for v in data['salary'] if v is not None]
+mean_salary = sum(salaries) / len(salaries)
+data['salary'] = [v if v is not None else mean_salary for v in data['salary']]
+print(f"\nFilled age with mean: {mean_age:.1f}")
+print(f"Filled salary with mean: ${mean_salary:,.0f}")
+
+# ---- STEP 2: Encode categorical feature ----
+print("\n=== Step 2: Encoding Department ===")
+dept_map = {'sales': 0, 'tech': 1, 'hr': 2}
+data['dept_encoded'] = [dept_map[d] for d in data['department']]
+print(f"  Mapping: {dept_map}")
+print(f"  Encoded: {data['dept_encoded']}")
+
+# ---- STEP 3: Scale features (min-max) ----
+print("\n=== Step 3: Feature Scaling (Min-Max) ===")
+for col in ['age', 'salary']:
+    vals = data[col]
+    mn, mx = min(vals), max(vals)
+    scaled = [(v - mn) / (mx - mn) for v in vals]
+    data[f'{col}_scaled'] = scaled
+    print(f"  {col}: original range [{mn:.0f}, {mx:.0f}] → scaled range [0.0, 1.0]")
+    print(f"  First 3 scaled: {[round(s, 3) for s in scaled[:3]]}")
+
+# ---- STEP 4: Train/test split (80/20) ----
+print("\n=== Step 4: Train/Test Split (80/20) ===")
+split = int(n * 0.8)
+print(f"  Total samples: {n}")
+print(f"  Training:  {split} samples (indices 0 to {split-1})")
+print(f"  Test:      {n - split} samples (indices {split} to {n-1})")
+</div>
+      <p style="color:#aaa;font-size:0.9rem;margin-top:0.75rem">This is a read-only example. The interactive exercise is below.</p>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>The code above uses an 80/20 split. Change the split to <strong>70/30</strong> and print how many samples end up in each set. Also add a print statement showing the <strong>percentage</strong> in each set.</p>
+      <textarea class="code-editor" id="editor1">data = {
+    'age':        [25, 30, 35, 28, 42, 22, 31, 45, 38, 29],
+    'salary':     [50000, 60000, 70000, 45000, 75000, 48000, 62000, 80000, 68000, 52000],
+    'promoted':   [0, 1, 0, 0, 1, 0, 1, 1, 0, 0]
+}
+n = len(data['promoted'])
+
+# YOUR CODE HERE:
+# 1. Change the split ratio to 70/30 (train/test)
+# 2. Calculate train_size and test_size
+# 3. Print both sizes
+# 4. Print the percentage in each set (e.g., "Training: 70.0%")
+
+split_ratio = 0.70  # change this if needed
+train_size = int(n * split_ratio)
+test_size = n - train_size
+
+print(f"Total samples: {n}")
+# Add your print statements below:
+</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip;</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> To get the percentage, use <code>train_size / n * 100</code>. Use an f-string like <code>f"Training: {train_size / n * 100:.1f}%"</code> to format it nicely.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p>Imagine you&rsquo;re studying for a final exam. You have 100 practice problems.</p>
+      <ul>
+        <li>You study 80 of them &mdash; that&rsquo;s your <strong>training set</strong>.</li>
+        <li>You set aside 20 problems you&rsquo;ve never seen &mdash; that&rsquo;s your <strong>test set</strong>.</li>
+        <li>The exam score on those 20 unseen problems tells you your true knowledge.</li>
+      </ul>
+      <p>Now think: what would happen if you studied the test problems too? You&rsquo;d do great on those 20 &mdash; but you wouldn&rsquo;t know how you&rsquo;d do on a truly new problem. This is exactly what <strong>data leakage</strong> means in ML.</p>
+      <p style="margin-bottom:0">The test set must stay sealed until the very end.</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li>The 4 core preprocessing steps: <strong>Handle missing values &rarr; Encode categories &rarr; Scale features &rarr; Split data</strong>.</li>
+        <li>Fill missing values with the <strong>mean</strong> (or median for skewed data) to avoid losing samples.</li>
+        <li>ML models can only work with <strong>numbers</strong> &mdash; always encode text categories before training.</li>
+        <li>Feature scaling is critical for <strong>distance-based models</strong> (like KNN) but less important for tree-based models.</li>
+        <li>The <strong>test set</strong> must be completely untouched during development &mdash; it measures real-world performance.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 3 Complete!</h2>
+      <p>You can now clean and prepare a dataset. In Module 4, you&rsquo;ll use your prepared data to train your very first classifier!</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-04/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 4: Your First Classifier &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-02/index.html" class="nav-prev">&larr; Module 2: Your First Dataset</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 3 of 8</span>
+      <a href="../module-04/index.html" class="nav-next">Module 4: Your First Classifier &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 3: Preparing Data</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-03';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 5: Decision Trees — Machine Learning Basics. Learn how trees split data using Gini impurity, control depth, and spot overfitting.">
+  <title>Module 5: Decision Trees - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; min-height: 260px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; min-width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+    .overfit-warning { background: #FCE4EC; border: 2px solid #C62828; border-radius: 10px; padding: 1rem 1.5rem; margin: 1rem 0; }
+    .overfit-warning p { margin: 0; color: #B71C1C; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 5 of 8 &mdash; Machine Learning Basics</div>
+      <h1>Decision Trees</h1>
+      <p>Yes/no questions, branching logic, and the danger of memorizing your training data</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-04/index.html" class="nav-prev">&larr; Module 4: KNN</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 5 of 8</span>
+      <a href="../module-06/index.html" class="nav-next">Module 6: Linear Regression &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>Modules 1&ndash;4 completed</li>
+        <li>You understand train/test accuracy as separate concepts</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~55 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How decision trees split data, what Gini impurity means, how tree depth controls complexity, and how to recognize overfitting.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem">A decision tree asks a series of <strong>yes/no questions</strong> about your features, splitting the data at each step, until it arrives at a prediction.</p>
+      <p>It&rsquo;s like the game 20 Questions, but the computer chooses which questions are most useful. &ldquo;Is petal length &lt; 2.5 cm?&rdquo; If yes &rarr; almost certainly setosa. If no &rarr; ask another question.</p>
+      <p>Decision trees are hugely popular because they&rsquo;re <strong>interpretable</strong> &mdash; you can actually read the rules the model learned. They also require no feature scaling (unlike KNN).</p>
+      <p style="margin-bottom:0">But they have one big weakness: a deep tree will <strong>memorize</strong> the training data instead of learning generalizable patterns. That&rsquo;s overfitting &mdash; and controlling tree depth is how we fight it.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">How the Tree Chooses Its Questions</h3>
+      <p>At each node, the algorithm tries every possible split on every feature and picks the one that creates the <strong>purest</strong> child groups. &ldquo;Purity&rdquo; means: one class dominates the group.</p>
+      <p>The most common measure of impurity is <strong>Gini impurity</strong>. A node with all one class has Gini = 0 (perfectly pure). A node with equal mix has Gini = 0.5 (maximally impure). The tree always picks the split that reduces Gini the most.</p>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">An Example Split</h3>
+      <div style="background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;">
+Root: All 150 flowers
+│
+├─── petal_length ≤ 2.45? YES → 50 setosa (Gini = 0.0) ✅ Pure!
+│
+└─── petal_length ≤ 2.45? NO  → 100 mixed (versicolor + virginica)
+         │
+         ├─── petal_width ≤ 1.75? YES → ~49 versicolor
+         │
+         └─── petal_width ≤ 1.75? NO  → ~45 virginica
+      </div>
+      <p style="margin-top:0.75rem">Just 2 questions correctly classifies most of the 150 flowers. That&rsquo;s the power of decision trees.</p>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">Depth and Overfitting</h3>
+      <div class="overfit-warning">
+        <p>&#9888;&#65039; <strong>Overfitting:</strong> When training accuracy = 100% but test accuracy is much lower, your model has <em>memorized</em> the training data rather than learning generalizable patterns. A depth-unlimited tree will always overfit.</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-top:0.5rem;">
+        <tr style="background:#4A148C;color:white;">
+          <th style="padding:8px 12px;text-align:left">Max Depth</th>
+          <th style="padding:8px 12px;text-align:left">Train Accuracy</th>
+          <th style="padding:8px 12px;text-align:left">Test Accuracy</th>
+          <th style="padding:8px 12px;text-align:left">Verdict</th>
+        </tr>
+        <tr style="background:#F3E5F5;"><td style="padding:8px 12px">1</td><td style="padding:8px 12px">~67%</td><td style="padding:8px 12px">~67%</td><td style="padding:8px 12px">Underfit (too simple)</td></tr>
+        <tr><td style="padding:8px 12px">3</td><td style="padding:8px 12px">~98%</td><td style="padding:8px 12px">~97%</td><td style="padding:8px 12px">Good balance</td></tr>
+        <tr style="background:#F3E5F5;"><td style="padding:8px 12px">None</td><td style="padding:8px 12px">100%</td><td style="padding:8px 12px">~93%</td><td style="padding:8px 12px">Overfit (memorized)</td></tr>
+      </table>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">Training decision trees with different depths and reading the actual decision rules.</p>
+      <div class="worked-code">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.tree import DecisionTreeClassifier, export_text
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
+iris = load_iris()
+X, y = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Compare trees at different depths
+print("=== Train vs Test Accuracy by Depth ===\n")
+print(f"{'Depth':>10}  {'Train Acc':>10}  {'Test Acc':>10}  {'Gap':>8}")
+print("-" * 44)
+for depth in [1, 2, 3, 4, None]:
+    dt = DecisionTreeClassifier(max_depth=depth, random_state=42)
+    dt.fit(X_train, y_train)
+    train_acc = dt.score(X_train, y_train)
+    test_acc = dt.score(X_test, y_test)
+    gap = train_acc - test_acc
+    depth_str = str(depth) if depth else "unlimited"
+    print(f"{depth_str:>10}  {train_acc:>10.1%}  {test_acc:>10.1%}  {gap:>8.1%}")
+
+# Show the learned rules for depth=2
+print("\n=== Decision Rules Learned (depth=2) ===\n")
+dt2 = DecisionTreeClassifier(max_depth=2, random_state=42)
+dt2.fit(X_train, y_train)
+rules = export_text(dt2, feature_names=list(iris.feature_names))
+print(rules)
+
+# Feature importance
+print("=== Feature Importance ===")
+for name, imp in zip(iris.feature_names, dt2.feature_importances_):
+    bar = "█" * int(imp * 30)
+    print(f"  {name:<20} {imp:.3f}  {bar}")
+</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>Run the code below. When depth is set to <code>None</code> (unlimited), the training accuracy reaches 100%. Your task: <strong>explain in the comment why 100% training accuracy is not a good thing</strong>, and find the depth that gives the smallest gap between train and test accuracy.</p>
+      <textarea class="code-editor" id="editor1">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
+iris = load_iris()
+X, y = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# YOUR CODE HERE:
+# 1. Train a tree with max_depth=None (unlimited)
+# 2. Print both train and test accuracy
+# 3. Add a comment explaining why 100% train accuracy is NOT good
+
+dt_unlimited = DecisionTreeClassifier(max_depth=None, random_state=42)
+dt_unlimited.fit(X_train, y_train)
+
+train_acc = dt_unlimited.score(X_train, y_train)
+test_acc = dt_unlimited.score(X_test, y_test)
+
+print(f"Unlimited depth — Train: {train_acc:.1%}, Test: {test_acc:.1%}")
+print(f"Gap: {train_acc - test_acc:.1%}")
+
+# YOUR COMMENT HERE: Why is 100% training accuracy a warning sign?
+# (Replace this comment with your explanation)
+
+# Bonus: loop through depths 1-10 and find which depth has the smallest gap
+print("\n=== Finding the best depth (smallest train-test gap) ===")
+# Add your loop here!</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (~10 seconds first run)</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> 100% training accuracy with a gap on test data means the model <em>memorized</em> the training set rather than learning general rules. For the bonus loop, use <code>for depth in range(1, 11):</code> and track which depth minimizes <code>abs(train_acc - test_acc)</code>.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p>Imagine two students studying for an exam:</p>
+      <ul>
+        <li><strong>Student A</strong> memorized every practice problem word-for-word. Gets 100% on practice tests.</li>
+        <li><strong>Student B</strong> learned the underlying concepts. Gets 92% on practice tests.</li>
+      </ul>
+      <p>The real exam has new problems. Who does better?</p>
+      <p>Student A is our <strong>overfit model</strong>. Student B is our <strong>well-generalized model</strong>.</p>
+      <p style="margin-bottom:0">Overfitting in ML is exactly this: a model that&rsquo;s so tuned to the training examples that it fails on anything new. Controlling tree depth is one way to force the model to learn real patterns, not just memorize.</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li>Decision trees split data using <strong>yes/no questions</strong> on features, choosing splits that maximize purity (minimize Gini impurity).</li>
+        <li><strong>Overfitting</strong> = high train accuracy, much lower test accuracy. The model memorized training data.</li>
+        <li>Control overfitting by limiting <strong>max_depth</strong>. A shallow tree generalizes better even if it doesn&rsquo;t perfectly fit training data.</li>
+        <li>Decision trees are <strong>interpretable</strong> &mdash; you can print and read the exact rules using <code>export_text</code>.</li>
+        <li>The <code>feature_importances_</code> attribute tells you which features the tree relied on most &mdash; very useful for understanding your data.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 5 Complete!</h2>
+      <p>You now understand classification trees and overfitting. Next, we switch from predicting categories to predicting numbers with linear regression.</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-06/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 6: Linear Regression &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-04/index.html" class="nav-prev">&larr; Module 4: KNN</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 5 of 8</span>
+      <a href="../module-06/index.html" class="nav-next">Module 6: Linear Regression &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 5: Decision Trees</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running... (installing scikit-learn if needed — ~10 seconds)';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-05';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

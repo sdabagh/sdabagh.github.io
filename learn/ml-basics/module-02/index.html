@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 2: Your First Dataset — Machine Learning Basics. Explore the Iris dataset, understand rows, columns, features and labels.">
+  <title>Module 2: Your First Dataset - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; min-height: 200px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .vocab-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .vocab-table th { background: #4A148C; color: white; padding: 0.75rem 1rem; text-align: left; }
+    .vocab-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #e0e0e0; }
+    .vocab-table tr:nth-child(even) { background: #F3E5F5; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; min-width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 2 of 8 &mdash; Machine Learning Basics</div>
+      <h1>Your First Dataset</h1>
+      <p>Garbage in = garbage out &mdash; understand your data before you model it</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-01/index.html" class="nav-prev">&larr; Module 1: What IS ML?</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 2 of 8</span>
+      <a href="../module-03/index.html" class="nav-next">Module 3: Preparing Data &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>Complete Module 1 first</li>
+        <li>Familiarity with Python lists and dictionaries</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~50 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> What a dataset is, the vocabulary of ML data (samples, features, labels), and how to explore a dataset using basic Python before building any model.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem">Before you can train a model, you need to <strong>understand your data</strong>. This is called Exploratory Data Analysis (EDA), and experienced ML engineers spend more time here than anywhere else.</p>
+      <p>A dataset is a table. Every <strong>row</strong> is one example (a sample). Every <strong>column</strong> is a measurement about that example (a feature). One special column is the <strong>target</strong> &mdash; the thing you&rsquo;re trying to predict.</p>
+      <p style="margin-bottom:0">The famous <strong>Iris dataset</strong> is the &ldquo;Hello World&rdquo; of machine learning. It contains 150 measurements of iris flowers with 4 features and 3 species labels. We&rsquo;ll use it throughout this course.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">Dataset Vocabulary</h3>
+      <table class="vocab-table">
+        <tr><th>Term</th><th>What It Means</th><th>Iris Example</th></tr>
+        <tr><td><strong>Sample / Instance</strong></td><td>One row — one observation</td><td>One specific iris flower</td></tr>
+        <tr><td><strong>Feature / Attribute</strong></td><td>One column — one measurement</td><td>Petal length, sepal width</td></tr>
+        <tr><td><strong>Target / Label</strong></td><td>The column you want to predict</td><td>Species (setosa, versicolor, virginica)</td></tr>
+        <tr><td><strong>X (features matrix)</strong></td><td>All input columns</td><td>All 4 measurements</td></tr>
+        <tr><td><strong>y (target vector)</strong></td><td>The output column</td><td>Species label</td></tr>
+        <tr><td><strong>Shape</strong></td><td>Rows &times; columns</td><td>150 &times; 5</td></tr>
+      </table>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">EDA: The 5 Questions to Ask Every Dataset</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div><strong>How big is it?</strong> Check rows and columns. Too small (&lt;100 samples) can cause problems. Too large might need special tools.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div><strong>What are the features?</strong> Which are numbers? Which are categories? Understand each column before using it.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div><strong>Are there missing values?</strong> ML models can&rsquo;t handle gaps in data &mdash; you need a plan (drop them or fill them).</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div><strong>What&rsquo;s the class distribution?</strong> In classification, are your target classes balanced? A dataset with 99% one class is almost useless.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div><strong>Are there obvious patterns?</strong> Do certain features seem to separate the classes well? This tells you what might matter most.</div>
+      </div>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">The Iris Dataset Up Close</h3>
+      <p>Here is what one row (one flower sample) looks like:</p>
+      <div style="background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:0.875rem;padding:1rem;border-radius:8px;">
+| sepal_length | sepal_width | petal_length | petal_width | species   |
+|--------------|-------------|--------------|-------------|-----------|
+|     5.1      |     3.5     |     1.4      |     0.2     | setosa    |  ← one flower
+|     7.0      |     3.2     |     4.7      |     1.4     | versicolor|  ← one flower
+|     6.3      |     3.3     |     6.0      |     2.5     | virginica |  ← one flower
+      </div>
+      <p style="margin-top:0.75rem">Features: the 4 numeric measurements. Target: species. Shape: 150 &times; 5.</p>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">Watch how we explore a dataset: shape, class counts, basic statistics. Run it to see the output.</p>
+      <div class="worked-code">import numpy as np
+from collections import Counter
+
+# Simulated Iris-like dataset (subset)
+# Columns: sepal_length, sepal_width, petal_length, petal_width, species
+data = [
+    [5.1, 3.5, 1.4, 0.2, 'setosa'],
+    [4.9, 3.0, 1.4, 0.2, 'setosa'],
+    [4.7, 3.2, 1.3, 0.2, 'setosa'],
+    [5.0, 3.6, 1.4, 0.2, 'setosa'],
+    [5.4, 3.9, 1.7, 0.4, 'setosa'],
+    [7.0, 3.2, 4.7, 1.4, 'versicolor'],
+    [6.4, 3.2, 4.5, 1.5, 'versicolor'],
+    [6.9, 3.1, 4.9, 1.5, 'versicolor'],
+    [5.5, 2.3, 4.0, 1.3, 'versicolor'],
+    [6.5, 2.8, 4.6, 1.5, 'versicolor'],
+    [6.3, 3.3, 6.0, 2.5, 'virginica'],
+    [5.8, 2.7, 5.1, 1.9, 'virginica'],
+    [7.1, 3.0, 5.9, 2.1, 'virginica'],
+    [6.3, 2.9, 5.6, 1.8, 'virginica'],
+    [6.5, 3.0, 5.8, 2.2, 'virginica'],
+]
+feature_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+
+# ---- QUESTION 1: How big is the dataset? ----
+print(f"Shape: {len(data)} rows x {len(data[0])} columns")
+print(f"Features: {feature_names}")
+print(f"Target: species (last column)")
+
+# ---- QUESTION 2: Show first 3 rows ----
+print("\n--- First 3 Rows ---")
+print(f"{'sepal_l':>9} {'sepal_w':>9} {'petal_l':>9} {'petal_w':>9}  {'species'}")
+for row in data[:3]:
+    print(f"{row[0]:>9.1f} {row[1]:>9.1f} {row[2]:>9.1f} {row[3]:>9.1f}  {row[4]}")
+
+# ---- QUESTION 4: Class distribution ----
+labels = [row[-1] for row in data]
+print("\n--- Class Distribution ---")
+for species, count in Counter(labels).items():
+    print(f"  {species}: {count} samples")
+
+# ---- QUESTION 5: Stats per feature ----
+print("\n--- Feature Statistics ---")
+print(f"{'Feature':<15} {'Min':>6} {'Max':>6} {'Mean':>6}")
+print("-" * 37)
+for i, name in enumerate(feature_names):
+    vals = [row[i] for row in data]
+    print(f"{name:<15} {min(vals):>6.2f} {max(vals):>6.2f} {sum(vals)/len(vals):>6.2f}")
+</div>
+      <p style="color:#aaa;font-size:0.9rem;margin-top:0.75rem">This is a read-only example. The interactive exercise is below.</p>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>The code above shows stats for all features. Your task: <strong>modify the code to show statistics for <code>sepal_length</code> only</strong>, and also print whether the class distribution is balanced (equal number of each species).</p>
+      <textarea class="code-editor" id="editor1">from collections import Counter
+
+data = [
+    [5.1, 3.5, 1.4, 0.2, 'setosa'],
+    [4.9, 3.0, 1.4, 0.2, 'setosa'],
+    [4.7, 3.2, 1.3, 0.2, 'setosa'],
+    [5.0, 3.6, 1.4, 0.2, 'setosa'],
+    [5.4, 3.9, 1.7, 0.4, 'setosa'],
+    [7.0, 3.2, 4.7, 1.4, 'versicolor'],
+    [6.4, 3.2, 4.5, 1.5, 'versicolor'],
+    [6.9, 3.1, 4.9, 1.5, 'versicolor'],
+    [5.5, 2.3, 4.0, 1.3, 'versicolor'],
+    [6.5, 2.8, 4.6, 1.5, 'versicolor'],
+    [6.3, 3.3, 6.0, 2.5, 'virginica'],
+    [5.8, 2.7, 5.1, 1.9, 'virginica'],
+    [7.1, 3.0, 5.9, 2.1, 'virginica'],
+    [6.3, 2.9, 5.6, 1.8, 'virginica'],
+    [6.5, 3.0, 5.8, 2.2, 'virginica'],
+]
+
+# Task 1: Extract sepal_length values (index 0) and print stats
+sepal_lengths = [row[0] for row in data]
+print("=== Sepal Length Statistics ===")
+print(f"  Min:  {min(sepal_lengths):.2f}")
+print(f"  Max:  {max(sepal_lengths):.2f}")
+print(f"  Mean: {sum(sepal_lengths)/len(sepal_lengths):.2f}")
+
+# Task 2: Check if classes are balanced
+labels = [row[-1] for row in data]
+counts = Counter(labels)
+print("\n=== Class Balance Check ===")
+for species, count in counts.items():
+    print(f"  {species}: {count} samples")
+
+# YOUR CODE HERE: Add an if/else that prints either
+# "✅ Balanced dataset!" or "⚠️ Imbalanced dataset!"
+# based on whether all species have the same count
+</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip;</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> Use <code>len(set(counts.values())) == 1</code> to check if all counts are identical. If they are, the dataset is balanced!</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p>Think about a dataset you interact with every day without realizing it &mdash; maybe your Spotify listening history, your purchase history, or your step counter.</p>
+      <ul>
+        <li>What would each <strong>row</strong> represent?</li>
+        <li>What would the <strong>features</strong> be?</li>
+        <li>What would you want the model to <strong>predict</strong> (the target)?</li>
+      </ul>
+      <p style="margin-bottom:0">This mental habit &mdash; thinking in rows, columns, and targets &mdash; is how ML practitioners see the world.</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li>A dataset = a table. <strong>Rows = samples, Columns = features, one column = target</strong>.</li>
+        <li>Always explore before modeling: check shape, missing values, class distribution, and basic statistics.</li>
+        <li><strong>The Iris dataset</strong>: 150 samples, 4 features (sepal/petal length &amp; width), 3 target classes. It&rsquo;s the classic ML starting point.</li>
+        <li>Imbalanced classes (e.g., 95% class A, 5% class B) will cause your model to ignore the minority class &mdash; something to watch for.</li>
+        <li>&ldquo;Garbage in = garbage out&rdquo; &mdash; even the best algorithm fails if you don&rsquo;t understand your data first.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 2 Complete!</h2>
+      <p>You know how to read and explore a dataset. Next, we tackle the messiest part of ML &mdash; cleaning and preparing real data.</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-03/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 3: Preparing Data &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-01/index.html" class="nav-prev">&larr; Module 1: What IS ML?</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 2 of 8</span>
+      <a href="../module-03/index.html" class="nav-next">Module 3: Preparing Data &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 2: Your First Dataset</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-02';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

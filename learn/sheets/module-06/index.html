@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 06: Charts & Visualization — bar, line, pie, scatter charts in Google Sheets and Excel. When to use each chart type.">
+  <title>Module 06: Charts &amp; Visualization – Excel &amp; Google Sheets for Data</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .mod-header { background: linear-gradient(135deg, #1B5E20 0%, #43A047 60%, #66BB6A 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .mod-header h1 { color: white; margin-bottom: 0.5rem; font-size: 2rem; }
+    .mod-header p { opacity: 0.95; max-width: 680px; margin: 0; font-size: 1.05rem; }
+    .mod-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; opacity: 0.9; font-size: 0.9rem; }
+    .mod-nav { display: flex; align-items: center; justify-content: space-between; background: #F1F8E9; border: 2px solid #A5D6A7; border-radius: var(--radius-md); padding: 0.75rem 1.25rem; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { color: #2E7D32; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+    .mod-nav a:hover { text-decoration: underline; }
+    .sec-before  { background: #E3F2FD; border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-concept { background: white; border: 2px solid var(--border-color); border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-steps   { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-data    { background: #F8F9FA; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-yourturn{ background: #FFF9C4; border-left: 5px solid #F9A825; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-brain   { background: #F3E5F5; border-left: 5px solid #7B1FA2; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-wrapup  { background: #E8F5E9; border-left: 5px solid #2E7D32; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; opacity: 0.75; }
+    .sec-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-dark); }
+    .steps { list-style: none; padding: 0; margin: 0; counter-reset: step-counter; }
+    .steps li { counter-increment: step-counter; padding: 0.9rem 0.9rem 0.9rem 3.5rem; position: relative; border-bottom: 1px solid var(--border-color); line-height: 1.6; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before { content: counter(step-counter); position: absolute; left: 0.5rem; top: 0.9rem; width: 2rem; height: 2rem; background: #43A047; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0; }
+    .data-table th { background: #1B5E20; color: white; padding: 0.6rem 1rem; text-align: left; font-weight: 600; }
+    .data-table td { padding: 0.5rem 1rem; border-bottom: 1px solid #E0E0E0; }
+    .data-table tr:nth-child(even) td { background: #F1F8E9; }
+    .hint { background: white; border: 1px dashed #81C784; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.875rem; margin-top: 1rem; color: var(--text-secondary); }
+    .hint strong { color: #2E7D32; }
+    .takeaways { list-style: none; padding: 0; margin: 0; }
+    .takeaways li { padding: 0.4rem 0 0.4rem 1.75rem; position: relative; }
+    .takeaways li::before { content: "✅"; position: absolute; left: 0; }
+    .complete-section { text-align: center; padding: var(--spacing-lg) 0; border-top: 2px solid #C8E6C9; margin-top: var(--spacing-xl); }
+    #complete-btn { background: #43A047; color: white; border: none; padding: 0.85rem 2.5rem; border-radius: 30px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    #complete-btn:hover { background: #2E7D32; transform: translateY(-2px); }
+    #complete-status { margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .chart-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin: 0.75rem 0; }
+    .chart-card { border-radius: var(--radius-md); padding: 1.1rem 1.25rem; }
+    .chart-card.bar { background: #E3F2FD; border: 2px solid #1565C0; }
+    .chart-card.line { background: #E8F5E9; border: 2px solid #2E7D32; }
+    .chart-card.pie { background: #FFF3E0; border: 2px solid #E65100; }
+    .chart-card.scatter { background: #F3E5F5; border: 2px solid #7B1FA2; }
+    .chart-card h4 { margin: 0 0 0.4rem; font-size: 1rem; }
+    .chart-card .use-when { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; }
+    .chart-card p { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .chart-card .example { font-size: 0.8rem; font-style: italic; color: var(--text-secondary); border-top: 1px solid rgba(0,0,0,0.1); margin-top: 0.5rem; padding-top: 0.5rem; }
+    .warning-box { background: #FFF3E0; border: 2px solid #FF9800; border-radius: var(--radius-md); padding: 0.75rem 1.25rem; margin: 0.75rem 0; font-size: 0.9rem; }
+    .warning-box strong { color: #E65100; }
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.75rem 0; }
+    .do-box { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: var(--radius-md); padding: 0.9rem; }
+    .dont-box { background: #FFEBEE; border: 2px solid #C62828; border-radius: var(--radius-md); padding: 0.9rem; }
+    .do-box h4 { color: #1B5E20; margin: 0 0 0.5rem; font-size: 0.9rem; }
+    .dont-box h4 { color: #B71C1C; margin: 0 0 0.5rem; font-size: 0.9rem; }
+    .do-box ul, .dont-box ul { padding-left: 1.2rem; margin: 0; font-size: 0.85rem; line-height: 1.8; }
+    @media (max-width: 600px) { .mod-header h1 { font-size: 1.5rem; } .mod-nav { flex-direction: column; text-align: center; } .do-dont { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="mod-nav">
+      <a href="../module-05/index.html">&#8592; Module 05: Pivot Tables</a>
+      <a href="../index.html">&#127968; Course Home</a>
+      <a href="../module-07/index.html">Module 07: Data Cleaning &#8594;</a>
+    </div>
+
+    <div class="mod-header">
+      <div style="font-size:0.85rem; opacity:0.8; margin-bottom:0.5rem;">Module 06 of 08 &nbsp;|&nbsp; Excel &amp; Google Sheets for Data</div>
+      <h1>&#128200; Charts &amp; Visualization</h1>
+      <p>A chart communicates in seconds what a table of numbers might take minutes to understand. Learn which chart type to use for which situation — and how to build, customize, and clean up charts in Google Sheets.</p>
+      <div class="mod-meta">
+        <span>&#9200; ~40 minutes</span>
+        <span>&#127891; Beginner–Intermediate</span>
+        <span>&#128203; Requires: Modules 01–05</span>
+      </div>
+    </div>
+
+    <div class="sec-before">
+      <div class="sec-label">&#128204; Before You Start</div>
+      <div class="sec-title">Choosing the right chart is half the work</div>
+      <p>The most common visualization mistake is choosing the wrong chart type. A bar chart works great for comparing categories — but terrible for showing trends over time. A pie chart with 12 slices is almost always unreadable. This module walks you through each chart type, when to use it, and when to avoid it. You'll build charts from the Module 05 pivot table data.</p>
+    </div>
+
+    <!-- CHART TYPES -->
+    <div class="sec-concept">
+      <div class="sec-label">&#128161; The Concept</div>
+      <div class="sec-title">The Four Most Important Chart Types — When to Use Each</div>
+
+      <div class="chart-cards">
+        <div class="chart-card bar">
+          <h4>&#128202; Bar Chart (Column Chart)</h4>
+          <div class="use-when">Use when: comparing categories</div>
+          <p>Shows a bar (or column) for each category. Height or length = value. Great for side-by-side comparisons.</p>
+          <div class="example">Example: Revenue by Region. Revenue by Category. Sales by Salesperson.</div>
+        </div>
+        <div class="chart-card line">
+          <h4>&#128200; Line Chart</h4>
+          <div class="use-when">Use when: showing trends over time</div>
+          <p>Connects data points with a line, emphasizing direction and rate of change. Time (dates, months) should always be on the horizontal axis.</p>
+          <div class="example">Example: Monthly revenue trend. Daily website visits over 6 months.</div>
+        </div>
+        <div class="chart-card pie">
+          <h4>&#129001; Pie Chart</h4>
+          <div class="use-when">Use when: showing parts of a whole (sparingly!)</div>
+          <p>Shows percentage composition. Best with 2–5 categories. Over 5 slices becomes hard to read. Humans are poor at comparing angles.</p>
+          <div class="example">Example: Market share of 3 products. Budget breakdown with 4 categories.</div>
+        </div>
+        <div class="chart-card scatter">
+          <h4>&#127775; Scatter Plot</h4>
+          <div class="use-when">Use when: showing relationship between two variables</div>
+          <p>Each dot is one data point. X-axis = one variable, Y-axis = another. Shows correlation, clusters, and outliers.</p>
+          <div class="example">Example: Study hours vs. test scores. Advertising spend vs. sales revenue.</div>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>&#9888; The Pie Chart Problem:</strong> Pie charts are widely overused. Humans are much better at comparing lengths (bar charts) than angles (pie charts). If you have more than 4 categories, use a bar chart instead. If you want to show "this is 80% of the whole", a bar chart with a reference line is often clearer.
+      </div>
+    </div>
+
+    <!-- HOW TO INSERT A CHART -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Inserting a Chart in Google Sheets</div>
+      <p>Use the pivot table result from Module 05 (Revenue by Region). The data should look like this:</p>
+      <table class="data-table" style="max-width:300px;">
+        <thead><tr><th>A — Region</th><th>B — Revenue</th></tr></thead>
+        <tbody>
+          <tr><td>East</td><td>3840</td></tr>
+          <tr><td>North</td><td>4643</td></tr>
+          <tr><td>South</td><td>5245</td></tr>
+          <tr><td>West</td><td>3515</td></tr>
+        </tbody>
+      </table>
+      <ol class="steps">
+        <li>Select the data range including headers: A1:B5.</li>
+        <li>Go to <strong>Insert → Chart</strong>. A chart is inserted with a Chart editor panel on the right.</li>
+        <li>Under "Chart type", select <strong>Bar chart</strong> (or Column chart — same thing, just orientation).</li>
+        <li>Sheets automatically detects your data — Region on one axis, Revenue on the other.</li>
+        <li>Click the chart to move or resize it. Drag the corners to resize. Drag the center to move.</li>
+      </ol>
+
+      <h3 style="margin-top:1.25rem;">Customizing your chart:</h3>
+      <ol class="steps">
+        <li><strong>Chart title:</strong> In the Chart editor, go to the <strong>Customize</strong> tab → <strong>Chart &amp; axis titles</strong> → type "Revenue by Region".</li>
+        <li><strong>Axis titles:</strong> Under the same section, add a horizontal axis title ("Region") and a vertical axis title ("Revenue ($)").</li>
+        <li><strong>Colors:</strong> Customize tab → <strong>Series</strong> → click the color swatch to change bar color. Use your green theme for consistency.</li>
+        <li><strong>Legend:</strong> Customize → <strong>Legend</strong> → position it or hide it (for a single-series chart, a legend is often unnecessary).</li>
+        <li><strong>Grid lines and background:</strong> Customize → <strong>Chart style</strong> → toggle background color, border, font.</li>
+      </ol>
+      <div class="hint"><strong>Excel equivalent:</strong> Select data → Insert → Recommended Charts (or choose from the chart gallery). After inserting, use the <strong>Chart Design</strong> and <strong>Format</strong> tabs in the ribbon to customize. Right-click any chart element (title, axis, bars) to format it specifically.</div>
+    </div>
+
+    <!-- LINE CHART -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Creating a Line Chart for Trends</div>
+      <p>Use the monthly revenue data from the Module 05 time series pivot (or enter this data manually on a new sheet):</p>
+      <table class="data-table" style="max-width:300px;">
+        <thead><tr><th>A — Month</th><th>B — Revenue</th></tr></thead>
+        <tbody>
+          <tr><td>January</td><td>4305</td></tr>
+          <tr><td>February</td><td>3645</td></tr>
+          <tr><td>March</td><td>2913</td></tr>
+          <tr><td>April</td><td>4775</td></tr>
+          <tr><td>May</td><td>2375</td></tr>
+          <tr><td>June</td><td>3135</td></tr>
+        </tbody>
+      </table>
+      <ol class="steps">
+        <li>Select A1:B7 and go to <strong>Insert → Chart</strong>.</li>
+        <li>Change chart type to <strong>Line chart</strong>.</li>
+        <li>Add a title: "Monthly Revenue Trend — 2024".</li>
+        <li>Add axis labels: horizontal = "Month", vertical = "Revenue ($)".</li>
+        <li>In Customize → Series, enable "Point size" to make data points visible as dots on the line.</li>
+      </ol>
+    </div>
+
+    <!-- SCATTER PLOT -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">Creating a Scatter Plot</div>
+      <p>Enter this study data on a new sheet:</p>
+      <table class="data-table" style="max-width:300px;">
+        <thead><tr><th>A — Study Hours</th><th>B — Test Score</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>52</td></tr>
+          <tr><td>2</td><td>58</td></tr>
+          <tr><td>3</td><td>64</td></tr>
+          <tr><td>4</td><td>70</td></tr>
+          <tr><td>5</td><td>75</td></tr>
+          <tr><td>6</td><td>82</td></tr>
+          <tr><td>7</td><td>78</td></tr>
+          <tr><td>8</td><td>88</td></tr>
+          <tr><td>9</td><td>91</td></tr>
+          <tr><td>10</td><td>95</td></tr>
+        </tbody>
+      </table>
+      <ol class="steps">
+        <li>Select A1:B11 → Insert → Chart → choose <strong>Scatter chart</strong>.</li>
+        <li>Add title "Study Hours vs. Test Score".</li>
+        <li>Add axis labels: horizontal = "Study Hours", vertical = "Test Score (%)".</li>
+        <li>In Customize → Series, you can add a <strong>trendline</strong> to show the general direction of the relationship.</li>
+      </ol>
+    </div>
+
+    <!-- DO AND DON'T -->
+    <div class="sec-concept">
+      <div class="sec-label">&#128161; Best Practices</div>
+      <div class="sec-title">Chart Design: Do's and Don'ts</div>
+      <div class="do-dont">
+        <div class="do-box">
+          <h4>&#9989; Do</h4>
+          <ul>
+            <li>Always include a chart title</li>
+            <li>Label your axes clearly</li>
+            <li>Start the Y-axis at zero for bar charts</li>
+            <li>Use consistent colors throughout a report</li>
+            <li>Keep it simple — remove clutter</li>
+            <li>Use color to highlight, not to decorate</li>
+            <li>Choose the right chart type for the data</li>
+          </ul>
+        </div>
+        <div class="dont-box">
+          <h4>&#10060; Don't</h4>
+          <ul>
+            <li>Use 3D charts (they distort perception)</li>
+            <li>Use pie charts with more than 5 slices</li>
+            <li>Use rainbow colors for no reason</li>
+            <li>Truncate the Y-axis to exaggerate differences</li>
+            <li>Use gridlines so dark they overwhelm the data</li>
+            <li>Skip axis labels and titles</li>
+            <li>Use a chart when a table communicates better</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="sec-yourturn">
+      <div class="sec-label">&#128400; Your Turn</div>
+      <div class="sec-title">Exercise: Build Three Charts</div>
+      <p>Using your Module 05 pivot table data:</p>
+      <ol style="padding-left:1.5rem; line-height:2;">
+        <li><strong>Bar chart:</strong> Create a bar chart showing <em>Revenue by Region</em>. Title it appropriately. Add axis labels. Change the bar color to green (#43A047).</li>
+        <li><strong>Line chart:</strong> Create a line chart showing <em>Monthly Revenue Trend</em> from the time series pivot (or the sample data above). Add a proper title and both axis labels. Enable data point dots on the line.</li>
+        <li><strong>Pie chart:</strong> Create a pie chart showing <em>Revenue by Category</em> (3 slices: Electronics, Books, Clothing). Notice how easy it is to read with just 3 slices vs. what would happen with 10.</li>
+      </ol>
+      <p><strong>Reflection questions:</strong></p>
+      <ul style="padding-left:1.5rem; line-height:2;">
+        <li>Which region has the highest revenue? Is it easier to see in the bar chart or the data table?</li>
+        <li>Is the monthly trend going up, down, or is it mixed?</li>
+        <li>What percentage of revenue comes from Electronics?</li>
+      </ul>
+      <div class="hint"><strong>Hint:</strong> To change bar color in Google Sheets: click the chart, open Chart editor, go to Customize → Series → click the color swatch next to "Color".</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="sec-brain">
+      <div class="sec-label">&#129504; Brain Break</div>
+      <div class="sec-title">The Most Famous Chart in History</div>
+      <p>In 1858, Florence Nightingale — known for nursing, but also a pioneer statistician — created a "rose diagram" (now called a polar area chart) to show British Army mortality data. Her visualization proved that most soldiers were dying from preventable infections, not battle wounds. It convinced the government to reform army hospitals. The chart literally saved lives.</p>
+      <p style="margin:0;">This is why visualization matters: the same data that looked like dry numbers in a table became unmistakable in chart form. Good charts change minds and drive decisions.</p>
+    </div>
+
+    <!-- WRAP UP -->
+    <div class="sec-wrapup">
+      <div class="sec-label">&#9989; Wrap Up</div>
+      <div class="sec-title">Module 06 Key Takeaways</div>
+      <ul class="takeaways">
+        <li><strong>Bar chart</strong>: comparing values across categories. Great default choice.</li>
+        <li><strong>Line chart</strong>: trends over time. Time always goes on the horizontal axis.</li>
+        <li><strong>Pie chart</strong>: parts of a whole. Use only with 2–5 categories. Avoid 3D.</li>
+        <li><strong>Scatter plot</strong>: relationship between two numeric variables. Great for showing correlation.</li>
+        <li>Every chart needs a <strong>title</strong> and <strong>axis labels</strong> — otherwise it's not self-explanatory.</li>
+        <li>Start bar chart Y-axes at zero. Truncated axes can make small differences look dramatic.</li>
+        <li>Customize via: Insert → Chart → Chart editor → Customize tab.</li>
+        <li>A clear chart communicates in seconds. A cluttered chart communicates confusion.</li>
+      </ul>
+    </div>
+
+    <div class="complete-section">
+      <button id="complete-btn" onclick="markComplete()">Mark Module Complete</button>
+      <div id="complete-status"></div>
+      <p style="margin-top:1.25rem;"><a href="../module-07/index.html" class="btn btn-primary" style="background:#43A047;">Next: Module 07 — Data Cleaning &#8594;</a></p>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Santa Monica College &middot; West Los Angeles College &middot; UCLA Statistics PhD Candidate</p>
+  </footer>
+
+  <script>
+    const MODULE_ID = 'sheets-module-06';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      const status = document.getElementById('complete-status');
+      if (localStorage.getItem(MODULE_ID) === 'complete') {
+        btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32';
+        if (status) status.textContent = 'You completed this module!';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+  </script>
+
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

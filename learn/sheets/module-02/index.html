@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 02: Formulas & Functions — SUM, AVERAGE, COUNT, COUNTA, MIN, MAX, relative vs absolute references.">
+  <title>Module 02: Formulas &amp; Functions – Excel &amp; Google Sheets for Data</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .mod-header {
+      background: linear-gradient(135deg, #1B5E20 0%, #43A047 60%, #66BB6A 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .mod-header h1 { color: white; margin-bottom: 0.5rem; font-size: 2rem; }
+    .mod-header p  { opacity: 0.95; max-width: 680px; margin: 0; font-size: 1.05rem; }
+    .mod-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; opacity: 0.9; font-size: 0.9rem; }
+    .mod-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #F1F8E9; border: 2px solid #A5D6A7; border-radius: var(--radius-md);
+      padding: 0.75rem 1.25rem; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 0.5rem;
+    }
+    .mod-nav a { color: #2E7D32; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+    .mod-nav a:hover { text-decoration: underline; }
+    .sec-before  { background: #E3F2FD; border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-concept { background: white; border: 2px solid var(--border-color); border-left: 5px solid #1565C0; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-steps   { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-data    { background: #F8F9FA; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-yourturn{ background: #FFF9C4; border-left: 5px solid #F9A825; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-brain   { background: #F3E5F5; border-left: 5px solid #7B1FA2; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-wrapup  { background: #E8F5E9; border-left: 5px solid #2E7D32; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: var(--spacing-lg); }
+    .sec-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; opacity: 0.75; }
+    .sec-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-dark); }
+    .steps { list-style: none; padding: 0; margin: 0; counter-reset: step-counter; }
+    .steps li { counter-increment: step-counter; padding: 0.9rem 0.9rem 0.9rem 3.5rem; position: relative; border-bottom: 1px solid var(--border-color); line-height: 1.6; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before { content: counter(step-counter); position: absolute; left: 0.5rem; top: 0.9rem; width: 2rem; height: 2rem; background: #43A047; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+    code { background: #263238; color: #80CBC4; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9em; }
+    .formula-block { background: #263238; color: #A5D6A7; font-family: var(--font-mono); font-size: 0.95rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 0.75rem 0; overflow-x: auto; line-height: 1.7; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0; }
+    .data-table th { background: #1B5E20; color: white; padding: 0.6rem 1rem; text-align: left; font-weight: 600; }
+    .data-table td { padding: 0.5rem 1rem; border-bottom: 1px solid #E0E0E0; }
+    .data-table tr:nth-child(even) td { background: #F1F8E9; }
+    .hint { background: white; border: 1px dashed #81C784; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.875rem; margin-top: 1rem; color: var(--text-secondary); }
+    .hint strong { color: #2E7D32; }
+    .takeaways { list-style: none; padding: 0; margin: 0; }
+    .takeaways li { padding: 0.4rem 0 0.4rem 1.75rem; position: relative; }
+    .takeaways li::before { content: "✅"; position: absolute; left: 0; }
+    .complete-section { text-align: center; padding: var(--spacing-lg) 0; border-top: 2px solid #C8E6C9; margin-top: var(--spacing-xl); }
+    #complete-btn { background: #43A047; color: white; border: none; padding: 0.85rem 2.5rem; border-radius: 30px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    #complete-btn:hover { background: #2E7D32; transform: translateY(-2px); }
+    #complete-status { margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .func-card { background: #F8F9FA; border: 2px solid #C8E6C9; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+    .func-card h4 { margin: 0 0 0.4rem; color: #1B5E20; font-size: 1rem; }
+    .func-card p { margin: 0 0 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
+    .ref-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.75rem 0; }
+    .ref-box { border-radius: var(--radius-md); padding: 1rem; }
+    .ref-box.relative { background: #E3F2FD; border: 2px solid #1565C0; }
+    .ref-box.absolute { background: #FCE4EC; border: 2px solid #C62828; }
+    .ref-box h4 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+    @media (max-width: 600px) {
+      .mod-header h1 { font-size: 1.5rem; }
+      .mod-nav { flex-direction: column; text-align: center; }
+      .ref-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="mod-nav">
+      <a href="../module-01/index.html">&#8592; Module 01: Getting Started</a>
+      <a href="../index.html">&#127968; Course Home</a>
+      <a href="../module-03/index.html">Module 03: Logic &amp; Lookup &#8594;</a>
+    </div>
+
+    <div class="mod-header">
+      <div style="font-size:0.85rem; opacity:0.8; margin-bottom:0.5rem;">Module 02 of 08 &nbsp;|&nbsp; Excel &amp; Google Sheets for Data</div>
+      <h1>&#10133; Formulas &amp; Functions</h1>
+      <p>Formulas are what turn a spreadsheet from a fancy table into a powerful calculator. Learn how to write them, use the most important built-in functions, and understand why cell references are the key to everything.</p>
+      <div class="mod-meta">
+        <span>&#9200; ~35 minutes</span>
+        <span>&#127891; Beginner</span>
+        <span>&#128203; Requires: Module 01</span>
+      </div>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <div class="sec-before">
+      <div class="sec-label">&#128204; Before You Start</div>
+      <div class="sec-title">Open your spreadsheet</div>
+      <p>Open <strong>sheets.google.com</strong> and create a new blank spreadsheet. You'll build a grades dataset during this module. Keep it open as you read — practice each formula as you go. Learning formulas is like learning to ride a bike: you have to try it, not just watch.</p>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <div class="sec-concept">
+      <div class="sec-label">&#128161; The Concept</div>
+      <div class="sec-title">How Formulas Work</div>
+      <p>Every formula in Google Sheets (and Excel) starts with an <strong>equals sign <code>=</code></strong>. This is the signal that tells Sheets: "this isn't a label or a number — it's a calculation."</p>
+      <div class="formula-block">= 2 + 3          → result: 5
+= A1 + B1        → adds the values in cells A1 and B1
+= SUM(A1:A10)    → adds all values from A1 to A10
+= AVERAGE(B2:B11)→ calculates the mean of B2 through B11</div>
+      <p>Notice the <strong>colon <code>:</code></strong> — it means "from...to". So <code>A1:A10</code> is cells A1, A2, A3, A4, A5, A6, A7, A8, A9, and A10 — ten cells at once. This is called a <strong>range</strong>.</p>
+      <p>When you type a formula and press <span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">Enter</span>, Sheets calculates it and shows the result in the cell. To see the formula again, click the cell — it appears in the formula bar at the top.</p>
+    </div>
+
+    <!-- SAMPLE DATA -->
+    <div class="sec-data">
+      <div class="sec-label">&#128203; Sample Data — Grades Dataset</div>
+      <div class="sec-title">Type This Into Your Spreadsheet (Row 1 = Headers)</div>
+      <table class="data-table">
+        <thead><tr><th>A — Student</th><th>B — Midterm</th><th>C — Final</th><th>D — Average</th></tr></thead>
+        <tbody>
+          <tr><td>Alice Johnson</td><td>88</td><td>92</td><td><em>(formula here)</em></td></tr>
+          <tr><td>Bob Martinez</td><td>74</td><td>80</td><td></td></tr>
+          <tr><td>Chloe Kim</td><td>95</td><td>98</td><td></td></tr>
+          <tr><td>David Okafor</td><td>61</td><td>70</td><td></td></tr>
+          <tr><td>Emma Patel</td><td>82</td><td>85</td><td></td></tr>
+          <tr><td>Felix Nguyen</td><td>90</td><td>88</td><td></td></tr>
+          <tr><td>Grace Lee</td><td>55</td><td>62</td><td></td></tr>
+          <tr><td>Hassan Ali</td><td>78</td><td>75</td><td></td></tr>
+          <tr><td>Isabella Cruz</td><td>87</td><td>91</td><td></td></tr>
+          <tr><td>James Park</td><td>93</td><td>96</td><td></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.875rem; color:var(--text-secondary);">Type exactly as shown — A1 = "Student", B1 = "Midterm", C1 = "Final", D1 = "Average". Data goes in rows 2–11. Leave column D empty for now — you'll fill it with a formula.</p>
+    </div>
+
+    <!-- CORE FUNCTIONS -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">The Six Essential Functions</div>
+
+      <div class="func-card">
+        <h4>SUM — Add everything up</h4>
+        <p>Adds all numbers in a range. The most-used function in all of spreadsheet history.</p>
+        <div class="formula-block">= SUM(B2:B11)     → total of all midterm scores
+= SUM(B2, C2)    → sum of just two specific cells</div>
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">Try it: Click on cell B13. Type <code>=SUM(B2:B11)</code> and press Enter. You should get 803.</p>
+      </div>
+
+      <div class="func-card">
+        <h4>AVERAGE — Find the mean</h4>
+        <p>Calculates the arithmetic mean (sum divided by count). Ignores empty cells.</p>
+        <div class="formula-block">= AVERAGE(B2:B11)    → mean midterm score
+= AVERAGE(B2:B11, C2:C11)  → mean of both columns combined</div>
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">Try it: In B14, type <code>=AVERAGE(B2:B11)</code>. You should get 80.3.</p>
+      </div>
+
+      <div class="func-card">
+        <h4>COUNT — Count numeric cells</h4>
+        <p>Counts how many cells in a range contain numbers. Empty cells and text are ignored.</p>
+        <div class="formula-block">= COUNT(B2:B11)    → how many students have a midterm score</div>
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">Useful when you want to know how many data points you actually have.</p>
+      </div>
+
+      <div class="func-card">
+        <h4>COUNTA — Count non-empty cells</h4>
+        <p>Counts cells that are not empty — including text cells. Use this to count names, labels, or any non-blank entry.</p>
+        <div class="formula-block">= COUNTA(A2:A11)   → how many students are listed (counts text)</div>
+        <p style="font-size:0.875rem; color:var(--text-secondary); margin:0;"><code>COUNT</code> ignores text. <code>COUNTA</code> counts everything that isn't blank.</p>
+      </div>
+
+      <div class="func-card">
+        <h4>MIN and MAX — Lowest and highest values</h4>
+        <p>Find the smallest or largest number in a range.</p>
+        <div class="formula-block">= MIN(B2:B11)    → lowest midterm score (55)
+= MAX(B2:B11)    → highest midterm score (95)
+= MAX(B2:B11) - MIN(B2:B11)   → the range (spread) of scores</div>
+      </div>
+    </div>
+
+    <!-- RELATIVE VS ABSOLUTE -->
+    <div class="sec-concept">
+      <div class="sec-label">&#128161; The Concept</div>
+      <div class="sec-title">Relative vs. Absolute References — The Most Important Idea in Formulas</div>
+
+      <p>When you copy a formula to another cell, Sheets adjusts the cell references automatically. This is called a <strong>relative reference</strong> — and it's usually exactly what you want.</p>
+
+      <div class="ref-compare">
+        <div class="ref-box relative">
+          <h4>&#128260; Relative Reference: <code>=B2+C2</code></h4>
+          <p style="font-size:0.875rem; margin:0;">When copied down one row, becomes <code>=B3+C3</code>. The reference moves with you. <strong>This is the default.</strong> Great for repeating a formula down a column.</p>
+        </div>
+        <div class="ref-box absolute">
+          <h4>&#128274; Absolute Reference: <code>=$B$2+C2</code></h4>
+          <p style="font-size:0.875rem; margin:0;">The <code>$</code> signs lock the reference. <code>$B$2</code> will always refer to cell B2, no matter where you copy the formula. Use when you want to multiply everything by a single fixed value.</p>
+        </div>
+      </div>
+
+      <p><strong>Mixed references</strong> are also possible: <code>$B2</code> locks the column but not the row; <code>B$2</code> locks the row but not the column.</p>
+
+      <p><strong>How to add $ signs quickly:</strong> Click on a cell reference in the formula bar, then press <span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">F4</span> to cycle through: <code>B2</code> → <code>$B$2</code> → <code>B$2</code> → <code>$B2</code> → back to <code>B2</code>.</p>
+
+      <h3>Worked Example: Average per Student</h3>
+      <p>In cell D2, type:</p>
+      <div class="formula-block">= AVERAGE(B2:C2)</div>
+      <p>This averages Alice's midterm (B2) and final (C2). Now copy cell D2 and paste it into D3:D11. Watch how Sheets automatically changes it to <code>=AVERAGE(B3:C3)</code>, <code>=AVERAGE(B4:C4)</code>, etc. That's relative references at work.</p>
+
+      <h3>When Would You Use Absolute? A Tax Rate Example</h3>
+      <p>Suppose cell F1 holds a tax rate (0.08). You want to calculate tax for prices in column E:</p>
+      <div class="formula-block">= E2 * $F$1    ← locks F1 so it doesn't shift when copied down</div>
+      <p>If you used <code>=E2*F1</code> instead and copied down, row 3 would show <code>=E3*F2</code> — which would be wrong because F2 is empty.</p>
+    </div>
+
+    <!-- AUTOSUM -->
+    <div class="sec-steps">
+      <div class="sec-label">&#128295; Step-by-Step</div>
+      <div class="sec-title">AutoSum — Insert SUM (or Other Functions) in One Click</div>
+      <ol class="steps">
+        <li>Click the cell where you want your total — for example, B12 (just below your last data row).</li>
+        <li>In Google Sheets: go to <strong>Insert → Functions → SUM</strong>. Sheets will guess your range and insert <code>=SUM(B2:B11)</code> automatically.</li>
+        <li>In Excel: click the <strong>AutoSum</strong> button (&#931;) in the <strong>Home</strong> tab. It does the same thing.</li>
+        <li>Press <strong>Enter</strong> to confirm. Press <strong>Tab</strong> instead to confirm and move right to the next cell.</li>
+      </ol>
+      <div class="hint"><strong>Tip:</strong> In Google Sheets, you can also type <code>=SUM(</code> and then <em>click and drag</em> to select the range with your mouse. Sheets fills in the range as you drag.</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="sec-yourturn">
+      <div class="sec-label">&#128400; Your Turn</div>
+      <div class="sec-title">Exercise: Product Sales Analysis</div>
+      <p>Create a new sheet (click the <strong>+</strong> at the bottom) and enter this sales data:</p>
+      <table class="data-table" style="max-width:480px;">
+        <thead><tr><th>A — Product</th><th>B — Units Sold</th><th>C — Price ($)</th><th>D — Revenue ($)</th></tr></thead>
+        <tbody>
+          <tr><td>Laptop Stand</td><td>45</td><td>29.99</td><td></td></tr>
+          <tr><td>USB Hub</td><td>120</td><td>15.50</td><td></td></tr>
+          <tr><td>Webcam</td><td>30</td><td>79.00</td><td></td></tr>
+          <tr><td>Keyboard</td><td>60</td><td>49.99</td><td></td></tr>
+          <tr><td>Mouse Pad</td><td>200</td><td>8.99</td><td></td></tr>
+          <tr><td>Monitor Arm</td><td>22</td><td>55.00</td><td></td></tr>
+          <tr><td>Headphones</td><td>75</td><td>34.99</td><td></td></tr>
+          <tr><td>Desk Lamp</td><td>90</td><td>24.00</td><td></td></tr>
+        </tbody>
+      </table>
+      <p><strong>Tasks:</strong></p>
+      <ol style="padding-left:1.5rem; line-height:2.2;">
+        <li>In column D, write a formula for Revenue = Units × Price. Use a relative reference formula starting in D2: <code>=B2*C2</code>. Copy it down to D9.</li>
+        <li>In a summary area (rows 11–16), calculate:
+          <ul style="margin-top:0.5rem; line-height:2;">
+            <li><strong>Total Revenue:</strong> <code>=SUM(D2:D9)</code></li>
+            <li><strong>Average Sale:</strong> <code>=AVERAGE(D2:D9)</code></li>
+            <li><strong>Number of Orders:</strong> <code>=COUNT(D2:D9)</code></li>
+            <li><strong>Max Revenue:</strong> <code>=MAX(D2:D9)</code></li>
+            <li><strong>Min Revenue:</strong> <code>=MIN(D2:D9)</code></li>
+          </ul>
+        </li>
+        <li>Format your headers in bold with a green background and white text.</li>
+      </ol>
+      <div class="hint"><strong>Expected Total Revenue:</strong> $13,524.30. Check your formula — if you get something different, make sure you multiplied Units × Price and not something else.</div>
+      <div class="hint" style="margin-top:0.5rem;"><strong>Hint:</strong> To copy D2 down, click D2, then press <span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">Ctrl</span>+<span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">C</span>, select D3:D9, then press <span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">Ctrl</span>+<span style="font-family:var(--font-mono); background:#ECEFF1; padding:1px 6px; border-radius:3px;">V</span>.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="sec-brain">
+      <div class="sec-label">&#129504; Brain Break</div>
+      <div class="sec-title">Why Does <code>=</code> Start Every Formula?</div>
+      <p>You might wonder: why does every formula start with <code>=</code>? The reason is disambiguation. When you type "123" in a cell, is that a number or the text "one hundred twenty-three"? Sheets treats it as a number. When you type "SUM(A1:A10)", is that a label or a function call? Without the <code>=</code>, Sheets treats it as text. The equals sign is your way of saying: "this is a calculation, not data."</p>
+      <p style="margin:0;">Fun fact: In some older spreadsheet programs, you used <code>@</code> instead of <code>=</code> for functions — for example <code>@SUM(A1..A10)</code> in Lotus 1-2-3. Excel kept backward compatibility for years by accepting both. Google Sheets accepts only <code>=</code>.</p>
+    </div>
+
+    <!-- WRAP UP -->
+    <div class="sec-wrapup">
+      <div class="sec-label">&#9989; Wrap Up</div>
+      <div class="sec-title">Module 02 Key Takeaways</div>
+      <ul class="takeaways">
+        <li>Every formula starts with <code>=</code> — that's how Sheets knows to calculate instead of display text.</li>
+        <li>A <strong>range</strong> like <code>B2:B11</code> selects multiple consecutive cells at once.</li>
+        <li><code>SUM</code> adds, <code>AVERAGE</code> finds the mean, <code>COUNT</code> counts numbers, <code>COUNTA</code> counts non-blanks, <code>MIN</code>/<code>MAX</code> find extremes.</li>
+        <li><strong>Relative references</strong> (default) shift when you copy a formula — great for repeating patterns.</li>
+        <li><strong>Absolute references</strong> use <code>$</code> to lock a cell — use when you need a formula to always point to the same cell.</li>
+        <li>Press <strong>F4</strong> while editing a formula to toggle between relative and absolute references.</li>
+      </ul>
+    </div>
+
+    <div class="complete-section">
+      <button id="complete-btn" onclick="markComplete()">Mark Module Complete</button>
+      <div id="complete-status"></div>
+      <p style="margin-top:1.25rem;"><a href="../module-03/index.html" class="btn btn-primary" style="background:#43A047;">Next: Module 03 — Logic &amp; Lookup Functions &#8594;</a></p>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Santa Monica College &middot; West Los Angeles College &middot; UCLA Statistics PhD Candidate</p>
+  </footer>
+
+  <script>
+    const MODULE_ID = 'sheets-module-02';
+    function markComplete() {
+      localStorage.setItem(MODULE_ID, 'complete');
+      updateCompleteBtn();
+    }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      const status = document.getElementById('complete-status');
+      if (localStorage.getItem(MODULE_ID) === 'complete') {
+        btn.textContent = '✅ Completed!';
+        btn.style.background = '#2E7D32';
+        if (status) status.textContent = 'You completed this module!';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+  </script>
+
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

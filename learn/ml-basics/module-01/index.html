@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 1: What IS Machine Learning? — Machine Learning Basics. Learn ML vs traditional programming, the 3 types of ML, and the ML workflow.">
+  <title>Module 1: What IS Machine Learning? - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header {
+      background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%);
+      color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+    }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    /* Section blocks */
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; min-width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .key-takeaways ul li { margin-bottom: 0.5rem; }
+    .code-editor { width: 100%; min-height: 200px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .type-card { display: inline-block; background: white; border: 2px solid #AB47BC; border-radius: 10px; padding: 1rem; margin: 0.5rem; vertical-align: top; width: calc(33% - 1.5rem); min-width: 200px; }
+    .type-card h4 { color: #4A148C; margin-top: 0; }
+    .type-card p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
+    @media (max-width: 600px) { .type-card { width: 100%; display: block; margin: 0.5rem 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 1 of 8 &mdash; Machine Learning Basics</div>
+      <h1>What IS Machine Learning?</h1>
+      <p>Rules vs learning &mdash; and why that difference changes everything</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../index.html" class="nav-prev">&larr; Course Home</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 1 of 8</span>
+      <a href="../module-02/index.html" class="nav-next">Module 2: Your First Dataset &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <p><strong>What you need for this module:</strong></p>
+      <ul>
+        <li>Basic Python knowledge (variables, if-statements, functions)</li>
+        <li>A curious mind &mdash; no ML experience required</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~45 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> The core idea behind ML, the 3 types of ML, and the workflow every ML project follows.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem"><strong>Traditional programming:</strong> You write the rules. The computer follows them.</p>
+      <p style="font-size:1.1rem"><strong>Machine learning:</strong> You show the computer examples. The computer finds the rules.</p>
+      <p>Think about spam email. A traditional programmer might write: <em>"if the email contains 'free money' or 'click here', mark it spam."</em> This works &mdash; until spammers change their wording.</p>
+      <p>A machine learning approach shows the computer thousands of labeled examples (spam / not spam) and lets it figure out the patterns. When spammers adapt, you retrain with new examples. The rules update themselves.</p>
+      <p style="margin-bottom:0">This is the core shift: from <strong>explicit rules</strong> to <strong>learned patterns</strong>.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">The 3 Types of Machine Learning</h3>
+      <div>
+        <div class="type-card">
+          <h4>&#127979; Supervised Learning</h4>
+          <p>You provide <strong>labeled examples</strong> (inputs + correct answers). The model learns to map inputs to outputs.<br><br><em>Examples: spam detection, image classification, predicting house prices.</em></p>
+        </div>
+        <div class="type-card">
+          <h4>&#128269; Unsupervised Learning</h4>
+          <p>You provide <strong>data without labels</strong>. The model finds hidden structure and patterns on its own.<br><br><em>Examples: customer segmentation, topic discovery in documents, anomaly detection.</em></p>
+        </div>
+        <div class="type-card">
+          <h4>&#127922; Reinforcement Learning</h4>
+          <p>An agent learns by <strong>trial and error</strong>, receiving rewards for good actions and penalties for bad ones.<br><br><em>Examples: game-playing AI (chess, Go), self-driving car navigation.</em></p>
+        </div>
+      </div>
+
+      <h3 style="color:#4A148C;margin-top:2rem">The ML Workflow</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div><strong>Collect Data</strong> — Gather labeled examples relevant to your problem. More diverse, high-quality data = better model.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div><strong>Prepare Features</strong> — Clean missing values, encode categories, scale numbers. Raw data is rarely model-ready.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div><strong>Train the Model</strong> — Show the model your training examples. It adjusts its internal parameters to minimize errors.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div><strong>Evaluate on Test Data</strong> — Check how well the model performs on data it has <em>never seen</em>. This is the true measure.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div><strong>Predict &amp; Iterate</strong> — Use the model on new data. Collect feedback, improve, retrain. ML is a cycle, not a finish line.</div>
+      </div>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">ML You Already Use</h3>
+      <ul>
+        <li><strong>Netflix recommendations</strong> &mdash; supervised + collaborative filtering (what do similar users like?)</li>
+        <li><strong>Autocorrect &amp; autocomplete</strong> &mdash; language models trained on billions of text examples</li>
+        <li><strong>Spam filter</strong> &mdash; supervised classification trained on labeled emails</li>
+        <li><strong>Face unlock on your phone</strong> &mdash; trained on images of your face vs. others</li>
+        <li><strong>Credit card fraud detection</strong> &mdash; flags transactions that don&rsquo;t match your normal pattern</li>
+      </ul>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">This example shows the conceptual difference: a traditional rule-based classifier vs what the ML approach looks like. Run it and observe the output.</p>
+      <div class="worked-code"># ============================================
+# TRADITIONAL PROGRAMMING: You write the rules
+# ============================================
+def classify_email_traditional(email):
+    email = email.lower()
+    spam_words = ["free money", "click here", "winner", "congratulations you've won"]
+    for word in spam_words:
+        if word in email:
+            return "SPAM"
+    return "not spam"
+
+# Test it
+emails = [
+    "Win free money now! Click here!",
+    "Meeting at 3pm tomorrow in Room 204",
+    "Congratulations you've won a prize!",
+    "Can you review my pull request?"
+]
+
+print("=== Traditional Rule-Based Classifier ===")
+for email in emails:
+    result = classify_email_traditional(email)
+    print(f"  [{result:^10}]  {email[:50]}")
+
+print()
+print("=== The ML Approach (coming in Module 4!) ===")
+print("  Instead of writing rules, we'll show the model")
+print("  thousands of labeled examples like these:")
+print()
+training_examples = [
+    ("Win free money now!", "spam"),
+    ("Meeting at 3pm tomorrow", "not spam"),
+    ("Click here to claim your prize", "spam"),
+    ("Your invoice is attached", "not spam"),
+]
+for text, label in training_examples:
+    print(f"  Label: {label:^10}  |  Text: {text}")
+print()
+print("  The model learns the pattern. We'll build this in Module 4!")
+</div>
+      <p style="color:#aaa;font-size:0.9rem;margin-top:0.75rem">This is a static display &mdash; the interactive exercise below lets you modify the code.</p>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>The <code>classify_email_traditional</code> function currently only catches 4 types of spam phrases. <strong>Add 3 more spam phrases</strong> to the <code>spam_words</code> list and test them.</p>
+      <p>Try phrases like: <code>"act now"</code>, <code>"limited time offer"</code>, <code>"you have been selected"</code> &mdash; or make up your own!</p>
+      <textarea class="code-editor" id="editor1">def classify_email_traditional(email):
+    email = email.lower()
+    # Add 3 more spam phrases to this list!
+    spam_words = [
+        "free money",
+        "click here",
+        "winner",
+        "congratulations you've won",
+        # YOUR CODE HERE: add 3 more spam phrases
+    ]
+    for word in spam_words:
+        if word in email:
+            return "SPAM"
+    return "not spam"
+
+# Test with your new phrases
+test_emails = [
+    "Act now — limited time offer expires tonight!",
+    "You have been selected for an exclusive deal",
+    "Hey, did you finish the homework for Tuesday?",
+    # Add one more test email of your own!
+]
+
+print("=== Testing My Enhanced Spam Classifier ===")
+for email in test_emails:
+    result = classify_email_traditional(email)
+    print(f"  [{result:^10}]  {email[:60]}")</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip;</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> Add strings to the list like <code>"act now"</code>. The <code>.lower()</code> call means you don&rsquo;t need to worry about capitalization &mdash; just use lowercase in your list.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p><strong>Think about 3 apps you use regularly.</strong> For each one, ask yourself:</p>
+      <ul>
+        <li>Does it get better over time, or learn from your behavior?</li>
+        <li>Does it make personalized recommendations?</li>
+        <li>Does it predict something (next word, next song, next product)?</li>
+      </ul>
+      <p>If yes to any of the above &mdash; it almost certainly uses ML.</p>
+      <p style="margin-bottom:0"><strong>Examples to get you started:</strong> Spotify, TikTok, Google Maps, Gmail, Instagram, Duolingo, your phone&rsquo;s keyboard. What does each one <em>learn</em> about you?</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li><strong>Traditional programming</strong> = you define the rules. <strong>ML</strong> = the model learns the rules from data.</li>
+        <li>The <strong>3 types of ML</strong>: Supervised (labeled data), Unsupervised (find patterns), Reinforcement (rewards &amp; penalties).</li>
+        <li>This course focuses on <strong>supervised learning</strong> &mdash; the most common type in industry and research.</li>
+        <li>The ML workflow is always: <strong>Data &rarr; Features &rarr; Train &rarr; Evaluate &rarr; Predict &rarr; Iterate</strong>.</li>
+        <li>ML is already everywhere in your daily life &mdash; you&rsquo;re learning to build the systems you already use.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 1 Complete!</h2>
+      <p>You now understand the core idea behind machine learning. In the next module, we&rsquo;ll work with a real dataset and learn how to explore it before building any model.</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-02/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 2: Your First Dataset &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../index.html" class="nav-prev">&larr; Course Home</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 1 of 8</span>
+      <a href="../module-02/index.html" class="nav-next">Module 2: Your First Dataset &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 1: What IS Machine Learning?</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running...';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+
+    const MODULE_ID = 'ml-module-01';
+    function markComplete() {
+      localStorage.setItem(MODULE_ID, 'complete');
+      updateCompleteBtn();
+    }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') {
+        btn.textContent = '✅ Completed!';
+        btn.style.background = '#2E7D32';
+      } else {
+        btn.textContent = 'Mark Complete';
+        btn.style.background = '#1565C0';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

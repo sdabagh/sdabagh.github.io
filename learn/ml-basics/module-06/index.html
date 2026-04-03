@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 6: Linear Regression — Machine Learning Basics. Predict numbers with the line of best fit, MSE, and R-squared score.">
+  <title>Module 6: Linear Regression - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .nav-next { background: #7B1FA2; color: white; }
+    .nav-next:hover { background: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .how-it-works { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .how-it-works h2 { color: #4A148C; margin-top: 0; }
+    .see-it { background: #1a1a2e; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .see-it h2 { color: #AB47BC; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .brain-break { background: #FFF3E0; border: 2px solid #FF6F00; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .brain-break h2 { color: #E65100; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; min-height: 220px; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .formula-box { background: #EDE7F6; border: 2px solid #7B1FA2; border-radius: 10px; padding: 1.25rem; margin: 1rem 0; text-align: center; }
+    .formula { font-family: monospace; font-size: 1.3rem; color: #4A148C; font-weight: 700; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .metric-card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 1rem; }
+    .metric-card h4 { color: #4A148C; margin-top: 0; }
+    @media (max-width: 600px) { .metric-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 6 of 8 &mdash; Machine Learning Basics</div>
+      <h1>Linear Regression</h1>
+      <p>Predicting numbers instead of categories &mdash; &ldquo;how much?&rdquo; instead of &ldquo;which one?&rdquo;</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Decision Trees</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span>
+      <a href="../module-07/index.html" class="nav-next">Module 7: Evaluating Models &rarr;</a>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>Modules 1&ndash;5 completed</li>
+        <li>Comfortable with the sklearn API from Module 4</li>
+        <li>Remember y = mx + b from algebra? That&rsquo;s the core formula here.</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~50 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> Regression vs classification, the line of best fit, Mean Squared Error (MSE), and R&sup2; score.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Big Idea</h2>
+      <p style="font-size:1.1rem">Everything you&rsquo;ve done so far has predicted a <strong>category</strong> (setosa? spam? promoted?). Regression predicts a <strong>number</strong>: &ldquo;What will the house sell for?&rdquo; &ldquo;How many points will this student score?&rdquo;</p>
+      <p>Linear regression finds the <strong>line of best fit</strong> through your data points &mdash; the line that minimizes the total distance between itself and all the data points. Once you have that line, any input value maps directly to a predicted output value.</p>
+      <p style="margin-bottom:0">The formula is the same one from algebra class: <strong>y = mx + b</strong>. The model learns the slope (m) and intercept (b) from your training data.</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works">
+      <h2>&#129504; How It Works</h2>
+
+      <h3 style="color:#4A148C">The Formula</h3>
+      <div class="formula-box">
+        <div class="formula">score = m &times; hours + b</div>
+        <p style="margin: 0.5rem 0 0; color: var(--text-secondary)">m = slope (how much score increases per hour studied) &nbsp;|&nbsp; b = intercept (predicted score at 0 hours)</p>
+      </div>
+      <p>Linear regression finds the values of m and b that minimize the sum of squared errors across all training examples. Sklearn does all of this for you in one <code>.fit()</code> call.</p>
+
+      <h3 style="color:#4A148C;margin-top:1.5rem">How to Measure Success in Regression</h3>
+      <p>You can&rsquo;t use accuracy for regression (there&rsquo;s no right/wrong, just &ldquo;how close?&rdquo;). Two key metrics:</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <h4>MSE &mdash; Mean Squared Error</h4>
+          <p>Average of (actual &minus; predicted)&sup2; across all samples. Lower is better. Units are <em>squared</em> (e.g., points&sup2;), which can be hard to interpret.</p>
+          <p><strong>RMSE</strong> = &radic;MSE brings it back to original units (e.g., points).</p>
+        </div>
+        <div class="metric-card">
+          <h4>R&sup2; Score (R-squared)</h4>
+          <p>How much of the variance in y does your model explain? Scale: 0 to 1 (or negative for terrible models).</p>
+          <p><strong>R&sup2; = 1.0</strong>: perfect fit. <strong>R&sup2; = 0.8</strong>: explains 80% of variance. <strong>R&sup2; = 0.0</strong>: no better than predicting the mean.</p>
+        </div>
+      </div>
+
+      <h3 style="color:#4A148C;margin-top:1rem">Classification vs Regression: Quick Comparison</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr style="background:#4A148C;color:white;"><th style="padding:8px 12px;text-align:left">Aspect</th><th style="padding:8px 12px">Classification</th><th style="padding:8px 12px">Regression</th></tr>
+        <tr style="background:#F3E5F5;"><td style="padding:8px 12px"><strong>Output</strong></td><td style="padding:8px 12px;text-align:center">A category (class)</td><td style="padding:8px 12px;text-align:center">A number (continuous)</td></tr>
+        <tr><td style="padding:8px 12px"><strong>Example question</strong></td><td style="padding:8px 12px;text-align:center">Spam or not?</td><td style="padding:8px 12px;text-align:center">What&rsquo;s the sale price?</td></tr>
+        <tr style="background:#F3E5F5;"><td style="padding:8px 12px"><strong>Key metric</strong></td><td style="padding:8px 12px;text-align:center">Accuracy, F1</td><td style="padding:8px 12px;text-align:center">MSE, R&sup2;</td></tr>
+        <tr><td style="padding:8px 12px"><strong>sklearn import</strong></td><td style="padding:8px 12px;text-align:center">KNeighborsClassifier</td><td style="padding:8px 12px;text-align:center">LinearRegression</td></tr>
+      </table>
+    </div>
+
+    <!-- SEE IT IN CODE -->
+    <div class="see-it">
+      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
+      <p style="color:#ccc">A complete linear regression pipeline: fit the line, interpret the formula, evaluate with MSE and R&sup2;, make a prediction.</p>
+      <div class="worked-code">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+
+# Simulated study hours → exam score dataset
+np.random.seed(42)
+hours = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)
+scores = np.array([52, 58, 64, 70, 73, 78, 82, 87, 90, 95])
+
+# Fit the model
+model = LinearRegression()
+model.fit(hours, scores)
+
+# Interpret the formula
+print("=== The Learned Formula ===")
+print(f"  Slope (m):      {model.coef_[0]:.2f} points per hour")
+print(f"  Intercept (b):  {model.intercept_:.2f}")
+print(f"  Formula: score = {model.coef_[0]:.2f} × hours + {model.intercept_:.2f}")
+
+# Evaluate
+predictions = model.predict(hours)
+mse = mean_squared_error(scores, predictions)
+rmse = mse ** 0.5
+r2 = r2_score(scores, predictions)
+print(f"\n=== Model Performance ===")
+print(f"  MSE:  {mse:.2f} (average squared error in points²)")
+print(f"  RMSE: {rmse:.2f} points (average error in original units)")
+print(f"  R²:   {r2:.4f} → model explains {r2:.1%} of score variance")
+
+# Visualize actual vs predicted
+print("\n=== Actual vs Predicted ===")
+print(f"{'Hours':>6}  {'Actual':>8}  {'Predicted':>10}  {'Error':>8}")
+print("-" * 40)
+for h, actual, pred in zip(hours.flatten(), scores, predictions):
+    error = actual - pred
+    print(f"{h:>6}  {actual:>8}  {pred:>10.1f}  {error:>+8.1f}")
+
+# Make a new prediction
+new_hours = np.array([[7.5]])
+print(f"\n7.5 hours of study → predicted score: {model.predict(new_hours)[0]:.1f}")
+</div>
+    </div>
+
+    <!-- YOUR TURN -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn</h2>
+      <p>Predict the score for someone who studies <strong>12 hours</strong>. Run the code, look at the result, and then answer: Does a score above 100 make sense? What does this tell you about using regression to predict values <em>outside</em> the training range?</p>
+      <textarea class="code-editor" id="editor1">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+import numpy as np
+
+hours = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)
+scores = np.array([52, 58, 64, 70, 73, 78, 82, 87, 90, 95])
+
+model = LinearRegression()
+model.fit(hours, scores)
+
+print(f"Training data range: {hours.min()} to {hours.max()} hours")
+print(f"R² on training data: {r2_score(scores, model.predict(hours)):.4f}")
+
+# YOUR CODE HERE: Predict the score for 12 hours of study
+# Hint: use np.array([[12]]) as input to model.predict()
+
+# Uncomment and complete this line:
+# pred_12 = model.predict(np.array([[12]]))[0]
+# print(f"12 hours → predicted score: {pred_12:.1f}")
+
+# Then answer this:
+# What is the maximum possible exam score?
+# Does the predicted value exceed that maximum?
+# What does this tell us about using the model outside training range?
+# (Add your thoughts as comments or print statements below)
+</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (~10 seconds first run)</div>
+      <div class="hint-box">&#128161; <strong>Hint:</strong> Linear regression always continues the line forever &mdash; it has no concept of a score cap at 100. Making predictions far outside your training range is called <em>extrapolation</em>, and it&rsquo;s usually unreliable. The model only &ldquo;knows&rdquo; what it was shown.</div>
+    </div>
+
+    <!-- BRAIN BREAK -->
+    <div class="brain-break">
+      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
+      <p>Think about something in your life that follows a roughly linear pattern:</p>
+      <ul>
+        <li>The more hours you practice piano, the better you get</li>
+        <li>The more miles you drive, the more gas you use</li>
+        <li>The more sleep you get, the better you perform on tests</li>
+      </ul>
+      <p>Now think: where does the linearity <em>break down</em>? You can&rsquo;t sleep 20 hours and get infinite performance. You can&rsquo;t study 30 hours straight without diminishing returns.</p>
+      <p style="margin-bottom:0">Real-world relationships are often only <em>approximately</em> linear within a certain range. This is the most important limitation of linear regression &mdash; and understanding it makes you a better data scientist.</p>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways</h2>
+      <ul>
+        <li><strong>Regression</strong> predicts a continuous number. <strong>Classification</strong> predicts a category. Choose based on your target variable.</li>
+        <li>Linear regression finds the line <strong>y = mx + b</strong> that minimizes total squared prediction errors.</li>
+        <li><strong>MSE</strong> measures average squared error (lower is better). <strong>RMSE</strong> gives error in original units.</li>
+        <li><strong>R&sup2;</strong> tells you what fraction of variance the model explains. R&sup2; = 0.9 means 90% of the target variation is captured by your features.</li>
+        <li>Be careful with <strong>extrapolation</strong> &mdash; predicting outside the training range is unreliable and may give physically impossible results.</li>
+      </ul>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127881; Module 6 Complete!</h2>
+      <p>You can now build both classifiers and regression models. In Module 7, we&rsquo;ll go deep on evaluation &mdash; and learn why accuracy alone can be dangerously misleading.</p>
+      <p style="margin-bottom:1.5rem"><a href="../module-07/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 7: Evaluating Models &rarr;</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Decision Trees</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span>
+      <a href="../module-07/index.html" class="nav-next">Module 7: Evaluating Models &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 6: Linear Regression</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running... (installing scikit-learn if needed — ~10 seconds)';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-06';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 8: Capstone Project — Machine Learning Basics. Build a complete ML pipeline: load, explore, clean, train three models, evaluate, and interpret results.">
+  <title>Module 8: Capstone Project - ML Basics</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <style>
+    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+    .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
+    .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
+    .mod-nav { display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .mod-nav a { text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-prev { background: white; border: 2px solid #e0e0e0; color: var(--text-primary); }
+    .nav-prev:hover { border-color: #7B1FA2; color: #4A148C; text-decoration: none; }
+    .pyodide-status { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem; }
+    .before-start { background: #E3F2FD; border: 2px solid #1565C0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .before-start h2 { color: #1565C0; margin-top: 0; }
+    .big-idea { background: white; border-left: 5px solid #7B1FA2; border-radius: 0 12px 12px 0; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .big-idea h2 { color: #4A148C; margin-top: 0; }
+    .project-section { background: #F9F9F9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .project-section h2 { color: #4A148C; margin-top: 0; }
+    .your-turn { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .your-turn h2 { color: #4A148C; margin-top: 0; }
+    .key-takeaways { background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .key-takeaways h2 { color: #2E7D32; margin-top: 0; }
+    .code-editor { width: 100%; font-family: monospace; font-size: 0.9rem; padding: 1rem; border: 2px solid #333; border-radius: 8px; background: #1a1a2e; color: #e0e0e0; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+    .code-editor:focus { outline: none; border-color: #AB47BC; }
+    .run-btn { background: #7B1FA2; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.2s; }
+    .run-btn:hover:not(:disabled) { background: #4A148C; }
+    .run-btn:disabled { background: #9E9E9E; cursor: not-allowed; }
+    .code-output { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; margin-top: 0.75rem; min-height: 48px; white-space: pre-wrap; word-break: break-word; }
+    .code-output.error { color: #ef9a9a; }
+    .worked-code { background: #1a1a2e; color: #e0e0e0; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .hint-box { background: #FFF8E1; border-left: 4px solid #F9A825; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.75rem; font-size: 0.9rem; }
+    .mod-complete { background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin-top: 2rem; }
+    .mod-complete h2 { color: white; margin-top: 0; }
+    .step-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #4A148C, #AB47BC); color: white; padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .pipeline-step { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; border-left: 5px solid #AB47BC; }
+    .pipeline-step h4 { color: #4A148C; margin-top: 0; }
+    .next-steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .next-card { background: white; border: 3px solid #AB47BC; border-radius: 12px; padding: 1.5rem; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
+    .next-card:hover { border-color: #4A148C; box-shadow: 0 8px 24px rgba(74,20,140,0.15); transform: translateY(-3px); text-decoration: none; }
+    .next-card h3 { color: #4A148C; margin-top: 0.5rem; font-size: 1.05rem; }
+    .next-card p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
+    .next-card-icon { font-size: 1.8rem; }
+    details { background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1.5rem; }
+    details summary { cursor: pointer; font-weight: 700; color: #4A148C; font-size: 1rem; user-select: none; }
+    details[open] summary { margin-bottom: 1rem; }
+    .solution-code { background: #1a1a2e; color: #a5d6a7; font-family: monospace; font-size: 0.875rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+    .congrats-banner { background: linear-gradient(135deg, #FF6F00, #FFCA28); color: #212121; padding: 1.5rem 2rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; }
+    .congrats-banner h2 { color: #212121; margin-top: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
+
+    <div class="mod-header">
+      <div class="mod-label">Module 8 of 8 &mdash; Machine Learning Basics</div>
+      <h1>&#127942; Capstone Project</h1>
+      <p>Build Your Own ML Pipeline &mdash; from raw data to interpreted results</p>
+    </div>
+
+    <div class="mod-nav">
+      <a href="../module-07/index.html" class="nav-prev">&larr; Module 7: Evaluating Models</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 8 of 8 &mdash; Final!</span>
+    </div>
+
+    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
+
+    <div class="congrats-banner">
+      <h2>&#127881; You made it to the Capstone!</h2>
+      <p style="margin:0">You&rsquo;ve covered all the fundamentals. This final project puts everything together: load data &rarr; explore &rarr; split &rarr; train 3 models &rarr; evaluate &rarr; pick the best &rarr; predict. No hand-holding this time &mdash; you&rsquo;ve got this.</p>
+    </div>
+
+    <!-- BEFORE YOU START -->
+    <div class="before-start">
+      <h2>&#128204; Before You Start</h2>
+      <ul>
+        <li>All 7 previous modules completed</li>
+        <li>You are comfortable with KNN, Decision Trees, and classification metrics</li>
+      </ul>
+      <p><strong>Estimated time:</strong> ~60 minutes</p>
+      <p style="margin-bottom:0"><strong>What you&rsquo;ll do:</strong> Complete a full ML pipeline independently, compare three models, justify your choice, and make final predictions. A collapsible sample solution is provided at the end.</p>
+    </div>
+
+    <!-- BIG IDEA -->
+    <div class="big-idea">
+      <h2>&#128161; The Project Goal</h2>
+      <p style="font-size:1.1rem">Use everything you&rsquo;ve learned to build a <strong>complete, end-to-end machine learning pipeline</strong> on the Iris dataset. You will make real decisions: which k to use for KNN, which depth for your Decision Tree, and which model to select as your final answer.</p>
+      <p>This mirrors what real ML practitioners do on every project &mdash; just with more data and more features. The workflow never changes.</p>
+      <p style="margin-bottom:0"><strong>Your deliverables:</strong> A working pipeline with three trained models, a comparison table of their results, a written justification for your model selection, and 3 new predictions.</p>
+    </div>
+
+    <!-- PIPELINE OVERVIEW -->
+    <div class="project-section">
+      <h2>&#129520; The Pipeline Steps</h2>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 1</div>
+        <h4>Load &amp; Explore the Data</h4>
+        <p>Load the Iris dataset. Print the shape, class names, class distribution, and feature value ranges (min/max) for all 4 features. Confirm there are no missing values.</p>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 2</div>
+        <h4>Split Into Train and Test</h4>
+        <p>Use an 80/20 train/test split with <code>random_state=42</code>. Print the number of samples in each set.</p>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 3</div>
+        <h4>Train Three Models</h4>
+        <ul>
+          <li><strong>Model A:</strong> KNN with k=5</li>
+          <li><strong>Model B:</strong> Decision Tree with max_depth=3</li>
+          <li><strong>Model C:</strong> A third model of your choice. Options: KNN with a different k, Decision Tree with a different depth, or try <code>GaussianNB</code> from <code>sklearn.naive_bayes</code>.</li>
+        </ul>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 4</div>
+        <h4>Evaluate All Three</h4>
+        <p>For each model, print: accuracy, and the classification report (precision, recall, F1 per class). Print a comparison table.</p>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 5</div>
+        <h4>Select the Best Model &amp; Explain Why</h4>
+        <p>Look at your results. Which model would you deploy? Add a print statement explaining your reasoning. Consider: accuracy, consistency across classes, and simplicity.</p>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-badge">&#9654; Step 6</div>
+        <h4>Make 3 New Predictions</h4>
+        <p>Using your chosen best model, predict the species for these 3 new flower measurements:</p>
+        <ul>
+          <li>Flower 1: <code>[5.0, 3.4, 1.5, 0.2]</code></li>
+          <li>Flower 2: <code>[6.7, 3.0, 5.2, 2.3]</code></li>
+          <li>Flower 3: <code>[5.9, 3.0, 4.2, 1.5]</code></li>
+        </ul>
+        <p>Print which species each flower is predicted to be.</p>
+      </div>
+    </div>
+
+    <!-- YOUR TURN - SCAFFOLD -->
+    <div class="your-turn">
+      <h2>&#128075; Your Turn &mdash; Complete the Pipeline</h2>
+      <p>The scaffold below has <code># YOUR CODE HERE</code> comments where you need to fill in. Work through each step. You can run at any point to check your progress.</p>
+      <textarea class="code-editor" id="editor1" style="min-height:550px;">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, accuracy_score
+import numpy as np
+
+print("=" * 55)
+print("   MACHINE LEARNING CAPSTONE PROJECT")
+print("   Iris Species Classification Pipeline")
+print("=" * 55)
+
+# ─────────────────────────────────────────
+# STEP 1: Load & Explore the Data
+# ─────────────────────────────────────────
+print("\n📊 STEP 1: LOAD & EXPLORE\n")
+iris = load_iris()
+X, y = iris.data, iris.target
+
+# YOUR CODE HERE:
+# Print the dataset shape, class names, and class distribution
+# print(f"Shape: {X.shape}")
+# print(f"Classes: {list(iris.target_names)}")
+# ... and class counts
+
+# ─────────────────────────────────────────
+# STEP 2: Train/Test Split (80/20)
+# ─────────────────────────────────────────
+print("\n✂️ STEP 2: TRAIN/TEST SPLIT\n")
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+# YOUR CODE HERE: Print train and test sizes
+
+# ─────────────────────────────────────────
+# STEP 3: Train Three Models
+# ─────────────────────────────────────────
+print("\n🤖 STEP 3: TRAINING THREE MODELS\n")
+
+# Model A: KNN (k=5)
+model_a = KNeighborsClassifier(n_neighbors=5)
+# YOUR CODE HERE: Fit model_a on training data
+
+# Model B: Decision Tree (depth=3)
+model_b = DecisionTreeClassifier(max_depth=3, random_state=42)
+# YOUR CODE HERE: Fit model_b on training data
+
+# Model C: YOUR CHOICE — replace with your chosen model
+# Option 1: KNN with different k, e.g., KNeighborsClassifier(n_neighbors=7)
+# Option 2: DecisionTreeClassifier(max_depth=5, random_state=42)
+# Option 3: from sklearn.naive_bayes import GaussianNB; model_c = GaussianNB()
+model_c = KNeighborsClassifier(n_neighbors=7)  # ← change this!
+# YOUR CODE HERE: Fit model_c on training data
+
+print("All 3 models trained!")
+
+# ─────────────────────────────────────────
+# STEP 4: Evaluate All Three
+# ─────────────────────────────────────────
+print("\n📈 STEP 4: EVALUATION RESULTS\n")
+
+models = [
+    ("Model A — KNN (k=5)",          model_a),
+    ("Model B — Decision Tree (d=3)", model_b),
+    ("Model C — Your Choice",         model_c),
+]
+
+# YOUR CODE HERE: Loop through models, predict, print accuracy
+# for name, model in models:
+#     y_pred = model.predict(X_test)
+#     acc = accuracy_score(y_test, y_pred)
+#     print(f"{name}: Accuracy = {acc:.1%}")
+
+# ─────────────────────────────────────────
+# STEP 5: Select the Best Model
+# ─────────────────────────────────────────
+print("\n🏆 STEP 5: BEST MODEL SELECTION\n")
+# YOUR CODE HERE: Print which model you pick and WHY
+# Consider accuracy, simplicity, and consistency
+# print("Best model: Model X because ...")
+
+# ─────────────────────────────────────────
+# STEP 6: Make 3 New Predictions
+# ─────────────────────────────────────────
+print("\n🔮 STEP 6: NEW PREDICTIONS\n")
+new_flowers = np.array([
+    [5.0, 3.4, 1.5, 0.2],
+    [6.7, 3.0, 5.2, 2.3],
+    [5.9, 3.0, 4.2, 1.5],
+])
+# YOUR CODE HERE: Use your best model to predict species for each flower
+# for i, flower in enumerate(new_flowers):
+#     pred = best_model.predict([flower])[0]
+#     print(f"Flower {i+1} {flower} → {iris.target_names[pred]}")
+
+print("\n✅ Pipeline complete! Great work!")
+</textarea>
+      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run My Pipeline</button>
+      <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (~15 seconds first run)</div>
+      <div class="hint-box">&#128161; <strong>Stuck on a step?</strong> Look back at the module that taught it: Step 1 &rarr; Module 2, Step 2 &rarr; Module 3, Steps 3&ndash;4 &rarr; Modules 4&ndash;5 &amp; 7, Step 6 &rarr; Module 4. Read the scaffolding comments carefully &mdash; most lines just need to be uncommented and completed.</div>
+
+      <!-- SAMPLE SOLUTION -->
+      <details>
+        <summary>&#128274; View Sample Solution (try it yourself first!)</summary>
+        <div class="solution-code">import micropip
+await micropip.install(['scikit-learn'])
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, accuracy_score
+import numpy as np
+
+print("=" * 55)
+print("   MACHINE LEARNING CAPSTONE PROJECT")
+print("   Iris Species Classification Pipeline")
+print("=" * 55)
+
+# STEP 1: Load & Explore
+print("\n📊 STEP 1: LOAD & EXPLORE\n")
+iris = load_iris()
+X, y = iris.data, iris.target
+print(f"Shape: {X.shape[0]} samples × {X.shape[1]} features")
+print(f"Classes: {list(iris.target_names)}")
+from collections import Counter
+for species, count in zip(iris.target_names, [sum(y==i) for i in range(3)]):
+    print(f"  {species}: {count} samples")
+print("\nFeature ranges:")
+for i, name in enumerate(iris.feature_names):
+    print(f"  {name}: [{X[:,i].min():.1f}, {X[:,i].max():.1f}]")
+
+# STEP 2: Split
+print("\n✂️ STEP 2: TRAIN/TEST SPLIT\n")
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+print(f"Training: {len(X_train)} samples")
+print(f"Test:     {len(X_test)} samples")
+
+# STEP 3: Train Three Models
+print("\n🤖 STEP 3: TRAINING THREE MODELS\n")
+model_a = KNeighborsClassifier(n_neighbors=5)
+model_a.fit(X_train, y_train)
+model_b = DecisionTreeClassifier(max_depth=3, random_state=42)
+model_b.fit(X_train, y_train)
+model_c = KNeighborsClassifier(n_neighbors=7)
+model_c.fit(X_train, y_train)
+print("All 3 models trained!")
+
+# STEP 4: Evaluate
+print("\n📈 STEP 4: EVALUATION RESULTS\n")
+models = [
+    ("Model A — KNN (k=5)",          model_a),
+    ("Model B — Decision Tree (d=3)", model_b),
+    ("Model C — KNN (k=7)",           model_c),
+]
+best_acc = 0
+best_model = None
+best_name = ""
+print(f"{'Model':<35} {'Accuracy':>10}")
+print("-" * 47)
+for name, model in models:
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    print(f"{name:<35} {acc:>10.1%}")
+    if acc > best_acc:
+        best_acc = acc
+        best_model = model
+        best_name = name
+
+# STEP 5: Best Model
+print(f"\n🏆 STEP 5: BEST MODEL SELECTION\n")
+print(f"Selected: {best_name} ({best_acc:.1%} accuracy)")
+print("Reasoning: highest accuracy on test set.")
+print("Decision Trees are also interpretable — useful for explaining results.")
+
+# STEP 6: New Predictions
+print("\n🔮 STEP 6: NEW PREDICTIONS\n")
+new_flowers = np.array([
+    [5.0, 3.4, 1.5, 0.2],
+    [6.7, 3.0, 5.2, 2.3],
+    [5.9, 3.0, 4.2, 1.5],
+])
+for i, flower in enumerate(new_flowers):
+    pred = best_model.predict([flower])[0]
+    print(f"Flower {i+1} {flower} → {iris.target_names[pred]}")
+
+print("\n✅ Pipeline complete!")
+        </div>
+      </details>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="key-takeaways">
+      <h2>&#9989; Key Takeaways from the Full Course</h2>
+      <ul>
+        <li><strong>ML = learned patterns, not explicit rules.</strong> Show the model examples; it finds the patterns.</li>
+        <li>Always <strong>explore your data</strong> before modeling. Shape, class balance, missing values, ranges.</li>
+        <li><strong>Preprocess</strong> before training: fill missing values, encode categories, scale features, split into train/test.</li>
+        <li>The <strong>sklearn API</strong> is always: import &rarr; create &rarr; fit &rarr; predict &rarr; evaluate. It works the same for every algorithm.</li>
+        <li>Don&rsquo;t trust accuracy alone. Use <strong>precision, recall, and F1</strong> &mdash; especially when classes are imbalanced.</li>
+        <li><strong>Overfitting is real.</strong> Watch for a large gap between train and test accuracy, and control it with regularization (depth, k).</li>
+        <li>ML is a <strong>cycle</strong>, not a finish line. Data, model, evaluate, improve, repeat.</li>
+      </ul>
+    </div>
+
+    <!-- WHAT'S NEXT -->
+    <h2 style="color:#4A148C;font-size:1.5rem;border-bottom:3px solid #AB47BC;padding-bottom:0.5rem;margin-bottom:1.5rem">&#128640; What&rsquo;s Next?</h2>
+
+    <div class="next-steps-grid">
+      <a href="../../../learn/python-labs/index.html" class="next-card">
+        <div class="next-card-icon">&#128187;</div>
+        <h3>Python Practice Labs</h3>
+        <p>10 hands-on Python labs with live code. Reinforce the Python fundamentals that power every ML project you build.</p>
+      </a>
+      <a href="../../../learn/data-analyst/index.html" class="next-card">
+        <div class="next-card-icon">&#128202;</div>
+        <h3>Data Analyst Course</h3>
+        <p>Apply ML and data science skills in a career-track context. SQL, Python, Tableau, Power BI, and real business analysis.</p>
+      </a>
+      <a href="../../../learn/intro-stats/index.html" class="next-card">
+        <div class="next-card-icon">&#128200;</div>
+        <h3>Introduction to Statistics</h3>
+        <p>The math behind ML. Distributions, hypothesis testing, correlation, and regression &mdash; understand why the algorithms work.</p>
+      </a>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="mod-complete">
+      <h2>&#127942; Machine Learning Basics &mdash; Complete!</h2>
+      <p>You&rsquo;ve finished all 8 modules. You understand what ML is, how it works, and you&rsquo;ve trained real models in your browser. That&rsquo;s something most people never do.</p>
+      <p>Share your achievement, explore the next courses above, or revisit any module to deepen your understanding.</p>
+      <p style="margin-bottom:1.5rem"><a href="../index.html" style="color:#CE93D8;font-weight:700">&larr; Return to Course Home</a></p>
+      <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+        Mark Complete
+      </button>
+    </div>
+
+    <div class="mod-nav" style="margin-top:2rem">
+      <a href="../module-07/index.html" class="nav-prev">&larr; Module 7: Evaluating Models</a>
+      <span style="font-weight:600;color:var(--text-secondary)">Module 8 of 8 &mdash; Course Complete!</span>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Safaa Dabagh. All rights reserved.</p>
+    <p class="text-muted">Machine Learning Basics &mdash; Module 8: Capstone Project</p>
+  </footer>
+
+  <script>
+    let pyodide = null;
+    async function initPyodide() {
+      const statusEl = document.getElementById('pyodide-status');
+      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      pyodide = await loadPyodide();
+      if (statusEl) {
+        statusEl.textContent = '✅ Python ready! Click ▶ Run My Pipeline to execute.';
+        statusEl.style.background = '#e8f5e9';
+        statusEl.style.borderColor = '#2E7D32';
+        statusEl.style.color = '#2E7D32';
+      }
+      document.querySelectorAll('.run-btn').forEach(btn => { btn.disabled = false; });
+    }
+    async function runCode(editorId, outputId) {
+      if (!pyodide) return;
+      const code = document.getElementById(editorId).value;
+      const outputEl = document.getElementById(outputId);
+      outputEl.className = 'code-output';
+      outputEl.textContent = 'Running your pipeline... (installing scikit-learn if needed — ~15 seconds)';
+      try {
+        pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+        await pyodide.runPythonAsync(code);
+        const out = pyodide.runPython('sys.stdout.getvalue()');
+        const err = pyodide.runPython('sys.stderr.getvalue()');
+        if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+    }
+    const MODULE_ID = 'ml-module-08';
+    function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
+    function updateCompleteBtn() {
+      const btn = document.getElementById('complete-btn');
+      if (!btn) return;
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
+    }
+    document.addEventListener('DOMContentLoaded', updateCompleteBtn);
+    initPyodide();
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>
