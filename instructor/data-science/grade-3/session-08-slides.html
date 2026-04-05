@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 8 Slides — Your Data Project | Grade 3 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0a0e1a;font-family:'Segoe UI',Arial,sans-serif;color:#e8eaf6;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#0d1530;padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+    .ctrl-btn{background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:700;}
+    .ctrl-btn:hover{background:#1976D2;}
+    .ctrl-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
+    .slide-counter{color:#90CAF9;font-size:0.85rem;font-weight:600;}
+    .progress-bar{flex:1;height:6px;background:#1a2040;border-radius:3px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);border-radius:3px;transition:width 0.3s;}
+    .fullscreen-btn{background:#7E57C2;color:white;border:none;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:700;margin-left:auto;}
+    .slide-viewport{flex:1;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;}
+    .slide{background:#0d1530;border-radius:16px;width:100%;max-width:900px;max-height:100%;overflow-y:auto;padding:2.5rem;box-shadow:0 8px 40px rgba(0,0,0,0.5);border:1px solid #1a2a5a;display:none;}
+    .slide.active{display:block;}
+    .slide-tag{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#42A5F5;margin-bottom:0.5rem;}
+    h1{font-size:2rem;font-weight:900;margin-bottom:0.5rem;line-height:1.2;}
+    h2{font-size:1.5rem;font-weight:800;margin-bottom:1rem;color:#90CAF9;}
+    .subtitle{font-size:1rem;color:#90CAF9;margin-bottom:1.5rem;}
+    .hero-icon{font-size:4rem;margin-bottom:1rem;text-align:center;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem;}
+    .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem;}
+    .four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-top:1rem;}
+    .card{background:#0a1628;border-radius:10px;padding:1.2rem;border:1px solid #1a3060;}
+    .card-title{font-size:0.85rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;color:#42A5F5;}
+    .point{font-size:0.9rem;color:#c5cae9;margin-bottom:0.5rem;padding-left:1.1rem;position:relative;}
+    .point::before{content:"▸";position:absolute;left:0;color:#42A5F5;}
+    .highlight-box{background:#0a1628;border-left:4px solid #42A5F5;border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1rem 0;font-size:0.95rem;}
+    .agenda-list{list-style:none;margin-top:0.5rem;}
+    .agenda-list li{font-size:0.95rem;padding:0.5rem 0.75rem;margin-bottom:0.4rem;background:#0a1628;border-radius:6px;border-left:3px solid #42A5F5;}
+    .agenda-list li span{color:#42A5F5;font-weight:700;margin-right:0.5rem;}
+    .big-q{font-size:1.4rem;font-weight:900;color:#FFD54F;text-align:center;margin:1rem 0;line-height:1.3;}
+    .activity-banner{background:linear-gradient(135deg,#1565C0,#7E57C2);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;}
+    .activity-banner h3{font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;}
+    /* Phase cards */
+    .phase-card{border-radius:10px;padding:1rem;text-align:center;}
+    .phase-num{font-size:2rem;margin-bottom:0.3rem;}
+    .phase-title{font-size:0.85rem;font-weight:800;margin-bottom:0.3rem;}
+    .phase-desc{font-size:0.78rem;color:#b0bec5;}
+    /* Cycle diagram */
+    .cycle-row{display:flex;align-items:center;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;}
+    .cycle-step{background:#0a1628;border:1px solid #1a3060;border-radius:8px;padding:0.5rem 0.75rem;text-align:center;font-size:0.8rem;font-weight:700;}
+    .cycle-arrow{font-size:1.2rem;color:#42A5F5;}
+    /* Checklist */
+    .checklist{list-style:none;padding:0;}
+    .checklist li{padding:0.4rem 0.5rem;border-bottom:1px solid #1a3060;font-size:0.88rem;display:flex;align-items:center;gap:0.5rem;}
+    .checklist li:last-child{border-bottom:none;}
+    .check-icon{font-size:1rem;}
+    /* Present format */
+    .present-step{background:#0a1628;border-left:3px solid #FFD54F;border-radius:0 6px 6px 0;padding:0.5rem 0.75rem;margin-bottom:0.4rem;font-size:0.88rem;}
+    .present-num{color:#FFD54F;font-weight:800;margin-right:0.4rem;}
+    /* Celebration */
+    .cert-preview{background:linear-gradient(135deg,#0d1530,#1a1040);border:2px solid #FFD54F;border-radius:12px;padding:1.5rem;text-align:center;margin:1rem 0;}
+    .cert-title{font-size:1.3rem;font-weight:900;color:#FFD54F;margin-bottom:0.4rem;}
+    .cert-body{font-size:0.9rem;color:#c5cae9;}
+    .star-row{font-size:1.5rem;letter-spacing:0.3rem;margin:0.5rem 0;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <button class="ctrl-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <button class="ctrl-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="slide-counter" id="slideCounter">1 / 15</div>
+  <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+</div>
+<div class="slide-viewport">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active">
+    <div class="slide-tag">Session 8 of 8 · Grade 3 Data Science · CAPSTONE</div>
+    <div class="hero-icon">🏆</div>
+    <h1 style="text-align:center;">Your Data Project</h1>
+    <div class="subtitle" style="text-align:center;">Run the complete data cycle — start to finish — on your own</div>
+    <div style="display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
+      <span style="background:#1565C0;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">~60 minutes</span>
+      <span style="background:#7E57C2;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">Grade 3 · Ages 8–9</span>
+      <span style="background:#F57F17;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">Full Data Cycle</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Agenda -->
+  <div class="slide">
+    <div class="slide-tag">Today's Plan</div>
+    <h2>The Final Session</h2>
+    <ul class="agenda-list">
+      <li><span>0–5 min</span>🔁 Warm-Up — quick tour of everything we've learned</li>
+      <li><span>5–10 min</span>📖 Project intro — your mission for today</li>
+      <li><span>10–25 min</span>✍️ Phase 1: Plan — choose your question and collection method</li>
+      <li><span>25–40 min</span>📋 Phase 2: Collect — survey classmates, record with tally marks</li>
+      <li><span>40–50 min</span>🗂️ Phase 3: Organize + Visualize — frequency table and chart</li>
+      <li><span>50–57 min</span>🎤 Phase 4: Present — share your chart and what it says</li>
+      <li><span>57–60 min</span>🎉 Celebration — you are now a data scientist!</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 3: The Full Data Cycle Review -->
+  <div class="slide">
+    <div class="slide-tag">Warm-Up · 5 min</div>
+    <h2>Everything You've Learned</h2>
+    <div class="four-col">
+      <div class="phase-card" style="background:#0a1628;border:1px solid #1565C0;">
+        <div class="phase-num">👁️</div>
+        <div class="phase-title" style="color:#42A5F5;">Sessions 1–2</div>
+        <div class="phase-desc">Notice &amp; Ask Good Questions</div>
+      </div>
+      <div class="phase-card" style="background:#0a1628;border:1px solid #2E7D32;">
+        <div class="phase-num">📋</div>
+        <div class="phase-title" style="color:#81C784;">Sessions 3–4</div>
+        <div class="phase-desc">Collect &amp; Organize Data</div>
+      </div>
+      <div class="phase-card" style="background:#0a1628;border:1px solid #7E57C2;">
+        <div class="phase-num">📊</div>
+        <div class="phase-title" style="color:#CE93D8;">Sessions 5–6</div>
+        <div class="phase-desc">Visualize &amp; Interpret</div>
+      </div>
+      <div class="phase-card" style="background:#0a1628;border:1px solid #C62828;">
+        <div class="phase-num">🕵️</div>
+        <div class="phase-title" style="color:#EF9A9A;">Session 7</div>
+        <div class="phase-desc">Evaluate &amp; Question</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center;margin-top:1rem;font-size:1rem;">
+      Today in Session 8: <strong style="color:#FFD54F;">you run ALL of these steps — on your own question!</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Project Mission -->
+  <div class="slide">
+    <div class="slide-tag">Your Mission</div>
+    <h2>What You'll Do Today</h2>
+    <div class="activity-banner">
+      <h3>The Full Data Cycle — Start to Finish</h3>
+      <div class="point">Choose a question YOU want to investigate</div>
+      <div class="point">Collect data from classmates using tally marks</div>
+      <div class="point">Organize your data into a frequency table</div>
+      <div class="point">Draw a bar chart or pictograph</div>
+      <div class="point">Share what the data says — 1 observation + 1 inference</div>
+    </div>
+    <div class="highlight-box" style="text-align:center;">
+      This is exactly what real data scientists do. <strong style="color:#FFD54F;">Every. Single. Time.</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Phase 1 — Plan -->
+  <div class="slide">
+    <div class="slide-tag">Phase 1 · 15 min</div>
+    <h2>✍️ Phase 1: Plan Your Project</h2>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Write your question</div>
+        <div class="point">It must be fair and data-answerable</div>
+        <div class="point">It needs 3–5 specific answer choices</div>
+        <div class="point">Ask: "Could I count the answers?"</div>
+        <div style="margin-top:0.75rem;font-size:0.85rem;color:#FFD54F;">Good examples:</div>
+        <div style="font-size:0.82rem;color:#c5cae9;margin-top:0.3rem;">"What is your favorite season?"<br>"How do you get to school?"<br>"What is your favorite subject?"</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Plan your collection</div>
+        <div class="point">Who will you ask? (your sample)</div>
+        <div class="point">How many people? (aim for 10+)</div>
+        <div class="point">Method: survey, observation, or measurement?</div>
+        <div class="point">How will you record? (tally marks!)</div>
+        <div style="margin-top:0.5rem;font-size:0.8rem;color:#90CAF9;">✅ Check: Is your question fair? Is it specific? Is it answerable with data?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Phase 2 — Collect -->
+  <div class="slide">
+    <div class="slide-tag">Phase 2 · 15 min</div>
+    <h2>📋 Phase 2: Collect Your Data</h2>
+    <div class="activity-banner">
+      <h3>Survey Time!</h3>
+      <div class="point">Get your clipboard and tally recording sheet</div>
+      <div class="point">Ask at least 10 classmates your question</div>
+      <div class="point">Read the question exactly as written — no changes!</div>
+      <div class="point">Record each answer as a tally mark immediately</div>
+      <div class="point">Each person gets asked only once</div>
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <div class="card-title" style="color:#FFD54F;">Remember the survey rules from Session 3:</div>
+      <div class="point">Ask exactly as written</div>
+      <div class="point">Give the choices — don't suggest one</div>
+      <div class="point">Record immediately</div>
+      <div class="point">Each person once only</div>
+      <div class="point">Say "thank you!"</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Phase 3a — Organize -->
+  <div class="slide">
+    <div class="slide-tag">Phase 3a · part of 10 min</div>
+    <h2>🗂️ Phase 3: Organize — Frequency Table</h2>
+    <div class="highlight-box">
+      Transfer your tally marks into a clean frequency table. Remember: 3 columns — Category · Tally · Frequency — and a Total row at the bottom.
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <div class="card-title">Quick self-check before moving to the chart:</div>
+      <ul class="checklist">
+        <li><span class="check-icon">☐</span> All categories are listed in the left column</li>
+        <li><span class="check-icon">☐</span> Tally marks are copied from my recording sheet</li>
+        <li><span class="check-icon">☐</span> Frequency numbers are correct</li>
+        <li><span class="check-icon">☐</span> Total row is filled in</li>
+        <li><span class="check-icon">☐</span> Total matches how many people I asked</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Phase 3b — Visualize -->
+  <div class="slide">
+    <div class="slide-tag">Phase 3b · part of 10 min</div>
+    <h2>📊 Phase 3: Visualize — Draw Your Chart</h2>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Bar chart checklist</div>
+        <ul class="checklist">
+          <li><span class="check-icon">☐</span> Title at the top</li>
+          <li><span class="check-icon">☐</span> Category labels on one axis</li>
+          <li><span class="check-icon">☐</span> Even number scale starting at 0</li>
+          <li><span class="check-icon">☐</span> Each bar = correct height</li>
+          <li><span class="check-icon">☐</span> Color used</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Pictograph checklist</div>
+        <ul class="checklist">
+          <li><span class="check-icon">☐</span> Title at the top</li>
+          <li><span class="check-icon">☐</span> Category labels on the left</li>
+          <li><span class="check-icon">☐</span> Key explains what 1 symbol = how many</li>
+          <li><span class="check-icon">☐</span> Correct number of symbols per row</li>
+          <li><span class="check-icon">☐</span> All symbols same size</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Phase 4 — Present -->
+  <div class="slide">
+    <div class="slide-tag">Phase 4 · 7 min</div>
+    <h2>🎤 Phase 4: Present Your Findings</h2>
+    <div class="highlight-box">
+      You have 60–90 seconds. Use this structure to guide what you say:
+    </div>
+    <div class="present-step"><span class="present-num">1.</span>"My question was: _______________"</div>
+    <div class="present-step"><span class="present-num">2.</span>"I asked ___ people using _______________" (method)</div>
+    <div class="present-step"><span class="present-num">3.</span>[Show chart] "My chart shows that _______________" (observation)</div>
+    <div class="present-step"><span class="present-num">4.</span>"This might mean that _______________" (inference)</div>
+    <div class="present-step"><span class="present-num">5.</span>"If I could do this again, I would _______________" (reflection)</div>
+    <div style="text-align:center;font-size:0.85rem;color:#90CAF9;margin-top:0.75rem;">You've got this. You've done every one of these steps already — this is just putting it all together!</div>
+  </div>
+
+  <!-- SLIDE 10: What Makes a Strong Project -->
+  <div class="slide">
+    <div class="slide-tag">Standards</div>
+    <h2>What Makes a Strong Data Project?</h2>
+    <div class="three-col">
+      <div class="card" style="border-top:3px solid #42A5F5;">
+        <div class="card-title" style="color:#42A5F5;">Good Question</div>
+        <div class="point">Fair — no leading language</div>
+        <div class="point">Specific answer choices</div>
+        <div class="point">Answerable with data</div>
+        <div class="point">Interesting — you actually want to know!</div>
+      </div>
+      <div class="card" style="border-top:3px solid #81C784;">
+        <div class="card-title" style="color:#81C784;">Good Data</div>
+        <div class="point">Collected from 10+ people</div>
+        <div class="point">Recorded consistently</div>
+        <div class="point">Frequency total checks out</div>
+        <div class="point">Tally marks used correctly</div>
+      </div>
+      <div class="card" style="border-top:3px solid #CE93D8;">
+        <div class="card-title" style="color:#CE93D8;">Good Communication</div>
+        <div class="point">Chart has title, labels, scale/key</div>
+        <div class="point">At least 1 specific observation</div>
+        <div class="point">At least 1 thoughtful inference</div>
+        <div class="point">Conclusion answers original question</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: Data Cycle Complete -->
+  <div class="slide">
+    <div class="slide-tag">Reflection</div>
+    <h2>You Just Ran the Full Data Cycle</h2>
+    <div class="cycle-row">
+      <div class="cycle-step" style="border-color:#1565C0;color:#42A5F5;">👁️<br>Notice</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#1565C0;color:#42A5F5;">❓<br>Ask</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#2E7D32;color:#81C784;">📋<br>Collect</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#2E7D32;color:#81C784;">🗂️<br>Organize</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#7E57C2;color:#CE93D8;">📊<br>Visualize</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#7E57C2;color:#CE93D8;">🔍<br>Interpret</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#C62828;color:#EF9A9A;">🕵️<br>Evaluate</div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#F9A825;color:#FFD54F;">🎤<br>Communicate</div>
+    </div>
+    <div class="highlight-box" style="text-align:center;font-size:1rem;">
+      Every data scientist in the world follows this same cycle. <strong style="color:#FFD54F;">You are one of them now.</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Real-World Data Science -->
+  <div class="slide">
+    <div class="slide-tag">Connecting to the World</div>
+    <h2>Data Science Is Everywhere</h2>
+    <div class="three-col">
+      <div class="card">
+        <div class="card-title">🏥 Health</div>
+        <div class="point">Doctors collect data on patients to find what treatments work</div>
+        <div class="point">Scientists track disease to keep communities safe</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🌍 Environment</div>
+        <div class="point">Scientists measure temperature data over decades to track climate change</div>
+        <div class="point">Wildlife trackers count animals to protect endangered species</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎮 Technology</div>
+        <div class="point">Apps collect data on what features you use to make them better</div>
+        <div class="point">Video games use data to balance difficulty</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center;margin-top:1rem;">
+      The skills you learned this course — asking good questions, collecting fairly, visualizing honestly, reading critically — are real data science skills.
+    </div>
+  </div>
+
+  <!-- SLIDE 13: Final Reflection Prompt -->
+  <div class="slide">
+    <div class="slide-tag">Reflection</div>
+    <h2>One Last Reflection</h2>
+    <div class="big-q">"The most important thing I learned about data is ___."</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Possible answers — all valid!</div>
+        <div class="point">"You have to ask fair questions"</div>
+        <div class="point">"Charts can trick you"</div>
+        <div class="point">"Data helps you make better decisions"</div>
+        <div class="point">"You need enough people in your sample"</div>
+        <div class="point">"Organizing messy data takes real skill"</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Also think about:</div>
+        <div class="point">What was the hardest part of the whole course?</div>
+        <div class="point">What surprised you most?</div>
+        <div class="point">What would you teach someone else first?</div>
+        <div class="point">What question would you investigate next?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: Certificate Slide -->
+  <div class="slide">
+    <div class="slide-tag">Celebration</div>
+    <div class="cert-preview">
+      <div class="star-row">⭐ ⭐ ⭐</div>
+      <div class="cert-title">Certificate of Achievement</div>
+      <div class="cert-body">This certifies that</div>
+      <div style="font-size:1.4rem;font-weight:900;color:#FFD54F;margin:0.5rem 0;">________________________________</div>
+      <div class="cert-body">has successfully completed</div>
+      <div style="font-size:1rem;font-weight:700;color:#90CAF9;margin:0.3rem 0;">Data Science for Young Minds · Grade 3</div>
+      <div class="cert-body" style="margin-top:0.3rem;">and has demonstrated the skills of</div>
+      <div style="font-size:0.85rem;color:#CE93D8;margin:0.4rem 0;">Observation · Questioning · Collection · Organization<br>Visualization · Interpretation · Critical Thinking</div>
+      <div class="star-row">⭐ ⭐ ⭐</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Final Slide -->
+  <div class="slide">
+    <div class="slide-tag">Course Complete 🎉</div>
+    <div class="hero-icon">🏆</div>
+    <h1 style="text-align:center;">You Are a Data Scientist!</h1>
+    <div class="highlight-box" style="text-align:center;font-size:1.1rem;margin:1rem 0;">
+      Thank you for being curious, asking good questions, and working hard through all 8 sessions.
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">What you can do now</div>
+        <div class="point">Ask data-answerable questions</div>
+        <div class="point">Collect data fairly and carefully</div>
+        <div class="point">Build frequency tables and charts</div>
+        <div class="point">Read and question any chart you see</div>
+        <div class="point">Tell a story with data</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#FFD54F;">Keep exploring!</div>
+        <div class="point">What question would you investigate next?</div>
+        <div class="point">Look for data in the world around you</div>
+        <div class="point">When you see a chart — ask the 3 questions!</div>
+        <div class="point">Share what you learned with your family</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:1rem;color:#90CAF9;margin-top:1.5rem;font-weight:700;">Data Science for Young Minds · Grade 3 · sdabagh.github.io/learn/data-science</div>
+  </div>
+
+</div>
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressFill').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    slides[current].scrollTop = 0;
+  }
+  function changeSlide(dir) { showSlide(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (current < total - 1) changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); if (current > 0) changeSlide(-1); }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+  document.querySelector('.slide-viewport').addEventListener('click', e => {
+    if (e.target.closest('button')) return;
+    if (current < total - 1) changeSlide(1);
+  });
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+  showSlide(0);
+</script>
+</body>
+</html>

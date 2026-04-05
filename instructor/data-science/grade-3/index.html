@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Hub — Grade 3 Data Science | Data Science for Young Minds</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .course-hero {
+      background: linear-gradient(135deg, #1565C0 0%, #42A5F5 60%, #7E57C2 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .course-hero .breadcrumb { font-size: 0.82rem; opacity: 0.8; margin-bottom: 0.75rem; }
+    .course-hero .breadcrumb a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .course-hero .breadcrumb a:hover { color: white; }
+    .course-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.4rem; }
+    .course-hero p { opacity: 0.92; font-size: 1.05rem; max-width: 700px; margin-bottom: 1.25rem; }
+    .hero-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .stat-num { font-size: 1.8rem; font-weight: 900; display: block; }
+    .hero-stat .stat-label { font-size: 0.78rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+    .section-title { font-size: 1.1rem; font-weight: 800; color: #1565C0; border-bottom: 3px solid #42A5F5; padding-bottom: 0.5rem; margin-bottom: 1.25rem; }
+    .session-card { border: 2px solid #E3F2FD; border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; background: white; transition: box-shadow 0.2s; }
+    .session-card:hover { box-shadow: var(--shadow-lg); }
+    .session-card-header { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid #E3F2FD; }
+    .session-num { background: #1565C0; color: white; border-radius: 50%; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
+    .session-card-header h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+    .session-card-header p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .session-status { margin-left: auto; }
+    .status-pill { border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; }
+    .status-full { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .materials-grid { padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; }
+    .material-card { background: #FAFAFA; border: 2px solid #E3F2FD; border-radius: 10px; padding: 0.75rem 1rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.25rem; transition: all 0.2s; }
+    .material-card:hover { border-color: #1565C0; background: #E3F2FD; text-decoration: none; box-shadow: var(--shadow-sm); }
+    .material-icon { font-size: 1.5rem; }
+    .material-label { font-weight: 700; font-size: 0.88rem; color: #333; }
+    .material-desc { font-size: 0.75rem; color: var(--text-secondary); }
+    .material-tag { display: inline-block; margin-top: 0.3rem; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+    .tag-instructor { background: #1565C0; color: white; }
+    .tag-student { background: #E3F2FD; color: #0D47A1; }
+    .tag-family { background: #FCE4EC; color: #C62828; }
+    .tips-box { background: #E8EAF6; border: 2px solid #7E57C2; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .tips-box h3 { margin: 0 0 0.75rem; color: #4527A0; font-size: 1rem; }
+    .tips-box ul { padding-left: 1.25rem; margin: 0; }
+    .tips-box li { font-size: 0.9rem; margin-bottom: 0.4rem; line-height: 1.5; }
+    .arc-box { background: #E3F2FD; border: 2px solid #42A5F5; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .arc-box h3 { margin: 0 0 0.75rem; color: #1565C0; font-size: 1rem; }
+    .arc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    .arc-item { background: white; border-radius: 8px; padding: 0.5rem 0.6rem; text-align: center; border-top: 3px solid #1565C0; }
+    .arc-item .arc-num { font-size: 1.1rem; font-weight: 900; color: #1565C0; }
+    .arc-item .arc-title { font-size: 0.72rem; font-weight: 700; color: #333; margin: 0.1rem 0; }
+    .arc-item .arc-focus { font-size: 0.68rem; color: var(--text-secondary); }
+    .supplies-strip { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
+    .supplies-strip .ss-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .supplies-strip .ss-text h4 { margin: 0 0 0.25rem; color: #7B5E00; font-size: 0.95rem; }
+    .supplies-strip .ss-text p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .supplies-list { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .supply-chip { background: white; border: 1px solid #F9A825; border-radius: 20px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; color: #7B5E00; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="course-hero">
+      <div class="breadcrumb">
+        <a href="../../index.html">← Instructor Resources</a> / <a href="../index.html">Data Science</a> / Grade 3
+      </div>
+      <h1>📊 Grade 3 — Asking Better Questions</h1>
+      <p>Complete instructor pack for the Grade 3 data science course. Ages 8–9. Students learn to ask data-answerable questions, collect and organize data, create visualizations, interpret findings, and think critically about what data can and can't tell us.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="stat-num">8</span><span class="stat-label">Sessions</span></div>
+        <div class="hero-stat"><span class="stat-num">32</span><span class="stat-label">Lessons</span></div>
+        <div class="hero-stat"><span class="stat-num">8</span><span class="stat-label">Quizzes</span></div>
+        <div class="hero-stat"><span class="stat-num">8–9</span><span class="stat-label">Ages</span></div>
+        <div class="hero-stat"><span class="stat-num">~60 min</span><span class="stat-label">Per Session</span></div>
+      </div>
+    </div>
+
+    <div class="arc-box">
+      <h3>📈 Course Arc — How Sessions Build on Each Other</h3>
+      <div class="arc-grid">
+        <div class="arc-item"><div class="arc-num">S1</div><div class="arc-title">Observation</div><div class="arc-focus">Notice &amp; sort</div></div>
+        <div class="arc-item"><div class="arc-num">S2</div><div class="arc-title">Questioning</div><div class="arc-focus">What can data answer?</div></div>
+        <div class="arc-item"><div class="arc-num">S3</div><div class="arc-title">Collecting</div><div class="arc-focus">Surveys &amp; tallies</div></div>
+        <div class="arc-item"><div class="arc-num">S4</div><div class="arc-title">Organizing</div><div class="arc-focus">Tables &amp; frequency</div></div>
+        <div class="arc-item"><div class="arc-num">S5</div><div class="arc-title">Visualizing</div><div class="arc-focus">Charts &amp; graphs</div></div>
+        <div class="arc-item"><div class="arc-num">S6</div><div class="arc-title">Interpreting</div><div class="arc-focus">Patterns &amp; conclusions</div></div>
+        <div class="arc-item"><div class="arc-num">S7</div><div class="arc-title">Critical Thinking</div><div class="arc-focus">Misleading data</div></div>
+        <div class="arc-item"><div class="arc-num">S8</div><div class="arc-title">Project</div><div class="arc-focus">Full data cycle</div></div>
+      </div>
+    </div>
+
+    <div class="supplies-strip">
+      <div class="ss-icon">🎒</div>
+      <div class="ss-text">
+        <h4>Classroom Supplies — Keep These on Hand All Term</h4>
+        <p>Most sessions need physical materials. Stock these once and you're set for all 8 sessions.</p>
+        <div class="supplies-list">
+          <span class="supply-chip">Graph paper</span>
+          <span class="supply-chip">Colored pencils/markers</span>
+          <span class="supply-chip">Pencils &amp; erasers</span>
+          <span class="supply-chip">Masking tape</span>
+          <span class="supply-chip">Sticky notes</span>
+          <span class="supply-chip">Index cards</span>
+          <span class="supply-chip">Ruler</span>
+          <span class="supply-chip">Clipboards (1 per student)</span>
+          <span class="supply-chip">Small objects for sorting (S1)</span>
+          <span class="supply-chip">Stickers (S5 pictograph)</span>
+          <span class="supply-chip">Die/dice (S7)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips-box">
+      <h3>🧠 ND-Friendly Tips for Grade 3 (Ages 8–9)</h3>
+      <ul>
+        <li><strong>Start every session with the agenda on the board</strong> — "Today we will do X, then Y, then Z." Predictability is safety.</li>
+        <li><strong>Hands on the objects before definitions</strong> — Let students sort the buttons before you define "attribute." Experience precedes vocabulary.</li>
+        <li><strong>Use the floor</strong> — Tape axes on the floor and let students BE the bar chart. Physical movement resets attention every time.</li>
+        <li><strong>Pair work for surveys</strong> — Some students are uncomfortable approaching peers alone. Pair them for data collection activities.</li>
+        <li><strong>Honor "wrong" questions</strong> — When a student writes a biased survey question, that IS the lesson. Ask "what might happen with this question?" rather than just marking it wrong.</li>
+        <li><strong>The Data Project (S8) may need scaffolding</strong> — Offer a choice board of 5 pre-approved questions for students who struggle to generate their own.</li>
+        <li><strong>Build in processing pauses</strong> — After a new graph type, ask "what do you notice?" before "what does this mean?" Observation before interpretation.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">📚 All Sessions — Full Instructor Pack</div>
+
+    <!-- Session 1 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">1</div>
+        <div>
+          <h3>What Do You Notice?</h3>
+          <p>Observation, attributes, sorting, patterns, observation journal</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-01-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, materials list, Object Sort setup, ND tips</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-01-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — keyboard nav, fullscreen, age-appropriate visuals</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-01-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Sorting activity, observation journal, take-home challenge</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-01/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-01/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-01/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 2 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">2</div>
+        <div>
+          <h3>Asking Good Questions</h3>
+          <p>Data questions vs. opinion questions, bias, fair surveys, sample size</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-02-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, Question Sort setup, bias discussion guide</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-02-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — data vs. opinion questions, fair surveys</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-02-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Question sort, fix the question, survey design activity</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-02/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-02/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-02/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 3 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">3</div>
+        <div>
+          <h3>Collecting Data</h3>
+          <p>Surveys, observation, measurement, tally marks, consistency, collection errors</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-03-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, mini-survey activity, tally practice setup</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-03-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — 3 collection methods, tally marks, common errors</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-03-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Tally practice, mini-survey recording sheet, error detective</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-03/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-03/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-03/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 4 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">4</div>
+        <div>
+          <h3>Organizing What You Found</h3>
+          <p>Raw vs. organized data, tally charts, frequency tables, categories, rows &amp; columns</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-04-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, messy→organized data activity, table building</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-04-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — raw data, frequency tables, categories</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-04-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Tally chart builder, frequency table, organize my data</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-04/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-04/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-04/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 5 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">5</div>
+        <div>
+          <h3>Pictures That Tell Stories</h3>
+          <p>Bar charts, pictographs, dot plots, graph titles, axes, keys, choosing the right graph</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-05-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, floor bar chart setup, sticker pictograph</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-05-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — bar charts, pictographs, dot plots, which to use</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-05-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Build a bar chart, sticker pictograph, dot plot practice</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-05/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-05/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-05/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 6 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">6</div>
+        <div>
+          <h3>What Does the Data Say?</h3>
+          <p>Reading graphs, patterns, trends, conclusions, evidence, observation vs. inference</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-06-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, graph reading activity, conclusion writing guide</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-06-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — reading graphs, patterns, "the data shows..."</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-06-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Graph reading, conclusion writing, observation vs. inference</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-06/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-06/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-06/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 7 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">7</div>
+        <div>
+          <h3>When Data Tricks You</h3>
+          <p>Misleading graphs, biased questions, small samples, critical thinking, data detective</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-07-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, misleading graph gallery, dice experiment</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-07-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — truncated axes, bias, sample size, be a detective</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-07-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Spot the trick, fix the graph, bias detective, data detective report</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-07/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-07/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-07/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 8 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">8</div>
+        <div>
+          <h3>Your Data Project</h3>
+          <p>Full data cycle: question → collect → organize → visualize → interpret → present</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-08-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, project facilitation guide, presentation tips, celebration close</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-08-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — project steps, course recap, final celebration</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-08-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Project planner, data collection sheet, graph draft, reflection</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-08/index.html" class="material-card" target="_blank">
+          <div class="material-icon">📖</div>
+          <div class="material-label">Session Overview</div>
+          <div class="material-desc">Student-facing session page with 4 lessons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-08/quiz.html" class="material-card" target="_blank">
+          <div class="material-icon">🎯</div>
+          <div class="material-label">Session Quiz</div>
+          <div class="material-desc">8 questions — mastery at 6+ correct</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+        <a href="../../../learn/data-science/grade-3/session-08/family-guide.html" class="material-card" target="_blank">
+          <div class="material-icon">👨‍👩‍👧</div>
+          <div class="material-label">Family Guide</div>
+          <div class="material-desc">Home extension activities for parents</div>
+          <span class="material-tag tag-family">Family</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </nav>
+    <p>© 2026 Safaa Dabagh. All rights reserved.</p>
+    <p>Data Science for Young Minds — Grade 3 Instructor Hub</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 7 Slides — When Data Tricks You | Grade 3 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0a0e1a;font-family:'Segoe UI',Arial,sans-serif;color:#e8eaf6;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#0d1530;padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+    .ctrl-btn{background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:700;}
+    .ctrl-btn:hover{background:#1976D2;}
+    .ctrl-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
+    .slide-counter{color:#90CAF9;font-size:0.85rem;font-weight:600;}
+    .progress-bar{flex:1;height:6px;background:#1a2040;border-radius:3px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5);border-radius:3px;transition:width 0.3s;}
+    .fullscreen-btn{background:#7E57C2;color:white;border:none;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:700;margin-left:auto;}
+    .slide-viewport{flex:1;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;}
+    .slide{background:#0d1530;border-radius:16px;width:100%;max-width:900px;max-height:100%;overflow-y:auto;padding:2.5rem;box-shadow:0 8px 40px rgba(0,0,0,0.5);border:1px solid #1a2a5a;display:none;}
+    .slide.active{display:block;}
+    .slide-tag{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#42A5F5;margin-bottom:0.5rem;}
+    h1{font-size:2rem;font-weight:900;margin-bottom:0.5rem;line-height:1.2;}
+    h2{font-size:1.5rem;font-weight:800;margin-bottom:1rem;color:#90CAF9;}
+    .subtitle{font-size:1rem;color:#90CAF9;margin-bottom:1.5rem;}
+    .hero-icon{font-size:4rem;margin-bottom:1rem;text-align:center;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem;}
+    .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem;}
+    .card{background:#0a1628;border-radius:10px;padding:1.2rem;border:1px solid #1a3060;}
+    .card-title{font-size:0.85rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;color:#42A5F5;}
+    .point{font-size:0.9rem;color:#c5cae9;margin-bottom:0.5rem;padding-left:1.1rem;position:relative;}
+    .point::before{content:"▸";position:absolute;left:0;color:#42A5F5;}
+    .highlight-box{background:#0a1628;border-left:4px solid #42A5F5;border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1rem 0;font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:1rem;}
+    .vocab-card{background:#0a1628;border-radius:8px;padding:0.8rem;border-left:3px solid #7E57C2;}
+    .vocab-term{font-weight:800;color:#CE93D8;font-size:0.9rem;}
+    .vocab-def{font-size:0.8rem;color:#b0bec5;margin-top:0.2rem;}
+    .agenda-list{list-style:none;margin-top:0.5rem;}
+    .agenda-list li{font-size:0.95rem;padding:0.5rem 0.75rem;margin-bottom:0.4rem;background:#0a1628;border-radius:6px;border-left:3px solid #42A5F5;}
+    .agenda-list li span{color:#42A5F5;font-weight:700;margin-right:0.5rem;}
+    .big-q{font-size:1.4rem;font-weight:900;color:#FFD54F;text-align:center;margin:1rem 0;line-height:1.3;}
+    .brain-break{background:linear-gradient(135deg,#1B5E20,#43A047);border-radius:12px;padding:1.5rem;text-align:center;margin:1rem 0;}
+    .brain-break h3{font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;}
+    .brain-break p{font-size:0.9rem;color:#C8E6C9;}
+    .activity-banner{background:linear-gradient(135deg,#1565C0,#7E57C2);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;}
+    .activity-banner h3{font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;}
+    /* Chart comparisons */
+    .chart-pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:0.75rem 0;}
+    .chart-box{background:#0a1020;border-radius:8px;padding:0.75rem;}
+    .chart-label-bad{font-size:0.72rem;color:#EF9A9A;font-weight:800;margin-bottom:0.4rem;text-transform:uppercase;}
+    .chart-label-good{font-size:0.72rem;color:#81C784;font-weight:800;margin-bottom:0.4rem;text-transform:uppercase;}
+    .bar-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;}
+    .bar-label{width:65px;font-size:0.72rem;color:#90CAF9;font-weight:600;text-align:right;}
+    .bar-fill{height:16px;border-radius:0 3px 3px 0;display:flex;align-items:center;padding-left:5px;}
+    .bar-num{font-size:0.68rem;color:white;font-weight:700;}
+    .axis-note{font-size:0.68rem;color:#546E7A;margin-top:0.3rem;}
+    /* Trick cards */
+    .trick-card{background:#1a0a0a;border:1px solid #E57373;border-radius:10px;padding:1rem;margin-bottom:0.5rem;}
+    .trick-num{font-size:0.72rem;font-weight:800;color:#EF9A9A;text-transform:uppercase;margin-bottom:0.3rem;}
+    .trick-title{font-size:1rem;font-weight:800;color:#EF9A9A;margin-bottom:0.4rem;}
+    .trick-fix{background:#0a1a0a;border-left:3px solid #43A047;border-radius:0 4px 4px 0;padding:0.4rem 0.6rem;font-size:0.85rem;color:#C8E6C9;margin-top:0.5rem;}
+    /* 3-question test */
+    .q-test{background:#0a1628;border-radius:8px;padding:0.75rem;margin-bottom:0.4rem;border-left:3px solid #FFD54F;}
+    .q-test-num{font-size:0.75rem;font-weight:800;color:#FFD54F;margin-bottom:0.2rem;}
+    .q-test-text{font-size:0.9rem;color:#c5cae9;}
+    .q-test-fail{font-size:0.78rem;color:#EF9A9A;margin-top:0.2rem;font-style:italic;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <button class="ctrl-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <button class="ctrl-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="slide-counter" id="slideCounter">1 / 15</div>
+  <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+</div>
+<div class="slide-viewport">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active">
+    <div class="slide-tag">Session 7 of 8 · Grade 3 Data Science</div>
+    <div class="hero-icon">🕵️</div>
+    <h1 style="text-align:center;">When Data Tricks You</h1>
+    <div class="subtitle" style="text-align:center;">Spotting misleading charts and becoming a critical data reader</div>
+    <div style="display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
+      <span style="background:#1565C0;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">~60 minutes</span>
+      <span style="background:#7E57C2;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">Grade 3 · Ages 8–9</span>
+      <span style="background:#B71C1C;color:white;border-radius:20px;padding:4px 16px;font-size:0.85rem;font-weight:700;">Data Cycle: Evaluate</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Agenda -->
+  <div class="slide">
+    <div class="slide-tag">Today's Plan</div>
+    <h2>What We'll Do Today</h2>
+    <ul class="agenda-list">
+      <li><span>0–5 min</span>🔁 Warm-Up — "Can data lie?" — partner discussion</li>
+      <li><span>5–18 min</span>📖 Lesson — 3 ways data can mislead: truncated axis, tiny sample, biased question</li>
+      <li><span>18–38 min</span>🎮 Activity — Myth Buster Cards: spot the trick in 4 scenarios</li>
+      <li><span>38–50 min</span>📖 Lesson — how to be a critical reader · the 3-question test</li>
+      <li><span>50–56 min</span>✍️ Activity — apply the 3-question test to 2 charts</li>
+      <li><span>56–60 min</span>🔁 Recap &amp; preview Session 8 (your own data project!)</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <strong style="color:#FFD54F;">The Big Idea:</strong> Data doesn't lie — but people can present it in ways that mislead. A smart data reader asks questions before trusting any chart.
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Warm-Up -->
+  <div class="slide">
+    <div class="slide-tag">Warm-Up · 5 min</div>
+    <h2>Can Data Lie?</h2>
+    <div class="big-q">"Can a chart be completely accurate<br>and still be misleading?"</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Think about this…</div>
+        <div class="point">A cereal box says "9 out of 10 dentists recommend!"</div>
+        <div class="point">A news headline says "Crime UP 100%!"</div>
+        <div class="point">An app says "Rated #1 by users!"</div>
+        <div style="margin-top:0.5rem;font-size:0.85rem;color:#FFD54F;">What questions pop into your head?</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Today you'll learn to ask:</div>
+        <div class="point">Does the scale start at zero?</div>
+        <div class="point">How many people were asked?</div>
+        <div class="point">Was the question fair?</div>
+        <div class="point">What's missing from this picture?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Trick 1 — Truncated Axis -->
+  <div class="slide">
+    <div class="slide-tag">Lesson 1 — Trick #1</div>
+    <h2>Trick #1: The Chopped-Off Scale</h2>
+    <div class="highlight-box">
+      A <strong>truncated axis</strong> is when the y-axis doesn't start at 0. This makes small differences look huge.
+    </div>
+    <div class="chart-pair">
+      <div class="chart-box">
+        <div class="chart-label-bad">❌ Misleading — axis starts at 78</div>
+        <div class="bar-row"><div class="bar-label">Brand A</div><div class="bar-fill" style="width:80px;background:#E53935;"><span class="bar-num">82</span></div></div>
+        <div class="bar-row"><div class="bar-label">Brand B</div><div class="bar-fill" style="width:20px;background:#7E57C2;"><span class="bar-num">80</span></div></div>
+        <div class="axis-note">Scale: 78 → 80 → 82 → 84 (Brand A looks MUCH better!)</div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-label-good">✅ Honest — axis starts at 0</div>
+        <div class="bar-row"><div class="bar-label">Brand A</div><div class="bar-fill" style="width:82px;background:#1565C0;"><span class="bar-num">82</span></div></div>
+        <div class="bar-row"><div class="bar-label">Brand B</div><div class="bar-fill" style="width:80px;background:#42A5F5;"><span class="bar-num">80</span></div></div>
+        <div class="axis-note">Scale: 0 → 20 → 40 → 60 → 80 → 100 (nearly identical!)</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center;">
+      <strong style="color:#FFD54F;">Always check:</strong> Does the y-axis start at 0? If not — the differences may be exaggerated.
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Trick 2 — Tiny Sample -->
+  <div class="slide">
+    <div class="slide-tag">Lesson 1 — Trick #2</div>
+    <h2>Trick #2: The Tiny Sample</h2>
+    <div class="big-q" style="font-size:1.1rem;">"We asked 3 people — 2 prefer our app!<br>That's 67% of all users!"</div>
+    <div class="two-col">
+      <div class="card" style="border-color:#E57373;">
+        <div class="card-title" style="color:#EF9A9A;">😵 Why this is a problem</div>
+        <div class="point">3 people cannot represent millions of users</div>
+        <div class="point">One person changing their answer flips the result</div>
+        <div class="point">67% sounds impressive — but it's just 2 out of 3</div>
+        <div class="point">Small samples are unreliable (we learned this in Session 2!)</div>
+      </div>
+      <div class="card" style="border-color:#43A047;">
+        <div class="card-title" style="color:#81C784;">✅ What to look for instead</div>
+        <div class="point">How many total people were asked?</div>
+        <div class="point">Were they randomly chosen?</div>
+        <div class="point">Do they represent the full group?</div>
+        <div class="point">The bigger and fairer the sample, the more you can trust the result</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Trick 3 — Biased Question (revisit) -->
+  <div class="slide">
+    <div class="slide-tag">Lesson 1 — Trick #3</div>
+    <h2>Trick #3: The Loaded Question</h2>
+    <div class="highlight-box">
+      Remember from Session 2: a <strong>biased question</strong> pushes people toward one answer. If the data came from a bad question — the chart is untrustworthy no matter how pretty it looks.
+    </div>
+    <div class="two-col">
+      <div class="card" style="border-color:#E57373;">
+        <div class="card-title" style="color:#EF9A9A;">❌ Loaded question examples</div>
+        <div class="point">"Don't you agree our school lunch is amazing?"</div>
+        <div class="point">"Rate our service: Good / Great / Excellent"</div>
+        <div class="point">"Most people prefer X — do you?"</div>
+        <div class="point">No "disagree" or "no" option offered</div>
+      </div>
+      <div class="card" style="border-color:#43A047;">
+        <div class="card-title" style="color:#81C784;">✅ Fair question features</div>
+        <div class="point">Neutral wording — no pressure built in</div>
+        <div class="point">All reasonable options included</div>
+        <div class="point">Not more than one question at a time</div>
+        <div class="point">"How would you rate the school lunch: poor / okay / good / great?"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Myth Buster Activity -->
+  <div class="slide">
+    <div class="slide-tag">Activity · 20 min</div>
+    <h2>🎮 Myth Buster Cards!</h2>
+    <div class="activity-banner">
+      <h3>Your Mission</h3>
+      <div class="point">You'll examine 4 misleading data claims or charts</div>
+      <div class="point">For each one: name the trick, explain why it's misleading, and say how to fix it</div>
+      <div class="point">Work with your group — discuss before writing</div>
+      <div class="point">Be ready to share your best catch with the class</div>
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <div class="card-title">Tricks to watch for:</div>
+      <div class="point">Truncated axis (scale doesn't start at 0)</div>
+      <div class="point">Tiny sample (too few people asked)</div>
+      <div class="point">Biased / leading question</div>
+      <div class="point">Missing categories (important options left out)</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Myth Buster Card Examples -->
+  <div class="slide">
+    <div class="slide-tag">Myth Busters — 4 Cards</div>
+    <h2>What Tricks Did You Spot?</h2>
+    <div class="trick-card">
+      <div class="trick-num">Card 1</div>
+      <div class="trick-title">Brand A bar is 5× taller than Brand B — but they scored 82 vs. 80</div>
+      <div class="trick-fix">✅ Fix: Start the axis at 0 so both bars are nearly the same height</div>
+    </div>
+    <div class="trick-card">
+      <div class="trick-num">Card 2</div>
+      <div class="trick-title">"67% of users prefer our app!" — based on 3 people</div>
+      <div class="trick-fix">✅ Fix: Ask a much larger, randomly selected group before making that claim</div>
+    </div>
+    <div class="trick-card">
+      <div class="trick-num">Card 3</div>
+      <div class="trick-title">Survey only offered "Good / Great / Excellent" — no negative options</div>
+      <div class="trick-fix">✅ Fix: Include a full range of options including "poor" and "okay"</div>
+    </div>
+    <div class="trick-card">
+      <div class="trick-num">Card 4</div>
+      <div class="trick-title">Chart shows 3 favorite colors — but "purple" was the most common answer and isn't shown</div>
+      <div class="trick-fix">✅ Fix: Include ALL categories — even ones that weren't expected</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Brain Break -->
+  <div class="slide">
+    <div class="slide-tag">Brain Break · 2 min</div>
+    <div class="brain-break">
+      <div style="font-size:3rem;margin-bottom:0.5rem;">🚨</div>
+      <h3>Trick or Trustworthy?</h3>
+      <p>The teacher reads a data claim. Show thumbs up for TRUSTWORTHY or thumbs down for TRICK!</p>
+      <p style="margin-top:0.4rem;font-style:italic;">"9 out of 10 students prefer this school" — based on asking 10 friends</p>
+      <p style="font-style:italic;">"In our survey of 200 randomly chosen students, 68% preferred outdoor recess"</p>
+      <p style="font-style:italic;">"100% of people we asked loved our pizza!" — they only asked the pizza maker</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: The 3-Question Test -->
+  <div class="slide">
+    <div class="slide-tag">Lesson 3</div>
+    <h2>The 3-Question Test</h2>
+    <div style="font-size:0.85rem;color:#90CAF9;margin-bottom:0.75rem;">Apply this test to any chart or data claim you see:</div>
+    <div class="q-test">
+      <div class="q-test-num">Question 1</div>
+      <div class="q-test-text"><strong>Does the scale start at 0?</strong></div>
+      <div class="q-test-fail">If NO → the differences may look bigger than they really are</div>
+    </div>
+    <div class="q-test">
+      <div class="q-test-num">Question 2</div>
+      <div class="q-test-text"><strong>Was the sample large enough and fairly chosen?</strong></div>
+      <div class="q-test-fail">If NO → the results may not represent everyone</div>
+    </div>
+    <div class="q-test">
+      <div class="q-test-num">Question 3</div>
+      <div class="q-test-text"><strong>Was the question fair — not leading or biased?</strong></div>
+      <div class="q-test-fail">If NO → the data may be skewed toward one answer</div>
+    </div>
+    <div class="highlight-box" style="text-align:center;margin-top:1rem;">
+      Pass all 3? Probably trustworthy. Fail any? <strong style="color:#FFD54F;">Look more carefully.</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: Apply the Test Activity -->
+  <div class="slide">
+    <div class="slide-tag">Activity · 6 min</div>
+    <h2>✍️ Apply the 3-Question Test</h2>
+    <div class="activity-banner">
+      <h3>Open your worksheet — Part 3</h3>
+      <div class="point">You'll see 2 data claims with charts</div>
+      <div class="point">Apply the 3-question test to each one</div>
+      <div class="point">Mark which questions pass (✅) and which fail (❌)</div>
+      <div class="point">Write: Is this data trustworthy? Why or why not?</div>
+    </div>
+    <div class="highlight-box" style="text-align:center;">
+      Remember: a chart can fail one test and still have some useful information. Being critical doesn't mean rejecting everything — it means <strong style="color:#FFD54F;">reading carefully</strong>.
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Being a Critical Reader -->
+  <div class="slide">
+    <div class="slide-tag">Lesson 4</div>
+    <h2>You Are Now a Critical Data Reader</h2>
+    <div class="three-col">
+      <div class="card" style="border-top:3px solid #42A5F5;">
+        <div class="card-title" style="color:#42A5F5;">Before trusting a chart</div>
+        <div class="point">Read the title</div>
+        <div class="point">Check the scale</div>
+        <div class="point">Look for sample size</div>
+        <div class="point">Ask who made it and why</div>
+      </div>
+      <div class="card" style="border-top:3px solid #FFD54F;">
+        <div class="card-title" style="color:#FFD54F;">Questions to ask</div>
+        <div class="point">"Who was asked?"</div>
+        <div class="point">"How many were asked?"</div>
+        <div class="point">"What question was asked?"</div>
+        <div class="point">"Is anything missing?"</div>
+      </div>
+      <div class="card" style="border-top:3px solid #CE93D8;">
+        <div class="card-title" style="color:#CE93D8;">Remember</div>
+        <div class="point">Data itself is neutral</div>
+        <div class="point">People choose how to present it</div>
+        <div class="point">Even honest people make mistakes</div>
+        <div class="point">Skepticism is a skill, not rudeness</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: Putting It All Together -->
+  <div class="slide">
+    <div class="slide-tag">The Full Data Cycle</div>
+    <h2>Everything You've Learned</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem;margin-top:0.75rem;">
+      <div class="card" style="border-top:3px solid #42A5F5;text-align:center;">
+        <div style="font-size:1.5rem;">👁️</div>
+        <div style="font-size:0.78rem;font-weight:800;color:#42A5F5;margin:0.3rem 0;">Sessions 1–2</div>
+        <div style="font-size:0.8rem;color:#c5cae9;">Notice &amp; Ask</div>
+      </div>
+      <div class="card" style="border-top:3px solid #43A047;text-align:center;">
+        <div style="font-size:1.5rem;">📋</div>
+        <div style="font-size:0.78rem;font-weight:800;color:#43A047;margin:0.3rem 0;">Sessions 3–4</div>
+        <div style="font-size:0.8rem;color:#c5cae9;">Collect &amp; Organize</div>
+      </div>
+      <div class="card" style="border-top:3px solid #CE93D8;text-align:center;">
+        <div style="font-size:1.5rem;">📊</div>
+        <div style="font-size:0.78rem;font-weight:800;color:#CE93D8;margin:0.3rem 0;">Sessions 5–6</div>
+        <div style="font-size:0.8rem;color:#c5cae9;">Visualize &amp; Interpret</div>
+      </div>
+      <div class="card" style="border-top:3px solid #EF9A9A;text-align:center;">
+        <div style="font-size:1.5rem;">🕵️</div>
+        <div style="font-size:0.78rem;font-weight:800;color:#EF9A9A;margin:0.3rem 0;">Session 7</div>
+        <div style="font-size:0.8rem;color:#c5cae9;">Evaluate &amp; Question</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center;margin-top:1rem;font-size:1rem;">
+      Session 8 = <strong style="color:#FFD54F;">you run the whole cycle yourself — your own data project!</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: Vocabulary -->
+  <div class="slide">
+    <div class="slide-tag">Vocabulary Check</div>
+    <h2>Today's Key Words</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="vocab-term">Misleading</div><div class="vocab-def">Giving a false impression, even if the numbers are technically accurate</div></div>
+      <div class="vocab-card"><div class="vocab-term">Truncated axis</div><div class="vocab-def">A chart axis that doesn't start at zero, making differences look larger than they are</div></div>
+      <div class="vocab-card"><div class="vocab-term">Small sample</div><div class="vocab-def">Too few people asked — results can't be trusted for a larger group</div></div>
+      <div class="vocab-card"><div class="vocab-term">Biased question</div><div class="vocab-def">A question that pushes toward one answer (revisited from Session 2)</div></div>
+      <div class="vocab-card"><div class="vocab-term">Critical reader</div><div class="vocab-def">Someone who questions what they see instead of accepting it immediately</div></div>
+      <div class="vocab-card"><div class="vocab-term">Reliable data</div><div class="vocab-def">Data that is trustworthy — collected fairly, from enough people, with honest questions</div></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Wrap Up -->
+  <div class="slide">
+    <div class="slide-tag">Session 7 Wrap-Up</div>
+    <div class="hero-icon">🎉</div>
+    <h1 style="text-align:center;">You're a Data Myth Buster!</h1>
+    <div class="highlight-box" style="text-align:center;font-size:1rem;margin:1rem 0;">
+      Interpret → <strong style="color:#EF9A9A;">Evaluate</strong> → (next: YOUR project!)
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">What you did today</div>
+        <div class="point">Learned 3 ways data can mislead</div>
+        <div class="point">Busted 4 misleading data myths</div>
+        <div class="point">Learned the 3-question test for any chart</div>
+        <div class="point">Became a critical, questioning data reader</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#FFD54F;">Coming up in Session 8</div>
+        <div class="point">Your own complete data project</div>
+        <div class="point">Pick a question → collect → organize → visualize → present</div>
+        <div class="point">The full data cycle from start to finish</div>
+        <div class="point">Share your work with the class!</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:1rem;color:#90CAF9;margin-top:1.5rem;font-weight:700;">Data Science for Young Minds · Grade 3 · sdabagh.github.io/learn/data-science</div>
+  </div>
+
+</div>
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressFill').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    slides[current].scrollTop = 0;
+  }
+  function changeSlide(dir) { showSlide(current + dir); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (current < total - 1) changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); if (current > 0) changeSlide(-1); }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+  document.querySelector('.slide-viewport').addEventListener('click', e => {
+    if (e.target.closest('button')) return;
+    if (current < total - 1) changeSlide(1);
+  });
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+  showSlide(0);
+</script>
+</body>
+</html>
