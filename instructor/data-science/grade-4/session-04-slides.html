@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 4 Slides — Organizing Numerical Data | Grade 4 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;} .tag-green{background:#2E7D32;} .tag-teal{background:#00695C;} .tag-amber{background:#F57F17;} .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .col-box ul li{font-size:0.88rem;color:#BBDEFB;padding:0.2rem 0 0.2rem 1rem;position:relative;border:none;background:none;}
+    .col-box ul li:before{content:"→";position:absolute;left:0;opacity:0.6;color:#42A5F5;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .dotplot{display:flex;flex-direction:column;gap:0.2rem;margin-top:0.75rem;}
+    .dotrow{display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;}
+    .dotrow .drlabel{width:30px;text-align:right;color:#90CAF9;font-weight:700;font-size:0.75rem;}
+    .dot{width:18px;height:18px;border-radius:50%;background:#1565C0;display:inline-block;border:1px solid #42A5F5;}
+    .numline{display:flex;gap:0;margin-top:0.3rem;border-top:2px solid #42A5F5;padding-top:0.3rem;}
+    .nlcell{width:30px;text-align:center;font-size:0.68rem;color:#90CAF9;}
+    .stem-display{font-family:monospace;background:rgba(21,101,192,0.12);border:1px solid #1565C0;border-radius:8px;padding:0.75rem 1rem;margin-top:0.75rem;font-size:0.95rem;color:#BBDEFB;line-height:1.8;}
+    .stem-display .stem-header{color:#42A5F5;font-weight:800;border-bottom:1px solid #1565C0;margin-bottom:0.3rem;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 4 — Organizing Numerical Data</span>
+  <span>Grade 4 Data Science · Ages 9–10</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 4 of 8</div>
+    <h1>Organizing<br>Numerical Data</h1>
+    <p>Raw numbers in a list are hard to read. Today we build two powerful tools that reveal patterns instantly.</p>
+    <div style="margin-top:1rem;font-size:0.9rem;color:#90CAF9;opacity:0.8;">📊 Data Science for Young Minds · Grade 4</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Place Your Dot!</h2>
+    <p>Your teacher is building a number line on the board. Each student gets a sticky dot and places it at their assigned score.</p>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p style="font-size:1.1rem;font-style:italic;text-align:center;">Watch what happens as more dots go up. What do you notice?</p>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">You just built a <strong style="color:#42A5F5;">line plot</strong> — together!</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>📍 Line plots (dot plots) — build and read them</li>
+      <li>🔍 Cluster, spread, range, minimum, maximum</li>
+      <li>🌿 Stem-and-leaf plots — a new way to organize data</li>
+      <li>👥 Pair activity — build both plots from the same data</li>
+      <li>🔄 Compare: what does each plot show best?</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>What Is a Line Plot?</h2>
+    <p>A <strong style="color:#42A5F5;">line plot</strong> (dot plot) shows how often each value appears on a number line. Each X or dot = one data point.</p>
+    <div class="dotplot">
+      <div style="font-size:0.75rem;color:#90CAF9;margin-bottom:0.1rem;">Quiz scores from 5 students: 72, 74, 74, 80, 85</div>
+      <div class="dotrow"><div class="drlabel">85</div><div class="dot"></div></div>
+      <div class="dotrow"><div class="drlabel">80</div><div class="dot"></div></div>
+      <div class="dotrow"><div class="drlabel">74</div><div class="dot"></div><div class="dot"></div></div>
+      <div class="dotrow"><div class="drlabel">72</div><div class="dot"></div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Two dots at 74 means <strong style="color:#42A5F5;">two students scored 74</strong>. The plot shows frequency at a glance!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Reading a Line Plot — Key Terms</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>What to Look For</h3>
+        <ul>
+          <li><strong>Minimum</strong> — lowest value (leftmost dot)</li>
+          <li><strong>Maximum</strong> — highest value (rightmost dot)</li>
+          <li><strong>Range</strong> — max minus min</li>
+          <li><strong>Cluster</strong> — where dots pile up</li>
+          <li><strong>Gap</strong> — where no dots appear</li>
+          <li><strong>Spread</strong> — how wide the data is</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">Quick Example</h3>
+        <ul>
+          <li>Scores: 63–93</li>
+          <li>Min = 63, Max = 93</li>
+          <li>Range = 93 − 63 = 30</li>
+          <li>Cluster = 80s (most scores)</li>
+          <li>Gap = no scores in 50s</li>
+          <li>Wide spread = varied performance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag tag-green">Activity 1</div>
+    <h2>Build the Line Plot</h2>
+    <p>Today's data set — 20 quiz scores:</p>
+    <div style="background:rgba(21,101,192,0.1);border:1px solid #1565C0;border-radius:8px;padding:0.75rem;margin-top:0.5rem;font-family:monospace;font-size:1rem;color:#BBDEFB;letter-spacing:0.1rem;">
+      72, 85, 91, 68, 74, 85, 90, 63, 77, 85,<br>
+      92, 74, 88, 65, 71, 80, 85, 77, 93, 68
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>On your worksheet: plot each score on the number line grid. Stack dots above each value. Then answer the cluster/range questions. ⏱ <strong style="color:#42A5F5;">12 minutes</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag tag-purple">Lesson 3</div>
+    <h2>Stem-and-Leaf Plots</h2>
+    <p>A <strong style="color:#CE93D8;">stem-and-leaf plot</strong> organizes numbers by splitting each into a <em>stem</em> (tens digit) and a <em>leaf</em> (ones digit).</p>
+    <div class="stem-display">
+      <div class="stem-header">Stem | Leaves</div>
+      6 &nbsp;| 3 5 8 8<br>
+      7 &nbsp;| 1 2 4 4 7 7<br>
+      8 &nbsp;| 0 5 5 5 5 8<br>
+      9 &nbsp;| 0 1 2 3<br>
+      <div style="font-size:0.75rem;color:#42A5F5;margin-top:0.3rem;">Key: 8|5 = 85</div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Each leaf is one data value. The row with the most leaves shows where data clusters.</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-purple">How to Build One</div>
+    <h2>Steps to Build a Stem-and-Leaf Plot</h2>
+    <ul>
+      <li>🔢 <strong>Step 1:</strong> Order all values from smallest to largest</li>
+      <li>🌿 <strong>Step 2:</strong> Write the stems (tens digits) in a column: 6, 7, 8, 9</li>
+      <li>📝 <strong>Step 3:</strong> For each value, write the leaf (ones digit) next to its stem</li>
+      <li>📋 <strong>Step 4:</strong> Order the leaves on each row smallest to largest</li>
+      <li>🔑 <strong>Step 5:</strong> Write the key — e.g., "7|2 = 72"</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Always sort your data first! It makes the leaf rows come out in order automatically.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-green">Activity 2</div>
+    <h2>Build the Stem-and-Leaf — Pair Work</h2>
+    <p>Use the same 20 scores. One partner reads the values in order, the other writes the leaves.</p>
+    <ul style="margin-top:0.5rem;">
+      <li>📋 Record in the stem-and-leaf template on your worksheet</li>
+      <li>🔑 Don't forget the key!</li>
+      <li>🔍 When done: which row has the most leaves? What is the range?</li>
+      <li>🔄 Compare your plot to your line plot — what looks the same? What's different?</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⏱ <strong style="color:#42A5F5;">12 minutes</strong> for building + comparison questions</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Mental Range!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">From our data set (63–93), answer in your head:</p>
+      <p style="margin-top:0.5rem;font-size:1rem;color:#42A5F5;">What is the range? (93 − 63 = ?)</p>
+      <p style="margin-top:0.3rem;font-size:1rem;color:#42A5F5;">How many scores are in the 80s?</p>
+      <p style="margin-top:0.3rem;font-size:0.9rem;opacity:0.7;">No pencils! Raise your hand when you have both answers.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag tag-green">Debrief</div>
+    <h2>Line Plot vs. Stem-and-Leaf</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>📍 Line Plot</h3>
+        <ul>
+          <li>Easy to see frequency</li>
+          <li>Clusters are visual</li>
+          <li>Best for smaller ranges</li>
+          <li>Can lose exact values</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">🌿 Stem-and-Leaf</h3>
+        <ul>
+          <li>Preserves exact values</li>
+          <li>Easy to find median</li>
+          <li>Shows distribution by group</li>
+          <li>Harder to see at scale</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Both plots use the same data — but each reveals something slightly different. <strong style="color:#42A5F5;">Good data scientists choose the right tool for the question.</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag">Analysis Questions</div>
+    <h2>What Does the Data Tell Us?</h2>
+    <ul>
+      <li>📊 In which decade (60s, 70s, 80s, 90s) did most students score?</li>
+      <li>📌 What is the minimum score? The maximum? The range?</li>
+      <li>🔍 Is there an outlier — a score far away from the rest?</li>
+      <li>💭 If you were the teacher, what would you conclude from these scores?</li>
+      <li>📝 Write a claim about the class performance using specific evidence.</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag tag-teal">Connecting to Real Life</div>
+    <h2>Where Are These Plots Used?</h2>
+    <ul>
+      <li>🏥 Medical researchers plot patient measurement distributions</li>
+      <li>🏫 Schools track test score distributions across classrooms</li>
+      <li>🌡️ Meteorologists plot daily temperature ranges</li>
+      <li>🏃 Athletes track performance times to find their typical range</li>
+      <li>📦 Quality control — factory items measured and plotted for consistency</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Any time you want to understand <strong style="color:#42A5F5;">"where does most of the data fall?"</strong> — a line plot or stem-and-leaf is your first move.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag">Vocabulary Review</div>
+    <h2>Words to Know</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Line plot / dot plot</div><div class="def">Number line with dots showing how often each value appears</div></div>
+      <div class="vocab-card"><div class="term">Stem-and-leaf plot</div><div class="def">Organizes data using tens (stems) and ones (leaves)</div></div>
+      <div class="vocab-card"><div class="term">Range</div><div class="def">Maximum minus minimum value</div></div>
+      <div class="vocab-card"><div class="term">Cluster</div><div class="def">A group of data points close together</div></div>
+      <div class="vocab-card"><div class="term">Spread</div><div class="def">How far apart the data values are from each other</div></div>
+      <div class="vocab-card"><div class="term">Minimum / Maximum</div><div class="def">Smallest / largest value in the data set</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Wrap Up</div>
+    <h2>Session 4 Complete!</h2>
+    <ul>
+      <li>✅ Line plots show frequency visually on a number line</li>
+      <li>✅ Stem-and-leaf plots preserve exact values while showing distribution</li>
+      <li>✅ Cluster, spread, range, min, and max are key features to identify</li>
+      <li>✅ Ordering data before plotting prevents errors</li>
+      <li>✅ Both plots help us see patterns that raw lists hide</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Coming up — Session 5:</strong> Now we can see the data's shape. Next we'll calculate the <em>averages</em> — mean, median, mode, and range.</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (cur+1)+' / '+total;
+  }
+  function nextSlide(){show(cur+1);}
+  function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}
+  });
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

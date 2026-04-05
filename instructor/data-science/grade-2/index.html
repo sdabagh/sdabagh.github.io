@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Hub — Grade 2 Data Science | Data Science for Young Minds</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .course-hero {
+      background: linear-gradient(135deg, #1565C0 0%, #42A5F5 60%, #7E57C2 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    .course-hero .breadcrumb { font-size: 0.82rem; opacity: 0.8; margin-bottom: 0.75rem; }
+    .course-hero .breadcrumb a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .course-hero .breadcrumb a:hover { color: white; }
+    .course-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.4rem; }
+    .course-hero p { opacity: 0.92; font-size: 1.05rem; max-width: 700px; margin-bottom: 1.25rem; }
+    .hero-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .stat-num { font-size: 1.8rem; font-weight: 900; display: block; }
+    .hero-stat .stat-label { font-size: 0.78rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+    .section-title { font-size: 1.1rem; font-weight: 800; color: #1565C0; border-bottom: 3px solid #42A5F5; padding-bottom: 0.5rem; margin-bottom: 1.25rem; }
+    .session-card { border: 2px solid #E3F2FD; border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; background: white; transition: box-shadow 0.2s; }
+    .session-card:hover { box-shadow: var(--shadow-lg); }
+    .session-card-header { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid #E3F2FD; }
+    .session-num { background: #1565C0; color: white; border-radius: 50%; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
+    .session-card-header h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+    .session-card-header p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .session-status { margin-left: auto; }
+    .status-pill { border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; }
+    .status-full { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .materials-grid { padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; }
+    .material-card { background: #FAFAFA; border: 2px solid #E3F2FD; border-radius: 10px; padding: 0.75rem 1rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.25rem; transition: all 0.2s; }
+    .material-card:hover { border-color: #1565C0; background: #E3F2FD; text-decoration: none; box-shadow: var(--shadow-sm); }
+    .material-icon { font-size: 1.5rem; }
+    .material-label { font-weight: 700; font-size: 0.88rem; color: #333; }
+    .material-desc { font-size: 0.75rem; color: var(--text-secondary); }
+    .material-tag { display: inline-block; margin-top: 0.3rem; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+    .tag-instructor { background: #1565C0; color: white; }
+    .tag-student { background: #E3F2FD; color: #0D47A1; }
+    .tips-box { background: #E8EAF6; border: 2px solid #7E57C2; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .tips-box h3 { margin: 0 0 0.75rem; color: #4527A0; font-size: 1rem; }
+    .tips-box ul { padding-left: 1.25rem; margin: 0; }
+    .tips-box li { font-size: 0.9rem; margin-bottom: 0.4rem; line-height: 1.5; }
+    .arc-box { background: #E3F2FD; border: 2px solid #42A5F5; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .arc-box h3 { margin: 0 0 0.75rem; color: #1565C0; font-size: 1rem; }
+    .arc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    .arc-item { background: white; border-radius: 8px; padding: 0.5rem 0.6rem; text-align: center; border-top: 3px solid #1565C0; }
+    .arc-item .arc-num { font-size: 1.1rem; font-weight: 900; color: #1565C0; }
+    .arc-item .arc-title { font-size: 0.72rem; font-weight: 700; color: #333; margin: 0.1rem 0; }
+    .arc-item .arc-focus { font-size: 0.68rem; color: var(--text-secondary); }
+    .supplies-strip { background: #FFF8E1; border: 2px solid #F9A825; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
+    .supplies-strip .ss-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .supplies-strip .ss-text h4 { margin: 0 0 0.25rem; color: #7B5E00; font-size: 0.95rem; }
+    .supplies-strip .ss-text p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .supplies-list { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .supply-chip { background: white; border: 1px solid #F9A825; border-radius: 20px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; color: #7B5E00; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <div class="course-hero">
+      <div class="breadcrumb">
+        <a href="../../index.html">← Instructor Resources</a> / <a href="../index.html">Data Science</a> / Grade 2
+      </div>
+      <h1>📊 Grade 2 — Let's Count and Compare</h1>
+      <p>Complete instructor pack for the Grade 2 data science course. Ages 7–8. Students learn to count, measure, and compare groups, record data with tally marks, and draw and read simple bar graphs — building number fluency with real data.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="stat-num">8</span><span class="stat-label">Sessions</span></div>
+        <div class="hero-stat"><span class="stat-num">24</span><span class="stat-label">Materials</span></div>
+        <div class="hero-stat"><span class="stat-num">8</span><span class="stat-label">Worksheets</span></div>
+        <div class="hero-stat"><span class="stat-num">7–8</span><span class="stat-label">Ages</span></div>
+        <div class="hero-stat"><span class="stat-num">~50 min</span><span class="stat-label">Per Session</span></div>
+      </div>
+    </div>
+
+    <div class="arc-box">
+      <h3>📈 Course Arc — How Sessions Build on Each Other</h3>
+      <div class="arc-grid">
+        <div class="arc-item"><div class="arc-num">S1</div><div class="arc-title">Noticing Data</div><div class="arc-focus">Data is everywhere</div></div>
+        <div class="arc-item"><div class="arc-num">S2</div><div class="arc-title">Questions</div><div class="arc-focus">What can we count?</div></div>
+        <div class="arc-item"><div class="arc-num">S3</div><div class="arc-title">Surveying</div><div class="arc-focus">Asking &amp; recording</div></div>
+        <div class="arc-item"><div class="arc-num">S4</div><div class="arc-title">Tally Charts</div><div class="arc-focus">Groups of 5</div></div>
+        <div class="arc-item"><div class="arc-num">S5</div><div class="arc-title">Bar Graphs</div><div class="arc-focus">Drawing our data</div></div>
+        <div class="arc-item"><div class="arc-num">S6</div><div class="arc-title">Reading Graphs</div><div class="arc-focus">Most, least, compare</div></div>
+        <div class="arc-item"><div class="arc-num">S7</div><div class="arc-title">Our Survey</div><div class="arc-focus">Student-designed</div></div>
+        <div class="arc-item"><div class="arc-num">S8</div><div class="arc-title">Data Book</div><div class="arc-focus">Class capstone</div></div>
+      </div>
+    </div>
+
+    <div class="supplies-strip">
+      <div class="ss-icon">🎒</div>
+      <div class="ss-text">
+        <h4>Classroom Supplies — Keep These on Hand All Term</h4>
+        <p>Most sessions need physical materials. Stock these once and you're set for all 8 sessions.</p>
+        <div class="supplies-list">
+          <span class="supply-chip">Pre-gridded graph paper</span>
+          <span class="supply-chip">Colored pencils/markers</span>
+          <span class="supply-chip">Pencils &amp; erasers</span>
+          <span class="supply-chip">Clipboards (1 per student)</span>
+          <span class="supply-chip">Rulers</span>
+          <span class="supply-chip">Index cards (question sort S2)</span>
+          <span class="supply-chip">Sticky notes</span>
+          <span class="supply-chip">Whiteboard or chart paper</span>
+          <span class="supply-chip">Markers for board</span>
+          <span class="supply-chip">Recording sheets (print from worksheets)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips-box">
+      <h3>🧠 ND-Friendly Tips for Grade 2 (Ages 7–8)</h3>
+      <ul>
+        <li><strong>Post the agenda visually at the start of every session</strong> — Draw or write the 3–4 blocks on the board. Students who need predictability will refer back to it throughout the period.</li>
+        <li><strong>Demonstrate every interaction before releasing students</strong> — For the survey sessions, act out the full exchange ("Hi, what's your favorite season?") before students walk around. Reduce social anxiety by scripting the approach.</li>
+        <li><strong>Physical cards before abstract questions</strong> — In Session 2, students move real cards to sort questions. The physical manipulation supports working memory and gives fidgeters a productive outlet.</li>
+        <li><strong>Graph paper is an access tool, not just a scaffold</strong> — Pre-drawn grids reduce motor planning demands for students with fine-motor challenges. Offer rulers freely — not as a correction, but as a tool everyone uses.</li>
+        <li><strong>Allow flexible response during surveys</strong> — Some students are more comfortable with a nod, a point, or a written answer card than speaking aloud. Have a few picture-answer cards ready (sun/snowflake/leaf/flower for seasons).</li>
+        <li><strong>Counting brain breaks align with the math</strong> — Each brain break uses counting (clap 7 times, jump the number that wins). This reinforces number sense without feeling like extra work.</li>
+        <li><strong>The Class Data Book (S8) is everyone's</strong> — No student page is graded against another. Honor all contribution formats — drawing a bar instead of writing a sentence is valid data communication.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">📚 All Sessions — Full Instructor Pack</div>
+
+    <!-- Session 1 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">1</div>
+        <div>
+          <h3>Data Is All Around Us</h3>
+          <p>What is data? Counting, measuring, noticing; data in everyday life</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-01-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, data hunt setup, ND tips</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-01-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — keyboard nav, fullscreen, age-appropriate visuals</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-01-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Data hunt checklist, vocab, take-home challenge</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 2 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">2</div>
+        <div>
+          <h3>Questions We Can Count</h3>
+          <p>Countable vs. uncountable questions, answer choices, good survey questions</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-02-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, question sort setup, discussion guide</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-02-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — countable questions, answer choices, examples</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-02-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Question sort recording, write your own question, take-home</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 3 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">3</div>
+        <div>
+          <h3>Running Our First Survey</h3>
+          <p>Asking classmates, recording responses with check marks, class survey activity</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-03-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, survey script, recording sheet guide</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-03-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — how to ask, how to record, survey walkthrough</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-03-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Survey recording sheet, tally practice, reflection</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 4 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">4</div>
+        <div>
+          <h3>Making a Tally Chart</h3>
+          <p>Tally marks in groups of 5, totals row, turning survey data into a tally chart</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-04-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, tally chart demo, board activity guide</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-04-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — tally marks, groups of 5, building the chart</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-04-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Tally practice, chart builder, totals row, take-home</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 5 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">5</div>
+        <div>
+          <h3>Drawing a Bar Graph</h3>
+          <p>Building a bar graph from a tally chart; title, axis labels, scale, bars</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-05-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, live modeling steps, graph paper tips</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-05-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — anatomy of a bar graph, step-by-step drawing</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-05-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Pre-drawn grid, bar graph builder, labeling activity</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 6 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">6</div>
+        <div>
+          <h3>Reading Graphs Together</h3>
+          <p>Asking and answering questions about bar graphs; most, least, same, how many more</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-06-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, 3 sample graphs, question guide, sentence frames</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-06-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — 3 bar graphs, group questions, comparison language</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-06-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Read 2 bar graphs, answer questions, write comparisons</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 7 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">7</div>
+        <div>
+          <h3>Our Second Survey</h3>
+          <p>Students design their own question, recording sheet, survey 8 classmates, tally chart</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-07-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab, question approval checklist, survey flow</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-07-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — designing a question, making a recording sheet</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-07-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Question planner, recording sheet, tally chart builder</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Session 8 -->
+    <div class="session-card">
+      <div class="session-card-header">
+        <div class="session-num">8</div>
+        <div>
+          <h3>Our Class Data Book (Capstone)</h3>
+          <p>Complete bar graph from Session 7, write one sentence, compile class data book</p>
+        </div>
+        <div class="session-status"><span class="status-pill status-full">✅ Full Pack</span></div>
+      </div>
+      <div class="materials-grid">
+        <a href="session-08-cheatsheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📋</div>
+          <div class="material-label">Teacher Cheat Sheet</div>
+          <div class="material-desc">Agenda, vocab review, data book assembly, celebration ideas</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-08-slides.html" class="material-card" target="_blank">
+          <div class="material-icon">📺</div>
+          <div class="material-label">Slide Deck</div>
+          <div class="material-desc">15 slides — full term review, data book intro, celebration</div>
+          <span class="material-tag tag-instructor">Instructor</span>
+        </a>
+        <a href="session-08-worksheet.html" class="material-card" target="_blank">
+          <div class="material-icon">📝</div>
+          <div class="material-label">Student Worksheet</div>
+          <div class="material-desc">Final bar graph page, conclusion sentence, data book cover</div>
+          <span class="material-tag tag-student">Student</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer style="text-align:center;padding:2rem;font-size:0.82rem;color:#888;margin-top:2rem;border-top:1px solid #eee;">
+    Data Science for Young Minds · Grade 2 Instructor Pack · sdabagh.github.io/learn/data-science
+  </footer>
+</body>
+</html>

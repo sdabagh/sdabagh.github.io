@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session 6 Worksheet — Trends &amp; Patterns Over Time · Grade 4 Data Science</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fa;color:#1a1a2e;font-size:15px}
+.page{max-width:780px;margin:0 auto;padding:18px 20px 30px}
+.ws-header{background:linear-gradient(135deg,#1565C0 0%,#42A5F5 60%,#7E57C2 100%);color:#fff;border-radius:12px;padding:18px 24px;margin-bottom:18px;display:flex;align-items:center;gap:16px}
+.ws-header .icon{font-size:2.4rem;line-height:1}
+.ws-header h1{font-size:1.25rem;font-weight:700;margin-bottom:2px}
+.ws-header p{font-size:.85rem;opacity:.9}
+.info-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.info-field{flex:1;min-width:140px;background:#fff;border:1.5px solid #b0bec5;border-radius:8px;padding:8px 12px}
+.info-field label{font-size:.7rem;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+.info-field .line{border-bottom:1.5px solid #b0bec5;height:20px}
+.section-title{font-size:.78rem;font-weight:800;color:#1565C0;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-left:10px;border-left:4px solid #42A5F5}
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.vocab-item{background:#fff;border:1.5px solid #b0bec5;border-radius:8px;padding:10px 12px}
+.vocab-item .term{font-weight:700;color:#1565C0;font-size:.85rem;margin-bottom:4px}
+.vocab-item .def-line{border-bottom:1px solid #cfd8dc;height:16px;margin-top:4px}
+.activity-box{background:#fff;border:1.5px solid #b0bec5;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.activity-box h3{font-size:.9rem;font-weight:700;color:#1565C0;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.activity-box h3 .badge{background:linear-gradient(135deg,#1565C0,#42A5F5);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0}
+table.data-table{width:100%;border-collapse:collapse;margin:8px 0 10px;font-size:.82rem}
+table.data-table th{background:#e3f2fd;color:#1565C0;font-weight:700;padding:6px 8px;border:1px solid #b0bec5;text-align:center}
+table.data-table td{padding:6px 8px;border:1px solid #b0bec5;text-align:center}
+/* Graph paper grid */
+.graph-wrap{background:#fff;border:1.5px solid #b0bec5;border-radius:8px;padding:12px;margin:10px 0}
+.graph-title{font-size:.82rem;font-weight:700;color:#333;margin-bottom:8px;text-align:center}
+svg.graph-paper{display:block;margin:0 auto}
+.q-line{border-bottom:1.5px solid #b0bec5;height:22px;margin:6px 0;width:100%}
+.write-line{border-bottom:1.5px solid #b0bec5;height:22px;margin:4px 0}
+.write-area{display:flex;flex-direction:column;gap:0;margin:6px 0}
+.two-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+.mini-box{background:#f8f9fa;border:1px solid #cfd8dc;border-radius:6px;padding:10px}
+.mini-box .mb-label{font-size:.75rem;font-weight:700;color:#546e7a;margin-bottom:6px}
+.predict-box{background:#e8f5e9;border:1.5px solid #66bb6a;border-radius:8px;padding:12px;margin:10px 0}
+.predict-box .pb-label{font-size:.78rem;font-weight:700;color:#2e7d32;margin-bottom:6px}
+.interpolate-box{background:#e3f2fd;border:1.5px solid #42A5F5;border-radius:8px;padding:12px;margin:10px 0}
+.interpolate-box .ib-label{font-size:.78rem;font-weight:700;color:#1565C0;margin-bottom:6px}
+.takehome{background:linear-gradient(135deg,#1565C0 0%,#42A5F5 60%,#7E57C2 100%);color:#fff;border-radius:10px;padding:14px 16px;margin-top:18px}
+.takehome h3{font-size:.9rem;font-weight:700;margin-bottom:8px}
+.takehome p{font-size:.82rem;opacity:.95;line-height:1.5;margin-bottom:6px}
+.th-line{border-bottom:1.5px solid rgba(255,255,255,.5);height:22px;margin:6px 0}
+.ws-footer{text-align:center;font-size:.72rem;color:#78909c;margin-top:22px;padding-top:10px;border-top:1px solid #e0e0e0}
+.trend-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{border-radius:20px;padding:4px 12px;font-size:.78rem;font-weight:700;cursor:default}
+.chip-up{background:#e8f5e9;color:#2e7d32;border:1.5px solid #66bb6a}
+.chip-down{background:#fce4ec;color:#c62828;border:1.5px solid #ef9a9a}
+.chip-steady{background:#fff8e1;color:#e65100;border:1.5px solid #ffcc02}
+.circle-choice{display:flex;gap:18px;margin:4px 0;font-size:.82rem}
+.circle-choice span{padding:2px 8px;border:1.5px solid #b0bec5;border-radius:12px}
+@media print{
+  body{background:#fff;font-size:13px}
+  .page{padding:10px 14px}
+  .ws-header{padding:12px 16px}
+  .activity-box,.graph-wrap,.predict-box,.interpolate-box,.mini-box{break-inside:avoid}
+  .takehome{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ws-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="ws-header">
+    <div class="icon">📈</div>
+    <div>
+      <h1>Session 6: Trends &amp; Patterns Over Time</h1>
+      <p>Grade 4 Data Science · Reading &amp; Building Line Graphs</p>
+    </div>
+  </div>
+
+  <!-- Info Row -->
+  <div class="info-row">
+    <div class="info-field"><label>Name</label><div class="line"></div></div>
+    <div class="info-field"><label>Date</label><div class="line"></div></div>
+    <div class="info-field"><label>Partner</label><div class="line"></div></div>
+  </div>
+
+  <!-- Vocabulary -->
+  <div class="section-title">Vocabulary — Fill in the Definitions</div>
+  <div class="vocab-grid">
+    <div class="vocab-item">
+      <div class="term">Line Graph</div>
+      <div class="def-line"></div>
+      <div class="def-line"></div>
+    </div>
+    <div class="vocab-item">
+      <div class="term">Trend</div>
+      <div class="def-line"></div>
+      <div class="def-line"></div>
+    </div>
+    <div class="vocab-item">
+      <div class="term">Interpolation</div>
+      <div class="def-line"></div>
+      <div class="def-line"></div>
+    </div>
+    <div class="vocab-item">
+      <div class="term">Extrapolation</div>
+      <div class="def-line"></div>
+      <div class="def-line"></div>
+    </div>
+  </div>
+
+  <!-- Activity 1: Read the Temperature Graph -->
+  <div class="activity-box">
+    <h3><span class="badge">1</span> Graph 1: Monthly Temperatures — Read &amp; Analyze</h3>
+    <p style="font-size:.82rem;margin-bottom:10px">Use the data below to answer the questions.</p>
+
+    <table class="data-table">
+      <tr>
+        <th>Month</th>
+        <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th>
+        <th>May</th><th>Jun</th><th>Jul</th><th>Aug</th>
+        <th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
+      </tr>
+      <tr>
+        <td><b>Temp (°F)</b></td>
+        <td>32</td><td>35</td><td>45</td><td>55</td>
+        <td>65</td><td>75</td><td>82</td><td>80</td>
+        <td>70</td><td>58</td><td>44</td><td>34</td>
+      </tr>
+    </table>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:8px 0 4px">① What is the overall trend from January to July?</p>
+    <div class="trend-chips">
+      <span class="chip chip-up">⬆ Increasing</span>
+      <span class="chip chip-down">⬇ Decreasing</span>
+      <span class="chip chip-steady">➡ Steady</span>
+    </div>
+    <p style="font-size:.78rem;margin:4px 0">Circle the trend above, then explain in one sentence:</p>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">② What is the overall trend from July to December?</p>
+    <div class="trend-chips">
+      <span class="chip chip-up">⬆ Increasing</span>
+      <span class="chip chip-down">⬇ Decreasing</span>
+      <span class="chip chip-steady">➡ Steady</span>
+    </div>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">③ What is the highest temperature, and in which month does it occur?</p>
+    <div class="write-area"><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">④ What is the temperature difference between the warmest and coldest months?</p>
+    <div style="background:#f8f9fa;border:1px solid #cfd8dc;border-radius:6px;padding:8px 10px;margin:4px 0;font-size:.82rem">
+      _____ °F − _____ °F = _____ °F
+    </div>
+
+    <div class="interpolate-box" style="margin-top:10px">
+      <div class="ib-label">🔵 Interpolation — Fill in the Gap</div>
+      <p style="font-size:.8rem">The data shows Apr = 55°F and Jun = 75°F. Estimate what May's temperature might be if May was missing from the table. Explain your reasoning.</p>
+      <p style="font-size:.8rem;margin-top:6px">My estimate for May: <b>_____ °F</b></p>
+      <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+    </div>
+  </div>
+
+  <!-- Activity 2: Build the Books Graph -->
+  <div class="activity-box">
+    <h3><span class="badge">2</span> Graph 2: Books Read Each Week — Build Your Graph</h3>
+    <p style="font-size:.82rem;margin-bottom:10px">Plot the data below on the line graph. Connect the points with a ruler.</p>
+
+    <table class="data-table">
+      <tr>
+        <th>Week</th>
+        <th>1</th><th>2</th><th>3</th><th>4</th>
+        <th>5</th><th>6</th><th>7</th><th>8</th>
+      </tr>
+      <tr>
+        <td><b>Books Read</b></td>
+        <td>2</td><td>3</td><td>3</td><td>5</td>
+        <td>4</td><td>6</td><td>7</td><td>7</td>
+      </tr>
+    </table>
+
+    <!-- SVG Graph Paper -->
+    <div class="graph-wrap">
+      <div class="graph-title">Books Read Per Week</div>
+      <svg class="graph-paper" width="620" height="280" viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid lines -->
+        <defs>
+          <pattern id="smallGrid" width="60" height="28" patternUnits="userSpaceOnUse">
+            <path d="M 60 0 L 0 0 0 28" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+          </pattern>
+          <pattern id="grid" width="60" height="28" patternUnits="userSpaceOnUse">
+            <rect width="60" height="28" fill="url(#smallGrid)"/>
+            <path d="M 60 0 L 0 0 0 28" fill="none" stroke="#b0bec5" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <!-- Plot area: x from 60 to 560, y from 20 to 252 (8 rows × 28 = 224 + 8 top) -->
+        <!-- Y labels: 0–8 books -->
+        <g font-family="Arial" font-size="11" fill="#546e7a" text-anchor="end">
+          <text x="52" y="255">0</text>
+          <text x="52" y="227">1</text>
+          <text x="52" y="199">2</text>
+          <text x="52" y="171">3</text>
+          <text x="52" y="143">4</text>
+          <text x="52" y="115">5</text>
+          <text x="52" y="87">6</text>
+          <text x="52" y="59">7</text>
+          <text x="52" y="31">8</text>
+        </g>
+        <!-- Y axis label -->
+        <text transform="rotate(-90)" x="-140" y="15" font-family="Arial" font-size="11" fill="#546e7a" text-anchor="middle">Books Read</text>
+        <!-- Grid rect -->
+        <rect x="60" y="20" width="480" height="224" fill="url(#grid)" stroke="#b0bec5" stroke-width="1"/>
+        <!-- X axis -->
+        <line x1="60" y1="244" x2="540" y2="244" stroke="#546e7a" stroke-width="1.5"/>
+        <!-- X labels: weeks 1–8 -->
+        <g font-family="Arial" font-size="11" fill="#546e7a" text-anchor="middle">
+          <text x="90" y="266">Wk 1</text>
+          <text x="150" y="266">Wk 2</text>
+          <text x="210" y="266">Wk 3</text>
+          <text x="270" y="266">Wk 4</text>
+          <text x="330" y="266">Wk 5</text>
+          <text x="390" y="266">Wk 6</text>
+          <text x="450" y="266">Wk 7</text>
+          <text x="510" y="266">Wk 8</text>
+        </g>
+        <!-- X axis label -->
+        <text x="300" y="280" font-family="Arial" font-size="11" fill="#546e7a" text-anchor="middle">Week</text>
+        <!-- Plot points (empty circles for students to fill) -->
+        <!-- y = 244 - value*28; x positions: 90,150,210,270,330,390,450,510 -->
+        <!-- Week 1: 2 → y=188 -->
+        <circle cx="90" cy="188" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 2: 3 → y=160 -->
+        <circle cx="150" cy="160" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 3: 3 → y=160 -->
+        <circle cx="210" cy="160" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 4: 5 → y=104 -->
+        <circle cx="270" cy="104" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 5: 4 → y=132 -->
+        <circle cx="330" cy="132" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 6: 6 → y=76 -->
+        <circle cx="390" cy="76" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 7: 7 → y=48 -->
+        <circle cx="450" cy="48" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Week 8: 7 → y=48 -->
+        <circle cx="510" cy="48" r="5" fill="white" stroke="#1565C0" stroke-width="2"/>
+        <!-- Student instruction -->
+        <text x="300" y="14" font-family="Arial" font-size="10" fill="#1565C0" text-anchor="middle">▶ Plot each value and connect the dots with your ruler</text>
+      </svg>
+    </div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">① Describe the overall trend for books read over the 8 weeks.</p>
+    <div class="trend-chips">
+      <span class="chip chip-up">⬆ Increasing</span>
+      <span class="chip chip-down">⬇ Decreasing</span>
+      <span class="chip chip-steady">➡ Steady</span>
+    </div>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">② Which week shows a dip (decrease) compared to the week before? Why might that happen?</p>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">③ How many total books were read across all 8 weeks?</p>
+    <div style="background:#f8f9fa;border:1px solid #cfd8dc;border-radius:6px;padding:8px 10px;font-size:.82rem">
+      Show your addition: _____ + _____ + _____ + _____ + _____ + _____ + _____ + _____ = <b>_____</b> books
+    </div>
+  </div>
+
+  <!-- Activity 3: Interpolation & Extrapolation -->
+  <div class="activity-box">
+    <h3><span class="badge">3</span> Predict &amp; Estimate — Interpolation vs. Extrapolation</h3>
+
+    <div class="interpolate-box">
+      <div class="ib-label">🔵 Interpolation (filling a gap inside the data)</div>
+      <p style="font-size:.82rem">Imagine Week 4 was missing from the books data. Using Week 3 (3 books) and Week 5 (4 books), estimate what Week 4 might have been.</p>
+      <p style="font-size:.8rem;margin-top:8px">My interpolation estimate for Week 4: <b>_____ books</b></p>
+      <p style="font-size:.78rem;margin-top:4px">My reasoning:</p>
+      <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+    </div>
+
+    <div class="predict-box">
+      <div class="pb-label">🟢 Extrapolation (predicting beyond the data)</div>
+      <p style="font-size:.82rem">The data ends at Week 8 (7 books). If the trend continues, predict how many books might be read in Week 10.</p>
+      <p style="font-size:.8rem;margin-top:8px">My extrapolation prediction for Week 10: <b>_____ books</b></p>
+      <p style="font-size:.78rem;margin-top:4px">My reasoning (what pattern did you use?):</p>
+      <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+    </div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#7E57C2;margin:10px 0 4px">🤔 Think About It: Which prediction are you MORE confident in — your Week 4 interpolation or your Week 10 extrapolation? Explain why.</p>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div><div class="write-line"></div></div>
+  </div>
+
+  <!-- Activity 4: Compare Two Graphs -->
+  <div class="activity-box">
+    <h3><span class="badge">4</span> Compare the Two Graphs</h3>
+    <p style="font-size:.82rem;margin-bottom:10px">Both the temperature graph and the books graph show trends. Use the sentence frames to compare them.</p>
+
+    <div class="two-box">
+      <div class="mini-box">
+        <div class="mb-label">📊 Graph 1 — Monthly Temperature</div>
+        <p style="font-size:.78rem;margin-bottom:4px">The highest value is _____ in _____.</p>
+        <p style="font-size:.78rem;margin-bottom:4px">The lowest value is _____ in _____.</p>
+        <p style="font-size:.78rem">The overall shape is:</p>
+        <div class="write-area"><div class="write-line"></div></div>
+      </div>
+      <div class="mini-box">
+        <div class="mb-label">📚 Graph 2 — Books Read</div>
+        <p style="font-size:.78rem;margin-bottom:4px">The highest value is _____ in Week _____.</p>
+        <p style="font-size:.78rem;margin-bottom:4px">The lowest value is _____ in Week _____.</p>
+        <p style="font-size:.78rem">The overall shape is:</p>
+        <div class="write-area"><div class="write-line"></div></div>
+      </div>
+    </div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:10px 0 4px">One way the two graphs are similar:</p>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+
+    <p style="font-size:.8rem;font-weight:700;color:#1565C0;margin:8px 0 4px">One way the two graphs are different:</p>
+    <div class="write-area"><div class="write-line"></div><div class="write-line"></div></div>
+  </div>
+
+  <!-- Take-Home -->
+  <div class="takehome">
+    <h3>🏠 Take-Home Challenge</h3>
+    <p>Track something in your life for 7 days — steps walked, minutes of reading, or glasses of water. Record your data here:</p>
+    <table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:.82rem">
+      <tr>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);font-weight:700;text-align:center">Day</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">1</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">2</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">3</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">4</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">5</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">6</td>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);text-align:center">7</td>
+      </tr>
+      <tr>
+        <td style="color:#fff;padding:4px 6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);font-weight:700">Amount</td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+        <td style="padding:4px 6px;border:1px solid rgba(255,255,255,.4)"></td>
+      </tr>
+    </table>
+    <p>What I tracked: <span style="border-bottom:1px solid rgba(255,255,255,.6);display:inline-block;width:200px">&nbsp;</span></p>
+    <p style="margin-top:6px">What trend do I notice?</p>
+    <div class="th-line"></div>
+    <div class="th-line"></div>
+  </div>
+
+  <div class="ws-footer">
+    Grade 4 Data Science · Session 6 · Trends &amp; Patterns Over Time · sdabagh.github.io
+  </div>
+</div>
+</body>
+</html>

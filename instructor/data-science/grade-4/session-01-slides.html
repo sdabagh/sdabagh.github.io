@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 1 Slides — Data Tells a Story | Grade 4 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;}
+    .tag-green{background:#2E7D32;}
+    .tag-teal{background:#00695C;}
+    .tag-amber{background:#F57F17;}
+    .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    .sub{font-size:0.9rem;color:#90CAF9;opacity:0.8;margin-top:0.4rem;}
+    .big{font-size:3.5rem;font-weight:900;color:#42A5F5;text-align:center;margin:0.5rem 0;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .col-box ul li{font-size:0.88rem;color:#BBDEFB;padding:0.2rem 0 0.2rem 1rem;position:relative;border:none;background:none;}
+    .col-box ul li:before{content:"→";position:absolute;left:0;opacity:0.6;color:#42A5F5;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .data-table{width:100%;border-collapse:collapse;margin-top:0.75rem;font-size:0.88rem;}
+    .data-table th{background:#1565C0;color:white;padding:6px 10px;text-align:left;}
+    .data-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.08);color:#BBDEFB;}
+    .data-table tr:nth-child(even) td{background:rgba(255,255,255,0.03);}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .cycle-row{display:flex;gap:0.5rem;margin-top:0.75rem;align-items:center;flex-wrap:wrap;}
+    .cycle-step{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:8px;padding:0.5rem 0.75rem;text-align:center;flex:1;min-width:80px;}
+    .cycle-step .cs-num{font-size:0.7rem;color:#42A5F5;font-weight:800;}
+    .cycle-step .cs-name{font-size:0.82rem;font-weight:700;color:#90CAF9;}
+    .cycle-arrow{color:#42A5F5;font-size:1.2rem;flex-shrink:0;}
+    .claim-frame{background:rgba(126,87,194,0.15);border:1px solid #7E57C2;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .claim-frame p{font-size:1rem;color:#E1BEE7;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 1 — Data Tells a Story</span>
+  <span>Grade 4 Data Science · Ages 9–10</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 1 of 8</div>
+    <h1>Data Tells<br>a Story</h1>
+    <p>Numbers are just the beginning. Today we learn how to find the <strong style="color:#42A5F5;">meaning</strong> inside the data.</p>
+    <div class="sub" style="margin-top:1rem;">📊 Data Science for Young Minds · Grade 4 — What's the Story?</div>
+  </div>
+
+  <!-- Slide 2: Hook -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>What Do These Numbers Mean?</h2>
+    <div class="big">4200 · 5100 · 4800 · 6300 · 5900 · 9200 · 8700</div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p style="font-size:1.1rem;font-style:italic;text-align:center;">Seven numbers. What's the story?</p>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Think quietly for 30 seconds. Then share with a neighbor.</p>
+  </div>
+
+  <!-- Slide 3: Reveal -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">The Reveal</div>
+    <h2>Context Changes Everything</h2>
+    <p>Those numbers are <strong style="color:#42A5F5;">daily step counts</strong> for one person, Monday through Sunday.</p>
+    <table class="data-table">
+      <thead><tr><th>Day</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+      <tbody><tr><td>Steps</td><td>4,200</td><td>5,100</td><td>4,800</td><td>6,300</td><td>5,900</td><td>9,200</td><td>8,700</td></tr></tbody>
+    </table>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Now what's the story? <strong style="color:#42A5F5;">Context transforms numbers into meaning.</strong> That's interpretation.</p>
+    </div>
+  </div>
+
+  <!-- Slide 4: Agenda -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>🔢 Raw numbers vs. what they mean — the interpretation gap</li>
+      <li>🔄 The full data cycle — where interpretation fits</li>
+      <li>📊 Three data sets — you interpret each one</li>
+      <li>🗣️ Share-out — how different people read the same data</li>
+      <li>✍️ Writing a claim supported by evidence</li>
+    </ul>
+  </div>
+
+  <!-- Slide 5: Raw vs. Meaning -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>Raw Numbers vs. Meaning</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #555;">
+        <h3 style="color:#aaa;">🔢 Raw Data</h3>
+        <ul>
+          <li>Just the numbers or labels</li>
+          <li>No context given yet</li>
+          <li>Could mean many things</li>
+          <li>"47, 52, 39, 61, 44"</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>💡 Meaning (Interpretation)</h3>
+        <ul>
+          <li>Numbers + context + judgment</li>
+          <li>Explains what the data shows</li>
+          <li>Backed by specific evidence</li>
+          <li>"Quiz scores — most students passed, avg ~49"</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">The jump from raw to meaning is <strong style="color:#42A5F5;">interpretation</strong> — the most human part of data science.</p>
+  </div>
+
+  <!-- Slide 6: Data Cycle -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag tag-purple">Lesson 2</div>
+    <h2>The Full Data Cycle</h2>
+    <p>Every data investigation follows the same path. We're focusing on the hardest step today.</p>
+    <div class="cycle-row">
+      <div class="cycle-step"><div class="cs-num">STEP 1</div><div class="cs-name">Ask a Question</div></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step"><div class="cs-num">STEP 2</div><div class="cs-name">Collect Data</div></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step"><div class="cs-num">STEP 3</div><div class="cs-name">Organize</div></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step"><div class="cs-num">STEP 4</div><div class="cs-name">Visualize</div></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-step" style="border-color:#7E57C2;background:rgba(126,87,194,0.2);"><div class="cs-num" style="color:#CE93D8;">STEP 5 ⭐</div><div class="cs-name" style="color:#CE93D8;">Interpret</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Steps 1–4 can be done by a computer. <strong style="color:#42A5F5;">Interpretation requires a human mind.</strong> That's what makes it the most important — and hardest — step.</p>
+    </div>
+  </div>
+
+  <!-- Slide 7: Claim vs Evidence -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag">Lesson 3</div>
+    <h2>Claim vs. Evidence</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #C62828;">
+        <h3 style="color:#EF9A9A;">❌ Guess (no evidence)</h3>
+        <ul>
+          <li>Based on feeling</li>
+          <li>No numbers cited</li>
+          <li>"I think they like to walk."</li>
+          <li>"The data looks interesting."</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #2E7D32;">
+        <h3 style="color:#A5D6A7;">✅ Claim (evidence-backed)</h3>
+        <ul>
+          <li>Based on specific numbers</li>
+          <li>Cites data as evidence</li>
+          <li>"They walk more on weekends — Saturday (9,200) is double Monday (4,200)."</li>
+        </ul>
+      </div>
+    </div>
+    <div class="claim-frame">
+      <p style="text-align:center;font-size:1rem;">📝 Sentence frame: <strong style="color:#CE93D8;">"My claim is ___ because the data shows ___."</strong></p>
+    </div>
+  </div>
+
+  <!-- Slide 8: Activity Intro -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Activity Time!</div>
+    <h2>Three Data Sets — Your Turn to Interpret</h2>
+    <p>You'll look at three tables of data. For each one, write:</p>
+    <ul style="margin-top:0.5rem;">
+      <li>📊 <strong>What you notice</strong> — patterns, high points, low points</li>
+      <li>💡 <strong>Your interpretation</strong> — what does it mean?</li>
+      <li>📋 <strong>Your claim</strong> — one sentence with evidence</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⏱ Work alone for <strong style="color:#42A5F5;">8 minutes</strong>, then compare with a partner for <strong style="color:#42A5F5;">5 minutes</strong>.</p>
+    </div>
+  </div>
+
+  <!-- Slide 9: Data Set A -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-green">Data Set A</div>
+    <h2>Daily Steps — One Week</h2>
+    <table class="data-table">
+      <thead><tr><th>Day</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+      <tbody><tr><td>Steps</td><td>4,200</td><td>5,100</td><td>4,800</td><td>6,300</td><td>5,900</td><td>9,200</td><td>8,700</td></tr></tbody>
+    </table>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>What's your claim about this person's activity patterns? Use at least one specific number as evidence.</p>
+    </div>
+    <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.7;">Write your interpretation on your worksheet — Data Set A.</p>
+  </div>
+
+  <!-- Slide 10: Data Set B & C -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="tag tag-green">Data Sets B &amp; C</div>
+    <h2>Books Read &amp; Monthly Temperature</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>📚 Data Set B — Books Read per Month</h3>
+        <table class="data-table" style="margin-top:0.4rem;">
+          <thead><tr><th>Month</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th></tr></thead>
+          <tbody><tr><td>Books</td><td>3</td><td>5</td><td>2</td><td>1</td><td>4</td></tr></tbody>
+        </table>
+      </div>
+      <div class="col-box" style="border:1px solid #7E57C2;">
+        <h3>🌡️ Data Set C — Avg Temp (°F)</h3>
+        <table class="data-table" style="margin-top:0.4rem;">
+          <thead><tr><th>Month</th><th>Jan</th><th>Mar</th><th>May</th><th>Jul</th><th>Sep</th><th>Nov</th></tr></thead>
+          <tbody><tr><td>Temp</td><td>32</td><td>45</td><td>68</td><td>85</td><td>72</td><td>48</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Write one claim for each. Remember: evidence = specific number!</p>
+  </div>
+
+  <!-- Slide 11: Brain Break -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Quick Mental Math!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Using Data Set A (the steps):<br>Which two days have steps that add up closest to 10,000?</p>
+      <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.7;">Think in your head — no pencil!</p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:#42A5F5;">Mon (4200) + Sat (9200)? Tue (5100) + Thu (6300)? 🤔</p>
+    </div>
+  </div>
+
+  <!-- Slide 12: Share-Out -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-amber">Class Discussion</div>
+    <h2>Share-Out — Same Data, Different Stories</h2>
+    <div class="highlight-box">
+      <p style="font-size:1rem;font-style:italic;">"Did anyone reach a DIFFERENT conclusion from a classmate about the same data set? Tell us what you each said."</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>Which interpretation had the strongest evidence?</li>
+      <li>Can both interpretations be correct? How?</li>
+      <li>What extra information would help you be more sure?</li>
+      <li>What does this tell us about interpretation?</li>
+    </ul>
+  </div>
+
+  <!-- Slide 13: Why Interpretation is Hard -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag tag-purple">Big Idea</div>
+    <h2>Why Is Interpretation the Hardest Step?</h2>
+    <ul>
+      <li>📊 Data doesn't speak for itself — it needs a human to explain it</li>
+      <li>🔍 Same numbers can support different (valid) conclusions</li>
+      <li>⚠️ Context matters — who collected it? When? How?</li>
+      <li>🧠 Interpretation requires judgment, not just calculation</li>
+      <li>✅ Strong interpretations always use specific evidence</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>This is why data scientists never just say "the data shows X" — they say <strong style="color:#42A5F5;">"the data shows X because [specific evidence]."</strong></p>
+    </div>
+  </div>
+
+  <!-- Slide 14: Vocabulary -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag">Vocabulary Review</div>
+    <h2>Words to Know</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Data</div><div class="def">A collection of facts, numbers, or observations</div></div>
+      <div class="vocab-card"><div class="term">Interpret</div><div class="def">To explain what data means using evidence</div></div>
+      <div class="vocab-card"><div class="term">Conclude</div><div class="def">To reach a judgment based on the data</div></div>
+      <div class="vocab-card"><div class="term">Evidence</div><div class="def">Specific numbers or facts that support a claim</div></div>
+      <div class="vocab-card"><div class="term">Claim</div><div class="def">A statement about what you believe the data shows</div></div>
+      <div class="vocab-card"><div class="term">Context</div><div class="def">The who/what/when/why that gives data meaning</div></div>
+    </div>
+  </div>
+
+  <!-- Slide 15: Wrap Up -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Wrap Up</div>
+    <h2>Session 1 Complete!</h2>
+    <ul>
+      <li>✅ Raw numbers need context and interpretation to become meaning</li>
+      <li>✅ Interpretation is Step 5 of the data cycle — the hardest step</li>
+      <li>✅ Claims must be backed by specific evidence from the data</li>
+      <li>✅ Two people can validly interpret the same data differently</li>
+      <li>✅ Strong claims name specific numbers, not just vague trends</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Coming up — Session 2:</strong> Before we can interpret data, we need to understand what <em>type</em> of data we're working with — categorical vs. numerical.</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (cur+1)+' / '+total;
+  }
+  function nextSlide(){show(cur+1);}
+  function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}
+  });
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

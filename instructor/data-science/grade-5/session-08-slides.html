@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 8 Slides — Capstone Research Project | Grade 5 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e6edf3;overflow:hidden;height:100vh;}
+    .controls{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,0.95);padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid #30363d;}
+    .controls .title{font-size:0.85rem;color:#8b949e;flex:1;}
+    .btn{background:#1565C0;color:white;border:none;padding:0.3rem 0.9rem;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;}
+    .btn:hover{background:#1976D2;}
+    .btn-outline{background:transparent;border:1px solid #30363d;color:#8b949e;}
+    .btn-outline:hover{background:#21262d;color:white;}
+    .slide-counter{font-size:0.82rem;color:#8b949e;min-width:60px;text-align:center;}
+    .progress-bar{position:fixed;bottom:0;left:0;right:0;height:4px;background:#21262d;z-index:100;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#7E57C2);transition:width 0.4s ease;}
+    .slide-wrap{position:fixed;top:44px;bottom:4px;left:0;right:0;display:flex;align-items:center;justify-content:center;padding:1.5rem;cursor:pointer;}
+    .slide{display:none;width:100%;max-width:960px;animation:fadeIn 0.35s ease;}
+    .slide.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    h1.slide-title{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#42A5F5,#7E57C2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;line-height:1.2;}
+    h2.slide-title{font-size:1.7rem;font-weight:800;color:#e6edf3;margin-bottom:0.75rem;}
+    .subtitle{font-size:1rem;color:#8b949e;margin-bottom:1.5rem;}
+    .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:0.75rem;}
+    .card p, .card li{font-size:0.95rem;line-height:1.6;color:#c9d1d9;}
+    .card ul{padding-left:1.2rem;}
+    .tag{display:inline-block;font-size:0.72rem;font-weight:700;padding:2px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem;}
+    .tag-blue{background:#1565C0;color:white;}
+    .tag-purple{background:#7E57C2;color:white;}
+    .tag-green{background:#2E7D32;color:white;}
+    .tag-gold{background:#F57F17;color:white;}
+    .tag-orange{background:#E65100;color:white;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;}
+    .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-top:0.5rem;}
+    .five-col{display:grid;grid-template-columns:repeat(5,1fr);gap:0.6rem;margin-top:0.5rem;}
+    .col-box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:1rem;}
+    .col-box h3{font-size:0.9rem;font-weight:800;margin-bottom:0.4rem;}
+    .col-box p, .col-box li{font-size:0.82rem;color:#8b949e;line-height:1.5;}
+    .col-box ul{padding-left:1rem;}
+    .highlight-box{background:linear-gradient(135deg,#1565C0,#7E57C2);border-radius:12px;padding:1.5rem;text-align:center;margin:0.75rem 0;}
+    .highlight-box p{font-size:1.1rem;font-weight:700;color:white;line-height:1.5;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-top:0.5rem;}
+    .vocab-card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;margin-bottom:0.3rem;}
+    .vocab-card .def{font-size:0.78rem;color:#8b949e;line-height:1.4;}
+    .brain-break{background:linear-gradient(135deg,#1B5E20,#2E7D32);border-radius:12px;padding:1.5rem;text-align:center;}
+    .brain-break h2{font-size:1.5rem;font-weight:800;color:white;margin-bottom:0.5rem;}
+    .brain-break p{font-size:0.95rem;color:#C8E6C9;line-height:1.5;}
+    .stage-card{background:#161b22;border-radius:10px;padding:1rem;text-align:center;}
+    .stage-num{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#42A5F5,#7E57C2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+    .stage-name{font-size:0.85rem;font-weight:800;color:#e6edf3;margin:0.3rem 0;}
+    .stage-desc{font-size:0.75rem;color:#8b949e;}
+    .arrow{color:#7E57C2;font-size:1.5rem;display:flex;align-items:center;justify-content:center;}
+    .cer-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-top:0.5rem;}
+    .cer-card{border-radius:10px;padding:1rem;text-align:center;}
+    .celebration{background:linear-gradient(135deg,#F57F17,#FFD54F);border-radius:12px;padding:2rem;text-align:center;}
+    .celebration h2{font-size:2rem;font-weight:800;color:#1a1a1a;margin-bottom:0.5rem;}
+    .celebration p{font-size:1rem;color:#333;line-height:1.5;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <button class="btn btn-outline" onclick="prevSlide()">← Prev</button>
+  <span class="slide-counter" id="counter">1 / 15</span>
+  <button class="btn" onclick="nextSlide()">Next →</button>
+  <div class="title">Session 8 — Capstone Research Project | Grade 5 Data Science</div>
+  <button class="btn btn-outline" onclick="toggleFullscreen()">⛶ Full</button>
+</div>
+
+<div class="slide-wrap" onclick="nextSlide()">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active">
+    <div style="text-align:center;padding:2rem 0;">
+      <div class="tag tag-gold" style="font-size:0.85rem;padding:4px 16px;margin-bottom:1rem;">Session 8 of 8 — Capstone</div>
+      <h1 class="slide-title">You Are a Data Scientist</h1>
+      <p class="subtitle">Today you run your own research project — start to finish.</p>
+      <div class="highlight-box" style="max-width:650px;margin:1.5rem auto 0;">
+        <p>Ask a question. Plan your study. Collect real data.<br>Analyze it. Share your findings. That's science.</p>
+      </div>
+      <p style="color:#8b949e;font-size:0.85rem;margin-top:1.5rem;">Data Science for Young Minds · Grade 5 · Ages 10–11</p>
+    </div>
+  </div>
+
+  <!-- Slide 2: What You've Learned -->
+  <div class="slide">
+    <div class="tag tag-blue">Looking Back</div>
+    <h2 class="slide-title">8 Sessions. 8 Skills.</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem;margin-top:0.4rem;">
+      <div class="col-box" style="border-top:3px solid #42A5F5;">
+        <h3 style="color:#42A5F5;font-size:0.8rem;">S1 — Data Types</h3>
+        <p>Primary vs secondary, quantitative vs qualitative, structured vs unstructured</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #7E57C2;">
+        <h3 style="color:#CE93D8;font-size:0.8rem;">S2 — Hypotheses</h3>
+        <p>Testable questions, variables, predict before you collect</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #2E7D32;">
+        <h3 style="color:#66BB6A;font-size:0.8rem;">S3 — Sampling</h3>
+        <p>Random, convenience, stratified; sample size matters; Literary Digest failure</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #B71C1C;">
+        <h3 style="color:#EF5350;font-size:0.8rem;">S4 — Deception</h3>
+        <p>Truncated axes, cherry-picking, survivorship bias, Simpson's Paradox</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #1565C0;">
+        <h3 style="color:#42A5F5;font-size:0.8rem;">S5 — Probability</h3>
+        <p>Experimental vs theoretical, Law of Large Numbers, gambler's fallacy</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #7E57C2;">
+        <h3 style="color:#CE93D8;font-size:0.8rem;">S6 — Correlation</h3>
+        <p>Correlation ≠ causation, confounding variables, spurious correlations</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #E65100;">
+        <h3 style="color:#FFAB40;font-size:0.8rem;">S7 — Ethics</h3>
+        <p>Privacy, consent, transparency, algorithmic bias, accountability</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #F57F17;background:rgba(245,127,23,0.08);">
+        <h3 style="color:#FFD54F;font-size:0.8rem;">S8 — Capstone</h3>
+        <p>Put it ALL together in your own research project</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: The 5-Stage Process -->
+  <div class="slide">
+    <div class="tag tag-blue">The Data Science Process</div>
+    <h2 class="slide-title">5 Stages — You'll Do All of Them Today</h2>
+    <div style="display:flex;align-items:center;gap:0.4rem;margin-top:0.75rem;">
+      <div class="stage-card" style="flex:1;">
+        <div class="stage-num">1</div>
+        <div class="stage-name">ASK</div>
+        <div class="stage-desc">Form a testable research question and hypothesis</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage-card" style="flex:1;">
+        <div class="stage-num">2</div>
+        <div class="stage-name">PLAN</div>
+        <div class="stage-desc">Decide what data to collect, how, and from whom</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage-card" style="flex:1;">
+        <div class="stage-num">3</div>
+        <div class="stage-name">COLLECT</div>
+        <div class="stage-desc">Record real data carefully and systematically</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage-card" style="flex:1;">
+        <div class="stage-num">4</div>
+        <div class="stage-name">ANALYZE</div>
+        <div class="stage-desc">Calculate, graph, find patterns, interpret</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage-card" style="flex:1;">
+        <div class="stage-num">5</div>
+        <div class="stage-name">SHARE</div>
+        <div class="stage-desc">Write a conclusion and present your findings</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Every study ever published by a scientist followed these exact five steps.</p>
+    </div>
+  </div>
+
+  <!-- Slide 4: Stage 1 — Ask -->
+  <div class="slide">
+    <div class="tag tag-blue">Stage 1</div>
+    <h2 class="slide-title">Ask — Form Your Research Question</h2>
+    <div class="two-col">
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#42A5F5;margin-bottom:0.4rem;">A good research question is:</p>
+        <ul>
+          <li>Specific — not "Do people like things?" but "What percent of our class prefers...?"</li>
+          <li>Testable — you can actually collect data to answer it</li>
+          <li>Feasible — you can do it in this class, today</li>
+          <li>Interesting — you actually want to know the answer</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#CE93D8;margin-bottom:0.4rem;">Hypothesis formula:</p>
+        <div style="background:#1a0533;border-radius:8px;padding:0.75rem;margin-bottom:0.5rem;">
+          <p style="font-size:0.9rem;color:#E1BEE7;">"I predict that ___ because ___."</p>
+        </div>
+        <p style="font-size:0.85rem;color:#c9d1d9;margin-bottom:0.3rem;">Your hypothesis is your <em>educated guess</em> — based on what you already know.</p>
+        <p style="font-size:0.85rem;color:#c9d1d9;">It's OK if your data doesn't support it. That's still science!</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0.1rem;">
+      <p style="font-size:0.88rem;"><strong>Examples:</strong> "What percent of our class gets 8+ hours of sleep on school nights?" / "Is there a relationship between favorite subject and hours of screen time?" / "How do classmates rate their mood on a scale of 1–5 today, and does it correlate with how much sleep they got?"</p>
+    </div>
+  </div>
+
+  <!-- Slide 5: Stage 2 — Plan -->
+  <div class="slide">
+    <div class="tag tag-blue">Stage 2</div>
+    <h2 class="slide-title">Plan — Design Your Study</h2>
+    <div class="three-col">
+      <div class="col-box" style="border-top:3px solid #42A5F5;">
+        <h3 style="color:#42A5F5;">What data?</h3>
+        <p style="margin-top:0.3rem;">What exactly will you measure or ask? Be specific. "How many hours of sleep" is better than "sleep."</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">How to collect?</h3>
+        <ul style="margin-top:0.3rem;">
+          <li>Survey your classmates</li>
+          <li>Observe and count</li>
+          <li>Conduct a simple experiment</li>
+          <li>Use existing data</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid #2E7D32;">
+        <h3 style="color:#66BB6A;">Who is your sample?</h3>
+        <p style="margin-top:0.3rem;">Probably: this class. What are the limitations of using classmates as your sample? (Think: Session 3!)</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <p style="font-weight:700;color:#42A5F5;margin-bottom:0.3rem;">Don't forget from Sessions 3–7:</p>
+      <ul>
+        <li>What could make your sample biased?</li>
+        <li>How will you avoid leading questions in a survey?</li>
+        <li>Is your data collection method ethical? Did you get consent?</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Slide 6: Stage 3 — Collect -->
+  <div class="slide">
+    <div class="tag tag-green">Stage 3</div>
+    <h2 class="slide-title">Collect — Record Your Data</h2>
+    <div class="two-col">
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#66BB6A;margin-bottom:0.4rem;">Good data collection habits:</p>
+        <ul>
+          <li>Record data as you collect it — don't rely on memory</li>
+          <li>Fill in every cell in your table</li>
+          <li>If data is missing, write "N/A" — don't skip or guess</li>
+          <li>Don't change your question mid-collection</li>
+          <li>Record exactly what you observe — don't adjust to match your hypothesis</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#42A5F5;margin-bottom:0.4rem;">Your data table should have:</p>
+        <ul>
+          <li>A clear column header for each variable</li>
+          <li>One row per participant or observation</li>
+          <li>Units where needed (e.g., "hours", "km", "1–5 scale")</li>
+          <li>At least 10 data points for meaningful analysis</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Aim for at least 10 data points. Remember: Law of Large Numbers — more data = more reliable results.</p>
+    </div>
+  </div>
+
+  <!-- Slide 7: Stage 4 — Analyze -->
+  <div class="slide">
+    <div class="tag tag-purple">Stage 4</div>
+    <h2 class="slide-title">Analyze — Find the Story in Your Data</h2>
+    <div class="three-col">
+      <div class="col-box" style="border-top:3px solid #42A5F5;">
+        <h3 style="color:#42A5F5;">Step 1: Calculate</h3>
+        <p style="margin-top:0.3rem;">Find totals for each category. Calculate percentages:</p>
+        <div style="background:#0d2137;border-radius:6px;padding:0.4rem 0.6rem;margin-top:0.4rem;text-align:center;">
+          <p style="font-size:0.85rem;color:#90CAF9;font-weight:700;">% = count ÷ total × 100</p>
+        </div>
+      </div>
+      <div class="col-box" style="border-top:3px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">Step 2: Graph</h3>
+        <ul style="margin-top:0.3rem;">
+          <li>Bar chart — great for categories</li>
+          <li>Scatter plot — great for two numeric variables</li>
+          <li>Label axes, title your graph, include units</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid #2E7D32;">
+        <h3 style="color:#66BB6A;">Step 3: Interpret</h3>
+        <ul style="margin-top:0.3rem;">
+          <li>What pattern do you see?</li>
+          <li>Does it support your hypothesis?</li>
+          <li>Any surprises?</li>
+          <li>Correlation or causation?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <p><strong>Important:</strong> Your hypothesis can be "not supported" — that is still valid science. What matters is that your conclusion is based on your actual data.</p>
+    </div>
+  </div>
+
+  <!-- Slide 8: C-E-R Conclusion -->
+  <div class="slide">
+    <div class="tag tag-purple">Stage 4 — Continued</div>
+    <h2 class="slide-title">Write Your Conclusion Using C-E-R</h2>
+    <div class="cer-row">
+      <div class="cer-card" style="background:#0d2137;border:2px solid #42A5F5;">
+        <div style="font-size:2rem;font-weight:800;color:#42A5F5;">C</div>
+        <div style="font-weight:800;color:#90CAF9;margin:0.3rem 0;">CLAIM</div>
+        <p style="font-size:0.82rem;color:#8b949e;">State whether your hypothesis was supported or not supported. Be direct.</p>
+        <div style="background:#1565C0;border-radius:6px;padding:0.4rem;margin-top:0.5rem;">
+          <p style="font-size:0.78rem;color:white;">"My hypothesis was [supported / not supported] because..."</p>
+        </div>
+      </div>
+      <div class="cer-card" style="background:#1a0533;border:2px solid #7E57C2;">
+        <div style="font-size:2rem;font-weight:800;color:#CE93D8;">E</div>
+        <div style="font-weight:800;color:#CE93D8;margin:0.3rem 0;">EVIDENCE</div>
+        <p style="font-size:0.82rem;color:#8b949e;">Cite specific numbers from your data. No vague statements.</p>
+        <div style="background:#311B92;border-radius:6px;padding:0.4rem;margin-top:0.5rem;">
+          <p style="font-size:0.78rem;color:white;">"In my data, ___% of participants... The graph shows..."</p>
+        </div>
+      </div>
+      <div class="cer-card" style="background:#0d2b0d;border:2px solid #2E7D32;">
+        <div style="font-size:2rem;font-weight:800;color:#66BB6A;">R</div>
+        <div style="font-weight:800;color:#66BB6A;margin:0.3rem 0;">REASONING</div>
+        <p style="font-size:0.82rem;color:#8b949e;">Explain how your evidence connects to your claim. Address limitations.</p>
+        <div style="background:#1B5E20;border-radius:6px;padding:0.4rem;margin-top:0.5rem;">
+          <p style="font-size:0.78rem;color:white;">"This suggests... However, my sample was only... so..."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Stage 5 — Share -->
+  <div class="slide">
+    <div class="tag tag-gold">Stage 5</div>
+    <h2 class="slide-title">Share — Communicate Your Findings</h2>
+    <div class="card" style="margin-bottom:0.75rem;">
+      <p>Real scientists don't just collect data — they <strong>share</strong> it so others can learn from it, check it, and build on it. That's how science grows.</p>
+    </div>
+    <div class="two-col">
+      <div class="col-box">
+        <h3 style="color:#FFD54F;">Mini-presentation tips (30 sec):</h3>
+        <ul style="margin-top:0.3rem;">
+          <li>Start with your question</li>
+          <li>State what you found (one key number)</li>
+          <li>Say whether your hypothesis was supported</li>
+          <li>Name one limitation of your study</li>
+        </ul>
+      </div>
+      <div class="col-box">
+        <h3 style="color:#42A5F5;">What to look for in others' presentations:</h3>
+        <ul style="margin-top:0.3rem;">
+          <li>Did they cite actual data (not just "most people")?</li>
+          <li>Did they distinguish correlation vs causation?</li>
+          <li>Did they mention limitations honestly?</li>
+          <li>What question would you ask them?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Even a small, imperfect study with honest analysis is more valuable than a confident claim with no data.</p>
+    </div>
+  </div>
+
+  <!-- Slide 10: Limitations & Ethics Check -->
+  <div class="slide">
+    <div class="tag tag-orange">Reflection</div>
+    <h2 class="slide-title">Every Good Study Acknowledges Its Limits</h2>
+    <div class="two-col">
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#FFAB40;margin-bottom:0.4rem;">Common limitations to consider:</p>
+        <ul>
+          <li><strong>Small sample size</strong> — classmates aren't representative of everyone</li>
+          <li><strong>Convenience sample</strong> — you surveyed who was available, not randomly</li>
+          <li><strong>Self-report bias</strong> — people may not answer honestly</li>
+          <li><strong>Confounding variables</strong> — something else could explain your result</li>
+          <li><strong>One point in time</strong> — results might be different on another day</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p style="font-size:0.9rem;font-weight:700;color:#CE93D8;margin-bottom:0.4rem;">Ethics check for your study:</p>
+        <ul>
+          <li>Did participants know what the data was for?</li>
+          <li>Was participation voluntary?</li>
+          <li>Did you keep responses anonymous?</li>
+          <li>Would you be comfortable if someone did this study on you?</li>
+          <li>Will you report what you actually found — even if it doesn't match your hypothesis?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Real Data Science -->
+  <div class="slide">
+    <div class="tag tag-blue">Big Picture</div>
+    <h2 class="slide-title">This Is What Real Data Scientists Do</h2>
+    <div class="three-col">
+      <div class="col-box" style="border-top:3px solid #42A5F5;">
+        <h3 style="color:#42A5F5;">In medicine:</h3>
+        <p style="margin-top:0.3rem;">Clinical trials follow the exact 5-stage process — ask, plan, collect, analyze, share. Every drug you've ever taken went through this.</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">In climate science:</h3>
+        <p style="margin-top:0.3rem;">Climate scientists collect data from thousands of weather stations, analyze patterns over decades, and share findings with the world.</p>
+      </div>
+      <div class="col-box" style="border-top:3px solid #2E7D32;">
+        <h3 style="color:#66BB6A;">In social science:</h3>
+        <p style="margin-top:0.3rem;">Researchers survey people, study patterns in society, and use data to inform policies that affect millions of lives.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0.75rem;">
+      <p><strong>The tools are bigger and the datasets are larger — but the process is identical to what you're doing today.</strong> You are doing real science.</p>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Data science is not about computers. It's about asking good questions, collecting honest evidence, and reasoning carefully.</p>
+    </div>
+  </div>
+
+  <!-- Slide 12: What Makes Data Good -->
+  <div class="slide">
+    <div class="tag tag-purple">Critical Thinking</div>
+    <h2 class="slide-title">The 5 Questions You'll Ask Forever</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:0.5rem;">
+      <div class="card" style="display:flex;gap:1rem;align-items:flex-start;">
+        <div style="font-size:1.5rem;font-weight:800;color:#42A5F5;min-width:2rem;">1</div>
+        <div><p style="font-weight:700;">How do they know that?</p><p style="font-size:0.85rem;color:#8b949e;">What data was collected? How? By whom?</p></div>
+      </div>
+      <div class="card" style="display:flex;gap:1rem;align-items:flex-start;">
+        <div style="font-size:1.5rem;font-weight:800;color:#42A5F5;min-width:2rem;">2</div>
+        <div><p style="font-weight:700;">How big was the sample — and was it representative?</p><p style="font-size:0.85rem;color:#8b949e;">10 people? 10,000? A biased group?</p></div>
+      </div>
+      <div class="card" style="display:flex;gap:1rem;align-items:flex-start;">
+        <div style="font-size:1.5rem;font-weight:800;color:#42A5F5;min-width:2rem;">3</div>
+        <div><p style="font-weight:700;">Are they confusing correlation with causation?</p><p style="font-size:0.85rem;color:#8b949e;">Could a confounding variable explain this?</p></div>
+      </div>
+      <div class="card" style="display:flex;gap:1rem;align-items:flex-start;">
+        <div style="font-size:1.5rem;font-weight:800;color:#42A5F5;min-width:2rem;">4</div>
+        <div><p style="font-weight:700;">Is the graph showing the full picture?</p><p style="font-size:0.85rem;color:#8b949e;">Truncated Y-axis? Cherry-picked time range?</p></div>
+      </div>
+      <div class="card" style="display:flex;gap:1rem;align-items:flex-start;">
+        <div style="font-size:1.5rem;font-weight:800;color:#42A5F5;min-width:2rem;">5</div>
+        <div><p style="font-weight:700;">Who collected this data and why?</p><p style="font-size:0.85rem;color:#8b949e;">Does the collector have an interest in a particular result?</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 13: Brain Break / Pair Share -->
+  <div class="slide">
+    <div class="brain-break">
+      <h2>🧠 Quick Pair Share</h2>
+      <p style="margin-bottom:1.2rem;">Turn to a partner. You have 60 seconds each. Answer this question:</p>
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:1rem 1.5rem;max-width:700px;margin:0 auto 1rem;">
+        <p style="font-size:1.1rem;font-weight:700;color:white;">"What is one thing you learned in this course that changed how you look at data in real life?"</p>
+      </div>
+      <p style="font-size:0.85rem;">Give one example — a news story, a statistic you've seen, an app you use, anything.</p>
+    </div>
+  </div>
+
+  <!-- Slide 14: Course Summary -->
+  <div class="slide">
+    <div class="tag tag-gold">Course Complete</div>
+    <h2 class="slide-title">You Are Now a Critical Data Thinker</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">You can spot misleading graphs</div><div class="def">Truncated axes, cherry-picked data, misleading scales</div></div>
+      <div class="vocab-card"><div class="term">You understand sampling</div><div class="def">Sample size matters; who is and isn't in a sample matters</div></div>
+      <div class="vocab-card"><div class="term">You know probability</div><div class="def">Experimental vs theoretical; the gambler's fallacy is wrong</div></div>
+      <div class="vocab-card"><div class="term">You separate correlation and causation</div><div class="def">One confounding variable can explain everything</div></div>
+      <div class="vocab-card"><div class="term">You think about data ethics</div><div class="def">Privacy, consent, bias, accountability — all matter</div></div>
+      <div class="vocab-card"><div class="term">You can run a research project</div><div class="def">Ask → Plan → Collect → Analyze → Share</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Every time you see a statistic, a graph, or a headline — you have the tools to ask better questions.</p>
+    </div>
+  </div>
+
+  <!-- Slide 15: Celebration -->
+  <div class="slide">
+    <div style="display:flex;align-items:center;justify-content:center;height:100%;">
+      <div class="celebration" style="width:100%;">
+        <div style="font-size:3rem;margin-bottom:0.5rem;">🎓</div>
+        <h2>Congratulations, Data Scientists!</h2>
+        <p style="font-size:1.1rem;margin:0.75rem 0;">You completed all 8 sessions of Data Science for Young Minds.</p>
+        <p style="font-size:0.95rem;margin-bottom:1rem;">You asked questions. You collected data. You found patterns.<br>You thought about who could be helped or harmed by data.<br>You built skills that will matter for the rest of your lives.</p>
+        <div style="background:rgba(0,0,0,0.15);border-radius:10px;padding:0.75rem 1.5rem;display:inline-block;">
+          <p style="font-size:1rem;font-weight:700;color:#333;">Final challenge: Stay curious. Keep asking "How do they know that?"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:6.67%;"></div></div>
+
+<script>
+  let current = 0;
+  const total = 15;
+  const slides = document.querySelectorAll('.slide');
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressFill').style.width = ((current + 1) / total * 100) + '%';
+  }
+  function nextSlide() { showSlide(current + 1); }
+  function prevSlide() { showSlide(current - 1); }
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+</script>
+</body>
+</html>

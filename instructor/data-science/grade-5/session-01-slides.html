@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 1 Slides — Data Is Everywhere | Grade 5 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;}
+    .tag-green{background:#2E7D32;}
+    .tag-teal{background:#00695C;}
+    .tag-amber{background:#F57F17;}
+    .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    .sub{font-size:0.9rem;color:#90CAF9;opacity:0.8;margin-top:0.4rem;}
+    .big{font-size:3.5rem;font-weight:900;color:#42A5F5;text-align:center;margin:0.5rem 0;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .col-box ul li{font-size:0.88rem;color:#BBDEFB;padding:0.2rem 0 0.2rem 1rem;position:relative;border:none;background:none;}
+    .col-box ul li:before{content:"→";position:absolute;left:0;opacity:0.6;color:#42A5F5;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .data-trail{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:0.75rem;}
+    .trail-card{background:rgba(126,87,194,0.15);border:1px solid #7E57C2;border-radius:8px;padding:0.75rem;}
+    .trail-card .tc-label{font-size:0.7rem;font-weight:800;color:#CE93D8;text-transform:uppercase;margin-bottom:0.3rem;}
+    .trail-card .tc-items{font-size:0.82rem;color:#E1BEE7;line-height:1.5;}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.75rem;}
+    .cg-box{border-radius:10px;padding:0.75rem 1rem;}
+    .cg-box.primary{background:rgba(21,101,192,0.2);border:1px solid #42A5F5;}
+    .cg-box.secondary{background:rgba(126,87,194,0.15);border:1px solid #7E57C2;}
+    .cg-label{font-size:0.72rem;font-weight:800;text-transform:uppercase;margin-bottom:0.4rem;}
+    .cg-box.primary .cg-label{color:#42A5F5;}
+    .cg-box.secondary .cg-label{color:#CE93D8;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 1 — Data Is Everywhere</span>
+  <span>Grade 5 Data Science · Ages 10–11</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 1 of 8</div>
+    <h1>Data Is<br>Everywhere</h1>
+    <p>Today we start thinking like Data Detectives — beginning with the data that's already all around you.</p>
+    <div class="sub" style="margin-top:1rem;">🔍 Data Science for Young Minds · Grade 5 — Data Detective</div>
+  </div>
+
+  <!-- Slide 2: Agenda -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>🎯 Hook — your apps and what they know about you</li>
+      <li>📊 Types of data: primary vs. secondary</li>
+      <li>🔢 Quantitative vs. qualitative data</li>
+      <li>🗂️ Structured vs. unstructured data</li>
+      <li>🕵️ Data Audit — mapping your personal data trail</li>
+      <li>✍️ Reflection — who collects your data and why?</li>
+    </ul>
+  </div>
+
+  <!-- Slide 3: Hook -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Name 5 Apps You Used This Week</h2>
+    <p>Think about yesterday. What apps or websites did you open?</p>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1rem;font-style:italic;">For each app — what information does it need from you to work? What does it record about you?</p>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Maps needs your location. Streaming apps remember what you watch. Games track your score and how long you play. Every app leaves a trail.</p>
+  </div>
+
+  <!-- Slide 4: Data Trail -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>Your Data Trail</h2>
+    <p>Every time you use technology, you leave a <strong style="color:#42A5F5;">data trail</strong> — even without filling out a form.</p>
+    <div class="data-trail">
+      <div class="trail-card"><div class="tc-label">At School</div><div class="tc-items">Attendance · Grades · Lunch choice · Library books · Test scores</div></div>
+      <div class="trail-card"><div class="tc-label">On Devices</div><div class="tc-items">Search history · App usage · Location · Screen time · Messages</div></div>
+      <div class="trail-card"><div class="tc-label">Health &amp; Activity</div><div class="tc-items">Nurse records · Vaccinations · Fitness data · Sleep patterns</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Most of this data was collected <strong style="color:#42A5F5;">without you actively choosing to share it.</strong> That's worth thinking about.</p>
+    </div>
+  </div>
+
+  <!-- Slide 5: Primary vs Secondary -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Primary vs. Secondary Data</h2>
+    <div class="compare-grid">
+      <div class="cg-box primary">
+        <div class="cg-label">Primary Data — You Collect It</div>
+        <ul style="margin-top:0.3rem;">
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#BBDEFB;">You survey your classmates about favorite sports</li>
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#BBDEFB;">You measure rainfall in the schoolyard for a week</li>
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#BBDEFB;">You count how many cars pass in 10 minutes</li>
+        </ul>
+      </div>
+      <div class="cg-box secondary">
+        <div class="cg-label">Secondary Data — Someone Else Collected It</div>
+        <ul style="margin-top:0.3rem;">
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#E1BEE7;">You use census data from the government</li>
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#E1BEE7;">You read a published study on screen time</li>
+          <li style="font-size:0.88rem;background:none;border:none;padding:0.2rem 0 0.2rem 1rem;position:relative;color:#E1BEE7;">You look up historical weather data online</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Both types are valuable — but secondary data comes with questions: when was it collected? by whom? for what purpose?</p>
+  </div>
+
+  <!-- Slide 6: Quantitative vs Qualitative -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Quantitative vs. Qualitative</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #42A5F5;">
+        <h3>🔢 Quantitative (Numbers)</h3>
+        <ul>
+          <li>Test score: 87/100</li>
+          <li>Height: 152 cm</li>
+          <li>Screen time: 3.5 hours</li>
+          <li>Attendance: 18/20 days</li>
+        </ul>
+        <p style="font-size:0.82rem;margin-top:0.5rem;color:#90CAF9;">Can be measured, counted, averaged, graphed.</p>
+      </div>
+      <div class="col-box" style="border:1px solid #CE93D8;">
+        <h3 style="color:#CE93D8;">💬 Qualitative (Words/Categories)</h3>
+        <ul style="color:#E1BEE7;">
+          <li>Favorite subject: "science"</li>
+          <li>Mood today: "anxious"</li>
+          <li>Lunch preference: "vegetarian"</li>
+          <li>Comment: "great effort shown"</li>
+        </ul>
+        <p style="font-size:0.82rem;margin-top:0.5rem;color:#CE93D8;">Can be sorted, themed, counted by category.</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Most real datasets contain <strong style="color:#42A5F5;">both</strong> types. A school record has your grade (quantitative) AND teacher comments (qualitative).</p>
+    </div>
+  </div>
+
+  <!-- Slide 7: Structured vs Unstructured -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Structured vs. Unstructured Data</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #2E7D32;">
+        <h3 style="color:#66BB6A;">📋 Structured</h3>
+        <ul>
+          <li>Organized in rows and columns</li>
+          <li>Easy to sort, filter, analyze</li>
+          <li>Spreadsheets, databases, grade books</li>
+          <li>Example: student name | grade | attendance</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #F57F17;">
+        <h3 style="color:#FFB74D;">📂 Unstructured</h3>
+        <ul>
+          <li>No fixed format — free-form</li>
+          <li>Harder to analyze automatically</li>
+          <li>Photos, emails, social media posts, audio</li>
+          <li>Example: a paragraph about your day</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">About 80% of the world's data is unstructured. Turning it into something analyzable is one of the biggest challenges in data science today.</p>
+  </div>
+
+  <!-- Slide 8: Activity Intro -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Activity Time!</div>
+    <h2>Personal Data Audit</h2>
+    <p>You're going to map your own data trail for one school day.</p>
+    <ul style="margin-top:0.5rem;">
+      <li>🤝 <strong>Step 1 (8 min):</strong> With a partner — list every piece of data collected about you from when you woke up to when you went to bed</li>
+      <li>📋 <strong>Step 2 (5 min):</strong> Classify each item: primary or secondary? quantitative or qualitative?</li>
+      <li>🗣️ <strong>Step 3 (7 min):</strong> Class combines lists — what did you miss?</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🎯 Goal: By the end, you should have at least <strong style="color:#42A5F5;">15 different data points</strong> collected about you in a single day. Most students find 25–30.</p>
+    </div>
+  </div>
+
+  <!-- Slide 9: Brain Break -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Data Type Sort!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Your teacher will read out a data point. Stand up for QUANTITATIVE, stay seated for QUALITATIVE.</p>
+      <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.7;">Examples: your shoe size · your favorite color · how many siblings you have · your opinion of math · the temperature outside today</p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:#42A5F5;">You just classified real data types — that's what data analysts do every day!</p>
+    </div>
+  </div>
+
+  <!-- Slide 10: Who Collects Data -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="tag tag-purple">Lesson 3</div>
+    <h2>Who Collects Your Data — and Why?</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Schools</div><div class="def">Legal records, funding, academic progress, safety</div></div>
+      <div class="vocab-card"><div class="term">Apps &amp; Tech Companies</div><div class="def">Improve products, target advertising, understand behavior</div></div>
+      <div class="vocab-card"><div class="term">Governments</div><div class="def">Census, public health, planning services, law</div></div>
+      <div class="vocab-card"><div class="term">Researchers</div><div class="def">Advance knowledge, test hypotheses, publish findings</div></div>
+      <div class="vocab-card"><div class="term">Businesses</div><div class="def">Understand customers, increase sales, improve products</div></div>
+      <div class="vocab-card"><div class="term">Healthcare</div><div class="def">Track health trends, improve treatment, prevent disease</div></div>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">The same data can serve many purposes — some helpful, some commercial, some you might question.</p>
+  </div>
+
+  <!-- Slide 11: Data in Daily Life -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag">Lesson 3</div>
+    <h2>Data in Daily Life — It's Everywhere</h2>
+    <ul>
+      <li>🏥 <strong>Health:</strong> Doctors use your data to spot patterns that indicate illness before symptoms appear</li>
+      <li>⚽ <strong>Sports:</strong> Teams track every player's movement, speed, and decision to optimize strategy</li>
+      <li>📰 <strong>News:</strong> Headlines about "a study found..." are always based on collected data</li>
+      <li>🗳️ <strong>Government:</strong> Population data shapes school budgets, road building, healthcare planning</li>
+      <li>🎵 <strong>Entertainment:</strong> Streaming services use your listening/watching data to recommend content</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>A Data Detective's first question is always: <strong style="color:#42A5F5;">"Where did this data come from, and who collected it?"</strong></p>
+    </div>
+  </div>
+
+  <!-- Slide 12: Audit Debrief -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-green">Debrief</div>
+    <h2>Audit Results — What Did You Find?</h2>
+    <div class="highlight-box">
+      <p style="font-size:1rem;font-style:italic;">"Which category had the most data points? Which surprised you most? Who do you think has access to each item?"</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>How many data points did your pair list? Did the class total surprise you?</li>
+      <li>Which data did you actively choose to share vs. data collected passively?</li>
+      <li>Is there any data on your list that makes you uncomfortable? Why?</li>
+      <li>Which collector do you trust most with your data? Least?</li>
+    </ul>
+  </div>
+
+  <!-- Slide 13: Reflection -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag tag-teal">Reflection</div>
+    <h2>Your Written Reflection</h2>
+    <div class="highlight-box" style="background:rgba(0,105,92,0.15);border-color:#00695C;">
+      <p style="font-size:1.1rem;font-style:italic;text-align:center;color:#B2DFDB;">"Which piece of data from your audit surprised you most?<br>Who collects it — and why do you think they collect it?"</p>
+    </div>
+    <p style="margin-top:1rem;font-size:0.9rem;opacity:0.8;">✍️ 6 minutes of quiet writing. Use your worksheet — Part 4. Write at least 3 sentences. Name a specific data point and make an inference about its purpose.</p>
+    <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.7;">This is evidence-based reasoning — the core skill we'll build all year.</p>
+  </div>
+
+  <!-- Slide 14: Vocabulary Review -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag tag-purple">Vocabulary Check</div>
+    <h2>Session 1 Key Terms</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Primary Data</div><div class="def">You collect it yourself, directly from the source</div></div>
+      <div class="vocab-card"><div class="term">Secondary Data</div><div class="def">Collected by someone else; you use their dataset</div></div>
+      <div class="vocab-card"><div class="term">Quantitative</div><div class="def">Expressed as numbers; can be measured or counted</div></div>
+      <div class="vocab-card"><div class="term">Qualitative</div><div class="def">Expressed as words or categories; describes quality</div></div>
+      <div class="vocab-card"><div class="term">Structured Data</div><div class="def">Organized in rows and columns; easy to analyze</div></div>
+      <div class="vocab-card"><div class="term">Data Trail</div><div class="def">Digital records you leave behind as you use technology</div></div>
+    </div>
+  </div>
+
+  <!-- Slide 15: Close -->
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Session Close</div>
+    <h2>The Detective's First Rule</h2>
+    <div class="highlight-box" style="margin-bottom:1rem;">
+      <p style="font-size:1.2rem;font-style:italic;text-align:center;color:#90CAF9;">"Before you can question data, you have to notice it exists."</p>
+    </div>
+    <ul>
+      <li>✅ You can distinguish primary from secondary data</li>
+      <li>✅ You can classify data as quantitative or qualitative</li>
+      <li>✅ You've mapped your own data trail</li>
+      <li>✅ You've started asking "who collects this, and why?"</li>
+    </ul>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Next session: How do data scientists ask the <em>right</em> questions? We'll learn to turn vague curiosity into testable hypotheses.</p>
+  </div>
+
+</div>
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+  }
+  function nextSlide() { showSlide(current + 1); }
+  function prevSlide() { showSlide(current - 1); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    if (e.key === 'f' || e.key === 'F') { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+  });
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>

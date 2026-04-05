@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 6 Slides — Reading Graphs Together | Grade 2 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;} .tag-green{background:#2E7D32;} .tag-teal{background:#00695C;} .tag-amber{background:#F57F17;} .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .mini-graph{display:flex;align-items:flex-end;gap:6px;height:120px;border-left:2px solid #42A5F5;border-bottom:2px solid #42A5F5;padding:0 8px 0 4px;margin-top:0.75rem;}
+    .mini-bar{border-radius:3px 3px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
+    .mini-bar-label{font-size:0.62rem;color:#90CAF9;margin-top:3px;text-align:center;}
+    .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .q-card{background:rgba(66,165,245,0.1);border:1px solid #42A5F5;border-radius:8px;padding:0.6rem 0.75rem;}
+    .q-card .q-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;color:#90CAF9;margin-bottom:0.3rem;}
+    .q-card p{font-size:0.85rem;color:#BBDEFB;}
+    .sentence-frames{display:flex;flex-direction:column;gap:0.4rem;margin-top:0.75rem;}
+    .sf{background:rgba(126,87,194,0.15);border:1px solid #7E57C2;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.88rem;color:#E1BEE7;font-style:italic;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 6 — Reading Graphs Together</span>
+  <span>Grade 2 Data Science · Ages 7–8</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 6 of 8</div>
+    <h1>Reading Graphs<br>Together</h1>
+    <p>We can draw bar graphs. Now we learn to read them — and answer questions about what they show!</p>
+    <div style="font-size:0.9rem;color:#90CAF9;opacity:0.8;margin-top:1rem;">📊 Data Science for Young Minds · Grade 2</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>🎯 Hook — look at Graph 1 and tell us what you see</li>
+      <li>📖 Reading words: most, least, same, compare, how many more</li>
+      <li>👥 Group work — answer questions about Graph 2</li>
+      <li>💬 Share and discuss together</li>
+      <li>✍️ Independent — answer questions about Graph 3</li>
+      <li>🧠 Brain break — stand-up comparison!</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Graph 1 — Favorite Pets</h2>
+    <p>Look at this graph carefully. Don't answer any questions yet — just look!</p>
+    <div class="mini-graph">
+      <div class="mini-bar" style="width:40px;"><div style="background:#42A5F5;width:40px;height:96px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Dog<br>8</div></div>
+      <div class="mini-bar" style="width:40px;"><div style="background:#7E57C2;width:40px;height:60px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Cat<br>5</div></div>
+      <div class="mini-bar" style="width:40px;"><div style="background:#2E7D32;width:40px;height:36px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Fish<br>3</div></div>
+      <div class="mini-bar" style="width:40px;"><div style="background:#F57F17;width:40px;height:24px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Bird<br>2</div></div>
+      <div class="mini-bar" style="width:40px;"><div style="background:#C62828;width:40px;height:60px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Rabbit<br>5</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.5rem;"><p style="font-style:italic;text-align:center;">"Tell me ONE thing you know just from looking at this graph."</p></div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson</div>
+    <h2>Reading Words</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Most</div><div class="def">The category with the tallest bar — the biggest number</div></div>
+      <div class="vocab-card"><div class="term">Least</div><div class="def">The category with the shortest bar — the smallest number</div></div>
+      <div class="vocab-card"><div class="term">Same</div><div class="def">Two bars that are the same height — equal numbers</div></div>
+      <div class="vocab-card"><div class="term">Compare</div><div class="def">Look at two bars side by side to find how they are different</div></div>
+      <div class="vocab-card" style="grid-column:1/-1;"><div class="term">How many more</div><div class="def">The difference between two bars — subtract the smaller from the larger</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson — Graph 1</div>
+    <h2>Let's Read Graph 1 Together</h2>
+    <div class="q-grid">
+      <div class="q-card"><div class="q-label">Most popular?</div><p>Dog — bar reaches <strong style="color:#42A5F5;">8</strong>. The tallest bar!</p></div>
+      <div class="q-card"><div class="q-label">Least popular?</div><p>Bird — bar reaches <strong style="color:#42A5F5;">2</strong>. The shortest bar!</p></div>
+      <div class="q-card"><div class="q-label">Same?</div><p>Cat and Rabbit are the same — both at <strong style="color:#42A5F5;">5</strong>!</p></div>
+      <div class="q-card"><div class="q-label">How many more?</div><p>Dog got <strong style="color:#42A5F5;">3 more</strong> than Cat. (8 − 5 = 3)</p></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag tag-purple">Sentence Frames</div>
+    <h2>How to Answer Graph Questions</h2>
+    <p>Use these sentence frames to write or say your answers:</p>
+    <div class="sentence-frames">
+      <div class="sf">"The most popular ___ was ___ with ___ votes."</div>
+      <div class="sf">"The least popular ___ was ___ with ___ votes."</div>
+      <div class="sf">"___ got ___ more votes than ___."</div>
+      <div class="sf">"___ and ___ got the same number of votes."</div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;"><p>These frames work for ANY bar graph — use them every time you answer a graph question!</p></div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag tag-green">Group Work!</div>
+    <h2>Graph 2 — Favorite Fruits</h2>
+    <p style="font-size:0.9rem;margin-bottom:0.5rem;">Apple: 6 · Banana: 4 · Strawberry: 9 · Mango: 4 · Grapes: 7</p>
+    <div class="mini-graph">
+      <div class="mini-bar"><div style="background:#C62828;width:40px;height:72px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Apple<br>6</div></div>
+      <div class="mini-bar"><div style="background:#F57F17;width:40px;height:48px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Banana<br>4</div></div>
+      <div class="mini-bar"><div style="background:#C62828;width:40px;height:108px;border-radius:3px 3px 0 0;background:#E91E63;"></div><div class="mini-bar-label">Strawberry<br>9</div></div>
+      <div class="mini-bar"><div style="background:#F9A825;width:40px;height:48px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Mango<br>4</div></div>
+      <div class="mini-bar"><div style="background:#7E57C2;width:40px;height:84px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Grapes<br>7</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.5rem;"><p style="font-size:0.9rem;">With your group, answer: Most? Least? Same? How many more Strawberry than Banana?</p></div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Graph 2 Answers</div>
+    <h2>Let's Check Graph 2!</h2>
+    <div class="q-grid">
+      <div class="q-card"><div class="q-label">Most popular?</div><p>Strawberry — <strong style="color:#42A5F5;">9 votes</strong>. Tallest bar!</p></div>
+      <div class="q-card"><div class="q-label">Least popular?</div><p>Banana and Mango — both <strong style="color:#42A5F5;">4 votes</strong>. Tied for least!</p></div>
+      <div class="q-card"><div class="q-label">Same?</div><p>Banana and Mango are the same — both <strong style="color:#42A5F5;">4</strong>!</p></div>
+      <div class="q-card"><div class="q-label">How many more?</div><p>Strawberry got <strong style="color:#42A5F5;">5 more</strong> than Banana. (9 − 4 = 5)</p></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-amber">How Many More?</div>
+    <h2>Finding "How Many More"</h2>
+    <p>To find how many MORE one bar has than another:</p>
+    <ul style="margin-top:0.5rem;">
+      <li>1️⃣ Find the number for the <strong>bigger</strong> bar</li>
+      <li>2️⃣ Find the number for the <strong>smaller</strong> bar</li>
+      <li>3️⃣ Count up from the smaller to the bigger<br><span style="font-size:0.85rem;opacity:0.8;margin-left:1.5rem;">OR subtract: bigger − smaller = difference</span></li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;background:rgba(245,127,23,0.15);border-color:#F57F17;">
+      <p style="text-align:center;">Example: Strawberry = 9, Banana = 4<br>9 − 4 = <strong style="color:#FFE082;">5 more votes</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Stand-Up Comparison!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Your teacher reads two numbers from Graph 3.<br>Stand up if the first number is MORE.<br>Stay seated if the second number is more.</p>
+      <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.7;">Then hold up fingers to show HOW MANY MORE!</p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:#42A5F5;">Graph 3: Walk=7 · Bus=10 · Car=8 · Bike=3 · Other=2</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag">Independent Work</div>
+    <h2>Graph 3 — Ways to Get to School</h2>
+    <p style="font-size:0.9rem;margin-bottom:0.5rem;">Walk: 7 · Bus: 10 · Car: 8 · Bike: 3 · Other: 2</p>
+    <div class="mini-graph">
+      <div class="mini-bar"><div style="background:#2E7D32;width:36px;height:84px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Walk<br>7</div></div>
+      <div class="mini-bar"><div style="background:#1565C0;width:36px;height:120px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Bus<br>10</div></div>
+      <div class="mini-bar"><div style="background:#F57F17;width:36px;height:96px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Car<br>8</div></div>
+      <div class="mini-bar"><div style="background:#7E57C2;width:36px;height:36px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Bike<br>3</div></div>
+      <div class="mini-bar"><div style="background:#aaa;width:36px;height:24px;border-radius:3px 3px 0 0;"></div><div class="mini-bar-label">Other<br>2</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.5rem;"><p style="font-size:0.9rem;">Answer these on your worksheet: Most? Least? How many more Bus than Bike? What surprised you?</p></div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-teal">Graph 3 Answers</div>
+    <h2>Let's Check Graph 3!</h2>
+    <div class="q-grid">
+      <div class="q-card"><div class="q-label">Most popular?</div><p>Bus — <strong style="color:#42A5F5;">10 votes</strong>!</p></div>
+      <div class="q-card"><div class="q-label">Least popular?</div><p>Other — <strong style="color:#42A5F5;">2 votes</strong>.</p></div>
+      <div class="q-card"><div class="q-label">Bus vs Bike?</div><p>Bus got <strong style="color:#42A5F5;">7 more</strong> than Bike. (10 − 3 = 7)</p></div>
+      <div class="q-card"><div class="q-label">Walk vs Car?</div><p>Car got <strong style="color:#42A5F5;">1 more</strong> than Walk. (8 − 7 = 1)</p></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag">Vocabulary</div>
+    <h2>Words to Know</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Most</div><div class="def">The category with the tallest bar — biggest number</div></div>
+      <div class="vocab-card"><div class="term">Least</div><div class="def">The category with the shortest bar — smallest number</div></div>
+      <div class="vocab-card"><div class="term">Same</div><div class="def">Two bars at equal height — the same number</div></div>
+      <div class="vocab-card"><div class="term">Compare</div><div class="def">Look at two things side by side to find differences</div></div>
+      <div class="vocab-card" style="grid-column:1/-1;"><div class="term">How many more</div><div class="def">The difference between two values — found by subtracting</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag tag-teal">Worksheet Time</div>
+    <h2>Complete Your Worksheet</h2>
+    <ul style="margin-top:0.5rem;">
+      <li>📚 <strong>Part 1</strong> — Vocabulary in your own words</li>
+      <li>📊 <strong>Part 2</strong> — Read Graph A and answer 4 questions</li>
+      <li>📊 <strong>Part 3</strong> — Read Graph B and answer 4 questions</li>
+      <li>✏️ <strong>Part 4</strong> — Write a sentence about the most interesting thing you found</li>
+      <li>🏠 <strong>Take-home</strong> — Find a graph and read it!</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Wrap Up</div>
+    <h2>Session 6 Complete! 🎉</h2>
+    <ul>
+      <li>✅ "Most" = tallest bar, "least" = shortest bar</li>
+      <li>✅ "Same" = two bars at equal height</li>
+      <li>✅ "How many more" = subtract the smaller from the larger</li>
+      <li>✅ Sentence frames help us say what we found clearly</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Coming up — Session 7:</strong> You design your own survey question — completely your choice — and run it with 8 classmates!</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (cur+1)+' / '+total;
+  }
+  function nextSlide(){show(cur+1);}
+  function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}
+  });
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

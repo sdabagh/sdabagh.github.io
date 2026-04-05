@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 6 Slides — More, Fewer, Same | Grade 1 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;} .tag-green{background:#2E7D32;} .tag-teal{background:#00695C;} .tag-amber{background:#F57F17;} .tag-red{background:#C62828;}
+    h1{font-size:2.8rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:2rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.15rem;color:#BBDEFB;line-height:1.6;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:1.05rem;color:#BBDEFB;padding:0.4rem 0.6rem;margin-bottom:0.35rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1.2rem;font-weight:800;margin-bottom:0.5rem;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:1.05rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.75rem 0.9rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:1rem;}
+    .vocab-card .def{font-size:0.9rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:5rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.5rem;font-weight:700;color:#42A5F5;}
+    .compare-demo{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin-top:0.75rem;}
+    .cmp-col{background:rgba(21,101,192,0.15);border:1px solid #42A5F5;border-radius:10px;padding:0.75rem;text-align:center;}
+    .cmp-col .cmp-label{font-size:1rem;font-weight:800;color:#42A5F5;margin-bottom:0.4rem;}
+    .cmp-col .cmp-dots{font-size:1.3rem;letter-spacing:0.3rem;}
+    .cmp-col .cmp-num{font-size:1.8rem;font-weight:900;color:#90CAF9;margin-top:0.3rem;}
+    .cmp-vs{font-size:1.5rem;font-weight:900;color:#CE93D8;text-align:center;}
+    .word-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:0.75rem;}
+    .word-card{border-radius:10px;padding:0.75rem;text-align:center;}
+    .word-card .w-word{font-size:1.3rem;font-weight:900;margin-bottom:0.3rem;}
+    .word-card .w-def{font-size:0.85rem;color:#BBDEFB;}
+    .wc-more{background:rgba(46,125,50,0.2);border:2px solid #2E7D32;}
+    .wc-fewer{background:rgba(198,40,40,0.2);border:2px solid #C62828;}
+    .wc-same{background:rgba(21,101,192,0.2);border:2px solid #42A5F5;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 6 — More, Fewer, Same</span>
+  <span>Grade 1 Data Science · Ages 6–7</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 6 of 8</div>
+    <h1>More, Fewer, Same! ↕️</h1>
+    <p>Today we READ our class pictograph and compare the columns.<br>We learn words to talk about what we see!</p>
+    <div style="margin-top:1rem;font-size:0.9rem;color:#90CAF9;opacity:0.8;">🔍 Data Science for Young Minds · Grade 1</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag">Our Plan</div>
+    <h2>What We Will Do Today</h2>
+    <ul>
+      <li>🎯 Read our class graph from last time</li>
+      <li>📖 Learn comparison words: more, fewer, same, most, least</li>
+      <li>👉 Point to the answers on the wall chart</li>
+      <li>❓ Answer comparison questions together</li>
+      <li>🦒 Brain break — stand tall or crouch small!</li>
+      <li>✏️ Answer questions on the worksheet</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">Remember This?</div>
+    <h2>Our Graph Is Back! 📊</h2>
+    <p>Here is our class pictograph from last time.</p>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1.2rem;text-align:center;font-style:italic;">"What do you remember about it? What do you notice?"</p>
+    </div>
+    <p style="margin-top:1rem;font-size:1rem;opacity:0.8;">Look at the columns. Point to the one you remember is tallest!</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>Three Comparing Words 🔤</h2>
+    <div class="word-cards">
+      <div class="word-card wc-more">
+        <div class="w-word" style="color:#66BB6A;">MORE ↑</div>
+        <div class="w-def">Has a higher number than the other</div>
+      </div>
+      <div class="word-card wc-fewer">
+        <div class="w-word" style="color:#EF9A9A;">FEWER ↓</div>
+        <div class="w-def">Has a lower number than the other</div>
+      </div>
+      <div class="word-card wc-same">
+        <div class="w-word" style="color:#90CAF9;">SAME =</div>
+        <div class="w-def">Has the exact same number as the other</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>We use these words to <strong style="color:#42A5F5;">compare</strong> — to look at two things and see how they are different!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>Let's Compare! 👀</h2>
+    <div class="compare-demo">
+      <div class="cmp-col">
+        <div class="cmp-label">🐶 Dog</div>
+        <div class="cmp-dots">⭐⭐⭐⭐⭐</div>
+        <div class="cmp-num">5</div>
+      </div>
+      <div class="cmp-vs">VS</div>
+      <div class="cmp-col" style="border-color:#CE93D8;">
+        <div class="cmp-label" style="color:#CE93D8;">🐱 Cat</div>
+        <div class="cmp-dots">⭐⭐⭐</div>
+        <div class="cmp-num" style="color:#CE93D8;">3</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Dog has <strong style="color:#66BB6A;">MORE</strong> than cat. &nbsp;|&nbsp; Cat has <strong style="color:#EF9A9A;">FEWER</strong> than dog. &nbsp;|&nbsp; 5 is <strong style="color:#66BB6A;">more</strong> than 3.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Most and Least 🏆</h2>
+    <p><strong style="color:#42A5F5;">Most</strong> = the column with the highest number of all.<br><strong style="color:#CE93D8;">Least</strong> = the column with the lowest number of all.</p>
+    <div class="two-col" style="margin-top:0.75rem;">
+      <div class="col-box" style="border:2px solid #2E7D32;text-align:center;">
+        <h3 style="color:#66BB6A;">🏆 MOST</h3>
+        <p style="font-size:0.95rem;color:#BBDEFB;margin-top:0.3rem;">The tallest column.<br>The biggest number.</p>
+      </div>
+      <div class="col-box" style="border:2px solid #7E57C2;text-align:center;">
+        <h3 style="color:#CE93D8;">🔻 LEAST</h3>
+        <p style="font-size:0.95rem;color:#BBDEFB;margin-top:0.3rem;">The shortest column.<br>The smallest number.</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>You can find most and least just by <strong style="color:#42A5F5;">looking</strong> — no counting needed! 👀</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag tag-green">Let's Read Our Graph!</div>
+    <h2>Question 1 👉</h2>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1.3rem;font-weight:700;text-align:center;color:#90CAF9;">Does Dog have MORE or FEWER stickers than Cat?</p>
+    </div>
+    <p style="margin-top:1rem;text-align:center;font-size:1.1rem;">Point to your answer on the wall chart first!<br>Then say it out loud. 👉</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Let's Read Our Graph!</div>
+    <h2>Question 2 👉</h2>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1.3rem;font-weight:700;text-align:center;color:#90CAF9;">Which animal has the MOST stickers?</p>
+    </div>
+    <p style="margin-top:1rem;text-align:center;font-size:1.1rem;">Point to it on the wall chart!<br>How do you know it has the most? 🤔</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-green">Let's Read Our Graph!</div>
+    <h2>Question 3 👉</h2>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1.3rem;font-weight:700;text-align:center;color:#90CAF9;">Which animal has the FEWEST stickers?</p>
+    </div>
+    <p style="margin-top:1rem;text-align:center;font-size:1.1rem;">Point to it first! Then say: "_____ has the fewest." 🗣️</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🦒</span>
+      <div class="prompt">Brain Break — Stand Tall or Crouch Small!</div>
+      <p style="font-size:1.1rem;color:#BBDEFB;margin-top:0.75rem;">Teacher names two columns.<br>Stand TALL for the one with MORE!<br>Crouch SMALL for the one with FEWER!</p>
+      <p style="margin-top:0.5rem;font-size:1rem;color:#42A5F5;">"Dog vs. Bird — which has more?" 🐶 vs 🐦</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag tag-green">Let's Read Our Graph!</div>
+    <h2>Question 4 👉</h2>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p style="font-size:1.3rem;font-weight:700;text-align:center;color:#90CAF9;">Does Bird have MORE or FEWER than Dog?</p>
+    </div>
+    <p style="margin-top:1rem;text-align:center;font-size:1.1rem;">How many MORE does Dog have than Bird?<br>Count the difference! 🔢</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-teal">Worksheet Time</div>
+    <h2>Answer the Questions ✏️</h2>
+    <p>On your worksheet, look at the pictograph and answer:</p>
+    <ul style="margin-top:0.5rem;">
+      <li>👉 Which has more? Circle it.</li>
+      <li>👉 Which has the most? Write or draw it.</li>
+      <li>👉 Which has the fewest? Write or draw it.</li>
+      <li>👉 Are any two columns the same?</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Look at the wall chart or your Session 5 worksheet to help you! 👀</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag">Words We Learned</div>
+    <h2>Our New Words 📚</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">More ↑</div><div class="def">Has a higher number than the other column</div></div>
+      <div class="vocab-card"><div class="term">Fewer ↓</div><div class="def">Has a lower number than the other column</div></div>
+      <div class="vocab-card"><div class="term">Same =</div><div class="def">Has the exact same number as the other column</div></div>
+      <div class="vocab-card"><div class="term">Most 🏆 / Least 🔻</div><div class="def">Most = tallest of all · Least = shortest of all</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag tag-purple">Share!</div>
+    <h2>Tell Us What You Found! 🗣️</h2>
+    <div class="highlight-box">
+      <p style="font-size:1.2rem;text-align:center;font-style:italic;">"Which word helped you the most today — more, fewer, or same?"</p>
+    </div>
+    <p style="margin-top:1rem;">Try using it in a sentence:</p>
+    <ul style="margin-top:0.4rem;">
+      <li>"Dog has MORE than bird."</li>
+      <li>"Cat has FEWER than dog."</li>
+      <li>"Dog has the MOST of all."</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Fantastic Work! 🎉</div>
+    <h2>Session 6 Done! ⭐</h2>
+    <ul>
+      <li>✅ We read our class pictograph</li>
+      <li>✅ We used more, fewer, same, most, and least</li>
+      <li>✅ We pointed to answers before saying them</li>
+      <li>✅ We compared columns by looking AND counting</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Next time — Session 7:</strong> We will say out loud what our graph found — making data statements! 🗣️</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0;const slides=document.querySelectorAll('.slide');const total=slides.length;
+  function show(n){slides[cur].classList.remove('active');cur=(n+total)%total;slides[cur].classList.add('active');document.getElementById('progress').style.width=((cur+1)/total*100)+'%';document.getElementById('counter').textContent=(cur+1)+' / '+total;}
+  function nextSlide(){show(cur+1);}function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}});
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

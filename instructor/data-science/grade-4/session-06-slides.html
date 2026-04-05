@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 6 Slides — Trends and Patterns Over Time | Grade 4 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;} .tag-green{background:#2E7D32;} .tag-teal{background:#00695C;} .tag-amber{background:#F57F17;} .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .col-box ul li{font-size:0.88rem;color:#BBDEFB;padding:0.2rem 0 0.2rem 1rem;position:relative;border:none;background:none;}
+    .col-box ul li:before{content:"→";position:absolute;left:0;opacity:0.6;color:#42A5F5;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    /* ASCII-style line graph */
+    .line-graph{background:rgba(21,101,192,0.08);border:1px solid #1565C0;border-radius:10px;padding:0.75rem 1rem;margin-top:0.75rem;font-family:monospace;font-size:0.78rem;color:#BBDEFB;line-height:1.6;}
+    .graph-row{display:flex;align-items:center;gap:0.3rem;}
+    .y-label{width:28px;text-align:right;color:#42A5F5;font-weight:700;}
+    .graph-bar{height:12px;border-radius:2px;}
+    .data-table{width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.85rem;}
+    .data-table th{background:#1565C0;color:white;padding:5px 8px;text-align:left;}
+    .data-table td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.08);color:#BBDEFB;}
+    .trend-row{display:flex;gap:1rem;margin-top:0.75rem;flex-wrap:wrap;}
+    .trend-card{flex:1;min-width:120px;border-radius:8px;padding:0.6rem 0.75rem;text-align:center;}
+    .t-up{background:rgba(46,125,50,0.15);border:1px solid #2E7D32;}
+    .t-down{background:rgba(198,40,40,0.15);border:1px solid #C62828;}
+    .t-flat{background:rgba(245,127,23,0.15);border:1px solid #F57F17;}
+    .trend-card .tc-icon{font-size:1.8rem;}
+    .trend-card .tc-name{font-size:0.8rem;font-weight:700;margin-top:0.2rem;}
+    .t-up .tc-name{color:#66BB6A;} .t-down .tc-name{color:#EF9A9A;} .t-flat .tc-name{color:#FFB74D;}
+    .trend-card .tc-desc{font-size:0.72rem;color:#BBDEFB;margin-top:0.2rem;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 6 — Trends and Patterns Over Time</span>
+  <span>Grade 4 Data Science · Ages 9–10</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 6 of 8</div>
+    <h1>Trends and Patterns Over Time</h1>
+    <p>Line graphs show how things change. Today we learn to read the story a line tells — and even predict what comes next.</p>
+    <div style="margin-top:1rem;font-size:0.9rem;color:#90CAF9;opacity:0.8;">📊 Data Science for Young Minds · Grade 4</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Trace the Line — What Do You See?</h2>
+    <p>Before seeing the labels, trace the line below with your finger.</p>
+    <div class="line-graph">
+      <div style="text-align:center;color:#42A5F5;margin-bottom:0.4rem;font-size:0.85rem;">● — ● — ● — ●  ↗  ●  ↗  ●  ↗  ●  ↗  ●  ↘  ●  ↘  ●  ↘  ● — ●</div>
+      <div style="text-align:center;font-size:0.75rem;opacity:0.6;">Jan &nbsp; Feb &nbsp; Mar &nbsp; Apr &nbsp; May &nbsp; Jun &nbsp; Jul &nbsp; Aug &nbsp; Sep &nbsp; Oct &nbsp; Nov &nbsp; Dec</div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Is this going up or down? Where is the highest point? <strong style="color:#42A5F5;">Now reveal: these are monthly temperatures!</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>📈 Line graphs — what they are and how to read them</li>
+      <li>🔍 Trend vocabulary: rising, falling, steady, peak, dip</li>
+      <li>📊 Read 2 line graphs and answer trend questions</li>
+      <li>✏️ Build your own line graph from a data table</li>
+      <li>🔮 Interpolation vs. extrapolation — predicting from trends</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson 1</div>
+    <h2>What Is a Line Graph?</h2>
+    <p>A <strong style="color:#42A5F5;">line graph</strong> shows how a value changes over time. Time goes on the x-axis (horizontal), and the measured value goes on the y-axis (vertical).</p>
+    <ul style="margin-top:0.5rem;">
+      <li>📍 Each dot = one data point at one moment in time</li>
+      <li>📏 Dots are connected with lines to show change</li>
+      <li>⏰ The x-axis is always time (days, months, years, weeks)</li>
+      <li>📐 The y-axis is what we're measuring (temperature, books, sales)</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>The <strong style="color:#42A5F5;">slope of the line</strong> tells you how fast something is changing. Steep = fast change. Gentle = slow change. Flat = no change.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag tag-purple">Lesson 2</div>
+    <h2>Reading Trend Direction</h2>
+    <p>The most important thing to identify in a line graph is the <strong style="color:#CE93D8;">trend</strong> — the overall direction the data is moving.</p>
+    <div class="trend-row">
+      <div class="trend-card t-up"><div class="tc-icon">📈</div><div class="tc-name">Increasing</div><div class="tc-desc">Line goes upward — value is growing over time</div></div>
+      <div class="trend-card t-down"><div class="tc-icon">📉</div><div class="tc-name">Decreasing</div><div class="tc-desc">Line goes downward — value is shrinking over time</div></div>
+      <div class="trend-card t-flat"><div class="tc-icon">➡️</div><div class="tc-name">Steady</div><div class="tc-desc">Line is roughly flat — value stays about the same</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⚠️ One dip or spike doesn't change the overall trend. Look at the <strong style="color:#42A5F5;">big picture</strong> — not just the last two points!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag tag-green">Graph 1</div>
+    <h2>Monthly Temperature — Reading the Trend</h2>
+    <table class="data-table">
+      <thead><tr><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th></tr></thead>
+      <tbody><tr><td>32</td><td>35</td><td>45</td><td>55</td><td>65</td><td>75</td><td>82</td><td>80</td><td>72</td><td>60</td><td>48</td><td>36</td></tr></tbody>
+    </table>
+    <ul style="margin-top:0.75rem;">
+      <li>🌡️ What month has the highest temperature?</li>
+      <li>❄️ What month has the lowest temperature?</li>
+      <li>📈 What is the trend from January to July?</li>
+      <li>📉 What is the trend from July to December?</li>
+      <li>📊 What is the temperature range across the year?</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag tag-green">Graph 2</div>
+    <h2>Books Read Per Week — Reading the Trend</h2>
+    <table class="data-table">
+      <thead><tr><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th>Week 5</th><th>Week 6</th><th>Week 7</th><th>Week 8</th></tr></thead>
+      <tbody><tr><td>2</td><td>3</td><td>2</td><td>5</td><td>4</td><td>6</td><td>5</td><td>7</td></tr></tbody>
+    </table>
+    <ul style="margin-top:0.75rem;">
+      <li>📚 What is the overall trend — increasing, decreasing, or steady?</li>
+      <li>📉 Week 3 dropped from Week 2. Does this mean the trend changed?</li>
+      <li>🔮 Based on the trend, how many books might be read in Week 9?</li>
+      <li>📊 What is the range of books read?</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Activity!</div>
+    <h2>Build Your Own Line Graph</h2>
+    <p>Use the books-read data to draw your own line graph on the worksheet. The axes are already drawn for you!</p>
+    <ul style="margin-top:0.5rem;">
+      <li>📍 Plot a dot for each week's value</li>
+      <li>📏 Connect the dots with a ruler</li>
+      <li>🏷️ Add a title and label both axes</li>
+      <li>🔍 Circle the highest point and lowest point</li>
+      <li>➡️ Draw an arrow showing the overall trend direction</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⏱ <strong style="color:#42A5F5;">12 minutes</strong> — when you're done, answer the trend questions on the worksheet.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-teal">Lesson 3</div>
+    <h2>Interpolation — Filling in the Gaps</h2>
+    <p><strong style="color:#80CBC4;">Interpolation</strong> means estimating a value that falls <em>between</em> two known data points.</p>
+    <div class="highlight-box" style="background:rgba(0,105,92,0.15);border-color:#00695C;margin-top:0.75rem;">
+      <p style="font-style:italic;">Example: We know January temperature = 32°F and March = 45°F.<br>What might February's temperature be?<br><strong style="color:#80CBC4;">Estimate: ~38–40°F</strong> — reasonable, based on the trend between the two points.</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>✅ Interpolation stays within the data range</li>
+      <li>✅ More confident — the pattern is already established</li>
+      <li>✅ Used to fill gaps in data we didn't collect</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="tag tag-purple">Lesson 4</div>
+    <h2>Extrapolation — Predicting the Future</h2>
+    <p><strong style="color:#CE93D8;">Extrapolation</strong> means predicting a value that falls <em>beyond</em> the known data.</p>
+    <div class="highlight-box" style="background:rgba(126,87,194,0.15);border-color:#7E57C2;margin-top:0.75rem;">
+      <p style="font-style:italic;">Example: Books read per week has an increasing trend (2→7 over 8 weeks).<br>What might Week 9 or Week 12 look like?<br><strong style="color:#CE93D8;">Estimate: ~7–8 books in Week 9</strong> — possible, but less certain.</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>⚠️ Extrapolation goes beyond the known data range</li>
+      <li>⚠️ Less confident — something unexpected could change the trend</li>
+      <li>⚠️ Always state that it's a prediction, not a fact</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Trend Detector!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Your teacher will say a scenario. Thumbs up = increasing trend, thumbs down = decreasing, thumbs sideways = steady.</p>
+      <p style="margin-top:0.5rem;font-size:0.9rem;opacity:0.7;">"A plant grows 2cm each week." · "A car slows down." · "Room temperature stays at 70°F." · "A savings account earns interest." · "Ice cream melts in the sun."</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-amber">Debrief</div>
+    <h2>Trend Questions — Class Discussion</h2>
+    <div class="highlight-box">
+      <p style="font-style:italic;">"For the books-read graph — one student said the trend was increasing, another said it was 'up and down.' Who is right? Can they both be right?"</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>Both are describing real things — but "increasing" describes the <em>overall</em> trend</li>
+      <li>The week-by-week zigzag is real data variation — not the trend</li>
+      <li>How would you describe this to someone who hasn't seen the graph?</li>
+      <li>Which description is more useful for making decisions?</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag tag-teal">Real-World Connections</div>
+    <h2>Line Graphs in the Real World</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>🌍 Where We See Them</h3>
+        <ul>
+          <li>Weather — temperature over days</li>
+          <li>Economy — stock prices over years</li>
+          <li>Health — heart rate during exercise</li>
+          <li>Sports — team wins per season</li>
+          <li>Science — plant growth over weeks</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #7E57C2;">
+        <h3 style="color:#CE93D8;">❓ Questions They Answer</h3>
+        <ul>
+          <li>Is this getting better or worse?</li>
+          <li>When did the change happen?</li>
+          <li>How fast is it changing?</li>
+          <li>What might happen next?</li>
+          <li>When was the peak / lowest point?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag">Vocabulary Review</div>
+    <h2>Words to Know</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Line graph</div><div class="def">Graph with connected points showing change over time</div></div>
+      <div class="vocab-card"><div class="term">Trend</div><div class="def">The overall direction data is moving — up, down, or steady</div></div>
+      <div class="vocab-card"><div class="term">Increase / Decrease</div><div class="def">Going up / going down over time</div></div>
+      <div class="vocab-card"><div class="term">Steady</div><div class="def">Staying roughly the same over time</div></div>
+      <div class="vocab-card"><div class="term">Interpolation</div><div class="def">Estimating a value between two known data points</div></div>
+      <div class="vocab-card"><div class="term">Extrapolation</div><div class="def">Predicting beyond the known data (less certain)</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Wrap Up</div>
+    <h2>Session 6 Complete!</h2>
+    <ul>
+      <li>✅ Line graphs show how values change over time</li>
+      <li>✅ Trend = overall direction, not every individual point</li>
+      <li>✅ Trace the line with your finger to feel the trend</li>
+      <li>✅ Interpolation = filling gaps · Extrapolation = predicting beyond</li>
+      <li>✅ Predictions from trends are estimates — they can be wrong</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Coming up — Session 7:</strong> What if we want to compare TWO groups at once? Side-by-side bar charts and comparison statements!</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (cur+1)+' / '+total;
+  }
+  function nextSlide(){show(cur+1);}
+  function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}
+  });
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

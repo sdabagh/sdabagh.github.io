@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 8 Slides — Grade 1 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0a0e1a;font-family:'Segoe UI',Arial,sans-serif;color:white;height:100vh;overflow:hidden;}
+    .controls{position:fixed;top:0;left:0;right:0;height:44px;background:rgba(10,14,26,0.97);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;z-index:100;}
+    .ctrl-left{display:flex;align-items:center;gap:0.6rem;}
+    .ctrl-title{font-size:0.78rem;color:rgba(255,255,255,0.6);font-weight:600;}
+    .ctrl-right{display:flex;align-items:center;gap:0.5rem;}
+    .ctrl-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:4px 12px;border-radius:6px;font-size:0.78rem;cursor:pointer;transition:background 0.15s;}
+    .ctrl-btn:hover{background:rgba(255,255,255,0.18);}
+    .slide-counter{font-size:0.78rem;color:rgba(255,255,255,0.5);min-width:50px;text-align:center;}
+    .progress-bar{position:fixed;bottom:0;left:0;right:0;height:4px;background:rgba(255,255,255,0.08);z-index:100;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s ease;}
+    .slides-wrap{position:fixed;top:44px;bottom:4px;left:0;right:0;overflow:hidden;}
+    .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:2.5rem 3rem;cursor:pointer;text-align:center;}
+    .slide.active{display:flex;}
+    .slide-inner{max-width:900px;width:100%;}
+    h1{font-size:2.8rem;font-weight:900;line-height:1.1;margin-bottom:0.6rem;background:linear-gradient(135deg,#42A5F5,#7E57C2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    h2{font-size:2rem;font-weight:800;color:#42A5F5;margin-bottom:0.75rem;line-height:1.2;}
+    p{font-size:1.15rem;color:rgba(255,255,255,0.85);line-height:1.6;margin-bottom:0.5rem;}
+    .subtitle{font-size:1.1rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;}
+    .tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:700;margin:0.2rem;}
+    .tag-session{background:#1565C0;color:white;}
+    .tag-grade{background:#7E57C2;color:white;}
+    .tag-capstone{background:linear-gradient(90deg,#F9A825,#F57F17);color:white;}
+    .card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem 1.2rem;margin-bottom:0.6rem;text-align:left;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%;}
+    .col-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.85rem;}
+    .highlight-box{background:rgba(21,101,192,0.25);border:2px solid #42A5F5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:0.6rem;}
+    .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;width:100%;}
+    .step-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.85rem;text-align:left;}
+    .step-num{font-size:2.5rem;font-weight:900;line-height:1;margin-bottom:0.3rem;}
+    .step-card h3{font-size:1.1rem;font-weight:800;color:#42A5F5;margin-bottom:0.3rem;}
+    .step-card p{font-size:0.92rem;color:rgba(255,255,255,0.8);}
+    .brain-break{background:linear-gradient(135deg,rgba(126,87,194,0.3),rgba(66,165,245,0.3));border:2px solid #7E57C2;border-radius:16px;padding:1.5rem;text-align:center;}
+    .brain-break h2{color:#CE93D8;}
+    .vocab-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem;width:100%;}
+    .vocab-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.5rem;text-align:center;}
+    .vocab-card .vt{font-size:0.85rem;font-weight:800;color:#42A5F5;margin-bottom:0.2rem;}
+    .vocab-card .vd{font-size:0.72rem;color:rgba(255,255,255,0.7);line-height:1.3;}
+    .picto-demo{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:520px;margin:0 auto;}
+    .pd-col{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.75rem;text-align:center;}
+    .pd-label{font-size:0.9rem;font-weight:800;color:#42A5F5;margin-bottom:0.4rem;}
+    .pd-symbols{font-size:1.4rem;line-height:1.6;min-height:60px;}
+    .pd-count{font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:0.3rem;}
+    .frame-demo{background:rgba(126,87,194,0.2);border:2px solid #7E57C2;border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.5rem;text-align:left;font-size:1.05rem;font-weight:700;}
+    .blank{display:inline-block;border-bottom:2px solid #CE93D8;min-width:120px;margin:0 4px;}
+    .celebrate-box{background:linear-gradient(135deg,rgba(249,168,37,0.2),rgba(46,125,50,0.2));border:2px solid #F9A825;border-radius:16px;padding:1.5rem 2rem;}
+    .celebrate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-top:1rem;}
+    .cel-item{background:rgba(255,255,255,0.08);border-radius:8px;padding:0.6rem;font-size:0.88rem;text-align:center;}
+    .dance-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;width:100%;max-width:600px;margin:0 auto;}
+    .dance-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0.75rem;text-align:center;}
+    .dance-word{font-size:1.3rem;font-weight:900;color:#42A5F5;margin-bottom:0.3rem;}
+    .dance-action{font-size:0.9rem;color:rgba(255,255,255,0.8);}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <div class="ctrl-left">
+    <span class="ctrl-title">Session 8 · My Sorting Book (Capstone) · Grade 1</span>
+  </div>
+  <div class="ctrl-right">
+    <button class="ctrl-btn" onclick="prevSlide()">← Prev</button>
+    <span class="slide-counter" id="counter">1 / 15</span>
+    <button class="ctrl-btn" onclick="nextSlide()">Next →</button>
+    <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Full</button>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:6.67%"></div></div>
+
+<div class="slides-wrap">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active" onclick="nextSlide()">
+    <div class="slide-inner">
+      <div style="margin-bottom:1rem;">
+        <span class="tag tag-session">Session 8 of 8</span>
+        <span class="tag tag-grade">Grade 1 · Ages 6–7</span>
+        <span class="tag tag-capstone">Capstone Project</span>
+      </div>
+      <h1>My Sorting Book</h1>
+      <p class="subtitle">Today you are a real Data Scientist! 🔬</p>
+      <div class="highlight-box" style="margin-top:1.5rem;text-align:center;">
+        <p style="font-size:1.2rem;font-weight:700;color:white;">Sort → Count → Graph → Share</p>
+        <p style="font-size:0.95rem;margin-top:0.4rem;">You will do ALL FOUR steps today!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2: What we learned -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Look How Far We've Come! 🌟</h2>
+      <p class="subtitle">In 8 sessions, you learned to:</p>
+      <div class="step-grid">
+        <div class="step-card"><div class="step-num" style="color:#42A5F5;">1</div><h3>Observe</h3><p>Look carefully at things and describe them</p></div>
+        <div class="step-card"><div class="step-num" style="color:#7E57C2;">2</div><h3>Sort</h3><p>Put things into groups using a rule</p></div>
+        <div class="step-card"><div class="step-num" style="color:#26A69A;">3</div><h3>Count</h3><p>Find out how many are in each group</p></div>
+        <div class="step-card"><div class="step-num" style="color:#EF5350;">4</div><h3>Ask & Graph</h3><p>Ask a question and show the answers on a graph</p></div>
+      </div>
+      <div class="highlight-box" style="margin-top:0.75rem;">
+        <p style="font-size:1rem;font-weight:700;">And you learned to READ graphs and say what you FOUND OUT!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Today's mystery bag -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Your Mystery Bag 🎒</h2>
+      <div class="highlight-box" style="font-size:1.3rem;font-weight:800;padding:1.5rem;margin-bottom:1rem;">
+        DO NOT OPEN YET! 🛑
+      </div>
+      <p>Inside your bag are mixed-up objects.</p>
+      <p style="margin-top:0.5rem;">Your job: <strong style="color:#42A5F5;">figure out what is inside</strong></p>
+      <p style="margin-top:0.5rem;">and <strong style="color:#7E57C2;">make a graph</strong> that shows what you found!</p>
+      <div class="card" style="margin-top:1rem;text-align:center;">
+        <p style="font-size:1.1rem;font-weight:700;">When your teacher says GO — open your bag! 🟢</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Step 1 - Sort -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Step 1: SORT 📦</h2>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <p style="font-size:1.1rem;font-weight:700;color:#42A5F5;margin-bottom:0.4rem;">Spread out ALL your objects.</p>
+        <p>Look at them carefully. What do you notice?</p>
+      </div>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <p style="font-size:1.1rem;font-weight:700;color:#7E57C2;margin-bottom:0.4rem;">Choose ONE sort rule:</p>
+        <p>Color? &nbsp;&nbsp; Shape? &nbsp;&nbsp; Size? &nbsp;&nbsp; Texture?</p>
+      </div>
+      <div class="card">
+        <p style="font-size:1.1rem;font-weight:700;color:#26A69A;margin-bottom:0.4rem;">Put objects into groups.</p>
+        <p>Each object belongs in ONE group.</p>
+        <p>Draw each group on your worksheet!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Step 2 - Count -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Step 2: COUNT 🔢</h2>
+      <div class="highlight-box" style="margin-bottom:0.75rem;">
+        <p style="font-size:1.1rem;font-weight:700;">Count how many are in each group.</p>
+        <p style="margin-top:0.4rem;">Touch each one as you count: 1, 2, 3…</p>
+      </div>
+      <div class="two-col">
+        <div class="col-box">
+          <p style="font-weight:800;color:#42A5F5;margin-bottom:0.4rem;">Write the NUMBER</p>
+          <p style="font-size:2rem;font-weight:900;">5</p>
+          <p style="font-size:0.9rem;margin-top:0.3rem;">Write it big in the box!</p>
+        </div>
+        <div class="col-box">
+          <p style="font-weight:800;color:#7E57C2;margin-bottom:0.4rem;">Draw DOTS</p>
+          <p style="font-size:1.4rem;letter-spacing:4px;">● ● ●<br>● ●</p>
+          <p style="font-size:0.9rem;margin-top:0.3rem;">One dot = one object</p>
+        </div>
+      </div>
+      <p style="margin-top:0.75rem;font-size:1rem;">Do this for EVERY group in your bag.</p>
+    </div>
+  </div>
+
+  <!-- Slide 6: Step 3 - Pictograph -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Step 3: MAKE A GRAPH 📊</h2>
+      <p style="margin-bottom:0.75rem;">Draw your pictograph on the worksheet.</p>
+      <div class="picto-demo">
+        <div class="pd-col">
+          <div class="pd-label">Group 1</div>
+          <div class="pd-symbols">⭐<br>⭐<br>⭐<br>⭐</div>
+          <div class="pd-count">4 objects</div>
+        </div>
+        <div class="pd-col">
+          <div class="pd-label">Group 2</div>
+          <div class="pd-symbols">⭐<br>⭐<br>⭐</div>
+          <div class="pd-count">3 objects</div>
+        </div>
+        <div class="pd-col">
+          <div class="pd-label">Group 3</div>
+          <div class="pd-symbols">⭐<br>⭐</div>
+          <div class="pd-count">2 objects</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0.75rem;">
+        <p style="font-size:1rem;">One star (or dot or smiley!) = one object.</p>
+        <p style="margin-top:0.3rem;">Label each column with the group name.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Step 4 - Share -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Step 4: SHARE 🎤</h2>
+      <p style="margin-bottom:0.75rem;">Use a sentence frame to say what you found:</p>
+      <div class="frame-demo">"We found out that <span class="blank"></span>."</div>
+      <div class="frame-demo">"The most <span class="blank"></span> is <span class="blank"></span>."</div>
+      <div class="frame-demo">"I notice that <span class="blank"></span>."</div>
+      <div class="card" style="margin-top:0.75rem;text-align:center;">
+        <p style="font-size:1rem;font-weight:700;">Fill in ONE frame on your worksheet.</p>
+        <p style="margin-top:0.3rem;">Then you will share it with the class!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: GO! Work time -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <div class="highlight-box" style="padding:2rem;text-align:center;">
+        <p style="font-size:3rem;margin-bottom:0.5rem;">🟢</p>
+        <h2 style="font-size:2.5rem;margin-bottom:0.5rem;">TIME TO WORK!</h2>
+        <p style="font-size:1.2rem;">Open your bag. Follow the steps.</p>
+        <p style="font-size:1rem;margin-top:0.5rem;color:rgba(255,255,255,0.7);">Sort → Count → Graph → Fill in a sentence frame</p>
+      </div>
+      <div class="card" style="margin-top:1rem;text-align:center;">
+        <p style="font-size:1rem;">If you finish early: sort your bag a DIFFERENT way!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Brain Break -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <div class="brain-break">
+        <h2>🕺 Brain Break: Data Dance!</h2>
+        <p style="margin:0.5rem 0;">When I say the word — do the action!</p>
+        <div class="dance-grid" style="margin-top:1rem;">
+          <div class="dance-card">
+            <div class="dance-word">SORT!</div>
+            <div class="dance-action">Move left or right!</div>
+          </div>
+          <div class="dance-card">
+            <div class="dance-word">COUNT!</div>
+            <div class="dance-action">Count on your fingers!</div>
+          </div>
+          <div class="dance-card">
+            <div class="dance-word">GRAPH!</div>
+            <div class="dance-action">Draw a column in the air!</div>
+          </div>
+          <div class="dance-card">
+            <div class="dance-word">FOUND OUT!</div>
+            <div class="dance-action">Point to your head!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Share time -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Share Time! 🎤</h2>
+      <p style="margin-bottom:0.75rem;">Who wants to share what they found?</p>
+      <div class="frame-demo" style="font-size:1.2rem;text-align:center;">"We found out that <span class="blank" style="min-width:200px;"></span>."</div>
+      <div class="card" style="margin-top:0.75rem;">
+        <p style="font-size:1rem;margin-bottom:0.3rem;">You can share by:</p>
+        <p style="font-size:0.95rem;">👋 Saying it out loud</p>
+        <p style="font-size:0.95rem;">👆 Pointing to your worksheet</p>
+        <p style="font-size:0.95rem;">🖊️ Having a friend read it for you</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.75rem;text-align:center;">
+        <p style="font-weight:800;font-size:1.05rem;">ALL ways of sharing count! 🌟</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Vocab Review -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Words We Learned 📚</h2>
+      <p class="subtitle" style="margin-bottom:0.75rem;">8 sessions, 8 big words!</p>
+      <div class="vocab-grid">
+        <div class="vocab-card"><div class="vt">Observe</div><div class="vd">look carefully</div></div>
+        <div class="vocab-card"><div class="vt">Sort</div><div class="vd">put into groups by rule</div></div>
+        <div class="vocab-card"><div class="vt">Count</div><div class="vd">find how many</div></div>
+        <div class="vocab-card"><div class="vt">Data</div><div class="vd">information we collect</div></div>
+        <div class="vocab-card"><div class="vt">Graph</div><div class="vd">picture of data</div></div>
+        <div class="vocab-card"><div class="vt">More / Fewer</div><div class="vd">comparing groups</div></div>
+        <div class="vocab-card"><div class="vt">Most / Least</div><div class="vd">highest / lowest</div></div>
+        <div class="vocab-card"><div class="vt">Found Out</div><div class="vd">what we discovered</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 12: Stand up if you... -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Stand Up If You… 🙋</h2>
+      <p style="margin-bottom:1rem;">Let's celebrate everything you did!</p>
+      <div class="card" style="margin-bottom:0.5rem;font-size:1.05rem;">Stand up if you <strong style="color:#42A5F5;">sorted</strong> something today! 📦</div>
+      <div class="card" style="margin-bottom:0.5rem;font-size:1.05rem;">Stay standing if you <strong style="color:#26A69A;">counted</strong> your groups! 🔢</div>
+      <div class="card" style="margin-bottom:0.5rem;font-size:1.05rem;">Stay standing if you made a <strong style="color:#7E57C2;">graph</strong>! 📊</div>
+      <div class="card" style="margin-bottom:0.5rem;font-size:1.05rem;">Stay standing if you <strong style="color:#EF5350;">shared</strong> what you found! 🎤</div>
+      <div class="highlight-box" style="margin-top:0.5rem;text-align:center;">
+        <p style="font-size:1.2rem;font-weight:800;">EVERYONE IS STANDING! You are all Data Scientists! 🌟</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 13: What is a Data Scientist? -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>You Are a Data Scientist! 🔬</h2>
+      <div class="two-col">
+        <div class="col-box" style="text-align:center;">
+          <p style="font-size:3rem;margin-bottom:0.5rem;">🔍</p>
+          <p style="font-weight:700;color:#42A5F5;margin-bottom:0.3rem;">Data scientists…</p>
+          <p>look carefully at the world</p>
+          <p>collect information</p>
+          <p>sort and count</p>
+          <p>make graphs</p>
+          <p>share what they find</p>
+        </div>
+        <div class="col-box" style="text-align:center;">
+          <p style="font-size:3rem;margin-bottom:0.5rem;">⭐</p>
+          <p style="font-weight:700;color:#7E57C2;margin-bottom:0.3rem;">YOU did all of that!</p>
+          <p>In 8 sessions you learned</p>
+          <p>every single skill a</p>
+          <p>data scientist uses.</p>
+          <p style="margin-top:0.5rem;font-weight:800;color:#42A5F5;">That's amazing!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 14: Take home -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <h2>Take Home Your Work! 🏠</h2>
+      <div class="card" style="margin-bottom:0.75rem;text-align:center;">
+        <p style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Your capstone worksheet goes home today!</p>
+        <p>Show your family what you made.</p>
+      </div>
+      <div class="two-col">
+        <div class="col-box">
+          <p style="font-weight:800;color:#42A5F5;margin-bottom:0.4rem;">Tell them about your:</p>
+          <p>• Sort rule you chose</p>
+          <p>• Groups you made</p>
+          <p>• Graph you drew</p>
+          <p>• What you found out</p>
+        </div>
+        <div class="col-box">
+          <p style="font-weight:800;color:#7E57C2;margin-bottom:0.4rem;">Look at home for:</p>
+          <p>• Things to sort</p>
+          <p>• Things to count</p>
+          <p>• Questions to ask</p>
+          <p>• Data everywhere!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 15: Celebration -->
+  <div class="slide" onclick="nextSlide()">
+    <div class="slide-inner">
+      <div class="celebrate-box" style="text-align:center;">
+        <p style="font-size:3rem;margin-bottom:0.3rem;">🎉🔬⭐🎊</p>
+        <h1 style="font-size:2.5rem;margin-bottom:0.5rem;">Congratulations!</h1>
+        <p style="font-size:1.2rem;font-weight:700;color:rgba(255,255,255,0.95);margin-bottom:0.5rem;">You completed Data Science for Young Minds!</p>
+        <div class="celebrate-grid">
+          <div class="cel-item">📦<br>You sorted</div>
+          <div class="cel-item">🔢<br>You counted</div>
+          <div class="cel-item">📊<br>You graphed</div>
+          <div class="cel-item">🎤<br>You shared</div>
+        </div>
+        <p style="margin-top:1rem;font-size:1.1rem;font-weight:800;color:#F9A825;">You are Data Scientists! 🌟</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let current = 0;
+  const total = 15;
+  const slides = document.querySelectorAll('.slide');
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, total - 1));
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function nextSlide() { showSlide(current + 1); }
+  function prevSlide() { showSlide(current - 1); }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+</script>
+</body>
+</html>

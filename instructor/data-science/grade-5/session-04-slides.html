@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 4 Slides — When Data Deceives | Grade 5 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;}.tag-green{background:#2E7D32;}.tag-teal{background:#00695C;}.tag-amber{background:#F57F17;}.tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    .sub{font-size:0.9rem;color:#90CAF9;opacity:0.8;margin-top:0.4rem;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .col-box ul li{font-size:0.88rem;color:#BBDEFB;padding:0.2rem 0 0.2rem 1rem;position:relative;border:none;background:none;}
+    .col-box ul li:before{content:"→";position:absolute;left:0;opacity:0.6;color:#42A5F5;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .paradox-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:0.75rem;}
+    .paradox-table th{background:#4527A0;color:white;padding:5px 8px;text-align:center;}
+    .paradox-table td{border:1px solid #7E57C2;padding:5px 8px;text-align:center;color:#E1BEE7;}
+    .paradox-table .highlight-row td{background:rgba(126,87,194,0.3);font-weight:800;color:#CE93D8;}
+    .deception-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.75rem;}
+    .dc-card{border-radius:10px;padding:0.75rem;}
+    .dc-card h3{font-size:0.88rem;font-weight:800;margin-bottom:0.4rem;}
+    .dc-card p{font-size:0.82rem;}
+    .dc-card.cherry{background:rgba(198,40,40,0.15);border:1px solid #C62828;}
+    .dc-card.cherry h3{color:#EF9A9A;}
+    .dc-card.survival{background:rgba(249,168,37,0.1);border:1px solid #F9A825;}
+    .dc-card.survival h3{color:#FFB74D;}
+    .dc-card.framing{background:rgba(21,101,192,0.15);border:1px solid #42A5F5;}
+    .dc-card.framing h3{color:#90CAF9;}
+    .dc-card.simpson{background:rgba(126,87,194,0.15);border:1px solid #7E57C2;}
+    .dc-card.simpson h3{color:#CE93D8;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 4 — When Data Deceives</span>
+  <span>Grade 5 Data Science · Ages 10–11</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 4 of 8</div>
+    <h1>When Data<br>Deceives</h1>
+    <p>The data can be 100% accurate — and the conclusion can still be completely wrong. Today we learn how.</p>
+    <div class="sub" style="margin-top:1rem;">🔍 Data Science for Young Minds · Grade 5 — Data Detective</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>🎯 Hook — two graphs, same data, very different stories</li>
+      <li>🍒 Cherry-picking — selecting only the good news</li>
+      <li>✈️ Survivorship bias — only studying the survivors</li>
+      <li>🖼️ Framing effects — same number, different spin</li>
+      <li>🔄 Simpson's Paradox — when combining groups reverses the truth</li>
+      <li>🕵️ Data Detectives — catch 4 real-world deceptions</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Same Data — Two Stories</h2>
+    <p>Imagine a bar chart showing a company's sales performance. Both versions below use <strong style="color:#42A5F5;">identical numbers.</strong></p>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #C62828;">
+        <h3 style="color:#EF9A9A;">Graph A — Y-axis starts at 95%</h3>
+        <ul>
+          <li>The bar for "this year" looks THREE TIMES taller</li>
+          <li>Looks like a massive improvement</li>
+          <li>Headline: "Sales EXPLODE upward!"</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #2E7D32;">
+        <h3 style="color:#66BB6A;">Graph B — Y-axis starts at 0%</h3>
+        <ul>
+          <li>The bars look nearly identical in height</li>
+          <li>The actual change: 96% → 98%</li>
+          <li>Headline: "Modest 2% improvement"</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Both graphs are accurate. But Graph A is designed to mislead. <strong style="color:#42A5F5;">A Data Detective always checks the Y-axis first.</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag tag-red">Lesson 1</div>
+    <h2>Cherry-Picking</h2>
+    <p><strong style="color:#EF9A9A;">Cherry-picking</strong> means selecting only the data that supports your conclusion — and ignoring everything else.</p>
+    <div class="two-col" style="margin-top:0.75rem;">
+      <div class="col-box" style="border:1px solid #C62828;">
+        <h3 style="color:#EF9A9A;">The Trick</h3>
+        <ul>
+          <li>"Our school's math scores improved last year!"</li>
+          <li>(Shows only math — reading, science, and writing all dropped)</li>
+          <li>The cherry-picker is telling the truth — about one cherry</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border:1px solid #42A5F5;">
+        <h3>The Detective Question</h3>
+        <ul>
+          <li>"What data was NOT shown here?"</li>
+          <li>"What happened to the other subjects?"</li>
+          <li>"Over what time period?"</li>
+          <li>"Who chose which data to include?"</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Cherry-picking is especially dangerous because each individual data point is true. You need to ask what's <em>missing.</em></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag tag-amber">Lesson 1</div>
+    <h2>Survivorship Bias</h2>
+    <p><strong style="color:#FFB74D;">Survivorship bias</strong> happens when we only study the people or things that "survived" a process — missing all those that didn't.</p>
+    <ul style="margin-top:0.75rem;">
+      <li>✈️ <strong>WWII planes:</strong> Engineers studied bullet holes on returning planes to know where to add armor. But the planes that got shot down — the real information — never came back.</li>
+      <li>🎓 <strong>"Dropouts succeed":</strong> We hear about famous college dropouts who succeeded. We don't hear about the millions who dropped out and struggled.</li>
+      <li>💰 <strong>Investment advice:</strong> You only read about investments that paid off. The failed ones disappear from the story.</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Detective question: <strong style="color:#42A5F5;">"Who is NOT in this dataset — and why might they be missing?"</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag">Lesson 2</div>
+    <h2>Framing Effects</h2>
+    <p><strong style="color:#90CAF9;">A framing effect</strong> occurs when the same data is presented differently to create a different emotional response.</p>
+    <div class="deception-grid">
+      <div class="dc-card framing">
+        <h3>Same statistic — different frame:</h3>
+        <p>"This surgery has a <strong style="color:#90CAF9;">90% survival rate</strong>"<br><br>vs.<br><br>"This surgery has a <strong style="color:#EF9A9A;">10% mortality rate</strong>"</p>
+      </div>
+      <div class="dc-card framing">
+        <h3>More examples:</h3>
+        <p>"<strong style="color:#90CAF9;">9 out of 10 dentists recommend</strong> this toothpaste"<br><br>vs.<br><br>"<strong style="color:#EF9A9A;">1 in 10 dentists does NOT recommend</strong> this toothpaste"</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Detective question: <strong style="color:#42A5F5;">"What is the full number? Can I restate this statistic a different way?"</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag tag-purple">Lesson 3</div>
+    <h2>Simpson's Paradox — The Mind-Bender</h2>
+    <p>A trend appears in separate groups — but <strong style="color:#CE93D8;">completely reverses</strong> when the groups are combined. Even trained statisticians find this hard.</p>
+    <div class="highlight-box" style="background:rgba(126,87,194,0.15);border-color:#7E57C2;margin-top:0.75rem;">
+      <p style="color:#E1BEE7;font-style:italic;">"How can Treatment A be better for mild patients AND better for severe patients — but Treatment B appear better overall? Let's see..."</p>
+    </div>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">The key is group sizes. When groups are very different in size, combining them distorts the picture. The combined number hides what's really happening inside each group.</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-purple">Lesson 3</div>
+    <h2>Simpson's Paradox — Example 1</h2>
+    <p style="font-size:0.9rem;margin-bottom:0.5rem;">Two schools. Which is doing better?</p>
+    <table class="paradox-table">
+      <thead><tr><th>Student Group</th><th>School A pass rate</th><th>School B pass rate</th><th>Who's better?</th></tr></thead>
+      <tbody>
+        <tr><td>Strong students</td><td>90% (90 out of 100)</td><td>85% (17 out of 20)</td><td style="color:#66BB6A;">School A ✓</td></tr>
+        <tr><td>Struggling students</td><td>30% (6 out of 20)</td><td>20% (20 out of 100)</td><td style="color:#66BB6A;">School A ✓</td></tr>
+        <tr class="highlight-row"><td><strong>Overall combined</strong></td><td><strong>80% (96/120)</strong></td><td><strong>31% (37/120)</strong></td><td style="color:#CE93D8;">School A wins... obviously?</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box" style="background:rgba(126,87,194,0.15);border-color:#7E57C2;margin-top:0.75rem;">
+      <p style="color:#E1BEE7;">Wait — School A is better in BOTH groups, AND has a higher overall rate. So where's the paradox? Now look at the group sizes: School A has 100 strong + 20 struggling. School B has 20 strong + 100 struggling. School A has MORE easy cases — that inflates its overall rate.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-purple">Lesson 3</div>
+    <h2>Simpson's Paradox — Example 2</h2>
+    <p style="font-size:0.9rem;margin-bottom:0.5rem;">Two medical treatments. Which should you choose?</p>
+    <table class="paradox-table">
+      <thead><tr><th>Patient Type</th><th>Treatment A success</th><th>Treatment B success</th><th>Who's better?</th></tr></thead>
+      <tbody>
+        <tr><td>Mild cases</td><td>81% (81/100)</td><td>87% (234/270)</td><td style="color:#EF9A9A;">Treatment B</td></tr>
+        <tr><td>Severe cases</td><td>73% (192/263)</td><td>69% (55/80)</td><td style="color:#66BB6A;">Treatment A ✓</td></tr>
+        <tr class="highlight-row"><td><strong>Overall combined</strong></td><td><strong>78% (273/363)</strong></td><td><strong>83% (289/350)</strong></td><td style="color:#EF9A9A;">Treatment B looks better!</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box" style="background:rgba(126,87,194,0.15);border-color:#7E57C2;margin-top:0.75rem;">
+      <p style="color:#CE93D8;">Treatment A is better for severe cases. Treatment B is only used on mild (easier) cases more often. The combined number favors B — but for your health, A is the better choice. <strong>Always look at subgroups.</strong></p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Name That Trick!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Your teacher will describe a scenario. Call out the deception technique: Cherry-Picking, Survivorship Bias, Framing Effect, or Simpson's Paradox!</p>
+      <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.7;">"A magazine only publishes success stories from people who used their diet plan" · "A graph's Y-axis starts at 94%" · "The drug is 95% safe!" said instead of "5% of users had serious side effects"</p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:#42A5F5;">Naming the trick is the first step to defeating it!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag tag-green">Activity Time!</div>
+    <h2>Data Detectives — 4 Case Studies</h2>
+    <p>Each case study contains accurate data — but draws a misleading conclusion. Your job:</p>
+    <ul style="margin-top:0.5rem;">
+      <li>🔍 <strong>Identify:</strong> Which deception technique is being used?</li>
+      <li>❌ <strong>Find the flaw:</strong> What exactly is wrong with the conclusion?</li>
+      <li>✅ <strong>Reframe:</strong> How would you present this data honestly?</li>
+      <li>❓ <strong>Detective question:</strong> What question would expose the trick?</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⏱ You have <strong style="color:#42A5F5;">15 minutes</strong> in your groups. Then we share out. Remember: the data itself is real — the <em>interpretation</em> is the problem.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag tag-green">Debrief</div>
+    <h2>What Did the Data Detectives Find?</h2>
+    <div class="deception-grid">
+      <div class="dc-card cherry"><h3>Case 1 — Cherry-Picking</h3><p>Only the 3 best sales months shown. The other 9 were declining. Detective Q: "What data was left out?"</p></div>
+      <div class="dc-card survival"><h3>Case 2 — Survivorship Bias</h3><p>"Successful athletes train 6hrs/day." Missing: the many who trained equally hard and didn't succeed. Detective Q: "Who's NOT in this data?"</p></div>
+      <div class="dc-card framing"><h3>Case 3 — Framing Effect</h3><p>Drug A: "20% side effects." Drug B: "80% side-effect free." Same drug. Detective Q: "Can I restate this differently?"</p></div>
+      <div class="dc-card simpson"><h3>Case 4 — Simpson's Paradox</h3><p>Overall reading scores rose — but both groups dropped. Change in student mix caused it. Detective Q: "What do subgroups show?"</p></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag tag-teal">Write Time</div>
+    <h2>Reflection Write</h2>
+    <div class="highlight-box" style="background:rgba(0,105,92,0.15);border-color:#00695C;">
+      <p style="font-size:1.1rem;font-style:italic;text-align:center;color:#B2DFDB;">"Which deception technique was hardest for you to spot — and why? What question would a Data Detective ask to catch it?"</p>
+    </div>
+    <p style="margin-top:1rem;font-size:0.9rem;opacity:0.8;">✍️ 6 minutes. Use your worksheet — Part 4. Name the specific technique and propose your detective question.</p>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag tag-purple">Vocabulary Check</div>
+    <h2>Session 4 Key Terms</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Cherry-Picking</div><div class="def">Selecting only favorable data; ignoring contradictory evidence</div></div>
+      <div class="vocab-card"><div class="term">Survivorship Bias</div><div class="def">Only studying "survivors" of a process; missing those who didn't make it</div></div>
+      <div class="vocab-card"><div class="term">Framing Effect</div><div class="def">Same data, different presentation, different emotional impact</div></div>
+      <div class="vocab-card"><div class="term">Simpson's Paradox</div><div class="def">A trend reverses when groups are combined due to different group sizes</div></div>
+      <div class="vocab-card"><div class="term">Confirmation Bias</div><div class="def">Noticing data that agrees with you; overlooking data that doesn't</div></div>
+      <div class="vocab-card"><div class="term">The Detective Question</div><div class="def">"What data is missing here? Who chose what to show?"</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Session Close</div>
+    <h2>The Data Detective's Creed</h2>
+    <div class="highlight-box" style="margin-bottom:1rem;">
+      <p style="font-size:1.2rem;font-style:italic;text-align:center;color:#90CAF9;">"Accurate data + misleading presentation = misinformation.<br>Ask what's missing. Look at the subgroups. Check the axis."</p>
+    </div>
+    <ul>
+      <li>✅ You can identify cherry-picking, survivorship bias, and framing effects</li>
+      <li>✅ You understand Simpson's Paradox and why subgroups matter</li>
+      <li>✅ You have a toolkit of detective questions to expose tricks</li>
+    </ul>
+    <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.8;">Next session: Even honest data has randomness built in. We learn about probability — and why 10 coin flips can look very misleading.</p>
+  </div>
+
+</div>
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+  }
+  function nextSlide() { showSlide(current + 1); }
+  function prevSlide() { showSlide(current - 1); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    if (e.key === 'f' || e.key === 'F') { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+  });
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>

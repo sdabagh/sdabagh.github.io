@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 4 Slides — Making a Tally Chart | Grade 2 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{background:#060910;padding:0.4rem 1rem;display:flex;align-items:center;gap:1rem;font-size:0.8rem;color:#aaa;flex-shrink:0;}
+    .controls .title{font-weight:700;color:#42A5F5;}
+    .controls .nav-hint{margin-left:auto;font-size:0.72rem;opacity:0.7;}
+    .progress-bar{height:3px;background:#1a1a2e;flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden;}
+    .slide{display:none;max-width:900px;width:100%;animation:fadeIn 0.25s ease;}
+    .slide.active{display:flex;flex-direction:column;justify-content:center;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .counter{text-align:right;font-size:0.72rem;color:#888;margin-bottom:0.5rem;}
+    .card{background:linear-gradient(135deg,#0d1530 0%,#0a1020 100%);border:1px solid #1565C0;border-radius:16px;padding:2.5rem 3rem;min-height:420px;}
+    .tag{background:#1565C0;color:#fff;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:0.75rem;}
+    .tag-purple{background:#7E57C2;} .tag-green{background:#2E7D32;} .tag-teal{background:#00695C;} .tag-amber{background:#F57F17;} .tag-red{background:#C62828;}
+    h1{font-size:2.6rem;font-weight:900;color:#90CAF9;line-height:1.1;margin-bottom:0.5rem;}
+    h2{font-size:1.8rem;font-weight:800;color:#90CAF9;line-height:1.2;margin-bottom:0.75rem;}
+    p{font-size:1.05rem;color:#BBDEFB;line-height:1.6;}
+    ul{list-style:none;padding:0;margin-top:0.5rem;}
+    ul li{font-size:0.95rem;color:#BBDEFB;padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid #1565C0;background:rgba(21,101,192,0.12);border-radius:0 6px 6px 0;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;}
+    .col-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:1rem 1.2rem;}
+    .col-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#90CAF9;}
+    .highlight-box{background:rgba(21,101,192,0.2);border:1px solid #1565C0;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;}
+    .highlight-box p{font-size:0.95rem;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;}
+    .vocab-card{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:8px;padding:0.6rem 0.75rem;}
+    .vocab-card .term{font-weight:800;color:#42A5F5;font-size:0.9rem;}
+    .vocab-card .def{font-size:0.82rem;color:#BBDEFB;margin-top:0.2rem;}
+    .brain-break{text-align:center;padding:1rem 0;}
+    .brain-break .emoji{font-size:4rem;display:block;margin-bottom:0.5rem;}
+    .brain-break .prompt{font-size:1.3rem;font-weight:700;color:#42A5F5;}
+    .tally-row{display:flex;gap:1.5rem;align-items:center;margin-top:0.75rem;flex-wrap:wrap;}
+    .tally-group{background:rgba(21,101,192,0.15);border:1px solid #1565C0;border-radius:10px;padding:0.75rem 1.25rem;text-align:center;}
+    .tally-marks{font-size:1.8rem;font-weight:900;color:#42A5F5;letter-spacing:0.2rem;font-family:monospace;}
+    .tally-num{font-size:0.85rem;color:#90CAF9;margin-top:0.3rem;}
+    .tally-table{width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:0.75rem;}
+    .tally-table th{background:rgba(21,101,192,0.4);color:#90CAF9;padding:6px 10px;text-align:left;border:1px solid #1565C0;}
+    .tally-table td{border:1px solid #1565C0;padding:7px 10px;color:#BBDEFB;background:rgba(21,101,192,0.08);}
+    .tally-table tr:nth-child(even) td{background:rgba(21,101,192,0.15);}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 4 — Making a Tally Chart</span>
+  <span>Grade 2 Data Science · Ages 7–8</span>
+  <span class="nav-hint">← → or Space to navigate · F = fullscreen</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="slide-wrap">
+
+  <div class="slide active card" onclick="nextSlide()">
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="tag">Session 4 of 8</div>
+    <h1>Making a<br>Tally Chart</h1>
+    <p>We have our survey data. Now we organize it using tally marks — the fastest way to count!</p>
+    <div style="font-size:0.9rem;color:#90CAF9;opacity:0.8;margin-top:1rem;">📊 Data Science for Young Minds · Grade 2</div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">2 / 15</div>
+    <div class="tag">Today's Plan</div>
+    <h2>What We're Doing Today</h2>
+    <ul>
+      <li>🎯 Hook — which is faster to count?</li>
+      <li>📏 What are tally marks and how do we draw them?</li>
+      <li>⭐ Groups of 5 — the crossing mark!</li>
+      <li>🖊️ Build a class tally chart together on the board</li>
+      <li>📝 Build your own tally chart from your Session 3 data</li>
+      <li>🧠 Brain break — finger tally!</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">3 / 15</div>
+    <div class="tag tag-amber">Opening Hook</div>
+    <h2>Which Is Faster to Count?</h2>
+    <p>Your teacher has two sets of marks on the board. Try to count each one!</p>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p style="text-align:center;font-size:1.1rem;">Random check marks &nbsp;&nbsp; vs. &nbsp;&nbsp; Tally groups of 5</p>
+    </div>
+    <ul style="margin-top:0.75rem;">
+      <li>⏱ Which side did you count faster?</li>
+      <li>🤔 Why was one easier than the other?</li>
+      <li>💡 What's special about putting marks in groups?</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">4 / 15</div>
+    <div class="tag">Lesson</div>
+    <h2>What Is a Tally Mark?</h2>
+    <p>A <strong style="color:#42A5F5;">tally mark</strong> is a vertical line that stands for ONE thing we counted.</p>
+    <div class="tally-row">
+      <div class="tally-group"><div class="tally-marks">|</div><div class="tally-num">= 1</div></div>
+      <div class="tally-group"><div class="tally-marks">| |</div><div class="tally-num">= 2</div></div>
+      <div class="tally-group"><div class="tally-marks">| | |</div><div class="tally-num">= 3</div></div>
+      <div class="tally-group"><div class="tally-marks">| | | |</div><div class="tally-num">= 4</div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Each time someone gives an answer, we draw one tally mark. Simple!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">5 / 15</div>
+    <div class="tag">Lesson</div>
+    <h2>The Magic Fifth Mark!</h2>
+    <p>When we get to <strong style="color:#42A5F5;">5</strong>, we draw the fifth mark crossing through the group — like a fence!</p>
+    <div style="text-align:center;margin-top:1rem;">
+      <div style="font-size:3rem;font-weight:900;color:#42A5F5;font-family:monospace;letter-spacing:0.3rem;">𝄻 = 5</div>
+      <p style="font-size:0.9rem;color:#90CAF9;margin-top:0.5rem;">Four lines standing up, one line crossing through them</p>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Groups of 5 let us count quickly — 5, 10, 15, 20… instead of 1, 2, 3, 4, 5, 6, 7, 8…</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">6 / 15</div>
+    <div class="tag">Lesson</div>
+    <h2>Counting Tally Groups</h2>
+    <p>When we have tally marks, we count by <strong style="color:#42A5F5;">5s</strong> first, then add the extras.</p>
+    <div class="tally-row">
+      <div class="tally-group"><div class="tally-marks">𝄻 |</div><div class="tally-num">5 + 1 = <strong style="color:#42A5F5;">6</strong></div></div>
+      <div class="tally-group"><div class="tally-marks">𝄻 | | |</div><div class="tally-num">5 + 3 = <strong style="color:#42A5F5;">8</strong></div></div>
+      <div class="tally-group"><div class="tally-marks">𝄻 𝄻</div><div class="tally-num">5 + 5 = <strong style="color:#42A5F5;">10</strong></div></div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Tip: Count the complete groups first (×5), then count the leftover marks and add them on!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">7 / 15</div>
+    <div class="tag">Lesson</div>
+    <h2>What Is a Tally Chart?</h2>
+    <p>A <strong style="color:#42A5F5;">tally chart</strong> is a table with rows for each answer choice, a column for tally marks, and a column for the total.</p>
+    <table class="tally-table">
+      <thead><tr><th>Season</th><th>Tally Marks</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>☀️ Summer</td><td style="font-family:monospace;font-size:1.1rem;letter-spacing:0.15rem;">𝄻 | |</td><td>7</td></tr>
+        <tr><td>🍂 Fall</td><td style="font-family:monospace;font-size:1.1rem;letter-spacing:0.15rem;">| | |</td><td>3</td></tr>
+        <tr><td>❄️ Winter</td><td style="font-family:monospace;font-size:1.1rem;letter-spacing:0.15rem;">𝄻</td><td>5</td></tr>
+        <tr><td>🌸 Spring</td><td style="font-family:monospace;font-size:1.1rem;letter-spacing:0.15rem;">| | | |</td><td>4</td></tr>
+        <tr><td style="font-weight:700;">TOTAL</td><td></td><td style="font-weight:700;color:#42A5F5;">19</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">8 / 15</div>
+    <div class="tag tag-green">Class Practice</div>
+    <h2>Let's Build One Together!</h2>
+    <p>Your teacher is going to call out the class survey results from Session 3 — one answer at a time.</p>
+    <ul style="margin-top:0.5rem;">
+      <li>👀 Watch the board as each mark is added</li>
+      <li>✏️ Add the same mark on your own sheet</li>
+      <li>🔢 When we reach 5 — draw the crossing mark!</li>
+      <li>📊 Fill in the totals when all marks are done</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Count out loud together as each mark goes up: "One… two… three… four… FIVE — cross it!"</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">9 / 15</div>
+    <div class="tag tag-green">Your Turn!</div>
+    <h2>Build Your Own Tally Chart</h2>
+    <p>Use YOUR survey results from Session 3. Build a tally chart on your worksheet.</p>
+    <ul style="margin-top:0.5rem;">
+      <li>📋 Look at your recording sheet from Session 3</li>
+      <li>🖊️ Draw the tally chart table with 4 rows + total row</li>
+      <li>✏️ Add tally marks for each response you recorded</li>
+      <li>🔢 Count up and fill in the Total column</li>
+      <li>➕ Add up all totals for the grand total</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>⏱ You have <strong style="color:#42A5F5;">10 minutes</strong>. Use the tally mark anchor if you forget how to draw the groups!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">10 / 15</div>
+    <div class="brain-break">
+      <span class="emoji">🧠</span>
+      <div class="prompt">Brain Break — Finger Tally!</div>
+      <p style="font-size:1rem;color:#BBDEFB;margin-top:0.75rem;">Your teacher calls out a number.<br>Hold up your fingers to show that many tally marks!<br>Use one hand = 1 group of 5.</p>
+      <p style="margin-top:0.75rem;font-size:0.9rem;opacity:0.7;">Try: 3 … 7 … 5 … 12 … 9</p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:#42A5F5;">Count by 5s, then add the extras! 🖐️</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">11 / 15</div>
+    <div class="tag tag-teal">Debrief</div>
+    <h2>Reading Our Tally Charts</h2>
+    <p>Now that your chart is built, you can answer questions about your data!</p>
+    <ul style="margin-top:0.5rem;">
+      <li>⭐ Which season had the <strong>most</strong> tally marks?</li>
+      <li>📉 Which season had the <strong>fewest</strong> tally marks?</li>
+      <li>🟰 Did any two seasons have the <strong>same</strong> number?</li>
+      <li>➕ What is the <strong>total</strong> number of responses?</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Your tally chart turns scattered check marks into organized, readable data. Great work!</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">12 / 15</div>
+    <div class="tag">Big Idea</div>
+    <h2>Why Organize Data?</h2>
+    <div class="two-col">
+      <div class="col-box" style="border:1px solid #555;">
+        <h3 style="color:#aaa;">📄 Raw data (check marks)</h3>
+        <p style="font-size:0.85rem;color:#aaa;">Scattered marks that are hard to read quickly. You have to count every single one.</p>
+      </div>
+      <div class="col-box" style="border:1px solid #1565C0;">
+        <h3>📊 Tally chart (organized)</h3>
+        <p style="font-size:0.85rem;color:#BBDEFB;">Marks in groups of 5 with totals. You can see patterns at a glance!</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>Organizing data doesn't change what we found — it just makes it easier to understand and share.</p>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">13 / 15</div>
+    <div class="tag">Vocabulary</div>
+    <h2>Words to Know</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card"><div class="term">Tally mark</div><div class="def">A vertical line (|) used to count things one at a time</div></div>
+      <div class="vocab-card"><div class="term">Tally chart</div><div class="def">A table using tally marks to organize and count data</div></div>
+      <div class="vocab-card"><div class="term">Total</div><div class="def">The final count — add up all tally marks in a group</div></div>
+      <div class="vocab-card"><div class="term">Frequency</div><div class="def">How many times something appears in the data</div></div>
+    </div>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">14 / 15</div>
+    <div class="tag tag-teal">Worksheet Time</div>
+    <h2>Complete Your Worksheet</h2>
+    <ul style="margin-top:0.5rem;">
+      <li>📚 <strong>Part 1</strong> — Vocabulary in your own words</li>
+      <li>🖊️ <strong>Part 2</strong> — Build your tally chart from Session 3 data</li>
+      <li>🔢 <strong>Part 3</strong> — Answer: most, fewest, total</li>
+      <li>✏️ <strong>Part 4</strong> — Tally mark practice (convert numbers)</li>
+      <li>🏠 <strong>Take-home</strong> — Tally count something at home!</li>
+    </ul>
+  </div>
+
+  <div class="slide card" onclick="nextSlide()">
+    <div class="counter">15 / 15</div>
+    <div class="tag tag-green">Wrap Up</div>
+    <h2>Session 4 Complete! 🎉</h2>
+    <ul>
+      <li>✅ Tally marks count things one at a time</li>
+      <li>✅ We group them in 5s with a crossing mark</li>
+      <li>✅ Tally charts organize data in rows with totals</li>
+      <li>✅ Organized data is much easier to read and compare</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.75rem;">
+      <p>🔮 <strong style="color:#42A5F5;">Coming up — Session 5:</strong> We take our tally chart and turn it into a bar graph — a picture of our data!</p>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (cur+1)+' / '+total;
+  }
+  function nextSlide(){show(cur+1);}
+  function prevSlide(){show(cur-1);}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.();}
+  });
+  document.getElementById('progress').style.width=(1/total*100)+'%';
+</script>
+</body>
+</html>

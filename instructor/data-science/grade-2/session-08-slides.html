@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 8 Slides | Grade 2 Data Science</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;color:white;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    .controls{display:flex;align-items:center;gap:0.75rem;padding:0.5rem 1rem;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;}
+    .controls .title{font-size:0.8rem;opacity:0.7;flex:1;}
+    .btn{background:rgba(255,255,255,0.15);border:none;color:white;padding:0.3rem 0.9rem;border-radius:6px;cursor:pointer;font-size:0.85rem;}
+    .btn:hover{background:rgba(255,255,255,0.25);}
+    .slide-counter{font-size:0.8rem;opacity:0.7;min-width:60px;text-align:center;}
+    .progress-bar{height:4px;background:rgba(255,255,255,0.1);flex-shrink:0;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#42A5F5,#7E57C2);transition:width 0.3s;}
+    .slide-wrap{flex:1;overflow:hidden;position:relative;cursor:pointer;}
+    .slide{position:absolute;inset:0;padding:2.5rem 3rem;display:none;flex-direction:column;justify-content:center;}
+    .slide.active{display:flex;}
+    .slide-header{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;opacity:0.5;margin-bottom:0.75rem;}
+    h2{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:1rem;}
+    h3{font-size:1.3rem;font-weight:700;margin-bottom:0.75rem;}
+    .tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:1rem;}
+    .tag-blue{background:rgba(66,165,245,0.25);color:#90CAF9;border:1px solid rgba(66,165,245,0.4);}
+    .tag-purple{background:rgba(126,87,194,0.25);color:#CE93D8;border:1px solid rgba(126,87,194,0.4);}
+    .tag-green{background:rgba(76,175,80,0.25);color:#A5D6A7;border:1px solid rgba(76,175,80,0.4);}
+    .tag-orange{background:rgba(255,152,0,0.25);color:#FFCC80;border:1px solid rgba(255,152,0,0.4);}
+    .tag-gold{background:rgba(249,168,37,0.3);color:#FFE082;border:1px solid rgba(249,168,37,0.5);}
+    .card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:1rem 1.25rem;}
+    .card-blue{background:rgba(66,165,245,0.12);border-color:rgba(66,165,245,0.3);}
+    .card-purple{background:rgba(126,87,194,0.12);border-color:rgba(126,87,194,0.3);}
+    .card-green{background:rgba(76,175,80,0.12);border-color:rgba(76,175,80,0.3);}
+    .card-orange{background:rgba(255,152,0,0.12);border-color:rgba(255,152,0,0.3);}
+    .card-gold{background:rgba(249,168,37,0.12);border-color:rgba(249,168,37,0.3);}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;}
+    .step-list{list-style:none;padding:0;}
+    .step-list li{display:flex;gap:0.75rem;align-items:flex-start;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .step-list li:last-child{border-bottom:none;}
+    .step-num{background:linear-gradient(135deg,#1565C0,#7E57C2);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;flex-shrink:0;}
+    .vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+    .vocab-item{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0.6rem 0.9rem;}
+    .vocab-term{color:#90CAF9;font-weight:800;font-size:0.9rem;margin-bottom:0.2rem;}
+    .vocab-def{font-size:0.82rem;opacity:0.85;}
+    .sentence-frame{background:rgba(249,168,37,0.12);border:1px solid rgba(249,168,37,0.4);border-radius:8px;padding:0.55rem 0.9rem;font-style:italic;color:#FFCC80;font-size:0.95rem;margin-bottom:0.45rem;}
+    .q-item{background:rgba(255,255,255,0.06);border-left:3px solid #42A5F5;padding:0.4rem 0.75rem;margin-bottom:0.4rem;border-radius:0 6px 6px 0;font-size:0.9rem;}
+    .bar-demo{display:flex;align-items:flex-end;gap:10px;height:100px;border-left:2px solid rgba(66,165,245,0.5);border-bottom:2px solid rgba(66,165,245,0.5);padding:0 8px 0 6px;}
+    .b{border-radius:3px 3px 0 0;min-width:36px;display:flex;flex-direction:column;align-items:center;}
+    .b-label{font-size:0.6rem;font-weight:700;color:#90CAF9;text-align:center;margin-top:4px;}
+    .callout{background:rgba(249,168,37,0.15);border:2px solid rgba(249,168,37,0.4);border-radius:12px;padding:1rem 1.25rem;text-align:center;}
+    .big-emoji{font-size:3.5rem;line-height:1;margin-bottom:0.5rem;}
+    .cheer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;text-align:center;}
+    .cheer-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:0.75rem;}
+    .teacher-says{background:rgba(21,101,192,0.2);border:1px solid rgba(66,165,245,0.4);border-radius:8px;padding:0.5rem 0.9rem;margin-bottom:0.4rem;font-size:0.95rem;}
+    .class-says{background:rgba(126,87,194,0.2);border:1px solid rgba(126,87,194,0.4);border-radius:8px;padding:0.4rem 0.9rem;font-size:0.9rem;color:#CE93D8;font-weight:700;}
+  </style>
+</head>
+<body>
+<div class="controls">
+  <span class="title">Session 8 — Our Class Data Book · Grade 2 Data Science</span>
+  <button class="btn" onclick="changeSlide(-1)">◀ Prev</button>
+  <span class="slide-counter" id="counter">1 / 15</span>
+  <button class="btn" onclick="changeSlide(1)">Next ▶</button>
+  <button class="btn" onclick="toggleFS()">⛶ Full</button>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:6.67%"></div></div>
+<div class="slide-wrap" onclick="changeSlide(1)">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active">
+    <div class="slide-header">Session 8 of 8 — Capstone</div>
+    <div class="tag tag-gold">Data Science for Young Minds · Grade 2</div>
+    <h2>Our Class Data Book</h2>
+    <p style="font-size:1.15rem;opacity:0.8;max-width:620px;">Today we turn your tally chart into a bar graph, write one big conclusion, and put it all together in a Class Data Book that belongs to everyone.</p>
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <span class="tag tag-blue">~50 min</span>
+      <span class="tag tag-purple">Ages 7–8</span>
+      <span class="tag tag-green">Bar Graph + Writing</span>
+      <span class="tag tag-gold">Capstone Celebration</span>
+    </div>
+  </div>
+
+  <!-- Slide 2: Agenda -->
+  <div class="slide">
+    <div class="slide-header">What We'll Do Today</div>
+    <h2>Today's Plan</h2>
+    <div class="grid-2">
+      <div>
+        <div class="card card-blue" style="margin-bottom:0.6rem;">
+          <div style="font-size:0.75rem;opacity:0.7;margin-bottom:4px;">0–12 min</div>
+          <div style="font-weight:700;">Hook + Review</div>
+          <div style="font-size:0.85rem;opacity:0.8;">Tally chart → bar graph connection</div>
+        </div>
+        <div class="card card-purple" style="margin-bottom:0.6rem;">
+          <div style="font-size:0.75rem;opacity:0.7;margin-bottom:4px;">12–38 min</div>
+          <div style="font-weight:700;">Draw Bar Graph + Write Conclusion</div>
+          <div style="font-size:0.85rem;opacity:0.8;">Use your Session 7 tally chart</div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-green" style="margin-bottom:0.6rem;">
+          <div style="font-size:0.75rem;opacity:0.7;margin-bottom:4px;">38–44 min</div>
+          <div style="font-weight:700;">Cover Page + Data Book</div>
+          <div style="font-size:0.85rem;opacity:0.8;">Design your page, assemble together</div>
+        </div>
+        <div class="card card-gold">
+          <div style="font-size:0.75rem;opacity:0.7;margin-bottom:4px;">44–50 min</div>
+          <div style="font-weight:700;">Brain Break + Celebration</div>
+          <div style="font-size:0.85rem;opacity:0.8;">Data dance + "We Are Data Scientists!"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Hook -->
+  <div class="slide">
+    <div class="slide-header">Hook (0–5 min)</div>
+    <h2>Look What We Can Do!</h2>
+    <p style="opacity:0.8;margin-bottom:1rem;">We started the year not knowing what data was. Look how far we've come:</p>
+    <div class="grid-3">
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">🔍</div>
+        <div style="font-weight:700;font-size:0.9rem;">We found data</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Session 1</div>
+      </div>
+      <div class="card card-purple" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">❓</div>
+        <div style="font-weight:700;font-size:0.9rem;">We asked questions</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Sessions 2–3</div>
+      </div>
+      <div class="card card-green" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">📋</div>
+        <div style="font-weight:700;font-size:0.9rem;">We made tally charts</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Sessions 4–5</div>
+      </div>
+      <div class="card card-orange" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">📊</div>
+        <div style="font-weight:700;font-size:0.9rem;">We read bar graphs</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Session 6</div>
+      </div>
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">🎤</div>
+        <div style="font-weight:700;font-size:0.9rem;">We ran our own survey</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Session 7</div>
+      </div>
+      <div class="card card-gold" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">📖</div>
+        <div style="font-weight:700;font-size:0.9rem;">We make the Data Book</div>
+        <div style="font-size:0.8rem;opacity:0.75;">Session 8 — TODAY!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Tally to Bar Graph -->
+  <div class="slide">
+    <div class="slide-header">Review (5–12 min)</div>
+    <h2>Tally Chart → Bar Graph</h2>
+    <p style="opacity:0.8;margin-bottom:1rem;">Every number in your tally chart becomes a bar. Let's see how:</p>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <div style="font-weight:700;color:#CE93D8;margin-bottom:0.5rem;">Tally Chart (Session 7)</div>
+        <div style="font-size:0.9rem;font-family:monospace;">
+          <div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.1);">Soccer &nbsp;&nbsp; |||| &nbsp; 4</div>
+          <div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.1);">Basketball &nbsp; ||| &nbsp; 3</div>
+          <div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.1);">Swimming &nbsp; | &nbsp; 1</div>
+        </div>
+      </div>
+      <div class="card card-blue">
+        <div style="font-weight:700;color:#90CAF9;margin-bottom:0.5rem;">Bar Graph (today)</div>
+        <div class="bar-demo">
+          <div class="b"><div style="background:#C62828;width:36px;height:88px;border-radius:3px 3px 0 0;"></div><div class="b-label">Soccer<br>4</div></div>
+          <div class="b"><div style="background:#1565C0;width:36px;height:66px;border-radius:3px 3px 0 0;"></div><div class="b-label">Basket<br>3</div></div>
+          <div class="b"><div style="background:#7E57C2;width:36px;height:22px;border-radius:3px 3px 0 0;"></div><div class="b-label">Swim<br>1</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="q-item" style="margin-top:0.75rem;">Each total number = the height of that bar. That's it!</div>
+  </div>
+
+  <!-- Slide 5: Step by Step -->
+  <div class="slide">
+    <div class="slide-header">Drawing Your Bar Graph (12–30 min)</div>
+    <h2>8 Steps to Your Bar Graph</h2>
+    <div class="grid-2">
+      <div>
+        <ul class="step-list">
+          <li><span class="step-num">1</span><span>Look at your Session 7 tally chart totals</span></li>
+          <li><span class="step-num">2</span><span>Draw a y-axis (up) and x-axis (across)</span></li>
+          <li><span class="step-num">3</span><span>Label y-axis: 0, 1, 2, 3, 4, 5, 6, 7, 8</span></li>
+          <li><span class="step-num">4</span><span>Write your answer choices along the bottom</span></li>
+        </ul>
+      </div>
+      <div>
+        <ul class="step-list">
+          <li><span class="step-num">5</span><span>Draw a bar for each answer — count up the squares</span></li>
+          <li><span class="step-num">6</span><span>Color each bar a different color</span></li>
+          <li><span class="step-num">7</span><span>Write your question as the graph title</span></li>
+          <li><span class="step-num">8</span><span>Check: bar height matches tally chart total?</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card card-green" style="margin-top:0.75rem;font-size:0.9rem;">
+      The worksheet grid is already drawn — just add your bars, labels, and title!
+    </div>
+  </div>
+
+  <!-- Slide 6: Drawing Tips -->
+  <div class="slide">
+    <div class="slide-header">Bar Graph Tips</div>
+    <h2>Helpful Tips While You Draw</h2>
+    <div class="step-list">
+      <li><span class="step-num">💡</span><span>Use a ruler to draw straight bars — straight bars are easier to read</span></li>
+      <li><span class="step-num">💡</span><span>Count the squares carefully — touch each square as you count up</span></li>
+      <li><span class="step-num">💡</span><span>All bars should sit on the x-axis — like buildings on the ground</span></li>
+      <li><span class="step-num">💡</span><span>The title tells the reader what the graph is about</span></li>
+      <li><span class="step-num">💡</span><span>Imperfect bars are fine — what matters is the right height</span></li>
+    </div>
+    <div class="card card-orange" style="margin-top:0.75rem;font-size:0.9rem;">
+      Ask your teacher if you're not sure about any step — we're here to help!
+    </div>
+  </div>
+
+  <!-- Slide 7: Write Your Conclusion -->
+  <div class="slide">
+    <div class="slide-header">Write Your Conclusion (30–38 min)</div>
+    <h2>What Did You Find Out?</h2>
+    <p style="opacity:0.8;margin-bottom:1rem;">Pick ONE sentence frame and complete it about your data:</p>
+    <div class="sentence-frame">"My question was ___ and I found out that ___."</div>
+    <div class="sentence-frame">"The most popular answer was ___ with ___ votes."</div>
+    <div class="sentence-frame">"I was surprised that ___ because ___."</div>
+    <div class="sentence-frame">"Next time I would ask ___."</div>
+    <div class="card card-blue" style="margin-top:0.75rem;font-size:0.9rem;">
+      Write your sentence on Part 3 of the worksheet. You can also draw a picture to show what you found out!
+    </div>
+  </div>
+
+  <!-- Slide 8: Cover Page -->
+  <div class="slide">
+    <div class="slide-header">Cover Page (38–44 min)</div>
+    <h2>Design Your Cover Page</h2>
+    <p style="opacity:0.8;margin-bottom:1rem;">Your cover page is the front of your page in the Class Data Book. Make it yours!</p>
+    <div class="grid-3">
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">✍️</div>
+        <div style="font-weight:700;font-size:0.9rem;">Write your name</div>
+      </div>
+      <div class="card card-purple" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">🎨</div>
+        <div style="font-weight:700;font-size:0.9rem;">Draw your favorite data finding</div>
+      </div>
+      <div class="card card-green" style="text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem;">⭐</div>
+        <div style="font-weight:700;font-size:0.9rem;">Add "I am a Data Scientist!"</div>
+      </div>
+    </div>
+    <div class="card card-orange" style="margin-top:0.75rem;font-size:0.9rem;">
+      Your cover page + bar graph + conclusion all go into the Class Data Book together.
+    </div>
+  </div>
+
+  <!-- Slide 9: Brain Break -->
+  <div class="slide">
+    <div class="slide-header">Brain Break (44–47 min)</div>
+    <h2>Data Dance! 🕺</h2>
+    <p style="font-size:1.05rem;opacity:0.8;margin-bottom:1.25rem;">When the teacher calls a data word, do the move!</p>
+    <div class="grid-2">
+      <div>
+        <div class="q-item">"TALLY!" → slash arm like a tally mark</div>
+        <div class="q-item">"BAR GRAPH!" → stretch arms up tall like a bar</div>
+        <div class="q-item">"SURVEY!" → pretend to ask your neighbor a question</div>
+      </div>
+      <div>
+        <div class="q-item">"DATA!" → tap your head (thinking!)</div>
+        <div class="q-item">"MOST!" → jump up as high as you can</div>
+        <div class="q-item">"LEAST!" → crouch down as low as you can</div>
+      </div>
+    </div>
+    <p style="margin-top:1rem;opacity:0.7;font-size:0.9rem;">Go fast! Teacher calls words quickly — stay sharp!</p>
+  </div>
+
+  <!-- Slide 10: Assemble the Book -->
+  <div class="slide">
+    <div class="slide-header">Class Data Book Assembly</div>
+    <h2>Putting It All Together</h2>
+    <div class="step-list">
+      <li><span class="step-num">1</span><span>Everyone brings their worksheet pages to the front</span></li>
+      <li><span class="step-num">2</span><span>Teacher calls each student's name — add your page to the book</span></li>
+      <li><span class="step-num">3</span><span>Add the cover page on top</span></li>
+      <li><span class="step-num">4</span><span>Bind together — now it's a real book!</span></li>
+      <li><span class="step-num">5</span><span>We read two pages together as a class</span></li>
+    </div>
+    <div class="callout" style="margin-top:0.75rem;">
+      <div style="font-size:1rem;font-weight:700;color:#FFE082;">Every page goes in. Every person belongs. 📖</div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Read the Book -->
+  <div class="slide">
+    <div class="slide-header">Reading Our Book Together</div>
+    <h2>Let's Read Two Pages!</h2>
+    <p style="opacity:0.8;margin-bottom:1rem;">The teacher picks two pages to read aloud together. For each page:</p>
+    <div class="step-list">
+      <li><span class="step-num">❓</span><span>"What was their question?"</span></li>
+      <li><span class="step-num">📊</span><span>"Which bar is tallest? Which is shortest?"</span></li>
+      <li><span class="step-num">💬</span><span>"What did they find out?"</span></li>
+    </div>
+    <div class="card card-blue" style="margin-top:1rem;font-size:0.9rem;">
+      After session, keep the book somewhere the class can browse it — library shelf, classroom display, or reading corner.
+    </div>
+  </div>
+
+  <!-- Slide 12: Full Vocab Review -->
+  <div class="slide">
+    <div class="slide-header">Vocabulary — All 8 Sessions</div>
+    <h2>Words We Know Now</h2>
+    <div class="vocab-grid">
+      <div class="vocab-item"><div class="vocab-term">Data</div><div class="vocab-def">Information we collect and count</div></div>
+      <div class="vocab-item"><div class="vocab-term">Survey</div><div class="vocab-def">Asking many people the same question</div></div>
+      <div class="vocab-item"><div class="vocab-term">Tally</div><div class="vocab-def">Marks to count quickly in groups of 5</div></div>
+      <div class="vocab-item"><div class="vocab-term">Bar Graph</div><div class="vocab-def">A picture that shows data with bars</div></div>
+      <div class="vocab-item"><div class="vocab-term">Most / Least</div><div class="vocab-def">The highest and lowest values in a graph</div></div>
+      <div class="vocab-item"><div class="vocab-term">Compare</div><div class="vocab-def">Look at two things side by side</div></div>
+      <div class="vocab-item"><div class="vocab-term">Sample</div><div class="vocab-def">The group we asked — not everyone</div></div>
+      <div class="vocab-item"><div class="vocab-term">Results</div><div class="vocab-def">What we found out from our data</div></div>
+    </div>
+  </div>
+
+  <!-- Slide 13: Celebration -->
+  <div class="slide">
+    <div class="slide-header">Celebration</div>
+    <h2 style="text-align:center;">You Did It! 🎉</h2>
+    <div class="cheer-grid" style="margin-bottom:1rem;">
+      <div class="cheer-card"><div style="font-size:2rem;">❓</div><div style="font-weight:700;margin-top:0.3rem;">Asked Questions</div></div>
+      <div class="cheer-card"><div style="font-size:2rem;">📊</div><div style="font-weight:700;margin-top:0.3rem;">Collected Data</div></div>
+      <div class="cheer-card"><div style="font-size:2rem;">📋</div><div style="font-weight:700;margin-top:0.3rem;">Made Tally Charts</div></div>
+      <div class="cheer-card"><div style="font-size:2rem;">📈</div><div style="font-weight:700;margin-top:0.3rem;">Drew Bar Graphs</div></div>
+      <div class="cheer-card"><div style="font-size:2rem;">💬</div><div style="font-weight:700;margin-top:0.3rem;">Wrote Conclusions</div></div>
+      <div class="cheer-card"><div style="font-size:2rem;">📖</div><div style="font-weight:700;margin-top:0.3rem;">Made a Data Book</div></div>
+    </div>
+    <div class="callout">
+      <div style="font-size:1.2rem;font-weight:800;color:#FFE082;">That's what data scientists do — and YOU did all of it!</div>
+    </div>
+  </div>
+
+  <!-- Slide 14: Call and Response -->
+  <div class="slide">
+    <div class="slide-header">Closing Ritual</div>
+    <h2>Class Call-and-Response</h2>
+    <div style="max-width:600px;">
+      <div style="margin-bottom:0.75rem;">
+        <div class="teacher-says">Teacher: <strong>"We asked a question..."</strong></div>
+        <div class="class-says">Class: "We're curious!"</div>
+      </div>
+      <div style="margin-bottom:0.75rem;">
+        <div class="teacher-says">Teacher: <strong>"We collected data..."</strong></div>
+        <div class="class-says">Class: "We're scientists!"</div>
+      </div>
+      <div style="margin-bottom:0.75rem;">
+        <div class="teacher-says">Teacher: <strong>"We made a graph..."</strong></div>
+        <div class="class-says">Class: "We showed the world!"</div>
+      </div>
+      <div>
+        <div class="teacher-says">Teacher: <strong>"We are..."</strong></div>
+        <div class="class-says" style="font-size:1.2rem;padding:0.6rem 0.9rem;">Class: "DATA SCIENTISTS!!!" 🔬</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 15: Wrap Up -->
+  <div class="slide">
+    <div class="slide-header">The End</div>
+    <div class="big-emoji" style="text-align:center;">🔬</div>
+    <h2 style="text-align:center;font-size:2.5rem;">We Are Data Scientists!</h2>
+    <p style="text-align:center;font-size:1.1rem;opacity:0.8;margin-bottom:1.5rem;">Grade 2 · Data Science for Young Minds · All 8 Sessions Complete</p>
+    <div class="grid-3" style="max-width:700px;margin:0 auto;">
+      <div class="card card-blue" style="text-align:center;font-size:0.9rem;">Keep our Class Data Book in the classroom — read it anytime!</div>
+      <div class="card card-purple" style="text-align:center;font-size:0.9rem;">Share your findings with your family tonight!</div>
+      <div class="card card-green" style="text-align:center;font-size:0.9rem;">Look for data in the world around you — it's everywhere!</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  let cur=0,total=15;
+  const slides=document.querySelectorAll('.slide');
+  function show(n){slides[cur].classList.remove('active');cur=(n+total)%total;slides[cur].classList.add('active');document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prog').style.width=((cur+1)/total*100)+'%';}
+  function changeSlide(d){show(cur+d);}
+  function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')changeSlide(1);else if(e.key==='ArrowLeft')changeSlide(-1);else if(e.key==='f'||e.key==='F')toggleFS();});
+</script>
+</body>
+</html>

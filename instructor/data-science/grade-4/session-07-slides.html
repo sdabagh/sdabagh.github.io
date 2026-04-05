@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session 7 Slides — Comparing Two Groups · Grade 4 Data Science</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0e1a;color:#e8eaf6;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0}
+.progress-bar{width:100%;height:5px;background:#1a2040;position:fixed;top:0;left:0;z-index:100}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#42A5F5,#7E57C2);transition:width .4s ease;border-radius:0 3px 3px 0}
+.slide-counter{position:fixed;top:12px;right:18px;font-size:.72rem;color:#546e7a;z-index:101;background:rgba(10,14,26,.7);padding:3px 8px;border-radius:10px}
+.nav-hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);font-size:.68rem;color:#37474f;z-index:101}
+.slide{display:none;width:100%;max-width:860px;min-height:520px;margin:28px auto 20px;padding:36px 44px;background:linear-gradient(145deg,#0d1530,#0a1020);border-radius:16px;border:1px solid #1a2a50;box-shadow:0 8px 40px rgba(0,0,0,.6);cursor:pointer;position:relative}
+.slide.active{display:flex;flex-direction:column;justify-content:flex-start}
+.slide-num{position:absolute;top:14px;right:18px;font-size:.68rem;color:#37474f}
+h1.slide-title{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#42A5F5,#7E57C2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;line-height:1.2}
+h2.slide-heading{font-size:1.35rem;font-weight:700;color:#42A5F5;margin-bottom:16px;line-height:1.3}
+.tag{display:inline-block;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;margin-bottom:14px}
+.tag-purple{background:rgba(126,87,194,.25);color:#ce93d8;border:1px solid rgba(126,87,194,.4)}
+.tag-green{background:rgba(46,125,50,.25);color:#a5d6a7;border:1px solid rgba(46,125,50,.4)}
+.tag-teal{background:rgba(0,105,92,.25);color:#80cbc4;border:1px solid rgba(0,105,92,.4)}
+.tag-amber{background:rgba(230,81,0,.25);color:#ffcc02;border:1px solid rgba(230,81,0,.4)}
+.tag-red{background:rgba(198,40,40,.25);color:#ef9a9a;border:1px solid rgba(198,40,40,.4)}
+.tag-blue{background:rgba(21,101,192,.25);color:#90caf9;border:1px solid rgba(21,101,192,.4)}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.card p{font-size:.9rem;line-height:1.6;color:#b0bec5}
+.card h3{font-size:.95rem;font-weight:700;color:#42A5F5;margin-bottom:6px}
+.highlight-box{background:linear-gradient(135deg,rgba(21,101,192,.2),rgba(66,165,245,.15));border:1.5px solid rgba(66,165,245,.4);border-radius:10px;padding:16px 18px;margin:12px 0}
+.highlight-box p{font-size:.9rem;line-height:1.6;color:#e8eaf6}
+.highlight-box h3{font-size:1rem;font-weight:700;color:#42A5F5;margin-bottom:8px}
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.vocab-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:12px 14px}
+.vocab-card .term{font-size:.85rem;font-weight:700;color:#42A5F5;margin-bottom:4px}
+.vocab-card .def{font-size:.8rem;color:#b0bec5;line-height:1.4}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+.col-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 16px}
+.col-box h3{font-size:.9rem;font-weight:700;margin-bottom:8px}
+.col-box ul{padding-left:16px}
+.col-box li{font-size:.83rem;color:#b0bec5;margin-bottom:5px;line-height:1.4}
+.brain-break{background:linear-gradient(135deg,rgba(126,87,194,.25),rgba(66,165,245,.15));border:1.5px solid rgba(126,87,194,.4);border-radius:12px;padding:18px 20px;margin:10px 0;text-align:center}
+.brain-break h3{font-size:1.1rem;font-weight:700;color:#ce93d8;margin-bottom:8px}
+.brain-break p{font-size:.88rem;color:#b0bec5;line-height:1.6}
+.big-number{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,#42A5F5,#7E57C2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:10px 0}
+.step-row{display:flex;gap:10px;margin:10px 0;flex-wrap:wrap}
+.step-box{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 12px;text-align:center}
+.step-box .sn{font-size:1.4rem;font-weight:900;color:#42A5F5;line-height:1}
+.step-box .sl{font-size:.75rem;color:#90caf9;margin-top:4px}
+table.slide-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+table.slide-table th{background:rgba(21,101,192,.4);color:#90caf9;padding:8px 10px;text-align:center;font-weight:700;border:1px solid rgba(255,255,255,.1)}
+table.slide-table td{padding:8px 10px;border:1px solid rgba(255,255,255,.08);text-align:center;color:#b0bec5}
+table.slide-table tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+/* Bar chart visual */
+.bar-chart-wrap{display:flex;align-items:flex-end;gap:20px;margin:16px auto;justify-content:center;height:150px}
+.bar-group{display:flex;gap:4px;align-items:flex-end;flex-direction:column;align-items:center}
+.bar-group .bl{font-size:.65rem;color:#78909c;margin-top:4px;text-align:center}
+.b-a{background:#1565C0;border-radius:3px 3px 0 0;width:28px;min-height:4px}
+.b-b{background:#42A5F5;border-radius:3px 3px 0 0;width:28px;min-height:4px}
+.bar-pair{display:flex;gap:3px;align-items:flex-end}
+.legend-row{display:flex;gap:16px;justify-content:center;margin:6px 0;font-size:.75rem;color:#90caf9}
+.legend-dot{width:12px;height:12px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+.sentence-frame{background:rgba(255,204,2,.08);border-left:3px solid #ffcc02;border-radius:0 8px 8px 0;padding:8px 12px;margin:6px 0;font-size:.85rem;font-style:italic;color:#fff8e1}
+@media print{
+  body{background:#fff;color:#1a1a2e}
+  .slide{display:flex!important;break-inside:avoid;min-height:auto;margin:0 0 20px;border:1px solid #ccc;box-shadow:none;background:#fff;color:#1a1a2e;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .progress-bar,.slide-counter,.nav-hint{display:none}
+  h1.slide-title{-webkit-text-fill-color:#1565C0;background:none;color:#1565C0}
+  h2.slide-heading{color:#1565C0}
+  .card p,.col-box li,.vocab-card .def,.brain-break p{color:#333}
+  .highlight-box p{color:#1a1a2e}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar"><div class="progress-fill" id="pbar" style="width:6.67%"></div></div>
+<div class="slide-counter" id="sctr">1 / 15</div>
+
+<!-- Slide 1: Title -->
+<div class="slide active" onclick="nextSlide()">
+  <div class="slide-num">1/15</div>
+  <span class="tag tag-purple">Session 7</span>
+  <h1 class="slide-title">Comparing Two Groups</h1>
+  <p style="color:#78909c;font-size:.88rem;margin-bottom:20px">Grade 4 Data Science</p>
+  <div class="highlight-box">
+    <h3>Today's Big Question</h3>
+    <p>When two different groups answer the same question, how can we show the comparison clearly — and what can we learn from the difference?</p>
+  </div>
+  <div class="step-row" style="margin-top:16px">
+    <div class="step-box"><div class="sn">📊</div><div class="sl">Double Bar Charts</div></div>
+    <div class="step-box"><div class="sn">🔵🩵</div><div class="sl">Two Groups</div></div>
+    <div class="step-box"><div class="sn">✍️</div><div class="sl">Comparison Writing</div></div>
+    <div class="step-box"><div class="sn">🔍</div><div class="sl">Find the Story</div></div>
+  </div>
+</div>
+
+<!-- Slide 2: Hook -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">2/15</div>
+  <span class="tag tag-blue">Hook</span>
+  <h2 class="slide-heading">Two Classrooms, One Question</h2>
+  <div class="highlight-box">
+    <h3>The Setup</h3>
+    <p>Two fourth-grade classes were asked: <b>"What is your favorite pet?"</b><br><br>
+    Class A has 28 students. Class B has 34 students.<br>
+    Both classes got to pick from: Dog · Cat · Fish · Bird · Other</p>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div class="col-box">
+      <h3 style="color:#90caf9">🔵 Class A Results</h3>
+      <ul>
+        <li>Dog: 12 &nbsp; Cat: 7 &nbsp; Fish: 4</li>
+        <li>Bird: 3 &nbsp; Other: 2</li>
+        <li>Total: 28 students</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3 style="color:#80cbc4">🩵 Class B Results</h3>
+      <ul>
+        <li>Dog: 8 &nbsp; Cat: 11 &nbsp; Fish: 6</li>
+        <li>Bird: 5 &nbsp; Other: 4</li>
+        <li>Total: 34 students</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size:.82rem;color:#78909c;margin-top:10px">→ Turn and talk: If we put these results into a single chart, what would it look like?</p>
+</div>
+
+<!-- Slide 3: What is a double bar chart? -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">3/15</div>
+  <span class="tag tag-teal">Concept</span>
+  <h2 class="slide-heading">What is a Double Bar Chart?</h2>
+  <div class="highlight-box">
+    <h3>Definition</h3>
+    <p>A <b>double bar chart</b> shows the same categories for <b>two different groups</b> side by side. Each category has two bars — one per group. A <b>legend</b> tells you which color belongs to which group.</p>
+  </div>
+  <div class="vocab-grid">
+    <div class="vocab-card">
+      <div class="term">Category</div>
+      <div class="def">The item being compared — here, each type of pet</div>
+    </div>
+    <div class="vocab-card">
+      <div class="term">Legend</div>
+      <div class="def">A key that shows what each color or pattern means</div>
+    </div>
+    <div class="vocab-card">
+      <div class="term">Double Bar</div>
+      <div class="def">Two bars placed side by side for the same category</div>
+    </div>
+    <div class="vocab-card">
+      <div class="term">Comparison</div>
+      <div class="def">Finding how two values are alike or different</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Chart Anatomy -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">4/15</div>
+  <span class="tag tag-blue">Chart Anatomy</span>
+  <h2 class="slide-heading">Building a Double Bar Chart</h2>
+  <div class="step-row">
+    <div class="step-box"><div class="sn">1</div><div class="sl">Label X-axis with categories</div></div>
+    <div class="step-box"><div class="sn">2</div><div class="sl">Label Y-axis with counts (start at 0)</div></div>
+    <div class="step-box"><div class="sn">3</div><div class="sl">Draw two bars per category</div></div>
+    <div class="step-box"><div class="sn">4</div><div class="sl">Color code + add legend</div></div>
+    <div class="step-box"><div class="sn">5</div><div class="sl">Add title</div></div>
+  </div>
+  <div class="highlight-box" style="margin-top:10px">
+    <h3>Key Rules</h3>
+    <p>• The two bars for the same category must be <b>right next to each other</b><br>
+    • Leave a gap <b>between different categories</b><br>
+    • <b>Always start Y-axis at zero</b> — starting higher makes differences look bigger than they are<br>
+    • The legend must match the exact colors you used</p>
+  </div>
+  <div class="legend-row">
+    <span><span class="legend-dot" style="background:#1565C0"></span>Class A (dark blue)</span>
+    <span><span class="legend-dot" style="background:#42A5F5"></span>Class B (light blue)</span>
+  </div>
+</div>
+
+<!-- Slide 5: Demo bar chart -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">5/15</div>
+  <span class="tag tag-teal">Demo</span>
+  <h2 class="slide-heading">Pet Preferences — Double Bar Chart</h2>
+  <!-- SVG bar chart demo -->
+  <svg width="720" height="200" viewBox="0 0 720 200" style="display:block;margin:0 auto">
+    <!-- Y grid lines -->
+    <line x1="60" y1="20" x2="700" y2="20" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="60" y1="47" x2="700" y2="47" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="60" y1="74" x2="700" y2="74" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="60" y1="101" x2="700" y2="101" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="60" y1="128" x2="700" y2="128" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="60" y1="155" x2="700" y2="155" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <!-- Y labels -->
+    <g font-family="Arial" font-size="10" fill="#546e7a" text-anchor="end">
+      <text x="54" y="158">0</text>
+      <text x="54" y="131">2</text>
+      <text x="54" y="104">4</text>
+      <text x="54" y="77">6</text>
+      <text x="54" y="50">8</text>
+      <text x="54" y="23">10</text>
+    </g>
+    <!-- Bars: y base=155, each unit=13.5px -->
+    <!-- Dog: A=12 (162px), B=8 (108px) -->
+    <rect x="90" y="23" width="32" height="132" fill="#1565C0" rx="3"/>
+    <rect x="126" y="47" width="32" height="108" fill="#42A5F5" rx="3"/>
+    <!-- Cat: A=7 (94.5px), B=11 (148.5px) -->
+    <rect x="210" y="61" width="32" height="94" fill="#1565C0" rx="3"/>
+    <rect x="246" y="6" width="32" height="149" fill="#42A5F5" rx="3"/>
+    <!-- Fish: A=4 (54px), B=6 (81px) -->
+    <rect x="330" y="101" width="32" height="54" fill="#1565C0" rx="3"/>
+    <rect x="366" y="74" width="32" height="81" fill="#42A5F5" rx="3"/>
+    <!-- Bird: A=3 (40.5px), B=5 (67.5px) -->
+    <rect x="450" y="115" width="32" height="40" fill="#1565C0" rx="3"/>
+    <rect x="486" y="88" width="32" height="67" fill="#42A5F5" rx="3"/>
+    <!-- Other: A=2 (27px), B=4 (54px) -->
+    <rect x="570" y="128" width="32" height="27" fill="#1565C0" rx="3"/>
+    <rect x="606" y="101" width="32" height="54" fill="#42A5F5" rx="3"/>
+    <!-- X labels -->
+    <g font-family="Arial" font-size="11" fill="#78909c" text-anchor="middle">
+      <text x="108" y="175">Dog</text>
+      <text x="228" y="175">Cat</text>
+      <text x="348" y="175">Fish</text>
+      <text x="468" y="175">Bird</text>
+      <text x="588" y="175">Other</text>
+    </g>
+    <!-- X axis -->
+    <line x1="60" y1="155" x2="700" y2="155" stroke="#546e7a" stroke-width="1.5"/>
+    <!-- Legend -->
+    <rect x="100" y="188" width="12" height="10" fill="#1565C0" rx="2"/>
+    <text x="116" y="197" font-family="Arial" font-size="10" fill="#90caf9">Class A</text>
+    <rect x="180" y="188" width="12" height="10" fill="#42A5F5" rx="2"/>
+    <text x="196" y="197" font-family="Arial" font-size="10" fill="#90caf9">Class B</text>
+  </svg>
+  <p style="font-size:.78rem;color:#78909c;text-align:center;margin-top:6px">→ What do you notice? What surprises you?</p>
+</div>
+
+<!-- Slide 6: Reading the chart -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">6/15</div>
+  <span class="tag tag-green">Reading</span>
+  <h2 class="slide-heading">What Does the Chart Tell Us?</h2>
+  <div class="two-col">
+    <div class="col-box">
+      <h3 style="color:#90caf9">Class A Findings</h3>
+      <ul>
+        <li>Dog is the clear favorite (12 students)</li>
+        <li>Cat comes second (7)</li>
+        <li>Bird and Other are least popular</li>
+        <li>Totals drop steeply after dogs</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3 style="color:#80cbc4">Class B Findings</h3>
+      <ul>
+        <li>Cat is the top choice (11 students)</li>
+        <li>Dog comes second (8)</li>
+        <li>Other is least popular (4)</li>
+        <li>More even spread across pets</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:12px">
+    <h3>The Interesting Comparison</h3>
+    <p>Class A and Class B have <b>opposite top choices</b>: Class A loves dogs most, Class B loves cats most. This is called a <b>reversal</b> — the groups rank the same options differently.</p>
+  </div>
+</div>
+
+<!-- Slide 7: Activity 1 -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">7/15</div>
+  <span class="tag tag-amber">Activity 1</span>
+  <h2 class="slide-heading">Build Your Own Double Bar Chart</h2>
+  <div class="highlight-box">
+    <h3>Your Task (pairs · 14 min)</h3>
+    <p>Use the data table on your worksheet to build a double bar chart for Class A and Class B pet preferences.<br><br>
+    ① Draw and label axes (X = pet, Y = number of students, 0–14)<br>
+    ② Draw Class A bars in <b>dark blue</b><br>
+    ③ Draw Class B bars in <b>light blue / teal</b><br>
+    ④ Add a legend and a title<br>
+    ⑤ Use a ruler — bars should be neat and even width</p>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Tip</h3>
+    <p>Draw all Class A bars first, then go back and add all Class B bars. That way you won't mix up which bar belongs to which group.</p>
+  </div>
+</div>
+
+<!-- Slide 8: Comparison Writing -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">8/15</div>
+  <span class="tag tag-purple">Writing</span>
+  <h2 class="slide-heading">How to Write a Comparison Statement</h2>
+  <div class="highlight-box">
+    <h3>Sentence Frames</h3>
+    <p>Use these frames to write about your chart:</p>
+  </div>
+  <div class="sentence-frame">Class A preferred ___ <b>more than</b> Class B — ___ students vs. ___ students.</div>
+  <div class="sentence-frame"><b>Both</b> classes chose ___ as one of their top options.</div>
+  <div class="sentence-frame">Class A had more ___ fans, <b>while</b> Class B had more ___ fans.</div>
+  <div class="sentence-frame">The biggest difference between the classes was for ___, with a gap of ___ students.</div>
+  <div class="sentence-frame">The <b>smallest</b> gap between the two classes was for ___ (only ___ student(s) apart).</div>
+</div>
+
+<!-- Slide 9: Modeled sentences -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">9/15</div>
+  <span class="tag tag-blue">Model</span>
+  <h2 class="slide-heading">Modeled Comparison Sentences</h2>
+  <p style="font-size:.82rem;color:#78909c;margin-bottom:14px">Here are three complete sentences written from the pet preference chart. Study the structure.</p>
+  <div class="card">
+    <h3>Sentence 1 — Specific Comparison</h3>
+    <p>"Class A preferred dogs <b>more than</b> Class B — 12 students vs. 8 students."</p>
+  </div>
+  <div class="card">
+    <h3>Sentence 2 — Using "While"</h3>
+    <p>"Class A had the most dog fans, <b>while</b> Class B had the most cat fans — showing the classes have opposite top choices."</p>
+  </div>
+  <div class="card">
+    <h3>Sentence 3 — Finding the Smallest Gap</h3>
+    <p>"The <b>smallest</b> difference was for Bird — Class A had 3 students and Class B had 5, just 2 apart."</p>
+  </div>
+  <p style="font-size:.8rem;color:#78909c;margin-top:10px">→ Notice: each sentence names the pet, states both numbers, and uses a comparison word.</p>
+</div>
+
+<!-- Slide 10: Activity 2 -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">10/15</div>
+  <span class="tag tag-amber">Activity 2</span>
+  <h2 class="slide-heading">Write 3 Comparison Statements</h2>
+  <div class="highlight-box">
+    <h3>Your Task (individual · 10 min)</h3>
+    <p>Using your chart and the sentence frames on the board, write <b>3 comparison statements</b> about the pet data. Each sentence must:<br><br>
+    ✓ Name the specific pet category<br>
+    ✓ Include the actual numbers from the chart<br>
+    ✓ Use a comparison word: <b>more than · less than · both · while · biggest · smallest</b></p>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Challenge</h3>
+    <p>Can you write one sentence that talks about the <b>total</b> difference across all categories combined? (Hint: add up all Class A numbers and all Class B numbers.)</p>
+  </div>
+</div>
+
+<!-- Slide 11: Deeper Thinking -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">11/15</div>
+  <span class="tag tag-purple">Deeper Thinking</span>
+  <h2 class="slide-heading">Is This a Fair Comparison?</h2>
+  <div class="highlight-box">
+    <h3>A Tricky Question</h3>
+    <p>Class A has <b>28 students</b>. Class B has <b>34 students</b>.<br><br>
+    When Class B has 11 cat fans and Class A has 7 cat fans, is Class B really that much more into cats — or is it just because Class B is bigger?</p>
+  </div>
+  <div class="two-col" style="margin-top:12px">
+    <div class="col-box">
+      <h3 style="color:#90caf9">Cat as Fraction</h3>
+      <ul>
+        <li>Class A: 7 out of 28 = 1/4 = 25%</li>
+        <li>Class B: 11 out of 34 ≈ 32%</li>
+        <li>Class B is still more into cats, even accounting for size</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3 style="color:#80cbc4">Key Takeaway</h3>
+      <ul>
+        <li>When groups are different sizes, raw numbers can be misleading</li>
+        <li>Fractions or percentages make comparisons fairer</li>
+        <li>Good data scientists always check group sizes!</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 12: Discussion -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">12/15</div>
+  <span class="tag tag-green">Discussion</span>
+  <h2 class="slide-heading">Discussion Questions</h2>
+  <div class="card">
+    <h3>Question 1</h3>
+    <p>If you combined both classes into one group, which pet would be most popular overall? Work it out with your partner. (Dog: 12+8=20 · Cat: 7+11=18 · Fish: 4+6=10 · Bird: 3+5=8 · Other: 2+4=6)</p>
+  </div>
+  <div class="card">
+    <h3>Question 2</h3>
+    <p>What might explain why Class A loves dogs more and Class B loves cats more? What information would you want to collect to find out?</p>
+  </div>
+  <div class="card">
+    <h3>Question 3</h3>
+    <p>A student says "double bar charts are just two charts stuck together." Is that correct? What can a double bar chart show that two separate charts cannot?</p>
+  </div>
+</div>
+
+<!-- Slide 13: Brain Break -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">13/15</div>
+  <span class="tag tag-purple">Brain Break</span>
+  <h2 class="slide-heading">Stand Up / Stay Seated</h2>
+  <div class="brain-break">
+    <h3>🐾 Pet Data Quick Fire</h3>
+    <p>I'll call out a category. <b>Stand up</b> if Class A is higher. <b>Stay seated</b> if Class B is higher.<br><br>
+    Dog… (stand — Class A wins 12 vs 8)<br>
+    Cat… (sit — Class B wins 11 vs 7)<br>
+    Fish… (sit — Class B wins 6 vs 4)<br>
+    Bird… (sit — Class B wins 5 vs 3)<br>
+    Other… (sit — Class B wins 4 vs 2)<br><br>
+    <b>Result:</b> Class A only wins for <b>one category</b> (Dog). Class B is higher in all others!</p>
+  </div>
+</div>
+
+<!-- Slide 14: Real-World Connections -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">14/15</div>
+  <span class="tag tag-teal">Real World</span>
+  <h2 class="slide-heading">Double Bar Charts in Real Life</h2>
+  <div class="two-col">
+    <div class="col-box">
+      <h3 style="color:#80cbc4">Where You See Them</h3>
+      <ul>
+        <li>Sports: home vs. away game scores by team</li>
+        <li>Science: plant growth in sun vs. shade</li>
+        <li>Health: exercise time on weekdays vs. weekends</li>
+        <li>Social: screen time for two age groups</li>
+        <li>School: test scores before and after studying</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3 style="color:#90caf9">Why They Matter</h3>
+      <ul>
+        <li>One chart tells a richer story than two separate charts</li>
+        <li>Easier to spot where groups agree or disagree</li>
+        <li>Saves space and reading time</li>
+        <li>Used in business, science, and government reports</li>
+        <li>Critical skill for reading news graphics</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:12px">
+    <h3>Preview: Session 8</h3>
+    <p>Next session is your <b>Data Story Capstone</b>! You'll collect your own data, organize it, build a chart, and write a complete data story. Start thinking about a question you'd like to investigate.</p>
+  </div>
+</div>
+
+<!-- Slide 15: Wrap Up -->
+<div class="slide" onclick="nextSlide()">
+  <div class="slide-num">15/15</div>
+  <span class="tag tag-green">Wrap Up</span>
+  <h2 class="slide-heading">Session 7 Summary</h2>
+  <div class="step-row">
+    <div class="step-box"><div class="sn">📊</div><div class="sl">Double bar charts show two groups side by side</div></div>
+    <div class="step-box"><div class="sn">🏷️</div><div class="sl">Always add a legend and start Y-axis at zero</div></div>
+    <div class="step-box"><div class="sn">✍️</div><div class="sl">Comparison sentences use more/less/both/while</div></div>
+    <div class="step-box"><div class="sn">⚖️</div><div class="sl">Check group sizes for fair comparisons</div></div>
+  </div>
+  <div class="highlight-box" style="margin-top:14px">
+    <h3>Exit Ticket</h3>
+    <p>Write one sentence comparing the two classes for <b>any</b> pet category. Your sentence must include both numbers and one comparison word.</p>
+  </div>
+  <p style="font-size:.78rem;color:#546e7a;text-align:center;margin-top:18px">Grade 4 Data Science · Session 7 · sdabagh.github.io</p>
+</div>
+
+<div class="nav-hint">→ Click slide or press Space / → to advance &nbsp;|&nbsp; ← to go back &nbsp;|&nbsp; F = fullscreen</div>
+
+<script>
+var slides=document.querySelectorAll('.slide'),cur=0;
+function showSlide(n){
+  slides[cur].classList.remove('active');
+  cur=(n+slides.length)%slides.length;
+  slides[cur].classList.add('active');
+  document.getElementById('pbar').style.width=((cur+1)/slides.length*100)+'%';
+  document.getElementById('sctr').textContent=(cur+1)+' / '+slides.length;
+}
+function nextSlide(){showSlide(cur+1)}
+function prevSlide(){showSlide(cur-1)}
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nextSlide();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();prevSlide();}
+  else if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+});
+</script>
+</body>
+</html>
