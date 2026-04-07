@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 16 of Financial Literacy for Statisticians: Feature engineering, walk-forward validation, overfitting landmines, and why most ML papers fail in live trading">
+  <title>Machine Learning in Finance — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 16: Machine Learning in Finance</h1>
+      <p class="tagline">Feature engineering, walk-forward validation, overfitting landmines, and why most ML papers fail in live trading</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 4 of 5</span>
+        <span class="meta-item">Module 16 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-15/index.html">&larr; Previous</a>
+      <span class="current">Module 16 of 22</span>
+      <a href="../module-17/index.html">Next &rarr;</a>
+    </div>
+
+
+<h2>Introduction: Where Statistics Meets Silicon</h2>
+      <p>
+        Machine learning in finance is not a revolution &mdash; it is an extension of the statistical
+        methods you already know, applied to a domain where the signal-to-noise ratio is brutally
+        low and the data-generating process is non-stationary. This module will equip you with the
+        practical knowledge to apply ML to financial data without falling into the traps that have
+        claimed countless quantitative strategies. The central theme: <strong>what works in Kaggle
+        competitions fails in financial markets</strong>, and understanding why is essential.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, you learn that models must balance bias and variance. In finance, this
+          tradeoff is extreme: the signal is so faint (R<sup>2</sup> often below 1%) that even
+          a small amount of overfitting to noise completely drowns out the true signal. Financial
+          ML is the discipline of extracting a whisper from a hurricane.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 1: FEATURE ENGINEERING ───────────────── -->
+
+      <h2>1. Feature Engineering from Financial Data</h2>
+
+      <h3>1.1 The Raw Materials</h3>
+      <p>
+        Financial data comes in several forms, each requiring different feature engineering approaches:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>Examples</th>
+            <th>Frequency</th>
+            <th>Feature Engineering Approach</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Price / Volume</td>
+            <td>OHLCV bars</td>
+            <td>Tick to daily</td>
+            <td>Returns, rolling statistics, technical indicators</td>
+          </tr>
+          <tr>
+            <td>Fundamental</td>
+            <td>Earnings, P/E, book value</td>
+            <td>Quarterly</td>
+            <td>Ratios, growth rates, sector-relative ranks</td>
+          </tr>
+          <tr>
+            <td>Macroeconomic</td>
+            <td>GDP, CPI, interest rates</td>
+            <td>Monthly</td>
+            <td>Changes, surprises vs consensus</td>
+          </tr>
+          <tr>
+            <td>Alternative</td>
+            <td>Sentiment, satellite, web traffic</td>
+            <td>Variable</td>
+            <td>Aggregation, normalization, novelty scores</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>1.2 Lag Features</h3>
+      <p>
+        The simplest and most important features are lagged values of the target and related variables.
+        If you are predicting tomorrow&rsquo;s return, features include today&rsquo;s return, the
+        return from 2 days ago, 5 days ago, and so on. This is the ML equivalent of an AR model.
+      </p>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          <strong>Look-ahead bias</strong>: When constructing features, you must use only information
+          available at the time of prediction. If you use today&rsquo;s closing price to predict
+          today&rsquo;s return, you have a perfect but useless predictor. Always shift features
+          by at least one period: <code>X_t = f(data_{t-1}, data_{t-2}, ...)</code>.
+        </p>
+      </div>
+
+      <h3>1.3 Rolling Statistics</h3>
+      <p>
+        Rolling windows capture time-varying properties of the return distribution:
+      </p>
+      <ul>
+        <li><strong>Rolling mean</strong> (momentum): moving average of returns over 5, 20, 60, 252 days.</li>
+        <li><strong>Rolling volatility</strong>: standard deviation of returns over a lookback window.</li>
+        <li><strong>Rolling skewness and kurtosis</strong>: higher-order moments that capture tail behavior.</li>
+        <li><strong>Rolling correlation</strong>: time-varying co-movement between assets.</li>
+        <li><strong>Rolling z-score</strong>: (current value &minus; rolling mean) / rolling std &mdash; mean-reversion signal.</li>
+      </ul>
+
+      <h3>1.4 Cross-Asset Features</h3>
+      <p>
+        Financial markets are interconnected. Features from related assets often contain more
+        predictive information than the target asset&rsquo;s own history:
+      </p>
+      <ul>
+        <li>Yield curve slope (10Y &minus; 2Y Treasury) predicts equity returns.</li>
+        <li>VIX (implied volatility) predicts future realized volatility.</li>
+        <li>Credit spreads (corporate minus Treasury yields) signal economic stress.</li>
+        <li>Currency strength indices signal global risk appetite.</li>
+      </ul>
+
+      <h3>1.5 Python: Feature Engineering Pipeline</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="kw">def</span> <span class="fn">create_features</span>(ticker, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2023-12-31"</span>):
+    <span class="st">"""Build ML features from price data."""</span>
+    data = yf.download(ticker, start=start, end=end)
+    df = pd.DataFrame()
+
+    close = data[<span class="st">"Adj Close"</span>]
+    volume = data[<span class="st">"Volume"</span>]
+    returns = close.pct_change()
+
+    <span class="cm"># Target: next-day return (what we predict)</span>
+    df[<span class="st">"target"</span>] = returns.shift(-<span class="nu">1</span>)
+
+    <span class="cm"># Lag features (returns)</span>
+    <span class="kw">for</span> lag <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">10</span>, <span class="nu">20</span>]:
+        df[<span class="st">f"ret_lag_{lag}"</span>] = returns.shift(lag)
+
+    <span class="cm"># Rolling statistics (use .shift(1) to avoid look-ahead)</span>
+    <span class="kw">for</span> window <span class="kw">in</span> [<span class="nu">5</span>, <span class="nu">20</span>, <span class="nu">60</span>]:
+        df[<span class="st">f"rolling_mean_{window}"</span>] = returns.rolling(window).mean().shift(<span class="nu">1</span>)
+        df[<span class="st">f"rolling_std_{window}"</span>] = returns.rolling(window).std().shift(<span class="nu">1</span>)
+        df[<span class="st">f"rolling_skew_{window}"</span>] = returns.rolling(window).skew().shift(<span class="nu">1</span>)
+        df[<span class="st">f"rolling_kurt_{window}"</span>] = returns.rolling(window).kurt().shift(<span class="nu">1</span>)
+
+    <span class="cm"># Momentum features</span>
+    <span class="kw">for</span> period <span class="kw">in</span> [<span class="nu">5</span>, <span class="nu">20</span>, <span class="nu">60</span>, <span class="nu">252</span>]:
+        df[<span class="st">f"momentum_{period}"</span>] = (close / close.shift(period) - <span class="nu">1</span>).shift(<span class="nu">1</span>)
+
+    <span class="cm"># Volatility ratio (short-term vs long-term)</span>
+    df[<span class="st">"vol_ratio"</span>] = (
+        returns.rolling(<span class="nu">5</span>).std() / returns.rolling(<span class="nu">60</span>).std()
+    ).shift(<span class="nu">1</span>)
+
+    <span class="cm"># Volume features</span>
+    df[<span class="st">"volume_sma_ratio"</span>] = (volume / volume.rolling(<span class="nu">20</span>).mean()).shift(<span class="nu">1</span>)
+
+    <span class="cm"># Rolling z-score (mean reversion signal)</span>
+    df[<span class="st">"z_score_20"</span>] = (
+        (close - close.rolling(<span class="nu">20</span>).mean()) / close.rolling(<span class="nu">20</span>).std()
+    ).shift(<span class="nu">1</span>)
+
+    <span class="kw">return</span> df.dropna()
+
+features = create_features(<span class="st">"SPY"</span>)
+<span class="fn">print</span>(<span class="st">f"Features shape: {features.shape}"</span>)
+<span class="fn">print</span>(<span class="st">f"Feature names: {[c for c in features.columns if c != 'target']}"</span>)</pre>
+
+      <!-- ───────────────── SECTION 2: WALK-FORWARD VALIDATION ───────────────── -->
+
+      <h2>2. Walk-Forward Validation: The Only Valid Approach</h2>
+
+      <h3>2.1 Why K-Fold Cross-Validation Is Wrong for Time Series</h3>
+      <p>
+        Standard k-fold cross-validation randomly shuffles data into folds. This is catastrophic
+        for time series because:
+      </p>
+      <ul>
+        <li><strong>Temporal leakage</strong>: Training on future data to predict the past violates causality.</li>
+        <li><strong>Autocorrelation leakage</strong>: Nearby observations are correlated; shuffling puts correlated points in both train and test sets.</li>
+        <li><strong>Regime leakage</strong>: The model learns future regime characteristics and applies them to past predictions.</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, IID assumptions justify random splitting. Time series violate IID in
+          multiple ways: autocorrelation, heteroscedasticity, and non-stationarity. The correct
+          approach preserves temporal ordering: always train on the past, test on the future.
+          This is <strong>walk-forward validation</strong> (also called time series cross-validation
+          or expanding/rolling window validation).
+        </p>
+      </div>
+
+      <h3>2.2 Walk-Forward Schemes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Scheme</th>
+            <th>Training Window</th>
+            <th>Pros</th>
+            <th>Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Expanding window</td>
+            <td>All data from start to t</td>
+            <td>More training data over time</td>
+            <td>Old data may be stale</td>
+          </tr>
+          <tr>
+            <td>Rolling window</td>
+            <td>Fixed-size window ending at t</td>
+            <td>Adapts to regime changes</td>
+            <td>Less data; window size is a hyperparameter</td>
+          </tr>
+          <tr>
+            <td>Expanding with decay</td>
+            <td>All data, recent weighted more</td>
+            <td>Balances recency and data quantity</td>
+            <td>Decay rate is a hyperparameter</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Embargo and Purging</h3>
+      <p>
+        Even with walk-forward splitting, information can leak through features that span the
+        train/test boundary. If you use a 20-day rolling mean as a feature, the last training
+        observation&rsquo;s feature overlaps with the first test observation&rsquo;s feature.
+      </p>
+      <ul>
+        <li><strong>Embargo</strong>: Drop a gap of observations between train and test sets.</li>
+        <li><strong>Purging</strong>: Remove training observations whose feature computation window overlaps with any test observation.</li>
+      </ul>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The embargo period should be at least as long as your longest lookback feature. If your
+          features use 60-day rolling windows, embargo at least 60 trading days between the end
+          of training and the start of testing. This is conservative but prevents insidious leakage
+          that inflates out-of-sample metrics.
+        </p>
+      </div>
+
+      <h3>2.4 Python: Walk-Forward Framework</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error, r2_score
+
+<span class="kw">def</span> <span class="fn">walk_forward_cv</span>(X, y, model_fn, train_size=<span class="nu">504</span>, test_size=<span class="nu">21</span>,
+                     embargo=<span class="nu">10</span>, expanding=<span class="kw">False</span>):
+    <span class="st">"""
+    Walk-forward cross-validation with embargo.
+
+    Parameters
+    ----------
+    X : DataFrame of features
+    y : Series of targets
+    model_fn : callable that returns a fitted model (accepts X_train, y_train)
+    train_size : int, number of training observations (for rolling window)
+    test_size : int, number of test observations per fold
+    embargo : int, gap between train and test
+    expanding : bool, if True use expanding window instead of rolling
+    """</span>
+    results = []
+    n = <span class="fn">len</span>(X)
+
+    <span class="cm"># Generate fold boundaries</span>
+    test_starts = <span class="fn">range</span>(train_size + embargo, n - test_size + <span class="nu">1</span>, test_size)
+
+    <span class="kw">for</span> test_start <span class="kw">in</span> test_starts:
+        <span class="cm"># Define train and test indices</span>
+        <span class="kw">if</span> expanding:
+            train_start = <span class="nu">0</span>
+        <span class="kw">else</span>:
+            train_start = test_start - embargo - train_size
+
+        train_end = test_start - embargo
+        test_end = <span class="fn">min</span>(test_start + test_size, n)
+
+        X_train = X.iloc[train_start:train_end]
+        y_train = y.iloc[train_start:train_end]
+        X_test = X.iloc[test_start:test_end]
+        y_test = y.iloc[test_start:test_end]
+
+        <span class="cm"># Fit and predict</span>
+        model = model_fn(X_train, y_train)
+        y_pred = model.predict(X_test)
+
+        <span class="cm"># Store results</span>
+        fold_result = {
+            <span class="st">"fold_start"</span>: X_test.index[<span class="nu">0</span>],
+            <span class="st">"fold_end"</span>: X_test.index[-<span class="nu">1</span>],
+            <span class="st">"mse"</span>: mean_squared_error(y_test, y_pred),
+            <span class="st">"r2"</span>: r2_score(y_test, y_pred),
+            <span class="st">"n_train"</span>: <span class="fn">len</span>(X_train),
+            <span class="st">"n_test"</span>: <span class="fn">len</span>(X_test),
+        }
+        results.append(fold_result)
+
+    <span class="kw">return</span> pd.DataFrame(results)
+
+<span class="cm"># Example usage</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge
+
+<span class="kw">def</span> <span class="fn">ridge_model</span>(X_train, y_train):
+    model = Ridge(alpha=<span class="nu">1.0</span>)
+    model.fit(X_train, y_train)
+    <span class="kw">return</span> model
+
+<span class="cm"># Using features from Section 1</span>
+X = features.drop(columns=[<span class="st">"target"</span>])
+y = features[<span class="st">"target"</span>]
+
+cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="st">f"Mean OOS R^2: {cv_results['r2'].mean():.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Std  OOS R^2: {cv_results['r2'].std():.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Fraction positive R^2: {(cv_results['r2'] > 0).mean():.2%}"</span>)</pre>
+
+      <!-- ───────────────── SECTION 3: OVERFITTING ───────────────── -->
+
+      <h2>3. The Overfitting Epidemic in Financial ML</h2>
+
+      <h3>3.1 Why Finance Is Uniquely Prone to Overfitting</h3>
+      <p>
+        The overfitting problem in finance is far more severe than in other ML domains. Here is why:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Image Recognition</th>
+            <th>Financial Returns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Signal-to-noise ratio</td>
+            <td>High (R<sup>2</sup> &gt; 90%)</td>
+            <td>Extremely low (R<sup>2</sup> &lt; 1%)</td>
+          </tr>
+          <tr>
+            <td>Data stationarity</td>
+            <td>Cats always look like cats</td>
+            <td>Market dynamics change over time</td>
+          </tr>
+          <tr>
+            <td>Sample size (effective)</td>
+            <td>Millions of IID images</td>
+            <td>~20-50 years of non-IID daily data</td>
+          </tr>
+          <tr>
+            <td>Adversarial environment</td>
+            <td>Images don&rsquo;t adapt</td>
+            <td>Other traders exploit discovered patterns</td>
+          </tr>
+          <tr>
+            <td>Cost of false positive</td>
+            <td>Misclassified image</td>
+            <td>Financial loss</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          With an R<sup>2</sup> of 0.5% (a respectable number in financial prediction), 99.5% of
+          the variation in returns is noise. A model that overfits even slightly will learn the
+          noise and produce negative out-of-sample R<sup>2</sup>. The practical implication: you
+          need <strong>extreme regularization</strong> and <strong>radical simplicity</strong>.
+        </p>
+      </div>
+
+      <h3>3.2 The Signal-to-Noise Problem Quantified</h3>
+      <div class="formula-box">
+        R<sup>2</sup> = 1 &minus; Var(&epsilon;) / Var(y) &nbsp;&nbsp;&rArr;&nbsp;&nbsp; SNR = R<sup>2</sup> / (1 &minus; R<sup>2</sup>)
+      </div>
+      <p>
+        For financial returns:
+      </p>
+      <ul>
+        <li>R<sup>2</sup> = 1%: SNR = 0.0101 (signal is ~1% of noise)</li>
+        <li>R<sup>2</sup> = 0.1%: SNR = 0.001 (one part signal per thousand parts noise)</li>
+        <li>R<sup>2</sup> = 5%: SNR = 0.053 (this would be exceptional performance)</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          In estimation theory, the minimum sample size needed to detect a signal scales as
+          O(1/SNR<sup>2</sup>). With SNR = 0.01, you need roughly 10,000 independent observations
+          to reliably estimate the signal. With daily data showing autocorrelation, the effective
+          sample size is even smaller. This is why decades of data are barely sufficient for
+          financial ML.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 4: TREE MODELS ───────────────── -->
+
+      <h2>4. Random Forests and Gradient Boosting</h2>
+
+      <h3>4.1 Why Tree-Based Models for Finance?</h3>
+      <p>
+        Tree-based ensemble methods have several properties that make them well-suited for financial
+        data:
+      </p>
+      <ul>
+        <li><strong>Non-linear interactions</strong>: Financial relationships are often non-linear (e.g., volatility regimes).</li>
+        <li><strong>Feature selection built in</strong>: Trees naturally ignore irrelevant features.</li>
+        <li><strong>Robust to outliers</strong>: Splits are based on ranks, not magnitudes.</li>
+        <li><strong>No scaling required</strong>: Unlike linear models, trees don&rsquo;t need standardized inputs.</li>
+      </ul>
+
+      <h3>4.2 Random Forest vs Gradient Boosting</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Random Forest</th>
+            <th>Gradient Boosting (XGBoost/LightGBM)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Training approach</td>
+            <td>Parallel (bagging)</td>
+            <td>Sequential (boosting)</td>
+          </tr>
+          <tr>
+            <td>Bias-variance tradeoff</td>
+            <td>Low bias, reduced variance</td>
+            <td>Progressively reduces bias</td>
+          </tr>
+          <tr>
+            <td>Overfitting risk</td>
+            <td>Lower (averaging)</td>
+            <td>Higher (can overfit residuals)</td>
+          </tr>
+          <tr>
+            <td>Hyperparameter sensitivity</td>
+            <td>Moderate</td>
+            <td>High (learning rate, depth, rounds)</td>
+          </tr>
+          <tr>
+            <td>Financial recommendation</td>
+            <td>Safer default choice</td>
+            <td>Better if carefully tuned</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 Critical Hyperparameters for Financial Data</h3>
+      <p>
+        In finance, you must tune aggressively toward simplicity:
+      </p>
+      <ul>
+        <li><strong>max_depth</strong>: Use 3&ndash;5. Deep trees memorize noise.</li>
+        <li><strong>n_estimators</strong>: Use early stopping on a temporal validation set.</li>
+        <li><strong>learning_rate</strong> (boosting): Low values (0.01&ndash;0.05) with many rounds.</li>
+        <li><strong>min_samples_leaf</strong>: High values (50+) prevent fitting to small pockets of noise.</li>
+        <li><strong>max_features</strong>: Use sqrt(n_features) for random forests (the default is correct).</li>
+        <li><strong>subsample</strong>: 0.7&ndash;0.8 reduces overfitting in boosting.</li>
+      </ul>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          Do NOT tune hyperparameters using the same walk-forward test set you use to evaluate
+          final performance. This creates a meta-overfitting problem. Use a three-way split:
+          train / validation (for hyperparameter tuning) / test (for final evaluation). The
+          validation set must also respect temporal ordering.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor, GradientBoostingRegressor
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge, Lasso
+<span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+
+<span class="cm"># Define model factories (conservative hyperparameters)</span>
+<span class="kw">def</span> <span class="fn">make_ridge</span>(X_train, y_train):
+    m = Ridge(alpha=<span class="nu">10.0</span>)
+    m.fit(X_train, y_train)
+    <span class="kw">return</span> m
+
+<span class="kw">def</span> <span class="fn">make_rf</span>(X_train, y_train):
+    m = RandomForestRegressor(
+        n_estimators=<span class="nu">200</span>,
+        max_depth=<span class="nu">4</span>,
+        min_samples_leaf=<span class="nu">50</span>,
+        max_features=<span class="st">"sqrt"</span>,
+        random_state=<span class="nu">42</span>,
+    )
+    m.fit(X_train, y_train)
+    <span class="kw">return</span> m
+
+<span class="kw">def</span> <span class="fn">make_lgbm</span>(X_train, y_train):
+    m = lgb.LGBMRegressor(
+        n_estimators=<span class="nu">300</span>,
+        max_depth=<span class="nu">3</span>,
+        learning_rate=<span class="nu">0.02</span>,
+        min_child_samples=<span class="nu">50</span>,
+        subsample=<span class="nu">0.8</span>,
+        colsample_bytree=<span class="nu">0.8</span>,
+        verbose=-<span class="nu">1</span>,
+    )
+    m.fit(X_train, y_train)
+    <span class="kw">return</span> m
+
+<span class="cm"># Compare all models using walk-forward CV</span>
+models = {
+    <span class="st">"Ridge"</span>: make_ridge,
+    <span class="st">"RandomForest"</span>: make_rf,
+    <span class="st">"LightGBM"</span>: make_lgbm,
+}
+
+comparison = {}
+<span class="kw">for</span> name, model_fn <span class="kw">in</span> models.items():
+    cv = walk_forward_cv(X, y, model_fn, expanding=<span class="kw">True</span>)
+    comparison[name] = {
+        <span class="st">"Mean R2"</span>: cv[<span class="st">"r2"</span>].mean(),
+        <span class="st">"Std R2"</span>: cv[<span class="st">"r2"</span>].std(),
+        <span class="st">"% Positive R2"</span>: (cv[<span class="st">"r2"</span>] &gt; <span class="nu">0</span>).mean(),
+        <span class="st">"Mean MSE"</span>: cv[<span class="st">"mse"</span>].mean(),
+    }
+    <span class="fn">print</span>(<span class="st">f"{name}: R2 = {cv['r2'].mean():.6f} +/- {cv['r2'].std():.6f}"</span>)
+
+comparison_df = pd.DataFrame(comparison).T
+<span class="fn">print</span>(<span class="st">"\nModel Comparison:"</span>)
+<span class="fn">print</span>(comparison_df)</pre>
+
+      <!-- ───────────────── SECTION 5: FEATURE IMPORTANCE ───────────────── -->
+
+      <h2>5. Feature Importance vs Feature Selection</h2>
+
+      <h3>5.1 Methods for Assessing Feature Importance</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>How It Works</th>
+            <th>Pros</th>
+            <th>Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Impurity-based (MDI)</td>
+            <td>Total reduction in node impurity</td>
+            <td>Fast, built into trees</td>
+            <td>Biased toward high-cardinality features</td>
+          </tr>
+          <tr>
+            <td>Permutation importance</td>
+            <td>Shuffle one feature, measure performance drop</td>
+            <td>Model-agnostic, unbiased</td>
+            <td>Slow; correlated features share importance</td>
+          </tr>
+          <tr>
+            <td>SHAP values</td>
+            <td>Game-theoretic marginal contributions</td>
+            <td>Additive, local + global</td>
+            <td>Computationally expensive</td>
+          </tr>
+          <tr>
+            <td>Drop-column importance</td>
+            <td>Retrain without each feature</td>
+            <td>Most reliable</td>
+            <td>Extremely slow (retrain N times)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Feature importance in ML is analogous to <strong>partial R<sup>2</sup></strong> or
+          <strong>t-statistics</strong> in regression. But unlike t-statistics, tree-based
+          importance measures do not come with p-values or confidence intervals. To assess
+          whether a feature&rsquo;s importance is statistically significant, you need either
+          permutation-based tests or the multiple-testing corrections discussed in Section 7.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Fit a model on the full training period</span>
+split_idx = <span class="fn">int</span>(<span class="fn">len</span>(X) * <span class="nu">0.8</span>)
+X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
+y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+
+rf = RandomForestRegressor(
+    n_estimators=<span class="nu">200</span>, max_depth=<span class="nu">4</span>,
+    min_samples_leaf=<span class="nu">50</span>, random_state=<span class="nu">42</span>
+)
+rf.fit(X_train, y_train)
+
+<span class="cm"># Method 1: Impurity-based importance</span>
+mdi_importance = pd.Series(rf.feature_importances_, index=X.columns)
+<span class="fn">print</span>(<span class="st">"Top 10 features (MDI):"</span>)
+<span class="fn">print</span>(mdi_importance.nlargest(<span class="nu">10</span>))
+
+<span class="cm"># Method 2: Permutation importance (on test set!)</span>
+perm_imp = permutation_importance(rf, X_test, y_test, n_repeats=<span class="nu">30</span>,
+                                   random_state=<span class="nu">42</span>)
+perm_importance = pd.Series(perm_imp.importances_mean, index=X.columns)
+<span class="fn">print</span>(<span class="st">"\nTop 10 features (Permutation):"</span>)
+<span class="fn">print</span>(perm_importance.nlargest(<span class="nu">10</span>))
+
+<span class="cm"># Compare the two methods</span>
+fig, (ax1, ax2) = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">6</span>))
+mdi_importance.nlargest(<span class="nu">15</span>).plot.barh(ax=ax1, title=<span class="st">"MDI Importance"</span>)
+perm_importance.nlargest(<span class="nu">15</span>).plot.barh(ax=ax2, title=<span class="st">"Permutation Importance"</span>)
+plt.tight_layout()
+plt.show()</pre>
+
+      <!-- ───────────────── SECTION 6: MULTIPLE TESTING ───────────────── -->
+
+      <h2>6. The Multiple Testing Problem</h2>
+
+      <h3>6.1 The Danger of Strategy Mining</h3>
+      <p>
+        Suppose you test 1,000 trading strategies and find that 50 have statistically significant
+        out-of-sample Sharpe ratios (p &lt; 0.05). How many are true discoveries? If none of the
+        strategies have real alpha, you would expect 1000 &times; 0.05 = 50 false positives. The
+        significant strategies could all be false discoveries.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is exactly the <strong>multiple comparisons problem</strong> from hypothesis testing.
+          In genomics, it is called the &ldquo;multiple testing correction.&rdquo; In finance,
+          it is called &ldquo;data snooping&rdquo; or &ldquo;p-hacking.&rdquo; The statistics
+          is identical; only the application differs.
+        </p>
+      </div>
+
+      <h3>6.2 Correction Methods</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Controls</th>
+            <th>Formula</th>
+            <th>Stringency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Bonferroni</td>
+            <td>FWER (family-wise error rate)</td>
+            <td>Reject if p<sub>i</sub> &lt; &alpha;/m</td>
+            <td>Very conservative</td>
+          </tr>
+          <tr>
+            <td>Holm-Bonferroni</td>
+            <td>FWER</td>
+            <td>Step-down procedure</td>
+            <td>Less conservative than Bonferroni</td>
+          </tr>
+          <tr>
+            <td>Benjamini-Hochberg</td>
+            <td>FDR (false discovery rate)</td>
+            <td>p<sub>(i)</sub> &lt; i &times; &alpha;/m</td>
+            <td>Moderate (controls proportion of false discoveries)</td>
+          </tr>
+          <tr>
+            <td>Storey&rsquo;s q-value</td>
+            <td>FDR</td>
+            <td>Estimates &pi;<sub>0</sub> (proportion of true nulls)</td>
+            <td>Adaptive, more powerful</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">from</span> statsmodels.stats.multitest <span class="kw">import</span> multipletests
+
+<span class="cm"># Simulate the multiple testing problem</span>
+np.random.seed(<span class="nu">42</span>)
+n_strategies = <span class="nu">1000</span>
+n_true_alpha = <span class="nu">10</span>  <span class="cm"># Only 10 strategies have real alpha</span>
+n_days = <span class="nu">252</span>
+
+<span class="cm"># Generate strategy returns</span>
+sharpe_true = <span class="nu">0.8</span>   <span class="cm"># True Sharpe for real strategies</span>
+strategy_returns = np.random.randn(n_days, n_strategies) * <span class="nu">0.01</span>
+
+<span class="cm"># Add genuine alpha to first 10 strategies</span>
+daily_alpha = sharpe_true / np.sqrt(<span class="nu">252</span>) * <span class="nu">0.01</span>
+strategy_returns[:, :n_true_alpha] += daily_alpha
+
+<span class="cm"># Compute t-statistics for each strategy</span>
+t_stats = np.mean(strategy_returns, axis=<span class="nu">0</span>) / (np.std(strategy_returns, axis=<span class="nu">0</span>) / np.sqrt(n_days))
+p_values = <span class="nu">2</span> * (<span class="nu">1</span> - stats.t.cdf(np.<span class="fn">abs</span>(t_stats), df=n_days-<span class="nu">1</span>))
+
+<span class="cm"># Without correction</span>
+naive_discoveries = (p_values &lt; <span class="nu">0.05</span>).sum()
+naive_true = (p_values[:n_true_alpha] &lt; <span class="nu">0.05</span>).sum()
+<span class="fn">print</span>(<span class="st">f"Naive (no correction): {naive_discoveries} discoveries, {naive_true} true"</span>)
+
+<span class="cm"># Bonferroni correction</span>
+bonf_reject, bonf_pval, _, _ = multipletests(p_values, method=<span class="st">"bonferroni"</span>)
+<span class="fn">print</span>(<span class="st">f"Bonferroni: {bonf_reject.sum()} discoveries, "
+      f"{bonf_reject[:n_true_alpha].sum()} true"</span>)
+
+<span class="cm"># Benjamini-Hochberg (FDR control)</span>
+bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_bh"</span>)
+<span class="fn">print</span>(<span class="st">f"BH (FDR): {bh_reject.sum()} discoveries, "
+      f"{bh_reject[:n_true_alpha].sum()} true"</span>)</pre>
+
+      <!-- ───────────────── SECTION 7: NON-STATIONARITY ───────────────── -->
+
+      <h2>7. Non-Stationarity: The Fundamental Enemy</h2>
+
+      <h3>7.1 Why Models Decay</h3>
+      <p>
+        Even a well-validated ML model will degrade over time because the data-generating process
+        in finance is <strong>non-stationary</strong>. The relationships between features and
+        returns change as:
+      </p>
+      <ul>
+        <li>Market microstructure evolves (algorithmic trading, regulation).</li>
+        <li>Macroeconomic regimes shift (rate hike cycles, QE, recessions).</li>
+        <li>Profitable patterns get arbitraged away by other market participants.</li>
+        <li>New instruments, new correlations, new sources of risk emerge.</li>
+      </ul>
+
+      <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Alpha decay</strong> &mdash; The phenomenon where a trading strategy&rsquo;s
+          excess returns diminish over time as the exploited inefficiency gets arbitraged away
+          by other market participants who discover the same signal.
+        </p>
+      </div>
+
+      <h3>7.2 Strategies for Handling Non-Stationarity</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Description</th>
+            <th>Tradeoff</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rolling retrain</td>
+            <td>Retrain model periodically (weekly/monthly)</td>
+            <td>Computational cost; risk of refitting to noise</td>
+          </tr>
+          <tr>
+            <td>Feature stationarization</td>
+            <td>Transform features to be stationary (z-scores, ranks)</td>
+            <td>May lose information</td>
+          </tr>
+          <tr>
+            <td>Regime conditioning</td>
+            <td>Separate models for different market regimes</td>
+            <td>Regime detection is itself uncertain</td>
+          </tr>
+          <tr>
+            <td>Online learning</td>
+            <td>Update model incrementally with each new observation</td>
+            <td>Sensitive to recent noise</td>
+          </tr>
+          <tr>
+            <td>Ensemble across time</td>
+            <td>Average predictions from models trained on different windows</td>
+            <td>Dilutes signal from any single period</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ───────────────── SECTION 8: DEEP LEARNING ───────────────── -->
+
+      <h2>8. Why Deep Learning Often Underperforms in Finance</h2>
+
+      <h3>8.1 The Counterintuitive Reality</h3>
+      <p>
+        Despite remarkable success in computer vision and NLP, deep learning often underperforms
+        simpler models like Ridge regression or random forests on tabular financial data. The
+        reasons are structural:
+      </p>
+
+      <ol>
+        <li><strong>Low SNR</strong>: Neural networks have immense capacity to fit noise. With 99%+ noise,
+            they will.</li>
+        <li><strong>Limited data</strong>: 20 years of daily data is ~5,000 observations. Neural networks
+            need orders of magnitude more.</li>
+        <li><strong>Non-stationarity</strong>: Deep learning assumes the training distribution matches the
+            test distribution. In finance, it does not.</li>
+        <li><strong>Tabular data</strong>: Neural networks lack the inductive biases (spatial locality for CNNs,
+            sequential structure for RNNs) that make them powerful on images and text. Financial
+            features are tabular, where tree-based models dominate.</li>
+        <li><strong>Hyperparameter sensitivity</strong>: The architecture and training choices dwarf the signal
+            in the data.</li>
+      </ol>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The rule of thumb in financial ML: <strong>start with the simplest model</strong> (Ridge
+          regression), then try random forests. Only escalate to gradient boosting or neural networks
+          if simpler models are clearly leaving performance on the table &mdash; and validate this
+          rigorously out-of-sample. Complexity must earn its place through demonstrated improvement.
+        </p>
+      </div>
+
+      <h3>8.2 Where Deep Learning Does Help</h3>
+      <p>
+        Deep learning can add value in finance for specific applications where its strengths align
+        with the data structure:
+      </p>
+      <ul>
+        <li><strong>NLP on financial text</strong>: Sentiment analysis of earnings calls, news, SEC filings. Transformer models excel here because the data is genuinely textual.</li>
+        <li><strong>High-frequency data</strong>: Limit order book modeling, where the data is truly massive (millions of events per day) and has spatial structure.</li>
+        <li><strong>Generative models</strong>: Simulating realistic market scenarios for stress testing (GANs, VAEs).</li>
+        <li><strong>Reinforcement learning</strong>: Optimal execution (minimizing market impact of large trades).</li>
+      </ul>
+
+      <!-- ───────────────── SECTION 9: COMPREHENSIVE COMPARISON ───────────────── -->
+
+      <h2>9. Comprehensive Model Comparison</h2>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge, Lasso
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor
+<span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+
+<span class="kw">def</span> <span class="fn">full_model_comparison</span>(X, y):
+    <span class="st">"""Compare multiple models on financial returns prediction."""</span>
+
+    model_configs = {
+        <span class="st">"Ridge (alpha=1)"</span>: <span class="kw">lambda</span> Xt, yt: Ridge(<span class="nu">1</span>).fit(Xt, yt),
+        <span class="st">"Ridge (alpha=100)"</span>: <span class="kw">lambda</span> Xt, yt: Ridge(<span class="nu">100</span>).fit(Xt, yt),
+        <span class="st">"Lasso (alpha=0.001)"</span>: <span class="kw">lambda</span> Xt, yt: Lasso(<span class="nu">0.001</span>).fit(Xt, yt),
+        <span class="st">"RF (depth=3)"</span>: <span class="kw">lambda</span> Xt, yt: RandomForestRegressor(
+            n_estimators=<span class="nu">100</span>, max_depth=<span class="nu">3</span>,
+            min_samples_leaf=<span class="nu">50</span>, random_state=<span class="nu">42</span>
+        ).fit(Xt, yt),
+        <span class="st">"RF (depth=6)"</span>: <span class="kw">lambda</span> Xt, yt: RandomForestRegressor(
+            n_estimators=<span class="nu">100</span>, max_depth=<span class="nu">6</span>,
+            min_samples_leaf=<span class="nu">20</span>, random_state=<span class="nu">42</span>
+        ).fit(Xt, yt),
+        <span class="st">"LGBM (conservative)"</span>: <span class="kw">lambda</span> Xt, yt: lgb.LGBMRegressor(
+            n_estimators=<span class="nu">200</span>, max_depth=<span class="nu">3</span>, learning_rate=<span class="nu">0.02</span>,
+            min_child_samples=<span class="nu">50</span>, verbose=-<span class="nu">1</span>
+        ).fit(Xt, yt),
+        <span class="st">"LGBM (aggressive)"</span>: <span class="kw">lambda</span> Xt, yt: lgb.LGBMRegressor(
+            n_estimators=<span class="nu">500</span>, max_depth=<span class="nu">8</span>, learning_rate=<span class="nu">0.05</span>,
+            min_child_samples=<span class="nu">10</span>, verbose=-<span class="nu">1</span>
+        ).fit(Xt, yt),
+    }
+
+    results = {}
+    <span class="kw">for</span> name, model_fn <span class="kw">in</span> model_configs.items():
+        cv = walk_forward_cv(X, y, model_fn, expanding=<span class="kw">True</span>)
+        results[name] = {
+            <span class="st">"OOS R2 (mean)"</span>: cv[<span class="st">"r2"</span>].mean(),
+            <span class="st">"OOS R2 (std)"</span>: cv[<span class="st">"r2"</span>].std(),
+            <span class="st">"OOS R2 (median)"</span>: cv[<span class="st">"r2"</span>].median(),
+            <span class="st">"% Folds R2>0"</span>: (cv[<span class="st">"r2"</span>] &gt; <span class="nu">0</span>).mean() * <span class="nu">100</span>,
+        }
+
+    results_df = pd.DataFrame(results).T.round(<span class="nu">6</span>)
+    <span class="fn">print</span>(results_df.to_string())
+    <span class="kw">return</span> results_df
+
+comparison = full_model_comparison(X, y)</pre>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          Notice in the comparison above that more complex models (deeper trees, aggressive boosting)
+          often have <strong>worse</strong> out-of-sample R<sup>2</sup> than simpler models. This is the
+          overfitting phenomenon in action. In finance, the winning model is almost always the
+          simplest one that captures any signal at all. If Ridge regression achieves R<sup>2</sup> =
+          0.2% and a neural network achieves R<sup>2</sup> = &minus;1.5%, the Ridge model is the
+          clear winner.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 10: SUMMARY ───────────────── -->
+
+      <h2>10. Chapter Summary</h2>
+      <p>
+        Financial ML is statistics with extreme constraints. Here are the essential mappings:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Statistics Concept</th>
+            <th>Financial ML Application</th>
+            <th>Key Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cross-validation</td>
+            <td>Walk-forward validation</td>
+            <td>Must preserve temporal order; add embargo</td>
+          </tr>
+          <tr>
+            <td>R<sup>2</sup></td>
+            <td>Out-of-sample R<sup>2</sup></td>
+            <td>Expect R<sup>2</sup> &lt; 1%; often negative</td>
+          </tr>
+          <tr>
+            <td>Feature selection</td>
+            <td>Feature importance + multiple testing</td>
+            <td>Most features are noise; correct for data mining</td>
+          </tr>
+          <tr>
+            <td>Bias-variance tradeoff</td>
+            <td>Aggressively favor bias (regularize hard)</td>
+            <td>Variance dominates in low-SNR regime</td>
+          </tr>
+          <tr>
+            <td>IID assumption</td>
+            <td>Non-stationarity</td>
+            <td>Models decay; retrain regularly</td>
+          </tr>
+          <tr>
+            <td>Multiple comparisons</td>
+            <td>Strategy mining correction</td>
+            <td>Bonferroni/BH essential for honest evaluation</td>
+          </tr>
+          <tr>
+            <td>Model complexity</td>
+            <td>Radical simplicity</td>
+            <td>Deep learning often loses to Ridge regression</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The most important skill in financial ML is <strong>knowing when your model is lying to
+          you</strong>. A model that shows 2% R<sup>2</sup> in-sample and &minus;0.5% out-of-sample
+          has learned nothing but noise. The discipline of rigorous walk-forward validation with
+          proper embargo, combined with multiple testing corrections, is what separates quantitative
+          research from expensive numerology.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-15/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-17/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Stocks and Equity Valuation — DCF models, P/E ratios, earnings quality, dividends vs buybacks, and growth vs value stocks for statisticians.">
+  <title>Stocks &amp; Equity Valuation — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 11: Stocks &amp; Equity Valuation</h1>
+      <p class="tagline">Understanding equity as a claim on random future cash flows</p>
+      <div class="module-meta">
+        <span class="meta-item">Part III of 5</span>
+        <span class="meta-item">Module 11 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-10/index.html">&larr; Previous</a>
+      <span class="current">Module 11 of 22</span>
+      <a href="../module-12/index.html">Next &rarr;</a>
+    </div>
+
+
+    <!-- SECTION 1: What Is a Stock? -->
+
+    <h2>1. What a Stock Actually Is</h2>
+
+    <p>
+      When you buy a share of stock, you are purchasing a fractional ownership claim on a company.
+      But what does "ownership" mean in concrete, measurable terms? It means you hold a claim on
+      the company's <em>future cash flows</em> &mdash; dividends, buyback proceeds, and ultimately
+      the residual value if the company is ever liquidated. From a statistical perspective, each
+      of these future cash flows is a <strong>random variable</strong>.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        A stock is a claim on a <strong>sequence of random variables</strong>
+        {C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>, ...} representing future cash flows.
+        The stock price is the market's estimate of
+        E[&sum;<sub>t=1</sub><sup>&infin;</sup> C<sub>t</sub> / (1+r)<sup>t</sup>] &mdash;
+        the expected present value of this infinite random series. Buying a stock is literally
+        buying a realization from a stochastic process.
+      </p>
+    </div>
+
+    <p>
+      This framing immediately clarifies several things that confuse newcomers to finance:
+    </p>
+
+    <ul>
+      <li><strong>Stock prices fluctuate</strong> because the market is continuously updating
+          its posterior estimate of the distribution of future cash flows as new information
+          (earnings reports, macro data, management changes) arrives.</li>
+      <li><strong>Different investors disagree on price</strong> because they hold different
+          prior distributions over these cash flows, or they use different discount rates.</li>
+      <li><strong>A stock can have positive value even if it pays no dividends</strong> because
+          the cash flows include potential future dividends, buybacks, or acquisition proceeds.</li>
+    </ul>
+
+    <h3>1.1 Equity vs. Debt: Random vs. (Nearly) Deterministic</h3>
+
+    <p>
+      A useful contrast: when you buy a <em>bond</em> (which we cover in Module 12), you receive
+      a nearly deterministic stream of cash flows (fixed coupon payments). When you buy a
+      <em>stock</em>, you receive a random stream. This is the fundamental risk-return tradeoff:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Bond (Debt)</th>
+          <th>Stock (Equity)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cash flow nature</td>
+          <td>Nearly deterministic (fixed coupons)</td>
+          <td>Random variable (dividends, growth)</td>
+        </tr>
+        <tr>
+          <td>Statistical analogue</td>
+          <td>Constant + small noise</td>
+          <td>Stochastic process with drift</td>
+        </tr>
+        <tr>
+          <td>Priority in bankruptcy</td>
+          <td>Senior claim (paid first)</td>
+          <td>Residual claim (paid last)</td>
+        </tr>
+        <tr>
+          <td>Upside potential</td>
+          <td>Bounded (you get your coupons + principal)</td>
+          <td>Unbounded (if company grows)</td>
+        </tr>
+        <tr>
+          <td>Downside risk</td>
+          <td>Limited (default risk)</td>
+          <td>Can lose 100% of investment</td>
+        </tr>
+        <tr>
+          <td>Distribution of returns</td>
+          <td>Approximately normal, low variance</td>
+          <td>Fat-tailed, higher variance, skewed</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Equity</strong> = ownership stake in a company. The word "equity" and "stock"
+        are used interchangeably. A <strong>share</strong> is one unit of equity. The total
+        number of shares outstanding multiplied by the share price gives the company's
+        <strong>market capitalization</strong>.
+      </p>
+    </div>
+
+    <h3>1.2 Common Stock vs. Preferred Stock</h3>
+
+    <p>
+      There are two main classes of stock. <strong>Common stock</strong> gives you voting rights
+      and a residual claim on cash flows &mdash; but you are last in line during liquidation.
+      <strong>Preferred stock</strong> is a hybrid: it pays a fixed dividend (like a bond) but
+      has higher priority than common stock in bankruptcy. Think of preferred stock as having a
+      distribution that is less dispersed than common stock but with a lower expected value for
+      upside participation.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Common Stock</th>
+          <th>Preferred Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Voting rights</td>
+          <td>Yes (typically 1 vote per share)</td>
+          <td>Usually no</td>
+        </tr>
+        <tr>
+          <td>Dividend</td>
+          <td>Variable, at board's discretion</td>
+          <td>Fixed rate, paid before common</td>
+        </tr>
+        <tr>
+          <td>Upside participation</td>
+          <td>Full &mdash; unlimited</td>
+          <td>Limited &mdash; usually capped</td>
+        </tr>
+        <tr>
+          <td>Bankruptcy priority</td>
+          <td>Last (after bonds and preferred)</td>
+          <td>After bonds, before common</td>
+        </tr>
+        <tr>
+          <td>Return distribution</td>
+          <td>High variance, fat tails</td>
+          <td>Lower variance, more bond-like</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 2: Discounted Cash Flow (DCF) -->
+
+    <h2>2. Discounted Cash Flow (DCF) Valuation</h2>
+
+    <p>
+      The Discounted Cash Flow model is the foundational framework for valuing any asset that
+      generates future cash flows. The core idea: a dollar received in the future is worth less
+      than a dollar today, so we <em>discount</em> future cash flows back to present value.
+    </p>
+
+    <div class="formula-box">
+      V<sub>0</sub> = E&bigg;[&sum;<sub>t=1</sub><sup>T</sup>
+      CF<sub>t</sub> / (1 + r)<sup>t</sup>&bigg;]
+      = &sum;<sub>t=1</sub><sup>T</sup>
+      E[CF<sub>t</sub>] / (1 + r)<sup>t</sup>
+    </div>
+
+    <p>where:</p>
+    <ul>
+      <li>V<sub>0</sub> = intrinsic value of the stock today</li>
+      <li>CF<sub>t</sub> = cash flow in year t (a random variable)</li>
+      <li>r = discount rate (required rate of return)</li>
+      <li>T = time horizon (often taken to infinity)</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The DCF formula is just the <strong>expected value of a discounted stochastic process</strong>.
+        By linearity of expectation, we can move the expectation inside the sum. This is the same
+        mathematical operation you perform when computing the expected present value of a
+        random annuity in actuarial science. The discount factor 1/(1+r)<sup>t</sup> plays
+        the role of a <strong>weighting function</strong> that decays exponentially.
+      </p>
+    </div>
+
+    <h3>2.1 Free Cash Flow to Equity (FCFE)</h3>
+
+    <p>
+      The "cash flow" in DCF for equity valuation is typically the <strong>Free Cash Flow to Equity</strong>
+      (FCFE): the cash available to shareholders after all expenses, taxes, reinvestment, and debt
+      payments. The formula is:
+    </p>
+
+    <div class="formula-box">
+      FCFE = Net Income + Depreciation &minus; Capital Expenditure &minus; &Delta;Working Capital + Net Borrowing
+    </div>
+
+    <p>
+      Each component of FCFE is itself a random variable. Net income depends on revenue (random),
+      costs (partially random), and tax rates (subject to policy change). Depreciation follows
+      an accounting schedule but is applied to assets whose useful life is uncertain. Capital
+      expenditure depends on management decisions that respond to market conditions.
+    </p>
+
+    <h3>2.2 The Gordon Growth Model: A Special Case</h3>
+
+    <p>
+      If we assume cash flows grow at a constant rate <em>g</em> forever, the infinite DCF sum
+      collapses to a beautifully simple formula:
+    </p>
+
+    <div class="formula-box">
+      V<sub>0</sub> = CF<sub>1</sub> / (r &minus; g)
+    </div>
+
+    <p>
+      This is the <strong>Gordon Growth Model</strong> (or dividend discount model when applied
+      to dividends). It requires r &gt; g for convergence &mdash; a condition analogous to
+      requiring a geometric series to have a ratio less than 1.
+    </p>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The Gordon Growth Model is extremely sensitive to the gap (r &minus; g). If r = 10% and g = 5%,
+        the multiplier is 1/(0.10 &minus; 0.05) = 20. But if g increases to 7%, the multiplier jumps
+        to 1/(0.10 &minus; 0.07) = 33.3 &mdash; a 67% increase in valuation from a 2 percentage
+        point change in growth. This is why small changes in growth assumptions produce wildly
+        different price targets. In statistics, we would say the estimator has <strong>high
+        sensitivity</strong> to the nuisance parameter g.
+      </p>
+    </div>
+
+    <h3>2.3 Two-Stage DCF Model</h3>
+
+    <p>
+      A more realistic approach divides the future into two phases: a <strong>high-growth stage</strong>
+      (say 5&ndash;10 years) where we project cash flows individually, and a <strong>terminal value stage</strong>
+      where we assume steady-state growth and apply the Gordon formula. This is analogous to a
+      <strong>mixture model</strong> with two regimes.
+    </p>
+
+    <div class="formula-box">
+      V<sub>0</sub> = &sum;<sub>t=1</sub><sup>N</sup>
+      E[CF<sub>t</sub>] / (1+r)<sup>t</sup>
+      + [CF<sub>N+1</sub> / (r &minus; g<sub>terminal</sub>)] / (1+r)<sup>N</sup>
+    </div>
+
+    <p>
+      The terminal value typically accounts for 60&ndash;80% of the total DCF value, which should
+      alarm any statistician &mdash; most of the valuation depends on a single assumption about
+      perpetual growth.
+    </p>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        Analysts often bury aggressive assumptions in the terminal value. A terminal growth rate
+        of 4% vs. 2% can change the valuation by 30&ndash;50%. Always run sensitivity analysis on
+        the terminal growth rate and discount rate. Treat the DCF output as a <strong>distribution
+        of values</strong>, not a point estimate.
+      </p>
+    </div>
+
+    <h3>2.4 Python Example: Simple DCF Model</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">dcf_valuation</span>(initial_fcf, growth_rates, terminal_growth, discount_rate):
+    <span class="st">"""
+    Two-stage DCF model.
+
+    Parameters
+    ----------
+    initial_fcf : float
+        Free cash flow in the most recent year (in millions).
+    growth_rates : list of float
+        Projected growth rates for the explicit forecast period.
+    terminal_growth : float
+        Perpetual growth rate after the explicit period.
+    discount_rate : float
+        Required rate of return (WACC or cost of equity).
+
+    Returns
+    -------
+    dict with intrinsic_value, pv_explicit, pv_terminal
+    """</span>
+    <span class="cm"># Stage 1: Explicit forecast period</span>
+    fcfs = []
+    fcf = initial_fcf
+    <span class="kw">for</span> g <span class="kw">in</span> growth_rates:
+        fcf = fcf * (<span class="nu">1</span> + g)
+        fcfs.append(fcf)
+
+    <span class="cm"># Discount each projected FCF back to present</span>
+    pv_explicit = <span class="nu">0</span>
+    <span class="kw">for</span> t, cf <span class="kw">in</span> <span class="fn">enumerate</span>(fcfs, <span class="nu">1</span>):
+        pv_explicit += cf / (<span class="nu">1</span> + discount_rate) ** t
+
+    <span class="cm"># Stage 2: Terminal value using Gordon Growth Model</span>
+    terminal_fcf = fcfs[-<span class="nu">1</span>] * (<span class="nu">1</span> + terminal_growth)
+    terminal_value = terminal_fcf / (discount_rate - terminal_growth)
+    pv_terminal = terminal_value / (<span class="nu">1</span> + discount_rate) ** <span class="fn">len</span>(fcfs)
+
+    intrinsic_value = pv_explicit + pv_terminal
+
+    <span class="kw">return</span> {
+        <span class="st">'intrinsic_value'</span>: intrinsic_value,
+        <span class="st">'pv_explicit'</span>: pv_explicit,
+        <span class="st">'pv_terminal'</span>: pv_terminal,
+        <span class="st">'terminal_pct'</span>: pv_terminal / intrinsic_value * <span class="nu">100</span>,
+        <span class="st">'projected_fcfs'</span>: fcfs
+    }
+
+<span class="cm"># Example: Value a company with $500M FCF</span>
+result = <span class="fn">dcf_valuation</span>(
+    initial_fcf=<span class="nu">500</span>,          <span class="cm"># $500M current FCF</span>
+    growth_rates=[<span class="nu">0.15</span>, <span class="nu">0.12</span>, <span class="nu">0.10</span>, <span class="nu">0.08</span>, <span class="nu">0.06</span>],  <span class="cm"># 5 years of slowing growth</span>
+    terminal_growth=<span class="nu">0.03</span>,     <span class="cm"># 3% perpetual growth</span>
+    discount_rate=<span class="nu">0.10</span>        <span class="cm"># 10% required return</span>
+)
+
+<span class="fn">print</span>(<span class="st">f"Intrinsic Value: ${result['intrinsic_value']:,.0f}M"</span>)
+<span class="fn">print</span>(<span class="st">f"PV of Explicit Period: ${result['pv_explicit']:,.0f}M"</span>)
+<span class="fn">print</span>(<span class="st">f"PV of Terminal Value: ${result['pv_terminal']:,.0f}M"</span>)
+<span class="fn">print</span>(<span class="st">f"Terminal Value Share: {result['terminal_pct']:.1f}%"</span>)
+
+<span class="cm"># Sensitivity analysis: vary discount rate and terminal growth</span>
+<span class="fn">print</span>(<span class="st">"\n--- Sensitivity Table (Intrinsic Value in $M) ---"</span>)
+<span class="fn">print</span>(<span class="st">f"{'':>12}"</span>, end=<span class="st">""</span>)
+<span class="kw">for</span> tg <span class="kw">in</span> [<span class="nu">0.02</span>, <span class="nu">0.025</span>, <span class="nu">0.03</span>, <span class="nu">0.035</span>, <span class="nu">0.04</span>]:
+    <span class="fn">print</span>(<span class="st">f"  g={tg:.1%}"</span>, end=<span class="st">""</span>)
+<span class="fn">print</span>()
+<span class="kw">for</span> dr <span class="kw">in</span> [<span class="nu">0.08</span>, <span class="nu">0.09</span>, <span class="nu">0.10</span>, <span class="nu">0.11</span>, <span class="nu">0.12</span>]:
+    <span class="fn">print</span>(<span class="st">f"r={dr:.0%}     "</span>, end=<span class="st">""</span>)
+    <span class="kw">for</span> tg <span class="kw">in</span> [<span class="nu">0.02</span>, <span class="nu">0.025</span>, <span class="nu">0.03</span>, <span class="nu">0.035</span>, <span class="nu">0.04</span>]:
+        v = <span class="fn">dcf_valuation</span>(<span class="nu">500</span>, [<span class="nu">0.15</span>,<span class="nu">0.12</span>,<span class="nu">0.10</span>,<span class="nu">0.08</span>,<span class="nu">0.06</span>], tg, dr)
+        <span class="fn">print</span>(<span class="st">f"  {v['intrinsic_value']:>7,.0f}"</span>, end=<span class="st">""</span>)
+    <span class="fn">print</span>()</pre>
+
+
+    <!-- SECTION 3: P/E Ratio -->
+
+    <h2>3. The P/E Ratio as a Sufficient Statistic</h2>
+
+    <p>
+      The <strong>Price-to-Earnings (P/E) ratio</strong> is the single most widely used metric
+      in equity valuation. It compresses a complex valuation problem into a single number:
+    </p>
+
+    <div class="formula-box">
+      P/E = Stock Price / Earnings Per Share (EPS)
+    </div>
+
+    <p>
+      Why is P/E so popular? Because under certain conditions, it acts as a
+      <strong>sufficient statistic</strong> for relative valuation. If two companies have
+      similar growth prospects, risk profiles, and capital structures, then comparing their P/E
+      ratios tells you which is "cheaper" relative to its earnings power.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Recall that a sufficient statistic T(X) captures all the information in the data X about
+        a parameter &theta;. The P/E ratio acts as a (approximate) sufficient statistic for
+        <em>relative</em> valuation: if you know two companies' P/E ratios and believe their
+        growth and risk are comparable, P/E alone determines which is the better buy. You don't
+        need the full DCF &mdash; just as you don't need the entire dataset once you have the
+        sufficient statistic.
+      </p>
+    </div>
+
+    <h3>3.1 Deriving P/E from the Gordon Growth Model</h3>
+
+    <p>
+      We can derive what determines P/E from first principles. Start with the Gordon Growth Model
+      V<sub>0</sub> = E<sub>1</sub> &middot; k / (r &minus; g), where E<sub>1</sub> is next year's
+      earnings and k is the payout ratio. Then:
+    </p>
+
+    <div class="formula-box">
+      P/E = Price / Earnings = k / (r &minus; g)
+    </div>
+
+    <p>This reveals that P/E is driven by three factors:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Effect on P/E</th>
+          <th>Statistical Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Growth rate (g) &uarr;</td>
+          <td>P/E &uarr;</td>
+          <td>Higher expected drift of the cash flow process</td>
+        </tr>
+        <tr>
+          <td>Discount rate (r) &uarr;</td>
+          <td>P/E &darr;</td>
+          <td>Higher required return = more discounting = lower present value</td>
+        </tr>
+        <tr>
+          <td>Payout ratio (k) &uarr;</td>
+          <td>P/E &uarr;</td>
+          <td>More of earnings distributed as observable cash flows</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Trailing vs. Forward P/E</h3>
+
+    <p>
+      <strong>Trailing P/E</strong> uses the last 12 months of actual earnings. Think of it as
+      using the <em>sample mean</em> of past earnings as your estimate. <strong>Forward P/E</strong>
+      uses analyst consensus estimates of next year's earnings &mdash; a <em>forecast</em> or
+      <em>posterior predictive mean</em>. Forward P/E is generally more useful because stock
+      prices are forward-looking.
+    </p>
+
+    <h3>3.3 Sector P/E Comparisons</h3>
+
+    <p>
+      P/E ratios vary dramatically across sectors because different industries have different
+      growth and risk profiles:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Sector</th>
+          <th>Typical P/E Range</th>
+          <th>Why?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Technology</td>
+          <td>25&ndash;50x</td>
+          <td>High growth expectations, scalable business models</td>
+        </tr>
+        <tr>
+          <td>Utilities</td>
+          <td>12&ndash;18x</td>
+          <td>Stable but slow growth, regulated returns</td>
+        </tr>
+        <tr>
+          <td>Financials</td>
+          <td>10&ndash;15x</td>
+          <td>Cyclical, opaque balance sheets</td>
+        </tr>
+        <tr>
+          <td>Healthcare</td>
+          <td>18&ndash;30x</td>
+          <td>Patent-driven growth, binary outcomes</td>
+        </tr>
+        <tr>
+          <td>Consumer Staples</td>
+          <td>18&ndash;25x</td>
+          <td>Defensive, predictable cash flows</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        Never compare P/E ratios across sectors without adjusting for growth. A tech company
+        at 40x P/E may be "cheaper" than a utility at 15x P/E if the tech company is growing at
+        25%/year while the utility grows at 2%. The <strong>PEG ratio</strong> (P/E divided by
+        growth rate) attempts to normalize for this, though it has its own issues.
+      </p>
+    </div>
+
+    <h3>3.4 Python: Computing P/E Ratios</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Sample data for major tech companies (illustrative)</span>
+tech_stocks = pd.DataFrame({
+    <span class="st">'company'</span>: [<span class="st">'Apple'</span>, <span class="st">'Microsoft'</span>, <span class="st">'Google'</span>, <span class="st">'Amazon'</span>, <span class="st">'Meta'</span>, <span class="st">'Nvidia'</span>],
+    <span class="st">'price'</span>: [<span class="nu">195</span>, <span class="nu">420</span>, <span class="nu">175</span>, <span class="nu">185</span>, <span class="nu">510</span>, <span class="nu">130</span>],
+    <span class="st">'trailing_eps'</span>: [<span class="nu">6.42</span>, <span class="nu">11.07</span>, <span class="nu">5.80</span>, <span class="nu">2.90</span>, <span class="nu">14.87</span>, <span class="nu">1.74</span>],
+    <span class="st">'forward_eps'</span>: [<span class="nu">7.10</span>, <span class="nu">12.50</span>, <span class="nu">6.80</span>, <span class="nu">4.20</span>, <span class="nu">17.20</span>, <span class="nu">2.80</span>],
+    <span class="st">'growth_rate'</span>: [<span class="nu">0.08</span>, <span class="nu">0.14</span>, <span class="nu">0.18</span>, <span class="nu">0.25</span>, <span class="nu">0.20</span>, <span class="nu">0.40</span>],
+})
+
+<span class="cm"># Compute valuation metrics</span>
+tech_stocks[<span class="st">'trailing_pe'</span>] = tech_stocks[<span class="st">'price'</span>] / tech_stocks[<span class="st">'trailing_eps'</span>]
+tech_stocks[<span class="st">'forward_pe'</span>]  = tech_stocks[<span class="st">'price'</span>] / tech_stocks[<span class="st">'forward_eps'</span>]
+tech_stocks[<span class="st">'peg_ratio'</span>]   = tech_stocks[<span class="st">'trailing_pe'</span>] / (tech_stocks[<span class="st">'growth_rate'</span>] * <span class="nu">100</span>)
+
+<span class="fn">print</span>(tech_stocks[[<span class="st">'company'</span>, <span class="st">'trailing_pe'</span>, <span class="st">'forward_pe'</span>, <span class="st">'peg_ratio'</span>]].to_string(index=<span class="kw">False</span>))
+
+<span class="cm"># Rank by PEG ratio (lower = more attractive relative to growth)</span>
+<span class="fn">print</span>(<span class="st">"\n--- Ranked by PEG Ratio (lower = potentially cheaper) ---"</span>)
+ranked = tech_stocks.sort_values(<span class="st">'peg_ratio'</span>)
+<span class="kw">for</span> _, row <span class="kw">in</span> ranked.iterrows():
+    <span class="fn">print</span>(<span class="st">f"  {row['company']:>10}: PEG = {row['peg_ratio']:.2f}  "</span>
+          <span class="st">f"(P/E = {row['trailing_pe']:.1f}, Growth = {row['growth_rate']:.0%})"</span>)</pre>
+
+
+    <!-- SECTION 4: Earnings as a Noisy Signal -->
+
+    <h2>4. Earnings as a Noisy Signal</h2>
+
+    <p>
+      A company's reported earnings are not a clean measurement of its true economic profitability.
+      Accounting rules, management discretion, and one-time items all inject noise into the
+      reported figure. A statistician should model this explicitly:
+    </p>
+
+    <div class="formula-box">
+      Reported Earnings = True Economic Earnings + Measurement Error + Manipulation Bias
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        This is exactly a <strong>measurement error model</strong>. Let Y = reported earnings,
+        &theta; = true earnings, &epsilon; = noise. Then Y = &theta; + &epsilon;. The
+        <strong>signal-to-noise ratio</strong> of earnings varies by company and industry. Utilities
+        have high SNR (stable, predictable earnings). Biotech companies have low SNR (earnings
+        driven by binary clinical trial outcomes). When SNR is low, P/E ratios become unreliable
+        because the denominator is dominated by noise.
+      </p>
+    </div>
+
+    <h3>4.1 Sources of Earnings Noise</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Nature</th>
+          <th>Statistical Character</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Revenue recognition timing</td>
+          <td>When to count a sale</td>
+          <td>Autocorrelated &mdash; early recognition borrows from the future</td>
+        </tr>
+        <tr>
+          <td>Depreciation methods</td>
+          <td>Straight-line vs. accelerated</td>
+          <td>Systematic bias based on accounting choice</td>
+        </tr>
+        <tr>
+          <td>One-time charges</td>
+          <td>Restructuring, legal settlements</td>
+          <td>Heavy-tailed noise &mdash; rare but large</td>
+        </tr>
+        <tr>
+          <td>Stock-based compensation</td>
+          <td>Non-cash expense, hard to value</td>
+          <td>Measurement error from option pricing models</td>
+        </tr>
+        <tr>
+          <td>Inventory valuation</td>
+          <td>FIFO vs. LIFO choice</td>
+          <td>Systematic bias, especially during inflation</td>
+        </tr>
+        <tr>
+          <td>Goodwill impairment</td>
+          <td>Write-down of acquisition premium</td>
+          <td>Lumpy, discontinuous &mdash; like a regime switch</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 Earnings Quality Metrics</h3>
+
+    <p>
+      Analysts use several metrics to assess "earnings quality" &mdash; essentially the SNR of
+      reported earnings:
+    </p>
+
+    <ul>
+      <li><strong>Accruals ratio</strong> = (Net Income &minus; Operating Cash Flow) / Total Assets.
+          High accruals suggest earnings are driven by accounting entries rather than cash, lowering quality.</li>
+      <li><strong>Earnings persistence</strong> = autocorrelation of earnings: Corr(E<sub>t</sub>, E<sub>t-1</sub>).
+          Higher persistence means earnings are more predictable and likely more informative.</li>
+      <li><strong>Cash conversion</strong> = Operating Cash Flow / Net Income. Values near 1.0 or higher
+          suggest earnings reflect real cash generation.</li>
+    </ul>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        When earnings quality is low (high noise), you should either (a) use more years of data
+        to average out the noise (Shiller's CAPE ratio uses 10 years of earnings), (b) switch to
+        cash-flow-based metrics which are harder to manipulate, or (c) use revenue multiples
+        instead, since revenue is less subject to accounting discretion.
+      </p>
+    </div>
+
+    <h3>4.3 Earnings Surprises and Market Reaction</h3>
+
+    <p>
+      Every quarter, companies report earnings and the market reacts. The key variable is not the
+      level of earnings but the <strong>surprise</strong>:
+    </p>
+
+    <div class="formula-box">
+      Surprise<sub>t</sub> = (Actual EPS<sub>t</sub> &minus; Consensus Estimate<sub>t</sub>) / |Consensus Estimate<sub>t</sub>|
+    </div>
+
+    <p>
+      This is a <strong>standardized prediction error</strong>. Positive surprises ("beats") drive
+      stock prices up; negative surprises ("misses") drive them down. Interestingly, the market
+      response is asymmetric &mdash; misses are punished more severely than beats are rewarded.
+      This is consistent with <strong>prospect theory</strong> and loss aversion.
+    </p>
+
+
+    <!-- SECTION 5: Dividends vs. Buybacks -->
+
+    <h2>5. Dividends vs. Buybacks</h2>
+
+    <p>
+      Companies return cash to shareholders through two mechanisms: <strong>dividends</strong>
+      (regular cash payments per share) and <strong>share buybacks</strong> (the company buys its
+      own stock on the open market, reducing shares outstanding). Both reduce the company's cash
+      holdings but have different statistical and tax implications.
+    </p>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Dividend yield</strong> = Annual dividends per share / Stock price. This is the
+        "income return" component of stock ownership. <strong>Buyback yield</strong> = Dollar
+        amount of shares repurchased / Market cap. The <strong>total shareholder yield</strong>
+        is the sum of dividend yield and buyback yield.
+      </p>
+    </div>
+
+    <h3>5.1 Comparison Table</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Dividends</th>
+          <th>Buybacks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cash delivery</td>
+          <td>Direct cash to all shareholders</td>
+          <td>Cash only to selling shareholders</td>
+        </tr>
+        <tr>
+          <td>Tax treatment (US)</td>
+          <td>Taxed as dividend income</td>
+          <td>Deferred until shares are sold (capital gains)</td>
+        </tr>
+        <tr>
+          <td>Signal</td>
+          <td>Strong commitment &mdash; cuts are punished</td>
+          <td>Flexible &mdash; can be paused quietly</td>
+        </tr>
+        <tr>
+          <td>Effect on share count</td>
+          <td>No change</td>
+          <td>Reduces shares outstanding, increasing EPS</td>
+        </tr>
+        <tr>
+          <td>EPS effect</td>
+          <td>No mechanical effect</td>
+          <td>Increases EPS (same earnings, fewer shares)</td>
+        </tr>
+        <tr>
+          <td>Statistical analogue</td>
+          <td>Observable, regular signal</td>
+          <td>Latent variable &mdash; must be inferred from share count changes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Dividends are an <strong>observable variable</strong> &mdash; you see the cash land in
+        your account. Buybacks are more like a <strong>latent variable</strong>: they increase
+        your ownership percentage but you don't receive explicit cash. The effect is indirect,
+        operating through an increase in EPS. Detecting the signal of a buyback requires
+        monitoring changes in shares outstanding &mdash; essentially a <strong>difference-in-differences
+        estimation</strong>.
+      </p>
+    </div>
+
+    <h3>5.2 The Dividend Signaling Hypothesis</h3>
+
+    <p>
+      Finance theory holds that dividend changes are a <em>signal</em> from management about
+      future prospects. Initiating or increasing a dividend signals confidence in sustained cash
+      flows. Cutting a dividend signals distress. The market reacts accordingly:
+    </p>
+
+    <ul>
+      <li><strong>Dividend increase</strong>: Average abnormal return of +1% to +3% around announcement</li>
+      <li><strong>Dividend cut</strong>: Average abnormal return of &minus;5% to &minus;10%</li>
+      <li><strong>Asymmetry</strong>: Cuts are punished much more than increases are rewarded (loss aversion)</li>
+    </ul>
+
+    <p>
+      This asymmetry means dividends are a <strong>sticky</strong> commitment. Once established,
+      companies are reluctant to cut them, making dividend-paying stocks behave somewhat more
+      like bonds in their predictability.
+    </p>
+
+
+    <!-- SECTION 6: Market Cap and Enterprise Value -->
+
+    <h2>6. Market Cap &amp; Enterprise Value</h2>
+
+    <h3>6.1 Market Capitalization</h3>
+
+    <p>
+      Market capitalization is the simplest measure of a company's total equity value:
+    </p>
+
+    <div class="formula-box">
+      Market Cap = Share Price &times; Shares Outstanding
+    </div>
+
+    <p>
+      This is the market's consensus estimate of the present value of all future cash flows to
+      equity holders. Companies are classified by market cap:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Market Cap Range</th>
+          <th>Return Distribution Characteristics</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mega-cap</td>
+          <td>&gt; $200B</td>
+          <td>Lower volatility, more normally distributed, high liquidity</td>
+        </tr>
+        <tr>
+          <td>Large-cap</td>
+          <td>$10B &ndash; $200B</td>
+          <td>Moderate volatility, well-covered by analysts</td>
+        </tr>
+        <tr>
+          <td>Mid-cap</td>
+          <td>$2B &ndash; $10B</td>
+          <td>Higher volatility, less analyst coverage, potential alpha</td>
+        </tr>
+        <tr>
+          <td>Small-cap</td>
+          <td>$300M &ndash; $2B</td>
+          <td>High volatility, fat tails, illiquidity premium</td>
+        </tr>
+        <tr>
+          <td>Micro-cap</td>
+          <td>&lt; $300M</td>
+          <td>Very high volatility, extreme tails, sparse trading</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>6.2 Enterprise Value (EV)</h3>
+
+    <p>
+      Enterprise Value provides a more complete picture by including debt:
+    </p>
+
+    <div class="formula-box">
+      EV = Market Cap + Total Debt &minus; Cash &amp; Equivalents
+    </div>
+
+    <p>
+      Why? Because if you were to <em>acquire</em> the company, you would pay the market cap
+      (to buy all shares) but also assume its debt (which you must repay) while gaining its cash
+      (which you can use). EV represents the total value of the firm's <em>operations</em>,
+      independent of how they are financed.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Think of EV as the <strong>total variance</strong> of the firm's asset returns, while
+        market cap only captures the <strong>equity component</strong>. Just as total variance =
+        explained variance + residual variance in an ANOVA decomposition, EV = equity value +
+        net debt. The EV/EBITDA ratio is often preferred over P/E because it is capital-structure
+        neutral &mdash; analogous to using a test statistic that is invariant to nuisance parameters.
+      </p>
+    </div>
+
+    <h3>6.3 EV-Based Multiples</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Multiple</th>
+          <th>Formula</th>
+          <th>When to Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>EV/Revenue</td>
+          <td>Enterprise Value / Revenue</td>
+          <td>Pre-profit companies, SaaS metrics</td>
+        </tr>
+        <tr>
+          <td>EV/EBITDA</td>
+          <td>Enterprise Value / EBITDA</td>
+          <td>Most widely used; capital-structure neutral</td>
+        </tr>
+        <tr>
+          <td>EV/EBIT</td>
+          <td>Enterprise Value / EBIT</td>
+          <td>When depreciation is meaningful (capex-heavy industries)</td>
+        </tr>
+        <tr>
+          <td>EV/FCF</td>
+          <td>Enterprise Value / Free Cash Flow</td>
+          <td>Most rigorous; accounts for capital expenditure</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 7: Growth vs. Value Stocks -->
+
+    <h2>7. Growth vs. Value Stocks</h2>
+
+    <p>
+      One of the most important distinctions in equity investing is between <strong>growth stocks</strong>
+      and <strong>value stocks</strong>. These represent two distinct <em>regimes</em> of the
+      return-generating process.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Growth vs. value is a <strong>regime classification problem</strong>. Each stock's return
+        distribution comes from one of two latent regimes (or a mixture). Growth stocks have
+        higher expected returns but also higher variance and more positive skewness. Value stocks
+        have lower expected returns with lower variance. The cross-section of stock returns can
+        be modeled as a <strong>two-component mixture distribution</strong>.
+      </p>
+    </div>
+
+    <h3>7.1 Characteristics</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Growth Stocks</th>
+          <th>Value Stocks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>P/E ratio</td>
+          <td>High (25x&ndash;100x+)</td>
+          <td>Low (5x&ndash;15x)</td>
+        </tr>
+        <tr>
+          <td>P/B ratio</td>
+          <td>High (&gt;3x)</td>
+          <td>Low (&lt;1.5x)</td>
+        </tr>
+        <tr>
+          <td>Dividend yield</td>
+          <td>Low or zero</td>
+          <td>Higher (2%&ndash;5%)</td>
+        </tr>
+        <tr>
+          <td>Revenue growth</td>
+          <td>&gt;15%/year</td>
+          <td>&lt;5%/year</td>
+        </tr>
+        <tr>
+          <td>Earnings volatility</td>
+          <td>High</td>
+          <td>Lower, more stable</td>
+        </tr>
+        <tr>
+          <td>Return distribution</td>
+          <td>High variance, right-skewed</td>
+          <td>Lower variance, more symmetric</td>
+        </tr>
+        <tr>
+          <td>Market behavior</td>
+          <td>Outperform in expansions</td>
+          <td>Outperform in recoveries</td>
+        </tr>
+        <tr>
+          <td>Examples</td>
+          <td>Tesla, Nvidia, Shopify</td>
+          <td>Berkshire Hathaway, JPMorgan, Exxon</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>7.2 The Value Premium</h3>
+
+    <p>
+      The <strong>value premium</strong> is the historical tendency of value stocks to outperform
+      growth stocks over long horizons. This is one of the most robust findings in empirical
+      asset pricing. On average, value stocks have returned 3&ndash;5% more per year than growth
+      stocks since the 1930s.
+    </p>
+
+    <p>
+      Two competing explanations exist:
+    </p>
+
+    <ul>
+      <li><strong>Risk-based</strong>: Value stocks are riskier in ways not captured by beta
+          (e.g., they are more sensitive to recessions, have higher financial leverage). The premium
+          is compensation for bearing this risk. Statistically, they have higher <em>tail risk</em>.</li>
+      <li><strong>Behavioral</strong>: Investors systematically overvalue growth and undervalue
+          boring, struggling companies. The premium reflects systematic mispricing driven by
+          cognitive biases (extrapolation, glamour). Statistically, this is a <em>persistent bias</em>
+          in the market's estimator.</li>
+    </ul>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The growth/value distinction maps directly to the <strong>bias-variance tradeoff</strong>.
+        Value investing is like using a simpler model (low variance, potentially some bias from
+        ignoring growth opportunities). Growth investing is like using a complex model (lower bias
+        in capturing opportunities, but higher variance in outcomes). Neither dominates the other
+        in all market conditions.
+      </p>
+    </div>
+
+    <h3>7.3 Python: Classifying Stocks by Growth vs. Value</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Simulate a universe of 200 stocks with growth/value characteristics</span>
+np.random.seed(<span class="nu">42</span>)
+n = <span class="nu">200</span>
+
+<span class="cm"># Latent regime: 0 = value, 1 = growth</span>
+regime = np.random.binomial(<span class="nu">1</span>, <span class="nu">0.4</span>, n)  <span class="cm"># 40% growth, 60% value</span>
+
+<span class="cm"># Generate characteristics conditional on regime</span>
+pe_ratio = np.where(regime == <span class="nu">1</span>,
+    np.random.lognormal(<span class="nu">3.5</span>, <span class="nu">0.4</span>, n),   <span class="cm"># Growth: high P/E</span>
+    np.random.lognormal(<span class="nu">2.5</span>, <span class="nu">0.3</span>, n))   <span class="cm"># Value: low P/E</span>
+
+pb_ratio = np.where(regime == <span class="nu">1</span>,
+    np.random.lognormal(<span class="nu">1.5</span>, <span class="nu">0.5</span>, n),   <span class="cm"># Growth: high P/B</span>
+    np.random.lognormal(<span class="nu">0.3</span>, <span class="nu">0.3</span>, n))   <span class="cm"># Value: low P/B</span>
+
+div_yield = np.where(regime == <span class="nu">1</span>,
+    np.random.exponential(<span class="nu">0.005</span>, n),   <span class="cm"># Growth: near-zero dividends</span>
+    np.random.exponential(<span class="nu">0.03</span>, n))    <span class="cm"># Value: meaningful dividends</span>
+
+<span class="cm"># Generate returns — growth has higher variance</span>
+returns = np.where(regime == <span class="nu">1</span>,
+    np.random.normal(<span class="nu">0.12</span>, <span class="nu">0.30</span>, n),    <span class="cm"># Growth: higher E[r], higher vol</span>
+    np.random.normal(<span class="nu">0.10</span>, <span class="nu">0.18</span>, n))    <span class="cm"># Value: slightly lower E[r], lower vol</span>
+
+stocks = pd.DataFrame({
+    <span class="st">'pe_ratio'</span>: pe_ratio,
+    <span class="st">'pb_ratio'</span>: pb_ratio,
+    <span class="st">'div_yield'</span>: div_yield,
+    <span class="st">'annual_return'</span>: returns,
+    <span class="st">'true_regime'</span>: np.where(regime == <span class="nu">1</span>, <span class="st">'Growth'</span>, <span class="st">'Value'</span>)
+})
+
+<span class="cm"># Summary statistics by regime</span>
+<span class="fn">print</span>(<span class="st">"=== Return Distribution by Regime ==="</span>)
+<span class="fn">print</span>(stocks.groupby(<span class="st">'true_regime'</span>)[<span class="st">'annual_return'</span>].describe().round(<span class="nu">3</span>))
+
+<span class="fn">print</span>(<span class="st">"\n=== Characteristic Means by Regime ==="</span>)
+<span class="fn">print</span>(stocks.groupby(<span class="st">'true_regime'</span>)[[<span class="st">'pe_ratio'</span>, <span class="st">'pb_ratio'</span>, <span class="st">'div_yield'</span>]].mean().round(<span class="nu">3</span>))
+
+<span class="cm"># Simple classification using P/E ratio threshold</span>
+<span class="cm"># (analogous to a decision tree with a single split)</span>
+median_pe = stocks[<span class="st">'pe_ratio'</span>].median()
+stocks[<span class="st">'classified'</span>] = np.where(stocks[<span class="st">'pe_ratio'</span>] > median_pe, <span class="st">'Growth'</span>, <span class="st">'Value'</span>)
+
+<span class="cm"># Classification accuracy</span>
+accuracy = (stocks[<span class="st">'classified'</span>] == stocks[<span class="st">'true_regime'</span>]).mean()
+<span class="fn">print</span>(<span class="st">f"\nClassification accuracy using median P/E split: {accuracy:.1%}"</span>)</pre>
+
+
+    <!-- SECTION 8: Putting It All Together -->
+
+    <h2>8. Putting It All Together: A Valuation Framework</h2>
+
+    <p>
+      Here is a systematic approach to equity valuation that combines all the concepts in this module:
+    </p>
+
+    <ol>
+      <li><strong>Understand the business</strong>: What are the company's cash flow drivers?
+          How stable are they? (Characterize the data-generating process.)</li>
+      <li><strong>Assess earnings quality</strong>: Is the signal-to-noise ratio of reported
+          earnings high enough for P/E-based analysis? If not, use cash flow metrics.</li>
+      <li><strong>Apply relative valuation</strong>: Compare P/E (or EV/EBITDA) to sector peers.
+          Is the stock cheap or expensive relative to comparable companies?</li>
+      <li><strong>Build a DCF model</strong>: Project cash flows, choose a discount rate,
+          estimate terminal value. Run sensitivity analysis on key parameters.</li>
+      <li><strong>Triangulate</strong>: If relative and intrinsic valuation agree, you have
+          stronger evidence. If they disagree, investigate why.</li>
+      <li><strong>Quantify uncertainty</strong>: Never present a point estimate. Give a range.
+          Better yet, simulate the DCF with distributions on each input and present the
+          distribution of intrinsic values.</li>
+    </ol>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The best equity analysts think like Bayesian statisticians: they start with a prior
+        (industry P/E, historical growth rate), update as new data arrives (quarterly earnings,
+        management guidance), and maintain a posterior <em>distribution</em> of fair value rather
+        than a single number. The "price target" that Wall Street publishes is just the posterior
+        mean &mdash; but the posterior variance matters enormously for position sizing.
+      </p>
+    </div>
+
+    <h3>8.1 Monte Carlo DCF</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">monte_carlo_dcf</span>(base_fcf, n_simulations=<span class="nu">10000</span>, n_years=<span class="nu">5</span>):
+    <span class="st">"""
+    Monte Carlo DCF with uncertain growth, discount rate, and terminal growth.
+    """</span>
+    np.random.seed(<span class="nu">123</span>)
+
+    <span class="cm"># Draw random parameters from prior distributions</span>
+    growth_mean = np.random.normal(<span class="nu">0.10</span>, <span class="nu">0.03</span>, n_simulations)    <span class="cm"># mean growth ~10%</span>
+    discount_rate = np.random.normal(<span class="nu">0.10</span>, <span class="nu">0.015</span>, n_simulations)  <span class="cm"># WACC ~10%</span>
+    terminal_g = np.random.normal(<span class="nu">0.03</span>, <span class="nu">0.005</span>, n_simulations)    <span class="cm"># terminal ~3%</span>
+
+    <span class="cm"># Ensure valid parameters</span>
+    discount_rate = np.clip(discount_rate, <span class="nu">0.05</span>, <span class="nu">0.20</span>)
+    terminal_g = np.clip(terminal_g, <span class="nu">0.01</span>, <span class="nu">0.05</span>)
+
+    values = np.zeros(n_simulations)
+
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_simulations):
+        r = discount_rate[i]
+        g = growth_mean[i]
+        tg = terminal_g[i]
+
+        <span class="cm"># Project FCFs with declining growth</span>
+        pv = <span class="nu">0</span>
+        fcf = base_fcf
+        <span class="kw">for</span> t <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1</span>, n_years + <span class="nu">1</span>):
+            annual_g = g * (<span class="nu">1</span> - <span class="nu">0.1</span> * t) + np.random.normal(<span class="nu">0</span>, <span class="nu">0.02</span>)  <span class="cm"># declining + noise</span>
+            fcf = fcf * (<span class="nu">1</span> + annual_g)
+            pv += fcf / (<span class="nu">1</span> + r) ** t
+
+        <span class="cm"># Terminal value</span>
+        <span class="kw">if</span> r > tg:
+            tv = fcf * (<span class="nu">1</span> + tg) / (r - tg)
+            pv += tv / (<span class="nu">1</span> + r) ** n_years
+
+        values[i] = pv
+
+    <span class="cm"># Remove extreme outliers (top/bottom 1%)</span>
+    values = values[(values > np.percentile(values, <span class="nu">1</span>)) &
+                    (values &lt; np.percentile(values, <span class="nu">99</span>))]
+
+    <span class="fn">print</span>(<span class="st">f"Monte Carlo DCF Results (n = {len(values):,} simulations)"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Mean intrinsic value:   ${np.mean(values):>10,.0f}M"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Median:                 ${np.median(values):>10,.0f}M"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Std deviation:          ${np.std(values):>10,.0f}M"</span>)
+    <span class="fn">print</span>(<span class="st">f"  5th percentile:         ${np.percentile(values, 5):>10,.0f}M"</span>)
+    <span class="fn">print</span>(<span class="st">f"  95th percentile:        ${np.percentile(values, 95):>10,.0f}M"</span>)
+    <span class="fn">print</span>(<span class="st">f"  90% confidence width:   ${np.percentile(values, 95) - np.percentile(values, 5):>10,.0f}M"</span>)
+
+<span class="fn">monte_carlo_dcf</span>(base_fcf=<span class="nu">500</span>)</pre>
+
+    <h2>9. Summary</h2>
+
+    <p>
+      This module has established the statistical foundations of equity valuation:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Finance Concept</th>
+          <th>Statistical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Stock price</td>
+          <td>E[PV of future random cash flows]</td>
+        </tr>
+        <tr>
+          <td>DCF model</td>
+          <td>Expected value of a weighted stochastic series</td>
+        </tr>
+        <tr>
+          <td>P/E ratio</td>
+          <td>Sufficient statistic for relative valuation</td>
+        </tr>
+        <tr>
+          <td>Reported earnings</td>
+          <td>Noisy measurement of true economic value</td>
+        </tr>
+        <tr>
+          <td>Earnings surprise</td>
+          <td>Standardized prediction error</td>
+        </tr>
+        <tr>
+          <td>Growth vs. value</td>
+          <td>Two regimes of the return distribution (mixture model)</td>
+        </tr>
+        <tr>
+          <td>Terminal value sensitivity</td>
+          <td>High sensitivity to nuisance parameter</td>
+        </tr>
+        <tr>
+          <td>Enterprise value</td>
+          <td>Total variance decomposition (equity + debt)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      In the next module, we move to the other side of the capital structure: <strong>bonds and fixed
+      income</strong>, where cash flows become (nearly) deterministic and the math gets delightfully
+      precise. See you in Module 12.
+    </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-10/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-12/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

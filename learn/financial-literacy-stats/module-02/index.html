@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 02 of Financial Literacy for Statisticians: why raw prices are useless and how returns transform nonstationary data into something you can model.">
+  <title>Returns, Not Prices — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 02: Returns, Not Prices</h1>
+      <p class="tagline">The most fundamental transformation in quantitative finance</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 1 of 5</span>
+        <span class="meta-item">Module 02 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-01/index.html">&larr; Previous</a>
+      <span class="current">Module 02 of 22</span>
+      <a href="../module-03/index.html">Next &rarr;</a>
+    </div>
+
+
+      <h2>1. Why Raw Prices Are Useless for Statistical Analysis</h2>
+
+      <p>
+        If you were handed a time series of daily temperatures and asked to model it, your
+        first instinct would be to check stationarity. You know that most standard statistical
+        methods &mdash; OLS regression, correlation, spectral analysis &mdash; assume or
+        require stationarity. Financial prices violate this assumption catastrophically.
+      </p>
+
+      <p>
+        A stock price like Apple at $175 today tells you almost nothing in isolation. Is that
+        high or low? Is the stock rising or falling? Is it more volatile than Google? You
+        cannot answer any of these questions from the raw price alone. Worse, any regression
+        of one price on another will almost certainly produce a high R-squared and a
+        statistically significant coefficient &mdash; even when the two series are completely
+        unrelated.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        This is the <strong>spurious regression problem</strong> that Granger and Newbold
+        (1974) demonstrated: regressing one random walk on another produces absurdly high
+        t-statistics and R-squared values. The standard errors are wrong because they
+        assume stationary residuals. If you have taken a time series course, you know
+        this as the reason we difference nonstationary series before modeling.
+      </div>
+
+      <h3>1.1 Nonstationarity of Prices</h3>
+
+      <p>
+        Stock prices exhibit several forms of nonstationarity:
+      </p>
+
+      <ul>
+        <li><strong>Trending mean:</strong> Over long periods, stock prices tend to increase (reflecting economic growth and inflation).</li>
+        <li><strong>Non-constant variance:</strong> The variance of price levels grows over time. A $100 stock that fluctuates by $2 per day has a 2% daily range; if it grows to $200, $2 fluctuations would be 1%, but in practice the fluctuations scale with the price level.</li>
+        <li><strong>Unit root:</strong> Prices follow an approximate random walk &mdash; today&rsquo;s price is yesterday&rsquo;s price plus noise.</li>
+      </ul>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The fundamental transformation in quantitative finance is: <strong>never analyze
+        prices; always analyze returns</strong>. This is the financial equivalent of
+        differencing a time series to achieve stationarity. It is so universal that when
+        a finance person says &ldquo;data,&rdquo; they almost always mean returns, not
+        prices.
+      </div>
+
+      <h3>1.2 A Visual Demonstration</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Download two unrelated assets</span>
+aapl = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2025-01-01"</span>)[<span class="st">"Adj Close"</span>]
+gold = yf.download(<span class="st">"GC=F"</span>, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2025-01-01"</span>)[<span class="st">"Adj Close"</span>]
+
+<span class="cm"># Align on common dates</span>
+combined = pd.DataFrame({<span class="st">"AAPL"</span>: aapl, <span class="st">"Gold"</span>: gold}).dropna()
+
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">5</span>))
+
+<span class="cm"># Left: prices (misleading correlation)</span>
+axes[<span class="nu">0</span>].scatter(combined[<span class="st">"AAPL"</span>], combined[<span class="st">"Gold"</span>], alpha=<span class="nu">0.3</span>, s=<span class="nu">5</span>)
+axes[<span class="nu">0</span>].set_xlabel(<span class="st">"AAPL Price ($)"</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">"Gold Price ($)"</span>)
+r_prices = combined[<span class="st">"AAPL"</span>].corr(combined[<span class="st">"Gold"</span>])
+axes[<span class="nu">0</span>].set_title(f<span class="st">"Prices: r = {r_prices:.3f} (SPURIOUS)"</span>)
+
+<span class="cm"># Right: returns (real correlation)</span>
+ret = combined.pct_change().dropna()
+axes[<span class="nu">1</span>].scatter(ret[<span class="st">"AAPL"</span>], ret[<span class="st">"Gold"</span>], alpha=<span class="nu">0.3</span>, s=<span class="nu">5</span>)
+axes[<span class="nu">1</span>].set_xlabel(<span class="st">"AAPL Return"</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">"Gold Return"</span>)
+r_returns = ret[<span class="st">"AAPL"</span>].corr(ret[<span class="st">"Gold"</span>])
+axes[<span class="nu">1</span>].set_title(f<span class="st">"Returns: r = {r_returns:.3f} (REAL)"</span>)
+
+plt.tight_layout()
+plt.show()
+<span class="cm"># The price correlation will be high (~0.9); the return correlation near zero</span></pre>
+
+
+      <h2>2. Simple (Arithmetic) Returns</h2>
+
+      <h3>2.1 Definition</h3>
+
+      <p>
+        The <strong>simple return</strong> (also called arithmetic return) over one period is
+        the percentage change in price:
+      </p>
+
+      <div class="formula-box">
+        R<sub>t</sub> = (P<sub>t</sub> &minus; P<sub>t&minus;1</sub>) / P<sub>t&minus;1</sub> = P<sub>t</sub> / P<sub>t&minus;1</sub> &minus; 1
+      </div>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Simple Return:</strong> The fractional change in the value of an investment
+        over one period. A return of 0.02 means a 2% gain; a return of &minus;0.03 means a
+        3% loss. This is the most intuitive measure: if you invested $100 and earned a 5%
+        simple return, you now have $105.
+      </div>
+
+      <h3>2.2 Properties of Simple Returns</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Simple Returns</th>
+            <th>Statistical Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lower bound</td>
+            <td>&minus;1 (100% loss)</td>
+            <td>Bounded below; cannot lose more than 100% (for stocks)</td>
+          </tr>
+          <tr>
+            <td>Upper bound</td>
+            <td>Unbounded above</td>
+            <td>Asymmetric distribution by construction</td>
+          </tr>
+          <tr>
+            <td>Multi-period aggregation</td>
+            <td>Multiplicative: (1+R<sub>1</sub>)(1+R<sub>2</sub>)&hellip;(1+R<sub>T</sub>) &minus; 1</td>
+            <td>Not additive &mdash; you cannot simply sum daily returns</td>
+          </tr>
+          <tr>
+            <td>Cross-sectional aggregation</td>
+            <td>Additive (portfolio return = weighted sum)</td>
+            <td>Portfolio return is a linear combination</td>
+          </tr>
+          <tr>
+            <td>Distribution</td>
+            <td>Slightly right-skewed</td>
+            <td>Due to the &minus;1 lower bound</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Computing Simple Returns in Python</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+aapl = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2020-01-01"</span>, end=<span class="st">"2025-01-01"</span>)
+
+<span class="cm"># Method 1: Using pct_change()</span>
+simple_returns = aapl[<span class="st">"Adj Close"</span>].pct_change()
+
+<span class="cm"># Method 2: Manual calculation (equivalent)</span>
+prices = aapl[<span class="st">"Adj Close"</span>]
+simple_returns_manual = (prices - prices.shift(<span class="nu">1</span>)) / prices.shift(<span class="nu">1</span>)
+
+<span class="cm"># Verify they are identical</span>
+<span class="fn">print</span>(<span class="st">"Max difference:"</span>, (simple_returns - simple_returns_manual).abs().max())
+
+<span class="cm"># Drop the first NaN value</span>
+simple_returns = simple_returns.dropna()
+
+<span class="cm"># Summary statistics</span>
+<span class="fn">print</span>(f<span class="st">"Mean daily return:   {simple_returns.mean():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Std daily return:    {simple_returns.std():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Min daily return:    {simple_returns.min():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Max daily return:    {simple_returns.max():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Annualized mean:     {simple_returns.mean() * 252:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Annualized vol:      {simple_returns.std() * np.sqrt(252):.4f}"</span>)</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The annualization formulas above assume returns are i.i.d. &mdash; a strong
+        assumption we will relax later. The mean scales by T (number of trading days)
+        and the standard deviation scales by &radic;T. This is just the standard result
+        for the mean and variance of a sum of i.i.d. random variables: if X<sub>i</sub>
+        has variance &sigma;<sup>2</sup>, then the sum of 252 of them has variance
+        252&sigma;<sup>2</sup>, so the standard deviation is &sigma;&radic;252.
+      </div>
+
+      <h3>2.4 Multi-Period Simple Returns</h3>
+
+      <p>
+        To compute the cumulative return over multiple periods, you must compound:
+      </p>
+
+      <div class="formula-box">
+        R<sub>cumulative</sub> = &prod;<sub>t=1</sub><sup>T</sup> (1 + R<sub>t</sub>) &minus; 1
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Cumulative return over the entire period</span>
+cumulative = ((<span class="nu">1</span> + simple_returns).cumprod() - <span class="nu">1</span>)
+<span class="fn">print</span>(f<span class="st">"Total cumulative return: {cumulative.iloc[-1]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Meaning: ${100 * (1 + cumulative.iloc[-1]):.2f} from $100 invested"</span>)
+
+<span class="cm"># WRONG way: simply summing returns</span>
+wrong_total = simple_returns.sum()
+<span class="fn">print</span>(f<span class="st">"\nIncorrect (summed) return: {wrong_total:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Correct (compounded) return: {cumulative.iloc[-1]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Difference: {wrong_total - cumulative.iloc[-1]:.4f}"</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <strong>Never sum simple returns to get a multi-period return.</strong> This is one
+        of the most common errors. Simple returns compound multiplicatively, not additively.
+        The error grows with the number of periods and the magnitude of individual returns.
+        Over a year of daily returns, summing vs. compounding can differ by several percentage
+        points.
+      </div>
+
+
+      <h2>3. Log (Continuously Compounded) Returns</h2>
+
+      <h3>3.1 Definition</h3>
+
+      <p>
+        The <strong>log return</strong> (or continuously compounded return) is the natural
+        logarithm of the price ratio:
+      </p>
+
+      <div class="formula-box">
+        r<sub>t</sub> = ln(P<sub>t</sub> / P<sub>t&minus;1</sub>) = ln(P<sub>t</sub>) &minus; ln(P<sub>t&minus;1</sub>)
+      </div>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Log Return (Continuously Compounded Return):</strong> The rate of return
+        that, if applied continuously (infinitely many compounding periods), would produce
+        the observed price change. Denoted with lowercase r to distinguish from the simple
+        return R.
+      </div>
+
+      <h3>3.2 Why Log Returns Are Preferred for Statistical Analysis</h3>
+
+      <p>
+        Log returns have several properties that make them far more convenient for
+        statistical work:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Log Returns</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Time additivity</td>
+            <td>r<sub>1:T</sub> = r<sub>1</sub> + r<sub>2</sub> + &hellip; + r<sub>T</sub></td>
+            <td>Multi-period return is a simple sum &mdash; CLT applies directly</td>
+          </tr>
+          <tr>
+            <td>Symmetry</td>
+            <td>A +5% move and a &minus;5% move are symmetric around zero</td>
+            <td>Distribution is more symmetric; better approximation to normal</td>
+          </tr>
+          <tr>
+            <td>Domain</td>
+            <td>(&minus;&infin;, +&infin;)</td>
+            <td>No bounded support issues; compatible with normal distribution</td>
+          </tr>
+          <tr>
+            <td>Differencing</td>
+            <td>r<sub>t</sub> = &Delta; ln(P<sub>t</sub>)</td>
+            <td>Log returns are literally first differences of log prices</td>
+          </tr>
+          <tr>
+            <td>Approximation</td>
+            <td>r<sub>t</sub> &approx; R<sub>t</sub> for small returns</td>
+            <td>For daily returns (&lt;2%), the difference is negligible</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The time-additivity of log returns is the key property. If daily log returns are
+        i.i.d. with mean &mu; and variance &sigma;<sup>2</sup>, then the T-period log
+        return is the sum of T i.i.d. random variables, which has mean T&mu; and variance
+        T&sigma;<sup>2</sup>. By the Central Limit Theorem, the T-period log return is
+        approximately normal for large T &mdash; even if individual daily returns are not.
+        This is why the <strong>geometric Brownian motion</strong> model uses log returns.
+      </div>
+
+      <h3>3.3 Computing Log Returns in Python</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Method 1: Using numpy log</span>
+prices = aapl[<span class="st">"Adj Close"</span>]
+log_returns = np.log(prices / prices.shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># Method 2: Difference of log prices (equivalent)</span>
+log_returns_v2 = np.log(prices).diff().dropna()
+
+<span class="cm"># Verify equivalence</span>
+<span class="fn">print</span>(<span class="st">"Max difference:"</span>, (log_returns - log_returns_v2).abs().max())
+
+<span class="cm"># Compare log returns vs simple returns</span>
+<span class="fn">print</span>(f<span class="st">"\nSimple return mean:  {simple_returns.mean():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Log return mean:     {log_returns.mean():.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Difference:          {simple_returns.mean() - log_returns.mean():.6f}"</span>)
+<span class="cm"># Log return mean is always slightly lower (Jensen's inequality)</span>
+
+<span class="cm"># Multi-period: just sum log returns!</span>
+total_log_return = log_returns.sum()
+<span class="fn">print</span>(f<span class="st">"\nTotal log return (summed): {total_log_return:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Equivalent simple return:  {np.exp(total_log_return) - 1:.4f}"</span>)</pre>
+
+      <h3>3.4 The Relationship Between Simple and Log Returns</h3>
+
+      <div class="formula-box">
+        r<sub>t</sub> = ln(1 + R<sub>t</sub>) &nbsp;&nbsp;&nbsp; and &nbsp;&nbsp;&nbsp;
+        R<sub>t</sub> = e<sup>r<sub>t</sub></sup> &minus; 1
+      </div>
+
+      <p>
+        For small returns (typical of daily data), the Taylor expansion gives:
+      </p>
+
+      <div class="formula-box">
+        r<sub>t</sub> = ln(1 + R<sub>t</sub>) &approx; R<sub>t</sub> &minus; R<sub>t</sub><sup>2</sup>/2 + &hellip;
+      </div>
+
+      <p>
+        The R<sub>t</sub><sup>2</sup>/2 term explains why the mean log return is always
+        slightly less than the mean simple return. This correction factor is half the
+        variance, and it becomes important over long periods.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The difference between simple and log returns matters most for:
+        <ul>
+          <li><strong>Portfolio construction:</strong> Use simple returns (they aggregate linearly across assets)</li>
+          <li><strong>Time series modeling:</strong> Use log returns (they aggregate linearly across time)</li>
+          <li><strong>Risk measurement:</strong> Either works for short horizons; log returns are better for long horizons</li>
+        </ul>
+        In practice, for daily equity data, the difference is usually less than 0.01%.
+      </div>
+
+      <h3>3.5 When the Approximation Breaks Down</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Show when simple and log returns diverge</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+simple_ret_values = [<span class="nu">0.001</span>, <span class="nu">0.01</span>, <span class="nu">0.05</span>, <span class="nu">0.10</span>, <span class="nu">0.20</span>, <span class="nu">0.50</span>, <span class="nu">1.00</span>, <span class="nu">-0.01</span>, <span class="nu">-0.05</span>, <span class="nu">-0.10</span>, <span class="nu">-0.50</span>]
+comparison = pd.DataFrame({
+    <span class="st">"Simple Return (R)"</span>: simple_ret_values,
+    <span class="st">"Log Return (r)"</span>: [np.log(<span class="nu">1</span> + r) <span class="kw">for</span> r <span class="kw">in</span> simple_ret_values],
+    <span class="st">"Abs Difference"</span>: [<span class="fn">abs</span>(r - np.log(<span class="nu">1</span> + r)) <span class="kw">for</span> r <span class="kw">in</span> simple_ret_values],
+    <span class="st">"Relative Difference (%)"</span>: [<span class="fn">abs</span>(r - np.log(<span class="nu">1</span> + r)) / <span class="fn">abs</span>(r) * <span class="nu">100</span>
+                                  <span class="kw">for</span> r <span class="kw">in</span> simple_ret_values]
+})
+<span class="fn">print</span>(comparison.to_string(index=<span class="kw">False</span>))
+<span class="cm"># For R = 0.01 (1%), difference is ~0.005%</span>
+<span class="cm"># For R = 0.50 (50%), difference is ~9.5% — HUGE</span></pre>
+
+
+      <h2>4. The Random Walk Hypothesis</h2>
+
+      <h3>4.1 Prices as a Random Walk</h3>
+
+      <p>
+        The simplest model for stock prices is the <strong>random walk</strong>:
+      </p>
+
+      <div class="formula-box">
+        P<sub>t</sub> = P<sub>t&minus;1</sub> + &epsilon;<sub>t</sub>, &nbsp;&nbsp;&nbsp;
+        &epsilon;<sub>t</sub> ~ WN(0, &sigma;<sup>2</sup>)
+      </div>
+
+      <p>
+        Equivalently, in log-price form:
+      </p>
+
+      <div class="formula-box">
+        ln(P<sub>t</sub>) = &mu; + ln(P<sub>t&minus;1</sub>) + &epsilon;<sub>t</sub>
+      </div>
+
+      <p>
+        This says that the best forecast for tomorrow&rsquo;s price is today&rsquo;s price
+        (plus a drift term &mu;). Returns &mdash; the first differences &mdash; are white
+        noise. This is a unit root process with I(1) integration order.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The random walk is an <strong>ARIMA(0,1,0)</strong> process with possible drift.
+        If you difference it once, you get white noise (the returns). This is the simplest
+        member of the unit root family. The Efficient Market Hypothesis (EMH) in its weak
+        form is essentially the statement that returns are unpredictable &mdash; i.e.,
+        prices follow something close to a random walk.
+      </div>
+
+      <h3>4.2 Implications of the Random Walk</h3>
+
+      <ul>
+        <li><strong>The variance of prices grows linearly with time.</strong> After T steps, Var(P<sub>T</sub>) = T&sigma;<sup>2</sup>. This is why confidence intervals for price forecasts fan out over time.</li>
+        <li><strong>The forecast at any horizon is the current price (plus drift).</strong> No matter how sophisticated your model, if the random walk holds, you cannot beat it for mean-squared error.</li>
+        <li><strong>Correlations between price levels are spurious.</strong> Two independent random walks will appear highly correlated because they both trend.</li>
+      </ul>
+
+      <h3>4.3 Random Walk with Drift</h3>
+
+      <p>
+        In practice, stock prices tend to increase over time (the equity risk premium).
+        The random walk with drift adds a constant:
+      </p>
+
+      <div class="formula-box">
+        ln(P<sub>t</sub>) = &mu; + ln(P<sub>t&minus;1</sub>) + &epsilon;<sub>t</sub>
+      </div>
+
+      <p>
+        where &mu; > 0 represents the average growth rate. Differencing gives log returns
+        with a positive mean: r<sub>t</sub> = &mu; + &epsilon;<sub>t</sub>.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Simulate a random walk with drift</span>
+np.random.seed(<span class="nu">42</span>)
+n_days = <span class="nu">252</span> * <span class="nu">5</span>  <span class="cm"># 5 years of trading days</span>
+mu = <span class="nu">0.0003</span>         <span class="cm"># daily drift (~7.5% annualized)</span>
+sigma = <span class="nu">0.015</span>       <span class="cm"># daily volatility (~24% annualized)</span>
+
+<span class="cm"># Generate log returns</span>
+log_ret_sim = np.random.normal(mu, sigma, n_days)
+
+<span class="cm"># Construct price path</span>
+log_prices = np.cumsum(np.concatenate([[np.log(<span class="nu">100</span>)], log_ret_sim]))
+prices_sim = np.exp(log_prices)
+
+<span class="cm"># Plot simulated vs real AAPL</span>
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">5</span>))
+axes[<span class="nu">0</span>].plot(prices_sim, color=<span class="st">'#1a365d'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Simulated Random Walk with Drift'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Price ($)'</span>)
+axes[<span class="nu">1</span>].plot(log_ret_sim, color=<span class="st">'#e53e3e'</span>, alpha=<span class="nu">0.6</span>, linewidth=<span class="nu">0.5</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Simulated Log Returns (White Noise + Drift)'</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'Log Return'</span>)
+axes[<span class="nu">1</span>].axhline(y=mu, color=<span class="st">'black'</span>, linestyle=<span class="st">'--'</span>, label=f<span class="st">'drift = {mu}'</span>)
+axes[<span class="nu">1</span>].legend()
+plt.tight_layout()
+plt.show()</pre>
+
+
+      <h2>5. Testing for Nonstationarity: Unit Root Tests</h2>
+
+      <h3>5.1 The Augmented Dickey-Fuller (ADF) Test</h3>
+
+      <p>
+        The ADF test is the workhorse of unit root testing. The null hypothesis is that the
+        series has a unit root (is nonstationary). Rejecting the null means you have evidence
+        of stationarity.
+      </p>
+
+      <div class="formula-box">
+        H<sub>0</sub>: &phi; = 1 (unit root present, series is I(1))
+        <br>
+        H<sub>1</sub>: &phi; &lt; 1 (no unit root, series is I(0) or stationary)
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller, kpss
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+prices = aapl[<span class="st">"Adj Close"</span>]
+log_returns = np.log(prices / prices.shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># ADF test on PRICES (expect to NOT reject H0 — prices are nonstationary)</span>
+adf_prices = adfuller(prices, autolag=<span class="st">'AIC'</span>)
+<span class="fn">print</span>(<span class="st">"=== ADF Test on Prices ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Test statistic: {adf_prices[0]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"p-value:        {adf_prices[1]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Lags used:      {adf_prices[2]}"</span>)
+<span class="fn">print</span>(f<span class="st">"Critical values: {adf_prices[4]}"</span>)
+<span class="fn">print</span>(f<span class="st">"Conclusion: {'Stationary' if adf_prices[1] < 0.05 else 'Nonstationary'}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># ADF test on LOG RETURNS (expect to reject H0 — returns are stationary)</span>
+adf_returns = adfuller(log_returns, autolag=<span class="st">'AIC'</span>)
+<span class="fn">print</span>(<span class="st">"=== ADF Test on Log Returns ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Test statistic: {adf_returns[0]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"p-value:        {adf_returns[1]:.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Lags used:      {adf_returns[2]}"</span>)
+<span class="fn">print</span>(f<span class="st">"Conclusion: {'Stationary' if adf_returns[1] < 0.05 else 'Nonstationary'}"</span>)</pre>
+
+      <h3>5.2 The KPSS Test</h3>
+
+      <p>
+        The KPSS test reverses the hypotheses: the null is stationarity. This makes it a
+        useful complement to the ADF test &mdash; using both together provides stronger
+        evidence.
+      </p>
+
+      <div class="formula-box">
+        H<sub>0</sub>: Series is stationary (or trend-stationary)
+        <br>
+        H<sub>1</sub>: Series has a unit root
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># KPSS test on PRICES (expect to reject H0 — prices are not stationary)</span>
+kpss_prices = kpss(prices, regression=<span class="st">'ct'</span>, nlags=<span class="st">'auto'</span>)
+<span class="fn">print</span>(<span class="st">"=== KPSS Test on Prices ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Test statistic: {kpss_prices[0]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"p-value:        {kpss_prices[1]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Conclusion: {'Stationary' if kpss_prices[1] > 0.05 else 'Nonstationary'}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># KPSS test on LOG RETURNS (expect to NOT reject H0 — returns are stationary)</span>
+kpss_returns = kpss(log_returns, regression=<span class="st">'c'</span>, nlags=<span class="st">'auto'</span>)
+<span class="fn">print</span>(<span class="st">"=== KPSS Test on Log Returns ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Test statistic: {kpss_returns[0]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"p-value:        {kpss_returns[1]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Conclusion: {'Stationary' if kpss_returns[1] > 0.05 else 'Nonstationary'}"</span>)</pre>
+
+      <h3>5.3 The Confirmatory Strategy</h3>
+
+      <p>
+        Best practice is to use both tests together:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ADF Result</th>
+            <th>KPSS Result</th>
+            <th>Conclusion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Reject H<sub>0</sub> (no unit root)</td>
+            <td>Fail to reject H<sub>0</sub> (stationary)</td>
+            <td>Strong evidence of stationarity</td>
+          </tr>
+          <tr>
+            <td>Fail to reject H<sub>0</sub></td>
+            <td>Reject H<sub>0</sub></td>
+            <td>Strong evidence of unit root</td>
+          </tr>
+          <tr>
+            <td>Both reject</td>
+            <td>Both reject</td>
+            <td>Ambiguous &mdash; may be trend-stationary</td>
+          </tr>
+          <tr>
+            <td>Neither rejects</td>
+            <td>Neither rejects</td>
+            <td>Ambiguous &mdash; low power, need more data</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        For typical stock price data, the ADF test will fail to reject (evidence of unit
+        root) and the KPSS test will reject (evidence against stationarity) &mdash; both
+        pointing to nonstationary prices. For returns, both tests will agree on stationarity.
+        This confirmation gives you much stronger evidence than either test alone.
+      </div>
+
+
+      <h2>6. The Distribution of Returns: Normality and Its Failures</h2>
+
+      <h3>6.1 Are Returns Normally Distributed?</h3>
+
+      <p>
+        Many financial models assume returns follow a normal distribution. This assumption
+        is convenient &mdash; it leads to closed-form solutions for option pricing, portfolio
+        optimization, and risk measurement. But is it true?
+      </p>
+
+      <p>
+        The short answer: <strong>no</strong>. Returns are approximately normal in the center
+        of the distribution, but the tails are much heavier than the normal distribution
+        predicts. We will explore this in great detail in Module 03. For now, let us see how
+        to test the assumption.
+      </p>
+
+      <h3>6.2 Visual Tests: Histogram and QQ Plot</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> scipy.stats <span class="kw">as</span> stats
+
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">3</span>, figsize=(<span class="nu">16</span>, <span class="nu">5</span>))
+
+<span class="cm"># 1. Histogram with normal overlay</span>
+axes[<span class="nu">0</span>].hist(log_returns, bins=<span class="nu">100</span>, density=<span class="kw">True</span>, alpha=<span class="nu">0.7</span>,
+            color=<span class="st">'#3182ce'</span>, edgecolor=<span class="st">'white'</span>)
+x = np.linspace(log_returns.min(), log_returns.max(), <span class="nu">200</span>)
+axes[<span class="nu">0</span>].plot(x, stats.norm.pdf(x, log_returns.mean(), log_returns.std()),
+            <span class="st">'r-'</span>, linewidth=<span class="nu">2</span>, label=<span class="st">'Normal fit'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Histogram vs Normal'</span>)
+axes[<span class="nu">0</span>].legend()
+
+<span class="cm"># 2. QQ plot</span>
+stats.probplot(log_returns, dist=<span class="st">"norm"</span>, plot=axes[<span class="nu">1</span>])
+axes[<span class="nu">1</span>].set_title(<span class="st">'QQ Plot Against Normal'</span>)
+axes[<span class="nu">1</span>].get_lines()[<span class="nu">0</span>].set_markerfacecolor(<span class="st">'#3182ce'</span>)
+axes[<span class="nu">1</span>].get_lines()[<span class="nu">0</span>].set_markersize(<span class="nu">3</span>)
+
+<span class="cm"># 3. Log-scale density comparison</span>
+axes[<span class="nu">2</span>].hist(log_returns, bins=<span class="nu">200</span>, density=<span class="kw">True</span>, alpha=<span class="nu">0.7</span>,
+            color=<span class="st">'#3182ce'</span>, edgecolor=<span class="st">'white'</span>, log=<span class="kw">True</span>)
+axes[<span class="nu">2</span>].plot(x, stats.norm.pdf(x, log_returns.mean(), log_returns.std()),
+            <span class="st">'r-'</span>, linewidth=<span class="nu">2</span>)
+axes[<span class="nu">2</span>].set_title(<span class="st">'Log-Scale Density (shows tail behavior)'</span>)
+axes[<span class="nu">2</span>].set_yscale(<span class="st">'log'</span>)
+
+plt.tight_layout()
+plt.show()</pre>
+
+      <h3>6.3 Formal Normality Tests</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Shapiro-Wilk test (best for n &lt; 5000)</span>
+<span class="kw">if</span> <span class="fn">len</span>(log_returns) > <span class="nu">5000</span>:
+    sample = log_returns.sample(<span class="nu">5000</span>, random_state=<span class="nu">42</span>)
+<span class="kw">else</span>:
+    sample = log_returns
+
+sw_stat, sw_pval = stats.shapiro(sample)
+<span class="fn">print</span>(f<span class="st">"Shapiro-Wilk: W={sw_stat:.6f}, p={sw_pval:.2e}"</span>)
+
+<span class="cm"># Jarque-Bera test (based on skewness and kurtosis)</span>
+jb_stat, jb_pval = stats.jarque_bera(log_returns)
+<span class="fn">print</span>(f<span class="st">"Jarque-Bera:  JB={jb_stat:.2f}, p={jb_pval:.2e}"</span>)
+
+<span class="cm"># D'Agostino-Pearson omnibus test</span>
+dp_stat, dp_pval = stats.normaltest(log_returns)
+<span class="fn">print</span>(f<span class="st">"D'Agostino:   K2={dp_stat:.2f}, p={dp_pval:.2e}"</span>)
+
+<span class="cm"># Moment comparison</span>
+<span class="fn">print</span>(f<span class="st">"\nMoment comparison:"</span>)
+<span class="fn">print</span>(f<span class="st">"  Skewness: {log_returns.skew():.4f}  (normal = 0)"</span>)
+<span class="fn">print</span>(f<span class="st">"  Kurtosis: {log_returns.kurtosis():.4f}  (normal = 0, excess)"</span>)
+<span class="fn">print</span>(f<span class="st">"  Note: Excess kurtosis > 0 indicates heavier tails than normal"</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        All formal normality tests will reject for financial return data with enough
+        observations. This is not a statistical failure &mdash; it is a genuine feature of
+        the data. Returns <em>really are</em> non-normal. The practical question is not
+        &ldquo;are returns normal?&rdquo; (they are not) but &ldquo;how badly does the
+        normal approximation fail, and does it matter for my application?&rdquo;
+      </div>
+
+
+      <h2>7. Practical Considerations and Common Operations</h2>
+
+      <h3>7.1 Annualizing Returns and Volatility</h3>
+
+      <div class="formula-box">
+        Annualized Mean Return = &mu;<sub>daily</sub> &times; 252
+        <br><br>
+        Annualized Volatility = &sigma;<sub>daily</sub> &times; &radic;252
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Standard annualization</span>
+mean_daily = log_returns.mean()
+std_daily = log_returns.std()
+
+annualized_return = mean_daily * <span class="nu">252</span>
+annualized_vol = std_daily * np.sqrt(<span class="nu">252</span>)
+sharpe_ratio = annualized_return / annualized_vol
+
+<span class="fn">print</span>(f<span class="st">"Daily mean:          {mean_daily:.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Daily std:           {std_daily:.6f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Annualized return:   {annualized_return:.4f} ({annualized_return*100:.2f}%)"</span>)
+<span class="fn">print</span>(f<span class="st">"Annualized vol:      {annualized_vol:.4f} ({annualized_vol*100:.2f}%)"</span>)
+<span class="fn">print</span>(f<span class="st">"Sharpe ratio:        {sharpe_ratio:.4f}"</span>)</pre>
+
+      <h3>7.2 Rolling Statistics</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Rolling 21-day (1 month) statistics</span>
+rolling_mean = log_returns.rolling(<span class="nu">21</span>).mean() * <span class="nu">252</span>
+rolling_vol = log_returns.rolling(<span class="nu">21</span>).std() * np.sqrt(<span class="nu">252</span>)
+rolling_sharpe = rolling_mean / rolling_vol
+
+fig, axes = plt.subplots(<span class="nu">3</span>, <span class="nu">1</span>, figsize=(<span class="nu">12</span>, <span class="nu">10</span>), sharex=<span class="kw">True</span>)
+
+axes[<span class="nu">0</span>].plot(rolling_mean, color=<span class="st">'#1a365d'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">0</span>].axhline(y=<span class="nu">0</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Annualized Return'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'21-Day Rolling Statistics (AAPL)'</span>)
+
+axes[<span class="nu">1</span>].plot(rolling_vol, color=<span class="st">'#e53e3e'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'Annualized Volatility'</span>)
+
+axes[<span class="nu">2</span>].plot(rolling_sharpe, color=<span class="st">'#38a169'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">2</span>].axhline(y=<span class="nu">0</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>)
+axes[<span class="nu">2</span>].set_ylabel(<span class="st">'Sharpe Ratio'</span>)
+
+plt.tight_layout()
+plt.show()</pre>
+
+      <h3>7.3 Multi-Period Returns at Different Horizons</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Compute returns at different horizons</span>
+horizons = {
+    <span class="st">"Daily"</span>: <span class="nu">1</span>,
+    <span class="st">"Weekly"</span>: <span class="nu">5</span>,
+    <span class="st">"Monthly"</span>: <span class="nu">21</span>,
+    <span class="st">"Quarterly"</span>: <span class="nu">63</span>,
+    <span class="st">"Annual"</span>: <span class="nu">252</span>
+}
+
+log_price = np.log(aapl[<span class="st">"Adj Close"</span>])
+<span class="fn">print</span>(f<span class="st">"{'Horizon':<12} {'Mean':>8} {'Std':>8} {'Skew':>8} {'Kurt':>8} {'N':>6}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">55</span>)
+
+<span class="kw">for</span> name, h <span class="kw">in</span> horizons.items():
+    ret_h = (log_price - log_price.shift(h)).dropna()
+    <span class="fn">print</span>(f<span class="st">"{name:<12} {ret_h.mean():>8.5f} {ret_h.std():>8.5f} "</span>
+          f<span class="st">"{ret_h.skew():>8.3f} {ret_h.kurtosis():>8.3f} {len(ret_h):>6}"</span>)
+
+<span class="cm"># Notice: kurtosis decreases at longer horizons (CLT in action!)</span>
+<span class="cm"># Also: skewness changes sign at different horizons</span></pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The decreasing kurtosis at longer horizons is the <strong>Central Limit Theorem</strong>
+        in action. Monthly returns are sums of ~21 daily returns. If daily returns were truly
+        i.i.d., the sum would converge to normality. The fact that monthly returns are
+        <em>still</em> non-normal (kurtosis > 0) tells you that the i.i.d. assumption is
+        violated &mdash; there are serial dependencies in volatility (the topic of Module 03).
+      </div>
+
+
+      <h2>8. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Key Formula / Rule</th>
+            <th>Statistical Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Simple return</td>
+            <td>R<sub>t</sub> = P<sub>t</sub>/P<sub>t-1</sub> &minus; 1</td>
+            <td>Percentage change; additive across assets</td>
+          </tr>
+          <tr>
+            <td>Log return</td>
+            <td>r<sub>t</sub> = ln(P<sub>t</sub>/P<sub>t-1</sub>)</td>
+            <td>First difference of log series; additive across time</td>
+          </tr>
+          <tr>
+            <td>Nonstationarity</td>
+            <td>Prices are I(1), returns are I(0)</td>
+            <td>Unit root; difference to achieve stationarity</td>
+          </tr>
+          <tr>
+            <td>ADF test</td>
+            <td>H<sub>0</sub>: unit root</td>
+            <td>Fails to reject for prices; rejects for returns</td>
+          </tr>
+          <tr>
+            <td>KPSS test</td>
+            <td>H<sub>0</sub>: stationary</td>
+            <td>Rejects for prices; fails to reject for returns</td>
+          </tr>
+          <tr>
+            <td>Annualization</td>
+            <td>&mu; &times; 252, &sigma; &times; &radic;252</td>
+            <td>Scaling rules for i.i.d. sums</td>
+          </tr>
+          <tr>
+            <td>Normality</td>
+            <td>Returns are approximately but not exactly normal</td>
+            <td>Heavy tails, excess kurtosis (explored in Module 03)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        You now understand the most fundamental transformation in quantitative finance:
+        converting raw prices into returns. In the next module, we will explore
+        <em>why</em> returns are not normal &mdash; the so-called &ldquo;stylized facts&rdquo;
+        of financial data &mdash; and what distributional models work better.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-01/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-03/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

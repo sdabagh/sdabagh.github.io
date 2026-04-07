@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 04 of Financial Literacy for Statisticians: Why Pearson correlation is problematic and what to use instead">
+  <title>Correlation in Finance — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 04: Correlation in Finance</h1>
+      <p class="tagline">Why Pearson correlation is problematic and what to use instead</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 1 of 5</span>
+        <span class="meta-item">Module 04 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-03/index.html">&larr; Previous</a>
+      <span class="current">Module 04 of 22</span>
+      <a href="../module-05/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: INTRODUCTION                                      -->
+      <!-- ============================================================ -->
+
+      <h2>1. Introduction: Why Correlation Matters in Finance</h2>
+
+      <p>
+        Correlation is the foundation of modern portfolio theory. Harry Markowitz won the
+        Nobel Prize in Economics for showing that the risk of a portfolio depends not just on
+        the risk of individual assets, but on the <em>correlations between them</em>.
+        Diversification &mdash; the only &ldquo;free lunch&rdquo; in finance &mdash; works
+        because correlations between assets are less than 1.
+      </p>
+
+      <p>
+        As a statistician, you understand correlation deeply. But financial correlation has
+        peculiarities that can trip up even seasoned analysts: it changes over time, it
+        breaks down exactly when you need it most, and the standard Pearson measure is
+        often the wrong tool for the data you are working with.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        In a standard statistics course, correlation is typically estimated from a single
+        sample and treated as a fixed parameter. In finance, correlation is best thought
+        of as a <strong>time-varying latent process</strong> &mdash; something that must
+        be estimated with rolling windows or dynamic models (like DCC-GARCH). The
+        &ldquo;true&rdquo; correlation between two assets today may be very different from
+        what it was five years ago.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 2: PEARSON CORRELATION PROBLEMS                      -->
+      <!-- ============================================================ -->
+
+      <h2>2. Why Pearson Correlation Is Problematic for Financial Data</h2>
+
+      <h3>2.1 The Assumptions Behind Pearson&rsquo;s r</h3>
+
+      <p>
+        Pearson&rsquo;s correlation coefficient measures the <em>linear</em> association
+        between two variables. It is the maximum likelihood estimator when the data come
+        from a bivariate normal distribution. For financial returns, this assumption fails
+        on multiple fronts:
+      </p>
+
+      <ul>
+        <li><strong>Non-normality:</strong> As we saw in Module 03, returns have heavy tails. Pearson&rsquo;s r is not robust to outliers &mdash; a single extreme co-movement can dramatically inflate or deflate the estimated correlation.</li>
+        <li><strong>Nonlinear dependence:</strong> Two assets may have zero Pearson correlation but strong dependence in the tails (both crash together during crises).</li>
+        <li><strong>Non-constant relationship:</strong> The strength of association changes over time, so a single number is misleading.</li>
+      </ul>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Pearson correlation = 0 does <strong>not</strong> mean independence for non-normal
+        data. Two assets can have zero linear correlation but strong tail dependence &mdash;
+        they move independently in normal times but crash together in crises. This is
+        precisely the pattern that destroyed portfolios in 2008: assets that appeared
+        uncorrelated suddenly moved in lockstep during the crisis.
+      </div>
+
+      <h3>2.2 Sensitivity to Outliers</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Download two stocks</span>
+data = yf.download([<span class="st">"AAPL"</span>, <span class="st">"MSFT"</span>], start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2025-01-01"</span>)
+adj = data[<span class="st">"Adj Close"</span>].dropna()
+ret = np.log(adj / adj.shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># Full sample Pearson correlation</span>
+pearson_full = ret[<span class="st">"AAPL"</span>].corr(ret[<span class="st">"MSFT"</span>])
+
+<span class="cm"># Remove the 5% most extreme days (by absolute return of either stock)</span>
+max_abs = ret.abs().max(axis=<span class="nu">1</span>)
+threshold = max_abs.quantile(<span class="nu">0.95</span>)
+ret_trimmed = ret[max_abs &lt;= threshold]
+pearson_trimmed = ret_trimmed[<span class="st">"AAPL"</span>].corr(ret_trimmed[<span class="st">"MSFT"</span>])
+
+<span class="fn">print</span>(f<span class="st">"Full sample Pearson r:    {pearson_full:.4f}  (n={len(ret)})"</span>)
+<span class="fn">print</span>(f<span class="st">"Trimmed (95%) Pearson r:  {pearson_trimmed:.4f}  (n={len(ret_trimmed)})"</span>)
+<span class="fn">print</span>(f<span class="st">"Change:                   {pearson_full - pearson_trimmed:+.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Removing 5% of data changed correlation by {abs(pearson_full - pearson_trimmed) / pearson_full * 100:.1f}%"</span>)</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The fact that removing 5% of observations substantially changes the correlation
+        estimate tells you that <strong>a few extreme days drive a large part of the
+        measured correlation</strong>. This is a direct consequence of the heavy-tailed
+        distribution: the squared deviations from the mean that enter the Pearson formula
+        are dominated by extreme observations.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 3: ROBUST ALTERNATIVES                               -->
+      <!-- ============================================================ -->
+
+      <h2>3. Robust Alternatives: Spearman and Kendall</h2>
+
+      <h3>3.1 Spearman Rank Correlation</h3>
+
+      <p>
+        Spearman&rsquo;s rank correlation replaces the raw values with their ranks before
+        computing Pearson&rsquo;s r. This makes it <strong>robust to outliers</strong> and
+        capable of capturing <strong>monotonic nonlinear</strong> relationships.
+      </p>
+
+      <div class="formula-box">
+        &rho;<sub>S</sub> = 1 &minus; (6 &sum; d<sub>i</sub><sup>2</sup>) / (n(n<sup>2</sup> &minus; 1))
+      </div>
+
+      <p>
+        where d<sub>i</sub> = rank(x<sub>i</sub>) &minus; rank(y<sub>i</sub>).
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Spearman&rsquo;s &rho; is Pearson&rsquo;s r computed on the copula of the data
+        (the rank-transformed observations). It measures the degree to which the
+        <em>concordance</em> between two variables is monotonic, regardless of the
+        marginal distributions. For financial data with heavy tails, this is often a more
+        honest measure of co-movement than Pearson&rsquo;s r.
+      </div>
+
+      <h3>3.2 Kendall&rsquo;s Tau</h3>
+
+      <p>
+        Kendall&rsquo;s &tau; counts the proportion of <strong>concordant</strong> vs
+        <strong>discordant</strong> pairs of observations. A pair (x<sub>i</sub>, y<sub>i</sub>)
+        and (x<sub>j</sub>, y<sub>j</sub>) is concordant if they rank in the same order on
+        both variables.
+      </p>
+
+      <div class="formula-box">
+        &tau; = (C &minus; D) / (n choose 2)
+      </div>
+
+      <p>
+        where C = number of concordant pairs, D = number of discordant pairs.
+      </p>
+
+      <h3>3.3 Comparing All Three Measures</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> scipy.stats <span class="kw">import</span> spearmanr, kendalltau
+
+<span class="cm"># Download a broader set of assets</span>
+tickers = [<span class="st">"AAPL"</span>, <span class="st">"MSFT"</span>, <span class="st">"GOOG"</span>, <span class="st">"JPM"</span>, <span class="st">"XOM"</span>, <span class="st">"GLD"</span>]
+data = yf.download(tickers, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2025-01-01"</span>, progress=<span class="kw">False</span>)
+ret = np.log(data[<span class="st">"Adj Close"</span>] / data[<span class="st">"Adj Close"</span>].shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># Compute all three correlation matrices</span>
+pearson_corr = ret.corr(method=<span class="st">"pearson"</span>)
+spearman_corr = ret.corr(method=<span class="st">"spearman"</span>)
+kendall_corr = ret.corr(method=<span class="st">"kendall"</span>)
+
+<span class="cm"># Display differences</span>
+<span class="fn">print</span>(<span class="st">"=== Pearson Correlation ==="</span>)
+<span class="fn">print</span>(pearson_corr.round(<span class="nu">3</span>))
+<span class="fn">print</span>(<span class="st">"\n=== Spearman Rank Correlation ==="</span>)
+<span class="fn">print</span>(spearman_corr.round(<span class="nu">3</span>))
+<span class="fn">print</span>(<span class="st">"\n=== Kendall's Tau ==="</span>)
+<span class="fn">print</span>(kendall_corr.round(<span class="nu">3</span>))
+
+<span class="cm"># Compute the maximum absolute difference across pairs</span>
+diff_ps = (pearson_corr - spearman_corr).abs()
+np.fill_diagonal(diff_ps.values, <span class="nu">0</span>)
+<span class="fn">print</span>(f<span class="st">"\nMax |Pearson - Spearman|: {diff_ps.max().max():.4f}"</span>)</pre>
+
+      <h3>3.4 Visualizing the Three Correlation Matrices</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">3</span>, figsize=(<span class="nu">18</span>, <span class="nu">5</span>))
+
+<span class="kw">for</span> ax, corr_mat, title <span class="kw">in</span> <span class="fn">zip</span>(axes,
+    [pearson_corr, spearman_corr, kendall_corr],
+    [<span class="st">"Pearson"</span>, <span class="st">"Spearman"</span>, <span class="st">"Kendall"</span>]):
+
+    im = ax.imshow(corr_mat.values, cmap=<span class="st">'RdBu_r'</span>, vmin=<span class="nu">-1</span>, vmax=<span class="nu">1</span>)
+    ax.set_xticks(<span class="fn">range</span>(<span class="fn">len</span>(tickers)))
+    ax.set_yticks(<span class="fn">range</span>(<span class="fn">len</span>(tickers)))
+    ax.set_xticklabels(tickers, rotation=<span class="nu">45</span>)
+    ax.set_yticklabels(tickers)
+    ax.set_title(title)
+
+    <span class="cm"># Add correlation values as text</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(tickers)):
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(tickers)):
+            ax.text(j, i, f<span class="st">"{corr_mat.iloc[i, j]:.2f}"</span>,
+                    ha=<span class="st">"center"</span>, va=<span class="st">"center"</span>, fontsize=<span class="nu">8</span>,
+                    color=<span class="st">"white"</span> <span class="kw">if</span> <span class="fn">abs</span>(corr_mat.iloc[i, j]) > <span class="nu">0.6</span> <span class="kw">else</span> <span class="st">"black"</span>)
+
+fig.colorbar(im, ax=axes, shrink=<span class="nu">0.8</span>)
+plt.suptitle(<span class="st">'Correlation Matrices: Three Measures Compared'</span>, fontsize=<span class="nu">14</span>)
+plt.tight_layout()
+plt.show()</pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Measure</th>
+            <th>Robust to Outliers?</th>
+            <th>Captures Nonlinear?</th>
+            <th>Computation</th>
+            <th>Typical Use in Finance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pearson</td>
+            <td>No</td>
+            <td>Only linear</td>
+            <td>O(n)</td>
+            <td>Portfolio optimization (by convention)</td>
+          </tr>
+          <tr>
+            <td>Spearman</td>
+            <td>Yes</td>
+            <td>Monotonic</td>
+            <td>O(n log n)</td>
+            <td>Robust analysis, rank-based strategies</td>
+          </tr>
+          <tr>
+            <td>Kendall</td>
+            <td>Yes</td>
+            <td>Monotonic</td>
+            <td>O(n<sup>2</sup>)</td>
+            <td>Copula calibration, concordance</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 4: ROLLING CORRELATIONS                              -->
+      <!-- ============================================================ -->
+
+      <h2>4. Rolling Correlations: Time-Varying Dependence</h2>
+
+      <h3>4.1 Why Static Correlation Is Misleading</h3>
+
+      <p>
+        Computing a single correlation over ten years of data assumes the relationship
+        between two assets has been constant the entire time. In practice, correlations
+        change &mdash; sometimes gradually (due to shifting economic regimes) and sometimes
+        abruptly (due to crises or policy changes).
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Regime Change:</strong> A structural shift in the statistical properties
+        of financial data. For example, the correlation between US and European stocks
+        may be 0.5 during normal markets but 0.9 during a global crisis. These regimes
+        correspond to different states of the economy or market sentiment.
+      </div>
+
+      <h3>4.2 Computing Rolling Correlations</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Rolling 63-day (quarterly) correlation</span>
+window = <span class="nu">63</span>
+rolling_corr = ret[<span class="st">"AAPL"</span>].rolling(window).corr(ret[<span class="st">"MSFT"</span>])
+
+fig, axes = plt.subplots(<span class="nu">2</span>, <span class="nu">1</span>, figsize=(<span class="nu">14</span>, <span class="nu">8</span>), sharex=<span class="kw">True</span>)
+
+<span class="cm"># Top: individual returns (to see where crises are)</span>
+axes[<span class="nu">0</span>].plot(ret.index, ret[<span class="st">"AAPL"</span>], alpha=<span class="nu">0.5</span>, linewidth=<span class="nu">0.4</span>, label=<span class="st">'AAPL'</span>, color=<span class="st">'#3182ce'</span>)
+axes[<span class="nu">0</span>].plot(ret.index, ret[<span class="st">"MSFT"</span>], alpha=<span class="nu">0.5</span>, linewidth=<span class="nu">0.4</span>, label=<span class="st">'MSFT'</span>, color=<span class="st">'#e53e3e'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Log Return'</span>)
+axes[<span class="nu">0</span>].legend()
+axes[<span class="nu">0</span>].set_title(<span class="st">'Returns and Rolling Correlation: AAPL vs MSFT'</span>)
+
+<span class="cm"># Bottom: rolling correlation</span>
+axes[<span class="nu">1</span>].plot(rolling_corr.index, rolling_corr.values, color=<span class="st">'#1a365d'</span>, linewidth=<span class="nu">1</span>)
+axes[<span class="nu">1</span>].axhline(y=pearson_full, color=<span class="st">'red'</span>, linestyle=<span class="st">'--'</span>,
+               label=f<span class="st">'Full-sample r = {pearson_full:.3f}'</span>)
+axes[<span class="nu">1</span>].axhline(y=<span class="nu">0</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">':'</span>)
+axes[<span class="nu">1</span>].set_ylabel(f<span class="st">'{window}-Day Rolling Correlation'</span>)
+axes[<span class="nu">1</span>].set_ylim(-<span class="nu">0.2</span>, <span class="nu">1.0</span>)
+axes[<span class="nu">1</span>].legend()
+axes[<span class="nu">1</span>].fill_between(rolling_corr.index, <span class="nu">0</span>, rolling_corr.values,
+                     where=rolling_corr.values > <span class="nu">0</span>, alpha=<span class="nu">0.15</span>, color=<span class="st">'blue'</span>)
+axes[<span class="nu">1</span>].fill_between(rolling_corr.index, <span class="nu">0</span>, rolling_corr.values,
+                     where=rolling_corr.values &lt; <span class="nu">0</span>, alpha=<span class="nu">0.15</span>, color=<span class="st">'red'</span>)
+
+plt.tight_layout()
+plt.show()</pre>
+
+      <h3>4.3 Rolling Correlation Heatmap</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Compute rolling correlation for all pairs at quarterly frequency</span>
+<span class="cm"># Resample to quarterly to make the heatmap tractable</span>
+
+window = <span class="nu">63</span>
+pairs = []
+pair_labels = []
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(tickers)):
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i + <span class="nu">1</span>, <span class="fn">len</span>(tickers)):
+        rc = ret[tickers[i]].rolling(window).corr(ret[tickers[j]])
+        pairs.append(rc)
+        pair_labels.append(f<span class="st">"{tickers[i]}/{tickers[j]}"</span>)
+
+rolling_df = pd.DataFrame(dict(<span class="fn">zip</span>(pair_labels, pairs))).dropna()
+
+<span class="cm"># Resample to monthly for cleaner visualization</span>
+monthly_corr = rolling_df.resample(<span class="st">'M'</span>).last()
+
+fig, ax = plt.subplots(figsize=(<span class="nu">16</span>, <span class="nu">8</span>))
+im = ax.pcolormesh(monthly_corr.index, <span class="fn">range</span>(<span class="fn">len</span>(pair_labels)),
+                   monthly_corr.T.values, cmap=<span class="st">'RdBu_r'</span>, vmin=<span class="nu">-0.5</span>, vmax=<span class="nu">1.0</span>)
+ax.set_yticks(<span class="fn">range</span>(<span class="fn">len</span>(pair_labels)))
+ax.set_yticklabels(pair_labels, fontsize=<span class="nu">8</span>)
+ax.set_title(<span class="st">'Rolling 63-Day Correlation Heatmap'</span>)
+fig.colorbar(im, ax=ax, label=<span class="st">'Correlation'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="cm"># Look for vertical bands of high correlation — those are crises</span></pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Rolling correlation is a <strong>kernel estimator</strong> with a rectangular kernel.
+        The window size is the bandwidth parameter. A shorter window (21 days) is more
+        responsive but noisier; a longer window (252 days) is smoother but lags behind
+        structural changes. This is the classic bias-variance tradeoff. Exponentially
+        weighted moving correlation (EWMA) uses an exponential kernel, which gives more
+        weight to recent observations and is the standard in industry risk management
+        (RiskMetrics methodology).
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 5: CRISIS CORRELATION                                -->
+      <!-- ============================================================ -->
+
+      <h2>5. Correlation Breakdown During Crises</h2>
+
+      <h3>5.1 The Worst-Case Scenario for Diversification</h3>
+
+      <p>
+        One of the most dangerous properties of financial correlation is that it
+        <strong>increases during crises</strong>. Precisely when you need diversification
+        most &mdash; when markets are crashing &mdash; correlations spike toward 1 and the
+        diversification benefit evaporates.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The correlation between asset classes during the 2008 crisis and the 2020 COVID
+        crash rose dramatically. Stocks, commodities, corporate bonds, and even some
+        &ldquo;safe haven&rdquo; assets fell together. This means that a portfolio
+        constructed using normal-period correlations will appear well-diversified but will
+        actually be exposed to much higher risk during exactly the scenarios where risk
+        management matters most.
+      </div>
+
+      <h3>5.2 Conditional Correlation Analysis</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Compare correlations in different market regimes</span>
+<span class="cm"># Define regimes by S&amp;P 500 performance</span>
+
+sp500 = yf.download(<span class="st">"^GSPC"</span>, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2025-01-01"</span>, progress=<span class="kw">False</span>)
+sp_ret = np.log(sp500[<span class="st">"Adj Close"</span>] / sp500[<span class="st">"Adj Close"</span>].shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># Align all data</span>
+common_idx = ret.index.intersection(sp_ret.index)
+ret_aligned = ret.loc[common_idx]
+sp_aligned = sp_ret.loc[common_idx]
+
+<span class="cm"># Define regimes: crisis = bottom 10% of S&amp;P days, calm = middle 80%, rally = top 10%</span>
+q10 = sp_aligned.quantile(<span class="nu">0.10</span>)
+q90 = sp_aligned.quantile(<span class="nu">0.90</span>)
+
+crisis_days = sp_aligned[sp_aligned &lt;= q10].index
+calm_days = sp_aligned[(sp_aligned > q10) &amp; (sp_aligned &lt; q90)].index
+rally_days = sp_aligned[sp_aligned >= q90].index
+
+regimes = {
+    <span class="st">"Crisis (bottom 10%)"</span>: crisis_days,
+    <span class="st">"Calm (middle 80%)"</span>: calm_days,
+    <span class="st">"Rally (top 10%)"</span>: rally_days,
+    <span class="st">"Full sample"</span>: common_idx
+}
+
+<span class="fn">print</span>(f<span class="st">"{'Regime':<25} {'AAPL/MSFT':>10} {'AAPL/JPM':>10} {'AAPL/XOM':>10} {'AAPL/GLD':>10} {'N':>6}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">75</span>)
+
+<span class="kw">for</span> regime_name, days <span class="kw">in</span> regimes.items():
+    r = ret_aligned.loc[days]
+    corrs = [
+        r[<span class="st">"AAPL"</span>].corr(r[<span class="st">"MSFT"</span>]),
+        r[<span class="st">"AAPL"</span>].corr(r[<span class="st">"JPM"</span>]),
+        r[<span class="st">"AAPL"</span>].corr(r[<span class="st">"XOM"</span>]),
+        r[<span class="st">"AAPL"</span>].corr(r[<span class="st">"GLD"</span>]),
+    ]
+    <span class="fn">print</span>(f<span class="st">"{regime_name:<25} {corrs[0]:>10.3f} {corrs[1]:>10.3f} {corrs[2]:>10.3f} {corrs[3]:>10.3f} {len(days):>6}"</span>)
+
+<span class="cm"># You will typically see: crisis correlations > calm correlations</span></pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <strong>Be careful interpreting conditional correlations.</strong> Forbes and Rigobon
+        (2002) showed that conditioning on high-volatility periods <em>mechanically</em>
+        inflates the measured correlation, even if the underlying dependence structure has
+        not changed. The formula is: &rho;<sub>conditional</sub> = &rho; /
+        &radic;(1 + &delta;(1 &minus; &rho;<sup>2</sup>)), where &delta; reflects the
+        increase in variance. Always correct for this bias before concluding that
+        &ldquo;correlations increase during crises.&rdquo;
+      </div>
+
+      <h3>5.3 The Forbes-Rigobon Correction</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">def</span> <span class="fn">forbes_rigobon_correction</span>(rho_conditional, var_ratio):
+    <span class="st">"""
+    Correct conditional correlation for the variance-inflation bias.
+
+    Parameters:
+        rho_conditional: correlation estimated in the high-vol subsample
+        var_ratio: (variance in subsample) / (variance in full sample) - 1
+
+    Returns:
+        Corrected correlation
+    """</span>
+    numerator = rho_conditional
+    denominator = np.sqrt(<span class="nu">1</span> + var_ratio * (<span class="nu">1</span> - rho_conditional ** <span class="nu">2</span>))
+    <span class="kw">return</span> numerator / denominator
+
+<span class="cm"># Example: correct the crisis correlation</span>
+crisis_ret = ret_aligned.loc[crisis_days]
+full_ret = ret_aligned
+
+var_ratio = (crisis_ret[<span class="st">"AAPL"</span>].var() / full_ret[<span class="st">"AAPL"</span>].var()) - <span class="nu">1</span>
+rho_crisis = crisis_ret[<span class="st">"AAPL"</span>].corr(crisis_ret[<span class="st">"MSFT"</span>])
+rho_corrected = forbes_rigobon_correction(rho_crisis, var_ratio)
+
+<span class="fn">print</span>(f<span class="st">"Crisis correlation (raw):       {rho_crisis:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Crisis correlation (corrected): {rho_corrected:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Full sample correlation:        {pearson_full:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Variance inflation ratio:       {var_ratio:.2f}"</span>)</pre>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 6: SPURIOUS CORRELATION                              -->
+      <!-- ============================================================ -->
+
+      <h2>6. Spurious Correlations and Causation</h2>
+
+      <h3>6.1 Spurious Correlation from Nonstationarity</h3>
+
+      <p>
+        As we covered in Module 02, correlating two price levels (rather than returns)
+        produces spurious results. Two random walks that have no connection to each other
+        will typically show correlations of 0.8 or higher over a few years.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Demonstrate spurious correlation</span>
+np.random.seed(<span class="nu">42</span>)
+n = <span class="nu">1000</span>
+
+<span class="cm"># Two COMPLETELY INDEPENDENT random walks</span>
+rw1 = np.cumsum(np.random.normal(<span class="nu">0</span>, <span class="nu">1</span>, n))
+rw2 = np.cumsum(np.random.normal(<span class="nu">0</span>, <span class="nu">1</span>, n))
+
+corr_levels = np.corrcoef(rw1, rw2)[<span class="nu">0</span>, <span class="nu">1</span>]
+corr_changes = np.corrcoef(np.diff(rw1), np.diff(rw2))[<span class="nu">0</span>, <span class="nu">1</span>]
+
+<span class="fn">print</span>(f<span class="st">"Correlation of LEVELS:  {corr_levels:.4f}  (SPURIOUS — they are independent!)"</span>)
+<span class="fn">print</span>(f<span class="st">"Correlation of CHANGES: {corr_changes:.4f}  (correct — near zero)"</span>)
+
+<span class="cm"># Monte Carlo: repeat 1000 times to show the distribution of spurious correlations</span>
+spurious_corrs = []
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1000</span>):
+    a = np.cumsum(np.random.normal(<span class="nu">0</span>, <span class="nu">1</span>, n))
+    b = np.cumsum(np.random.normal(<span class="nu">0</span>, <span class="nu">1</span>, n))
+    spurious_corrs.append(np.corrcoef(a, b)[<span class="nu">0</span>, <span class="nu">1</span>])
+
+spurious_corrs = np.array(spurious_corrs)
+<span class="fn">print</span>(f<span class="st">"\nMonte Carlo (1000 pairs of independent random walks):"</span>)
+<span class="fn">print</span>(f<span class="st">"  Mean |correlation|: {np.abs(spurious_corrs).mean():.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"  Fraction with |r| > 0.5: {(np.abs(spurious_corrs) > 0.5).mean():.1%}"</span>)
+<span class="fn">print</span>(f<span class="st">"  Fraction with |r| > 0.8: {(np.abs(spurious_corrs) > 0.8).mean():.1%}"</span>)</pre>
+
+      <h3>6.2 The Third-Variable Problem</h3>
+
+      <p>
+        Even with returns, observed correlations may be driven by a <strong>common factor</strong>
+        rather than a direct relationship. The most common confound in finance is
+        <strong>market risk</strong>: most stocks are positively correlated because they
+        all respond to the overall market. The &ldquo;true&rdquo; stock-specific correlation
+        is the residual after removing the market factor.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        This is a textbook <strong>confounding variable</strong> problem. The market return
+        is a confounder that drives both stocks. To estimate the &ldquo;direct&rdquo;
+        relationship, you need to condition on (or partial out) the market factor &mdash;
+        exactly as you would use partial correlation or include a control variable in a
+        regression. In finance, this is formalized as the <strong>factor model</strong>:
+        r<sub>i,t</sub> = &alpha;<sub>i</sub> + &beta;<sub>i</sub> r<sub>m,t</sub> +
+        &epsilon;<sub>i,t</sub>. The residual correlations &mdash;
+        Corr(&epsilon;<sub>i</sub>, &epsilon;<sub>j</sub>) &mdash; measure true
+        stock-specific co-movement.
+      </div>
+
+      <h3>6.3 Correlation Does Not Imply Prediction</h3>
+
+      <p>
+        A high contemporaneous correlation between two asset returns does <em>not</em> mean
+        that one predicts the other. If AAPL and MSFT have a 0.75 daily correlation, that
+        means they tend to move together <em>on the same day</em>. It says nothing about
+        whether today&rsquo;s AAPL return predicts tomorrow&rsquo;s MSFT return.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Contemporaneous vs predictive correlation</span>
+contemporaneous = ret[<span class="st">"AAPL"</span>].corr(ret[<span class="st">"MSFT"</span>])
+predictive = ret[<span class="st">"AAPL"</span>].corr(ret[<span class="st">"MSFT"</span>].shift(-<span class="nu">1</span>))  <span class="cm"># AAPL today vs MSFT tomorrow</span>
+reverse = ret[<span class="st">"MSFT"</span>].corr(ret[<span class="st">"AAPL"</span>].shift(-<span class="nu">1</span>))    <span class="cm"># MSFT today vs AAPL tomorrow</span>
+
+<span class="fn">print</span>(f<span class="st">"Contemporaneous: Corr(AAPL_t, MSFT_t)   = {contemporaneous:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Predictive:      Corr(AAPL_t, MSFT_t+1) = {predictive:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Reverse:         Corr(MSFT_t, AAPL_t+1) = {reverse:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"\nContemporaneous correlation is large; predictive is near zero."</span>)
+<span class="fn">print</span>(f<span class="st">"This is consistent with efficient markets."</span>)</pre>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 7: COPULAS                                           -->
+      <!-- ============================================================ -->
+
+      <h2>7. Beyond Correlation: A Brief Introduction to Copulas</h2>
+
+      <h3>7.1 Why Correlation Alone Is Insufficient</h3>
+
+      <p>
+        Correlation captures only <em>one number</em> about the joint distribution of two
+        variables. Two joint distributions can have the same Pearson correlation but
+        completely different dependence structures &mdash; especially in the tails.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Copula:</strong> A function that joins (couples) marginal distributions
+        to form a multivariate distribution. The copula captures the <em>dependence
+        structure</em> separate from the marginal distributions. Sklar&rsquo;s theorem
+        guarantees that any multivariate distribution can be decomposed into its marginals
+        and a copula. This separation is extremely useful because you can model margins
+        and dependence independently.
+      </div>
+
+      <h3>7.2 Tail Dependence</h3>
+
+      <p>
+        The key concept that copulas capture but correlation misses is <strong>tail
+        dependence</strong>: the probability that one variable is extreme given that the
+        other is extreme.
+      </p>
+
+      <div class="formula-box">
+        &lambda;<sub>L</sub> = lim<sub>u&rarr;0</sub> P(Y &le; F<sub>Y</sub><sup>&minus;1</sup>(u) | X &le; F<sub>X</sub><sup>&minus;1</sup>(u))
+      </div>
+
+      <p>
+        The <strong>Gaussian copula</strong> has zero tail dependence: extreme co-movements
+        are infinitely unlikely. The <strong>Clayton copula</strong> has lower tail dependence
+        (joint crashes are more likely). The <strong>Gumbel copula</strong> has upper tail
+        dependence (joint booms).
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Copula Family</th>
+            <th>Lower Tail Dependence</th>
+            <th>Upper Tail Dependence</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Gaussian</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Baseline model; often inadequate for finance</td>
+          </tr>
+          <tr>
+            <td>Student-t</td>
+            <td>Symmetric > 0</td>
+            <td>Symmetric > 0</td>
+            <td>Symmetric tail dependence; a good default for finance</td>
+          </tr>
+          <tr>
+            <td>Clayton</td>
+            <td>> 0</td>
+            <td>0</td>
+            <td>Modeling joint crashes (lower tail events)</td>
+          </tr>
+          <tr>
+            <td>Gumbel</td>
+            <td>0</td>
+            <td>> 0</td>
+            <td>Modeling joint booms (upper tail events)</td>
+          </tr>
+          <tr>
+            <td>Frank</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Symmetric dependence without tail dependence</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The misuse of the Gaussian copula was a contributing factor in the 2008 financial
+        crisis. The model was widely used to price collateralized debt obligations (CDOs),
+        but its assumption of zero tail dependence meant it drastically underestimated the
+        probability of widespread simultaneous defaults. When defaults became correlated
+        during the crisis, the losses far exceeded what the Gaussian copula predicted.
+      </div>
+
+      <h3>7.3 Empirical Copula Visualization</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> scipy.stats <span class="kw">import</span> rankdata
+
+<span class="cm"># Create the empirical copula (rank-transformed data)</span>
+u = rankdata(ret[<span class="st">"AAPL"</span>]) / (<span class="fn">len</span>(ret) + <span class="nu">1</span>)
+v = rankdata(ret[<span class="st">"MSFT"</span>]) / (<span class="fn">len</span>(ret) + <span class="nu">1</span>)
+
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">12</span>, <span class="nu">5</span>))
+
+<span class="cm"># Left: raw returns scatter</span>
+axes[<span class="nu">0</span>].scatter(ret[<span class="st">"AAPL"</span>], ret[<span class="st">"MSFT"</span>], alpha=<span class="nu">0.2</span>, s=<span class="nu">3</span>, color=<span class="st">'#1a365d'</span>)
+axes[<span class="nu">0</span>].set_xlabel(<span class="st">'AAPL Return'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'MSFT Return'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Raw Returns'</span>)
+
+<span class="cm"># Right: empirical copula (rank space)</span>
+axes[<span class="nu">1</span>].scatter(u, v, alpha=<span class="nu">0.2</span>, s=<span class="nu">3</span>, color=<span class="st">'#e53e3e'</span>)
+axes[<span class="nu">1</span>].set_xlabel(<span class="st">'AAPL Rank (uniform scale)'</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'MSFT Rank (uniform scale)'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Empirical Copula (Rank Space)'</span>)
+axes[<span class="nu">1</span>].set_xlim(<span class="nu">0</span>, <span class="nu">1</span>)
+axes[<span class="nu">1</span>].set_ylim(<span class="nu">0</span>, <span class="nu">1</span>)
+
+<span class="cm"># Add reference lines at corners to highlight tail dependence</span>
+axes[<span class="nu">1</span>].axhline(y=<span class="nu">0.05</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>)
+axes[<span class="nu">1</span>].axvline(x=<span class="nu">0.05</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>)
+axes[<span class="nu">1</span>].axhline(y=<span class="nu">0.95</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>)
+axes[<span class="nu">1</span>].axvline(x=<span class="nu">0.95</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>)
+
+plt.tight_layout()
+plt.show()
+
+<span class="cm"># Look at the lower-left corner: if points cluster there, there is lower tail dependence</span>
+<span class="cm"># (both stocks crash together more often than the Gaussian copula would predict)</span>
+
+<span class="cm"># Quantify tail dependence empirically</span>
+threshold = <span class="nu">0.05</span>
+lower_tail = np.mean((u &lt;= threshold) &amp; (v &lt;= threshold)) / threshold
+upper_tail = np.mean((u >= <span class="nu">1</span> - threshold) &amp; (v >= <span class="nu">1</span> - threshold)) / threshold
+<span class="fn">print</span>(f<span class="st">"Empirical lower tail dependence (5%): {lower_tail:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Empirical upper tail dependence (5%): {upper_tail:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Under independence, both would be:    {threshold:.4f}"</span>)</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The empirical copula is simply the <strong>bivariate rank plot</strong> scaled to
+        [0, 1]. If you have used <strong>probability integral transform</strong> plots in
+        model diagnostics (checking if residuals are uniform after applying the CDF), you
+        are already familiar with this idea. The copula is the joint distribution of the
+        probability integral transforms of each marginal.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 8: SUMMARY                                           -->
+      <!-- ============================================================ -->
+
+      <h2>8. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Key Takeaway</th>
+            <th>Practical Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pearson correlation</td>
+            <td>Sensitive to outliers; only captures linear dependence</td>
+            <td>Use alongside Spearman; interpret with caution</td>
+          </tr>
+          <tr>
+            <td>Spearman / Kendall</td>
+            <td>Robust to outliers; capture monotonic dependence</td>
+            <td>Prefer for exploratory analysis of financial data</td>
+          </tr>
+          <tr>
+            <td>Rolling correlation</td>
+            <td>Financial correlations are time-varying</td>
+            <td>Always check stability before using a static estimate</td>
+          </tr>
+          <tr>
+            <td>Crisis correlation</td>
+            <td>Correlations increase during market stress</td>
+            <td>Stress-test portfolios with crisis-period correlations</td>
+          </tr>
+          <tr>
+            <td>Forbes-Rigobon</td>
+            <td>Conditioning on volatility inflates correlation mechanically</td>
+            <td>Correct for variance inflation before concluding contagion</td>
+          </tr>
+          <tr>
+            <td>Copulas</td>
+            <td>Correlation is one number; dependence structure is richer</td>
+            <td>Use t-copulas or Clayton copulas for tail risk</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        You now have a nuanced understanding of how dependence works in financial data.
+        In the next module, we will turn to a different kind of statistical problem:
+        missing data and selection bias, which in finance manifests as the notorious
+        <strong>survivorship bias</strong>.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-03/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-05/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

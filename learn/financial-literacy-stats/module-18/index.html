@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 18: Backtesting & Strategy Evaluation — Learn Sharpe ratios, multiple testing corrections, walk-forward analysis, and overfitting detection.">
+  <title>Backtesting &amp; Strategy Evaluation — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 18: Backtesting &amp; Strategy Evaluation</h1>
+      <p class="tagline">Judging investment strategies with the rigor of statistical hypothesis testing</p>
+      <div class="module-meta">
+        <span class="meta-item">Part IV of 5</span>
+        <span class="meta-item">Module 18 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-17/index.html">&larr; Previous</a>
+      <span class="current">Module 18 of 22</span>
+      <a href="../module-19/index.html">Next &rarr;</a>
+    </div>
+
+      <h2>Introduction: Judging Strategies Like a Statistician</h2>
+      <p>
+        Backtesting is the process of evaluating a trading strategy on historical data. It is the
+        financial equivalent of out-of-sample model validation &mdash; but with far more ways to
+        go wrong. A beautifully backtested strategy that earned 40% per year with a Sharpe of 3.0
+        might be nothing more than an artifact of overfitting, data snooping, and biased simulation.
+        This module equips you to evaluate strategies with the same rigor you would apply to a
+        statistical study.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Backtesting is <strong>hypothesis testing applied to investment strategies</strong>. The
+          null hypothesis is that the strategy has no alpha (excess risk-adjusted return). The
+          test statistic is the Sharpe ratio. The critical question is always: <strong>is the
+          observed performance statistically distinguishable from luck?</strong> Every concept
+          in this module maps to a familiar statistical idea.
+        </p>
+      </div>
+
+      <h2>1. The Sharpe Ratio: Finance's Signal-to-Noise Ratio</h2>
+
+      <h3>1.1 Definition</h3>
+      <div class="formula-box">
+        SR = E[R<sub>p</sub> &minus; R<sub>f</sub>] / &sigma;(R<sub>p</sub> &minus; R<sub>f</sub>) = &mu;<sub>excess</sub> / &sigma;<sub>excess</sub>
+      </div>
+      <p>
+        where R<sub>p</sub> is the portfolio return, R<sub>f</sub> is the risk-free rate,
+        &mu;<sub>excess</sub> is the mean excess return, and &sigma;<sub>excess</sub> is the
+        standard deviation of excess returns.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The Sharpe ratio is literally the <strong>signal-to-noise ratio (SNR)</strong> of the
+          excess return process. It is also proportional to the <strong>t-statistic</strong> for
+          testing whether the mean excess return is significantly different from zero:
+          t = SR &times; &radic;n, where n is the number of observations. A Sharpe ratio of 0.5
+          per year with 10 years of data gives t = 0.5 &times; &radic;10 &asymp; 1.58, which is
+          <strong>not significant</strong> at the 5% level.
+        </p>
+      </div>
+
+      <h3>1.2 Interpreting the Sharpe Ratio</h3>
+      <table>
+        <thead>
+          <tr><th>Annualized Sharpe</th><th>Quality</th><th>Context</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>&lt; 0.5</td><td>Poor</td><td>Not distinguishable from random noise</td></tr>
+          <tr><td>0.5 &ndash; 1.0</td><td>Acceptable</td><td>Typical for long-only equity strategies</td></tr>
+          <tr><td>1.0 &ndash; 2.0</td><td>Good</td><td>Achievable by well-designed quantitative strategies</td></tr>
+          <tr><td>2.0 &ndash; 3.0</td><td>Excellent</td><td>Top-tier hedge funds; warrants scrutiny for overfitting</td></tr>
+          <tr><td>&gt; 3.0</td><td>Suspicious</td><td>Very likely backtest artifact; almost never achieved live</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.3 Annualizing the Sharpe Ratio</h3>
+      <div class="formula-box">
+        SR<sub>annual</sub> = SR<sub>daily</sub> &times; &radic;252
+      </div>
+      <p>
+        This scaling assumes returns are <strong>independently and identically distributed (IID)</strong>.
+        The &radic;252 factor comes from the fact that the variance of the sum of n IID variables
+        scales as n, so the standard deviation scales as &radic;n, while the mean scales as n.
+        Thus the ratio of mean to standard deviation scales as &radic;n.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The IID assumption behind &radic;252 scaling is <strong>wrong</strong> for most strategies.
+          If returns are positively autocorrelated (momentum strategies), the annualized Sharpe is
+          <em>overstated</em>. If returns are negatively autocorrelated (mean-reversion strategies),
+          it is <em>understated</em>. The correction factor involves the autocorrelation structure:
+          SR<sub>annual</sub> = SR<sub>daily</sub> &times; &radic;(252 &times; (1 + 2&sum;(1&minus;k/252)&rho;<sub>k</sub>)).
+        </p>
+      </div>
+
+      <h3>1.4 Statistical Significance of the Sharpe Ratio</h3>
+      <p>
+        Under the null hypothesis that the true Sharpe ratio is zero, the estimated Sharpe ratio
+        follows approximately:
+      </p>
+      <div class="formula-box">
+        SR&#770; &sim; N(0, 1/n &times; (1 + &frac12; SR<sup>2</sup>))
+        <br><br>
+        Simplified: SE(SR&#770;) &asymp; 1/&radic;n &nbsp;&nbsp; (for small SR)
+      </div>
+      <p>
+        This means you need <strong>years of data</strong> to confirm a genuine Sharpe ratio.
+        With daily data:
+      </p>
+      <table>
+        <thead>
+          <tr><th>True Annual Sharpe</th><th>Daily Sharpe</th><th>Years for t=2 (p&lt;0.05)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0.5</td><td>0.031</td><td>16 years</td></tr>
+          <tr><td>1.0</td><td>0.063</td><td>4 years</td></tr>
+          <tr><td>2.0</td><td>0.126</td><td>1 year</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          A strategy with an annualized Sharpe of 0.5 requires <strong>16 years</strong> of daily
+          data to be statistically significant. Most backtests span 5&ndash;10 years. This means
+          that for many realistic Sharpe ratios, we literally do not have enough data to distinguish
+          signal from noise. This sobering fact underlies the entire difficulty of strategy evaluation.
+        </p>
+      </div>
+
+      <h2>2. The Sortino Ratio: Penalizing Only Downside</h2>
+
+      <h3>2.1 Motivation</h3>
+      <p>
+        The Sharpe ratio treats upside and downside volatility equally. But investors do not care
+        about upside volatility &mdash; they only fear losses. The Sortino ratio replaces total
+        standard deviation with <strong>downside deviation</strong>.
+      </p>
+
+      <div class="formula-box">
+        Sortino = E[R<sub>p</sub> &minus; R<sub>f</sub>] / &sigma;<sub>downside</sub>
+        <br><br>
+        where &sigma;<sub>downside</sub> = &radic;(E[min(R<sub>p</sub> &minus; R<sub>f</sub>, 0)<sup>2</sup>])
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The Sortino ratio is the SNR computed using only the <strong>lower partial moment</strong>
+          of the distribution. If returns are symmetric (normal), Sortino &asymp; Sharpe &times;
+          &radic;2. If returns are negatively skewed (common in finance), Sortino &lt; Sharpe
+          &times; &radic;2, meaning the downside is worse than the symmetric case would suggest.
+          A strategy that has Sharpe = 1.5 but Sortino = 1.0 is generating its returns with
+          significant left-tail risk.
+        </p>
+      </div>
+
+      <h2>3. Maximum Drawdown: A Path-Dependent Risk Measure</h2>
+
+      <h3>3.1 Definition</h3>
+      <p>
+        Maximum drawdown (MDD) is the largest peak-to-trough decline in portfolio value over the
+        entire backtest period.
+      </p>
+
+      <div class="formula-box">
+        MDD = max<sub>t</sub> (max<sub>s&le;t</sub> V<sub>s</sub> &minus; V<sub>t</sub>) / max<sub>s&le;t</sub> V<sub>s</sub>
+      </div>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Drawdown</strong> &mdash; The decline from a previous peak in portfolio value.
+          It measures how much an investor would have lost if they bought at the peak and sold at
+          the trough. Maximum drawdown is the worst such experience over the entire backtest.
+        </p>
+      </div>
+
+      <h3>3.2 Why Drawdown Matters More Than Volatility</h3>
+      <p>
+        Volatility is a statistical abstraction; drawdown is a <strong>lived experience</strong>.
+        A strategy with 15% annualized volatility sounds moderate, but if it experiences a 45%
+        drawdown, most investors will panic-sell at the bottom. Key relationships:
+      </p>
+      <ul>
+        <li>For a random walk with annual volatility &sigma;, the expected maximum drawdown over T years is approximately &sigma; &times; &radic;(2T &times; ln(T)).</li>
+        <li>Drawdowns are <strong>path-dependent</strong>: two return series with identical means and variances can have very different drawdown profiles.</li>
+        <li>Drawdown duration (how long it takes to recover) matters as much as drawdown depth.</li>
+      </ul>
+
+      <h3>3.3 Calmar Ratio</h3>
+      <div class="formula-box">
+        Calmar = Annualized Return / Maximum Drawdown
+      </div>
+      <p>
+        The Calmar ratio rewards returns and penalizes drawdowns. A Calmar above 1.0 is considered
+        good; above 2.0 is excellent. Like the Sharpe ratio, very high Calmar ratios in a backtest
+        should trigger suspicion of overfitting.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Maximum drawdown is a <strong>path statistic</strong> &mdash; it depends on the entire
+          trajectory, not just the marginal distribution. Formally, it is related to the running
+          maximum of a stochastic process. For a Brownian motion with drift &mu; and volatility
+          &sigma;, the distribution of maximum drawdown can be computed analytically, providing a
+          benchmark to assess whether an observed drawdown is unusually large or small.
+        </p>
+      </div>
+
+      <h2>4. Complete Performance Metrics Reference</h2>
+
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Formula</th><th>What It Measures</th><th>Statistical Analogue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sharpe Ratio</td><td>&mu; / &sigma;</td><td>Return per unit of total risk</td><td>Signal-to-noise ratio; t-stat / &radic;n</td></tr>
+          <tr><td>Sortino Ratio</td><td>&mu; / &sigma;<sub>down</sub></td><td>Return per unit of downside risk</td><td>SNR using lower partial moment</td></tr>
+          <tr><td>Calmar Ratio</td><td>Ann. Return / MDD</td><td>Return per unit of worst drawdown</td><td>Mean / path maximum statistic</td></tr>
+          <tr><td>Information Ratio</td><td>&alpha; / &sigma;(&alpha;)</td><td>Active return per tracking error</td><td>t-stat of regression intercept</td></tr>
+          <tr><td>Omega Ratio</td><td>&int; gains / &int; losses</td><td>Probability-weighted gain/loss</td><td>Ratio of upper to lower partial moments</td></tr>
+          <tr><td>Win Rate</td><td>P(R &gt; 0)</td><td>Fraction of profitable days</td><td>Binomial parameter p</td></tr>
+          <tr><td>Profit Factor</td><td>&sum; wins / &sum; losses</td><td>Total profit relative to total loss</td><td>Ratio of positive to negative mean</td></tr>
+          <tr><td>Skewness</td><td>E[(R &minus; &mu;)&sup3;] / &sigma;&sup3;</td><td>Asymmetry of returns</td><td>Third standardized moment</td></tr>
+          <tr><td>Kurtosis</td><td>E[(R &minus; &mu;)&#8308;] / &sigma;&#8308;</td><td>Tail heaviness</td><td>Fourth standardized moment</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. The Multiple Testing Problem in Strategy Search</h2>
+
+      <h3>5.1 The Setup</h3>
+      <p>
+        A quantitative researcher tests N candidate strategies and reports the best one. Even if
+        all N strategies have zero true alpha, the best one will have a positive in-sample Sharpe
+        simply due to chance. The expected maximum Sharpe ratio of N zero-alpha strategies is:
+      </p>
+      <div class="formula-box">
+        E[max SR] &asymp; &radic;(2 ln(N)) / &radic;n
+      </div>
+      <p>
+        where n is the number of return observations. Testing 1,000 strategies on 10 years of
+        daily data: E[max SR] &asymp; &radic;(2 &times; 6.9) / &radic;2520 &asymp; 0.074 daily
+        &asymp; 1.18 annualized. A purely random strategy search will produce Sharpe ratios
+        above 1.0.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          This is why reported backtest Sharpe ratios must be deflated by the number of strategies
+          tested. A Sharpe of 2.0 sounds impressive until you learn it was the best of 10,000
+          variants. Harvey, Liu, and Zhu (2016) proposed the &ldquo;haircut Sharpe ratio&rdquo;
+          that adjusts for this multiple testing bias.
+        </p>
+      </div>
+
+      <h3>5.2 Haircut Sharpe Ratios</h3>
+      <p>
+        The idea is simple: given the number of strategies tested (N), adjust the observed Sharpe
+        ratio downward to account for selection bias. Two approaches:
+      </p>
+
+      <h4>Bonferroni Correction</h4>
+      <div class="formula-box">
+        SR<sub>adjusted</sub> = SR<sub>observed</sub> &minus; &Phi;<sup>&minus;1</sup>(1 &minus; &alpha;/(2N)) / &radic;n
+      </div>
+
+      <h4>Benjamini-Hochberg (FDR Control)</h4>
+      <p>
+        Rather than controlling the probability of <em>any</em> false discovery (FWER), control
+        the expected <em>proportion</em> of false discoveries among those declared significant.
+        This is less conservative and more appropriate when you expect some strategies genuinely
+        have alpha.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">from</span> statsmodels.stats.multitest <span class="kw">import</span> multipletests
+
+<span class="kw">def</span> <span class="fn">haircut_sharpe</span>(observed_sharpe, n_strategies, n_obs, method=<span class="st">"bonferroni"</span>):
+    <span class="st">"""
+    Adjust Sharpe ratio for multiple testing.
+
+    Parameters
+    ----------
+    observed_sharpe : float or array, annualized Sharpe ratios
+    n_strategies : int, total number of strategies tested
+    n_obs : int, number of return observations
+    method : str, 'bonferroni' or 'fdr_bh'
+
+    Returns
+    -------
+    Adjusted significance assessment
+    """</span>
+    <span class="cm"># Convert annualized Sharpe to t-statistic</span>
+    t_stats = np.atleast_1d(observed_sharpe) * np.sqrt(n_obs / <span class="nu">252</span>)
+
+    <span class="cm"># Compute p-values (two-sided)</span>
+    p_values = <span class="nu">2</span> * (<span class="nu">1</span> - stats.t.cdf(np.<span class="fn">abs</span>(t_stats), df=n_obs - <span class="nu">1</span>))
+
+    <span class="cm"># Apply multiple testing correction</span>
+    reject, adjusted_p, _, _ = multipletests(p_values, method=method)
+
+    <span class="kw">return</span> {
+        <span class="st">"observed_sharpe"</span>: observed_sharpe,
+        <span class="st">"t_stat"</span>: t_stats,
+        <span class="st">"raw_p"</span>: p_values,
+        <span class="st">"adjusted_p"</span>: adjusted_p,
+        <span class="st">"significant"</span>: reject,
+    }
+
+<span class="cm"># Example: Test the best of 500 strategies</span>
+n_strategies = <span class="nu">500</span>
+n_obs = <span class="nu">252</span> * <span class="nu">10</span>  <span class="cm"># 10 years of daily data</span>
+
+<span class="cm"># Suppose the best strategy has Sharpe = 1.8</span>
+result_bonf = haircut_sharpe(<span class="nu">1.8</span>, n_strategies, n_obs, <span class="st">"bonferroni"</span>)
+result_bh = haircut_sharpe(<span class="nu">1.8</span>, n_strategies, n_obs, <span class="st">"fdr_bh"</span>)
+
+<span class="fn">print</span>(<span class="st">f"Observed Sharpe: 1.8"</span>)
+<span class="fn">print</span>(<span class="st">f"Raw p-value: {result_bonf['raw_p'][0]:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Bonferroni adjusted p: {result_bonf['adjusted_p'][0]:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Significant? {result_bonf['significant'][0]}"</span>)
+<span class="fn">print</span>(<span class="st">f"BH (FDR) adjusted p: {result_bh['adjusted_p'][0]:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Significant? {result_bh['significant'][0]}"</span>)
+
+<span class="cm"># Minimum Sharpe needed for significance</span>
+<span class="kw">for</span> n_strat <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">10</span>, <span class="nu">100</span>, <span class="nu">500</span>, <span class="nu">1000</span>, <span class="nu">10000</span>]:
+    <span class="cm"># Bonferroni: need p < 0.05 / n_strat</span>
+    adjusted_alpha = <span class="nu">0.05</span> / n_strat
+    min_t = stats.t.ppf(<span class="nu">1</span> - adjusted_alpha / <span class="nu">2</span>, df=n_obs - <span class="nu">1</span>)
+    min_sharpe = min_t / np.sqrt(n_obs / <span class="nu">252</span>)
+    <span class="fn">print</span>(<span class="st">f"N={n_strat:>5d} strategies -> min Sharpe: {min_sharpe:.2f}"</span>)</pre>
+
+      <h2>6. Backtest Overfitting</h2>
+
+      <h3>6.1 In-Sample vs Out-of-Sample Degradation</h3>
+      <p>
+        The hallmark of overfitting is a large gap between in-sample (IS) and out-of-sample (OOS)
+        performance. A strategy that earns Sharpe 2.5 in-sample but Sharpe 0.3 out-of-sample has
+        learned the noise in the training period.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is the exact same phenomenon as <strong>training error vs test error</strong> in
+          machine learning. The gap between IS and OOS Sharpe ratios is analogous to the
+          <strong>generalization gap</strong>. Models with more degrees of freedom (more
+          parameters, more rules, more tunable thresholds) will have larger gaps. The principle
+          of parsimony (Occam&rsquo;s Razor) applies with full force.
+        </p>
+      </div>
+
+      <h3>6.2 The Probability of Backtest Overfitting (PBO)</h3>
+      <p>
+        Bailey et al. (2014) introduced a formal method to estimate the probability that a
+        backtested strategy is overfit. The procedure:
+      </p>
+      <ol>
+        <li>Partition the data into S blocks.</li>
+        <li>Generate all combinatorially possible train/test splits using S/2 blocks for training and S/2 for testing.</li>
+        <li>For each split, find the optimal strategy in-sample and measure its OOS performance.</li>
+        <li>PBO = fraction of splits where the IS-optimal strategy has negative OOS Sharpe.</li>
+      </ol>
+      <p>
+        A PBO above 50% means the backtest is more likely overfit than not.
+      </p>
+
+      <h2>7. Walk-Forward Analysis: The Gold Standard</h2>
+
+      <h3>7.1 Procedure</h3>
+      <ol>
+        <li>Divide the historical period into sequential windows.</li>
+        <li>For each window, use the first portion for training (parameter fitting) and the remainder for testing.</li>
+        <li>Advance the window by one step and repeat.</li>
+        <li>Concatenate all OOS test periods to form a continuous OOS equity curve.</li>
+        <li>Compute performance metrics only on the OOS portion.</li>
+      </ol>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Walk-forward analysis is the gold standard because every data point in the evaluation
+          is truly out-of-sample: the model was trained only on data that preceded it. The
+          resulting performance metrics are an unbiased estimate of what you would have earned in
+          live trading. If the walk-forward Sharpe is 0.4 and the full-sample backtest Sharpe is
+          1.8, the strategy is overfit and the 0.4 figure is the honest one.
+        </p>
+      </div>
+
+      <h2>8. Common Backtesting Pitfalls</h2>
+
+      <h3>8.1 Look-Ahead Bias</h3>
+      <p>
+        Using information that was not available at the time of the trading decision. Examples:
+      </p>
+      <ul>
+        <li>Using adjusted closing prices that incorporate future stock splits or dividends.</li>
+        <li>Filtering the stock universe using future information (e.g., excluding stocks that later go bankrupt).</li>
+        <li>Using fundamental data before its actual release date (earnings are reported weeks after quarter-end).</li>
+      </ul>
+
+      <h3>8.2 Survivorship Bias</h3>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Survivorship Bias</strong> &mdash; The error of analyzing only assets that
+          survived to the present, ignoring those that were delisted, went bankrupt, or were
+          acquired. This inflates historical performance because the worst performers are excluded.
+        </p>
+      </div>
+
+      <p>
+        Example: If you backtest a strategy on the current S&amp;P 500 constituents going back
+        20 years, you are only testing on companies that survived 20 years. Companies that went
+        bankrupt (Lehman Brothers, Enron, WorldCom) are excluded, removing the worst outcomes
+        and biasing returns upward.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Survivorship bias is a form of <strong>selection bias</strong> &mdash; the sample is
+          not representative of the population. In survival analysis, this is analogous to
+          <strong>left truncation</strong>: you only observe individuals who survived long enough
+          to enter the study. The solution is the same in both fields: use a survivorship-bias-free
+          database that includes delisted securities.
+        </p>
+      </div>
+
+      <h3>8.3 Transaction Cost Neglect</h3>
+      <p>
+        A strategy that trades frequently looks great without costs but may be deeply unprofitable
+        after commissions, slippage, and market impact. Key cost components:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Cost Component</th><th>Typical Magnitude</th><th>Affected By</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Commissions</td><td>$0.001 &ndash; $0.005 per share</td><td>Broker, volume</td></tr>
+          <tr><td>Bid-ask spread</td><td>0.01% &ndash; 0.50% per trade</td><td>Liquidity, market cap</td></tr>
+          <tr><td>Market impact</td><td>0.05% &ndash; 1%+ per trade</td><td>Order size relative to volume</td></tr>
+          <tr><td>Slippage</td><td>0.01% &ndash; 0.10% per trade</td><td>Execution speed, volatility</td></tr>
+        </tbody>
+      </table>
+
+      <h3>8.4 Overfitting to a Specific Period</h3>
+      <p>
+        A strategy optimized on 2010&ndash;2020 may have learned patterns specific to the
+        post-GFC low-rate, low-volatility, QE-driven bull market. It will likely fail in a
+        different regime (rising rates, high inflation, bear market). This is the
+        <strong>non-stationarity</strong> problem from Module 16 applied to strategy design.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The most insidious form of overfitting is <strong>implicit</strong>: the researcher
+          adjusts the strategy based on visual inspection of the equity curve, adds filters to
+          avoid specific drawdowns, or changes parameters until the backtest &ldquo;looks right.&rdquo;
+          Each adjustment is an implicit test that inflates the total number of strategies tried,
+          even if only one is formally reported. Always count your degrees of freedom honestly.
+        </p>
+      </div>
+
+      <h2>9. Python: Complete Momentum Strategy Backtest</h2>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Step 1: Download data</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+spy = yf.download(<span class="st">"SPY"</span>, start=<span class="st">"2005-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+returns = spy[<span class="st">"Adj Close"</span>].pct_change().dropna()
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Step 2: Simple momentum strategy</span>
+<span class="cm">#   Long SPY when 50-day return > 0, else flat (cash)</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+lookback = <span class="nu">50</span>
+momentum_signal = returns.rolling(lookback).mean().shift(<span class="nu">1</span>)  <span class="cm"># Shifted to avoid look-ahead</span>
+position = (momentum_signal &gt; <span class="nu">0</span>).astype(<span class="fn">float</span>)
+
+<span class="cm"># Strategy returns (assume 5bps transaction cost per trade)</span>
+trades = position.diff().<span class="fn">abs</span>()
+tc_per_trade = <span class="nu">0.0005</span>
+strategy_returns = position * returns - trades * tc_per_trade
+strategy_returns = strategy_returns.dropna()
+
+<span class="cm"># Benchmark: buy and hold</span>
+benchmark_returns = returns.loc[strategy_returns.index]
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Step 3: Compute all performance metrics</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">compute_metrics</span>(returns, name=<span class="st">"Strategy"</span>, rf_annual=<span class="nu">0.02</span>):
+    <span class="st">"""Compute comprehensive backtest metrics."""</span>
+    rf_daily = rf_annual / <span class="nu">252</span>
+    excess = returns - rf_daily
+    n = <span class="fn">len</span>(returns)
+
+    <span class="cm"># Basic stats</span>
+    ann_return = returns.mean() * <span class="nu">252</span>
+    ann_vol = returns.std() * np.sqrt(<span class="nu">252</span>)
+
+    <span class="cm"># Sharpe ratio</span>
+    sharpe = excess.mean() / excess.std() * np.sqrt(<span class="nu">252</span>)
+
+    <span class="cm"># Sortino ratio</span>
+    downside = excess[excess &lt; <span class="nu">0</span>]
+    downside_vol = np.sqrt((excess.clip(upper=<span class="nu">0</span>)**<span class="nu">2</span>).mean()) * np.sqrt(<span class="nu">252</span>)
+    sortino = excess.mean() * <span class="nu">252</span> / downside_vol <span class="kw">if</span> downside_vol &gt; <span class="nu">0</span> <span class="kw">else</span> np.nan
+
+    <span class="cm"># Maximum drawdown</span>
+    cum_returns = (<span class="nu">1</span> + returns).cumprod()
+    running_max = cum_returns.cummax()
+    drawdown = (cum_returns - running_max) / running_max
+    max_dd = drawdown.min()
+
+    <span class="cm"># Calmar ratio</span>
+    calmar = ann_return / <span class="fn">abs</span>(max_dd) <span class="kw">if</span> max_dd != <span class="nu">0</span> <span class="kw">else</span> np.nan
+
+    <span class="cm"># Win rate</span>
+    win_rate = (returns &gt; <span class="nu">0</span>).mean()
+
+    <span class="cm"># Statistical significance</span>
+    t_stat = excess.mean() / (excess.std() / np.sqrt(n))
+    p_value = <span class="nu">2</span> * (<span class="nu">1</span> - stats.t.cdf(<span class="fn">abs</span>(t_stat), df=n-<span class="nu">1</span>))
+
+    <span class="cm"># Skewness and kurtosis</span>
+    skew = returns.skew()
+    kurt = returns.kurtosis()
+
+    <span class="cm"># Maximum drawdown duration</span>
+    dd_duration = <span class="nu">0</span>
+    max_dd_duration = <span class="nu">0</span>
+    <span class="kw">for</span> d <span class="kw">in</span> drawdown:
+        <span class="kw">if</span> d &lt; <span class="nu">0</span>:
+            dd_duration += <span class="nu">1</span>
+            max_dd_duration = <span class="fn">max</span>(max_dd_duration, dd_duration)
+        <span class="kw">else</span>:
+            dd_duration = <span class="nu">0</span>
+
+    <span class="kw">return</span> pd.Series({
+        <span class="st">"Ann. Return"</span>: <span class="st">f"{ann_return:.2%}"</span>,
+        <span class="st">"Ann. Volatility"</span>: <span class="st">f"{ann_vol:.2%}"</span>,
+        <span class="st">"Sharpe Ratio"</span>: <span class="st">f"{sharpe:.3f}"</span>,
+        <span class="st">"Sortino Ratio"</span>: <span class="st">f"{sortino:.3f}"</span>,
+        <span class="st">"Max Drawdown"</span>: <span class="st">f"{max_dd:.2%}"</span>,
+        <span class="st">"Calmar Ratio"</span>: <span class="st">f"{calmar:.3f}"</span>,
+        <span class="st">"Win Rate"</span>: <span class="st">f"{win_rate:.2%}"</span>,
+        <span class="st">"Skewness"</span>: <span class="st">f"{skew:.3f}"</span>,
+        <span class="st">"Kurtosis"</span>: <span class="st">f"{kurt:.3f}"</span>,
+        <span class="st">"t-statistic"</span>: <span class="st">f"{t_stat:.3f}"</span>,
+        <span class="st">"p-value"</span>: <span class="st">f"{p_value:.4f}"</span>,
+        <span class="st">"Max DD Duration"</span>: <span class="st">f"{max_dd_duration} days"</span>,
+    }, name=name)
+
+<span class="cm"># Compare strategy vs benchmark</span>
+metrics = pd.DataFrame({
+    <span class="st">"Momentum"</span>: compute_metrics(strategy_returns, <span class="st">"Momentum"</span>),
+    <span class="st">"Buy & Hold"</span>: compute_metrics(benchmark_returns, <span class="st">"Buy & Hold"</span>),
+})
+<span class="fn">print</span>(metrics)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Step 4: Apply multiple testing correction</span>
+<span class="cm">#   Suppose we tested 20 lookback periods (10, 20, ..., 200)</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="kw">from</span> statsmodels.stats.multitest <span class="kw">import</span> multipletests
+
+lookbacks = <span class="fn">range</span>(<span class="nu">10</span>, <span class="nu">210</span>, <span class="nu">10</span>)
+sharpes = []
+pvals = []
+
+<span class="kw">for</span> lb <span class="kw">in</span> lookbacks:
+    sig = returns.rolling(lb).mean().shift(<span class="nu">1</span>)
+    pos = (sig &gt; <span class="nu">0</span>).astype(<span class="fn">float</span>)
+    tr = pos.diff().<span class="fn">abs</span>()
+    strat_ret = (pos * returns - tr * tc_per_trade).dropna()
+
+    excess = strat_ret - <span class="nu">0.02</span>/<span class="nu">252</span>
+    sr = excess.mean() / excess.std() * np.sqrt(<span class="nu">252</span>)
+    t = excess.mean() / (excess.std() / np.sqrt(<span class="fn">len</span>(excess)))
+    p = <span class="nu">2</span> * (<span class="nu">1</span> - stats.t.cdf(<span class="fn">abs</span>(t), df=<span class="fn">len</span>(excess)-<span class="nu">1</span>))
+    sharpes.append(sr)
+    pvals.append(p)
+
+<span class="cm"># Apply BH correction</span>
+reject_bh, adjusted_p, _, _ = multipletests(pvals, method=<span class="st">"fdr_bh"</span>)
+
+results = pd.DataFrame({
+    <span class="st">"Lookback"</span>: <span class="fn">list</span>(lookbacks),
+    <span class="st">"Sharpe"</span>: sharpes,
+    <span class="st">"Raw p-value"</span>: pvals,
+    <span class="st">"BH adjusted p"</span>: adjusted_p,
+    <span class="st">"Significant (BH)"</span>: reject_bh,
+})
+<span class="fn">print</span>(<span class="st">"\n=== Multiple Testing Correction ==="</span>)
+<span class="fn">print</span>(results.to_string(index=<span class="kw">False</span>))</pre>
+
+      <h2>10. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr><th>Statistics Concept</th><th>Backtesting Application</th><th>Key Warning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Signal-to-noise ratio</td><td>Sharpe ratio</td><td>Requires years to confirm statistically</td></tr>
+          <tr><td>Lower partial moment</td><td>Sortino ratio</td><td>Differentiates upside from downside risk</td></tr>
+          <tr><td>Path statistic / running max</td><td>Maximum drawdown</td><td>Captures investor experience, not just distribution</td></tr>
+          <tr><td>Multiple hypothesis testing</td><td>Strategy selection correction</td><td>Testing 1000 strategies guarantees false discoveries</td></tr>
+          <tr><td>Training vs test error gap</td><td>IS vs OOS degradation</td><td>Large gap = overfitting</td></tr>
+          <tr><td>Selection bias</td><td>Survivorship bias</td><td>Use survivorship-free databases</td></tr>
+          <tr><td>Temporal cross-validation</td><td>Walk-forward analysis</td><td>The only honest evaluation method</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The single most important question to ask about any backtest: <strong>how many strategies
+          were tested to find this one?</strong> The answer determines whether the reported Sharpe
+          ratio is genuine alpha or statistical noise. A Sharpe of 1.5 from the first strategy
+          you tested is profoundly different from a Sharpe of 1.5 that was the best of 10,000
+          candidates. The statistics are identical; only the interpretation changes.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-17/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-19/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

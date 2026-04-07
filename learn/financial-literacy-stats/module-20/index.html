@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 20: Reading Financial News Statistically — Learn to decode headlines, detect cherry-picking, evaluate earnings claims, and spot causal fallacies in financial journalism.">
+  <title>Reading Financial News Statistically — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+    @media print { header, footer, nav, .nav-buttons, .btn, button { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 20: Reading Financial News Statistically</h1>
+      <p class="tagline">Decoding headlines, detecting cherry-picks, and applying statistical reasoning to financial journalism</p>
+      <div class="module-meta">
+        <span class="meta-item">Part V of 5</span>
+        <span class="meta-item">Module 20 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-19/index.html">&larr; Previous</a>
+      <span class="current">Module 20 of 22</span>
+      <a href="../module-21/index.html">Next &rarr;</a>
+    </div>
+
+      <p>
+        Financial journalism is, at its core, statistical reporting done by non-statisticians
+        for non-statisticians. Every headline encodes a claim about a distribution, a parameter,
+        or a causal mechanism &mdash; but almost never states the assumptions, the confidence interval,
+        or the denominator. In this module, you will learn to decode financial news the same way
+        you would peer-review a methods section: by asking what was measured, how, over what period,
+        and whether the conclusion follows from the evidence.
+      </p>
+
+      <h2>20.1 &mdash; Every Headline Is a Statistical Claim</h2>
+
+      <p>
+        When you read a financial headline, you are reading a summary statistic without its context.
+        Consider the headline: <strong>"The market is up 2%."</strong> To a statistician, this
+        sentence is nearly meaningless until you answer several questions:
+      </p>
+
+      <ul>
+        <li><strong>Which population?</strong> "The market" could mean the S&amp;P 500 (500 large-cap US stocks),
+            the Dow Jones (30 blue chips, price-weighted), the Nasdaq Composite (tech-heavy),
+            the Russell 2000 (small caps), or a global index like MSCI World.</li>
+        <li><strong>Which parameter?</strong> Is this a price return or a total return (including dividends)?
+            Is it real (inflation-adjusted) or nominal?</li>
+        <li><strong>Over what interval?</strong> Today? This week? Year-to-date? From the last trough?</li>
+        <li><strong>Relative to what benchmark?</strong> Up 2% vs. yesterday's close? Vs. the 52-week low?
+            Vs. the expected return?</li>
+      </ul>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          A headline is a <strong>point estimate with no standard error, no sample size, and no
+          specification of the estimand</strong>. Imagine reading a paper that says "the treatment
+          effect is 2%" without telling you which outcome, which population, which time horizon,
+          or which comparison group. That is every financial headline.
+        </p>
+      </div>
+
+      <h3>The Anatomy of a Market Return Claim</h3>
+
+      <p>
+        Let us formalize what a return statement actually means. If <em>P<sub>t</sub></em> is the
+        index level at time <em>t</em>, then the simple return over interval [t&minus;k, t] is:
+      </p>
+
+      <div class="formula-box">
+        R<sub>t,k</sub> = (P<sub>t</sub> &minus; P<sub>t&minus;k</sub>) / P<sub>t&minus;k</sub>
+      </div>
+
+      <p>
+        Different choices of <em>k</em> (1 day, 1 week, YTD, 1 year) and different indices will
+        produce wildly different numbers. Financial journalists choose whichever combination
+        produces the most compelling story.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Headline Phrasing</th><th>What It Actually Measures</th><th>What Is Hidden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"The market rallied 2% today"</td><td>1-day return on some index</td><td>Which index; whether this is unusual given daily vol (~1%)</td></tr>
+          <tr><td>"Stocks are up 15% this year"</td><td>YTD return, likely S&amp;P 500</td><td>Starting point (Jan 1 may have been a trough); real vs nominal</td></tr>
+          <tr><td>"Worst week since March 2020"</td><td>5-day return is very negative</td><td>The reference period (March 2020) was a crisis; many "worst since" claims use extreme anchors</td></tr>
+          <tr><td>"Longest bull run in history"</td><td>Days since last 20% drawdown</td><td>Definition of bull/bear market is arbitrary; sample size of bull runs is ~15</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Before accepting any financial headline, ask: <strong>(1)</strong> What is the estimand?
+          <strong>(2)</strong> What is the sample (index, period)? <strong>(3)</strong> What is
+          the standard error or historical context? <strong>(4)</strong> What comparison group
+          makes this number meaningful?
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Demonstrate how the same day can produce different headlines</span>
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Download data for multiple indices on the same date range</span>
+indices = {
+    <span class="st">"S&P 500"</span>: <span class="st">"^GSPC"</span>,
+    <span class="st">"Dow Jones"</span>: <span class="st">"^DJI"</span>,
+    <span class="st">"Nasdaq"</span>: <span class="st">"^IXIC"</span>,
+    <span class="st">"Russell 2000"</span>: <span class="st">"^RUT"</span>,
+}
+
+data = {}
+<span class="kw">for</span> name, ticker <span class="kw">in</span> indices.items():
+    df = yf.download(ticker, start=<span class="st">"2024-01-01"</span>, end=<span class="st">"2024-12-31"</span>, progress=<span class="kw">False</span>)
+    data[name] = df[<span class="st">"Close"</span>]
+
+prices = pd.DataFrame(data).dropna()
+returns = prices.pct_change().dropna()
+
+<span class="cm"># Pick a random date and show how different indices tell different stories</span>
+sample_date = returns.index[<span class="nu">120</span>]
+day_returns = returns.loc[sample_date]
+
+<span class="fn">print</span>(<span class="st">f"Date: {sample_date.date()}"</span>)
+<span class="fn">print</span>(<span class="st">f"\nPossible headlines:"</span>)
+best = day_returns.idxmax()
+worst = day_returns.idxmin()
+<span class="fn">print</span>(<span class="st">f"  Bullish: '{best} rallies {day_returns[best]:.2%}'"</span>)
+<span class="fn">print</span>(<span class="st">f"  Bearish: '{worst} slides {day_returns[worst]:.2%}'"</span>)
+<span class="fn">print</span>(<span class="st">f"\n  All returns on the same day:"</span>)
+<span class="kw">for</span> name, ret <span class="kw">in</span> day_returns.items():
+    <span class="fn">print</span>(<span class="st">f"    {name:15s}: {ret:+.2%}"</span>)</pre>
+
+
+      <h2>20.2 &mdash; Cherry-Picking: The P-Hacking of Financial Journalism</h2>
+
+      <p>
+        In academic research, <em>p-hacking</em> refers to trying many specifications until you
+        find one that produces a significant result. Financial journalism has an exact analogue:
+        <strong>window-picking</strong>. By selecting the start date, end date, index, and return
+        type, a journalist can make almost any narrative fit the data.
+      </p>
+
+      <h3>The Degrees of Freedom in a Return Claim</h3>
+
+      <p>Consider the claim "Stock X has outperformed the market." The degrees of freedom include:</p>
+
+      <ol>
+        <li><strong>Start date:</strong> Choose a trough for Stock X or a peak for the benchmark</li>
+        <li><strong>End date:</strong> Choose a peak for Stock X or a trough for the benchmark</li>
+        <li><strong>Benchmark:</strong> S&amp;P 500, sector index, peer group, Treasury bonds?</li>
+        <li><strong>Return type:</strong> Price return or total return (dividends reinvested)?</li>
+        <li><strong>Adjustment:</strong> Nominal or real (inflation-adjusted)?</li>
+        <li><strong>Currency:</strong> In local currency or USD?</li>
+      </ol>
+
+      <p>
+        With 6 binary choices, you already have 2<sup>6</sup> = 64 possible specifications.
+        In practice, the start and end dates are continuous, giving you infinite flexibility.
+        The probability that <em>at least one</em> specification supports your desired narrative
+        approaches 1.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is the <strong>multiple comparisons problem</strong>. If you test 64 specifications
+          at &alpha; = 0.05, you expect ~3 significant results by chance. Financial journalism
+          never applies a Bonferroni correction. The "researcher" (journalist) has total freedom
+          to pick the one comparison that supports the pre-determined narrative.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        P(at least one "significant" result) = 1 &minus; (1 &minus; &alpha;)<sup>m</sup>
+        <br><br>
+        For m = 64 tests at &alpha; = 0.05: P = 1 &minus; 0.95<sup>64</sup> &asymp; 0.964
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Demonstrate cherry-picking: find the best and worst window for any stock</span>
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+ticker = <span class="st">"AAPL"</span>
+df = yf.download(ticker, start=<span class="st">"2020-01-01"</span>, end=<span class="st">"2024-12-31"</span>, progress=<span class="kw">False</span>)
+prices = df[<span class="st">"Close"</span>].dropna()
+
+<span class="cm"># Try all possible 6-month windows</span>
+window_days = <span class="nu">126</span>  <span class="cm"># ~6 months of trading days</span>
+results = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(prices) - window_days):
+    start_price = prices.iloc[i]
+    end_price = prices.iloc[i + window_days]
+    ret = (end_price - start_price) / start_price
+    results.append({
+        <span class="st">"start"</span>: prices.index[i].date(),
+        <span class="st">"end"</span>: prices.index[i + window_days].date(),
+        <span class="st">"return"</span>: ret
+    })
+
+results_df = pd.DataFrame(results)
+
+best = results_df.loc[results_df[<span class="st">"return"</span>].idxmax()]
+worst = results_df.loc[results_df[<span class="st">"return"</span>].idxmin()]
+
+<span class="fn">print</span>(<span class="st">f"AAPL 6-month returns (all possible windows):"</span>)
+<span class="fn">print</span>(<span class="st">f"  Number of windows: {len(results_df)}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Mean return:       {results_df['return'].mean():.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Std of returns:    {results_df['return'].std():.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"\n  Best cherry-picked window:"</span>)
+<span class="fn">print</span>(<span class="st">f"    {best['start']} to {best['end']}: +{best['return']:.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"\n  Worst cherry-picked window:"</span>)
+<span class="fn">print</span>(<span class="st">f"    {worst['start']} to {worst['end']}: {worst['return']:.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"\n  Headline A: 'AAPL soars {best['return']:.0%} in just 6 months!'"</span>)
+<span class="fn">print</span>(<span class="st">f"  Headline B: 'AAPL plunges {worst['return']:.0%} in brutal 6-month slide'"</span>)
+<span class="fn">print</span>(<span class="st">f"\n  Both headlines are technically true."</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          When someone shows you a chart of a stock's performance, always ask: <strong>Why does
+          the x-axis start where it does?</strong> If the chart begins at a trough, any stock will
+          look impressive. If it begins at a peak, any stock will look terrible. The start date
+          is the most powerful cherry-pick in financial visualization.
+        </p>
+      </div>
+
+
+      <h2>20.3 &mdash; Earnings Estimates: Consensus as a Point Estimate</h2>
+
+      <p>
+        One of the most common financial headlines is: <strong>"Company X beat earnings estimates
+        by 5 cents."</strong> To understand what this means, you need to understand the
+        statistical structure of earnings estimates.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Earnings Per Share (EPS):</strong> A company's net income divided by its number
+          of shares outstanding. <strong>Consensus estimate:</strong> The median (or mean) forecast
+          of EPS from sell-side analysts who cover the stock. Typically 5&ndash;30 analysts per
+          large-cap stock.
+        </p>
+      </div>
+
+      <h3>The Statistical Structure of Analyst Forecasts</h3>
+
+      <p>
+        Think of analyst forecasts as a sample from a distribution of opinions. The consensus
+        is the sample mean (or median). The "whisper number" is an alternative estimate that
+        circulates informally. The actual EPS is the realized value of the random variable.
+      </p>
+
+      <div class="formula-box">
+        Consensus = (1/n) &sum;<sub>i=1</sub><sup>n</sup> E&#770;<sub>i</sub>
+        <br><br>
+        Beat = EPS<sub>actual</sub> &minus; Consensus
+        <br><br>
+        Standardized Surprise = Beat / &sigma;<sub>estimates</sub>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Financial Concept</th><th>Statistical Analogue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Individual analyst estimate</td><td>A single observation from a sample</td></tr>
+          <tr><td>Consensus estimate</td><td>Sample mean / median</td></tr>
+          <tr><td>Dispersion of estimates</td><td>Sample standard deviation</td></tr>
+          <tr><td>"Beat" or "miss"</td><td>Residual: actual minus predicted</td></tr>
+          <tr><td>Earnings surprise (standardized)</td><td>z-score of the residual</td></tr>
+          <tr><td>Guidance (company forecast)</td><td>An informative prior</td></tr>
+          <tr><td>Whisper number</td><td>Alternative prior from a different information source</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The magnitude of a "beat" is meaningless without the dispersion. Beating by $0.05 when
+          the standard deviation of estimates is $0.50 is a z-score of 0.1 &mdash; statistically
+          nothing. Beating by $0.05 when the standard deviation is $0.02 is a z-score of 2.5
+          &mdash; genuinely surprising. Headlines never report the dispersion.
+        </p>
+      </div>
+
+      <h3>The Estimate Management Game</h3>
+
+      <p>
+        There is a well-documented phenomenon called <strong>expectations management</strong>.
+        Companies subtly guide analysts to lower their estimates before earnings announcements,
+        making it easier to "beat" the consensus. This is the financial equivalent of lowering
+        the bar so you can clear it.
+      </p>
+
+      <p>
+        Historically, approximately 70&ndash;75% of S&amp;P 500 companies "beat" earnings each
+        quarter. If estimates were unbiased predictions, you would expect a 50% beat rate. The
+        persistent asymmetry is evidence of systematic downward bias in the consensus &mdash;
+        a known, exploited feature of the system.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          If the consensus were an unbiased estimator, the beat rate would be ~50%. A 75% beat
+          rate implies <strong>E[Actual &minus; Consensus] > 0</strong>, meaning the consensus
+          is a <em>biased</em> estimator with negative bias. The "earnings surprise" is not really
+          surprising at all &mdash; it is the predictable result of a biased estimation process.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Simulate the earnings estimate ecosystem</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+np.random.seed(<span class="nu">42</span>)
+n_quarters = <span class="nu">200</span>
+n_analysts = <span class="nu">15</span>
+
+<span class="cm"># True EPS each quarter (random walk with drift)</span>
+true_eps = <span class="nu">2.0</span> + np.cumsum(np.random.normal(<span class="nu">0.05</span>, <span class="nu">0.3</span>, n_quarters))
+
+<span class="cm"># Analysts have downward-biased estimates (expectations management)</span>
+bias = -<span class="nu">0.08</span>  <span class="cm"># systematic negative bias from guidance lowering</span>
+analyst_noise_std = <span class="nu">0.20</span>
+
+records = []
+<span class="kw">for</span> q <span class="kw">in</span> <span class="fn">range</span>(n_quarters):
+    estimates = true_eps[q] + bias + np.random.normal(<span class="nu">0</span>, analyst_noise_std, n_analysts)
+    consensus = np.mean(estimates)
+    dispersion = np.std(estimates)
+    actual = true_eps[q] + np.random.normal(<span class="nu">0</span>, <span class="nu">0.05</span>)
+    surprise = actual - consensus
+    z_surprise = surprise / dispersion <span class="kw">if</span> dispersion > <span class="nu">0</span> <span class="kw">else</span> <span class="nu">0</span>
+    records.append({
+        <span class="st">"quarter"</span>: q,
+        <span class="st">"actual"</span>: actual,
+        <span class="st">"consensus"</span>: consensus,
+        <span class="st">"dispersion"</span>: dispersion,
+        <span class="st">"surprise"</span>: surprise,
+        <span class="st">"z_surprise"</span>: z_surprise,
+        <span class="st">"beat"</span>: actual > consensus
+    })
+
+df = pd.DataFrame(records)
+
+<span class="fn">print</span>(<span class="st">"Earnings Surprise Analysis"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 40</span>)
+<span class="fn">print</span>(<span class="st">f"Beat rate:           {df['beat'].mean():.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean surprise:       ${df['surprise'].mean():.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean |z-surprise|:   {df['z_surprise'].abs().mean():.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean dispersion:     ${df['dispersion'].mean():.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"\nIf consensus were unbiased, beat rate would be ~50%"</span>)
+<span class="fn">print</span>(<span class="st">f"Observed {df['beat'].mean():.0%} beat rate implies systematic bias."</span>)</pre>
+
+
+      <h2>20.4 &mdash; Correlation vs. Causation in Financial Journalism</h2>
+
+      <p>
+        Perhaps the single most pervasive statistical error in financial journalism is the
+        conflation of correlation with causation. Headlines routinely take the form:
+      </p>
+
+      <p style="text-align: center; font-style: italic; font-size: 1.1rem; margin: 1.5rem 0;">
+        "Stocks fell because of [X]"
+      </p>
+
+      <p>
+        This sentence asserts a causal mechanism: event X caused the stock market decline.
+        But stock markets move every single day, and there are always multiple concurrent events.
+        The journalist's job is to construct a post-hoc narrative, not to establish causality.
+      </p>
+
+      <h3>The Post-Hoc Narrative Problem</h3>
+
+      <p>
+        Here is how financial causation claims are typically constructed:
+      </p>
+
+      <ol>
+        <li>Observe that the market went down today.</li>
+        <li>Scan the news for a plausible-sounding negative event.</li>
+        <li>Write "stocks fell because of [event]."</li>
+      </ol>
+
+      <p>
+        This is the <em>narrative fallacy</em>. Humans are compelled to create causal stories.
+        The same market movement on the same day could be attributed to different causes by
+        different outlets, depending on their editorial focus.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, causal inference requires either <strong>(a)</strong> a randomized experiment,
+          <strong>(b)</strong> a quasi-experiment with a credible identification strategy
+          (difference-in-differences, regression discontinuity, IV), or <strong>(c)</strong> a
+          structural causal model with testable implications. Financial journalism uses
+          <strong>none of these</strong>. It uses <em>temporal proximity + narrative plausibility</em>,
+          which is insufficient for causal claims.
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Headline Pattern</th><th>Causal Claim</th><th>Statistical Problem</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"Stocks fell on trade war fears"</td><td>Trade news &rarr; stock decline</td><td>No counterfactual: would stocks have risen without the news?</td></tr>
+          <tr><td>"Markets rallied on strong jobs report"</td><td>Jobs data &rarr; market gain</td><td>Good jobs can also cause sell-offs (via expected rate hikes)</td></tr>
+          <tr><td>"Oil prices drove inflation higher"</td><td>Oil &rarr; inflation</td><td>Omitted variable bias: many prices move together due to demand shocks</td></tr>
+          <tr><td>"Tech stocks led the recovery"</td><td>Tech sector &rarr; broad recovery</td><td>Confusing composition with causation; tech is ~30% of S&amp;P 500 by weight</td></tr>
+        </tbody>
+      </table>
+
+      <h3>The Same Day, Different Causes</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Illustrate how the same market move gets different causal attributions</span>
+<span class="cm"># We'll simulate "news scanning" after observing a return</span>
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nu">99</span>)
+
+<span class="cm"># Potential "causes" that are always available on any given day</span>
+potential_causes_negative = [
+    <span class="st">"rising interest rate expectations"</span>,
+    <span class="st">"trade tensions with China"</span>,
+    <span class="st">"disappointing economic data"</span>,
+    <span class="st">"geopolitical uncertainty"</span>,
+    <span class="st">"tech sector weakness"</span>,
+    <span class="st">"inflation fears"</span>,
+    <span class="st">"hawkish Fed commentary"</span>,
+    <span class="st">"earnings season concerns"</span>,
+]
+
+potential_causes_positive = [
+    <span class="st">"easing rate hike expectations"</span>,
+    <span class="st">"progress in trade negotiations"</span>,
+    <span class="st">"strong economic data"</span>,
+    <span class="st">"geopolitical calm"</span>,
+    <span class="st">"tech sector strength"</span>,
+    <span class="st">"moderating inflation"</span>,
+    <span class="st">"dovish Fed tone"</span>,
+    <span class="st">"strong earnings reports"</span>,
+]
+
+<span class="cm"># Simulate 5 days of market returns</span>
+returns = np.random.normal(<span class="nu">0</span>, <span class="nu">0.012</span>, <span class="nu">5</span>)
+
+<span class="fn">print</span>(<span class="st">"How journalists construct causal narratives:\n"</span>)
+<span class="kw">for</span> i, ret <span class="kw">in</span> <span class="fn">enumerate</span>(returns):
+    <span class="kw">if</span> ret < <span class="nu">0</span>:
+        cause = np.random.choice(potential_causes_negative)
+        verb = <span class="st">"fell"</span>
+    <span class="kw">else</span>:
+        cause = np.random.choice(potential_causes_positive)
+        verb = <span class="st">"rose"</span>
+    <span class="fn">print</span>(<span class="st">f"Day {i+1}: Market {verb} {abs(ret):.2%}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Headline: 'Stocks {verb} on {cause}'"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Reality:  The cause was selected AFTER observing the return.\n"</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          <strong>Reverse causality is rampant.</strong> "The dollar strengthened, causing stocks
+          to fall." But did the dollar cause the stock decline, or did the same underlying
+          event (e.g., a risk-off shock) cause both? Without a DAG (directed acyclic graph)
+          or a proper identification strategy, the causal direction is ambiguous.
+        </p>
+      </div>
+
+
+      <h2>20.5 &mdash; Base Rate Neglect in Financial Reporting</h2>
+
+      <p>
+        Financial news is full of numbers presented without context. "Company X grew revenue
+        50% year-over-year" sounds impressive &mdash; but what if the entire sector grew 60%?
+        Then Company X actually <em>underperformed</em> its peers.
+      </p>
+
+      <h3>The Missing Denominator</h3>
+
+      <p>
+        Base rate neglect is the failure to consider the prior probability or the baseline rate
+        when interpreting new information. In financial news, it manifests as:
+      </p>
+
+      <ul>
+        <li><strong>Ignoring the industry growth rate:</strong> "Revenue grew 30%" means nothing
+            if the industry grew 40%.</li>
+        <li><strong>Ignoring the starting point:</strong> "Revenue doubled from last year" after
+            a 60% decline the previous year means you are still 20% below two years ago.</li>
+        <li><strong>Ignoring the denominator:</strong> "10,000 layoffs" at a company with 500,000
+            employees is a 2% reduction; at a company with 15,000, it is a 67% reduction.</li>
+        <li><strong>Ignoring base rates of success:</strong> "This fund beat the market 5 years
+            in a row" &mdash; with 5,000 funds, ~156 will do this by chance alone (0.5<sup>5</sup>
+            &times; 5000).</li>
+      </ul>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is <strong>Bayes' theorem neglect</strong>. The financial headline gives you
+          P(data | hypothesis) &mdash; the likelihood. But you need P(hypothesis | data), which
+          requires the prior P(hypothesis). A fund beating the market 5 years in a row has a
+          likelihood of (1/2)<sup>5</sup> = 3.1% under skill, but the prior for genuine skill
+          is very low. The posterior (that this fund has skill) is much lower than the headline
+          implies.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        P(skill | 5-year beat) = P(5-year beat | skill) &middot; P(skill) / P(5-year beat)
+        <br><br>
+        With P(skill) &approx; 0.05, P(beat | skill) &approx; 0.8<sup>5</sup> = 0.328,
+        P(beat | no skill) = 0.5<sup>5</sup> = 0.031:
+        <br><br>
+        P(skill | 5-year beat) &approx; 0.328 &middot; 0.05 / (0.328 &middot; 0.05 + 0.031 &middot; 0.95) &approx; 0.36
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Bayesian analysis of fund performance claims</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">posterior_skill</span>(n_years_beat, p_skill_prior=<span class="nu">0.05</span>,
+                      p_beat_given_skill=<span class="nu">0.8</span>, p_beat_given_no_skill=<span class="nu">0.5</span>):
+    <span class="st">"""Bayesian update: probability of skill given streak of beats."""</span>
+    likelihood_skill = p_beat_given_skill ** n_years_beat
+    likelihood_luck = p_beat_given_no_skill ** n_years_beat
+
+    numerator = likelihood_skill * p_skill_prior
+    denominator = numerator + likelihood_luck * (<span class="nu">1</span> - p_skill_prior)
+    <span class="kw">return</span> numerator / denominator
+
+<span class="fn">print</span>(<span class="st">"Posterior P(skill) given consecutive years of beating market"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 55</span>)
+<span class="fn">print</span>(<span class="st">f"{'Years Beat':>12}  {'P(skill)':>10}  {'Headline Impression':>20}"</span>)
+<span class="fn">print</span>(<span class="st">"-" * 55</span>)
+<span class="kw">for</span> years <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1</span>, <span class="nu">11</span>):
+    p = posterior_skill(years)
+    impression = <span class="st">"Not convincing"</span> <span class="kw">if</span> p < <span class="nu">0.5</span> <span class="kw">else</span> (<span class="st">"Possibly skilled"</span> <span class="kw">if</span> p < <span class="nu">0.8</span> <span class="kw">else</span> <span class="st">"Likely skilled"</span>)
+    <span class="fn">print</span>(<span class="st">f"{years:>12}  {p:>10.1%}  {impression:>20}"</span>)
+
+<span class="fn">print</span>(<span class="st">f"\nWith 5,000 unskilled funds, expected to beat market 5 years: "
+      f"{5000 * 0.5**5:.0f}"</span>)
+<span class="fn">print</span>(<span class="st">f"With 5,000 unskilled funds, expected to beat market 10 years: "
+      f"{5000 * 0.5**10:.1f}"</span>)</pre>
+
+
+      <h2>20.6 &mdash; Survivorship Bias: You Only Hear About the Winners</h2>
+
+      <p>
+        Every financial success story you read in the news is a sample drawn from the
+        <em>conditional distribution of outcomes given survival</em>. The failed companies,
+        the bankrupt funds, the delisted stocks &mdash; they are not in the sample. This is
+        survivorship bias, and it systematically distorts your perception of risk and return.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Survivorship bias:</strong> The tendency to draw conclusions only from entities
+          that "survived" a selection process, ignoring those that did not. In finance, this
+          includes: failed companies removed from indices, closed mutual funds removed from
+          databases, and bankrupt startups absent from success stories.
+        </p>
+      </div>
+
+      <h3>Where Survivorship Bias Hides</h3>
+
+      <table>
+        <thead>
+          <tr><th>Context</th><th>What You See</th><th>What You Miss</th><th>Bias Direction</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mutual fund performance</td><td>Average return of existing funds</td><td>Funds that closed due to poor performance</td><td>Overstates average return by ~1-2% per year</td></tr>
+          <tr><td>Stock index history</td><td>S&amp;P 500 historical return</td><td>Companies removed from index (bankruptcies, mergers)</td><td>Index return includes only current survivors</td></tr>
+          <tr><td>Startup success stories</td><td>"From garage to billions" narratives</td><td>The ~90% of startups that fail</td><td>Vastly overstates probability of success</td></tr>
+          <tr><td>Hedge fund databases</td><td>Average hedge fund alpha</td><td>Funds that stop reporting (usually poor performers)</td><td>Overstates alpha by ~3-5% per year</td></tr>
+          <tr><td>Country stock markets</td><td>US market long-run return (~10%)</td><td>Markets that were destroyed (Russia 1917, China 1949)</td><td>Overstates expected return of a "random" country</td></tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Survivorship bias is <strong>sample selection bias</strong> (Heckman, 1979). The
+          sample is not representative of the population because inclusion in the sample depends
+          on the outcome variable. Formally, you are estimating E[Y] but your sample gives you
+          E[Y | Y > threshold], which is always larger. This is identical to the truncated
+          distribution problem in statistics.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        E[Y | survived] = E[Y] + Bias
+        <br><br>
+        where Bias = E[Y | Y > c] &minus; E[Y] > 0 for any threshold c
+        <br><br>
+        For a normal distribution: E[Y | Y > c] = &mu; + &sigma; &middot; &phi;(z<sub>c</sub>) / (1 &minus; &Phi;(z<sub>c</sub>))
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Simulate survivorship bias in mutual fund performance</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nu">42</span>)
+
+n_funds = <span class="nu">1000</span>
+n_years = <span class="nu">10</span>
+annual_return_mean = <span class="nu">0.07</span>   <span class="cm"># true mean annual return</span>
+annual_return_std = <span class="nu">0.15</span>    <span class="cm"># true standard deviation</span>
+closure_threshold = -<span class="nu">0.20</span>  <span class="cm"># funds close if cumulative return falls below -20%</span>
+
+<span class="cm"># Simulate all funds</span>
+all_returns = np.random.normal(annual_return_mean, annual_return_std, (n_funds, n_years))
+cumulative = np.cumprod(<span class="nu">1</span> + all_returns, axis=<span class="nu">1</span>)
+
+<span class="cm"># Determine which funds "survive" (never fall below threshold)</span>
+survived = np.all(cumulative > (<span class="nu">1</span> + closure_threshold), axis=<span class="nu">1</span>)
+
+avg_return_all = np.mean(all_returns)
+avg_return_survivors = np.mean(all_returns[survived])
+
+<span class="fn">print</span>(<span class="st">"Survivorship Bias Simulation"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 45</span>)
+<span class="fn">print</span>(<span class="st">f"Total funds started:          {n_funds}"</span>)
+<span class="fn">print</span>(<span class="st">f"Funds surviving {n_years} years:      {survived.sum()}"</span>)
+<span class="fn">print</span>(<span class="st">f"Closure rate:                 {1 - survived.mean():.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"\nTrue avg annual return:       {avg_return_all:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Survivor avg annual return:   {avg_return_survivors:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Survivorship bias:            +{avg_return_survivors - avg_return_all:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"\nThe database only shows survivors, inflating perceived returns."</span>)</pre>
+
+
+      <h2>20.7 &mdash; Reading Charts Critically: Axes, Scales, and Deception</h2>
+
+      <p>
+        Financial charts are the primary visual medium of financial news, and they are
+        frequently manipulated &mdash; sometimes intentionally, sometimes through ignorance.
+        As a statistician, you should apply the same scrutiny to a chart in the Wall Street
+        Journal as you would to a figure in a submitted manuscript.
+      </p>
+
+      <h3>Common Chart Manipulations</h3>
+
+      <table>
+        <thead>
+          <tr><th>Manipulation</th><th>How It Works</th><th>What to Check</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Truncated y-axis</td><td>Y-axis starts at 95 instead of 0, making a 2% change look enormous</td><td>Does the y-axis start at zero? If not, is the scale appropriate for the data?</td></tr>
+          <tr><td>Dual y-axes</td><td>Two series plotted with independent scales, creating spurious visual correlation</td><td>Are the two y-axes scaled to make unrelated series appear correlated?</td></tr>
+          <tr><td>Linear vs. log scale</td><td>Linear scale makes recent growth look explosive; log scale shows constant rate</td><td>For long time series, is log scale used? Exponential growth on a linear scale is misleading.</td></tr>
+          <tr><td>Cherry-picked time window</td><td>Start from a trough to show gains, or from a peak to show losses</td><td>Why does the chart start where it does? What happens if you extend the window?</td></tr>
+          <tr><td>Cumulative vs. periodic</td><td>Showing cumulative returns inflates visual magnitude; periodic returns show volatility</td><td>Is this cumulative or per-period? Cumulative charts always trend away from zero.</td></tr>
+          <tr><td>Aspect ratio manipulation</td><td>Wide charts flatten trends; tall charts exaggerate them</td><td>Would the same data tell a different story at a different aspect ratio?</td></tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          <strong>The dual y-axis trick</strong> is especially dangerous. You can make any two
+          time series appear perfectly correlated by independently scaling their y-axes. This is
+          how nonsensical correlations (like "butter production in Bangladesh vs. S&amp;P 500")
+          get visualized. If two series share a chart with different y-axes, be extremely skeptical.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Demonstrate how chart choices change perception</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+np.random.seed(<span class="nu">42</span>)
+
+<span class="cm"># Simulate a stock with 5% annual growth + noise</span>
+days = <span class="nu">252</span> * <span class="nu">10</span>  <span class="cm"># 10 years</span>
+daily_return = <span class="nu">0.05</span>/<span class="nu">252</span> + np.random.normal(<span class="nu">0</span>, <span class="nu">0.015</span>, days)
+price = <span class="nu">100</span> * np.cumprod(<span class="nu">1</span> + daily_return)
+
+fig, axes = plt.subplots(<span class="nu">2</span>, <span class="nu">2</span>, figsize=(<span class="nu">12</span>, <span class="nu">8</span>))
+
+<span class="cm"># Chart 1: Honest linear scale, full history</span>
+axes[<span class="nu">0</span>,<span class="nu">0</span>].plot(price, color=<span class="st">'steelblue'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">0</span>,<span class="nu">0</span>].set_ylim(<span class="nu">0</span>, price.max() * <span class="nu">1.1</span>)
+axes[<span class="nu">0</span>,<span class="nu">0</span>].set_title(<span class="st">'Honest: Y-axis from 0'</span>)
+
+<span class="cm"># Chart 2: Truncated y-axis (last year only)</span>
+last_year = price[-<span class="nu">252</span>:]
+axes[<span class="nu">0</span>,<span class="nu">1</span>].plot(last_year, color=<span class="st">'steelblue'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">0</span>,<span class="nu">1</span>].set_title(<span class="st">'Deceptive: Truncated y-axis, 1 year'</span>)
+
+<span class="cm"># Chart 3: Log scale (appropriate for long horizons)</span>
+axes[<span class="nu">1</span>,<span class="nu">0</span>].plot(price, color=<span class="st">'steelblue'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">1</span>,<span class="nu">0</span>].set_yscale(<span class="st">'log'</span>)
+axes[<span class="nu">1</span>,<span class="nu">0</span>].set_title(<span class="st">'Honest: Log scale (constant growth = straight line)'</span>)
+
+<span class="cm"># Chart 4: Dual y-axis trick with unrelated series</span>
+unrelated = <span class="nu">50</span> + np.cumsum(np.random.normal(<span class="nu">0.01</span>, <span class="nu">0.5</span>, days))
+ax1 = axes[<span class="nu">1</span>,<span class="nu">1</span>]
+ax2 = ax1.twinx()
+ax1.plot(price, color=<span class="st">'steelblue'</span>, linewidth=<span class="nu">0.8</span>, label=<span class="st">'Stock Price'</span>)
+ax2.plot(unrelated, color=<span class="st">'coral'</span>, linewidth=<span class="nu">0.8</span>, label=<span class="st">'Unrelated Series'</span>)
+axes[<span class="nu">1</span>,<span class="nu">1</span>].set_title(<span class="st">'Deceptive: Dual y-axis (spurious correlation)'</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="st">'chart_manipulation_examples.png'</span>, dpi=<span class="nu">150</span>)
+<span class="fn">print</span>(<span class="st">"Saved chart_manipulation_examples.png"</span>)</pre>
+
+
+      <h2>20.8 &mdash; The Wall of Worry and Narrative Economics</h2>
+
+      <p>
+        Financial markets have a saying: "Markets climb a wall of worry." This means that
+        prices often rise even as news is predominantly negative. The disconnect between
+        narrative sentiment and market direction is one of the most important lessons for
+        anyone who reads financial news.
+      </p>
+
+      <h3>Narrative Economics: Stories as Economic Forces</h3>
+
+      <p>
+        Nobel laureate Robert Shiller introduced the concept of <em>narrative economics</em>
+        &mdash; the idea that viral stories and narratives influence economic behavior. From a
+        statistical perspective, narratives are a form of unstructured data that can be
+        quantified through text analysis.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The sentiment of financial news is a <strong>lagging indicator</strong>, not a leading
+          one. By the time the narrative is maximally bearish, prices have often already bottomed.
+          By the time everyone is euphoric, the top may be near. Sentiment is mean-reverting
+          precisely because extreme sentiment drives contrarian action.
+        </p>
+      </div>
+
+      <h3>Measuring Narrative Sentiment</h3>
+
+      <p>
+        You can treat financial news as a corpus and apply standard NLP techniques:
+      </p>
+
+      <ul>
+        <li><strong>Bag-of-words sentiment:</strong> Count positive vs. negative words using
+            finance-specific dictionaries (Loughran-McDonald word lists, not generic sentiment).</li>
+        <li><strong>Topic modeling:</strong> LDA or NMF to identify dominant themes over time.</li>
+        <li><strong>Headline regression:</strong> Regress market returns on headline sentiment
+            to test whether sentiment has predictive power (spoiler: weak at best).</li>
+        <li><strong>Granger causality:</strong> Does sentiment Granger-cause returns, or do
+            returns Granger-cause sentiment? (Usually the latter.)</li>
+      </ul>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Simple headline sentiment analysis framework</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Loughran-McDonald finance-specific sentiment words (sample)</span>
+positive_words = {<span class="st">'beat'</span>, <span class="st">'surge'</span>, <span class="st">'rally'</span>, <span class="st">'gain'</span>, <span class="st">'profit'</span>, <span class="st">'growth'</span>,
+                  <span class="st">'strong'</span>, <span class="st">'upgrade'</span>, <span class="st">'outperform'</span>, <span class="st">'record'</span>, <span class="st">'boom'</span>}
+negative_words = {<span class="st">'loss'</span>, <span class="st">'crash'</span>, <span class="st">'plunge'</span>, <span class="st">'fear'</span>, <span class="st">'decline'</span>, <span class="st">'risk'</span>,
+                  <span class="st">'recession'</span>, <span class="st">'downgrade'</span>, <span class="st">'miss'</span>, <span class="st">'weak'</span>, <span class="st">'sell-off'</span>}
+
+<span class="kw">def</span> <span class="fn">headline_sentiment</span>(headline):
+    <span class="st">"""Compute sentiment score for a headline."""</span>
+    words = <span class="fn">set</span>(headline.lower().split())
+    pos = <span class="fn">len</span>(words & positive_words)
+    neg = <span class="fn">len</span>(words & negative_words)
+    total = pos + neg
+    <span class="kw">if</span> total == <span class="nu">0</span>:
+        <span class="kw">return</span> <span class="nu">0.0</span>
+    <span class="kw">return</span> (pos - neg) / total
+
+<span class="cm"># Example headlines</span>
+headlines = [
+    <span class="st">"Markets rally on strong earnings growth"</span>,
+    <span class="st">"Recession fears spark major sell-off"</span>,
+    <span class="st">"Tech stocks surge to record profit levels"</span>,
+    <span class="st">"Weak economic data raises recession risk"</span>,
+    <span class="st">"Markets gain despite ongoing trade concerns"</span>,
+]
+
+<span class="fn">print</span>(<span class="st">"Headline Sentiment Analysis"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 60</span>)
+<span class="kw">for</span> h <span class="kw">in</span> headlines:
+    score = headline_sentiment(h)
+    label = <span class="st">"Positive"</span> <span class="kw">if</span> score > <span class="nu">0</span> <span class="kw">else</span> (<span class="st">"Negative"</span> <span class="kw">if</span> score < <span class="nu">0</span> <span class="kw">else</span> <span class="st">"Neutral"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Score: {score:+.2f} ({label})"</span>)
+    <span class="fn">print</span>(<span class="st">f"  \"{h}\"\n"</span>)
+
+<span class="cm"># Simulate sentiment-return relationship</span>
+np.random.seed(<span class="nu">42</span>)
+n_days = <span class="nu">500</span>
+true_returns = np.random.normal(<span class="nu">0.0003</span>, <span class="nu">0.012</span>, n_days)
+<span class="cm"># Sentiment is mostly a lagging indicator (driven by past returns)</span>
+sentiment = np.convolve(true_returns, np.ones(<span class="nu">5</span>)/<span class="nu">5</span>, mode=<span class="st">'same'</span>) + np.random.normal(<span class="nu">0</span>, <span class="nu">0.002</span>, n_days)
+<span class="cm"># Correlation between sentiment and FUTURE returns (should be near zero or negative)</span>
+future_returns = true_returns[<span class="nu">5</span>:]
+past_sentiment = sentiment[:-<span class="nu">5</span>]
+corr = np.corrcoef(past_sentiment, future_returns)[<span class="nu">0</span>,<span class="nu">1</span>]
+<span class="fn">print</span>(<span class="st">f"Correlation(past sentiment, future returns): {corr:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Sentiment has essentially no predictive power for future returns."</span>)</pre>
+
+
+      <h2>20.9 &mdash; A Statistical Toolkit for Reading Financial News</h2>
+
+      <p>
+        Let us synthesize this module into a practical checklist. Every time you encounter a
+        financial news story, run it through these filters:
+      </p>
+
+      <h3>The Seven-Question Framework</h3>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>Question</th><th>Statistical Concept</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>What exactly is being measured?</td><td>Estimand specification</td></tr>
+          <tr><td>2</td><td>Over what time period?</td><td>Sample window / observation period</td></tr>
+          <tr><td>3</td><td>Compared to what?</td><td>Benchmark / control group</td></tr>
+          <tr><td>4</td><td>Is the claimed cause actually causal?</td><td>Causal inference identification</td></tr>
+          <tr><td>5</td><td>What is the base rate?</td><td>Prior probability / unconditional expectation</td></tr>
+          <tr><td>6</td><td>Who is missing from the story?</td><td>Selection bias / survivorship bias</td></tr>
+          <tr><td>7</td><td>How is the visual presentation shaping perception?</td><td>Data visualization principles</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Financial news is not useless &mdash; it is a useful source of <em>information about
+          what other market participants are paying attention to</em>. Just do not confuse the
+          narrative with the analysis. Read the news for <strong>what happened</strong>, then do
+          your own statistical analysis to understand <strong>whether it matters</strong>.
+        </p>
+      </div>
+
+      <h3>Complete Example: Debunking a Headline</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Full pipeline: take a claim and test it statistically</span>
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Claim: "Tech stocks are crushing the broader market this year"</span>
+<span class="fn">print</span>(<span class="st">"Claim: 'Tech stocks are crushing the broader market this year'"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 65</span>)
+
+<span class="cm"># Step 1: Define the estimands precisely</span>
+tech = yf.download(<span class="st">"QQQ"</span>, start=<span class="st">"2024-01-01"</span>, end=<span class="st">"2024-12-31"</span>, progress=<span class="kw">False</span>)
+broad = yf.download(<span class="st">"SPY"</span>, start=<span class="st">"2024-01-01"</span>, end=<span class="st">"2024-12-31"</span>, progress=<span class="kw">False</span>)
+
+tech_ytd = (tech[<span class="st">"Close"</span>].iloc[-<span class="nu">1</span>] / tech[<span class="st">"Close"</span>].iloc[<span class="nu">0</span>] - <span class="nu">1</span>)
+broad_ytd = (broad[<span class="st">"Close"</span>].iloc[-<span class="nu">1</span>] / broad[<span class="st">"Close"</span>].iloc[<span class="nu">0</span>] - <span class="nu">1</span>)
+<span class="fn">print</span>(<span class="st">f"\nStep 1 - What is being measured?"</span>)
+<span class="fn">print</span>(<span class="st">f"  QQQ (Nasdaq 100) YTD: {tech_ytd:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  SPY (S&P 500) YTD:    {broad_ytd:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Outperformance:       {tech_ytd - broad_ytd:.2%}"</span>)
+
+<span class="cm"># Step 2: Is this statistically significant?</span>
+tech_daily = tech[<span class="st">"Close"</span>].pct_change().dropna()
+broad_daily = broad[<span class="st">"Close"</span>].pct_change().dropna()
+diff = tech_daily.values - broad_daily.values[:len(tech_daily)]
+
+t_stat, p_val = stats.ttest_1samp(diff, <span class="nu">0</span>)
+<span class="fn">print</span>(<span class="st">f"\nStep 2 - Is this statistically significant?"</span>)
+<span class="fn">print</span>(<span class="st">f"  Mean daily outperformance: {diff.mean():.4%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  t-statistic:              {t_stat:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  p-value:                  {p_val:.4f}"</span>)
+
+<span class="cm"># Step 3: Is this cherry-picked?</span>
+<span class="fn">print</span>(<span class="st">f"\nStep 3 - Is the time window cherry-picked?"</span>)
+<span class="fn">print</span>(<span class="st">f"  Check different windows to see if conclusion holds."</span>)
+
+<span class="cm"># Step 4: Risk-adjusted?</span>
+tech_sharpe = tech_daily.mean() / tech_daily.std() * np.sqrt(<span class="nu">252</span>)
+broad_sharpe = broad_daily.mean() / broad_daily.std() * np.sqrt(<span class="nu">252</span>)
+<span class="fn">print</span>(<span class="st">f"\nStep 4 - Risk-adjusted comparison:"</span>)
+<span class="fn">print</span>(<span class="st">f"  QQQ Sharpe: {tech_sharpe:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  SPY Sharpe: {broad_sharpe:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Higher return may just compensate for higher risk."</span>)</pre>
+
+
+      <h2>20.10 &mdash; Summary and Checklist</h2>
+
+      <p>
+        This module has equipped you with a systematic framework for reading financial news
+        through a statistical lens. Here are the core principles:
+      </p>
+
+      <ol>
+        <li><strong>Every headline is an under-specified point estimate.</strong> Demand the
+            estimand, sample, and standard error.</li>
+        <li><strong>Window-picking is the p-hacking of journalism.</strong> Be suspicious of
+            any return claim that does not justify its time window.</li>
+        <li><strong>Earnings "beats" are expected, not surprising.</strong> The consensus is
+            a biased estimator with a ~75% beat rate built in.</li>
+        <li><strong>Post-hoc narratives are not causal inference.</strong> "Stocks fell because
+            of X" is almost never a valid causal claim.</li>
+        <li><strong>Always ask for the base rate.</strong> A number without its denominator or
+            benchmark is not information.</li>
+        <li><strong>Survivorship bias inflates everything.</strong> The stories you read are
+            conditioned on success.</li>
+        <li><strong>Charts lie through axes, scales, and time windows.</strong> Scrutinize
+            visual presentations as carefully as you would a paper's figures.</li>
+        <li><strong>Sentiment is lagging, not leading.</strong> News tells you what already
+            happened, not what will happen.</li>
+      </ol>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Reading financial news as a statistician means applying your entire methodological
+          toolkit: demanding clear estimands, recognizing multiple comparisons, requiring causal
+          identification, computing Bayesian posteriors for performance claims, adjusting for
+          selection bias, and evaluating data visualizations. The news is your raw data &mdash;
+          the analysis is up to you.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-19/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-21/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

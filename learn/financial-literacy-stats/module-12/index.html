@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bonds and Fixed Income — bond pricing, yield to maturity, credit spreads, duration, convexity, and risk decomposition for statisticians.">
+  <title>Bonds &amp; Fixed Income — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 12: Bonds &amp; Fixed Income</h1>
+      <p class="tagline">Where cash flows become deterministic and the math gets delightfully precise</p>
+      <div class="module-meta">
+        <span class="meta-item">Part III of 5</span>
+        <span class="meta-item">Module 12 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-11/index.html">&larr; Previous</a>
+      <span class="current">Module 12 of 22</span>
+      <a href="../module-13/index.html">Next &rarr;</a>
+    </div>
+
+
+    <!-- SECTION 1: What Is a Bond? -->
+
+    <h2>1. What Is a Bond?</h2>
+
+    <p>
+      If a stock is a claim on <em>random</em> future cash flows, a bond is a claim on
+      <em>(nearly) deterministic</em> future cash flows. When you buy a bond, you are lending
+      money to the issuer (a government or corporation) in exchange for a contractually specified
+      stream of payments: periodic coupon payments and the return of principal at maturity.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        A bond's cash flows are <strong>constants</strong>, not random variables (assuming no default).
+        This makes bond pricing a problem in <strong>deterministic discounting</strong> rather than
+        stochastic expectation. The only random element is the <em>discount rate</em> itself, which
+        changes as market interest rates move. In this sense, bond pricing is like a regression
+        problem where the response variable (price) is a known function of one parameter (yield).
+      </p>
+    </div>
+
+    <p>
+      A standard coupon bond has two types of cash flows:
+    </p>
+
+    <ul>
+      <li><strong>Coupon payments</strong>: Fixed dollar amounts paid at regular intervals
+          (typically semi-annually). If a bond has a 5% coupon rate and $1,000 face value,
+          you receive $25 every six months.</li>
+      <li><strong>Principal repayment</strong>: The face value (par value, typically $1,000)
+          returned at maturity.</li>
+    </ul>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Par value</strong> (face value) = the amount the issuer promises to repay at maturity,
+        typically $1,000. <strong>Coupon rate</strong> = annual coupon payment / par value.
+        <strong>Maturity</strong> = the date when principal is repaid. A bond trading at par has
+        price = face value; <strong>above par</strong> = premium; <strong>below par</strong> = discount.
+      </p>
+    </div>
+
+    <h3>1.1 Bond Pricing Formula</h3>
+
+    <p>
+      The price of a bond is the present value of all its future cash flows, discounted at the
+      market's required yield:
+    </p>
+
+    <div class="formula-box">
+      P = &sum;<sub>t=1</sub><sup>n</sup> C / (1 + y)<sup>t</sup>
+      + F / (1 + y)<sup>n</sup>
+    </div>
+
+    <p>where:</p>
+    <ul>
+      <li>P = bond price</li>
+      <li>C = coupon payment per period</li>
+      <li>F = face value (par)</li>
+      <li>y = yield per period (market discount rate)</li>
+      <li>n = number of periods to maturity</li>
+    </ul>
+
+    <p>
+      The first term is a <strong>geometric series</strong> (the present value of an annuity)
+      and the second is a simple present value of a lump sum. For a semi-annual bond, all
+      quantities are halved or doubled appropriately: C = (coupon rate / 2) &times; F,
+      y = annual yield / 2, n = years to maturity &times; 2.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The bond pricing formula is a <strong>weighted sum of fixed values</strong>, where the
+        weights are the discount factors w<sub>t</sub> = 1/(1+y)<sup>t</sup>. These weights form
+        a <strong>geometric decay sequence</strong> &mdash; exactly the kernel of an exponentially
+        weighted moving average (EWMA). Higher yields produce faster decay, giving less weight to
+        distant cash flows.
+      </p>
+    </div>
+
+
+    <!-- SECTION 2: Coupon vs Zero-Coupon -->
+
+    <h2>2. Coupon Bonds vs. Zero-Coupon Bonds</h2>
+
+    <p>
+      There are two fundamental bond structures, and understanding their difference is critical:
+    </p>
+
+    <h3>2.1 Coupon Bonds</h3>
+
+    <p>
+      A coupon bond pays regular interest and returns principal at maturity. Its cash flow
+      stream looks like a combination of an <strong>annuity</strong> (the coupons) and a
+      <strong>lump sum</strong> (the principal).
+    </p>
+
+    <div class="formula-box">
+      Cash flows: C, C, C, ..., C, C + F
+    </div>
+
+    <h3>2.2 Zero-Coupon Bonds</h3>
+
+    <p>
+      A zero-coupon bond pays no coupons at all. You buy it at a discount and receive the face
+      value at maturity. US Treasury bills (T-bills) and Treasury STRIPS are common examples.
+    </p>
+
+    <div class="formula-box">
+      P<sub>zero</sub> = F / (1 + y)<sup>n</sup>
+    </div>
+
+    <p>
+      The zero-coupon bond is the <strong>purest</strong> fixed-income instrument: a single cash
+      flow at a single point in time. Every coupon bond can be decomposed into a portfolio of
+      zero-coupon bonds (one for each coupon and one for the principal). This decomposition is
+      called <strong>stripping</strong>.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        A coupon bond is a <strong>linear combination</strong> of zero-coupon bonds, just as
+        a random variable can be decomposed into a weighted sum of basis functions. The zero-coupon
+        bond is the <strong>basis element</strong> of fixed-income pricing. Knowing the price of
+        every zero-coupon bond (the "zero curve") lets you price any bond &mdash; this is analogous
+        to how knowing the complete set of basis functions lets you represent any function in the
+        space.
+      </p>
+    </div>
+
+    <h3>2.3 Comparison</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Coupon Bond</th>
+          <th>Zero-Coupon Bond</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cash flow pattern</td>
+          <td>Annuity + lump sum</td>
+          <td>Single lump sum at maturity</td>
+        </tr>
+        <tr>
+          <td>Purchased at</td>
+          <td>Near par (premium or discount)</td>
+          <td>Deep discount to par</td>
+        </tr>
+        <tr>
+          <td>Interest rate sensitivity</td>
+          <td>Moderate (coupons reduce duration)</td>
+          <td>Maximum (duration = maturity)</td>
+        </tr>
+        <tr>
+          <td>Reinvestment risk</td>
+          <td>Yes &mdash; must reinvest coupons</td>
+          <td>None &mdash; no interim cash flows</td>
+        </tr>
+        <tr>
+          <td>Statistical analogue</td>
+          <td>Mixture of basis functions</td>
+          <td>Single basis function (Dirac delta at maturity)</td>
+        </tr>
+        <tr>
+          <td>Common examples</td>
+          <td>US Treasury bonds, corporate bonds</td>
+          <td>T-bills, Treasury STRIPS</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 3: Yield to Maturity (YTM) -->
+
+    <h2>3. Yield to Maturity (YTM) as Internal Rate of Return</h2>
+
+    <p>
+      The <strong>Yield to Maturity</strong> (YTM) is the single most important number associated
+      with a bond. It is the discount rate that makes the present value of all future cash flows
+      equal to the current market price:
+    </p>
+
+    <div class="formula-box">
+      P<sub>market</sub> = &sum;<sub>t=1</sub><sup>n</sup> C / (1 + YTM)<sup>t</sup>
+      + F / (1 + YTM)<sup>n</sup>
+    </div>
+
+    <p>
+      In other words, YTM is the <strong>Internal Rate of Return (IRR)</strong> of the bond
+      investment, assuming you hold to maturity and reinvest all coupons at the YTM rate.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Solving for YTM is an <strong>inverse problem</strong>: given the observed price (data)
+        and the known cash flows (model structure), find the parameter (yield) that makes the
+        model fit the data. There is no closed-form solution for coupon bonds &mdash; YTM must be
+        found numerically, typically via Newton-Raphson or bisection. This is identical to solving
+        a <strong>maximum likelihood equation</strong> where the score function has no analytical
+        root.
+      </p>
+    </div>
+
+    <h3>3.1 Properties of YTM</h3>
+
+    <ul>
+      <li>When price = par, YTM = coupon rate (the bond is priced "at par")</li>
+      <li>When price &lt; par, YTM &gt; coupon rate (discount bond &mdash; higher yield compensates for lower price)</li>
+      <li>When price &gt; par, YTM &lt; coupon rate (premium bond &mdash; lower yield because you paid more)</li>
+      <li>Bond price and yield move in <strong>opposite directions</strong> &mdash; always. This is the fundamental relationship.</li>
+    </ul>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The inverse relationship between price and yield is not an empirical observation &mdash;
+        it is a <strong>mathematical identity</strong>. It follows directly from the bond pricing
+        formula: as the denominator (1+y)<sup>t</sup> increases, each discounted cash flow decreases,
+        so the sum (price) decreases. This is as certain as 1/x being a decreasing function of x
+        for x &gt; 0.
+      </p>
+    </div>
+
+    <h3>3.2 YTM Assumptions and Limitations</h3>
+
+    <p>
+      YTM makes two strong assumptions:
+    </p>
+
+    <ol>
+      <li><strong>Hold to maturity</strong>: If you sell before maturity, your actual return
+          differs from YTM because the sale price depends on market conditions.</li>
+      <li><strong>Reinvestment at YTM</strong>: Coupon payments are assumed to be reinvested
+          at the YTM rate. If rates fall, reinvestment income is lower &mdash; this is
+          <strong>reinvestment risk</strong>.</li>
+    </ol>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        YTM is <em>not</em> the expected return. It is the return you would earn under the very
+        specific assumption that you hold to maturity and reinvest all coupons at the same rate.
+        In reality, interest rates change continuously, so the reinvestment assumption rarely
+        holds. YTM is a <strong>summary statistic</strong>, not a forecast. Treat it as you would
+        treat a sample mean: useful but incomplete.
+      </p>
+    </div>
+
+    <h3>3.3 The Yield Curve</h3>
+
+    <p>
+      The <strong>yield curve</strong> plots YTM against maturity for bonds of the same credit
+      quality (typically US Treasuries). Its shape reveals market expectations about future
+      interest rates:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Yield Curve Shape</th>
+          <th>Interpretation</th>
+          <th>Statistical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Normal (upward sloping)</td>
+          <td>Market expects rates to rise; term premium for longer maturities</td>
+          <td>Increasing conditional mean: E[r | maturity] increases with maturity</td>
+        </tr>
+        <tr>
+          <td>Flat</td>
+          <td>Market expects rates to remain stable</td>
+          <td>Constant conditional mean</td>
+        </tr>
+        <tr>
+          <td>Inverted (downward sloping)</td>
+          <td>Market expects rates to fall; historically predicts recession</td>
+          <td>Decreasing conditional mean; strong predictor variable for economic contraction</td>
+        </tr>
+        <tr>
+          <td>Humped</td>
+          <td>Rates expected to rise then fall</td>
+          <td>Non-monotone conditional mean; quadratic relationship</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        An inverted yield curve has predicted every US recession in the past 50 years with only
+        one false positive. As a binary classifier for "recession within 12 months," it has a
+        sensitivity of roughly 100% and specificity of approximately 85%. This makes it one of
+        the most powerful economic leading indicators known.
+      </p>
+    </div>
+
+
+    <!-- SECTION 4: Credit Spreads -->
+
+    <h2>4. Credit Spreads: The Price of Default Risk</h2>
+
+    <p>
+      Not all bonds are equally safe. A US Treasury bond is considered "risk-free" (the government
+      can always print money to pay its debts). A corporate bond carries <strong>credit risk</strong>
+      &mdash; the possibility that the issuer defaults. The market prices this risk through the
+      <strong>credit spread</strong>:
+    </p>
+
+    <div class="formula-box">
+      Credit Spread = Yield<sub>corporate</sub> &minus; Yield<sub>Treasury</sub>
+    </div>
+
+    <p>
+      This spread is the additional yield investors demand for bearing default risk. It is a
+      direct market estimate of the <strong>risk premium</strong>.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The credit spread is a <strong>difference estimator</strong>. By subtracting the risk-free
+        yield, we isolate the component of yield attributable to credit risk, just as a
+        difference-in-differences estimator isolates a treatment effect by removing common trends.
+        Wider spreads mean the market perceives higher default probability. The spread can be
+        decomposed: Spread = Default Probability &times; Loss Given Default + Liquidity Premium +
+        Risk Aversion Premium.
+      </p>
+    </div>
+
+    <h3>4.1 Credit Spread Magnitudes</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rating</th>
+          <th>Typical Spread (bps)</th>
+          <th>Implied Annual Default Probability</th>
+          <th>Statistical Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AAA</td>
+          <td>20&ndash;50</td>
+          <td>~0.01%</td>
+          <td>Essentially risk-free; spread is mostly liquidity premium</td>
+        </tr>
+        <tr>
+          <td>AA</td>
+          <td>40&ndash;80</td>
+          <td>~0.02%</td>
+          <td>Very low probability event</td>
+        </tr>
+        <tr>
+          <td>A</td>
+          <td>60&ndash;120</td>
+          <td>~0.05%</td>
+          <td>Still a tail event</td>
+        </tr>
+        <tr>
+          <td>BBB</td>
+          <td>120&ndash;200</td>
+          <td>~0.15%</td>
+          <td>Lowest investment grade; cliff edge</td>
+        </tr>
+        <tr>
+          <td>BB</td>
+          <td>200&ndash;400</td>
+          <td>~0.8%</td>
+          <td>High yield ("junk"); meaningful default risk</td>
+        </tr>
+        <tr>
+          <td>B</td>
+          <td>400&ndash;700</td>
+          <td>~3%</td>
+          <td>Speculative; default is a realistic scenario</td>
+        </tr>
+        <tr>
+          <td>CCC+</td>
+          <td>700&ndash;1500+</td>
+          <td>~10%+</td>
+          <td>Distressed; significant probability of default</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Note: 1 basis point (bp) = 0.01%. So a spread of 200 bps = 2.00%.
+    </p>
+
+
+    <!-- SECTION 5: Credit Ratings -->
+
+    <h2>5. Credit Ratings as Ordinal Classification</h2>
+
+    <p>
+      Credit ratings assigned by agencies (S&amp;P, Moody's, Fitch) are an <strong>ordinal
+      classification</strong> of credit quality. They rank issuers by likelihood of default
+      but do not provide exact probabilities.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Credit ratings are an <strong>ordinal variable</strong> &mdash; they have a natural
+        ordering (AAA &gt; AA &gt; A &gt; BBB &gt; ...) but the "distance" between adjacent
+        ratings is not uniform. The jump from BBB to BB (investment grade to junk) is
+        economically much larger than from AA to A. This is exactly the situation where
+        <strong>ordinal regression</strong> (proportional odds model) is appropriate, and
+        where treating the variable as interval-scaled would be a mistake. The rating scale is
+        like a Likert scale with non-uniform spacing.
+      </p>
+    </div>
+
+    <h3>5.1 The Rating Scale</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>S&amp;P</th>
+          <th>Moody's</th>
+          <th>Category</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AAA</td>
+          <td>Aaa</td>
+          <td>Investment Grade</td>
+          <td>Highest quality, minimal credit risk</td>
+        </tr>
+        <tr>
+          <td>AA+, AA, AA-</td>
+          <td>Aa1, Aa2, Aa3</td>
+          <td>Investment Grade</td>
+          <td>Very high quality, very low credit risk</td>
+        </tr>
+        <tr>
+          <td>A+, A, A-</td>
+          <td>A1, A2, A3</td>
+          <td>Investment Grade</td>
+          <td>Upper medium grade, low credit risk</td>
+        </tr>
+        <tr>
+          <td>BBB+, BBB, BBB-</td>
+          <td>Baa1, Baa2, Baa3</td>
+          <td>Investment Grade</td>
+          <td>Medium grade; adequate but vulnerable to downturns</td>
+        </tr>
+        <tr>
+          <td>BB+, BB, BB-</td>
+          <td>Ba1, Ba2, Ba3</td>
+          <td>High Yield (Junk)</td>
+          <td>Speculative elements; subject to substantial credit risk</td>
+        </tr>
+        <tr>
+          <td>B+, B, B-</td>
+          <td>B1, B2, B3</td>
+          <td>High Yield (Junk)</td>
+          <td>Highly speculative</td>
+        </tr>
+        <tr>
+          <td>CCC, CC, C</td>
+          <td>Caa, Ca, C</td>
+          <td>Distressed</td>
+          <td>Substantial risk of default or in default</td>
+        </tr>
+        <tr>
+          <td>D</td>
+          <td>&mdash;</td>
+          <td>Default</td>
+          <td>In payment default</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 The BBB/BB Cliff</h3>
+
+    <p>
+      The boundary between BBB- and BB+ is the most consequential threshold in fixed income.
+      Many institutional investors (pension funds, insurance companies, central banks) are
+      mandated to hold only <strong>investment-grade</strong> bonds. When a bond is downgraded
+      from BBB- to BB+ ("fallen angel"), these investors are forced to sell, causing a sudden
+      price drop.
+    </p>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        The BBB/BB boundary is a <strong>discontinuity</strong> in the price function with
+        respect to the ordinal rating. This violates the assumption of smooth, continuous
+        relationships that many statistical models make. A regression of bond prices on numerical
+        rating codes would miss this cliff entirely. You need either a piecewise model or
+        dummy variables that explicitly capture the investment-grade/junk boundary.
+      </p>
+    </div>
+
+
+    <!-- SECTION 6: Duration -->
+
+    <h2>6. Duration: The First Derivative</h2>
+
+    <p>
+      Duration is the single most important risk measure in fixed income. It answers the question:
+      <em>how sensitive is this bond's price to changes in interest rates?</em>
+    </p>
+
+    <h3>6.1 Macaulay Duration</h3>
+
+    <p>
+      <strong>Macaulay duration</strong> is the <em>weighted average time</em> until a bond's
+      cash flows are received, where the weights are the present values of each cash flow:
+    </p>
+
+    <div class="formula-box">
+      D<sub>Mac</sub> = (1/P) &sum;<sub>t=1</sub><sup>n</sup>
+      t &middot; CF<sub>t</sub> / (1 + y)<sup>t</sup>
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Macaulay duration is literally the <strong>expected value (first moment)</strong> of the
+        time-to-cash-flow distribution. Define a discrete probability distribution where the
+        "probability" of time t is proportional to the present value of the cash flow at time t.
+        Then D<sub>Mac</sub> = E[T] under this distribution. It is the <strong>center of mass</strong>
+        of the bond's cash flows in present-value-weighted time.
+      </p>
+    </div>
+
+    <h3>6.2 Modified Duration</h3>
+
+    <p>
+      While Macaulay duration is measured in years, <strong>modified duration</strong> directly
+      measures price sensitivity:
+    </p>
+
+    <div class="formula-box">
+      D<sub>mod</sub> = D<sub>Mac</sub> / (1 + y)
+    </div>
+
+    <p>
+      Modified duration tells you the <em>percentage change in price</em> for a small change in yield:
+    </p>
+
+    <div class="formula-box">
+      &Delta;P / P &approx; &minus;D<sub>mod</sub> &middot; &Delta;y
+    </div>
+
+    <p>
+      This is a <strong>first-order Taylor approximation</strong>. The negative sign confirms
+      that price and yield move in opposite directions.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Modified duration is the <strong>first derivative of log-price with respect to yield</strong>:
+        D<sub>mod</sub> = &minus;(1/P)(dP/dy). If you think of the bond price as a function
+        P(y), then duration is the <strong>slope</strong> of this function (in percentage terms).
+        This is identical to the concept of <strong>sensitivity analysis</strong> &mdash; how much
+        does the output change per unit change in the input parameter? In econometrics,
+        duration is the <strong>elasticity</strong> of price with respect to (1+y).
+      </p>
+    </div>
+
+    <h3>6.3 Duration Properties</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Effect on Duration</th>
+          <th>Intuition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Maturity &uarr;</td>
+          <td>Duration &uarr;</td>
+          <td>Cash flows extend further into the future</td>
+        </tr>
+        <tr>
+          <td>Coupon rate &uarr;</td>
+          <td>Duration &darr;</td>
+          <td>More weight on earlier cash flows (coupons)</td>
+        </tr>
+        <tr>
+          <td>Yield &uarr;</td>
+          <td>Duration &darr;</td>
+          <td>Higher discount rate gives less weight to distant flows</td>
+        </tr>
+        <tr>
+          <td>Zero-coupon</td>
+          <td>Duration = Maturity</td>
+          <td>Only one cash flow, at maturity</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 7: Convexity -->
+
+    <h2>7. Convexity: The Second Derivative</h2>
+
+    <p>
+      Duration provides a linear approximation of price changes. But the price-yield relationship
+      is a <em>curve</em>, not a line. The curvature is captured by <strong>convexity</strong>:
+    </p>
+
+    <div class="formula-box">
+      Convexity = (1/P) &middot; d<sup>2</sup>P / dy<sup>2</sup>
+    </div>
+
+    <p>
+      Convexity is always positive for standard (option-free) bonds, meaning the price-yield
+      curve bows upward. This has a wonderful consequence for bondholders:
+    </p>
+
+    <ul>
+      <li>When yields <strong>fall</strong>, the price increase is <em>larger</em> than duration alone predicts.</li>
+      <li>When yields <strong>rise</strong>, the price decrease is <em>smaller</em> than duration alone predicts.</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Convexity is the <strong>second derivative of log-price with respect to yield</strong>.
+        In the Taylor expansion framework, duration is the first-order term and convexity is the
+        second-order correction. This is exactly analogous to using a <strong>second-order Taylor
+        expansion</strong> to approximate a nonlinear function: f(x + h) &approx; f(x) + f'(x)h
+        + (1/2)f''(x)h<sup>2</sup>. The convexity term improves the approximation when &Delta;y
+        is not infinitesimal.
+      </p>
+    </div>
+
+    <h3>7.1 The Full Taylor Approximation</h3>
+
+    <p>
+      Combining duration and convexity gives us a second-order approximation of price changes:
+    </p>
+
+    <div class="formula-box">
+      &Delta;P / P &approx; &minus;D<sub>mod</sub> &middot; &Delta;y
+      + (1/2) &middot; Convexity &middot; (&Delta;y)<sup>2</sup>
+    </div>
+
+    <p>
+      This is remarkably accurate for yield changes up to about 200 basis points. For
+      larger moves, you would need higher-order terms (third derivative, etc.) &mdash; but in
+      practice, the second-order approximation is almost always sufficient.
+    </p>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Positive convexity is <strong>always desirable</strong>. Two bonds with the same duration
+        but different convexity will perform differently: the bond with higher convexity gains more
+        when rates fall and loses less when rates rise. Investors are willing to pay a premium
+        for convexity (accept a lower yield), which is why convexity has a market price. This is
+        analogous to paying for insurance against large moves.
+      </p>
+    </div>
+
+    <h3>7.2 Duration and Convexity by Bond Type</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Bond Type</th>
+          <th>Duration (years)</th>
+          <th>Convexity</th>
+          <th>Approximation Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2-year Treasury</td>
+          <td>~1.9</td>
+          <td>Low (~5)</td>
+          <td>Negligible &mdash; duration suffices</td>
+        </tr>
+        <tr>
+          <td>10-year Treasury</td>
+          <td>~8.5</td>
+          <td>Moderate (~80)</td>
+          <td>Small for moves &lt; 50bps</td>
+        </tr>
+        <tr>
+          <td>30-year Treasury</td>
+          <td>~19</td>
+          <td>High (~400)</td>
+          <td>Convexity correction matters for moves &gt; 25bps</td>
+        </tr>
+        <tr>
+          <td>30-year zero-coupon</td>
+          <td>30.0</td>
+          <td>Very high (~900)</td>
+          <td>Convexity correction essential</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 8: Python Bond Pricing -->
+
+    <h2>8. Python: Bond Pricing, Duration, and Convexity</h2>
+
+    <h3>8.1 Pricing a Coupon Bond</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">bond_price</span>(face, coupon_rate, ytm, years, freq=<span class="nu">2</span>):
+    <span class="st">"""
+    Price a coupon bond.
+
+    Parameters
+    ----------
+    face : float        Face value (par), typically 1000
+    coupon_rate : float Annual coupon rate (e.g., 0.05 for 5%)
+    ytm : float         Annual yield to maturity
+    years : float       Years to maturity
+    freq : int          Coupon frequency (2 = semi-annual)
+
+    Returns
+    -------
+    float : bond price
+    """</span>
+    n = <span class="fn">int</span>(years * freq)
+    c = face * coupon_rate / freq     <span class="cm"># coupon per period</span>
+    y = ytm / freq                     <span class="cm"># yield per period</span>
+
+    <span class="cm"># Present value of coupons (annuity formula)</span>
+    <span class="kw">if</span> y == <span class="nu">0</span>:
+        pv_coupons = c * n
+    <span class="kw">else</span>:
+        pv_coupons = c * (<span class="nu">1</span> - (<span class="nu">1</span> + y) ** (-n)) / y
+
+    <span class="cm"># Present value of face value</span>
+    pv_face = face / (<span class="nu">1</span> + y) ** n
+
+    <span class="kw">return</span> pv_coupons + pv_face
+
+<span class="cm"># Example: 10-year, 5% coupon bond at various yields</span>
+<span class="fn">print</span>(<span class="st">"--- Bond Price vs. Yield ---"</span>)
+<span class="fn">print</span>(<span class="st">f"{'Yield':>8} {'Price':>10} {'Premium/Discount':>18}"</span>)
+<span class="kw">for</span> y <span class="kw">in</span> [<span class="nu">0.03</span>, <span class="nu">0.04</span>, <span class="nu">0.05</span>, <span class="nu">0.06</span>, <span class="nu">0.07</span>]:
+    p = <span class="fn">bond_price</span>(<span class="nu">1000</span>, <span class="nu">0.05</span>, y, <span class="nu">10</span>)
+    status = <span class="st">"Par"</span> <span class="kw">if</span> <span class="fn">abs</span>(p - <span class="nu">1000</span>) &lt; <span class="nu">0.01</span> <span class="kw">else</span> (<span class="st">"Premium"</span> <span class="kw">if</span> p > <span class="nu">1000</span> <span class="kw">else</span> <span class="st">"Discount"</span>)
+    <span class="fn">print</span>(<span class="st">f"{y:>7.1%} ${p:>9.2f}   {status}"</span>)</pre>
+
+    <h3>8.2 Computing Duration and Convexity</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">def</span> <span class="fn">bond_analytics</span>(face, coupon_rate, ytm, years, freq=<span class="nu">2</span>):
+    <span class="st">"""
+    Compute price, Macaulay duration, modified duration, and convexity.
+    """</span>
+    n = <span class="fn">int</span>(years * freq)
+    c = face * coupon_rate / freq
+    y = ytm / freq
+
+    <span class="cm"># Build cash flow vector</span>
+    cash_flows = np.full(n, c)
+    cash_flows[-<span class="nu">1</span>] += face  <span class="cm"># last period includes principal</span>
+    periods = np.arange(<span class="nu">1</span>, n + <span class="nu">1</span>)
+
+    <span class="cm"># Discount factors</span>
+    disc = (<span class="nu">1</span> + y) ** (-periods)
+
+    <span class="cm"># Price</span>
+    pv = cash_flows * disc
+    price = pv.sum()
+
+    <span class="cm"># Macaulay duration (in periods, then convert to years)</span>
+    mac_dur_periods = np.sum(periods * pv) / price
+    mac_dur = mac_dur_periods / freq
+
+    <span class="cm"># Modified duration</span>
+    mod_dur = mac_dur / (<span class="nu">1</span> + y)
+
+    <span class="cm"># Convexity</span>
+    convexity_periods = np.sum(periods * (periods + <span class="nu">1</span>) * pv) / (price * (<span class="nu">1</span> + y) ** <span class="nu">2</span>)
+    convexity = convexity_periods / freq ** <span class="nu">2</span>
+
+    <span class="kw">return</span> {
+        <span class="st">'price'</span>: price,
+        <span class="st">'macaulay_duration'</span>: mac_dur,
+        <span class="st">'modified_duration'</span>: mod_dur,
+        <span class="st">'convexity'</span>: convexity,
+    }
+
+<span class="cm"># Compare different bonds</span>
+bonds = [
+    (<span class="st">"2Y 4% Coupon"</span>,   <span class="nu">1000</span>, <span class="nu">0.04</span>, <span class="nu">0.045</span>, <span class="nu">2</span>),
+    (<span class="st">"5Y 4% Coupon"</span>,   <span class="nu">1000</span>, <span class="nu">0.04</span>, <span class="nu">0.045</span>, <span class="nu">5</span>),
+    (<span class="st">"10Y 4% Coupon"</span>,  <span class="nu">1000</span>, <span class="nu">0.04</span>, <span class="nu">0.045</span>, <span class="nu">10</span>),
+    (<span class="st">"30Y 4% Coupon"</span>,  <span class="nu">1000</span>, <span class="nu">0.04</span>, <span class="nu">0.045</span>, <span class="nu">30</span>),
+    (<span class="st">"10Y Zero-Coupon"</span>,<span class="nu">1000</span>, <span class="nu">0.00</span>, <span class="nu">0.045</span>, <span class="nu">10</span>),
+    (<span class="st">"30Y Zero-Coupon"</span>,<span class="nu">1000</span>, <span class="nu">0.00</span>, <span class="nu">0.045</span>, <span class="nu">30</span>),
+]
+
+<span class="fn">print</span>(<span class="st">f"{'Bond':>18} {'Price':>8} {'Mac Dur':>9} {'Mod Dur':>9} {'Convex':>9}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">56</span>)
+<span class="kw">for</span> name, face, cpn, ytm, yrs <span class="kw">in</span> bonds:
+    a = <span class="fn">bond_analytics</span>(face, cpn, ytm, yrs)
+    <span class="fn">print</span>(<span class="st">f"{name:>18} ${a['price']:>7.2f} {a['macaulay_duration']:>8.2f}y "
+          f"{a['modified_duration']:>8.2f}  {a['convexity']:>8.1f}"</span>)</pre>
+
+    <h3>8.3 Taylor Approximation vs. Exact Price Change</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">def</span> <span class="fn">taylor_vs_exact</span>(face, coupon_rate, ytm, years, yield_change):
+    <span class="st">"""
+    Compare first-order (duration), second-order (duration + convexity),
+    and exact price changes for a given yield shock.
+    """</span>
+    analytics = <span class="fn">bond_analytics</span>(face, coupon_rate, ytm, years)
+    p0 = analytics[<span class="st">'price'</span>]
+    dur = analytics[<span class="st">'modified_duration'</span>]
+    cvx = analytics[<span class="st">'convexity'</span>]
+
+    <span class="cm"># Exact new price</span>
+    p1 = <span class="fn">bond_price</span>(face, coupon_rate, ytm + yield_change, years)
+    exact_change = (p1 - p0) / p0
+
+    <span class="cm"># First-order approximation (duration only)</span>
+    first_order = -dur * yield_change
+
+    <span class="cm"># Second-order approximation (duration + convexity)</span>
+    second_order = -dur * yield_change + <span class="nu">0.5</span> * cvx * yield_change ** <span class="nu">2</span>
+
+    <span class="kw">return</span> exact_change, first_order, second_order
+
+<span class="cm"># Test with a 30-year bond for various yield shocks</span>
+<span class="fn">print</span>(<span class="st">"--- 30Y 4% Coupon Bond, YTM = 4.5% ---"</span>)
+<span class="fn">print</span>(<span class="st">f"{'dY (bps)':>10} {'Exact':>10} {'Dur Only':>10} {'Dur+Cvx':>10} {'Dur Err':>10} {'D+C Err':>10}"</span>)
+<span class="kw">for</span> bps <span class="kw">in</span> [-<span class="nu">200</span>, -<span class="nu">100</span>, -<span class="nu">50</span>, -<span class="nu">25</span>, <span class="nu">25</span>, <span class="nu">50</span>, <span class="nu">100</span>, <span class="nu">200</span>]:
+    dy = bps / <span class="nu">10000</span>
+    exact, fo, so = <span class="fn">taylor_vs_exact</span>(<span class="nu">1000</span>, <span class="nu">0.04</span>, <span class="nu">0.045</span>, <span class="nu">30</span>, dy)
+    <span class="fn">print</span>(<span class="st">f"{bps:>+8}   {exact:>+9.2%}  {fo:>+9.2%}  {so:>+9.2%}  "
+          f"{abs(fo - exact):>9.4%}  {abs(so - exact):>9.4%}"</span>)</pre>
+
+
+    <!-- SECTION 9: Bond Risk Decomposition -->
+
+    <h2>9. Risk Decomposition in Fixed Income</h2>
+
+    <p>
+      A bond investor faces multiple sources of risk. Understanding and decomposing these is
+      essential for portfolio management:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Risk Type</th>
+          <th>Source</th>
+          <th>Measured By</th>
+          <th>Statistical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Interest rate risk</td>
+          <td>Changes in market yields</td>
+          <td>Duration, convexity</td>
+          <td>Sensitivity of response to a covariate</td>
+        </tr>
+        <tr>
+          <td>Credit risk</td>
+          <td>Issuer may default</td>
+          <td>Credit spread, ratings</td>
+          <td>Binary event probability (Bernoulli)</td>
+        </tr>
+        <tr>
+          <td>Reinvestment risk</td>
+          <td>Coupons reinvested at unknown rates</td>
+          <td>Duration mismatch</td>
+          <td>Variance of future discount rates</td>
+        </tr>
+        <tr>
+          <td>Liquidity risk</td>
+          <td>May not find a buyer at fair price</td>
+          <td>Bid-ask spread</td>
+          <td>Transaction cost / market impact</td>
+        </tr>
+        <tr>
+          <td>Inflation risk</td>
+          <td>Real value of cash flows erodes</td>
+          <td>Breakeven inflation rate</td>
+          <td>Signal contamination by a nuisance process</td>
+        </tr>
+        <tr>
+          <td>Call risk</td>
+          <td>Issuer may repay early</td>
+          <td>Option-adjusted spread (OAS)</td>
+          <td>Censored observation (early stopping)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        For government bonds (Treasuries), interest rate risk dominates. For corporate bonds,
+        credit risk becomes important. For high-yield (junk) bonds, credit risk dominates
+        everything else. This means the same analytical tools &mdash; duration and convexity &mdash;
+        are much more useful for Treasuries than for junk bonds, where default analysis matters more.
+        Match your analytical tool to the dominant risk factor.
+      </p>
+    </div>
+
+
+    <!-- SECTION 10: Bond Types -->
+
+    <h2>10. Types of Bonds</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Bond Type</th>
+          <th>Issuer</th>
+          <th>Key Features</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>US Treasury bonds</td>
+          <td>US Government</td>
+          <td>Risk-free benchmark; highly liquid</td>
+          <td>Lowest (rate risk only)</td>
+        </tr>
+        <tr>
+          <td>Treasury Inflation-Protected (TIPS)</td>
+          <td>US Government</td>
+          <td>Principal adjusts with CPI; protects against inflation</td>
+          <td>Low (real rate risk only)</td>
+        </tr>
+        <tr>
+          <td>Municipal bonds</td>
+          <td>State/local governments</td>
+          <td>Often tax-exempt; lower yields but higher after-tax return</td>
+          <td>Low to moderate</td>
+        </tr>
+        <tr>
+          <td>Investment-grade corporates</td>
+          <td>Corporations (BBB- or higher)</td>
+          <td>Higher yield than Treasuries; credit risk</td>
+          <td>Moderate</td>
+        </tr>
+        <tr>
+          <td>High-yield (junk) bonds</td>
+          <td>Corporations (BB+ or lower)</td>
+          <td>Significantly higher yield; meaningful default risk</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Convertible bonds</td>
+          <td>Corporations</td>
+          <td>Can convert to equity; hybrid instrument</td>
+          <td>Moderate (bond + equity option)</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 11: Summary -->
+
+    <h2>11. Summary</h2>
+
+    <p>
+      This module has established the mathematical foundations of fixed-income analysis through
+      a statistical lens:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Finance Concept</th>
+          <th>Statistical / Mathematical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bond price</td>
+          <td>Weighted sum with exponentially decaying weights</td>
+        </tr>
+        <tr>
+          <td>Zero-coupon bond</td>
+          <td>Basis function of the fixed-income space</td>
+        </tr>
+        <tr>
+          <td>Yield to Maturity</td>
+          <td>IRR = solving an inverse problem (like MLE)</td>
+        </tr>
+        <tr>
+          <td>Credit spread</td>
+          <td>Difference estimator isolating default risk</td>
+        </tr>
+        <tr>
+          <td>Credit ratings</td>
+          <td>Ordinal variable with non-uniform spacing</td>
+        </tr>
+        <tr>
+          <td>Macaulay duration</td>
+          <td>First moment (E[T]) of PV-weighted cash flow distribution</td>
+        </tr>
+        <tr>
+          <td>Modified duration</td>
+          <td>First derivative: &minus;(1/P)(dP/dy)</td>
+        </tr>
+        <tr>
+          <td>Convexity</td>
+          <td>Second derivative: (1/P)(d&sup2;P/dy&sup2;)</td>
+        </tr>
+        <tr>
+          <td>Price approximation</td>
+          <td>Second-order Taylor expansion</td>
+        </tr>
+        <tr>
+          <td>Yield curve inversion</td>
+          <td>Binary classifier for recession with ~100% sensitivity</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      With stocks (random cash flows) and bonds (deterministic cash flows) under our belt,
+      we are ready for the most mathematically rich asset class: <strong>options and derivatives</strong>.
+      In Module 13, we will see how truncated distributions, partial derivatives, and stochastic
+      calculus converge to create the Black-Scholes framework.
+    </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-11/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-13/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

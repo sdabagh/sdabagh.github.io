@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 03 of Financial Literacy for Statisticians: Universal patterns in financial returns that every statistician should know">
+  <title>Fat Tails & Stylized Facts — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 03: Fat Tails &amp; Stylized Facts</h1>
+      <p class="tagline">Universal patterns in financial returns that every statistician should know</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 1 of 5</span>
+        <span class="meta-item">Module 03 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-02/index.html">&larr; Previous</a>
+      <span class="current">Module 03 of 22</span>
+      <a href="../module-04/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: INTRODUCTION                                      -->
+      <!-- ============================================================ -->
+
+      <h2>1. Introduction: Universal Patterns in Financial Returns</h2>
+
+      <p>
+        In Module 02 we established that returns, not prices, are the proper object of
+        statistical analysis. We also hinted that returns are not normally distributed. This
+        module dives deep into <em>how</em> returns deviate from normality and introduces
+        the <strong>stylized facts</strong> &mdash; a set of empirical regularities that
+        appear across nearly all financial assets, markets, and time periods.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Stylized Facts:</strong> Empirical regularities observed so consistently
+        across different markets, asset classes, and historical periods that they are
+        considered universal properties of financial returns. Any realistic model of
+        financial data should reproduce these patterns. The term was popularized by
+        Cont (2001) in a seminal review paper.
+      </div>
+
+      <p>
+        As a statistician, you will recognize these as <em>distributional properties</em>
+        and <em>serial dependence structures</em>. What makes them remarkable is their
+        universality: the same patterns appear in equities, currencies, commodities, and
+        interest rates, across New York, London, Tokyo, and Mumbai, from the 1920s to today.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Think of stylized facts as the financial equivalent of the <strong>empirical laws</strong>
+        you encounter in other fields: Zipf&rsquo;s law in linguistics, Benford&rsquo;s law
+        in accounting, or Taylor&rsquo;s law in ecology. They are not derived from first
+        principles but are so robustly observed that they serve as constraints on any
+        credible model.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 2: HEAVY TAILS                                       -->
+      <!-- ============================================================ -->
+
+      <h2>2. Heavy Tails: Extreme Events Are Not Rare</h2>
+
+      <h3>2.1 Kurtosis: Measuring Tail Heaviness</h3>
+
+      <p>
+        The <strong>kurtosis</strong> of a distribution measures the weight of its tails
+        relative to the normal distribution. The normal distribution has a kurtosis of 3
+        (or an <em>excess kurtosis</em> of 0). Financial returns typically have excess
+        kurtosis between 5 and 50 for daily data.
+      </p>
+
+      <div class="formula-box">
+        Excess Kurtosis = E[(X &minus; &mu;)<sup>4</sup>] / &sigma;<sup>4</sup> &minus; 3
+      </div>
+
+      <p>
+        An excess kurtosis of 10 does not mean the distribution is &ldquo;slightly&rdquo;
+        non-normal. It means the probability of a 5-sigma event is <em>orders of magnitude</em>
+        larger than the normal distribution predicts.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> scipy.stats <span class="kw">as</span> stats
+
+<span class="cm"># Download several assets to show universality</span>
+tickers = {
+    <span class="st">"S&amp;P 500"</span>: <span class="st">"^GSPC"</span>,
+    <span class="st">"Apple"</span>: <span class="st">"AAPL"</span>,
+    <span class="st">"Euro/USD"</span>: <span class="st">"EURUSD=X"</span>,
+    <span class="st">"Gold"</span>: <span class="st">"GC=F"</span>,
+    <span class="st">"10Y Treasury"</span>: <span class="st">"^TNX"</span>,
+    <span class="st">"Bitcoin"</span>: <span class="st">"BTC-USD"</span>,
+}
+
+results = []
+<span class="kw">for</span> name, ticker <span class="kw">in</span> tickers.items():
+    data = yf.download(ticker, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2025-01-01"</span>, progress=<span class="kw">False</span>)
+    ret = np.log(data[<span class="st">"Adj Close"</span>] / data[<span class="st">"Adj Close"</span>].shift(<span class="nu">1</span>)).dropna()
+    results.append({
+        <span class="st">"Asset"</span>: name,
+        <span class="st">"N"</span>: <span class="fn">len</span>(ret),
+        <span class="st">"Mean (bps)"</span>: ret.mean() * <span class="nu">10000</span>,
+        <span class="st">"Std (%)"</span>: ret.std() * <span class="nu">100</span>,
+        <span class="st">"Skewness"</span>: ret.skew(),
+        <span class="st">"Excess Kurtosis"</span>: ret.kurtosis(),
+        <span class="st">"Min (%)"</span>: ret.min() * <span class="nu">100</span>,
+        <span class="st">"Max (%)"</span>: ret.max() * <span class="nu">100</span>,
+    })
+
+df = pd.DataFrame(results)
+<span class="fn">print</span>(df.to_string(index=<span class="kw">False</span>))
+<span class="cm"># Notice: EVERY asset has excess kurtosis >> 0</span></pre>
+
+      <h3>2.2 How Much More Likely Are Extreme Events?</h3>
+
+      <p>
+        Under a normal distribution, a daily return exceeding 4 standard deviations should
+        occur roughly once every 126 years. In practice, it happens roughly once or twice per
+        year. This table quantifies the discrepancy:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Event Size</th>
+            <th>Normal Prob (one-tail)</th>
+            <th>Expected Freq (daily)</th>
+            <th>Actual Freq (S&amp;P 500)</th>
+            <th>Ratio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>3&sigma; move</td>
+            <td>0.135%</td>
+            <td>Once per 3 years</td>
+            <td>Several per year</td>
+            <td>~5&ndash;10x</td>
+          </tr>
+          <tr>
+            <td>4&sigma; move</td>
+            <td>0.003%</td>
+            <td>Once per 126 years</td>
+            <td>Once per 1&ndash;2 years</td>
+            <td>~100x</td>
+          </tr>
+          <tr>
+            <td>5&sigma; move</td>
+            <td>0.00003%</td>
+            <td>Once per 13,000 years</td>
+            <td>Once per 5&ndash;10 years</td>
+            <td>~1,000x</td>
+          </tr>
+          <tr>
+            <td>6&sigma; move</td>
+            <td>~10<sup>&minus;9</sup></td>
+            <td>Once per 1.4 million years</td>
+            <td>Several times in 100 years</td>
+            <td>~10,000x+</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The Black Monday crash of October 19, 1987 was a <strong>22-sigma event</strong>
+        under the normal distribution. The probability of a 22-sigma event is approximately
+        10<sup>&minus;107</sup>. There are only about 10<sup>17</sup> seconds in the age of
+        the universe. The normal distribution does not merely underestimate tail risk &mdash;
+        it misses it by a factor that is cosmologically absurd.
+      </div>
+
+      <h3>2.3 Comparing to the Student-t Distribution</h3>
+
+      <p>
+        A much better model for the unconditional distribution of returns is the
+        <strong>Student-t distribution</strong> with low degrees of freedom (&nu; &asymp; 3&ndash;7).
+        This naturally produces heavier tails.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Fit a t-distribution to AAPL log returns</span>
+aapl = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2025-01-01"</span>, progress=<span class="kw">False</span>)
+log_ret = np.log(aapl[<span class="st">"Adj Close"</span>] / aapl[<span class="st">"Adj Close"</span>].shift(<span class="nu">1</span>)).dropna()
+
+<span class="cm"># Fit Student-t (returns df, loc, scale)</span>
+t_params = stats.t.fit(log_ret)
+<span class="fn">print</span>(f<span class="st">"Fitted t-distribution: df={t_params[0]:.2f}, loc={t_params[1]:.6f}, scale={t_params[2]:.6f}"</span>)
+
+<span class="cm"># Compare fits visually</span>
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">5</span>))
+
+x = np.linspace(log_ret.min(), log_ret.max(), <span class="nu">500</span>)
+
+<span class="cm"># Linear scale</span>
+axes[<span class="nu">0</span>].hist(log_ret, bins=<span class="nu">150</span>, density=<span class="kw">True</span>, alpha=<span class="nu">0.6</span>, color=<span class="st">'#3182ce'</span>, label=<span class="st">'Data'</span>)
+axes[<span class="nu">0</span>].plot(x, stats.norm.pdf(x, log_ret.mean(), log_ret.std()),
+            <span class="st">'r-'</span>, lw=<span class="nu">2</span>, label=<span class="st">'Normal'</span>)
+axes[<span class="nu">0</span>].plot(x, stats.t.pdf(x, *t_params),
+            <span class="st">'g-'</span>, lw=<span class="nu">2</span>, label=f<span class="st">'Student-t (df={t_params[0]:.1f})'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Density Comparison (Linear Scale)'</span>)
+axes[<span class="nu">0</span>].legend()
+
+<span class="cm"># Log scale — crucial for seeing tail behavior</span>
+axes[<span class="nu">1</span>].hist(log_ret, bins=<span class="nu">200</span>, density=<span class="kw">True</span>, alpha=<span class="nu">0.6</span>, color=<span class="st">'#3182ce'</span>, label=<span class="st">'Data'</span>)
+axes[<span class="nu">1</span>].plot(x, stats.norm.pdf(x, log_ret.mean(), log_ret.std()),
+            <span class="st">'r-'</span>, lw=<span class="nu">2</span>, label=<span class="st">'Normal'</span>)
+axes[<span class="nu">1</span>].plot(x, stats.t.pdf(x, *t_params),
+            <span class="st">'g-'</span>, lw=<span class="nu">2</span>, label=f<span class="st">'Student-t (df={t_params[0]:.1f})'</span>)
+axes[<span class="nu">1</span>].set_yscale(<span class="st">'log'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Density Comparison (Log Scale — Shows Tails)'</span>)
+axes[<span class="nu">1</span>].legend()
+
+plt.tight_layout()
+plt.show()</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The Student-t distribution is a natural choice because you already know it from
+        hypothesis testing with small samples. When &nu; &rarr; &infin;, the t-distribution
+        converges to the normal. When &nu; is small (3&ndash;7), the tails are much heavier.
+        A t-distribution with &nu; = 4 has infinite fourth moment (kurtosis), which means
+        the sample kurtosis estimator is inconsistent &mdash; another reason why moment-based
+        tests can behave oddly with financial data.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 3: QQ PLOTS                                          -->
+      <!-- ============================================================ -->
+
+      <h2>3. QQ Plots: The Visual Signature of Fat Tails</h2>
+
+      <h3>3.1 Reading a QQ Plot</h3>
+
+      <p>
+        The quantile-quantile (QQ) plot is the single most informative diagnostic for
+        distributional assumptions. It plots the quantiles of your data against the quantiles
+        of a theoretical distribution. Points on the 45-degree line mean perfect agreement.
+      </p>
+
+      <ul>
+        <li><strong>S-shaped deviation:</strong> Both tails deviate upward on the right and downward on the left &mdash; this is the signature of <em>heavy tails</em> (leptokurtosis).</li>
+        <li><strong>Concave or convex pattern:</strong> Indicates skewness.</li>
+        <li><strong>Staircase pattern:</strong> Indicates discreteness in the data.</li>
+      </ul>
+
+      <h3>3.2 QQ Plots Against Different Reference Distributions</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">3</span>, figsize=(<span class="nu">16</span>, <span class="nu">5</span>))
+
+<span class="cm"># 1. QQ plot against Normal</span>
+stats.probplot(log_ret, dist=<span class="st">"norm"</span>, plot=axes[<span class="nu">0</span>])
+axes[<span class="nu">0</span>].set_title(<span class="st">'QQ Plot: Data vs Normal'</span>)
+axes[<span class="nu">0</span>].get_lines()[<span class="nu">0</span>].set_markerfacecolor(<span class="st">'#3182ce'</span>)
+axes[<span class="nu">0</span>].get_lines()[<span class="nu">0</span>].set_markersize(<span class="nu">2</span>)
+
+<span class="cm"># 2. QQ plot against t-distribution with fitted df</span>
+stats.probplot(log_ret, dist=stats.t, sparams=(t_params[<span class="nu">0</span>],), plot=axes[<span class="nu">1</span>])
+axes[<span class="nu">1</span>].set_title(f<span class="st">'QQ Plot: Data vs t(df={t_params[0]:.1f})'</span>)
+axes[<span class="nu">1</span>].get_lines()[<span class="nu">0</span>].set_markerfacecolor(<span class="st">'#38a169'</span>)
+axes[<span class="nu">1</span>].get_lines()[<span class="nu">0</span>].set_markersize(<span class="nu">2</span>)
+
+<span class="cm"># 3. QQ plot against Laplace (double exponential)</span>
+stats.probplot(log_ret, dist=stats.laplace, plot=axes[<span class="nu">2</span>])
+axes[<span class="nu">2</span>].set_title(<span class="st">'QQ Plot: Data vs Laplace'</span>)
+axes[<span class="nu">2</span>].get_lines()[<span class="nu">0</span>].set_markerfacecolor(<span class="st">'#d69e2e'</span>)
+axes[<span class="nu">2</span>].get_lines()[<span class="nu">0</span>].set_markersize(<span class="nu">2</span>)
+
+plt.tight_layout()
+plt.show()
+
+<span class="cm"># The normal QQ will show clear S-shaped deviation</span>
+<span class="cm"># The t-distribution QQ will be much closer to the diagonal</span>
+<span class="cm"># The Laplace may overshoot the tails slightly</span></pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The QQ plot against the normal distribution is the &ldquo;classic financial plot.&rdquo;
+        It is included in virtually every empirical finance paper and every risk management
+        report. The S-shaped deviation in the tails is so characteristic that an experienced
+        analyst can identify financial return data from the QQ plot alone. If your QQ plot
+        <em>does not</em> show this pattern, double-check your data.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 4: VOLATILITY CLUSTERING                             -->
+      <!-- ============================================================ -->
+
+      <h2>4. Volatility Clustering: Large Moves Follow Large Moves</h2>
+
+      <h3>4.1 The Phenomenon</h3>
+
+      <p>
+        If you plot the time series of daily returns, you will notice something striking:
+        large moves (positive or negative) tend to cluster together, and calm periods tend
+        to cluster together. This is called <strong>volatility clustering</strong>.
+      </p>
+
+      <p>
+        Mandelbrot described it: large changes tend to be followed by large changes &mdash;
+        of either sign &mdash; and small changes tend to be followed by small changes.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Volatility clustering means the returns process is <strong>conditionally
+        heteroscedastic</strong>. While the unconditional variance may be constant
+        (stationary returns), the <em>conditional</em> variance &mdash; the variance at
+        time t given information up to t&minus;1 &mdash; varies over time. This is exactly
+        the kind of structure that ARCH/GARCH models are designed to capture. In
+        statistical terms, the series is a <strong>martingale difference sequence</strong>
+        but not an i.i.d. sequence: E[r<sub>t</sub> | F<sub>t-1</sub>] &asymp; 0, but
+        Var(r<sub>t</sub> | F<sub>t-1</sub>) is time-varying.
+      </div>
+
+      <h3>4.2 Visualizing Volatility Clustering</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>fig, axes = plt.subplots(<span class="nu">3</span>, <span class="nu">1</span>, figsize=(<span class="nu">14</span>, <span class="nu">10</span>), sharex=<span class="kw">True</span>)
+
+<span class="cm"># Panel 1: Returns</span>
+axes[<span class="nu">0</span>].plot(log_ret.index, log_ret.values, color=<span class="st">'#1a365d'</span>, linewidth=<span class="nu">0.4</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Log Return'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'AAPL: Returns and Volatility Clustering'</span>)
+axes[<span class="nu">0</span>].axhline(y=<span class="nu">0</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, linewidth=<span class="nu">0.5</span>)
+
+<span class="cm"># Panel 2: Absolute returns (proxy for volatility)</span>
+axes[<span class="nu">1</span>].plot(log_ret.index, log_ret.abs().values, color=<span class="st">'#e53e3e'</span>, linewidth=<span class="nu">0.4</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'|Log Return|'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Absolute Returns (Volatility Proxy)'</span>)
+
+<span class="cm"># Panel 3: Squared returns (another volatility proxy)</span>
+axes[<span class="nu">2</span>].plot(log_ret.index, (log_ret ** <span class="nu">2</span>).values, color=<span class="st">'#d69e2e'</span>, linewidth=<span class="nu">0.4</span>)
+axes[<span class="nu">2</span>].set_ylabel(<span class="st">'Return&sup2;'</span>)
+axes[<span class="nu">2</span>].set_title(<span class="st">'Squared Returns (Variance Proxy)'</span>)
+
+plt.tight_layout()
+plt.show()
+
+<span class="cm"># The clustering in panels 2 and 3 is visually obvious</span></pre>
+
+      <h3>4.3 ARCH Effects: Testing for Volatility Clustering</h3>
+
+      <p>
+        The Engle ARCH test formally tests whether squared residuals exhibit serial
+        correlation &mdash; the statistical signature of volatility clustering.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> het_arch
+
+<span class="cm"># Engle's ARCH test on residuals (or demeaned returns)</span>
+demeaned = log_ret - log_ret.mean()
+arch_test = het_arch(demeaned, nlags=<span class="nu">10</span>)
+
+<span class="fn">print</span>(<span class="st">"=== Engle's ARCH Test ==="</span>)
+<span class="fn">print</span>(f<span class="st">"LM statistic: {arch_test[0]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"p-value:      {arch_test[1]:.2e}"</span>)
+<span class="fn">print</span>(f<span class="st">"F-statistic:  {arch_test[2]:.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"F p-value:    {arch_test[3]:.2e}"</span>)
+<span class="fn">print</span>(f<span class="st">"Conclusion:   {'ARCH effects present' if arch_test[1] < 0.05 else 'No ARCH effects'}"</span>)
+<span class="cm"># Will almost certainly show significant ARCH effects</span></pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Volatility clustering means that standard OLS standard errors on financial return
+        regressions are <strong>wrong</strong>, even if the returns themselves are stationary.
+        The conditional heteroscedasticity violates the homoscedasticity assumption. You need
+        either <strong>HAC standard errors</strong> (Newey-West) or explicit GARCH modeling
+        to get correct inference.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 5: AUTOCORRELATION STRUCTURE                         -->
+      <!-- ============================================================ -->
+
+      <h2>5. Autocorrelation: Returns vs Absolute Returns</h2>
+
+      <h3>5.1 The Key Stylized Fact</h3>
+
+      <p>
+        Returns themselves show <strong>little or no serial correlation</strong>. This is
+        consistent with weak-form market efficiency. However, <em>absolute</em> returns and
+        <em>squared</em> returns show <strong>strong, persistent positive autocorrelation</strong>
+        that decays slowly. This is the autocorrelation signature of volatility clustering.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        This dual autocorrelation structure is the hallmark of a <strong>white noise
+        process viewed through a stochastic volatility filter</strong>. If r<sub>t</sub> =
+        &sigma;<sub>t</sub> &middot; z<sub>t</sub> where z<sub>t</sub> is i.i.d. and
+        &sigma;<sub>t</sub> is a slowly varying process, then:
+        <ul>
+          <li>Corr(r<sub>t</sub>, r<sub>t-k</sub>) &asymp; 0 (because the z<sub>t</sub> are independent)</li>
+          <li>Corr(|r<sub>t</sub>|, |r<sub>t-k</sub>|) > 0 (because &sigma;<sub>t</sub> is persistent)</li>
+        </ul>
+        This is precisely the structure that GARCH(1,1) and stochastic volatility models
+        are designed to capture.
+      </div>
+
+      <h3>5.2 Autocorrelation Plots</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> statsmodels.graphics.tsaplots <span class="kw">import</span> plot_acf
+<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> acf
+
+fig, axes = plt.subplots(<span class="nu">2</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">10</span>))
+
+<span class="cm"># ACF of returns</span>
+plot_acf(log_ret, lags=<span class="nu">50</span>, ax=axes[<span class="nu">0</span>, <span class="nu">0</span>], title=<span class="st">'ACF of Returns'</span>,
+         color=<span class="st">'#1a365d'</span>, alpha=<span class="nu">0.05</span>)
+
+<span class="cm"># ACF of absolute returns</span>
+plot_acf(log_ret.abs(), lags=<span class="nu">50</span>, ax=axes[<span class="nu">0</span>, <span class="nu">1</span>], title=<span class="st">'ACF of |Returns|'</span>,
+         color=<span class="st">'#e53e3e'</span>, alpha=<span class="nu">0.05</span>)
+
+<span class="cm"># ACF of squared returns</span>
+plot_acf(log_ret ** <span class="nu">2</span>, lags=<span class="nu">50</span>, ax=axes[<span class="nu">1</span>, <span class="nu">0</span>], title=<span class="st">'ACF of Returns&sup2;'</span>,
+         color=<span class="st">'#d69e2e'</span>, alpha=<span class="nu">0.05</span>)
+
+<span class="cm"># Compare ACF decay: absolute vs squared</span>
+acf_abs = acf(log_ret.abs(), nlags=<span class="nu">100</span>)
+acf_sq = acf(log_ret ** <span class="nu">2</span>, nlags=<span class="nu">100</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].plot(acf_abs, label=<span class="st">'|Returns|'</span>, color=<span class="st">'#e53e3e'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].plot(acf_sq, label=<span class="st">'Returns&sup2;'</span>, color=<span class="st">'#d69e2e'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].set_title(<span class="st">'ACF Comparison: |r| vs r&sup2;'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].set_xlabel(<span class="st">'Lag'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].legend()
+
+plt.tight_layout()
+plt.show()
+
+<span class="cm"># Key observation: |returns| has HIGHER autocorrelation than returns&sup2;</span>
+<span class="cm"># This is called the "Taylor effect" — another stylized fact</span></pre>
+
+      <h3>5.3 The Ljung-Box Test for Serial Correlation</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
+
+<span class="cm"># Test serial correlation in returns</span>
+lb_returns = acorr_ljungbox(log_ret, lags=[<span class="nu">5</span>, <span class="nu">10</span>, <span class="nu">20</span>], return_df=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="st">"=== Ljung-Box Test: Returns ==="</span>)
+<span class="fn">print</span>(lb_returns)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Test serial correlation in squared returns</span>
+lb_squared = acorr_ljungbox(log_ret ** <span class="nu">2</span>, lags=[<span class="nu">5</span>, <span class="nu">10</span>, <span class="nu">20</span>], return_df=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="st">"=== Ljung-Box Test: Squared Returns ==="</span>)
+<span class="fn">print</span>(lb_squared)
+
+<span class="cm"># Returns: may or may not show significance</span>
+<span class="cm"># Squared returns: will almost certainly show HIGHLY significant autocorrelation</span></pre>
+
+      <h3>5.4 Long Memory in Volatility</h3>
+
+      <p>
+        The autocorrelation of absolute returns decays very slowly &mdash; much slower than
+        the exponential decay of a GARCH(1,1) model. This is evidence of <strong>long
+        memory</strong> in volatility, sometimes modeled with fractional integration
+        (FIGARCH) or hyperbolic decay functions.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The autocorrelation of |r<sub>t</sub>| remains statistically significant at lags
+        of 100 or more trading days &mdash; that is nearly half a year. This persistence
+        means that a period of high volatility reliably predicts continued high volatility
+        for months, not just days. This has profound implications for risk management:
+        if you are in a high-volatility regime, you should expect it to persist.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 6: FORMAL NORMALITY TESTS                            -->
+      <!-- ============================================================ -->
+
+      <h2>6. Formal Normality Tests for Financial Data</h2>
+
+      <h3>6.1 Overview of Tests</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Tests What</th>
+            <th>Best For</th>
+            <th>Limitations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Jarque-Bera</td>
+            <td>Skewness + kurtosis jointly</td>
+            <td>Large samples, financial data</td>
+            <td>Only uses 3rd and 4th moments</td>
+          </tr>
+          <tr>
+            <td>Shapiro-Wilk</td>
+            <td>Overall distributional shape</td>
+            <td>Small to medium samples (n &lt; 5000)</td>
+            <td>Not valid for n &gt; 5000</td>
+          </tr>
+          <tr>
+            <td>Anderson-Darling</td>
+            <td>Tail behavior (more weight on tails)</td>
+            <td>Detecting tail deviations</td>
+            <td>More conservative than other tests</td>
+          </tr>
+          <tr>
+            <td>Lilliefors</td>
+            <td>Overall CDF comparison</td>
+            <td>When parameters are estimated</td>
+            <td>Less powerful than AD for tails</td>
+          </tr>
+          <tr>
+            <td>D&rsquo;Agostino-Pearson</td>
+            <td>Skewness + kurtosis omnibus</td>
+            <td>General purpose</td>
+            <td>Requires n &gt; 20</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 Running All Tests</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Comprehensive normality testing</span>
+<span class="fn">print</span>(<span class="st">"=== Normality Tests on AAPL Log Returns ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Sample size: {len(log_ret)}\n"</span>)
+
+<span class="cm"># 1. Jarque-Bera (ideal for financial data)</span>
+jb_stat, jb_p = stats.jarque_bera(log_ret)
+<span class="fn">print</span>(f<span class="st">"Jarque-Bera:      stat={jb_stat:>10.2f}, p={jb_p:.2e}"</span>)
+
+<span class="cm"># 2. D'Agostino-Pearson omnibus</span>
+dp_stat, dp_p = stats.normaltest(log_ret)
+<span class="fn">print</span>(f<span class="st">"D'Agostino-K2:    stat={dp_stat:>10.2f}, p={dp_p:.2e}"</span>)
+
+<span class="cm"># 3. Anderson-Darling</span>
+ad_result = stats.anderson(log_ret, dist=<span class="st">'norm'</span>)
+<span class="fn">print</span>(f<span class="st">"Anderson-Darling: stat={ad_result.statistic:>10.4f}"</span>)
+<span class="kw">for</span> sl, cv <span class="kw">in</span> <span class="fn">zip</span>(ad_result.significance_level, ad_result.critical_values):
+    reject = <span class="st">"REJECT"</span> <span class="kw">if</span> ad_result.statistic > cv <span class="kw">else</span> <span class="st">"fail to reject"</span>
+    <span class="fn">print</span>(f<span class="st">"  At {sl}% level: critical={cv:.4f} -> {reject}"</span>)
+
+<span class="cm"># 4. Shapiro-Wilk (subsample for large n)</span>
+sw_sample = log_ret.sample(<span class="nu">min</span>(<span class="nu">5000</span>, <span class="fn">len</span>(log_ret)), random_state=<span class="nu">42</span>)
+sw_stat, sw_p = stats.shapiro(sw_sample)
+<span class="fn">print</span>(f<span class="st">"Shapiro-Wilk:     stat={sw_stat:>10.6f}, p={sw_p:.2e} (n={len(sw_sample)})"</span>)
+
+<span class="cm"># 5. Lilliefors (KS test with estimated parameters)</span>
+<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> lilliefors
+lf_stat, lf_p = lilliefors(log_ret, dist=<span class="st">'norm'</span>)
+<span class="fn">print</span>(f<span class="st">"Lilliefors:       stat={lf_stat:>10.6f}, p={lf_p:.4f}"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\nAll tests will reject normality. This is not surprising — it is a fact."</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Do not use the standard Kolmogorov-Smirnov test (<code>stats.kstest</code>) for
+        normality testing when you estimate &mu; and &sigma; from the data. The KS test
+        assumes the parameters are known <em>a priori</em>; estimating them from the same
+        sample makes the test overly conservative (reduced power). Use the
+        <strong>Lilliefors</strong> modification instead, which corrects for parameter
+        estimation.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 7: LEVERAGE EFFECT                                   -->
+      <!-- ============================================================ -->
+
+      <h2>7. The Leverage Effect: Asymmetric Volatility</h2>
+
+      <h3>7.1 What Is the Leverage Effect?</h3>
+
+      <p>
+        The <strong>leverage effect</strong> is the empirical observation that negative
+        returns tend to increase future volatility more than positive returns of the same
+        magnitude. When a stock drops 5%, subsequent volatility tends to be higher than after
+        a 5% gain.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Leverage Effect:</strong> The asymmetric relationship between returns and
+        volatility. Named because a decline in stock price increases the firm&rsquo;s
+        financial leverage (debt-to-equity ratio), theoretically making the stock riskier.
+        Whether this financial explanation is correct remains debated, but the empirical
+        pattern is robust.
+      </div>
+
+      <h3>7.2 Measuring the Leverage Effect</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Cross-correlation between returns and future squared returns</span>
+<span class="cm"># Negative returns at time t should predict higher squared returns at t+1, t+2, ...</span>
+
+max_lag = <span class="nu">20</span>
+leverage_corr = []
+<span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1</span>, max_lag + <span class="nu">1</span>):
+    corr = log_ret.corr(log_ret.shift(-k) ** <span class="nu">2</span>)
+    leverage_corr.append(corr)
+
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">5</span>))
+
+<span class="cm"># Left: cross-correlation (leverage effect)</span>
+axes[<span class="nu">0</span>].bar(<span class="fn">range</span>(<span class="nu">1</span>, max_lag + <span class="nu">1</span>), leverage_corr, color=<span class="st">'#e53e3e'</span>)
+axes[<span class="nu">0</span>].set_xlabel(<span class="st">'Lag k (days ahead)'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Corr(r_t, r&sup2;_{t+k})'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Leverage Effect: Return vs Future Volatility'</span>)
+axes[<span class="nu">0</span>].axhline(y=<span class="nu">0</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>)
+
+<span class="cm"># Right: scatter of returns vs next-day absolute returns</span>
+axes[<span class="nu">1</span>].scatter(log_ret.iloc[:-<span class="nu">1</span>].values, log_ret.abs().iloc[<span class="nu">1</span>:].values,
+               alpha=<span class="nu">0.15</span>, s=<span class="nu">5</span>, color=<span class="st">'#1a365d'</span>)
+axes[<span class="nu">1</span>].set_xlabel(<span class="st">'Return today'</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'|Return| tomorrow'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Asymmetric Volatility Response'</span>)
+
+<span class="cm"># Add binned means to show the asymmetry</span>
+bins = pd.qcut(log_ret.iloc[:-<span class="nu">1</span>], <span class="nu">20</span>)
+binned_mean = log_ret.abs().iloc[<span class="nu">1</span>:].groupby(bins.values).mean()
+bin_centers = [interval.mid <span class="kw">for</span> interval <span class="kw">in</span> binned_mean.index]
+axes[<span class="nu">1</span>].plot(bin_centers, binned_mean.values, <span class="st">'r-o'</span>, linewidth=<span class="nu">2</span>, markersize=<span class="nu">4</span>)
+
+plt.tight_layout()
+plt.show()
+<span class="cm"># The cross-correlations should be negative (negative return -> higher future vol)</span>
+<span class="cm"># The scatter should show a "smirk" — higher abs returns following negative returns</span></pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The leverage effect introduces <strong>asymmetry</strong> in the volatility dynamics.
+        In GARCH terms, a standard GARCH(1,1) model treats positive and negative shocks
+        symmetrically. The <strong>GJR-GARCH</strong> and <strong>EGARCH</strong> models
+        extend this to allow different volatility responses to positive vs negative returns.
+        This is analogous to modeling heterogeneous treatment effects in clinical trials:
+        the &ldquo;treatment&rdquo; (a price shock) has different effects depending on
+        its sign.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 8: COMPLETE LIST OF STYLIZED FACTS                   -->
+      <!-- ============================================================ -->
+
+      <h2>8. Summary: The Complete List of Stylized Facts</h2>
+
+      <p>
+        Here is the canonical list of stylized facts, each mapped to its statistical
+        interpretation:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Stylized Fact</th>
+            <th>Statistical Description</th>
+            <th>Implication</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Heavy tails</td>
+            <td>Excess kurtosis >> 0; power-law tails</td>
+            <td>Normal distribution underestimates extreme events</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Absence of return autocorrelation</td>
+            <td>ACF(r<sub>t</sub>) &asymp; 0 for k &ge; 1</td>
+            <td>Returns are approximately unpredictable</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Volatility clustering</td>
+            <td>ACF(|r<sub>t</sub>|) > 0, slowly decaying</td>
+            <td>Conditional heteroscedasticity; need GARCH</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Leverage effect</td>
+            <td>Corr(r<sub>t</sub>, &sigma;<sup>2</sup><sub>t+1</sub>) &lt; 0</td>
+            <td>Negative returns increase volatility more</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Volume-volatility correlation</td>
+            <td>Corr(V<sub>t</sub>, |r<sub>t</sub>|) > 0</td>
+            <td>High volume accompanies large price moves</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Aggregational Gaussianity</td>
+            <td>Kurtosis decreases at longer horizons</td>
+            <td>CLT applies; monthly returns are more normal than daily</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Taylor effect</td>
+            <td>ACF(|r<sub>t</sub>|) > ACF(r<sub>t</sub><sup>2</sup>)</td>
+            <td>Absolute returns are more predictable than squared</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Gain/loss asymmetry</td>
+            <td>Negative skewness in stock returns</td>
+            <td>Large drops more likely than equivalent large gains</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Long memory in volatility</td>
+            <td>ACF of |r<sub>t</sub>| decays hyperbolically, not exponentially</td>
+            <td>GARCH(1,1) may be insufficient; consider FIGARCH</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        Any model you build for financial returns should reproduce at least stylized facts
+        1&ndash;4. A model that assumes i.i.d. normal returns violates all of them. The
+        GARCH(1,1) model with t-distributed errors captures facts 1&ndash;3. Adding an
+        asymmetric component (GJR-GARCH or EGARCH) captures fact 4 as well. This is why
+        GARCH models are the workhorses of financial econometrics.
+      </div>
+
+      <p>
+        In the next module, we will turn to the <em>multivariate</em> structure of financial
+        data: how correlations between assets behave, why they break down during crises, and
+        why Pearson correlation is often the wrong tool for the job.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-02/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-04/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 17: Risk Management & Stress Testing — Learn VaR, Expected Shortfall, Monte Carlo simulation, EVT, and Basel regulatory frameworks through a statistical lens.">
+  <title>Risk Management &amp; Stress Testing — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 17: Risk Management &amp; Stress Testing</h1>
+      <p class="tagline">Quantifying the worst that could happen using VaR, Expected Shortfall, EVT, and stress testing</p>
+      <div class="module-meta">
+        <span class="meta-item">Part IV of 5</span>
+        <span class="meta-item">Module 17 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-16/index.html">&larr; Previous</a>
+      <span class="current">Module 17 of 22</span>
+      <a href="../module-18/index.html">Next &rarr;</a>
+    </div>
+
+      <h2>Introduction: Quantifying the Worst That Could Happen</h2>
+      <p>
+        Risk management is applied statistics with life-or-death stakes. The 2008 financial crisis
+        was, at its core, a failure of risk measurement: institutions vastly underestimated the
+        probability and magnitude of extreme losses. As a statistician, you already have the
+        mathematical toolkit &mdash; distributions, quantiles, tail behavior, simulation. This module
+        shows how that toolkit is deployed to answer the most important question in finance:
+        <strong>how much could we lose?</strong>
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Risk management translates directly into statistical estimation of tail quantiles and
+          conditional expectations. Value at Risk is a quantile. Expected Shortfall is a conditional
+          expectation. Stress testing is scenario analysis. Extreme Value Theory is tail modeling.
+          Every concept in this module has a direct statistical counterpart.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 1: VALUE AT RISK ───────────────── -->
+
+      <h2>1. Value at Risk (VaR): The Industry Standard</h2>
+
+      <h3>1.1 Definition</h3>
+      <p>
+        Value at Risk answers the question: &ldquo;What is the maximum loss we expect over a given
+        time horizon, at a given confidence level?&rdquo;
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Value at Risk (VaR)</strong> &mdash; The &alpha;-quantile of the portfolio loss
+          distribution over a specified holding period. A 1-day 95% VaR of $1 million means there
+          is a 5% probability that the portfolio will lose more than $1 million in one day.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        VaR<sub>&alpha;</sub> = &minus;F<sub>L</sub><sup>&minus;1</sup>(&alpha;) = F<sub>R</sub><sup>&minus;1</sup>(&alpha;)
+        <br><br>
+        where F<sub>L</sub> is the CDF of losses and &alpha; is typically 0.01 or 0.05
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          VaR is simply the <strong>&alpha;-quantile</strong> of the return distribution. If you have
+          computed quantiles in R or Python, you have computed VaR. The only subtlety is the sign
+          convention: losses are positive, so VaR = &minus;quantile(&alpha;) of returns. A 99% VaR
+          uses &alpha; = 0.01 (the 1st percentile of returns).
+        </p>
+      </div>
+
+      <h3>1.2 VaR Parameters</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Common Values</th>
+            <th>Choice Depends On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Confidence level</td>
+            <td>95%, 99%, 99.5%</td>
+            <td>Regulatory requirement; internal risk appetite</td>
+          </tr>
+          <tr>
+            <td>Holding period</td>
+            <td>1 day, 10 days</td>
+            <td>Asset liquidity; regulatory standard</td>
+          </tr>
+          <tr>
+            <td>Lookback window</td>
+            <td>250 days, 500 days, full history</td>
+            <td>Stationarity assumption; regime sensitivity</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ───────────────── SECTION 2: HISTORICAL VaR ───────────────── -->
+
+      <h2>2. Historical Simulation VaR</h2>
+
+      <h3>2.1 Method</h3>
+      <p>
+        The simplest VaR approach: use the empirical distribution of historical returns and take
+        the &alpha;-quantile directly. No distributional assumptions required.
+      </p>
+      <ol>
+        <li>Collect the last N daily returns (e.g., N = 500).</li>
+        <li>Sort them from worst to best.</li>
+        <li>The VaR at confidence level (1 &minus; &alpha;) is the &alpha;&middot;N-th worst return.</li>
+      </ol>
+
+      <h3>2.2 Pros and Cons</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>No distributional assumptions</td>
+            <td>Depends heavily on lookback window</td>
+          </tr>
+          <tr>
+            <td>Captures fat tails, skewness naturally</td>
+            <td>Cannot extrapolate beyond observed losses</td>
+          </tr>
+          <tr>
+            <td>Simple to implement and explain</td>
+            <td>Ghost effect: extreme events enter/exit window abruptly</td>
+          </tr>
+          <tr>
+            <td>Works for any portfolio</td>
+            <td>Assumes past distribution equals future distribution</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Historical VaR cannot predict losses larger than any previously observed. If the worst
+          day in your lookback window was &minus;5%, your 99% VaR will never exceed 5%. This is a
+          fundamental limitation: the method is blind to unprecedented events. The 2008 crash was
+          &ldquo;unprecedented&rdquo; until it happened.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 3: PARAMETRIC VaR ───────────────── -->
+
+      <h2>3. Parametric (Analytical) VaR</h2>
+
+      <h3>3.1 Normal Distribution VaR</h3>
+      <p>
+        Assume returns follow a normal distribution with mean &mu; and standard deviation &sigma;:
+      </p>
+      <div class="formula-box">
+        VaR<sub>&alpha;</sub> = &minus;(&mu; + &sigma; &middot; &Phi;<sup>&minus;1</sup>(&alpha;))
+        <br><br>
+        For 99% VaR: VaR<sub>0.01</sub> = &minus;(&mu; &minus; 2.326 &sigma;)
+      </div>
+
+      <h3>3.2 Student-t Distribution VaR</h3>
+      <p>
+        The normal distribution underestimates tail risk. The Student-t distribution, with its
+        heavier tails controlled by the degrees-of-freedom parameter &nu;, provides a better fit:
+      </p>
+      <div class="formula-box">
+        VaR<sub>&alpha;</sub> = &minus;(&mu; + &sigma; &middot; t<sub>&nu;</sub><sup>&minus;1</sup>(&alpha;) &middot; &radic;((&nu; &minus; 2)/&nu;))
+      </div>
+      <p>
+        Typical estimates for daily equity returns give &nu; &asymp; 4&ndash;6, meaning tails
+        are dramatically heavier than the normal distribution.
+      </p>
+
+      <h3>3.3 Impact of Distributional Assumptions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Distribution</th>
+            <th>99% VaR (&sigma; = 1%)</th>
+            <th>99.5% VaR</th>
+            <th>Tail Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Normal</td>
+            <td>2.33%</td>
+            <td>2.58%</td>
+            <td>Exponential decay (too thin)</td>
+          </tr>
+          <tr>
+            <td>Student-t (&nu;=5)</td>
+            <td>3.36%</td>
+            <td>4.03%</td>
+            <td>Power-law decay (realistic)</td>
+          </tr>
+          <tr>
+            <td>Student-t (&nu;=3)</td>
+            <td>4.54%</td>
+            <td>6.27%</td>
+            <td>Very heavy tails</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The choice of distribution has a massive impact on risk estimates. At the 99% level,
+          a Student-t with &nu;=5 gives VaR about 44% higher than the normal. For the 99.9%
+          level (relevant for regulatory capital), the difference can be 2&ndash;3x. This is why
+          the distributional assumption is the most consequential modeling decision in risk
+          management.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 4: MONTE CARLO VaR ───────────────── -->
+
+      <h2>4. Monte Carlo VaR</h2>
+
+      <h3>4.1 The Simulation Approach</h3>
+      <p>
+        Monte Carlo VaR generates thousands (or millions) of possible future scenarios by
+        simulating from a model, then takes the quantile of the simulated loss distribution.
+      </p>
+      <ol>
+        <li>Specify a model for portfolio returns (e.g., multivariate normal, GARCH, copula).</li>
+        <li>Estimate model parameters from historical data.</li>
+        <li>Simulate N scenarios (e.g., N = 100,000) from the fitted model.</li>
+        <li>Compute portfolio loss for each scenario.</li>
+        <li>Take the &alpha;-quantile of the simulated losses.</li>
+      </ol>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Monte Carlo VaR is a direct application of the <strong>parametric bootstrap</strong>.
+          You estimate a model, simulate from it, and use the simulation distribution to compute
+          the statistic of interest (in this case, a quantile). The standard error of the Monte
+          Carlo estimate decreases as 1/&radic;N, so you need many simulations for precise tail
+          estimates.
+        </p>
+      </div>
+
+      <h3>4.2 Advantages of Monte Carlo</h3>
+      <ul>
+        <li><strong>Flexibility</strong>: Can incorporate any model &mdash; fat tails, asymmetry, time-varying volatility, copula dependence.</li>
+        <li><strong>Non-linear portfolios</strong>: Essential for portfolios with options, where losses are non-linear functions of underlying risk factors.</li>
+        <li><strong>Extrapolation</strong>: Can generate scenarios more extreme than historical experience.</li>
+        <li><strong>Full distribution</strong>: Produces the entire loss distribution, not just a single quantile.</li>
+      </ul>
+
+      <h3>4.3 Precision and Computational Cost</h3>
+      <div class="formula-box">
+        SE(VaR<sub>&alpha;</sub>) &asymp; &radic;(&alpha;(1&minus;&alpha;)) / (n &middot; f(VaR<sub>&alpha;</sub>))
+      </div>
+      <p>
+        where f is the density at the VaR quantile and n is the number of simulations. For &alpha; = 0.01
+        (99% VaR), you need approximately 100,000 simulations to get stable estimates. For &alpha; = 0.001
+        (99.9%), you need millions.
+      </p>
+
+      <!-- ───────────────── SECTION 5: EXPECTED SHORTFALL ───────────────── -->
+
+      <h2>5. Expected Shortfall (CVaR): Beyond VaR</h2>
+
+      <h3>5.1 The Limitation of VaR</h3>
+      <p>
+        VaR tells you the threshold of extreme losses, but nothing about what happens beyond that
+        threshold. Two portfolios can have the same VaR but vastly different tail risk profiles.
+        Expected Shortfall addresses this by averaging the losses in the tail.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Expected Shortfall (ES)</strong>, also called <strong>Conditional VaR (CVaR)</strong>
+          or <strong>Tail VaR</strong> &mdash; The expected loss given that the loss exceeds VaR.
+          Formally: ES<sub>&alpha;</sub> = E[L | L &gt; VaR<sub>&alpha;</sub>].
+        </p>
+      </div>
+
+      <div class="formula-box">
+        ES<sub>&alpha;</sub> = E[&minus;R | R &le; &minus;VaR<sub>&alpha;</sub>] = (1/&alpha;) &int;<sub>0</sub><sup>&alpha;</sup> VaR<sub>u</sub> du
+      </div>
+
+      <h3>5.2 VaR vs Expected Shortfall</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>VaR</th>
+            <th>Expected Shortfall</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>What it measures</td>
+            <td>Quantile (threshold)</td>
+            <td>Average loss in the tail</td>
+          </tr>
+          <tr>
+            <td>Tail sensitivity</td>
+            <td>None (ignores tail shape)</td>
+            <td>Captures tail severity</td>
+          </tr>
+          <tr>
+            <td>Coherence</td>
+            <td>Not subadditive</td>
+            <td>Coherent risk measure</td>
+          </tr>
+          <tr>
+            <td>Optimization</td>
+            <td>Non-convex</td>
+            <td>Convex (easier to optimize)</td>
+          </tr>
+          <tr>
+            <td>Estimation difficulty</td>
+            <td>Moderate</td>
+            <td>Higher (averaging over fewer observations)</td>
+          </tr>
+          <tr>
+            <td>Regulatory status</td>
+            <td>Basel II standard</td>
+            <td>Basel III / FRTB standard</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ───────────────── SECTION 6: COHERENT RISK MEASURES ───────────────── -->
+
+      <h2>6. Coherent Risk Measures</h2>
+
+      <h3>6.1 The Axioms</h3>
+      <p>
+        Artzner et al. (1999) proposed four axioms that a &ldquo;sensible&rdquo; risk measure
+        &rho; should satisfy:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Axiom</th>
+            <th>Formula</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Subadditivity</td>
+            <td>&rho;(X + Y) &le; &rho;(X) + &rho;(Y)</td>
+            <td>Diversification should not increase risk</td>
+          </tr>
+          <tr>
+            <td>Monotonicity</td>
+            <td>If X &le; Y a.s., then &rho;(X) &ge; &rho;(Y)</td>
+            <td>Worse outcomes mean higher risk</td>
+          </tr>
+          <tr>
+            <td>Positive homogeneity</td>
+            <td>&rho;(&lambda;X) = &lambda;&rho;(X), &lambda; &gt; 0</td>
+            <td>Doubling position doubles risk</td>
+          </tr>
+          <tr>
+            <td>Translation invariance</td>
+            <td>&rho;(X + c) = &rho;(X) &minus; c</td>
+            <td>Adding cash reduces risk by that amount</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          VaR <strong>fails subadditivity</strong>. It is possible to construct two portfolios where
+          VaR(A + B) &gt; VaR(A) + VaR(B), meaning the &ldquo;diversified&rdquo; portfolio appears
+          riskier than holding both positions separately. This is a mathematical absurdity for a risk
+          measure. Expected Shortfall satisfies all four axioms, making it a <strong>coherent risk
+          measure</strong>.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The subadditivity failure of VaR is analogous to how a quantile of a mixture distribution
+          can exceed the mixture of quantiles. Expected Shortfall, being an average (integral) of
+          quantiles, is always subadditive because integration preserves concavity. This is the same
+          reason why expected values are always subadditive under convexity.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 7: PYTHON VaR/ES ───────────────── -->
+
+      <h2>7. Python: Computing VaR and ES All Three Ways</h2>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="cm"># Download portfolio data</span>
+tickers = [<span class="st">"SPY"</span>, <span class="st">"TLT"</span>, <span class="st">"GLD"</span>]
+weights = np.array([<span class="nu">0.6</span>, <span class="nu">0.3</span>, <span class="nu">0.1</span>])  <span class="cm"># 60/30/10 portfolio</span>
+data = yf.download(tickers, start=<span class="st">"2010-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+returns = data[<span class="st">"Adj Close"</span>].pct_change().dropna()
+
+<span class="cm"># Portfolio returns</span>
+port_returns = (returns * weights).sum(axis=<span class="nu">1</span>)
+portfolio_value = <span class="nu">1_000_000</span>  <span class="cm"># $1M portfolio</span>
+alpha = <span class="nu">0.01</span>  <span class="cm"># 99% confidence</span>
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># METHOD 1: Historical Simulation</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+var_hist = -np.percentile(port_returns, alpha * <span class="nu">100</span>)
+<span class="cm"># ES: average of returns below the VaR threshold</span>
+tail_returns = port_returns[port_returns &lt;= -var_hist]
+es_hist = -tail_returns.mean()
+
+<span class="fn">print</span>(<span class="st">"=== Historical Simulation ==="</span>)
+<span class="fn">print</span>(<span class="st">f"99% VaR: {var_hist:.4%} (${var_hist * portfolio_value:,.0f})"</span>)
+<span class="fn">print</span>(<span class="st">f"99% ES:  {es_hist:.4%} (${es_hist * portfolio_value:,.0f})"</span>)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># METHOD 2: Parametric (Normal and Student-t)</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+mu = port_returns.mean()
+sigma = port_returns.std()
+
+<span class="cm"># Normal</span>
+var_norm = -(mu + sigma * stats.norm.ppf(alpha))
+es_norm = -(mu - sigma * stats.norm.pdf(stats.norm.ppf(alpha)) / alpha)
+
+<span class="cm"># Student-t (fit degrees of freedom)</span>
+nu, loc, scale = stats.t.fit(port_returns)
+var_t = -(loc + scale * stats.t.ppf(alpha, nu))
+<span class="cm"># ES for Student-t</span>
+t_pdf_at_var = stats.t.pdf(stats.t.ppf(alpha, nu), nu)
+es_t = -(loc - scale * (t_pdf_at_var / alpha) * (nu + stats.t.ppf(alpha, nu)**<span class="nu">2</span>) / (nu - <span class="nu">1</span>))
+
+<span class="fn">print</span>(<span class="st">"\n=== Parametric (Normal) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"99% VaR: {var_norm:.4%} (${var_norm * portfolio_value:,.0f})"</span>)
+<span class="fn">print</span>(<span class="st">f"99% ES:  {es_norm:.4%} (${es_norm * portfolio_value:,.0f})"</span>)
+
+<span class="fn">print</span>(<span class="st">f"\n=== Parametric (Student-t, nu={nu:.1f}) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"99% VaR: {var_t:.4%} (${var_t * portfolio_value:,.0f})"</span>)
+<span class="fn">print</span>(<span class="st">f"99% ES:  {es_t:.4%} (${es_t * portfolio_value:,.0f})"</span>)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># METHOD 3: Monte Carlo Simulation</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+n_simulations = <span class="nu">100_000</span>
+
+<span class="cm"># Simulate from fitted Student-t</span>
+np.random.seed(<span class="nu">42</span>)
+simulated_returns = stats.t.rvs(nu, loc=loc, scale=scale, size=n_simulations)
+
+var_mc = -np.percentile(simulated_returns, alpha * <span class="nu">100</span>)
+es_mc = -simulated_returns[simulated_returns &lt;= -var_mc].mean()
+
+<span class="fn">print</span>(<span class="st">"\n=== Monte Carlo (100K simulations) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"99% VaR: {var_mc:.4%} (${var_mc * portfolio_value:,.0f})"</span>)
+<span class="fn">print</span>(<span class="st">f"99% ES:  {es_mc:.4%} (${es_mc * portfolio_value:,.0f})"</span>)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Comparison summary</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+summary = pd.DataFrame({
+    <span class="st">"Historical"</span>: [var_hist, es_hist],
+    <span class="st">"Normal"</span>: [var_norm, es_norm],
+    <span class="st">"Student-t"</span>: [var_t, es_t],
+    <span class="st">"Monte Carlo"</span>: [var_mc, es_mc],
+}, index=[<span class="st">"99% VaR"</span>, <span class="st">"99% ES"</span>])
+
+<span class="fn">print</span>(<span class="st">"\n=== Summary (as % of portfolio) ==="</span>)
+<span class="fn">print</span>((summary * <span class="nu">100</span>).round(<span class="nu">3</span>))</pre>
+
+      <!-- ───────────────── SECTION 8: STRESS TESTING ───────────────── -->
+
+      <h2>8. Stress Testing: Beyond Statistical Models</h2>
+
+      <h3>8.1 The Philosophy</h3>
+      <p>
+        VaR and ES assume that the future resembles the past (through either historical data or
+        fitted distributions). Stress testing asks a different question: <strong>what if something
+        truly extreme happens?</strong> Stress tests apply specific hypothetical or historical
+        scenarios to the portfolio and compute the resulting loss.
+      </p>
+
+      <h3>8.2 Types of Stress Tests</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Historical scenario</td>
+            <td>Replay a past crisis</td>
+            <td>Apply 2008 GFC market moves to current portfolio</td>
+          </tr>
+          <tr>
+            <td>Hypothetical scenario</td>
+            <td>Design a plausible but unprecedented event</td>
+            <td>US Treasury default; simultaneous equity and bond crash</td>
+          </tr>
+          <tr>
+            <td>Sensitivity analysis</td>
+            <td>Shock one risk factor at a time</td>
+            <td>What if rates rise 200bps? What if oil doubles?</td>
+          </tr>
+          <tr>
+            <td>Reverse stress test</td>
+            <td>Find the scenario that causes a specific loss</td>
+            <td>What market conditions would cause $10M loss?</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>8.3 Python: Stress Testing a Portfolio</h3>
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Current portfolio: 60% stocks, 30% bonds, 10% gold</span>
+weights = {<span class="st">"Equities"</span>: <span class="nu">0.60</span>, <span class="st">"Bonds"</span>: <span class="nu">0.30</span>, <span class="st">"Gold"</span>: <span class="nu">0.10</span>}
+portfolio_value = <span class="nu">1_000_000</span>
+
+<span class="cm"># Historical crisis scenarios (approximate peak-to-trough moves)</span>
+scenarios = {
+    <span class="st">"2008 GFC"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.50</span>, <span class="st">"Bonds"</span>: <span class="nu">0.20</span>, <span class="st">"Gold"</span>: <span class="nu">0.05</span>},
+    <span class="st">"2020 COVID Crash"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.34</span>, <span class="st">"Bonds"</span>: <span class="nu">0.15</span>, <span class="st">"Gold"</span>: -<span class="nu">0.03</span>},
+    <span class="st">"2022 Rate Hikes"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.25</span>, <span class="st">"Bonds"</span>: -<span class="nu">0.18</span>, <span class="st">"Gold"</span>: <span class="nu">0.00</span>},
+    <span class="st">"Dot-Com Bust 2000"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.45</span>, <span class="st">"Bonds"</span>: <span class="nu">0.10</span>, <span class="st">"Gold"</span>: -<span class="nu">0.05</span>},
+    <span class="st">"Hypothetical: Stagflation"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.30</span>, <span class="st">"Bonds"</span>: -<span class="nu">0.15</span>, <span class="st">"Gold"</span>: <span class="nu">0.25</span>},
+    <span class="st">"Hypothetical: Everything Crash"</span>: {<span class="st">"Equities"</span>: -<span class="nu">0.40</span>, <span class="st">"Bonds"</span>: -<span class="nu">0.20</span>, <span class="st">"Gold"</span>: -<span class="nu">0.10</span>},
+}
+
+<span class="fn">print</span>(<span class="st">f"Portfolio: ${portfolio_value:,.0f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Weights: {weights}\n"</span>)
+
+results = []
+<span class="kw">for</span> scenario_name, shocks <span class="kw">in</span> scenarios.items():
+    port_return = <span class="fn">sum</span>(weights[asset] * shocks[asset] <span class="kw">for</span> asset <span class="kw">in</span> weights)
+    dollar_loss = port_return * portfolio_value
+    results.append({
+        <span class="st">"Scenario"</span>: scenario_name,
+        <span class="st">"Equities"</span>: <span class="st">f"{shocks['Equities']:+.0%}"</span>,
+        <span class="st">"Bonds"</span>: <span class="st">f"{shocks['Bonds']:+.0%}"</span>,
+        <span class="st">"Gold"</span>: <span class="st">f"{shocks['Gold']:+.0%}"</span>,
+        <span class="st">"Portfolio Return"</span>: <span class="st">f"{port_return:+.1%}"</span>,
+        <span class="st">"Dollar P&L"</span>: <span class="st">f"${dollar_loss:+,.0f}"</span>,
+    })
+
+stress_df = pd.DataFrame(results)
+<span class="fn">print</span>(stress_df.to_string(index=<span class="kw">False</span>))</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The 2022 scenario is the most dangerous for a traditional 60/40 portfolio: stocks AND
+          bonds fell simultaneously, destroying the diversification that investors assumed would
+          protect them. Stress testing should always include scenarios where traditional
+          correlations <strong>break down</strong>. The correlation between stocks and bonds is
+          not a constant &mdash; it flips during certain macro regimes.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 9: EXTREME VALUE THEORY ───────────────── -->
+
+      <h2>9. Extreme Value Theory (EVT): Modeling Only the Tails</h2>
+
+      <h3>9.1 Why EVT?</h3>
+      <p>
+        Standard distributions model the entire return distribution, but risk management cares
+        primarily about the <strong>tails</strong>. Extreme Value Theory provides a rigorous
+        framework for modeling only the extreme observations, using distributions justified by
+        mathematical limit theorems (analogous to how the CLT justifies using the normal
+        distribution for means).
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          EVT is to tail modeling what the Central Limit Theorem is to the normal distribution.
+          The <strong>Fisher-Tippett-Gnedenko theorem</strong> shows that the distribution of
+          the maximum of a large sample converges to one of three types: Gumbel, Fr&eacute;chet,
+          or Weibull &mdash; unified in the <strong>Generalized Extreme Value (GEV)</strong>
+          distribution. For exceedances over a threshold, the analogous result gives the
+          <strong>Generalized Pareto Distribution (GPD)</strong>.
+        </p>
+      </div>
+
+      <h3>9.2 Two Approaches</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Method</th>
+            <th>When to Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Block Maxima</td>
+            <td>Take the maximum loss in each block (month/quarter); fit GEV</td>
+            <td>Seasonal patterns; sufficient data per block</td>
+          </tr>
+          <tr>
+            <td>Peaks Over Threshold (POT)</td>
+            <td>Take all observations exceeding a threshold u; fit GPD</td>
+            <td>More data-efficient; standard choice in finance</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>9.3 The Generalized Pareto Distribution</h3>
+      <div class="formula-box">
+        P(X &gt; x | X &gt; u) = (1 + &xi;(x &minus; u)/&beta;)<sup>&minus;1/&xi;</sup>
+        <br><br>
+        where &xi; is the shape parameter (tail index) and &beta; &gt; 0 is the scale parameter
+      </div>
+      <p>
+        The shape parameter &xi; determines the tail behavior:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>&xi; Value</th>
+            <th>Tail Type</th>
+            <th>Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&xi; &gt; 0</td>
+            <td>Heavy tail (Pareto-type)</td>
+            <td>Financial returns, insurance claims</td>
+          </tr>
+          <tr>
+            <td>&xi; = 0</td>
+            <td>Exponential tail</td>
+            <td>Normal distribution</td>
+          </tr>
+          <tr>
+            <td>&xi; &lt; 0</td>
+            <td>Bounded tail</td>
+            <td>Uniform distribution; rare in finance</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>9.4 Choosing the Threshold</h3>
+      <p>
+        The threshold u is the key modeling choice in POT. Too low: you include non-extreme
+        observations, violating the GPD assumption. Too high: you have too few exceedances for
+        reliable estimation. Diagnostic tools include:
+      </p>
+      <ul>
+        <li><strong>Mean Excess Plot</strong>: Plot E[X &minus; u | X &gt; u] vs u. Should be approximately linear for GPD data.</li>
+        <li><strong>Parameter stability plot</strong>: Estimate GPD parameters for a range of thresholds. The parameters should stabilize above the correct threshold.</li>
+        <li><strong>Rule of thumb</strong>: Use the 90th&ndash;95th percentile of losses as the threshold.</li>
+      </ul>
+
+      <h3>9.5 Python: Fitting GPD to Portfolio Losses</h3>
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Use portfolio returns from earlier</span>
+losses = -port_returns  <span class="cm"># Convention: positive losses</span>
+
+<span class="cm"># Step 1: Choose threshold (90th percentile of losses)</span>
+threshold = losses.quantile(<span class="nu">0.90</span>)
+exceedances = losses[losses &gt; threshold] - threshold
+n_total = <span class="fn">len</span>(losses)
+n_exceed = <span class="fn">len</span>(exceedances)
+
+<span class="fn">print</span>(<span class="st">f"Threshold: {threshold:.4%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Exceedances: {n_exceed} out of {n_total} ({n_exceed/n_total:.1%})"</span>)
+
+<span class="cm"># Step 2: Fit GPD to exceedances</span>
+xi, loc, beta = stats.genpareto.fit(exceedances, floc=<span class="nu">0</span>)
+<span class="fn">print</span>(<span class="st">f"GPD parameters: xi={xi:.4f}, beta={beta:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Tail index xi={xi:.4f}: {'Heavy tail' if xi > 0 else 'Thin tail'}"</span>)
+
+<span class="cm"># Step 3: Compute VaR and ES using GPD</span>
+<span class="kw">def</span> <span class="fn">gpd_var</span>(alpha, n_total, n_exceed, threshold, xi, beta):
+    <span class="st">"""VaR from GPD tail estimate."""</span>
+    p_exceed = n_exceed / n_total
+    <span class="kw">return</span> threshold + (beta / xi) * ((alpha / p_exceed)**(-xi) - <span class="nu">1</span>)
+
+<span class="kw">def</span> <span class="fn">gpd_es</span>(var_alpha, xi, beta, threshold):
+    <span class="st">"""ES from GPD tail estimate."""</span>
+    <span class="kw">return</span> var_alpha / (<span class="nu">1</span> - xi) + (beta - xi * threshold) / (<span class="nu">1</span> - xi)
+
+<span class="kw">for</span> alpha <span class="kw">in</span> [<span class="nu">0.05</span>, <span class="nu">0.01</span>, <span class="nu">0.005</span>, <span class="nu">0.001</span>]:
+    var_gpd = gpd_var(alpha, n_total, n_exceed, threshold, xi, beta)
+    es_gpd = gpd_es(var_gpd, xi, beta, threshold)
+    <span class="fn">print</span>(<span class="st">f"{1-alpha:.1%} VaR (GPD): {var_gpd:.4%}  |  ES: {es_gpd:.4%}"</span>)
+
+<span class="cm"># Step 4: Mean Excess Plot</span>
+thresholds = np.linspace(losses.quantile(<span class="nu">0.70</span>), losses.quantile(<span class="nu">0.98</span>), <span class="nu">50</span>)
+mean_excess = [losses[losses &gt; u].mean() - u <span class="kw">for</span> u <span class="kw">in</span> thresholds]
+
+plt.figure(figsize=(<span class="nu">10</span>, <span class="nu">5</span>))
+plt.plot(thresholds * <span class="nu">100</span>, mean_excess, <span class="st">"b.-"</span>)
+plt.axvline(x=threshold * <span class="nu">100</span>, color=<span class="st">"red"</span>, linestyle=<span class="st">"--"</span>,
+            label=<span class="st">f"Chosen threshold ({threshold:.2%})"</span>)
+plt.xlabel(<span class="st">"Threshold (%)"</span>)
+plt.ylabel(<span class="st">"Mean Excess (%)"</span>)
+plt.title(<span class="st">"Mean Excess Plot (should be ~linear above good threshold)"</span>)
+plt.legend()
+plt.grid(<span class="kw">True</span>, alpha=<span class="nu">0.3</span>)
+plt.show()</pre>
+
+      <!-- ───────────────── SECTION 10: BASEL FRAMEWORK ───────────────── -->
+
+      <h2>10. The Basel Regulatory Framework</h2>
+
+      <h3>10.1 Why Regulation Matters</h3>
+      <p>
+        Banks are required by regulators to hold capital reserves proportional to their risk.
+        The Basel framework (Basel Committee on Banking Supervision) specifies how banks must
+        measure and report risk. Understanding Basel is essential because it determines which
+        statistical methods are mandated by law.
+      </p>
+
+      <h3>10.2 Evolution of Basel Risk Measures</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Framework</th>
+            <th>Risk Measure</th>
+            <th>Confidence</th>
+            <th>Horizon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Basel II (1996&ndash;2016)</td>
+            <td>VaR</td>
+            <td>99%</td>
+            <td>10-day</td>
+          </tr>
+          <tr>
+            <td>Basel III / FRTB (2016+)</td>
+            <td>Expected Shortfall</td>
+            <td>97.5%</td>
+            <td>Variable (10&ndash;120 days by risk factor)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>FRTB</strong> (Fundamental Review of the Trading Book) &mdash; The Basel III
+          market risk framework that replaced VaR with Expected Shortfall as the primary risk
+          measure for regulatory capital calculations. It also introduced liquidity-adjusted
+          horizons, where less liquid risk factors require longer holding periods.
+        </p>
+      </div>
+
+      <h3>10.3 Backtesting VaR Models</h3>
+      <p>
+        Regulators require banks to backtest their VaR models by comparing predicted VaR to
+        realized losses. If actual losses exceed VaR more often than expected (more than 1%
+        of the time for 99% VaR), the model is penalized and the bank must hold more capital.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          VaR backtesting is a <strong>binomial test</strong>. Under a correct 99% VaR model,
+          the number of exceptions (days where loss exceeds VaR) in N days follows
+          Binomial(N, 0.01). The Basel &ldquo;traffic light&rdquo; system maps the observed
+          number of exceptions to regulatory penalties: green zone (0&ndash;4 exceptions in 250
+          days), yellow zone (5&ndash;9), red zone (10+).
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 11: SUMMARY ───────────────── -->
+
+      <h2>11. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Statistics Concept</th>
+            <th>Risk Management Application</th>
+            <th>Key Practical Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Quantile estimation</td>
+            <td>Value at Risk</td>
+            <td>Not coherent; replaced by ES in Basel III</td>
+          </tr>
+          <tr>
+            <td>Conditional expectation</td>
+            <td>Expected Shortfall</td>
+            <td>Coherent; harder to estimate and backtest</td>
+          </tr>
+          <tr>
+            <td>Parametric bootstrap</td>
+            <td>Monte Carlo VaR</td>
+            <td>Need 100K+ simulations for 99% VaR</td>
+          </tr>
+          <tr>
+            <td>Empirical quantile</td>
+            <td>Historical simulation VaR</td>
+            <td>Cannot extrapolate beyond observed data</td>
+          </tr>
+          <tr>
+            <td>Extreme Value Theory</td>
+            <td>Tail risk modeling (GPD)</td>
+            <td>Threshold choice is critical</td>
+          </tr>
+          <tr>
+            <td>Scenario analysis</td>
+            <td>Stress testing</td>
+            <td>Test correlation breakdowns</td>
+          </tr>
+          <tr>
+            <td>Binomial test</td>
+            <td>VaR backtesting</td>
+            <td>Regulatory penalties for model failures</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Risk management is not about getting the number right &mdash; it is about understanding
+          the <strong>model risk</strong> in every risk estimate. Every VaR number comes with
+          hidden assumptions about distributions, stationarity, and correlations. The best risk
+          managers use multiple methods (historical, parametric, Monte Carlo, EVT, stress tests)
+          and pay attention to where they disagree. Disagreement between methods is the most
+          valuable signal in risk management.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-16/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-18/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

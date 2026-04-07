@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 21: Macroeconomics for Statisticians — GDP decomposition, CPI construction, unemployment as a ratio estimator, the Phillips Curve, yield curve recession prediction, and business cycle dating.">
+  <title>Macroeconomics for Statisticians — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+    @media print { header, footer, nav, .nav-buttons, .btn, button { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 21: Macroeconomics for Statisticians</h1>
+      <p class="tagline">GDP, inflation, unemployment, central bank policy, and business cycles through a statistical lens</p>
+      <div class="module-meta">
+        <span class="meta-item">Part V of 5</span>
+        <span class="meta-item">Module 21 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-20/index.html">&larr; Previous</a>
+      <span class="current">Module 21 of 22</span>
+      <a href="../module-22/index.html">Next &rarr;</a>
+    </div>
+
+      <p>
+        Macroeconomics studies the economy as a whole &mdash; aggregate output, price levels,
+        employment, and the policy levers that influence them. For a statistician, macroeconomics
+        is a treasure trove of time series, ratio estimators, index numbers, structural breaks,
+        and causal inference challenges. This module translates the core macro concepts into
+        the statistical language you already speak.
+      </p>
+
+      <h2>21.1 &mdash; GDP as a Time Series</h2>
+
+      <p>
+        Gross Domestic Product (GDP) is the single most important macroeconomic indicator. It
+        measures the total market value of all final goods and services produced in a country
+        over a given period. From a statistical perspective, GDP is a <em>quarterly time series</em>
+        with trend, seasonal, and cyclical components.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Nominal GDP:</strong> GDP measured in current prices. <strong>Real GDP:</strong>
+          GDP adjusted for inflation (measured in constant prices of a base year). The difference
+          matters enormously &mdash; nominal GDP can grow 5% while real GDP grows only 2% if
+          inflation is 3%.
+        </p>
+      </div>
+
+      <h3>The GDP Deflator and Chain-Weighting</h3>
+
+      <p>
+        The conversion from nominal to real GDP requires a price index. The GDP deflator is
+        implicitly defined as:
+      </p>
+
+      <div class="formula-box">
+        GDP Deflator = (Nominal GDP / Real GDP) &times; 100
+        <br><br>
+        Real GDP = Nominal GDP / (GDP Deflator / 100)
+      </div>
+
+      <p>
+        Modern GDP calculations use <strong>chain-weighting</strong>, which updates the base-year
+        weights every period rather than fixing them. This avoids the substitution bias inherent
+        in fixed-weight indices (Laspeyres bias).
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The chain-weighted GDP is analogous to a <strong>Fisher ideal index</strong> &mdash;
+          the geometric mean of a Laspeyres (base-period weights) and Paasche (current-period
+          weights) index. This is a well-known result in index number theory: the Fisher index
+          satisfies the time-reversal test and the factor-reversal test, making it "ideal" in
+          the axiomatic approach to index numbers.
+        </p>
+      </div>
+
+      <h3>Seasonal Adjustment: The X-13 ARIMA-SEATS Filter</h3>
+
+      <p>
+        Raw GDP data has strong seasonal patterns (e.g., holiday spending in Q4). The Bureau of
+        Economic Analysis (BEA) uses the Census Bureau's <strong>X-13 ARIMA-SEATS</strong> method
+        to remove seasonal components. This is a sophisticated decomposition:
+      </p>
+
+      <div class="formula-box">
+        Y<sub>t</sub> = T<sub>t</sub> &times; S<sub>t</sub> &times; I<sub>t</sub>
+        <br><br>
+        where T = trend-cycle, S = seasonal, I = irregular component
+      </div>
+
+      <p>
+        The seasonally adjusted series removes S<sub>t</sub>, leaving the trend-cycle and
+        irregular components. The annualized quarter-over-quarter growth rate that gets reported
+        in the news is:
+      </p>
+
+      <div class="formula-box">
+        g<sub>t</sub> = [(GDP<sub>t</sub> / GDP<sub>t-1</sub>)<sup>4</sup> &minus; 1] &times; 100
+      </div>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The annualization exponent (raising to the 4th power) amplifies noise. A quarterly
+          growth rate of 0.5% becomes an annualized rate of approximately 2.0%, but a quarterly
+          rate of 0.1% becomes 0.4%. Small measurement errors in the quarterly figure produce
+          large swings in the annualized headline number. GDP is also subject to multiple
+          revisions: advance, second, and third estimates can differ substantially.
+        </p>
+      </div>
+
+      <h3>Trend vs. Cycle: The Hodrick-Prescott Filter</h3>
+
+      <p>
+        Separating the long-run trend from the business cycle is a fundamental problem in
+        macroeconometrics. The most widely used (and most criticized) method is the
+        <strong>Hodrick-Prescott (HP) filter</strong>.
+      </p>
+
+      <p>The HP filter solves the optimization problem:</p>
+
+      <div class="formula-box">
+        min<sub>&tau;</sub> &sum;<sub>t=1</sub><sup>T</sup> (y<sub>t</sub> &minus; &tau;<sub>t</sub>)<sup>2</sup>
+        + &lambda; &sum;<sub>t=2</sub><sup>T-1</sup> [(&tau;<sub>t+1</sub> &minus; &tau;<sub>t</sub>) &minus; (&tau;<sub>t</sub> &minus; &tau;<sub>t-1</sub>)]<sup>2</sup>
+      </div>
+
+      <p>
+        where &tau;<sub>t</sub> is the trend, y<sub>t</sub> is the observed series, and &lambda;
+        controls the smoothness of the trend. For quarterly data, the standard choice is
+        &lambda; = 1600.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The HP filter is a <strong>penalized regression</strong> (ridge-like regularization on
+          the second differences of the trend). The penalty term penalizes changes in the
+          <em>slope</em> of the trend, forcing it to be smooth. This is identical in spirit to
+          a cubic smoothing spline. Hamilton (2018) has argued that the HP filter produces
+          spurious cycles and recommends a simple regression-based alternative: regress
+          y<sub>t</sub> on y<sub>t-8</sub> (for quarterly data) and use the residual as the
+          cycle component.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Download and decompose real GDP using FRED</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+
+<span class="cm"># Download Real GDP from FRED</span>
+gdp = pdr.get_data_fred(<span class="st">"GDPC1"</span>, start=<span class="st">"1970-01-01"</span>)
+gdp.columns = [<span class="st">"real_gdp"</span>]
+gdp[<span class="st">"log_gdp"</span>] = np.log(gdp[<span class="st">"real_gdp"</span>])
+
+<span class="cm"># Hodrick-Prescott Filter</span>
+<span class="kw">from</span> statsmodels.tsa.filters.hp_filter <span class="kw">import</span> hpfilter
+
+cycle, trend = hpfilter(gdp[<span class="st">"log_gdp"</span>].dropna(), lamb=<span class="nu">1600</span>)
+
+<span class="cm"># Hamilton (2018) alternative: regress y_t on y_{t-8}</span>
+<span class="kw">from</span> statsmodels.api <span class="kw">import</span> OLS, add_constant
+y = gdp[<span class="st">"log_gdp"</span>].dropna()
+y_lag8 = y.shift(<span class="nu">8</span>).dropna()
+y_aligned = y.loc[y_lag8.index]
+X = add_constant(y_lag8)
+hamilton_model = OLS(y_aligned, X).fit()
+hamilton_cycle = hamilton_model.resid
+
+<span class="cm"># Compute annualized growth rates</span>
+gdp[<span class="st">"growth_qoq"</span>] = gdp[<span class="st">"real_gdp"</span>].pct_change()
+gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp[<span class="st">"growth_qoq"</span>]) ** <span class="nu">4</span> - <span class="nu">1</span>) * <span class="nu">100</span>
+
+<span class="fn">print</span>(<span class="st">"Real GDP Time Series Analysis"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 50</span>)
+<span class="fn">print</span>(<span class="st">f"Sample: {gdp.index[0].date()} to {gdp.index[-1].date()}"</span>)
+<span class="fn">print</span>(<span class="st">f"Observations: {len(gdp)}"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean annualized growth: {gdp['growth_annual'].mean():.1f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"Std of annualized growth: {gdp['growth_annual'].std():.1f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"\nHP cycle std: {cycle.std():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Hamilton cycle std: {hamilton_cycle.std():.4f}"</span>)</pre>
+
+
+      <h2>21.2 &mdash; Inflation: The CPI as a Weighted Price Index</h2>
+
+      <p>
+        Inflation measures the rate of change of the general price level. The Consumer Price
+        Index (CPI) is the most widely followed measure, but its construction involves
+        substantial statistical methodology that most people never consider.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>CPI (Consumer Price Index):</strong> A weighted average of prices for a basket
+          of consumer goods and services, measured by the Bureau of Labor Statistics (BLS).
+          <strong>Core CPI:</strong> CPI excluding food and energy (volatile components).
+          <strong>PCE (Personal Consumption Expenditures):</strong> The Fed's preferred inflation
+          measure, broader than CPI and chain-weighted.
+        </p>
+      </div>
+
+      <h3>CPI Construction: A Laspeyres Index</h3>
+
+      <p>The CPI is fundamentally a <strong>modified Laspeyres price index</strong>:</p>
+
+      <div class="formula-box">
+        CPI<sub>t</sub> = &sum;<sub>i</sub> w<sub>i,0</sub> &middot; (p<sub>i,t</sub> / p<sub>i,0</sub>) &times; 100
+      </div>
+
+      <p>
+        where w<sub>i,0</sub> are base-period expenditure weights and p<sub>i,t</sub> / p<sub>i,0</sub>
+        are the price relatives. The weights come from the Consumer Expenditure Survey (CE survey)
+        and are updated approximately every two years.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>CPI Category</th><th>Approximate Weight (%)</th><th>Volatility</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Housing (shelter)</td><td>~36%</td><td>Low (sticky, lagged)</td></tr>
+          <tr><td>Transportation</td><td>~16%</td><td>High (fuel prices)</td></tr>
+          <tr><td>Food</td><td>~13%</td><td>Moderate to high</td></tr>
+          <tr><td>Medical care</td><td>~8%</td><td>Low to moderate</td></tr>
+          <tr><td>Education &amp; communication</td><td>~6%</td><td>Low</td></tr>
+          <tr><td>Energy</td><td>~7%</td><td>Very high</td></tr>
+          <tr><td>Other goods &amp; services</td><td>~14%</td><td>Mixed</td></tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The CPI is a <strong>weighted composite estimator</strong> with known biases:
+          <strong>(1) Substitution bias</strong> &mdash; consumers switch to cheaper alternatives,
+          but fixed weights do not adjust; <strong>(2) Quality bias</strong> &mdash; if a computer
+          costs the same but is twice as fast, the quality-adjusted price fell;
+          <strong>(3) New goods bias</strong> &mdash; new products enter the basket with a lag;
+          <strong>(4) Outlet substitution bias</strong> &mdash; consumers shift to discount
+          retailers. The Boskin Commission (1996) estimated total CPI bias at ~1.1 percentage
+          points per year.
+        </p>
+      </div>
+
+      <h3>Core vs. Headline: Signal Extraction</h3>
+
+      <p>
+        Core CPI excludes food and energy because they are volatile and driven by supply shocks
+        rather than underlying demand. From a statistical perspective, core CPI is a
+        <strong>trimmed or filtered estimator</strong> that attempts to extract the persistent
+        signal from the noisy headline measure.
+      </p>
+
+      <p>
+        Even more aggressive filtering exists: the <strong>Cleveland Fed Median CPI</strong>
+        (the median component price change) and the <strong>Cleveland Fed 16% Trimmed-Mean CPI</strong>
+        (excludes the top and bottom 8% of component price changes). These are robust estimators
+        of central tendency applied to the cross-section of price changes.
+      </p>
+
+      <div class="formula-box">
+        Headline CPI: &pi;<sub>t</sub> = &sum;<sub>i</sub> w<sub>i</sub> &Delta;p<sub>i,t</sub>
+        <br><br>
+        Core CPI: &pi;<sub>t</sub><sup>core</sup> = &sum;<sub>i &notin; {food, energy}</sub> w<sub>i</sub>' &Delta;p<sub>i,t</sub>
+        <br><br>
+        Median CPI: &pi;<sub>t</sub><sup>med</sup> = median({&Delta;p<sub>i,t</sub>})
+        <br><br>
+        Trimmed-Mean CPI: &pi;<sub>t</sub><sup>trim</sup> = weighted mean of middle 68% of &Delta;p<sub>i,t</sub>
+      </div>
+
+      <h3>CPI vs. PCE: Why the Fed Prefers PCE</h3>
+
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>CPI</th><th>PCE</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Source</td><td>BLS (survey-based)</td><td>BEA (national accounts)</td></tr>
+          <tr><td>Weighting</td><td>Fixed (Laspeyres)</td><td>Chain-weighted (Fisher-like)</td></tr>
+          <tr><td>Coverage</td><td>Out-of-pocket consumer spending</td><td>All consumption, including employer-paid health care</td></tr>
+          <tr><td>Substitution bias</td><td>Higher (fixed weights)</td><td>Lower (chain-weighted)</td></tr>
+          <tr><td>Typical level</td><td>~0.3pp higher than PCE</td><td>Slightly lower</td></tr>
+          <tr><td>Fed's target</td><td>Not the official target</td><td>2% PCE inflation is the official target</td></tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Download and compare inflation measures from FRED</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+
+<span class="cm"># FRED series codes</span>
+series = {
+    <span class="st">"CPI (All Items)"</span>: <span class="st">"CPIAUCSL"</span>,
+    <span class="st">"Core CPI"</span>: <span class="st">"CPILFESL"</span>,
+    <span class="st">"PCE"</span>: <span class="st">"PCEPI"</span>,
+    <span class="st">"Core PCE"</span>: <span class="st">"PCEPILFE"</span>,
+}
+
+inflation = pd.DataFrame()
+<span class="kw">for</span> name, code <span class="kw">in</span> series.items():
+    df = pdr.get_data_fred(code, start=<span class="st">"2000-01-01"</span>)
+    <span class="cm"># Compute year-over-year percent change</span>
+    inflation[name] = df.iloc[:, <span class="nu">0</span>].pct_change(<span class="nu">12</span>) * <span class="nu">100</span>
+
+inflation = inflation.dropna()
+
+<span class="fn">print</span>(<span class="st">"Inflation Measures Comparison"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 55</span>)
+<span class="fn">print</span>(inflation.describe().round(<span class="nu">2</span>).to_string())
+
+<span class="fn">print</span>(<span class="st">f"\nCorrelation Matrix:"</span>)
+<span class="fn">print</span>(inflation.corr().round(<span class="nu">3</span>).to_string())
+
+<span class="cm"># Difference between CPI and PCE</span>
+<span class="fn">print</span>(<span class="st">f"\nMean CPI - PCE gap: {(inflation['CPI (All Items)'] - inflation['PCE']).mean():.2f}pp"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean Core CPI - Core PCE gap: {(inflation['Core CPI'] - inflation['Core PCE']).mean():.2f}pp"</span>)</pre>
+
+
+      <h2>21.3 &mdash; The Unemployment Rate: A Ratio Estimator</h2>
+
+      <p>
+        The unemployment rate is one of the most politically sensitive and widely reported
+        macroeconomic indicators. But few people understand that it is a <em>survey-based
+        ratio estimator</em> with a specific sampling design, definitions, and margin of error.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Unemployment rate:</strong> The number of unemployed persons divided by the
+          civilian labor force, expressed as a percentage. A person is "unemployed" if they
+          (1) do not have a job, (2) are available for work, and (3) have actively searched
+          for work in the past 4 weeks.
+        </p>
+      </div>
+
+      <h3>The Current Population Survey (CPS)</h3>
+
+      <p>
+        The unemployment rate comes from the <strong>Current Population Survey (CPS)</strong>,
+        a monthly household survey of approximately 60,000 households conducted by the Census
+        Bureau for the Bureau of Labor Statistics. Key statistical features:
+      </p>
+
+      <ul>
+        <li><strong>Sampling design:</strong> Stratified multi-stage probability sample with a
+            4-8-4 rotation scheme (interviewed for 4 months, out for 8, back for 4).</li>
+        <li><strong>Sample size:</strong> ~60,000 households, yielding ~100,000 individuals 16+.</li>
+        <li><strong>Standard error:</strong> The 90% confidence interval for the unemployment
+            rate is approximately &plusmn;0.2 percentage points.</li>
+        <li><strong>Non-response:</strong> The CPS has a response rate of ~80%, with potential
+            non-response bias.</li>
+      </ul>
+
+      <div class="formula-box">
+        Unemployment Rate = U / L = U / (U + E)
+        <br><br>
+        where U = unemployed, E = employed, L = labor force
+        <br><br>
+        SE(&ucirc;) &asymp; &plusmn; 0.1 to 0.2 percentage points (90% CI)
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The unemployment rate is a <strong>ratio estimator</strong> &hat;R = &hat;Y / &hat;X,
+          where both the numerator (unemployed count) and denominator (labor force) are estimated
+          from the survey. The variance of a ratio estimator is:
+          Var(&hat;R) &asymp; (1/X<sup>2</sup>)[Var(&hat;Y) + R<sup>2</sup>Var(&hat;X) &minus; 2R&middot;Cov(&hat;Y, &hat;X)]
+          <br>
+          This means a 0.1pp change in the unemployment rate (e.g., 4.0% to 3.9%) is often
+          within the margin of error and may not represent a real change.
+        </p>
+      </div>
+
+      <h3>Alternative Unemployment Measures: U-1 through U-6</h3>
+
+      <table>
+        <thead>
+          <tr><th>Measure</th><th>Definition</th><th>Typical Level (relative to U-3)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>U-1</td><td>Persons unemployed 15 weeks or longer</td><td>Much lower (long-term only)</td></tr>
+          <tr><td>U-2</td><td>Job losers and completers of temporary jobs</td><td>Lower</td></tr>
+          <tr><td><strong>U-3</strong></td><td><strong>Official unemployment rate</strong></td><td><strong>The headline number</strong></td></tr>
+          <tr><td>U-4</td><td>U-3 + discouraged workers</td><td>Slightly higher</td></tr>
+          <tr><td>U-5</td><td>U-4 + all marginally attached workers</td><td>Higher</td></tr>
+          <tr><td>U-6</td><td>U-5 + part-time for economic reasons</td><td>Roughly double U-3</td></tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The headline unemployment rate (U-3) excludes <strong>discouraged workers</strong>
+          (people who have stopped looking for work) and <strong>underemployed</strong> (people
+          working part-time who want full-time). The U-6 "real" unemployment rate can be nearly
+          double the U-3. When politicians cite "record low unemployment," ask which measure
+          they are using and what is happening to the labor force participation rate.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Download and analyze unemployment data from FRED</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Key labor market series</span>
+series = {
+    <span class="st">"U-3 (Official)"</span>: <span class="st">"UNRATE"</span>,
+    <span class="st">"U-6 (Broad)"</span>: <span class="st">"U6RATE"</span>,
+    <span class="st">"Labor Force Participation"</span>: <span class="st">"CIVPART"</span>,
+}
+
+labor = pd.DataFrame()
+<span class="kw">for</span> name, code <span class="kw">in</span> series.items():
+    df = pdr.get_data_fred(code, start=<span class="st">"1994-01-01"</span>)
+    labor[name] = df.iloc[:, <span class="nu">0</span>]
+
+labor = labor.dropna()
+
+<span class="fn">print</span>(<span class="st">"Unemployment Rate: Statistical Summary"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 55</span>)
+<span class="fn">print</span>(labor.describe().round(<span class="nu">2</span>).to_string())
+
+<span class="cm"># Margin of error analysis</span>
+latest_u3 = labor[<span class="st">"U-3 (Official)"</span>].iloc[-<span class="nu">1</span>]
+se = <span class="nu">0.12</span>  <span class="cm"># approximate standard error</span>
+<span class="fn">print</span>(<span class="st">f"\nLatest U-3: {latest_u3:.1f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"90% CI: [{latest_u3 - 1.645*se:.1f}%, {latest_u3 + 1.645*se:.1f}%]"</span>)
+<span class="fn">print</span>(<span class="st">f"A 0.1pp monthly change is often within sampling error."</span>)
+
+<span class="cm"># U-6 / U-3 ratio over time</span>
+labor[<span class="st">"U6_U3_ratio"</span>] = labor[<span class="st">"U-6 (Broad)"</span>] / labor[<span class="st">"U-3 (Official)"</span>]
+<span class="fn">print</span>(<span class="st">f"\nMean U-6/U-3 ratio: {labor['U6_U3_ratio'].mean():.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"The broad measure is typically ~{labor['U6_U3_ratio'].mean():.1f}x the headline rate."</span>)</pre>
+
+
+      <h2>21.4 &mdash; The Phillips Curve: A Scatterplot with History</h2>
+
+      <p>
+        The Phillips Curve posits an inverse relationship between inflation and unemployment:
+        when unemployment is low, inflation tends to rise (and vice versa). This is one of the
+        most debated empirical relationships in economics, and it provides an excellent case
+        study in the instability of statistical relationships.
+      </p>
+
+      <div class="formula-box">
+        &pi;<sub>t</sub> = &pi;<sub>t</sub><sup>e</sup> &minus; &beta;(u<sub>t</sub> &minus; u<sub>t</sub><sup>*</sup>) + &epsilon;<sub>t</sub>
+        <br><br>
+        where &pi;<sub>t</sub><sup>e</sup> = expected inflation, u<sub>t</sub><sup>*</sup> = natural rate (NAIRU),
+        &beta; > 0
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The Phillips Curve is a <strong>bivariate regression with a time-varying parameter</strong>.
+          The slope &beta; has varied dramatically across decades: steep in the 1960s, nearly
+          flat in the 2010s. This is a textbook case of <strong>parameter instability</strong>
+          and the danger of treating a historical correlation as a stable structural relationship.
+          The Lucas Critique (1976) formalizes this: policy changes alter the reduced-form
+          relationships.
+        </p>
+      </div>
+
+      <h3>Testing the Phillips Curve</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Test the Phillips Curve: inflation vs unemployment</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Download data</span>
+unemp = pdr.get_data_fred(<span class="st">"UNRATE"</span>, start=<span class="st">"1960-01-01"</span>)
+cpi = pdr.get_data_fred(<span class="st">"CPIAUCSL"</span>, start=<span class="st">"1960-01-01"</span>)
+inflation = cpi.pct_change(<span class="nu">12</span>) * <span class="nu">100</span>
+
+<span class="cm"># Merge on date</span>
+df = pd.DataFrame({
+    <span class="st">"unemployment"</span>: unemp.iloc[:, <span class="nu">0</span>],
+    <span class="st">"inflation"</span>: inflation.iloc[:, <span class="nu">0</span>]
+}).dropna()
+
+<span class="cm"># Full sample regression</span>
+slope_full, intercept_full, r_full, p_full, se_full = stats.linregress(
+    df[<span class="st">"unemployment"</span>], df[<span class="st">"inflation"</span>]
+)
+
+<span class="fn">print</span>(<span class="st">"Phillips Curve: Full Sample (1960-present)"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 50</span>)
+<span class="fn">print</span>(<span class="st">f"Slope: {slope_full:.3f} (se = {se_full:.3f})"</span>)
+<span class="fn">print</span>(<span class="st">f"R-squared: {r_full**2:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"p-value: {p_full:.4f}"</span>)
+
+<span class="cm"># By decade: show parameter instability</span>
+decades = [
+    (<span class="st">"1960s"</span>, <span class="st">"1960"</span>, <span class="st">"1970"</span>),
+    (<span class="st">"1970s"</span>, <span class="st">"1970"</span>, <span class="st">"1980"</span>),
+    (<span class="st">"1980s"</span>, <span class="st">"1980"</span>, <span class="st">"1990"</span>),
+    (<span class="st">"1990s"</span>, <span class="st">"1990"</span>, <span class="st">"2000"</span>),
+    (<span class="st">"2000s"</span>, <span class="st">"2000"</span>, <span class="st">"2010"</span>),
+    (<span class="st">"2010s"</span>, <span class="st">"2010"</span>, <span class="st">"2020"</span>),
+]
+
+<span class="fn">print</span>(<span class="st">f"\n{'Decade':>8}  {'Slope':>8}  {'R-sq':>6}  {'p-val':>8}"</span>)
+<span class="fn">print</span>(<span class="st">"-" * 40</span>)
+<span class="kw">for</span> label, start, end <span class="kw">in</span> decades:
+    subset = df.loc[start:end]
+    <span class="kw">if</span> <span class="fn">len</span>(subset) < <span class="nu">10</span>:
+        <span class="kw">continue</span>
+    s, i, r, p, se = stats.linregress(subset[<span class="st">"unemployment"</span>], subset[<span class="st">"inflation"</span>])
+    <span class="fn">print</span>(<span class="st">f"{label:>8}  {s:>8.3f}  {r**2:>6.3f}  {p:>8.4f}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\nThe slope changes dramatically by decade — parameter instability!"</span>)</pre>
+
+
+      <h2>21.5 &mdash; Central Bank Policy as Intervention Analysis</h2>
+
+      <p>
+        Central banks (the Federal Reserve in the US, ECB in Europe, Bank of Japan, etc.)
+        are the most powerful economic actors. Their primary tool is the <strong>policy interest
+        rate</strong> &mdash; the rate at which banks borrow overnight from each other. Changes
+        in this rate ripple through the entire economy.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Federal Funds Rate:</strong> The interest rate at which depository institutions
+          lend reserve balances to each other overnight. The Fed sets a target range (e.g.,
+          5.25&ndash;5.50%) and uses open market operations to keep the effective rate within
+          that range. <strong>Monetary policy transmission:</strong> Fed rate &rarr; bank lending
+          rates &rarr; consumer/business borrowing costs &rarr; spending &rarr; GDP &amp; inflation.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          A rate change is a <strong>treatment intervention</strong> in a time series. In the
+          interrupted time series (ITS) framework, you model the outcome before and after the
+          intervention, controlling for pre-existing trends. The challenge: monetary policy
+          is endogenous (the Fed cuts rates <em>because</em> the economy is weakening), creating
+          a classic <strong>simultaneity bias</strong>. This is why Romer &amp; Romer (2004)
+          used narrative identification &mdash; reading FOMC minutes to isolate "exogenous"
+          rate changes from systematic responses.
+        </p>
+      </div>
+
+      <h3>The Taylor Rule: A Predictive Model for Policy</h3>
+
+      <p>
+        The Taylor Rule (1993) is a simple regression-based prescription for setting the
+        federal funds rate:
+      </p>
+
+      <div class="formula-box">
+        i<sub>t</sub> = r* + &pi;<sub>t</sub> + 0.5(&pi;<sub>t</sub> &minus; &pi;*) + 0.5(y<sub>t</sub> &minus; y<sub>t</sub>*)
+        <br><br>
+        where r* = equilibrium real rate (&approx;2%), &pi;* = target inflation (2%),
+        y<sub>t</sub> &minus; y<sub>t</sub>* = output gap
+      </div>
+
+      <p>
+        The Taylor Rule is essentially a linear regression of the policy rate on the inflation
+        gap and the output gap. When the actual rate deviates from the Taylor Rule prescription,
+        it indicates that the Fed is being more hawkish (rate above Taylor) or dovish (rate below).
+      </p>
+
+      <h3>Quantitative Easing (QE): When Rates Hit Zero</h3>
+
+      <p>
+        When the policy rate reaches zero (the "zero lower bound"), the conventional tool is
+        exhausted. Central banks then turn to <strong>Quantitative Easing (QE)</strong>:
+        purchasing large quantities of bonds to directly lower long-term interest rates and
+        increase the money supply.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>QE Mechanism</th><th>Channel</th><th>Statistical Evidence</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Buy government bonds</td><td>Lowers long-term yields (portfolio balance)</td><td>Event studies show 50-100bp drop in 10Y yield per $1T purchase</td></tr>
+          <tr><td>Signal commitment</td><td>Signals rates will stay low (forward guidance)</td><td>Term premium decomposition models capture this</td></tr>
+          <tr><td>Increase bank reserves</td><td>More reserves &rarr; more lending capacity</td><td>Money multiplier has been unstable; less clear evidence</td></tr>
+          <tr><td>Wealth effect</td><td>Rising asset prices &rarr; consumer confidence &rarr; spending</td><td>Marginal propensity to consume out of wealth is ~3-5 cents per dollar</td></tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Compute the Taylor Rule and compare to actual Fed Funds Rate</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Download data from FRED</span>
+fed_funds = pdr.get_data_fred(<span class="st">"FEDFUNDS"</span>, start=<span class="st">"1990-01-01"</span>)
+cpi = pdr.get_data_fred(<span class="st">"CPIAUCSL"</span>, start=<span class="st">"1989-01-01"</span>)
+gdp = pdr.get_data_fred(<span class="st">"GDPC1"</span>, start=<span class="st">"1989-01-01"</span>)
+pot_gdp = pdr.get_data_fred(<span class="st">"GDPPOT"</span>, start=<span class="st">"1989-01-01"</span>)
+
+<span class="cm"># Compute inflation (YoY CPI)</span>
+inflation = cpi.pct_change(<span class="nu">12</span>).dropna() * <span class="nu">100</span>
+inflation.columns = [<span class="st">"inflation"</span>]
+
+<span class="cm"># Compute output gap</span>
+output_gap = ((gdp.iloc[:, <span class="nu">0</span>] - pot_gdp.iloc[:, <span class="nu">0</span>]) / pot_gdp.iloc[:, <span class="nu">0</span>] * <span class="nu">100</span>).dropna()
+
+<span class="cm"># Resample to quarterly and merge</span>
+infl_q = inflation.resample(<span class="st">'QS'</span>).last()
+ff_q = fed_funds.resample(<span class="st">'QS'</span>).last()
+
+<span class="cm"># Taylor Rule parameters</span>
+r_star = <span class="nu">2.0</span>
+pi_star = <span class="nu">2.0</span>
+
+<span class="cm"># Build merged DataFrame</span>
+taylor = pd.DataFrame({
+    <span class="st">"fed_funds"</span>: ff_q.iloc[:, <span class="nu">0</span>],
+    <span class="st">"inflation"</span>: infl_q.iloc[:, <span class="nu">0</span>],
+    <span class="st">"output_gap"</span>: output_gap
+}).dropna()
+
+taylor[<span class="st">"taylor_rule"</span>] = (r_star + taylor[<span class="st">"inflation"</span>]
+                          + <span class="nu">0.5</span> * (taylor[<span class="st">"inflation"</span>] - pi_star)
+                          + <span class="nu">0.5</span> * taylor[<span class="st">"output_gap"</span>])
+
+taylor[<span class="st">"taylor_rule_clamped"</span>] = taylor[<span class="st">"taylor_rule"</span>].clip(lower=<span class="nu">0</span>)
+
+<span class="fn">print</span>(<span class="st">"Taylor Rule vs Actual Fed Funds Rate"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 50</span>)
+gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"taylor_rule_clamped"</span>]
+<span class="fn">print</span>(<span class="st">f"Mean gap (actual - Taylor): {gap.mean():.2f}pp"</span>)
+<span class="fn">print</span>(<span class="st">f"Std gap: {gap.std():.2f}pp"</span>)
+<span class="fn">print</span>(<span class="st">f"Correlation: {taylor['fed_funds'].corr(taylor['taylor_rule_clamped']):.3f}"</span>)</pre>
+
+
+      <h2>21.6 &mdash; Leading, Coincident, and Lagging Indicators</h2>
+
+      <p>
+        Macroeconomic indicators can be classified by their timing relative to the business
+        cycle. This classification is fundamentally about the <strong>cross-correlation
+        function</strong> between each indicator and aggregate economic activity.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Definition</th><th>Examples</th><th>Statistical Analogue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Leading</strong></td><td>Turns before the business cycle</td><td>Building permits, stock prices, yield curve, new orders, consumer expectations</td><td>Predictive variables (Granger-cause GDP)</td></tr>
+          <tr><td><strong>Coincident</strong></td><td>Moves with the business cycle</td><td>GDP, industrial production, employment, personal income</td><td>Concurrent measures (proxy variables for the latent "state")</td></tr>
+          <tr><td><strong>Lagging</strong></td><td>Turns after the business cycle</td><td>Unemployment rate, CPI, bank lending, labor costs</td><td>Retrospective confirmation (backward-looking moving averages)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The Conference Board's Leading Economic Index (LEI) is a <strong>composite index</strong>
+          (weighted average of 10 leading indicators). Its construction is analogous to
+          principal component analysis: each component captures a different facet of "future
+          economic activity," and the composite attempts to extract the common factor. The weights
+          are based on standardizing each component and weighting by historical predictive power.
+        </p>
+      </div>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The unemployment rate is a <strong>lagging indicator</strong>. It peaks <em>after</em>
+          a recession has ended, sometimes by many months. This means that if you wait for
+          unemployment to rise before concluding a recession has started, you are already deep
+          into it. Similarly, unemployment may still be falling as the economy is already
+          beginning to slow.
+        </p>
+      </div>
+
+
+      <h2>21.7 &mdash; The Yield Curve as a Recession Predictor</h2>
+
+      <p>
+        The yield curve is a plot of interest rates (yields) on government bonds of different
+        maturities. Normally, longer-maturity bonds have higher yields (compensation for
+        duration risk). When the curve <em>inverts</em> &mdash; short-term rates exceed
+        long-term rates &mdash; it has historically preceded recessions with remarkable accuracy.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Yield curve:</strong> The relationship between bond yields and their maturities.
+          <strong>Term spread:</strong> The difference between long-term and short-term yields
+          (e.g., 10-year minus 2-year Treasury yield). <strong>Inversion:</strong> When the
+          term spread goes negative. An inverted yield curve has preceded every US recession
+          since the 1960s, with only one false signal (1966).
+        </p>
+      </div>
+
+      <div class="formula-box">
+        Term Spread = y<sub>10Y</sub> &minus; y<sub>2Y</sub>
+        <br><br>
+        P(Recession within 12 months | Spread < 0) &approx; 0.60 &ndash; 0.80 (historical average)
+        <br><br>
+        P(Recession within 12 months | Spread > 0) &approx; 0.10 &ndash; 0.15
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The yield curve inversion is a <strong>binary classifier</strong> for recession.
+          You can evaluate it with standard classification metrics: sensitivity (the fraction
+          of recessions that were preceded by inversion &mdash; very high), specificity (the
+          fraction of non-recessions where the curve was not inverted), precision, and the
+          area under the ROC curve. Estrella &amp; Mishkin (1998) showed the term spread has
+          superior predictive power compared to other leading indicators in a probit model.
+        </p>
+      </div>
+
+      <h3>Why Does the Yield Curve Predict Recessions?</h3>
+
+      <ul>
+        <li><strong>Expectations hypothesis:</strong> Long-term rates reflect expectations of
+            future short-term rates. If investors expect the Fed to cut rates (because of
+            recession), long-term rates fall below current short-term rates.</li>
+        <li><strong>Term premium:</strong> The extra yield for holding longer-duration bonds.
+            When uncertainty is high, the term premium can compress or turn negative.</li>
+        <li><strong>Bank profitability channel:</strong> Banks borrow short and lend long. An
+            inverted curve squeezes bank margins, reducing lending, which slows the economy.
+            This makes the yield curve partly <em>causal</em>, not just predictive.</li>
+      </ul>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Yield Curve as Recession Predictor</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score
+
+<span class="cm"># Download yield curve data and recession indicators</span>
+y10 = pdr.get_data_fred(<span class="st">"GS10"</span>, start=<span class="st">"1976-01-01"</span>)
+y2 = pdr.get_data_fred(<span class="st">"GS2"</span>, start=<span class="st">"1976-01-01"</span>)
+rec = pdr.get_data_fred(<span class="st">"USREC"</span>, start=<span class="st">"1976-01-01"</span>)
+
+<span class="cm"># Compute term spread</span>
+spread = pd.DataFrame({
+    <span class="st">"spread"</span>: y10.iloc[:, <span class="nu">0</span>] - y2.iloc[:, <span class="nu">0</span>],
+    <span class="st">"recession"</span>: rec.iloc[:, <span class="nu">0</span>]
+}).dropna()
+
+<span class="cm"># Create forward-looking recession indicator (recession within 12 months)</span>
+spread[<span class="st">"recession_12m"</span>] = spread[<span class="st">"recession"</span>].rolling(<span class="nu">12</span>).max().shift(-<span class="nu">12</span>)
+spread = spread.dropna()
+
+<span class="cm"># Classification performance</span>
+spread[<span class="st">"inverted"</span>] = (spread[<span class="st">"spread"</span>] < <span class="nu">0</span>).astype(<span class="kw">int</span>)
+
+tp = ((spread[<span class="st">"inverted"</span>] == <span class="nu">1</span>) & (spread[<span class="st">"recession_12m"</span>] == <span class="nu">1</span>)).sum()
+fp = ((spread[<span class="st">"inverted"</span>] == <span class="nu">1</span>) & (spread[<span class="st">"recession_12m"</span>] == <span class="nu">0</span>)).sum()
+fn = ((spread[<span class="st">"inverted"</span>] == <span class="nu">0</span>) & (spread[<span class="st">"recession_12m"</span>] == <span class="nu">1</span>)).sum()
+tn = ((spread[<span class="st">"inverted"</span>] == <span class="nu">0</span>) & (spread[<span class="st">"recession_12m"</span>] == <span class="nu">0</span>)).sum()
+
+<span class="fn">print</span>(<span class="st">"Yield Curve Inversion as Recession Classifier"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 50</span>)
+<span class="fn">print</span>(<span class="st">f"Sensitivity (recall): {tp/(tp+fn):.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Specificity:          {tn/(tn+fp):.1%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Precision:            {tp/(tp+fp):.1%}"</span>)
+
+<span class="cm"># Probit model (logistic approximation)</span>
+X = spread[<span class="st">"spread"</span>].values.reshape(-<span class="nu">1</span>, <span class="nu">1</span>)
+y_target = spread[<span class="st">"recession_12m"</span>].values
+model = LogisticRegression()
+model.fit(X, y_target)
+y_prob = model.predict_proba(X)[:, <span class="nu">1</span>]
+auc = roc_auc_score(y_target, y_prob)
+<span class="fn">print</span>(<span class="st">f"ROC AUC (probit model): {auc:.3f}"</span>)</pre>
+
+
+      <h2>21.8 &mdash; Business Cycle Dating: Change-Point Detection</h2>
+
+      <p>
+        In the US, the official arbiter of business cycle dates is the <strong>National Bureau
+        of Economic Research (NBER) Business Cycle Dating Committee</strong>. They determine
+        when recessions begin (peaks) and end (troughs). From a statistical perspective, this
+        is a <strong>change-point detection</strong> problem.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          NBER business cycle dating is formally equivalent to <strong>multiple change-point
+          detection</strong> in a multivariate time series. The committee examines several
+          coincident indicators (employment, industrial production, real income, real sales)
+          and identifies structural breaks. Algorithmic approaches include:
+          <strong>(1)</strong> Markov-switching models (Hamilton, 1989) &mdash; a hidden
+          Markov model with two states (expansion/recession);
+          <strong>(2)</strong> Bai-Perron structural break tests;
+          <strong>(3)</strong> CUSUM tests for parameter stability.
+        </p>
+      </div>
+
+      <h3>Hamilton's Markov-Switching Model</h3>
+
+      <p>
+        Hamilton's (1989) seminal model treats the business cycle as a latent state variable
+        S<sub>t</sub> &isin; {0, 1} (expansion or recession) that follows a Markov chain:
+      </p>
+
+      <div class="formula-box">
+        y<sub>t</sub> = &mu;<sub>S<sub>t</sub></sub> + &phi;(y<sub>t-1</sub> &minus; &mu;<sub>S<sub>t-1</sub></sub>) + &epsilon;<sub>t</sub>
+        <br><br>
+        P(S<sub>t</sub> = j | S<sub>t-1</sub> = i) = p<sub>ij</sub>
+        <br><br>
+        Transition matrix: P = [[p<sub>00</sub>, p<sub>01</sub>], [p<sub>10</sub>, p<sub>11</sub>]]
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Hamilton Markov-Switching Model for Business Cycle Dating</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+
+<span class="cm"># Download GDP growth</span>
+gdp = pdr.get_data_fred(<span class="st">"GDPC1"</span>, start=<span class="st">"1960-01-01"</span>)
+gdp_growth = gdp.pct_change().dropna() * <span class="nu">100</span>
+gdp_growth.columns = [<span class="st">"growth"</span>]
+
+<span class="cm"># Fit Markov-Switching AR(1) model</span>
+mod = sm.tsa.MarkovAutoregression(
+    gdp_growth[<span class="st">"growth"</span>].dropna(),
+    k_regimes=<span class="nu">2</span>,
+    order=<span class="nu">1</span>,
+    switching_ar=<span class="kw">False</span>,
+    switching_variance=<span class="kw">True</span>
+)
+res = mod.fit(search_reps=<span class="nu">20</span>)
+
+<span class="fn">print</span>(<span class="st">"Markov-Switching Model for Business Cycle"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 50</span>)
+<span class="fn">print</span>(<span class="st">f"Regime 0 (expansion) mean growth: {res.params['const[0]']:.2f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"Regime 1 (recession) mean growth: {res.params['const[1]']:.2f}%"</span>)
+
+<span class="cm"># Transition probabilities</span>
+<span class="fn">print</span>(<span class="st">f"\nTransition probabilities:"</span>)
+<span class="fn">print</span>(<span class="st">f"  P(stay in expansion): {res.params['p[0->0]']:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  P(stay in recession): {res.params['p[1->1]']:.3f}"</span>)
+
+<span class="cm"># Expected duration of each regime</span>
+dur_exp = <span class="nu">1</span> / (<span class="nu">1</span> - res.params[<span class="st">'p[0->0]'</span>])
+dur_rec = <span class="nu">1</span> / (<span class="nu">1</span> - res.params[<span class="st">'p[1->1]'</span>])
+<span class="fn">print</span>(<span class="st">f"\nExpected duration:"</span>)
+<span class="fn">print</span>(<span class="st">f"  Expansion: {dur_exp:.1f} quarters ({dur_exp/4:.1f} years)"</span>)
+<span class="fn">print</span>(<span class="st">f"  Recession: {dur_rec:.1f} quarters ({dur_rec/4:.1f} years)"</span>)
+
+<span class="cm"># Smoothed recession probabilities</span>
+recession_prob = res.smoothed_marginal_probabilities[<span class="nu">1</span>]
+<span class="fn">print</span>(<span class="st">f"\nRecession probability > 50% in {(recession_prob > 0.5).sum()} quarters"</span>)</pre>
+
+
+      <h2>21.9 &mdash; Fiscal vs. Monetary Policy: Two Levers</h2>
+
+      <p>
+        Macroeconomic stabilization has two main policy levers: <strong>monetary policy</strong>
+        (controlled by the central bank) and <strong>fiscal policy</strong> (controlled by the
+        government through taxation and spending). Understanding the difference is essential
+        for interpreting macroeconomic data.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Monetary Policy</th><th>Fiscal Policy</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Decision maker</td><td>Central bank (Fed, ECB, BoJ)</td><td>Government (Congress + President)</td></tr>
+          <tr><td>Primary tool</td><td>Interest rates, money supply</td><td>Government spending, taxes</td></tr>
+          <tr><td>Speed of implementation</td><td>Fast (FOMC meets 8x/year)</td><td>Slow (legislative process)</td></tr>
+          <tr><td>Transmission lag</td><td>6-18 months to full effect</td><td>Variable; direct spending is faster</td></tr>
+          <tr><td>Political independence</td><td>Designed to be independent</td><td>Inherently political</td></tr>
+          <tr><td>Effectiveness at zero lower bound</td><td>Limited (hence QE)</td><td>Potentially more effective</td></tr>
+          <tr><td>Key multiplier</td><td>Money multiplier</td><td>Fiscal multiplier (&Delta;GDP / &Delta;G)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Estimating the <strong>fiscal multiplier</strong> (how much GDP changes per dollar of
+          government spending) is one of the hardest causal inference problems in economics.
+          The challenge is endogeneity: government spending increases during recessions, creating
+          a negative correlation between spending and GDP that masks the causal effect. Researchers
+          use <strong>instrumental variables</strong> (Ramey, 2011 uses military spending news
+          shocks), <strong>local projections</strong> (Jorda, 2005), and <strong>SVAR models</strong>
+          (Blanchard &amp; Perotti, 2002) to identify the causal effect.
+        </p>
+      </div>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The fiscal multiplier is <strong>state-dependent</strong>: it is larger during
+          recessions (when there is slack in the economy) and smaller during expansions (when
+          the economy is near capacity). Estimates range from 0.5 to 2.5 depending on the
+          state of the economy, the type of spending, and the monetary policy regime. This
+          is a textbook example of heterogeneous treatment effects.
+        </p>
+      </div>
+
+
+      <h2>21.10 &mdash; Putting It All Together: A Macro Dashboard</h2>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="cm"># Comprehensive macro data download and summary</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+
+<span class="cm"># Define key macro series</span>
+macro_series = {
+    <span class="st">"Real GDP Growth (Q/Q Ann.)"</span>: <span class="st">"A191RL1Q225SBEA"</span>,
+    <span class="st">"CPI Inflation (YoY)"</span>: <span class="st">"CPIAUCSL"</span>,
+    <span class="st">"Core PCE Inflation (YoY)"</span>: <span class="st">"PCEPILFE"</span>,
+    <span class="st">"Unemployment Rate"</span>: <span class="st">"UNRATE"</span>,
+    <span class="st">"Fed Funds Rate"</span>: <span class="st">"FEDFUNDS"</span>,
+    <span class="st">"10Y Treasury Yield"</span>: <span class="st">"GS10"</span>,
+    <span class="st">"2Y Treasury Yield"</span>: <span class="st">"GS2"</span>,
+}
+
+<span class="cm"># Download all</span>
+data_dict = {}
+<span class="kw">for</span> name, code <span class="kw">in</span> macro_series.items():
+    <span class="kw">try</span>:
+        df = pdr.get_data_fred(code, start=<span class="st">"2020-01-01"</span>)
+        data_dict[name] = df.iloc[:, <span class="nu">0</span>]
+    <span class="kw">except</span>:
+        <span class="fn">print</span>(<span class="st">f"Could not download {name}"</span>)
+
+<span class="cm"># Current snapshot</span>
+<span class="fn">print</span>(<span class="st">"Current Macroeconomic Snapshot"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 55</span>)
+<span class="kw">for</span> name, series <span class="kw">in</span> data_dict.items():
+    latest = series.dropna().iloc[-<span class="nu">1</span>]
+    date = series.dropna().index[-<span class="nu">1</span>].date()
+    <span class="fn">print</span>(<span class="st">f"  {name:35s}: {latest:>7.2f}  ({date})"</span>)
+
+<span class="cm"># Yield curve status</span>
+<span class="kw">if</span> <span class="st">"10Y Treasury Yield"</span> <span class="kw">in</span> data_dict <span class="kw">and</span> <span class="st">"2Y Treasury Yield"</span> <span class="kw">in</span> data_dict:
+    spread = (data_dict[<span class="st">"10Y Treasury Yield"</span>].dropna().iloc[-<span class="nu">1</span>] -
+              data_dict[<span class="st">"2Y Treasury Yield"</span>].dropna().iloc[-<span class="nu">1</span>])
+    status = <span class="st">"INVERTED (recession signal)"</span> <span class="kw">if</span> spread < <span class="nu">0</span> <span class="kw">else</span> <span class="st">"Normal"</span>
+    <span class="fn">print</span>(<span class="st">f"\n  Yield Curve Spread (10Y-2Y): {spread:.2f}pp — {status}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\nThis data forms the macro context for any investment decision."</span>)</pre>
+
+      <h2>21.11 &mdash; Summary</h2>
+
+      <p>
+        This module has translated the core concepts of macroeconomics into statistical language:
+      </p>
+
+      <ol>
+        <li><strong>GDP</strong> is a quarterly time series with trend, seasonal, and cyclical
+            components, decomposed using HP filters or Hamilton regressions.</li>
+        <li><strong>Inflation (CPI)</strong> is a weighted Laspeyres price index with known
+            biases. Core measures are robust estimators of underlying price trends.</li>
+        <li><strong>Unemployment</strong> is a ratio estimator from a survey (CPS) with a
+            margin of error that most people ignore.</li>
+        <li><strong>The Phillips Curve</strong> is an unstable regression with time-varying
+            coefficients &mdash; a cautionary tale about structural change.</li>
+        <li><strong>Central bank policy</strong> is an intervention in a time series, with
+            the Taylor Rule as a predictive model and QE as an unconventional treatment.</li>
+        <li><strong>Leading indicators</strong> are predictive variables; coincident indicators
+            are concurrent measures; lagging indicators are retrospective.</li>
+        <li><strong>The yield curve</strong> is a binary classifier for recession with
+            impressive historical ROC performance.</li>
+        <li><strong>Business cycle dating</strong> is a change-point detection problem, solvable
+            with Markov-switching models.</li>
+        <li><strong>Fiscal multipliers</strong> are heterogeneous treatment effects estimated
+            with IV, local projections, or SVARs.</li>
+      </ol>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Macroeconomics is applied time series analysis, causal inference, and signal extraction
+          &mdash; all areas where your statistical training gives you a substantial advantage.
+          The key difference from laboratory statistics is that macro data is observational,
+          non-stationary, subject to structural breaks, and revised after initial release.
+          Treat every macro number with the same rigor you would apply to any other data source.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-20/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-22/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

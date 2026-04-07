@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 15 of Financial Literacy for Statisticians: ARIMA for prices, GARCH for volatility, regime-switching models, and cointegration for pairs trading">
+  <title>Time Series Models for Finance — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 15: Time Series Models for Finance</h1>
+      <p class="tagline">ARIMA for prices, GARCH for volatility, regime-switching models, and cointegration for pairs trading</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 4 of 5</span>
+        <span class="meta-item">Module 15 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-14/index.html">&larr; Previous</a>
+      <span class="current">Module 15 of 22</span>
+      <a href="../module-16/index.html">Next &rarr;</a>
+    </div>
+
+
+<h2>Introduction: From Statistics Lab to Trading Floor</h2>
+      <p>
+        If you have studied time series analysis in a statistics program, you already know most of
+        what quantitative finance uses daily. The difference is context: in finance, the data-generating
+        process is non-stationary, high-frequency, fat-tailed, and contaminated with regime changes.
+        This module maps the classical time series toolkit onto its financial applications, starting
+        with ARIMA, escalating through GARCH and its asymmetric extensions, and finishing with
+        cointegration-based trading strategies.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          In a statistics course, you model time series to understand the data-generating process.
+          In finance, the same models serve a dual purpose: <strong>forecasting</strong> future
+          values and <strong>quantifying uncertainty</strong> (volatility). The forecast is the
+          signal; the volatility is the noise envelope around it. Both matter for trading decisions.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 1: ARIMA ───────────────── -->
+
+      <h2>1. ARIMA for Price Forecasting</h2>
+
+      <h3>1.1 Why Prices Are Non-Stationary</h3>
+      <p>
+        Raw stock prices are almost always non-stationary. They wander without a fixed mean,
+        exhibiting what statisticians call a <strong>unit root</strong>. Formally, if
+        P<sub>t</sub> = P<sub>t-1</sub> + &epsilon;<sub>t</sub>, the series is a random walk.
+        The Augmented Dickey-Fuller (ADF) test virtually never rejects the unit root null for
+        price levels.
+      </p>
+
+      <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Unit Root</strong> &mdash; A characteristic root of the autoregressive polynomial
+          equal to 1. In finance, this means prices have no tendency to revert to a mean. First
+          differencing (computing returns) typically removes the unit root.
+        </p>
+      </div>
+
+      <h3>1.2 The Differencing Operator: d = 1</h3>
+      <p>
+        In an ARIMA(p, d, q) model, the parameter <em>d</em> controls how many times we difference
+        the series. For financial prices, <em>d = 1</em> is the standard choice because:
+      </p>
+      <ul>
+        <li>Price levels fail the ADF test (unit root present).</li>
+        <li>Log-returns (first differences of log prices) are approximately stationary.</li>
+        <li>d = 2 would imply returns themselves have a unit root, which is economically implausible for liquid assets.</li>
+      </ul>
+
+      <div class="formula-box">
+        r<sub>t</sub> = ln(P<sub>t</sub>) &minus; ln(P<sub>t&minus;1</sub>) &approx; (P<sub>t</sub> &minus; P<sub>t&minus;1</sub>) / P<sub>t&minus;1</sub>
+      </div>
+
+      <h3>1.3 Choosing p and q: ACF and PACF</h3>
+      <p>
+        After differencing, you inspect the autocorrelation function (ACF) and partial autocorrelation
+        function (PACF) of the return series:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>ACF Behavior</th>
+            <th>PACF Behavior</th>
+            <th>Suggested Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Exponential decay</td>
+            <td>Tails off</td>
+            <td>Cuts off at lag p</td>
+            <td>AR(p)</td>
+          </tr>
+          <tr>
+            <td>Cuts off at lag q</td>
+            <td>Cuts off at lag q</td>
+            <td>Tails off</td>
+            <td>MA(q)</td>
+          </tr>
+          <tr>
+            <td>Both tail off</td>
+            <td>Tails off</td>
+            <td>Tails off</td>
+            <td>ARMA(p,q)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          In practice, stock returns show <strong>very weak</strong> autocorrelation. The ACF
+          and PACF of daily returns are typically not significantly different from zero at
+          conventional lags. This means ARIMA models for returns have near-zero predictive
+          power for returns themselves. Where time series models shine in finance is in modeling
+          <strong>volatility</strong>, not returns.
+        </p>
+      </div>
+
+      <h3>1.4 Information Criteria for Model Selection</h3>
+      <p>
+        When ACF/PACF are ambiguous (common with financial data), use AIC or BIC to select
+        among candidate ARIMA(p, 1, q) models:
+      </p>
+      <div class="formula-box">
+        AIC = &minus;2 ln(L) + 2k &nbsp;&nbsp;&nbsp;&nbsp; BIC = &minus;2 ln(L) + k ln(n)
+      </div>
+      <p>
+        where <em>L</em> is the maximized likelihood, <em>k</em> is the number of parameters, and
+        <em>n</em> is the sample size. BIC penalizes complexity more heavily and tends to select
+        more parsimonious models, which often generalize better out-of-sample.
+      </p>
+
+      <h3>1.5 Python: ARIMA on Stock Prices</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> statsmodels.tsa.arima.model <span class="kw">import</span> ARIMA
+<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="cm"># Download price data</span>
+data = yf.download(<span class="st">"SPY"</span>, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+prices = data[<span class="st">"Adj Close"</span>]
+log_prices = np.log(prices)
+returns = log_prices.diff().dropna()
+
+<span class="cm"># Test for unit root in prices vs returns</span>
+adf_prices = adfuller(log_prices.dropna())
+adf_returns = adfuller(returns)
+
+<span class="fn">print</span>(<span class="st">f"ADF on log prices:  stat={adf_prices[0]:.4f}, p={adf_prices[1]:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ADF on returns:     stat={adf_returns[0]:.4f}, p={adf_returns[1]:.4f}"</span>)
+<span class="cm"># Prices: p &gt;&gt; 0.05 (unit root). Returns: p &lt;&lt; 0.01 (stationary).</span>
+
+<span class="cm"># Fit ARIMA(1,1,1) to log prices</span>
+model = ARIMA(log_prices, order=(<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>))
+result = model.fit()
+<span class="fn">print</span>(result.summary())
+
+<span class="cm"># Compare models using AIC/BIC</span>
+results = {}
+<span class="kw">for</span> p <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">0</span>, <span class="nu">4</span>):
+    <span class="kw">for</span> q <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">0</span>, <span class="nu">4</span>):
+        <span class="kw">try</span>:
+            m = ARIMA(log_prices, order=(p, <span class="nu">1</span>, q)).fit()
+            results[(p, q)] = {<span class="st">"AIC"</span>: m.aic, <span class="st">"BIC"</span>: m.bic}
+        <span class="kw">except</span>:
+            <span class="kw">pass</span>
+
+comparison = pd.DataFrame(results).T
+<span class="fn">print</span>(<span class="st">"Best by AIC:"</span>, comparison[<span class="st">"AIC"</span>].idxmin())
+<span class="fn">print</span>(<span class="st">"Best by BIC:"</span>, comparison[<span class="st">"BIC"</span>].idxmin())</pre>
+
+      <!-- ───────────────── SECTION 2: GARCH ───────────────── -->
+
+      <h2>2. GARCH for Volatility Modeling</h2>
+
+      <h3>2.1 The Volatility Clustering Phenomenon</h3>
+      <p>
+        Even though returns themselves show little autocorrelation, the <strong>squared returns</strong>
+        (a proxy for variance) are highly autocorrelated. Large returns tend to be followed by large
+        returns (of either sign), and calm periods tend to persist. This is <strong>volatility clustering</strong>,
+        and it is one of the most robust stylized facts in finance.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics terms, the return series is uncorrelated but <strong>not independent</strong>.
+          The conditional variance is time-varying, even though the conditional mean may be
+          approximately constant. GARCH models capture exactly this: they are models for the
+          <strong>second moment</strong> of the conditional distribution.
+        </p>
+      </div>
+
+      <h3>2.2 The GARCH(1,1) Model</h3>
+      <p>
+        The GARCH(1,1) model, introduced by Bollerslev (1986), specifies:
+      </p>
+      <div class="formula-box">
+        r<sub>t</sub> = &mu; + &epsilon;<sub>t</sub>, &nbsp;&nbsp; &epsilon;<sub>t</sub> = &sigma;<sub>t</sub> z<sub>t</sub>, &nbsp;&nbsp; z<sub>t</sub> ~ N(0, 1)
+        <br><br>
+        &sigma;<sub>t</sub><sup>2</sup> = &omega; + &alpha; &epsilon;<sub>t&minus;1</sub><sup>2</sup> + &beta; &sigma;<sub>t&minus;1</sub><sup>2</sup>
+      </div>
+      <p>
+        The parameters have intuitive interpretations:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Interpretation</th>
+            <th>Typical Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&omega;</td>
+            <td>Long-run variance floor (intercept)</td>
+            <td>Small positive</td>
+          </tr>
+          <tr>
+            <td>&alpha;</td>
+            <td>Shock impact &mdash; how much yesterday&rsquo;s surprise moves today&rsquo;s volatility</td>
+            <td>0.03 &ndash; 0.15</td>
+          </tr>
+          <tr>
+            <td>&beta;</td>
+            <td>Persistence &mdash; how much yesterday&rsquo;s variance carries over</td>
+            <td>0.80 &ndash; 0.97</td>
+          </tr>
+          <tr>
+            <td>&alpha; + &beta;</td>
+            <td>Total persistence; must be &lt; 1 for stationarity</td>
+            <td>0.90 &ndash; 0.99</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The unconditional (long-run) variance is &omega; / (1 &minus; &alpha; &minus; &beta;).
+          When &alpha; + &beta; is close to 1, the long-run variance is large and volatility
+          shocks are extremely persistent. This is the norm for equity markets: &alpha; + &beta;
+          typically exceeds 0.95.
+        </p>
+      </div>
+
+      <h3>2.3 Python: Fitting GARCH(1,1)</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> arch <span class="kw">import</span> arch_model
+
+<span class="cm"># Scale returns to percentage (arch library convention)</span>
+returns_pct = returns * <span class="nu">100</span>
+
+<span class="cm"># Fit GARCH(1,1)</span>
+garch = arch_model(returns_pct, vol=<span class="st">"Garch"</span>, p=<span class="nu">1</span>, q=<span class="nu">1</span>, dist=<span class="st">"t"</span>)
+garch_result = garch.fit(disp=<span class="st">"off"</span>)
+<span class="fn">print</span>(garch_result.summary())
+
+<span class="cm"># Extract conditional volatility</span>
+cond_vol = garch_result.conditional_volatility
+<span class="fn">print</span>(<span class="st">f"Mean daily vol: {cond_vol.mean():.4f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"Annualized vol: {cond_vol.mean() * np.sqrt(252):.2f}%"</span>)
+
+<span class="cm"># Persistence check</span>
+params = garch_result.params
+alpha = params[<span class="st">"alpha[1]"</span>]
+beta = params[<span class="st">"beta[1]"</span>]
+<span class="fn">print</span>(<span class="st">f"alpha + beta = {alpha + beta:.4f}"</span>)</pre>
+
+      <!-- ───────────────── SECTION 3: ASYMMETRIC GARCH ───────────────── -->
+
+      <h2>3. Asymmetric Volatility: EGARCH and GJR-GARCH</h2>
+
+      <h3>3.1 The Leverage Effect</h3>
+      <p>
+        Standard GARCH treats positive and negative shocks symmetrically: a +3% return and a &minus;3%
+        return increase tomorrow&rsquo;s volatility by the same amount. But empirically, negative
+        returns increase volatility more than positive returns of the same magnitude. This is
+        the <strong>leverage effect</strong>, named because a stock price decline raises the
+        firm&rsquo;s debt-to-equity ratio (leverage), making the stock riskier.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The leverage effect means the distribution of returns is <strong>negatively skewed</strong>
+          at short horizons. From a statistical perspective, the conditional variance is an
+          <strong>asymmetric function</strong> of past innovations. This requires modifying the
+          GARCH variance equation.
+        </p>
+      </div>
+
+      <h3>3.2 EGARCH (Nelson, 1991)</h3>
+      <p>
+        The Exponential GARCH models the <strong>log</strong> of the conditional variance, which
+        ensures positivity without parameter constraints:
+      </p>
+      <div class="formula-box">
+        ln(&sigma;<sub>t</sub><sup>2</sup>) = &omega; + &alpha;(|z<sub>t&minus;1</sub>| &minus; E|z<sub>t&minus;1</sub>|) + &gamma; z<sub>t&minus;1</sub> + &beta; ln(&sigma;<sub>t&minus;1</sub><sup>2</sup>)
+      </div>
+      <p>
+        The &gamma; parameter captures asymmetry. If &gamma; &lt; 0, negative shocks (z &lt; 0)
+        increase volatility more than positive shocks of the same magnitude.
+      </p>
+
+      <h3>3.3 GJR-GARCH (Glosten, Jagannathan, Runkle, 1993)</h3>
+      <div class="formula-box">
+        &sigma;<sub>t</sub><sup>2</sup> = &omega; + (&alpha; + &gamma; I<sub>t&minus;1</sub>) &epsilon;<sub>t&minus;1</sub><sup>2</sup> + &beta; &sigma;<sub>t&minus;1</sub><sup>2</sup>
+        <br><br>
+        where I<sub>t&minus;1</sub> = 1 if &epsilon;<sub>t&minus;1</sub> &lt; 0, else 0
+      </div>
+      <p>
+        The indicator function I<sub>t-1</sub> gives negative shocks an extra &gamma; contribution
+        to variance. For equities, &gamma; &gt; 0 is the standard finding: bad news has a larger
+        impact on volatility than good news.
+      </p>
+
+      <h3>3.4 Comparing Models</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Asymmetry</th>
+            <th>Positivity Constraint</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GARCH(1,1)</td>
+            <td>None</td>
+            <td>&omega;, &alpha;, &beta; &ge; 0</td>
+            <td>Symmetric shock impact</td>
+          </tr>
+          <tr>
+            <td>EGARCH(1,1)</td>
+            <td>&gamma; parameter</td>
+            <td>Automatic (log form)</td>
+            <td>Asymmetric, no constraints needed</td>
+          </tr>
+          <tr>
+            <td>GJR-GARCH(1,1)</td>
+            <td>&gamma; indicator term</td>
+            <td>&omega; &ge; 0, &alpha;, &beta; &ge; 0</td>
+            <td>Asymmetric, intuitive indicator</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Compare GARCH, EGARCH, and GJR-GARCH</span>
+models = {
+    <span class="st">"GARCH"</span>: arch_model(returns_pct, vol=<span class="st">"Garch"</span>, p=<span class="nu">1</span>, q=<span class="nu">1</span>),
+    <span class="st">"EGARCH"</span>: arch_model(returns_pct, vol=<span class="st">"EGARCH"</span>, p=<span class="nu">1</span>, q=<span class="nu">1</span>),
+    <span class="st">"GJR-GARCH"</span>: arch_model(returns_pct, vol=<span class="st">"Garch"</span>, p=<span class="nu">1</span>, o=<span class="nu">1</span>, q=<span class="nu">1</span>),
+}
+
+<span class="kw">for</span> name, model <span class="kw">in</span> models.items():
+    res = model.fit(disp=<span class="st">"off"</span>)
+    <span class="fn">print</span>(<span class="st">f"{name:12s}  AIC={res.aic:10.2f}  BIC={res.bic:10.2f}"</span>)</pre>
+
+      <!-- ───────────────── SECTION 4: REGIME SWITCHING ───────────────── -->
+
+      <h2>4. Regime-Switching Models</h2>
+
+      <h3>4.1 The Intuition: Markets Have Moods</h3>
+      <p>
+        Financial markets alternate between qualitatively different regimes: calm bull markets
+        with low volatility and crisis periods with high volatility and negative expected returns.
+        A single set of ARIMA/GARCH parameters cannot capture both regimes simultaneously. Hamilton&rsquo;s
+        (1989) Markov-switching model addresses this by allowing parameters to shift between
+        discrete states.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          A regime-switching model is a <strong>hidden Markov model (HMM)</strong> applied to
+          financial time series. The hidden state (regime) follows a Markov chain with transition
+          matrix <strong>P</strong>, and the observed returns have regime-dependent parameters.
+          If you have studied mixture models, think of this as a <strong>time-varying mixture</strong>
+          where the mixing weights evolve as a Markov chain.
+        </p>
+      </div>
+
+      <h3>4.2 Two-Regime Model Specification</h3>
+      <div class="formula-box">
+        r<sub>t</sub> | S<sub>t</sub> = j &sim; N(&mu;<sub>j</sub>, &sigma;<sub>j</sub><sup>2</sup>), &nbsp;&nbsp; j &isin; {1, 2}
+        <br><br>
+        P(S<sub>t</sub> = j | S<sub>t&minus;1</sub> = i) = p<sub>ij</sub>
+      </div>
+      <p>
+        The transition matrix controls regime persistence:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>To Calm (j=1)</th>
+            <th>To Crisis (j=2)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>From Calm (i=1)</strong></td>
+            <td>p<sub>11</sub> &asymp; 0.97</td>
+            <td>p<sub>12</sub> &asymp; 0.03</td>
+          </tr>
+          <tr>
+            <td><strong>From Crisis (i=2)</strong></td>
+            <td>p<sub>21</sub> &asymp; 0.10</td>
+            <td>p<sub>22</sub> &asymp; 0.90</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The expected regime durations are 1/(1 &minus; p<sub>ii</sub>). With p<sub>11</sub> = 0.97,
+          the expected calm period is ~33 days; with p<sub>22</sub> = 0.90, crisis periods last
+          ~10 days. Calm regimes are more persistent than crisis regimes, matching the empirical
+          observation that markets rise slowly and crash quickly.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+
+<span class="cm"># Fit a 2-regime Markov-switching model</span>
+ms_model = sm.tsa.MarkovAutoregression(
+    returns.dropna() * <span class="nu">100</span>,
+    k_regimes=<span class="nu">2</span>,
+    order=<span class="nu">1</span>,
+    switching_ar=<span class="kw">False</span>,
+    switching_variance=<span class="kw">True</span>,
+)
+ms_result = ms_model.fit()
+<span class="fn">print</span>(ms_result.summary())
+
+<span class="cm"># Extract smoothed regime probabilities</span>
+regime_probs = ms_result.smoothed_marginal_probabilities
+<span class="fn">print</span>(<span class="st">"Regime 0 (calm) mean:"</span>, ms_result.params[<span class="st">"const"</span>])
+
+<span class="cm"># Plot regime probabilities</span>
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+fig, (ax1, ax2) = plt.subplots(<span class="nu">2</span>, <span class="nu">1</span>, figsize=(<span class="nu">12</span>, <span class="nu">8</span>), sharex=<span class="kw">True</span>)
+ax1.plot(returns.index[<span class="nu">1</span>:], returns.values[<span class="nu">1</span>:] * <span class="nu">100</span>, linewidth=<span class="nu">0.5</span>)
+ax1.set_ylabel(<span class="st">"Returns (%)"</span>)
+ax1.set_title(<span class="st">"S&P 500 Returns with Regime Probabilities"</span>)
+
+ax2.fill_between(regime_probs.index, regime_probs.iloc[:, <span class="nu">1</span>],
+                 alpha=<span class="nu">0.5</span>, color=<span class="st">"red"</span>, label=<span class="st">"P(Crisis regime)"</span>)
+ax2.set_ylabel(<span class="st">"Probability"</span>)
+ax2.legend()
+plt.tight_layout()
+plt.show()</pre>
+
+      <!-- ───────────────── SECTION 5: COINTEGRATION ───────────────── -->
+
+      <h2>5. Cointegration: When Non-Stationary Series Walk Together</h2>
+
+      <h3>5.1 The Core Idea</h3>
+      <p>
+        Two price series may each be I(1) (integrated of order 1, i.e., they contain unit roots),
+        but a <strong>linear combination</strong> of them may be I(0) (stationary). When this
+        happens, the series are said to be <strong>cointegrated</strong>. They share a common
+        stochastic trend, and deviations from their equilibrium relationship are temporary.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Cointegration is a <strong>long-run equilibrium relationship</strong>. Statistically,
+          if X<sub>t</sub> ~ I(1) and Y<sub>t</sub> ~ I(1) but Y<sub>t</sub> &minus; &beta;X<sub>t</sub> ~ I(0),
+          then X and Y are cointegrated with cointegrating vector (1, &minus;&beta;). Think of it as
+          two random walks tied together by a rubber band: they can diverge temporarily, but
+          the band pulls them back.
+        </p>
+      </div>
+
+      <h3>5.2 Financial Examples of Cointegration</h3>
+      <ul>
+        <li><strong>Spot and futures prices</strong> of the same commodity &mdash; tied by cost-of-carry arbitrage.</li>
+        <li><strong>Stocks in the same sector</strong> &mdash; Coca-Cola and PepsiCo may be cointegrated due to common demand drivers.</li>
+        <li><strong>ETF and its NAV</strong> &mdash; the ETF price tracks the underlying portfolio.</li>
+        <li><strong>Cross-listed stocks</strong> &mdash; the same company listed in two exchanges.</li>
+      </ul>
+
+      <h3>5.3 The Engle-Granger Test</h3>
+      <p>
+        The Engle-Granger two-step procedure is the simplest test for cointegration:
+      </p>
+      <ol>
+        <li>Regress Y<sub>t</sub> on X<sub>t</sub> using OLS to estimate &beta;.</li>
+        <li>Test the residuals &epsilon;<sub>t</sub> = Y<sub>t</sub> &minus; &beta;X<sub>t</sub> for a unit root using the ADF test.</li>
+        <li>If you reject the unit root null for the residuals, the series are cointegrated.</li>
+      </ol>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          The critical values for the ADF test on the Engle-Granger residuals are NOT the standard
+          ADF critical values. Because the residuals are estimated (not observed), the test
+          statistic has a non-standard distribution. Use the Engle-Granger specific critical
+          values (available in <code>statsmodels</code>).
+        </p>
+      </div>
+
+      <h3>5.4 The Johansen Test</h3>
+      <p>
+        For more than two series, the Johansen test extends cointegration analysis to the multivariate
+        case. It estimates the number of cointegrating relationships (the cointegrating rank) in
+        a system of variables using a Vector Error Correction Model (VECM) framework.
+      </p>
+      <div class="formula-box">
+        &Delta;Y<sub>t</sub> = &Pi; Y<sub>t&minus;1</sub> + &sum;<sub>i=1</sub><sup>k&minus;1</sup> &Gamma;<sub>i</sub> &Delta;Y<sub>t&minus;i</sub> + &epsilon;<sub>t</sub>
+        <br><br>
+        The rank of &Pi; gives the number of cointegrating relationships.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>rank(&Pi;)</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td>No cointegration &mdash; all series are I(1) independently</td>
+          </tr>
+          <tr>
+            <td>1 to n&minus;1</td>
+            <td>Cointegration &mdash; there are r cointegrating relationships</td>
+          </tr>
+          <tr>
+            <td>n</td>
+            <td>All series are stationary (no unit roots)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ───────────────── SECTION 6: PAIRS TRADING ───────────────── -->
+
+      <h2>6. Pairs Trading: Cointegration in Action</h2>
+
+      <h3>6.1 The Strategy</h3>
+      <p>
+        Pairs trading is the most direct application of cointegration in finance:
+      </p>
+      <ol>
+        <li><strong>Identify</strong> a pair of cointegrated stocks.</li>
+        <li><strong>Compute the spread</strong>: S<sub>t</sub> = Y<sub>t</sub> &minus; &beta;X<sub>t</sub>.</li>
+        <li><strong>Trade mean reversion</strong>: When the spread widens beyond a threshold (e.g., 2 standard deviations), go long the underperformer and short the outperformer.</li>
+        <li><strong>Close</strong> when the spread reverts to its mean.</li>
+      </ol>
+
+      <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Spread</strong> &mdash; In pairs trading, the spread is the residual from the
+          cointegrating regression. It represents the deviation from the long-run equilibrium.
+          A widening spread means one stock is temporarily rich relative to the other.
+        </p>
+      </div>
+
+      <h3>6.2 Python: Full Pairs Trading Pipeline</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> coint, adfuller
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="cm"># Step 1: Download two potentially cointegrated stocks</span>
+tickers = [<span class="st">"KO"</span>, <span class="st">"PEP"</span>]
+data = yf.download(tickers, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+prices = data[<span class="st">"Adj Close"</span>]
+
+<span class="cm"># Step 2: Engle-Granger cointegration test</span>
+score, pvalue, _ = coint(prices[<span class="st">"KO"</span>], prices[<span class="st">"PEP"</span>])
+<span class="fn">print</span>(<span class="st">f"Cointegration test: stat={score:.4f}, p-value={pvalue:.4f}"</span>)
+
+<span class="cm"># Step 3: Estimate the hedge ratio via OLS</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+X = prices[<span class="st">"KO"</span>].values.reshape(-<span class="nu">1</span>, <span class="nu">1</span>)
+y = prices[<span class="st">"PEP"</span>].values
+reg = LinearRegression().fit(X, y)
+hedge_ratio = reg.coef_[<span class="nu">0</span>]
+<span class="fn">print</span>(<span class="st">f"Hedge ratio (beta): {hedge_ratio:.4f}"</span>)
+
+<span class="cm"># Step 4: Compute the spread</span>
+spread = prices[<span class="st">"PEP"</span>] - hedge_ratio * prices[<span class="st">"KO"</span>]
+spread_mean = spread.mean()
+spread_std = spread.std()
+
+<span class="cm"># Step 5: Generate trading signals</span>
+z_score = (spread - spread_mean) / spread_std
+
+signals = pd.DataFrame(index=spread.index)
+signals[<span class="st">"z_score"</span>] = z_score
+signals[<span class="st">"long_entry"</span>] = z_score &lt; -<span class="nu">2.0</span>   <span class="cm"># Spread too low: long PEP, short KO</span>
+signals[<span class="st">"short_entry"</span>] = z_score &gt; <span class="nu">2.0</span>   <span class="cm"># Spread too high: short PEP, long KO</span>
+signals[<span class="st">"exit"</span>] = <span class="fn">abs</span>(z_score) &lt; <span class="nu">0.5</span>   <span class="cm"># Close position near mean</span>
+
+<span class="fn">print</span>(<span class="st">f"Long signals:  {signals['long_entry'].sum()}"</span>)
+<span class="fn">print</span>(<span class="st">f"Short signals: {signals['short_entry'].sum()}"</span>)
+
+<span class="cm"># Step 6: Verify spread is stationary</span>
+adf_spread = adfuller(spread.dropna())
+<span class="fn">print</span>(<span class="st">f"ADF on spread: stat={adf_spread[0]:.4f}, p={adf_spread[1]:.4f}"</span>)</pre>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          Cointegration can <strong>break down</strong>. Two stocks that were cointegrated in the
+          past may diverge permanently due to structural changes (mergers, regulation, new competitors).
+          Always use a rolling-window test and be prepared to exit if the cointegration relationship
+          weakens. A pairs trade on a broken cointegration is just a bet that keeps bleeding.
+        </p>
+      </div>
+
+      <!-- ───────────────── SECTION 7: VAR MODELS ───────────────── -->
+
+      <h2>7. VAR Models for Multivariate Financial Time Series</h2>
+
+      <h3>7.1 From Univariate to Multivariate</h3>
+      <p>
+        A Vector Autoregression (VAR) models the joint dynamics of multiple time series. Each
+        variable is regressed on its own lags <em>and</em> the lags of all other variables in the
+        system. In finance, VAR models are used to study:
+      </p>
+      <ul>
+        <li>How shocks to one market propagate to others (spillover effects).</li>
+        <li>Lead-lag relationships between asset classes (do bonds predict stock returns?).</li>
+        <li>Dynamic relationships between macroeconomic variables and asset prices.</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The VAR(p) model is a multivariate generalization of the AR(p) model. For an n-variable
+          system, each equation has np + 1 parameters (p lags of n variables plus an intercept).
+          The number of parameters grows quadratically with the number of variables, making
+          high-dimensional VAR models prone to overfitting. This is where regularization
+          (shrinkage, LASSO-VAR, Bayesian VAR) becomes essential.
+        </p>
+      </div>
+
+      <h3>7.2 VAR(p) Specification</h3>
+      <div class="formula-box">
+        Y<sub>t</sub> = c + A<sub>1</sub>Y<sub>t&minus;1</sub> + A<sub>2</sub>Y<sub>t&minus;2</sub> + &hellip; + A<sub>p</sub>Y<sub>t&minus;p</sub> + &epsilon;<sub>t</sub>
+        <br><br>
+        where Y<sub>t</sub> is an n &times; 1 vector, A<sub>i</sub> are n &times; n coefficient matrices, &epsilon;<sub>t</sub> ~ N(0, &Sigma;)
+      </div>
+
+      <h3>7.3 Granger Causality</h3>
+      <p>
+        Within a VAR framework, you can test whether the lags of variable X improve the prediction
+        of variable Y beyond Y&rsquo;s own lags. This is <strong>Granger causality</strong> &mdash;
+        not true causality, but predictive precedence. The test uses an F-statistic comparing
+        the restricted model (without X lags) to the unrestricted model (with X lags).
+      </p>
+
+      <h3>7.4 Impulse Response Functions (IRFs)</h3>
+      <p>
+        IRFs trace the effect of a one-standard-deviation shock to one variable on all variables
+        in the system over time. In finance, this answers questions like: &ldquo;If the Fed
+        unexpectedly raises rates by 25 basis points, how do stock prices, bond yields, and
+        the dollar respond over the next 20 days?&rdquo;
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> statsmodels.tsa.api <span class="kw">import</span> VAR
+
+<span class="cm"># Build a 3-variable system: stocks, bonds, gold</span>
+tickers_var = [<span class="st">"SPY"</span>, <span class="st">"TLT"</span>, <span class="st">"GLD"</span>]
+data_var = yf.download(tickers_var, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+returns_var = data_var[<span class="st">"Adj Close"</span>].pct_change().dropna() * <span class="nu">100</span>
+
+<span class="cm"># Select lag order</span>
+model_var = VAR(returns_var)
+lag_selection = model_var.select_order(maxlags=<span class="nu">10</span>)
+<span class="fn">print</span>(lag_selection.summary())
+
+<span class="cm"># Fit VAR with selected order</span>
+optimal_lag = lag_selection.aic
+var_result = model_var.fit(optimal_lag)
+<span class="fn">print</span>(var_result.summary())
+
+<span class="cm"># Granger causality tests</span>
+<span class="kw">for</span> caused <span class="kw">in</span> tickers_var:
+    <span class="kw">for</span> causing <span class="kw">in</span> tickers_var:
+        <span class="kw">if</span> caused != causing:
+            test = var_result.test_causality(caused, causing, kind=<span class="st">"f"</span>)
+            p = test.pvalue
+            sig = <span class="st">"***"</span> <span class="kw">if</span> p &lt; <span class="nu">0.01</span> <span class="kw">else</span> <span class="st">"**"</span> <span class="kw">if</span> p &lt; <span class="nu">0.05</span> <span class="kw">else</span> <span class="st">""</span>
+            <span class="fn">print</span>(<span class="st">f"{causing} -&gt; {caused}: p={p:.4f} {sig}"</span>)
+
+<span class="cm"># Impulse response functions</span>
+irf = var_result.irf(<span class="nu">20</span>)
+irf.plot(orth=<span class="kw">True</span>)
+plt.tight_layout()
+plt.show()</pre>
+
+      <!-- ───────────────── SECTION 8: COMPREHENSIVE EXAMPLE ───────────────── -->
+
+      <h2>8. Comprehensive Example: Full Financial Time Series Analysis</h2>
+
+      <h3>8.1 Workflow Summary</h3>
+      <p>
+        Putting it all together, a complete financial time series analysis follows these steps:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Tool</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Test for unit roots in price levels</td>
+            <td>ADF / KPSS test</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Compute returns (difference once)</td>
+            <td>Log-differencing</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Examine ACF/PACF of returns</td>
+            <td>Correlogram</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Fit ARIMA for the conditional mean</td>
+            <td>ARIMA + AIC/BIC</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Test for ARCH effects in residuals</td>
+            <td>Ljung-Box on squared residuals</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Fit GARCH/EGARCH for conditional variance</td>
+            <td>arch library</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Test for cointegration with related assets</td>
+            <td>Engle-Granger / Johansen</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Build VAR or VECM if cointegrated</td>
+            <td>statsmodels VAR</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Check for regime changes</td>
+            <td>Markov-switching model</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Validate out-of-sample</td>
+            <td>Walk-forward evaluation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>8.2 Python: Integrated Pipeline</h3>
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller, acf, pacf
+<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
+<span class="kw">from</span> arch <span class="kw">import</span> arch_model
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="kw">def</span> <span class="fn">full_ts_analysis</span>(ticker, start=<span class="st">"2018-01-01"</span>, end=<span class="st">"2023-12-31"</span>):
+    <span class="st">"""Complete time series analysis pipeline for a single asset."""</span>
+    <span class="cm"># Data</span>
+    data = yf.download(ticker, start=start, end=end)
+    prices = data[<span class="st">"Adj Close"</span>]
+    log_prices = np.log(prices)
+    returns = log_prices.diff().dropna() * <span class="nu">100</span>
+
+    results = {}
+
+    <span class="cm"># Step 1: Unit root tests</span>
+    adf_price = adfuller(log_prices.dropna())
+    adf_ret = adfuller(returns)
+    results[<span class="st">"unit_root_prices_pval"</span>] = adf_price[<span class="nu">1</span>]
+    results[<span class="st">"unit_root_returns_pval"</span>] = adf_ret[<span class="nu">1</span>]
+
+    <span class="cm"># Step 2: ARCH effects test (Ljung-Box on squared returns)</span>
+    lb_test = acorr_ljungbox(returns**<span class="nu">2</span>, lags=[<span class="nu">10</span>], return_df=<span class="kw">True</span>)
+    results[<span class="st">"arch_effect_pval"</span>] = lb_test[<span class="st">"lb_pvalue"</span>].values[<span class="nu">0</span>]
+
+    <span class="cm"># Step 3: Fit GARCH variants</span>
+    best_aic = np.inf
+    best_model_name = <span class="kw">None</span>
+    <span class="kw">for</span> vol_type, kwargs <span class="kw">in</span> [
+        (<span class="st">"GARCH"</span>, {<span class="st">"vol"</span>: <span class="st">"Garch"</span>, <span class="st">"p"</span>: <span class="nu">1</span>, <span class="st">"q"</span>: <span class="nu">1</span>}),
+        (<span class="st">"EGARCH"</span>, {<span class="st">"vol"</span>: <span class="st">"EGARCH"</span>, <span class="st">"p"</span>: <span class="nu">1</span>, <span class="st">"q"</span>: <span class="nu">1</span>}),
+        (<span class="st">"GJR"</span>, {<span class="st">"vol"</span>: <span class="st">"Garch"</span>, <span class="st">"p"</span>: <span class="nu">1</span>, <span class="st">"o"</span>: <span class="nu">1</span>, <span class="st">"q"</span>: <span class="nu">1</span>}),
+    ]:
+        m = arch_model(returns, **kwargs, dist=<span class="st">"t"</span>)
+        res = m.fit(disp=<span class="st">"off"</span>)
+        results[<span class="st">f"{vol_type}_AIC"</span>] = res.aic
+        <span class="kw">if</span> res.aic &lt; best_aic:
+            best_aic = res.aic
+            best_model_name = vol_type
+
+    results[<span class="st">"best_vol_model"</span>] = best_model_name
+
+    <span class="cm"># Step 4: Summary statistics</span>
+    results[<span class="st">"mean_return"</span>] = returns.mean()
+    results[<span class="st">"vol_return"</span>] = returns.std()
+    results[<span class="st">"skewness"</span>] = returns.skew()
+    results[<span class="st">"kurtosis"</span>] = returns.kurtosis()
+
+    <span class="kw">return</span> pd.Series(results)
+
+<span class="cm"># Run on multiple assets</span>
+tickers = [<span class="st">"SPY"</span>, <span class="st">"QQQ"</span>, <span class="st">"IWM"</span>, <span class="st">"EEM"</span>]
+analysis = pd.DataFrame({t: full_ts_analysis(t) <span class="kw">for</span> t <span class="kw">in</span> tickers})
+<span class="fn">print</span>(analysis.T)</pre>
+
+      <!-- ───────────────── SECTION 9: KEY TAKEAWAYS ───────────────── -->
+
+      <h2>9. Chapter Summary</h2>
+      <p>
+        This module connected the time series methods from your statistics training to their
+        financial applications. Here are the key mappings:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Statistics Concept</th>
+            <th>Financial Application</th>
+            <th>Key Nuance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Unit root / I(1) process</td>
+            <td>Price levels are non-stationary</td>
+            <td>Always model returns, not prices</td>
+          </tr>
+          <tr>
+            <td>ARMA model</td>
+            <td>Return forecasting</td>
+            <td>Very low signal; R&sup2; near zero</td>
+          </tr>
+          <tr>
+            <td>Conditional heteroscedasticity</td>
+            <td>Volatility clustering</td>
+            <td>The main signal is in variance, not mean</td>
+          </tr>
+          <tr>
+            <td>GARCH(1,1)</td>
+            <td>Volatility forecasting</td>
+            <td>Use t-distribution innovations</td>
+          </tr>
+          <tr>
+            <td>Asymmetric response</td>
+            <td>Leverage effect</td>
+            <td>EGARCH or GJR-GARCH preferred</td>
+          </tr>
+          <tr>
+            <td>Hidden Markov model</td>
+            <td>Regime detection</td>
+            <td>Calm vs crisis regimes</td>
+          </tr>
+          <tr>
+            <td>Cointegration</td>
+            <td>Pairs trading</td>
+            <td>Relationship can break down</td>
+          </tr>
+          <tr>
+            <td>VAR / Granger causality</td>
+            <td>Cross-asset dynamics</td>
+            <td>Beware of overfitting in high dimensions</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The single most important lesson for statisticians entering finance: <strong>the signal
+          is in the second moment, not the first</strong>. Predicting the direction of returns
+          is extraordinarily difficult (markets are nearly efficient). But predicting the
+          <em>magnitude</em> of returns (volatility) is feasible and has enormous practical
+          value for risk management, option pricing, and portfolio construction.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-14/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-16/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

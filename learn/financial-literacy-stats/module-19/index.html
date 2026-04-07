@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 19: Behavioral Finance & Market Anomalies — Explore cognitive biases, prospect theory, momentum, mean reversion, and calendar effects through statistical analysis.">
+  <title>Behavioral Finance &amp; Market Anomalies — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+    @media print { header, footer, nav, .nav-buttons, .btn, button { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 19: Behavioral Finance &amp; Market Anomalies</h1>
+      <p class="tagline">When humans are the data-generating process: cognitive biases, prospect theory, and exploitable market patterns</p>
+      <div class="module-meta">
+        <span class="meta-item">Part IV of 5</span>
+        <span class="meta-item">Module 19 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-18/index.html">&larr; Previous</a>
+      <span class="current">Module 19 of 22</span>
+      <a href="../module-20/index.html">Next &rarr;</a>
+    </div>
+
+      <h2>Introduction: When Humans Are the Data-Generating Process</h2>
+      <p>
+        Classical finance assumes rational, utility-maximizing agents who instantly incorporate all
+        available information into prices. Behavioral finance starts from a different premise:
+        humans are the data-generating process in financial markets, and humans are <strong>systematically
+        biased</strong>. These biases are not random noise &mdash; they are structured, predictable
+        deviations from rationality that leave measurable fingerprints in asset prices. For a
+        statistician, behavioral finance is the study of <strong>systematic errors in the human
+        estimation process</strong>.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, we distinguish between <strong>random errors</strong> (unbiased noise that
+          cancels in expectation) and <strong>systematic errors</strong> (bias that persists
+          regardless of sample size). Cognitive biases are systematic errors in human judgment.
+          They produce <strong>biased estimators</strong> of value, probability, and risk. Because
+          these biases are shared across market participants, they aggregate into price distortions
+          that a rational observer can detect &mdash; and potentially exploit.
+        </p>
+      </div>
+
+      <h2>1. Loss Aversion and Prospect Theory</h2>
+
+      <h3>1.1 The Core Finding</h3>
+      <p>
+        Kahneman and Tversky (1979) discovered that people do not evaluate outcomes in terms of
+        final wealth levels (as expected utility theory assumes), but in terms of <strong>gains and
+        losses relative to a reference point</strong>. Furthermore, losses are weighted approximately
+        2.5 times more heavily than equivalent gains.
+      </p>
+
+      <div class="formula-box">
+        v(x) = x<sup>&alpha;</sup> &nbsp;&nbsp; for x &ge; 0 &nbsp;&nbsp;&nbsp;&nbsp; v(x) = &minus;&lambda;(&minus;x)<sup>&beta;</sup> &nbsp;&nbsp; for x &lt; 0
+        <br><br>
+        Typical estimates: &alpha; = &beta; &asymp; 0.88, &nbsp; &lambda; &asymp; 2.25
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The prospect theory value function is an <strong>asymmetric loss function</strong>.
+          In statistics, the most common loss function is squared error (symmetric). Prospect
+          theory says humans implicitly use a loss function where underprediction (loss) is
+          penalized &lambda; &asymp; 2.5 times more than overprediction (gain). This is equivalent
+          to using a <strong>weighted asymmetric loss function</strong>, which a statistician would
+          recognize as a <strong>check function</strong> (used in quantile regression) with
+          asymmetric weights.
+        </p>
+      </div>
+
+      <h3>1.2 Financial Implications of Loss Aversion</h3>
+      <table>
+        <thead>
+          <tr><th>Behavior</th><th>Description</th><th>Market Consequence</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Disposition effect</td><td>Sell winners too early, hold losers too long</td><td>Momentum: winners underreact on the upside</td></tr>
+          <tr><td>Equity premium puzzle</td><td>Stocks must offer very high returns to compensate for loss aversion</td><td>Historically high equity risk premium (~6%)</td></tr>
+          <tr><td>Risk aversion in gains</td><td>Prefer certain $50 over 50/50 chance of $100</td><td>Demand for safe assets is irrationally high</td></tr>
+          <tr><td>Risk seeking in losses</td><td>Prefer gamble over certain loss</td><td>Doubling down on losing positions</td></tr>
+        </tbody>
+      </table>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Disposition Effect</strong> &mdash; The tendency of investors to sell assets that
+          have gained value while holding assets that have lost value. First documented by Shefrin
+          and Statman (1985). This behavior is irrational because it generates taxable capital gains
+          while forgoing tax-loss harvesting opportunities.
+        </p>
+      </div>
+
+      <h2>2. Overconfidence: Miscalibrated Confidence Intervals</h2>
+
+      <h3>2.1 The Calibration Problem</h3>
+      <p>
+        When people construct 90% confidence intervals for unknown quantities, the true value
+        falls outside their intervals roughly <strong>50% of the time</strong>. This is not a
+        minor miscalibration &mdash; it is a massive, systematic failure of probabilistic reasoning.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          A perfectly calibrated forecaster produces prediction intervals with correct
+          <strong>coverage probability</strong>. If your 90% intervals contain the truth only
+          50% of the time, your intervals are drastically too narrow. In statistical terms, you
+          are systematically <strong>underestimating variance</strong>. This maps to financial
+          behavior: investors underestimate the uncertainty in their return forecasts, leading
+          to overtrading and underdiversification.
+        </p>
+      </div>
+
+      <h3>2.2 Forms of Overconfidence</h3>
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Statistical Description</th><th>Financial Manifestation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Overestimation</td><td>Biased point estimate (E&#770;[skill] &gt; E[skill])</td><td>Believing you can beat the market consistently</td></tr>
+          <tr><td>Overprecision</td><td>Underestimated variance (&#963;&#770; &lt;&lt; &#963;)</td><td>Concentrated portfolios; too-tight stop losses</td></tr>
+          <tr><td>Overplacement</td><td>Biased rank estimate (better-than-average effect)</td><td>Active trading when passive would be better</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Trading Volume and Overconfidence</h3>
+      <p>
+        Barber and Odean (2000) showed that individual investors who trade the most earn the lowest
+        net returns. Overconfident traders trade too frequently, incurring transaction costs that
+        erode returns. The annual return shortfall attributable to excessive trading is approximately
+        3.7 percentage points for the most active traders versus the least active.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Overconfidence is arguably the most costly bias in finance. It does not cancel across
+          investors because it predominantly manifests as <strong>excessive trading</strong>, which
+          is a pure cost. Whether you are overconfident that the stock will go up or overconfident
+          that it will go down, you trade too much either way, and brokers capture the cost.
+        </p>
+      </div>
+
+      <h2>3. Anchoring: Biased Priors</h2>
+
+      <h3>3.1 The Mechanism</h3>
+      <p>
+        Anchoring is the tendency for initial values to disproportionately influence subsequent
+        estimates, even when the initial values are arbitrary or irrelevant. In experiments,
+        people who first see a random number give estimates biased toward that number.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Anchoring is analogous to a <strong>biased prior in Bayesian statistics</strong>.
+          A Bayesian updater with a strong (informative) prior that is systematically wrong will
+          produce biased posterior estimates, especially when the data (likelihood) is weak. In
+          finance, the &ldquo;prior&rdquo; is the last price you saw, the analyst&rsquo;s target,
+          or the price you paid. The &ldquo;data&rdquo; is new information. When information is
+          ambiguous (low SNR), the biased prior dominates.
+        </p>
+      </div>
+
+      <h3>3.2 Financial Examples of Anchoring</h3>
+      <ul>
+        <li><strong>Purchase price anchoring</strong>: Investors anchor to the price they paid, making sell decisions based on gains/losses rather than current valuation.</li>
+        <li><strong>52-week high anchoring</strong>: Stocks near their 52-week high are perceived as &ldquo;expensive&rdquo; even if fundamentals have improved.</li>
+        <li><strong>Analyst forecast anchoring</strong>: Earnings forecasts cluster around the consensus and adjust insufficiently to new information.</li>
+        <li><strong>Round number anchoring</strong>: Prices cluster around round numbers ($50, $100), creating support/resistance levels.</li>
+      </ul>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Anchoring creates <strong>underreaction</strong> to new information. When a company
+          reports earnings 20% above expectations, the stock price adjusts upward, but often not
+          by enough &mdash; because investors are anchored to the old valuation. This underreaction
+          is one explanation for the post-earnings announcement drift anomaly (prices continue
+          to drift in the direction of the earnings surprise for weeks after the announcement).
+        </p>
+      </div>
+
+      <h2>4. Herding: Correlated Errors Create Bubbles</h2>
+
+      <h3>4.1 The Statistics of Herding</h3>
+      <p>
+        When investors make independent errors, those errors cancel in aggregate (by the law of
+        large numbers), and prices remain efficient. But when investors <strong>herd</strong>
+        &mdash; imitating each other rather than acting on private information &mdash; their errors
+        become correlated, and the law of large numbers breaks down.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The Efficient Market Hypothesis implicitly assumes <strong>independence</strong> of
+          investor errors. Herding violates this assumption by introducing <strong>positive
+          correlation</strong> among errors. Recall that Var(&sum; X<sub>i</sub>) = &sum; Var(X<sub>i</sub>)
+          + 2 &sum;<sub>i&lt;j</sub> Cov(X<sub>i</sub>, X<sub>j</sub>). When correlations are
+          positive, the variance of the aggregate error does not shrink with N. The crowd
+          wisdom fails because the crowd is not independent.
+        </p>
+      </div>
+
+      <h3>4.2 Herding Mechanisms</h3>
+      <table>
+        <thead>
+          <tr><th>Mechanism</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Informational cascade</td><td>Ignore private info; follow others&rsquo; actions</td><td>Buying a stock because &ldquo;everyone is buying it&rdquo;</td></tr>
+          <tr><td>Reputational herding</td><td>Fund managers follow consensus to protect careers</td><td>&ldquo;Nobody gets fired for buying IBM&rdquo;</td></tr>
+          <tr><td>Momentum feedback</td><td>Rising prices attract more buyers, driving prices higher</td><td>Tech bubble 1999&ndash;2000, crypto 2017, 2021</td></tr>
+          <tr><td>Social media amplification</td><td>Viral narratives create synchronized buying/selling</td><td>GameStop/AMC 2021 meme stock frenzy</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 Bubbles as Statistical Phenomena</h3>
+      <p>
+        A price bubble occurs when the market price deviates significantly from fundamental value
+        for an extended period. From a statistical perspective, bubbles are characterized by:
+      </p>
+      <ul>
+        <li><strong>Super-exponential growth</strong>: Prices grow faster than exponential, implying accelerating returns.</li>
+        <li><strong>Increasing positive autocorrelation</strong>: Momentum intensifies during the bubble.</li>
+        <li><strong>Decreasing diversity</strong>: Investors converge on the same narrative.</li>
+        <li><strong>Fat-tailed crash risk</strong>: The bubble&rsquo;s end is a tail event in the return distribution.</li>
+      </ul>
+
+      <h2>5. The Momentum Anomaly</h2>
+
+      <h3>5.1 Definition and Evidence</h3>
+      <p>
+        The momentum anomaly, documented by Jegadeesh and Titman (1993), states that stocks that
+        have performed well over the past 3&ndash;12 months tend to continue performing well, and
+        stocks that have performed poorly tend to continue underperforming. This is one of the most
+        robust and widely replicated findings in empirical finance.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Momentum</strong> &mdash; The tendency for assets with strong recent performance
+          to continue outperforming and those with weak recent performance to continue
+          underperforming. A momentum strategy buys recent winners and sells recent losers.
+          Typical formation period: 3&ndash;12 months. Typical holding period: 3&ndash;12 months.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Momentum is <strong>positive serial correlation</strong> in returns at the 3&ndash;12
+          month horizon. The autocorrelation function of monthly returns is significantly positive
+          at lags 1&ndash;11. This contradicts the random walk hypothesis, which predicts zero
+          autocorrelation at all lags. The magnitude of the autocorrelation is small (typically
+          2&ndash;5%), but it is statistically significant and economically meaningful.
+        </p>
+      </div>
+
+      <h3>5.2 Behavioral Explanations</h3>
+      <ul>
+        <li><strong>Underreaction</strong>: Investors are slow to update beliefs due to anchoring and conservatism. Prices adjust gradually to new information, creating trending behavior.</li>
+        <li><strong>Overreaction (delayed)</strong>: Initial underreaction is followed by overreaction as herding and extrapolation take over, pushing prices beyond fair value.</li>
+        <li><strong>Disposition effect</strong>: Winners are sold too early (limiting upside response) while losers are held (limiting downside response).</li>
+      </ul>
+
+      <h3>5.3 Python: Testing Momentum</h3>
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Download a universe of ETFs as proxies for asset classes</span>
+tickers = [<span class="st">"XLK"</span>, <span class="st">"XLF"</span>, <span class="st">"XLE"</span>, <span class="st">"XLV"</span>, <span class="st">"XLI"</span>,
+           <span class="st">"XLP"</span>, <span class="st">"XLU"</span>, <span class="st">"XLB"</span>, <span class="st">"XLY"</span>, <span class="st">"XLRE"</span>]
+data = yf.download(tickers, start=<span class="st">"2005-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+prices = data[<span class="st">"Adj Close"</span>]
+
+<span class="cm"># Monthly returns</span>
+monthly_prices = prices.resample(<span class="st">"M"</span>).last()
+monthly_returns = monthly_prices.pct_change().dropna()
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Momentum strategy: buy top 3 performers over past 12 months</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+formation_period = <span class="nu">12</span>  <span class="cm"># months</span>
+holding_period = <span class="nu">1</span>    <span class="cm"># month</span>
+n_long = <span class="nu">3</span>
+n_short = <span class="nu">3</span>
+
+<span class="cm"># Compute trailing returns (skip most recent month to avoid reversal)</span>
+trailing_ret = monthly_prices.pct_change(formation_period).shift(<span class="nu">1</span>)
+
+momentum_returns = []
+<span class="kw">for</span> date <span class="kw">in</span> monthly_returns.index[formation_period + <span class="nu">1</span>:]:
+    <span class="kw">if</span> date <span class="kw">not</span> <span class="kw">in</span> trailing_ret.index:
+        <span class="kw">continue</span>
+
+    ranks = trailing_ret.loc[date].dropna().rank(ascending=<span class="kw">False</span>)
+
+    <span class="cm"># Long winners, short losers</span>
+    winners = ranks[ranks &lt;= n_long].index
+    losers = ranks[ranks &gt; <span class="fn">len</span>(ranks) - n_short].index
+
+    <span class="kw">if</span> date <span class="kw">in</span> monthly_returns.index:
+        long_ret = monthly_returns.loc[date, winners].mean()
+        short_ret = monthly_returns.loc[date, losers].mean()
+        momentum_returns.append({
+            <span class="st">"date"</span>: date,
+            <span class="st">"long"</span>: long_ret,
+            <span class="st">"short"</span>: short_ret,
+            <span class="st">"long_short"</span>: long_ret - short_ret,
+            <span class="st">"long_only"</span>: long_ret,
+        })
+
+mom_df = pd.DataFrame(momentum_returns).set_index(<span class="st">"date"</span>)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Statistical analysis</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="kw">for</span> col <span class="kw">in</span> [<span class="st">"long_short"</span>, <span class="st">"long_only"</span>]:
+    ret = mom_df[col]
+    ann_ret = ret.mean() * <span class="nu">12</span>
+    ann_vol = ret.std() * np.sqrt(<span class="nu">12</span>)
+    sharpe = ann_ret / ann_vol
+    t_stat, p_val = stats.ttest_1samp(ret, <span class="nu">0</span>)
+
+    <span class="fn">print</span>(<span class="st">f"\n=== {col.replace('_', ' ').title()} ==="</span>)
+    <span class="fn">print</span>(<span class="st">f"Ann. Return:  {ann_ret:+.2%}"</span>)
+    <span class="fn">print</span>(<span class="st">f"Ann. Vol:     {ann_vol:.2%}"</span>)
+    <span class="fn">print</span>(<span class="st">f"Sharpe Ratio: {sharpe:.3f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"t-statistic:  {t_stat:.3f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"p-value:      {p_val:.4f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"Skewness:     {ret.skew():.3f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"Kurtosis:     {ret.kurtosis():.3f}"</span>)
+
+<span class="cm"># Test for serial correlation in momentum returns</span>
+<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
+lb = acorr_ljungbox(mom_df[<span class="st">"long_short"</span>].dropna(), lags=[<span class="nu">6</span>, <span class="nu">12</span>], return_df=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="st">f"\nLjung-Box test for autocorrelation in momentum returns:"</span>)
+<span class="fn">print</span>(lb)</pre>
+
+      <h2>6. Mean Reversion: The Long-Run Counterpart</h2>
+
+      <h3>6.1 The Evidence</h3>
+      <p>
+        While momentum operates at the 3&ndash;12 month horizon, <strong>mean reversion</strong>
+        operates at longer horizons (3&ndash;5 years). DeBondt and Thaler (1985) showed that past
+        losers over 3&ndash;5 year periods subsequently outperform past winners. This is
+        <strong>negative serial correlation</strong> at long lags.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The autocorrelation function of stock returns shows a characteristic pattern: positive
+          at short lags (3&ndash;12 months), approximately zero at the 1&ndash;2 year horizon,
+          and negative at 3&ndash;5 year lags. This is consistent with an <strong>initial underreaction</strong>
+          (momentum) followed by an <strong>overreaction and correction</strong> (mean reversion).
+          The full autocorrelation structure is what a time series statistician would use to
+          characterize the DGP.
+        </p>
+      </div>
+
+      <h3>6.2 Autocorrelation Structure of Returns</h3>
+      <table>
+        <thead>
+          <tr><th>Horizon</th><th>Autocorrelation</th><th>Interpretation</th><th>Trading Strategy</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 day</td><td>Slightly negative</td><td>Bid-ask bounce; microstructure</td><td>Short-term mean reversion</td></tr>
+          <tr><td>1 week &ndash; 1 month</td><td>&asymp; 0 to slightly positive</td><td>Noise; weak continuation</td><td>Ambiguous</td></tr>
+          <tr><td>3 &ndash; 12 months</td><td>Positive (2&ndash;5%)</td><td>Momentum (underreaction)</td><td>Trend following</td></tr>
+          <tr><td>1 &ndash; 2 years</td><td>&asymp; 0</td><td>Transition zone</td><td>None</td></tr>
+          <tr><td>3 &ndash; 5 years</td><td>Negative</td><td>Mean reversion (overreaction correction)</td><td>Contrarian / value</td></tr>
+        </tbody>
+      </table>
+
+      <h2>7. The Value Premium</h2>
+
+      <h3>7.1 Definition</h3>
+      <p>
+        The value premium is the historical tendency for &ldquo;cheap&rdquo; stocks (low price
+        relative to fundamentals) to outperform &ldquo;expensive&rdquo; stocks (high price
+        relative to fundamentals). Common measures of value include:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Formula</th><th>Value Stock Has</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Price-to-Earnings (P/E)</td><td>Price / Earnings per share</td><td>Low P/E</td></tr>
+          <tr><td>Price-to-Book (P/B)</td><td>Market cap / Book value</td><td>Low P/B</td></tr>
+          <tr><td>Earnings Yield</td><td>Earnings / Price = 1 / P/E</td><td>High E/P</td></tr>
+          <tr><td>Dividend Yield</td><td>Dividends / Price</td><td>High dividend yield</td></tr>
+          <tr><td>Enterprise Value / EBITDA</td><td>(Market cap + Debt &minus; Cash) / EBITDA</td><td>Low EV/EBITDA</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Behavioral Explanation</h3>
+      <p>
+        Behavioral finance attributes the value premium to systematic <strong>overextrapolation</strong>:
+      </p>
+      <ul>
+        <li>Investors extrapolate past growth rates too far into the future.</li>
+        <li>&ldquo;Glamour&rdquo; stocks (high growth, high P/E) are bid up beyond fair value because investors are seduced by the narrative.</li>
+        <li>&ldquo;Value&rdquo; stocks (low growth, low P/E) are overlooked or feared because their recent performance has been poor.</li>
+        <li>When reality disappoints (growth slows) or surprises positively (value improves), prices correct.</li>
+      </ul>
+
+      <h3>7.3 Risk-Based Explanation</h3>
+      <p>
+        The alternative explanation is that value stocks are genuinely riskier: they are often
+        distressed companies with high leverage and uncertain futures. The value premium is
+        compensation for bearing this risk, not a free lunch from behavioral mispricing.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The debate between behavioral and risk-based explanations for the value premium is one
+          of the central unresolved questions in finance. For a statistician, the key point is
+          that you cannot distinguish risk from mispricing using return data alone. A higher
+          average return is consistent with either a risk premium (rational) or persistent
+          overvaluation that eventually corrects (behavioral). You need <strong>additional
+          identifying assumptions</strong> to separate the two.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Proxy for value premium: compare value vs growth ETFs</span>
+etfs = {
+    <span class="st">"Value"</span>: <span class="st">"IWD"</span>,      <span class="cm"># iShares Russell 1000 Value</span>
+    <span class="st">"Growth"</span>: <span class="st">"IWF"</span>,     <span class="cm"># iShares Russell 1000 Growth</span>
+    <span class="st">"Market"</span>: <span class="st">"SPY"</span>,     <span class="cm"># S&P 500</span>
+}
+
+data = yf.download(<span class="fn">list</span>(etfs.values()), start=<span class="st">"2005-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+prices = data[<span class="st">"Adj Close"</span>]
+prices.columns = <span class="fn">list</span>(etfs.values())
+monthly = prices.resample(<span class="st">"M"</span>).last().pct_change().dropna()
+
+<span class="cm"># Value minus Growth spread (HML proxy)</span>
+hml_proxy = monthly[<span class="st">"IWD"</span>] - monthly[<span class="st">"IWF"</span>]
+
+<span class="cm"># Test if value premium is statistically significant</span>
+t_stat, p_val = stats.ttest_1samp(hml_proxy, <span class="nu">0</span>)
+ann_premium = hml_proxy.mean() * <span class="nu">12</span>
+ann_vol = hml_proxy.std() * np.sqrt(<span class="nu">12</span>)
+
+<span class="fn">print</span>(<span class="st">"=== Value Premium (Value - Growth) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"Annualized premium: {ann_premium:+.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Annualized vol:     {ann_vol:.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Sharpe ratio:       {ann_premium/ann_vol:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"t-statistic:        {t_stat:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"p-value:            {p_val:.4f}"</span>)
+
+<span class="cm"># Rolling 3-year value premium (to see time variation)</span>
+rolling_premium = hml_proxy.rolling(<span class="nu">36</span>).mean() * <span class="nu">12</span>
+<span class="fn">print</span>(<span class="st">f"\nRecent 3Y ann. premium: {rolling_premium.iloc[-1]:+.2%}"</span>)
+<span class="fn">print</span>(<span class="st">f"Historical avg:        {rolling_premium.mean():+.2%}"</span>)
+
+<span class="cm"># Compare performance by decade</span>
+<span class="kw">for</span> period_name, start, end <span class="kw">in</span> [
+    (<span class="st">"2005-2009"</span>, <span class="st">"2005"</span>, <span class="st">"2009"</span>),
+    (<span class="st">"2010-2014"</span>, <span class="st">"2010"</span>, <span class="st">"2014"</span>),
+    (<span class="st">"2015-2019"</span>, <span class="st">"2015"</span>, <span class="st">"2019"</span>),
+    (<span class="st">"2020-2023"</span>, <span class="st">"2020"</span>, <span class="st">"2023"</span>),
+]:
+    subset = hml_proxy[start:end]
+    <span class="fn">print</span>(<span class="st">f"{period_name}: ann. premium = {subset.mean()*12:+.2%}, "
+          f"t = {stats.ttest_1samp(subset, 0)[0]:.2f}"</span>)</pre>
+
+      <h2>8. Are Anomalies Real Alpha or Risk Premiums?</h2>
+
+      <h3>8.1 The Debate Framework</h3>
+      <p>
+        For every market anomaly, there are three possible explanations:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Explanation</th><th>Implication</th><th>Statistical Test</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Genuine mispricing (alpha)</td><td>Exploitable; should diminish once discovered</td><td>Abnormal returns persist after risk adjustment</td></tr>
+          <tr><td>Compensation for risk</td><td>Not exploitable risk-free; premium is payment for risk</td><td>Returns explained by priced risk factors</td></tr>
+          <tr><td>Data mining artifact</td><td>Not real; result of looking at too many patterns</td><td>Fails out-of-sample or in other markets</td></tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This debate maps directly to <strong>model specification</strong> in regression. If you
+          regress strategy returns on known risk factors (market, size, value, momentum) and the
+          intercept (&alpha;) is significantly positive, the strategy earns returns beyond what
+          risk exposure explains. If &alpha; is zero after controlling for factors, the strategy
+          was just taking factor risk. The Fama-French factor models are the financial equivalent
+          of including control variables in a regression.
+        </p>
+      </div>
+
+      <h3>8.2 The Replication Crisis in Finance</h3>
+      <p>
+        Harvey, Liu, and Zhu (2016) documented over 400 published factors that allegedly explain
+        the cross-section of stock returns. Many of these cannot be replicated out-of-sample.
+        Applying multiple testing corrections, the majority of published factors have t-statistics
+        that fail to reach the adjusted significance threshold.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          The standard t-statistic threshold of 2.0 (p &lt; 0.05) is far too lenient for factor
+          discovery given the number of factors that have been tested across the history of
+          finance research. Harvey et al. suggest a minimum t-statistic of <strong>3.0</strong>
+          for new factor discoveries, accounting for the hundreds of factors already tested. This
+          is the financial version of the multiple testing correction, applied at the literature
+          level.
+        </p>
+      </div>
+
+      <h2>9. Calendar Anomalies</h2>
+
+      <h3>9.1 The January Effect</h3>
+      <p>
+        Historically, stock returns in January have been higher than other months, especially for
+        small-cap stocks. The most common explanation is <strong>tax-loss selling</strong>:
+        investors sell losing positions in December to harvest tax losses, depressing prices.
+        When selling pressure subsides in January, prices rebound.
+      </p>
+
+      <h3>9.2 Day-of-Week Effect</h3>
+      <p>
+        Returns on Mondays have historically been lower than other days (the &ldquo;Monday effect&rdquo;).
+        Possible explanations include the accumulation of negative news over weekends and
+        institutional trading patterns.
+      </p>
+
+      <h3>9.3 Other Calendar Patterns</h3>
+      <table>
+        <thead>
+          <tr><th>Anomaly</th><th>Pattern</th><th>Status (Post-Discovery)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>January effect</td><td>Higher returns in January</td><td>Weakened significantly; mostly in small caps</td></tr>
+          <tr><td>Monday effect</td><td>Negative Monday returns</td><td>Largely disappeared</td></tr>
+          <tr><td>Turn-of-month</td><td>Higher returns around month-end/start</td><td>Still present; linked to payroll flows</td></tr>
+          <tr><td>Holiday effect</td><td>Higher returns before holidays</td><td>Weak but persistent</td></tr>
+          <tr><td>Halloween effect</td><td>Nov&ndash;Apr outperforms May&ndash;Oct</td><td>Surprisingly robust across markets</td></tr>
+        </tbody>
+      </table>
+
+      <h3>9.4 Python: Testing Calendar Effects</h3>
+      <pre class="code-block"><span class="code-label">Python</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+spy = yf.download(<span class="st">"SPY"</span>, start=<span class="st">"2000-01-01"</span>, end=<span class="st">"2023-12-31"</span>)
+returns = spy[<span class="st">"Adj Close"</span>].pct_change().dropna()
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Test 1: January Effect</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+monthly_returns = spy[<span class="st">"Adj Close"</span>].resample(<span class="st">"M"</span>).last().pct_change().dropna()
+monthly_returns.index = monthly_returns.index.month
+
+jan_returns = monthly_returns[monthly_returns.index == <span class="nu">1</span>]
+other_returns = monthly_returns[monthly_returns.index != <span class="nu">1</span>]
+
+t_jan, p_jan = stats.ttest_ind(jan_returns, other_returns)
+<span class="fn">print</span>(<span class="st">"=== January Effect ==="</span>)
+<span class="fn">print</span>(<span class="st">f"January mean return: {jan_returns.mean():+.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Other months mean:   {other_returns.mean():+.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"t-statistic: {t_jan:.3f}, p-value: {p_jan:.4f}"</span>)
+
+<span class="cm"># Monthly return by month</span>
+monthly_returns_full = spy[<span class="st">"Adj Close"</span>].resample(<span class="st">"M"</span>).last().pct_change().dropna()
+by_month = monthly_returns_full.groupby(monthly_returns_full.index.month).agg([<span class="st">"mean"</span>, <span class="st">"std"</span>, <span class="st">"count"</span>])
+by_month.columns = [<span class="st">"Mean Return"</span>, <span class="st">"Std Dev"</span>, <span class="st">"Count"</span>]
+by_month[<span class="st">"t-stat"</span>] = by_month[<span class="st">"Mean Return"</span>] / (by_month[<span class="st">"Std Dev"</span>] / np.sqrt(by_month[<span class="st">"Count"</span>]))
+by_month.index = [<span class="st">"Jan"</span>, <span class="st">"Feb"</span>, <span class="st">"Mar"</span>, <span class="st">"Apr"</span>, <span class="st">"May"</span>, <span class="st">"Jun"</span>,
+                  <span class="st">"Jul"</span>, <span class="st">"Aug"</span>, <span class="st">"Sep"</span>, <span class="st">"Oct"</span>, <span class="st">"Nov"</span>, <span class="st">"Dec"</span>]
+<span class="fn">print</span>(<span class="st">"\nMonthly return patterns:"</span>)
+<span class="fn">print</span>(by_month.round(<span class="nu">4</span>))
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Test 2: Day-of-Week Effect</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+returns_dow = returns.copy()
+returns_dow.index = returns_dow.index.dayofweek  <span class="cm"># 0=Mon, 4=Fri</span>
+
+by_dow = returns.groupby(returns.index.dayofweek).agg([<span class="st">"mean"</span>, <span class="st">"std"</span>, <span class="st">"count"</span>])
+by_dow.columns = [<span class="st">"Mean Return"</span>, <span class="st">"Std Dev"</span>, <span class="st">"Count"</span>]
+by_dow[<span class="st">"t-stat"</span>] = by_dow[<span class="st">"Mean Return"</span>] / (by_dow[<span class="st">"Std Dev"</span>] / np.sqrt(by_dow[<span class="st">"Count"</span>]))
+by_dow.index = [<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>]
+
+<span class="fn">print</span>(<span class="st">"\n=== Day-of-Week Effect ==="</span>)
+<span class="fn">print</span>(by_dow.round(<span class="nu">6</span>))
+
+<span class="cm"># ANOVA test: are day-of-week returns significantly different?</span>
+groups = [returns[returns.index.dayofweek == d] <span class="kw">for</span> d <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">5</span>)]
+f_stat, p_anova = stats.f_oneway(*groups)
+<span class="fn">print</span>(<span class="st">f"\nANOVA F-statistic: {f_stat:.3f}, p-value: {p_anova:.4f}"</span>)
+
+<span class="cm"># ──────────────────────────────────────────────</span>
+<span class="cm"># Test 3: Halloween Effect (Nov-Apr vs May-Oct)</span>
+<span class="cm"># ──────────────────────────────────────────────</span>
+winter = monthly_returns_full[monthly_returns_full.index.month.isin([<span class="nu">11</span>,<span class="nu">12</span>,<span class="nu">1</span>,<span class="nu">2</span>,<span class="nu">3</span>,<span class="nu">4</span>])]
+summer = monthly_returns_full[monthly_returns_full.index.month.isin([<span class="nu">5</span>,<span class="nu">6</span>,<span class="nu">7</span>,<span class="nu">8</span>,<span class="nu">9</span>,<span class="nu">10</span>])]
+
+t_hw, p_hw = stats.ttest_ind(winter, summer)
+<span class="fn">print</span>(<span class="st">"\n=== Halloween Effect (Nov-Apr vs May-Oct) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"Winter mean: {winter.mean():+.4f} ({winter.mean()*12:+.2%} ann.)"</span>)
+<span class="fn">print</span>(<span class="st">f"Summer mean: {summer.mean():+.4f} ({summer.mean()*12:+.2%} ann.)"</span>)
+<span class="fn">print</span>(<span class="st">f"t-statistic: {t_hw:.3f}, p-value: {p_hw:.4f}"</span>)</pre>
+
+      <h2>10. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr><th>Cognitive Bias</th><th>Statistical Analogue</th><th>Market Anomaly</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Loss aversion</td><td>Asymmetric loss function</td><td>Disposition effect; equity premium puzzle</td></tr>
+          <tr><td>Overconfidence</td><td>Underestimated variance</td><td>Excessive trading; concentrated portfolios</td></tr>
+          <tr><td>Anchoring</td><td>Biased Bayesian prior</td><td>Underreaction; post-earnings drift</td></tr>
+          <tr><td>Herding</td><td>Correlated errors (broken independence)</td><td>Bubbles and crashes</td></tr>
+          <tr><td>Extrapolation bias</td><td>Overfitting to recent data</td><td>Value premium; long-run mean reversion</td></tr>
+          <tr><td>Conservatism</td><td>Insufficient updating (sticky prior)</td><td>Momentum (3&ndash;12 month positive autocorrelation)</td></tr>
+          <tr><td>Availability bias</td><td>Non-representative sampling</td><td>Overreaction to salient news events</td></tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          For a statistician, the deepest lesson of behavioral finance is this: <strong>the
+          data-generating process in financial markets includes human psychology</strong>. The
+          statistical properties of returns &mdash; fat tails, volatility clustering, momentum,
+          mean reversion &mdash; are not arbitrary. They are the fingerprints of systematic human
+          biases aggregated through market prices. Understanding the psychology does not just
+          explain the statistics; it helps you predict when the statistics will change (because
+          human nature does not change, even when market structure does).
+        </p>
+      </div>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Knowing about cognitive biases does not make you immune to them. The psychologist who
+          studies overconfidence is still overconfident. The trader who knows about loss aversion
+          still feels losses more keenly than gains. The value of behavioral finance is not in
+          making better intuitive decisions &mdash; it is in building <strong>systematic processes</strong>
+          (rules, models, checklists) that override biased intuition with disciplined analysis.
+          This is where the statistician&rsquo;s quantitative toolkit becomes a genuine competitive
+          advantage.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-18/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-20/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

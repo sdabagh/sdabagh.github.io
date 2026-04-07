@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Options and Derivatives — Black-Scholes formula, the Greeks, implied volatility, volatility smile, and put-call parity for statisticians.">
+  <title>Options &amp; Derivatives — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 13: Options &amp; Derivatives</h1>
+      <p class="tagline">Where stochastic calculus, probability theory, and estimation converge</p>
+      <div class="module-meta">
+        <span class="meta-item">Part III of 5</span>
+        <span class="meta-item">Module 13 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-12/index.html">&larr; Previous</a>
+      <span class="current">Module 13 of 22</span>
+      <a href="../module-14/index.html">Next &rarr;</a>
+    </div>
+
+    <h2>1. What Are Derivatives?</h2>
+
+    <p>
+      A <strong>derivative</strong> is a financial contract whose value <em>derives from</em>
+      the price of an underlying asset. The underlying can be a stock, bond, commodity, interest
+      rate, currency, or even another derivative. Derivatives are the most mathematically rich
+      instruments in finance, and for a statistician, they are where stochastic calculus,
+      probability theory, and estimation all converge.
+    </p>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Derivative</strong> = a contract between two parties whose payoff depends on the
+        value of an underlying asset. The four main types are: <strong>options</strong> (right but
+        not obligation to buy/sell), <strong>futures</strong> (obligation to buy/sell at a future
+        date), <strong>forwards</strong> (like futures but traded privately), and <strong>swaps</strong>
+        (exchange of cash flow streams).
+      </p>
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        A derivative is a <strong>function of a random variable</strong>. If S is the price of
+        the underlying (a random variable), then the derivative's payoff is g(S) for some function
+        g. Pricing the derivative means computing E[g(S) &middot; e<sup>&minus;rT</sup>] under
+        the appropriate probability measure. This is <strong>expected value of a transformation</strong>
+        &mdash; the same operation you perform when computing E[g(X)] in any probability course.
+      </p>
+    </div>
+
+    <p>
+      This module focuses on <strong>options</strong>, the most commonly traded and conceptually
+      rich type of derivative.
+    </p>
+
+    <h3>1.1 Why Derivatives Exist</h3>
+
+    <p>Derivatives serve three fundamental purposes:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Purpose</th>
+          <th>Description</th>
+          <th>Statistical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hedging</td>
+          <td>Reduce risk by offsetting an existing exposure</td>
+          <td>Variance reduction technique (like control variates)</td>
+        </tr>
+        <tr>
+          <td>Speculation</td>
+          <td>Make leveraged bets on price direction</td>
+          <td>Concentrated portfolio (high variance, high expected return)</td>
+        </tr>
+        <tr>
+          <td>Price discovery</td>
+          <td>Derivative prices reveal market expectations</td>
+          <td>Inverse problem &mdash; extracting latent parameters from observables</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <h2>2. Call and Put Options</h2>
+
+    <h3>2.1 Call Options</h3>
+
+    <p>
+      A <strong>call option</strong> gives the holder the <em>right, but not the obligation</em>,
+      to buy the underlying asset at a specified price (the <strong>strike price</strong> K) on
+      or before a specified date (the <strong>expiration date</strong> T). The payoff at
+      expiration is:
+    </p>
+
+    <div class="formula-box">
+      Call Payoff = max(S<sub>T</sub> &minus; K, 0)
+    </div>
+
+    <p>
+      If S<sub>T</sub> &gt; K, you exercise the option and profit S<sub>T</sub> &minus; K.
+      If S<sub>T</sub> &le; K, the option expires worthless and your payoff is zero.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The call payoff max(S<sub>T</sub> &minus; K, 0) is a <strong>truncated random variable</strong>.
+        If S<sub>T</sub> follows a continuous distribution, the call payoff is the
+        <strong>positive part</strong> of (S<sub>T</sub> &minus; K). Its expected value is:
+        E[max(S<sub>T</sub> &minus; K, 0)] = &int;<sub>K</sub><sup>&infin;</sup>
+        (s &minus; K) f(s) ds, where f is the density of S<sub>T</sub>. This is the
+        <strong>partial expectation</strong> or <strong>truncated mean</strong> that appears
+        frequently in actuarial science and survival analysis.
+      </p>
+    </div>
+
+    <h3>2.2 Put Options</h3>
+
+    <p>
+      A <strong>put option</strong> gives the holder the right to <em>sell</em> the underlying
+      at the strike price. The payoff at expiration is:
+    </p>
+
+    <div class="formula-box">
+      Put Payoff = max(K &minus; S<sub>T</sub>, 0)
+    </div>
+
+    <p>
+      If S<sub>T</sub> &lt; K, you exercise and profit K &minus; S<sub>T</sub>. If
+      S<sub>T</sub> &ge; K, the put expires worthless. The put is like <strong>insurance</strong>
+      against a price decline.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The put payoff is the <strong>mirror truncation</strong> of the call: it captures the
+        left tail of the distribution. Together, call and put payoffs decompose the absolute
+        deviation |S<sub>T</sub> &minus; K| into positive and negative parts:
+        max(S &minus; K, 0) &minus; max(K &minus; S, 0) = S &minus; K. This identity
+        underlies <strong>put-call parity</strong>, which we derive later.
+      </p>
+    </div>
+
+    <h3>2.3 Option Terminology</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Term</th>
+          <th>Meaning</th>
+          <th>For Calls</th>
+          <th>For Puts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>In the money (ITM)</td>
+          <td>Option has positive intrinsic value</td>
+          <td>S &gt; K</td>
+          <td>S &lt; K</td>
+        </tr>
+        <tr>
+          <td>At the money (ATM)</td>
+          <td>Strike equals current price</td>
+          <td>S &approx; K</td>
+          <td>S &approx; K</td>
+        </tr>
+        <tr>
+          <td>Out of the money (OTM)</td>
+          <td>Option has zero intrinsic value</td>
+          <td>S &lt; K</td>
+          <td>S &gt; K</td>
+        </tr>
+        <tr>
+          <td>Intrinsic value</td>
+          <td>Payoff if exercised now</td>
+          <td>max(S &minus; K, 0)</td>
+          <td>max(K &minus; S, 0)</td>
+        </tr>
+        <tr>
+          <td>Time value</td>
+          <td>Option price minus intrinsic value</td>
+          <td colspan="2">The premium for optionality; always &ge; 0</td>
+        </tr>
+        <tr>
+          <td>Premium</td>
+          <td>Price paid to buy the option</td>
+          <td colspan="2">The upfront cost; your maximum loss as a buyer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>2.4 Profit Diagrams</h3>
+
+    <p>
+      The <strong>profit</strong> (not payoff) accounts for the premium paid upfront. For a
+      call buyer with premium <em>c</em>:
+    </p>
+
+    <div class="formula-box">
+      Profit<sub>call</sub> = max(S<sub>T</sub> &minus; K, 0) &minus; c
+    </div>
+
+    <p>For a put buyer with premium <em>p</em>:</p>
+
+    <div class="formula-box">
+      Profit<sub>put</sub> = max(K &minus; S<sub>T</sub>, 0) &minus; p
+    </div>
+
+    <p>
+      The breakeven point for a call is S<sub>T</sub> = K + c, and for a put is
+      S<sub>T</sub> = K &minus; p. Note the fundamental asymmetry: the buyer's maximum loss
+      is the premium paid (bounded), but the potential gain is unlimited for calls and large
+      for puts.
+    </p>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Options create <strong>asymmetric payoff distributions</strong>. A call buyer has a
+        right-skewed payoff: small probability of large gains, high probability of a small fixed
+        loss (the premium). This is the opposite of selling insurance &mdash; you pay a small
+        regular cost for protection against a large adverse event. Conversely, the option
+        <em>seller</em> has a left-skewed payoff: frequent small gains (collecting premium) with
+        rare large losses.
+      </p>
+    </div>
+
+
+    <h2>3. The Black-Scholes Formula</h2>
+
+    <p>
+      The Black-Scholes formula (1973) is one of the most important equations in finance. It
+      provides a closed-form solution for the price of a European call or put option on a
+      non-dividend-paying stock.
+    </p>
+
+    <h3>3.1 The Model Assumptions</h3>
+
+    <p>
+      Black-Scholes rests on several strong assumptions. A statistician should know each one
+      and its implications:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Assumption</th>
+          <th>Mathematical Form</th>
+          <th>Reality Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Stock follows geometric Brownian motion</td>
+          <td>dS = &mu;S dt + &sigma;S dW</td>
+          <td>Approximate but tails are fatter in reality</td>
+        </tr>
+        <tr>
+          <td>Volatility is constant</td>
+          <td>&sigma; = constant</td>
+          <td>Violated &mdash; vol clusters and changes over time</td>
+        </tr>
+        <tr>
+          <td>Log-returns are normally distributed</td>
+          <td>ln(S<sub>T</sub>/S<sub>0</sub>) ~ N((&mu; &minus; &sigma;&sup2;/2)T, &sigma;&sup2;T)</td>
+          <td>Approximately true for moderate horizons; fails in tails</td>
+        </tr>
+        <tr>
+          <td>No arbitrage opportunities</td>
+          <td>Risk-neutral pricing applies</td>
+          <td>Approximately true in liquid markets</td>
+        </tr>
+        <tr>
+          <td>Continuous trading is possible</td>
+          <td>Can rebalance hedge at every instant</td>
+          <td>Impossible in practice; introduces hedging error</td>
+        </tr>
+        <tr>
+          <td>No transaction costs or taxes</td>
+          <td>Frictionless markets</td>
+          <td>Costs are small but nonzero</td>
+        </tr>
+        <tr>
+          <td>Risk-free rate is constant and known</td>
+          <td>r = constant</td>
+          <td>Rates fluctuate; less important for short-dated options</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The geometric Brownian motion (GBM) assumption means log-returns follow a
+        <strong>random walk with drift</strong>: ln(S<sub>t+1</sub>/S<sub>t</sub>) =
+        &mu;dt + &sigma;dW<sub>t</sub>, where dW<sub>t</sub> ~ N(0, dt). This is a
+        <strong>Gaussian AR(0) model</strong> for log-returns: no autocorrelation, constant
+        variance, normally distributed innovations. Every empirical finance paper since the
+        1960s has shown these assumptions are violated (fat tails, volatility clustering,
+        serial correlation), yet Black-Scholes remains the industry standard benchmark
+        because of its elegant closed form.
+      </p>
+    </div>
+
+    <h3>3.2 The Black-Scholes Formulas</h3>
+
+    <p>For a European call option:</p>
+
+    <div class="formula-box">
+      C = S<sub>0</sub> N(d<sub>1</sub>) &minus; K e<sup>&minus;rT</sup> N(d<sub>2</sub>)
+    </div>
+
+    <p>For a European put option:</p>
+
+    <div class="formula-box">
+      P = K e<sup>&minus;rT</sup> N(&minus;d<sub>2</sub>) &minus; S<sub>0</sub> N(&minus;d<sub>1</sub>)
+    </div>
+
+    <p>where:</p>
+
+    <div class="formula-box">
+      d<sub>1</sub> = [ln(S<sub>0</sub>/K) + (r + &sigma;&sup2;/2)T] / (&sigma;&radic;T)
+      <br><br>
+      d<sub>2</sub> = d<sub>1</sub> &minus; &sigma;&radic;T
+    </div>
+
+    <p>
+      and N(&middot;) is the standard normal CDF.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The Black-Scholes formula is a <strong>discounted expected value under the risk-neutral
+        measure</strong>: C = e<sup>&minus;rT</sup> E<sup>Q</sup>[max(S<sub>T</sub> &minus; K, 0)].
+        The terms N(d<sub>1</sub>) and N(d<sub>2</sub>) are <strong>tail probabilities</strong>
+        of the standard normal distribution. Specifically, N(d<sub>2</sub>) is the risk-neutral
+        probability that the option expires in the money: P<sup>Q</sup>(S<sub>T</sub> &gt; K).
+        The quantity d<sub>2</sub> is a <strong>z-score</strong> &mdash; how many standard
+        deviations the log-forward price is above the log-strike.
+      </p>
+    </div>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Notice that &mu; (the stock's expected return) does not appear in the Black-Scholes formula.
+        This is the profound insight of risk-neutral pricing: we replace the real-world drift &mu;
+        with the risk-free rate r and price the option as a discounted expectation under this
+        modified probability measure. The option price does not depend on how fast the stock is
+        expected to grow &mdash; only on how much it is expected to fluctuate (&sigma;).
+      </p>
+    </div>
+
+
+    <h2>4. The Greeks: Partial Derivatives of Option Price</h2>
+
+    <p>
+      The "Greeks" are the partial derivatives of the option price with respect to various
+      inputs. They measure how the option price changes when one parameter changes while all
+      others are held constant. For a statistician, these are simply a
+      <strong>sensitivity analysis</strong>.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Greek</th>
+          <th>Symbol</th>
+          <th>Definition</th>
+          <th>Measures</th>
+          <th>Statistical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Delta</td>
+          <td>&Delta;</td>
+          <td>&part;V/&part;S</td>
+          <td>Price sensitivity to underlying</td>
+          <td>Regression coefficient (slope)</td>
+        </tr>
+        <tr>
+          <td>Gamma</td>
+          <td>&Gamma;</td>
+          <td>&part;&sup2;V/&part;S&sup2;</td>
+          <td>Rate of change of delta</td>
+          <td>Curvature; second derivative (like convexity for bonds)</td>
+        </tr>
+        <tr>
+          <td>Theta</td>
+          <td>&Theta;</td>
+          <td>&part;V/&part;t</td>
+          <td>Time decay (value lost per day)</td>
+          <td>Depreciation rate of the option's time value</td>
+        </tr>
+        <tr>
+          <td>Vega</td>
+          <td>&nu;</td>
+          <td>&part;V/&part;&sigma;</td>
+          <td>Sensitivity to volatility</td>
+          <td>Sensitivity of estimator to dispersion parameter</td>
+        </tr>
+        <tr>
+          <td>Rho</td>
+          <td>&rho;</td>
+          <td>&part;V/&part;r</td>
+          <td>Sensitivity to interest rate</td>
+          <td>Often negligible for short-dated options</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.1 Delta in Depth</h3>
+
+    <p>
+      Delta is the most important Greek. For a call option under Black-Scholes:
+    </p>
+
+    <div class="formula-box">
+      &Delta;<sub>call</sub> = N(d<sub>1</sub>)
+    </div>
+
+    <p>
+      This means delta is always between 0 and 1 for calls, and between &minus;1 and 0 for puts.
+      An at-the-money call has delta &approx; 0.5: the option price moves about 50 cents for every
+      $1 move in the stock.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Delta = N(d<sub>1</sub>) is the standard normal CDF evaluated at d<sub>1</sub>. As the
+        option goes deeper in the money (d<sub>1</sub> &rarr; &infin;), delta approaches 1 (the
+        option behaves like the stock). As it goes deeper out of the money (d<sub>1</sub> &rarr;
+        &minus;&infin;), delta approaches 0 (the option is almost worthless). Delta traces out
+        the <strong>sigmoid curve</strong> of the normal CDF &mdash; the same curve that appears
+        in logistic regression as the link function.
+      </p>
+    </div>
+
+    <h3>4.2 Gamma: The Curvature</h3>
+
+    <p>
+      Gamma measures how fast delta changes. It is highest for at-the-money options near
+      expiration, when small moves in the stock can flip the option from worthless to valuable.
+    </p>
+
+    <div class="formula-box">
+      &Gamma; = &phi;(d<sub>1</sub>) / (S &sigma; &radic;T)
+    </div>
+
+    <p>
+      where &phi; is the standard normal PDF. Gamma is always positive for both calls and puts.
+      High gamma means the option's delta is changing rapidly &mdash; the position is becoming
+      more or less sensitive to the underlying price.
+    </p>
+
+    <h3>4.3 Theta: Time Decay</h3>
+
+    <p>
+      Theta measures how much value the option loses as time passes, all else equal. Options
+      are <strong>wasting assets</strong> &mdash; they lose value every day due to the decreasing
+      time until expiration. The rate of decay accelerates as expiration approaches.
+    </p>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        Time decay is not linear. An option with 30 days to expiration loses value slowly. The
+        same option with 5 days to expiration loses value rapidly. Theta scales approximately
+        as 1/&radic;T, meaning the last few days see the steepest decay. If you are long options,
+        this <strong>time decay drag</strong> is a constant cost you bear. If you are short
+        options, theta works in your favor &mdash; you earn "theta income" each day.
+      </p>
+    </div>
+
+    <h3>4.4 Vega: Sensitivity to Volatility</h3>
+
+    <p>
+      Vega measures sensitivity to volatility. Since volatility is the key input to option
+      pricing, vega is arguably the most economically important Greek for traders:
+    </p>
+
+    <div class="formula-box">
+      &nu; = S &phi;(d<sub>1</sub>) &radic;T
+    </div>
+
+    <p>
+      Vega is always positive for both calls and puts: higher volatility increases option values
+      because it increases the probability of large moves, which benefits the option holder
+      (due to the truncated payoff).
+    </p>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        There is a deep relationship between the Greeks: the Black-Scholes PDE states that
+        &Theta; + (1/2)&sigma;&sup2;S&sup2;&Gamma; + rS&Delta; = rV. This means theta, gamma,
+        and delta are not independent &mdash; they are connected through a partial differential
+        equation. If you know any two, you can derive the third. This is analogous to constraints
+        in a statistical model that reduce the number of free parameters.
+      </p>
+    </div>
+
+
+    <h2>5. Implied Volatility</h2>
+
+    <p>
+      All inputs to Black-Scholes are directly observable (stock price, strike, time to expiration,
+      risk-free rate) except one: <strong>volatility</strong> (&sigma;). The
+      <strong>implied volatility</strong> is the value of &sigma; that makes the Black-Scholes
+      price equal to the observed market price:
+    </p>
+
+    <div class="formula-box">
+      C<sub>market</sub> = C<sub>BS</sub>(S, K, T, r, &sigma;<sub>implied</sub>)
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Finding implied volatility is an <strong>inverse problem</strong>: given the output
+        (market price) and the model (Black-Scholes), find the parameter (&sigma;) that produces
+        that output. There is no closed-form solution, so we use numerical methods (Newton-Raphson,
+        bisection). This is exactly like solving a <strong>maximum likelihood equation</strong>:
+        find the parameter that makes the model best fit the observed data. The gradient needed
+        for Newton-Raphson is vega &mdash; the sensitivity of price to volatility.
+      </p>
+    </div>
+
+    <h3>5.1 Why Implied Volatility Matters</h3>
+
+    <p>
+      Implied volatility has become the market's preferred way of quoting option prices.
+      Instead of saying an option costs $5.30, traders say the implied vol is 25%. This has
+      several advantages:
+    </p>
+
+    <ul>
+      <li><strong>Comparability</strong>: Implied vol normalizes for strike, maturity, and underlying price,
+          making options on different stocks comparable.</li>
+      <li><strong>Forward-looking</strong>: Unlike historical volatility (computed from past returns),
+          implied vol reflects the market's <em>expectation</em> of future volatility.</li>
+      <li><strong>Market sentiment</strong>: High implied vol signals fear or uncertainty;
+          low implied vol signals complacency.</li>
+    </ul>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        The <strong>VIX index</strong> (often called the "fear gauge") is a weighted average of
+        implied volatilities on S&amp;P 500 options. A VIX of 20 means the market expects the
+        S&amp;P 500 to move &plusmn;20%/&radic;12 &approx; &plusmn;5.8% over the next month
+        (annualized to a monthly number). The VIX typically spikes during market crashes and
+        falls during calm periods.
+      </p>
+    </div>
+
+
+    <h2>6. The Volatility Smile and Skew</h2>
+
+    <p>
+      If Black-Scholes were perfectly correct, implied volatility would be the same for all
+      strikes and maturities. In reality, it is not. When you plot implied volatility against
+      strike price, you see a distinctive pattern:
+    </p>
+
+    <h3>6.1 The Volatility Smile</h3>
+
+    <p>
+      For short-dated options (especially on currencies and indices), implied vol is higher for
+      both deep out-of-the-money calls and puts than for at-the-money options. This creates a
+      U-shaped curve &mdash; the <strong>volatility smile</strong>.
+    </p>
+
+    <h3>6.2 The Volatility Skew</h3>
+
+    <p>
+      For equity index options (like S&amp;P 500), the pattern is typically a <strong>skew</strong>:
+      implied vol is higher for low strikes (OTM puts) and lower for high strikes (OTM calls).
+      This creates a downward-sloping curve rather than a symmetric smile.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The volatility smile/skew tells us the market <strong>rejects the log-normal assumption</strong>.
+        Higher implied vol at low strikes means the market assigns more probability to large
+        downward moves than a normal distribution would predict &mdash; <strong>fat left tails</strong>.
+        Higher implied vol at high strikes means fat right tails. The smile is the market's way
+        of encoding its true distributional beliefs into the Black-Scholes framework, which only
+        has one free parameter (&sigma;). The smile is a <strong>misspecification diagnostic</strong>
+        &mdash; if the model were correct, the smile would be flat.
+      </p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Pattern</th>
+          <th>Where Observed</th>
+          <th>What It Reveals</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Symmetric smile</td>
+          <td>Currency options</td>
+          <td>Fat tails in both directions; kurtosis &gt; 3</td>
+        </tr>
+        <tr>
+          <td>Left skew (smirk)</td>
+          <td>Equity index options</td>
+          <td>Left tail fear (crash risk); negative skewness</td>
+        </tr>
+        <tr>
+          <td>Right skew</td>
+          <td>Some commodity options</td>
+          <td>Supply shock risk; positive skewness</td>
+        </tr>
+        <tr>
+          <td>Flat</td>
+          <td>Theoretical (BS world)</td>
+          <td>Log-normal distribution holds perfectly</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The volatility skew became much more pronounced after the 1987 crash ("Black Monday"),
+        when the S&amp;P 500 fell 22% in a single day. Before 1987, the smile was relatively
+        flat. After 1987, the market permanently "remembered" that extreme left-tail events are
+        more likely than normal distributions predict. The skew is a scar from a tail event that
+        permanently updated the market's prior distribution.
+      </p>
+    </div>
+
+
+    <h2>7. Put-Call Parity</h2>
+
+    <p>
+      Put-call parity is one of the most elegant results in finance. It states:
+    </p>
+
+    <div class="formula-box">
+      C &minus; P = S<sub>0</sub> &minus; K e<sup>&minus;rT</sup>
+    </div>
+
+    <p>or equivalently:</p>
+
+    <div class="formula-box">
+      C + K e<sup>&minus;rT</sup> = P + S<sub>0</sub>
+    </div>
+
+    <p>
+      This is not a model &mdash; it is an <strong>arbitrage identity</strong> that must hold
+      regardless of which option pricing model you use. It says that a call plus cash equals a
+      put plus stock.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Put-call parity is a <strong>constraint equation</strong>. It reduces the number of free
+        parameters: if you know the call price, stock price, and interest rate, the put price is
+        determined (and vice versa). This is analogous to a <strong>linear constraint in
+        estimation</strong> &mdash; like knowing that probabilities must sum to one, which means
+        you only need to estimate k&minus;1 probabilities for a k-category distribution.
+      </p>
+    </div>
+
+    <h3>7.1 Proof by No-Arbitrage</h3>
+
+    <p>Consider two portfolios at time 0:</p>
+
+    <ul>
+      <li><strong>Portfolio A</strong>: Buy a call + invest K e<sup>&minus;rT</sup> in the risk-free asset</li>
+      <li><strong>Portfolio B</strong>: Buy a put + buy one share of stock</li>
+    </ul>
+
+    <p>At expiration T:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Portfolio A value</th>
+          <th>Portfolio B value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>S<sub>T</sub> &gt; K</td>
+          <td>(S<sub>T</sub> &minus; K) + K = S<sub>T</sub></td>
+          <td>0 + S<sub>T</sub> = S<sub>T</sub></td>
+        </tr>
+        <tr>
+          <td>S<sub>T</sub> &le; K</td>
+          <td>0 + K = K</td>
+          <td>(K &minus; S<sub>T</sub>) + S<sub>T</sub> = K</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Both portfolios have <strong>identical payoffs</strong> in every state of the world.
+      By no-arbitrage, they must have the same price today. Therefore:
+      C + K e<sup>&minus;rT</sup> = P + S<sub>0</sub>.
+    </p>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        Put-call parity only holds exactly for <strong>European options</strong> (exercisable only
+        at expiration). For American options (exercisable any time before expiration), parity
+        becomes an inequality: S &minus; K &le; C &minus; P &le; S &minus; K e<sup>&minus;rT</sup>.
+        The early exercise feature introduces additional value for American options, particularly
+        for puts on non-dividend-paying stocks and calls on dividend-paying stocks.
+      </p>
+    </div>
+
+
+    <h2>8. Python: Black-Scholes Pricer, Greeks, and Payoffs</h2>
+
+    <h3>8.1 Black-Scholes Implementation</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm
+<span class="kw">from</span> scipy.optimize <span class="kw">import</span> brentq
+
+<span class="kw">class</span> <span class="fn">BlackScholes</span>:
+    <span class="st">"""
+    Black-Scholes option pricer with Greeks computation.
+    All formulas assume European options on non-dividend-paying stocks.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, S, K, T, r, sigma):
+        <span class="st">"""
+        S     : current stock price
+        K     : strike price
+        T     : time to expiration (years)
+        r     : risk-free rate (annualized)
+        sigma : volatility (annualized)
+        """</span>
+        self.S = S
+        self.K = K
+        self.T = T
+        self.r = r
+        self.sigma = sigma
+
+        <span class="cm"># Precompute d1 and d2</span>
+        self.d1 = (np.log(S / K) + (r + sigma**<span class="nu">2</span> / <span class="nu">2</span>) * T) / (sigma * np.sqrt(T))
+        self.d2 = self.d1 - sigma * np.sqrt(T)
+
+    <span class="kw">def</span> <span class="fn">call_price</span>(self):
+        <span class="kw">return</span> (self.S * norm.cdf(self.d1)
+                - self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2))
+
+    <span class="kw">def</span> <span class="fn">put_price</span>(self):
+        <span class="kw">return</span> (self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2)
+                - self.S * norm.cdf(-self.d1))
+
+    <span class="kw">def</span> <span class="fn">delta</span>(self, option_type=<span class="st">'call'</span>):
+        <span class="kw">if</span> option_type == <span class="st">'call'</span>:
+            <span class="kw">return</span> norm.cdf(self.d1)
+        <span class="kw">return</span> norm.cdf(self.d1) - <span class="nu">1</span>
+
+    <span class="kw">def</span> <span class="fn">gamma</span>(self):
+        <span class="kw">return</span> norm.pdf(self.d1) / (self.S * self.sigma * np.sqrt(self.T))
+
+    <span class="kw">def</span> <span class="fn">theta</span>(self, option_type=<span class="st">'call'</span>):
+        <span class="cm"># Per calendar day (divide by 365)</span>
+        term1 = -(self.S * norm.pdf(self.d1) * self.sigma) / (<span class="nu">2</span> * np.sqrt(self.T))
+        <span class="kw">if</span> option_type == <span class="st">'call'</span>:
+            term2 = -self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2)
+        <span class="kw">else</span>:
+            term2 = self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2)
+        <span class="kw">return</span> (term1 + term2) / <span class="nu">365</span>
+
+    <span class="kw">def</span> <span class="fn">vega</span>(self):
+        <span class="cm"># Per 1% change in volatility</span>
+        <span class="kw">return</span> self.S * norm.pdf(self.d1) * np.sqrt(self.T) / <span class="nu">100</span>
+
+    <span class="kw">def</span> <span class="fn">rho</span>(self, option_type=<span class="st">'call'</span>):
+        <span class="kw">if</span> option_type == <span class="st">'call'</span>:
+            <span class="kw">return</span> self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(self.d2) / <span class="nu">100</span>
+        <span class="kw">return</span> -self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(-self.d2) / <span class="nu">100</span>
+
+
+<span class="cm"># === Example: Price an option and compute all Greeks ===</span>
+bs = BlackScholes(S=<span class="nu">100</span>, K=<span class="nu">100</span>, T=<span class="nu">0.25</span>, r=<span class="nu">0.05</span>, sigma=<span class="nu">0.20</span>)
+
+<span class="fn">print</span>(<span class="st">"=== ATM Option (S=100, K=100, T=3mo, vol=20%) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"  Call price:  ${bs.call_price():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Put price:   ${bs.put_price():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Call delta:   {bs.delta('call'):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Put delta:    {bs.delta('put'):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Gamma:        {bs.gamma():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Theta (call): ${bs.theta('call'):.4f}/day"</span>)
+<span class="fn">print</span>(<span class="st">f"  Vega:         ${bs.vega():.4f} per 1% vol"</span>)
+<span class="fn">print</span>(<span class="st">f"  Rho (call):   ${bs.rho('call'):.4f} per 1% rate"</span>)
+
+<span class="cm"># Verify put-call parity</span>
+parity_lhs = bs.call_price() - bs.put_price()
+parity_rhs = bs.S - bs.K * np.exp(-bs.r * bs.T)
+<span class="fn">print</span>(<span class="st">f"\nPut-Call Parity Check:"</span>)
+<span class="fn">print</span>(<span class="st">f"  C - P = {parity_lhs:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  S - Ke^(-rT) = {parity_rhs:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Difference: {abs(parity_lhs - parity_rhs):.2e}"</span>)</pre>
+
+    <h3>8.2 Implied Volatility Solver</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">def</span> <span class="fn">implied_vol</span>(market_price, S, K, T, r, option_type=<span class="st">'call'</span>):
+    <span class="st">"""
+    Find implied volatility using Brent's method (root finding).
+    """</span>
+    <span class="kw">def</span> <span class="fn">objective</span>(sigma):
+        bs = BlackScholes(S, K, T, r, sigma)
+        <span class="kw">if</span> option_type == <span class="st">'call'</span>:
+            <span class="kw">return</span> bs.call_price() - market_price
+        <span class="kw">return</span> bs.put_price() - market_price
+
+    <span class="cm"># Brent's method: find sigma in [0.01, 5.0] where objective = 0</span>
+    <span class="kw">return</span> brentq(objective, <span class="nu">0.01</span>, <span class="nu">5.0</span>)
+
+<span class="cm"># Example: extract implied vol from market prices</span>
+<span class="fn">print</span>(<span class="st">"=== Implied Volatility Extraction ==="</span>)
+market_prices = {
+    <span class="nu">90</span>:  <span class="nu">12.50</span>,   <span class="cm"># Deep ITM call</span>
+    <span class="nu">95</span>:  <span class="nu">8.20</span>,    <span class="cm"># ITM call</span>
+    <span class="nu">100</span>: <span class="nu">4.80</span>,    <span class="cm"># ATM call</span>
+    <span class="nu">105</span>: <span class="nu">2.40</span>,    <span class="cm"># OTM call</span>
+    <span class="nu">110</span>: <span class="nu">1.00</span>,    <span class="cm"># Deep OTM call</span>
+}
+
+<span class="fn">print</span>(<span class="st">f"{'Strike':>8} {'Market Price':>14} {'Implied Vol':>13}"</span>)
+<span class="kw">for</span> strike, price <span class="kw">in</span> market_prices.items():
+    iv = <span class="fn">implied_vol</span>(price, S=<span class="nu">100</span>, K=strike, T=<span class="nu">0.25</span>, r=<span class="nu">0.05</span>)
+    <span class="fn">print</span>(<span class="st">f"  {strike:>5}   ${price:>10.2f}    {iv:>10.1%}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\nNote: if implied vol varies with strike, you're seeing"</span>)
+<span class="fn">print</span>(<span class="st">"the volatility smile/skew -- evidence of non-lognormal tails."</span>)</pre>
+
+    <h3>8.3 Payoff and Profit Diagrams</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">print_payoff_table</span>(S_range, K, call_premium, put_premium):
+    <span class="st">"""
+    Display call and put payoff/profit at various stock prices.
+    """</span>
+    <span class="fn">print</span>(<span class="st">f"{'S_T':>6} {'Call Payoff':>13} {'Call Profit':>13} "
+          <span class="st">f"{'Put Payoff':>12} {'Put Profit':>12}"</span>)
+    <span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">60</span>)
+    <span class="kw">for</span> S <span class="kw">in</span> S_range:
+        call_pay = <span class="fn">max</span>(S - K, <span class="nu">0</span>)
+        call_prof = call_pay - call_premium
+        put_pay = <span class="fn">max</span>(K - S, <span class="nu">0</span>)
+        put_prof = put_pay - put_premium
+        <span class="fn">print</span>(<span class="st">f"${S:>5.0f}  ${call_pay:>10.2f}   ${call_prof:>+10.2f}  "
+              f"${put_pay:>9.2f}   ${put_prof:>+9.2f}"</span>)
+
+<span class="cm"># ATM option at K=100</span>
+<span class="fn">print</span>(<span class="st">"=== Payoff/Profit Table: K=100, Call=$4.80, Put=$3.56 ==="</span>)
+S_values = np.arange(<span class="nu">80</span>, <span class="nu">121</span>, <span class="nu">5</span>)
+<span class="fn">print_payoff_table</span>(S_values, K=<span class="nu">100</span>, call_premium=<span class="nu">4.80</span>, put_premium=<span class="nu">3.56</span>)
+
+<span class="fn">print</span>(<span class="st">"\nBreakeven (call): S_T = K + premium = 100 + 4.80 = 104.80"</span>)
+<span class="fn">print</span>(<span class="st">"Breakeven (put):  S_T = K - premium = 100 - 3.56 = 96.44"</span>)
+<span class="fn">print</span>(<span class="st">"Max loss (buyer):  limited to premium paid"</span>)
+<span class="fn">print</span>(<span class="st">"Max gain (call):   unlimited"</span>)
+<span class="fn">print</span>(<span class="st">"Max gain (put):    K - premium = 96.44 (if stock goes to 0)"</span>)</pre>
+
+    <h3>8.4 Greeks Across Strike Prices</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Show how Greeks vary across strike prices for a fixed option</span>
+<span class="fn">print</span>(<span class="st">"=== Call Greeks Across Strikes (S=100, T=0.25, vol=20%) ==="</span>)
+<span class="fn">print</span>(<span class="st">f"{'Strike':>8} {'Price':>8} {'Delta':>8} {'Gamma':>8} "
+      f"{'Theta':>8} {'Vega':>8}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">50</span>)
+
+<span class="kw">for</span> K <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">80</span>, <span class="nu">121</span>, <span class="nu">5</span>):
+    bs = BlackScholes(S=<span class="nu">100</span>, K=K, T=<span class="nu">0.25</span>, r=<span class="nu">0.05</span>, sigma=<span class="nu">0.20</span>)
+    <span class="fn">print</span>(<span class="st">f"  {K:>5}  ${bs.call_price():>6.2f}   {bs.delta('call'):>.4f}  "
+          f" {bs.gamma():>.4f}  {bs.theta('call'):>+.4f}   {bs.vega():>.4f}"</span>)</pre>
+
+
+    <h2>9. Summary</h2>
+
+    <p>
+      This module has covered the statistical foundations of options and derivatives:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Finance Concept</th>
+          <th>Statistical / Mathematical Analogue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Derivative payoff g(S)</td>
+          <td>Function of a random variable; E[g(X)] computation</td>
+        </tr>
+        <tr>
+          <td>Call payoff max(S-K, 0)</td>
+          <td>Truncated random variable (positive part)</td>
+        </tr>
+        <tr>
+          <td>Put payoff max(K-S, 0)</td>
+          <td>Mirror truncation (negative part)</td>
+        </tr>
+        <tr>
+          <td>Black-Scholes formula</td>
+          <td>Discounted expectation under risk-neutral measure using normal CDF</td>
+        </tr>
+        <tr>
+          <td>d<sub>2</sub> in Black-Scholes</td>
+          <td>z-score: standardized log-moneyness</td>
+        </tr>
+        <tr>
+          <td>Delta = N(d<sub>1</sub>)</td>
+          <td>Normal CDF: the sigmoid / logistic link function</td>
+        </tr>
+        <tr>
+          <td>Greeks</td>
+          <td>Partial derivatives (sensitivity analysis)</td>
+        </tr>
+        <tr>
+          <td>Implied volatility</td>
+          <td>Inverse problem: find parameter from observation (like MLE)</td>
+        </tr>
+        <tr>
+          <td>Volatility smile</td>
+          <td>Model misspecification diagnostic (non-constant residual variance)</td>
+        </tr>
+        <tr>
+          <td>Put-call parity</td>
+          <td>Constraint equation reducing free parameters</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      In the next module, we leave the world of pure financial instruments and enter the realm
+      of <strong>physical assets: commodities, gold, and oil</strong>. We will see how supply
+      and demand for real goods create unique pricing dynamics that differ fundamentally from
+      stocks and bonds.
+    </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-12/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-14/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

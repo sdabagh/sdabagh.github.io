@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interest Rates and Time Value of Money — present value, compound interest, yield curves, duration, convexity, and real vs nominal rates for statisticians.">
+  <title>Interest Rates &amp; Time Value of Money — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 10: Interest Rates &amp; Time Value of Money</h1>
+      <p class="tagline">Why a dollar today beats a dollar tomorrow, and the mathematics that proves it</p>
+      <div class="module-meta">
+        <span class="meta-item">Part II of 5</span>
+        <span class="meta-item">Module 10 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-09/index.html">&larr; Previous</a>
+      <span class="current">Module 10 of 22</span>
+      <a href="../module-11/index.html">Next &rarr;</a>
+    </div>
+
+
+    <!-- SECTION 1: THE TIME VALUE OF MONEY -->
+
+    <h2>1. The Time Value of Money: Why a Dollar Today Beats a Dollar Tomorrow</h2>
+
+    <p>
+      The most fundamental concept in all of finance is deceptively simple: <strong>a dollar
+      today is worth more than a dollar in the future</strong>. This is not an opinion &mdash;
+      it follows from three independent economic principles:
+    </p>
+
+    <ul>
+      <li><strong>Opportunity cost:</strong> A dollar today can be invested to earn a return. A dollar received next year has missed a year of earning potential.</li>
+      <li><strong>Inflation:</strong> The purchasing power of money erodes over time. A dollar buys less next year than this year.</li>
+      <li><strong>Risk/uncertainty:</strong> A promised future dollar may not materialize. The present dollar is certain.</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        In statistics, we discount future observations when they carry more uncertainty.
+        <strong>Exponential smoothing</strong> assigns exponentially declining weights to older
+        observations: w<sub>t-k</sub> = &alpha;(1&minus;&alpha;)<sup>k</sup>. The time value
+        of money works the same way &mdash; future cash flows are discounted by
+        (1+r)<sup>&minus;k</sup>. Both are exponential decay functions, reflecting the idea
+        that distant things (observations or cash flows) should count for less.
+      </p>
+    </div>
+
+    <h3>1.1 Present Value and Future Value</h3>
+
+    <p>
+      The two fundamental formulas relate present value (PV) and future value (FV):
+    </p>
+
+    <div class="formula-box">
+      FV = PV &times; (1 + r)<sup>n</sup>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      PV = FV / (1 + r)<sup>n</sup> = FV &times; (1 + r)<sup>&minus;n</sup>
+    </div>
+
+    <p>where r is the interest rate per period and n is the number of periods.</p>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Discount factor:</strong> The quantity d(n) = (1 + r)<sup>&minus;n</sup> is
+        called the discount factor. It tells you how much $1 received n periods from now is
+        worth today. At r = 5%, the discount factor for 10 years is 0.6139 &mdash; a dollar
+        in 10 years is worth about 61 cents today.
+      </p>
+    </div>
+
+    <h3>1.2 The Discount Factor Curve</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Discount Factor (r=3%)</th>
+          <th>Discount Factor (r=5%)</th>
+          <th>Discount Factor (r=8%)</th>
+          <th>Discount Factor (r=10%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td></tr>
+        <tr><td>1</td><td>0.9709</td><td>0.9524</td><td>0.9259</td><td>0.9091</td></tr>
+        <tr><td>2</td><td>0.9426</td><td>0.9070</td><td>0.8573</td><td>0.8264</td></tr>
+        <tr><td>5</td><td>0.8626</td><td>0.7835</td><td>0.6806</td><td>0.6209</td></tr>
+        <tr><td>10</td><td>0.7441</td><td>0.6139</td><td>0.4632</td><td>0.3855</td></tr>
+        <tr><td>20</td><td>0.5537</td><td>0.3769</td><td>0.2145</td><td>0.1486</td></tr>
+        <tr><td>30</td><td>0.4120</td><td>0.2314</td><td>0.0994</td><td>0.0573</td></tr>
+      </tbody>
+    </table>
+
+    <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import matplotlib.pyplot as plt
+
+def discount_factor(r, n):
+    """Compute the discount factor for rate r and n periods."""
+    return (1 + r) ** (-n)
+
+def present_value(fv, r, n):
+    """Compute present value of a future cash flow."""
+    return fv * discount_factor(r, n)
+
+def future_value(pv, r, n):
+    """Compute future value of a present amount."""
+    return pv * (1 + r) ** n
+
+# ── Plot discount factor curves for different rates ───────
+years = np.arange(0, 31)
+rates = [0.02, 0.03, 0.05, 0.08, 0.10]
+colors = ['#38a169', '#3182ce', '#1a365d', '#d69e2e', '#e53e3e']
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Discount factors
+for r, color in zip(rates, colors):
+    df_values = [discount_factor(r, n) for n in years]
+    ax1.plot(years, df_values, color=color, linewidth=2,
+             label=f'r = {r*100:.0f}%')
+
+ax1.set_xlabel("Years")
+ax1.set_ylabel("Discount Factor")
+ax1.set_title("Discount Factor Curves")
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+ax1.set_ylim(0, 1.05)
+
+# Future value of $1
+for r, color in zip(rates, colors):
+    fv_values = [future_value(1, r, n) for n in years]
+    ax2.plot(years, fv_values, color=color, linewidth=2,
+             label=f'r = {r*100:.0f}%')
+
+ax2.set_xlabel("Years")
+ax2.set_ylabel("Future Value of $1")
+ax2.set_title("Growth of $1 at Different Rates")
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("time_value_of_money.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Example calculations
+print("Present Value Examples:")
+print(f"  $1,000 in 5 years at 5%:  ${present_value(1000, 0.05, 5):>10.2f}")
+print(f"  $1,000 in 10 years at 5%: ${present_value(1000, 0.05, 10):>10.2f}")
+print(f"  $1,000 in 30 years at 5%: ${present_value(1000, 0.05, 30):>10.2f}")
+print(f"\nFuture Value Examples:")
+print(f"  $1,000 for 5 years at 5%:  ${future_value(1000, 0.05, 5):>10.2f}")
+print(f"  $1,000 for 10 years at 5%: ${future_value(1000, 0.05, 10):>10.2f}")
+print(f"  $1,000 for 30 years at 5%: ${future_value(1000, 0.05, 30):>10.2f}")</pre>
+
+
+    <!-- SECTION 2: COMPOUND INTEREST -->
+
+    <h2>2. Compound Interest as Geometric Growth</h2>
+
+    <p>
+      Compound interest is the mechanism by which money grows exponentially. The key distinction
+      is between <strong>simple interest</strong> (linear growth) and <strong>compound interest</strong>
+      (geometric/exponential growth):
+    </p>
+
+    <div class="formula-box">
+      Simple: &nbsp; FV = PV &times; (1 + r &times; n)
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Compound: &nbsp; FV = PV &times; (1 + r)<sup>n</sup>
+    </div>
+
+    <h3>2.1 The Frequency of Compounding</h3>
+
+    <p>
+      If interest is compounded m times per year at annual rate r, the future value after n
+      years is:
+    </p>
+
+    <div class="formula-box">
+      FV = PV &times; (1 + r/m)<sup>m&times;n</sup>
+    </div>
+
+    <p>As m &rarr; &infin;, we get <strong>continuous compounding</strong>:</p>
+
+    <div class="formula-box">
+      FV = PV &times; e<sup>r&times;n</sup>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      PV = FV &times; e<sup>&minus;r&times;n</sup>
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Continuously compounded returns are <strong>log returns</strong>:
+        r<sub>cc</sub> = ln(P<sub>t</sub>/P<sub>t-1</sub>). This is why quantitative finance
+        and time series analysis use log returns &mdash; they are additive over time
+        (ln(P<sub>T</sub>/P<sub>0</sub>) = &sum; r<sub>t</sub>), and they connect directly to
+        the <strong>geometric Brownian motion</strong> model: dS/S = &mu; dt + &sigma; dW.
+        The log return is the increment of this diffusion process.
+      </p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Compounding Frequency</th>
+          <th>m</th>
+          <th>FV of $1,000 at 10% for 1 Year</th>
+          <th>Effective Annual Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Annual</td><td>1</td><td>$1,100.00</td><td>10.000%</td></tr>
+        <tr><td>Semi-annual</td><td>2</td><td>$1,102.50</td><td>10.250%</td></tr>
+        <tr><td>Quarterly</td><td>4</td><td>$1,103.81</td><td>10.381%</td></tr>
+        <tr><td>Monthly</td><td>12</td><td>$1,104.71</td><td>10.471%</td></tr>
+        <tr><td>Daily</td><td>365</td><td>$1,105.16</td><td>10.516%</td></tr>
+        <tr><td>Continuous</td><td>&infin;</td><td>$1,105.17</td><td>10.517%</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 The Rule of 72</h3>
+
+    <p>
+      A practical approximation: the number of years to double your money is approximately
+      72/r, where r is the annual rate in percent.
+    </p>
+
+    <div class="formula-box">
+      n<sub>double</sub> &asymp; 72 / (r &times; 100) = ln(2) / ln(1+r) &asymp; 0.693 / r
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span># Compare simple vs compound interest over time
+years = np.arange(0, 41)
+principal = 10_000
+rate = 0.07
+
+simple_growth = principal * (1 + rate * years)
+compound_growth = principal * (1 + rate) ** years
+continuous_growth = principal * np.exp(rate * years)
+
+fig, ax = plt.subplots(figsize=(10, 7))
+ax.plot(years, simple_growth / 1000, '--', color='#718096',
+        linewidth=2, label='Simple Interest')
+ax.plot(years, compound_growth / 1000, '-', color='#1a365d',
+        linewidth=2.5, label='Annual Compounding')
+ax.plot(years, continuous_growth / 1000, '-', color='#e53e3e',
+        linewidth=2, label='Continuous Compounding')
+
+# Annotate the gap
+gap_year = 30
+gap = compound_growth[gap_year] - simple_growth[gap_year]
+ax.annotate(
+    f'Compounding effect:\n${gap:,.0f} extra',
+    xy=(gap_year, compound_growth[gap_year]/1000),
+    xytext=(gap_year - 10, compound_growth[gap_year]/1000 + 10),
+    fontsize=10, ha='center',
+    arrowprops=dict(arrowstyle='->', color='#1a365d')
+)
+
+ax.set_xlabel("Years")
+ax.set_ylabel("Portfolio Value ($thousands)")
+ax.set_title(f"$10,000 at {rate*100:.0f}%: Simple vs Compound Interest")
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("compound_interest.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Rule of 72 accuracy
+print("Rule of 72 vs Exact Doubling Time:")
+print(f"{'Rate':>6s} {'Rule of 72':>12s} {'Exact':>10s} {'Error':>8s}")
+print(f"{'-'*38}")
+for r in [0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20]:
+    rule72 = 72 / (r * 100)
+    exact = np.log(2) / np.log(1 + r)
+    err = abs(rule72 - exact) / exact * 100
+    print(f"{r*100:>5.0f}% {rule72:>12.1f} {exact:>10.2f} {err:>7.1f}%")</pre>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Compound interest is the most powerful force in personal finance. At 7% annual return,
+        $10,000 becomes $76,123 in 30 years &mdash; nearly 8x growth. At 10%, it becomes
+        $174,494. The difference between 7% and 10% over 30 years is a factor of 2.3x. This
+        is why seemingly small differences in fees (e.g., 0.03% vs 1.0% expense ratio) matter
+        enormously over long horizons.
+      </p>
+    </div>
+
+
+    <!-- SECTION 3: NET PRESENT VALUE AND ANNUITIES -->
+
+    <h2>3. Net Present Value and Discounted Cash Flows</h2>
+
+    <p>
+      The net present value (NPV) of a stream of cash flows C<sub>0</sub>, C<sub>1</sub>,
+      &hellip;, C<sub>N</sub> is the sum of their discounted values:
+    </p>
+
+    <div class="formula-box">
+      NPV = &sum;<sub>t=0</sub><sup>N</sup> C<sub>t</sub> / (1 + r)<sup>t</sup>
+      = C<sub>0</sub> + C<sub>1</sub>/(1+r) + C<sub>2</sub>/(1+r)<sup>2</sup> + &hellip;
+    </div>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>NPV Rule:</strong> Invest if NPV &gt; 0 (the project creates value). Reject
+        if NPV &lt; 0 (the project destroys value). This is the single most important
+        decision rule in corporate finance.
+      </p>
+    </div>
+
+    <h3>3.1 Special Cash Flow Patterns</h3>
+
+    <h4>Annuity: Equal payments for n periods</h4>
+
+    <div class="formula-box">
+      PV<sub>annuity</sub> = C &times; [1 &minus; (1+r)<sup>&minus;n</sup>] / r
+    </div>
+
+    <h4>Perpetuity: Equal payments forever</h4>
+
+    <div class="formula-box">
+      PV<sub>perpetuity</sub> = C / r
+    </div>
+
+    <h4>Growing Perpetuity: Payments growing at rate g forever</h4>
+
+    <div class="formula-box">
+      PV<sub>growing perp.</sub> = C / (r &minus; g) &nbsp;&nbsp;&nbsp; (requires r &gt; g)
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The perpetuity formula PV = C/r is the financial version of the <strong>geometric
+        series sum</strong>: &sum;<sub>k=1</sub><sup>&infin;</sup> x<sup>k</sup> = x/(1&minus;x)
+        for |x| &lt; 1. Setting x = 1/(1+r), the infinite sum &sum; C/(1+r)<sup>k</sup> = C/r.
+        The growing perpetuity is the sum of a geometric series with ratio (1+g)/(1+r).
+        These are convergent series because r &gt; 0 (or r &gt; g), guaranteeing the discount
+        factor decays faster than cash flows grow.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>def npv(cashflows, rate):
+    """Compute NPV of a stream of cash flows."""
+    return sum(cf / (1 + rate)**t for t, cf in enumerate(cashflows))
+
+def pv_annuity(payment, rate, n_periods):
+    """PV of an ordinary annuity."""
+    return payment * (1 - (1 + rate)**(-n_periods)) / rate
+
+def pv_perpetuity(payment, rate):
+    """PV of a perpetuity."""
+    return payment / rate
+
+def pv_growing_perpetuity(payment, rate, growth):
+    """PV of a growing perpetuity (Gordon Growth Model)."""
+    assert rate > growth, "Rate must exceed growth for convergence"
+    return payment / (rate - growth)
+
+# ── Example: Mortgage calculation ─────────────────────────
+home_price = 500_000
+down_payment = 100_000
+loan_amount = home_price - down_payment
+annual_rate = 0.065
+monthly_rate = annual_rate / 12
+n_months = 30 * 12  # 30-year mortgage
+
+# Monthly payment (solving annuity formula for C)
+monthly_payment = loan_amount * monthly_rate / (1 - (1 + monthly_rate)**(-n_months))
+
+# Total paid over life of loan
+total_paid = monthly_payment * n_months
+total_interest = total_paid - loan_amount
+
+print(f"Mortgage Analysis:")
+print(f"  Home price:       ${home_price:>12,.2f}")
+print(f"  Down payment:     ${down_payment:>12,.2f}")
+print(f"  Loan amount:      ${loan_amount:>12,.2f}")
+print(f"  Rate:             {annual_rate*100:>11.2f}%")
+print(f"  Term:             {'30 years':>12s}")
+print(f"  Monthly payment:  ${monthly_payment:>12,.2f}")
+print(f"  Total paid:       ${total_paid:>12,.2f}")
+print(f"  Total interest:   ${total_interest:>12,.2f}")
+print(f"  Interest/principal ratio: {total_interest/loan_amount:.2f}x")
+
+# ── NPV of a project ─────────────────────────────────────
+# Initial investment of $1M, then cash flows of $300K/yr for 5 years
+project_cashflows = [-1_000_000, 300_000, 300_000, 300_000, 300_000, 300_000]
+
+print(f"\nProject NPV at different discount rates:")
+print(f"{'Rate':>6s} {'NPV':>14s} {'Decision':>10s}")
+print(f"{'-'*32}")
+for r in [0.05, 0.08, 0.10, 0.12, 0.15, 0.20]:
+    project_npv = npv(project_cashflows, r)
+    decision = "INVEST" if project_npv > 0 else "REJECT"
+    print(f"{r*100:>5.0f}% ${project_npv:>13,.0f} {decision:>10s}")</pre>
+
+
+    <!-- SECTION 4: THE YIELD CURVE -->
+
+    <h2>4. The Yield Curve: The Term Structure of Interest Rates</h2>
+
+    <p>
+      Interest rates are not a single number. A 1-year Treasury bond, a 10-year Treasury bond,
+      and a 30-year Treasury bond each offer different yields. The <strong>yield curve</strong>
+      plots these yields as a function of maturity, giving us the <strong>term structure of
+      interest rates</strong>.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The yield curve is a <strong>functional data object</strong> &mdash; a curve observed
+        at discrete maturities that represents an underlying continuous function y(m). You
+        can think of it as a nonparametric regression of yield on maturity. Methods from
+        functional data analysis (B-spline smoothing, principal component decomposition of
+        curve shapes) are directly applicable. Nelson-Siegel and Svensson models are
+        parametric specifications commonly used to fit the curve.
+      </p>
+    </div>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Yield curve:</strong> The relationship between bond yields and their time to
+        maturity. The &ldquo;risk-free&rdquo; yield curve is typically constructed from
+        U.S. Treasury securities (T-bills, T-notes, T-bonds) because they are considered
+        free of default risk.
+      </p>
+    </div>
+
+    <h3>4.1 Yield Curve Shapes</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Shape</th>
+          <th>Description</th>
+          <th>Historical Signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Normal (upward-sloping)</strong></td>
+          <td>Long rates &gt; short rates</td>
+          <td>Economy expanding normally; investors demand a term premium for longer maturities</td>
+        </tr>
+        <tr>
+          <td><strong>Flat</strong></td>
+          <td>Long rates &asymp; short rates</td>
+          <td>Transition period; uncertainty about future growth</td>
+        </tr>
+        <tr>
+          <td><strong>Inverted (downward-sloping)</strong></td>
+          <td>Long rates &lt; short rates</td>
+          <td>Markets expect rate cuts (economic slowdown); historically predicts recessions</td>
+        </tr>
+        <tr>
+          <td><strong>Humped</strong></td>
+          <td>Mid-term rates highest</td>
+          <td>Mixed expectations; possible transition to inversion</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        An <strong>inverted yield curve</strong> (specifically, when the 10-year yield falls
+        below the 2-year yield) has preceded every U.S. recession since 1955, with only one
+        false positive (1966). The lag between inversion and recession onset averages about
+        12&ndash;18 months. This is one of the most reliable economic indicators known, though
+        the mechanism (is it causal or merely predictive?) remains debated.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import matplotlib.pyplot as plt
+
+# ── Construct example yield curves ────────────────────────
+maturities = np.array([0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+mat_labels = ['3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '20Y', '30Y']
+
+# Normal yield curve (typical expansion)
+normal_yields = np.array([4.50, 4.55, 4.50, 4.40, 4.35, 4.30,
+                          4.35, 4.40, 4.60, 4.65])
+
+# Inverted yield curve (pre-recession)
+inverted_yields = np.array([5.35, 5.30, 5.10, 4.85, 4.65, 4.40,
+                            4.30, 4.20, 4.30, 4.35])
+
+# Flat yield curve (transition)
+flat_yields = np.array([4.50, 4.50, 4.50, 4.48, 4.47, 4.45,
+                        4.45, 4.48, 4.50, 4.52])
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(maturities, normal_yields, 'o-', color='#38a169',
+        linewidth=2.5, markersize=6, label='Normal (Expansion)')
+ax.plot(maturities, inverted_yields, 's-', color='#e53e3e',
+        linewidth=2.5, markersize=6, label='Inverted (Pre-Recession)')
+ax.plot(maturities, flat_yields, '^-', color='#d69e2e',
+        linewidth=2.5, markersize=6, label='Flat (Transition)')
+
+ax.set_xlabel("Maturity (Years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Yield Curve Shapes")
+ax.legend(fontsize=11)
+ax.grid(True, alpha=0.3)
+ax.set_xticks(maturities)
+ax.set_xticklabels(mat_labels, fontsize=8)
+
+plt.tight_layout()
+plt.savefig("yield_curves.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+    <h3>4.2 Spot Rates, Forward Rates, and the Bootstrap</h3>
+
+    <p>
+      The yield curve can be expressed in several equivalent forms:
+    </p>
+
+    <ul>
+      <li><strong>Spot rates</strong> (zero-coupon yields): The yield on a zero-coupon bond maturing at time T. This is the &ldquo;pure&rdquo; rate for that maturity.</li>
+      <li><strong>Forward rates</strong>: The implied future interest rate between two dates. The forward rate from year 5 to year 10 is the rate you can &ldquo;lock in&rdquo; today for borrowing in 5 years for 5 years.</li>
+      <li><strong>Par yields</strong>: The coupon rate at which a bond would trade at par (price = face value).</li>
+    </ul>
+
+    <div class="formula-box">
+      (1 + s<sub>n</sub>)<sup>n</sup> = (1 + s<sub>k</sub>)<sup>k</sup> &times; (1 + f<sub>k,n</sub>)<sup>n&minus;k</sup>
+    </div>
+
+    <p>where s<sub>n</sub> is the n-year spot rate and f<sub>k,n</sub> is the forward rate from year k to year n.</p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Extracting spot rates from coupon bond prices is called <strong>bootstrapping</strong>
+        the yield curve &mdash; a term that should ring a bell. In statistics, bootstrapping
+        resamples data to estimate sampling distributions. In fixed income, bootstrapping
+        recursively solves for zero-coupon rates from observed coupon bond prices. Different
+        word, similar recursive/iterative logic.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>def bootstrap_spot_rates(par_yields, maturities):
+    """
+    Bootstrap spot rates from par yields.
+    Par yield = coupon rate at which a bond trades at par.
+    """
+    spot_rates = np.zeros(len(maturities))
+
+    for i, (mat, par_y) in enumerate(zip(maturities, par_yields)):
+        if i == 0:
+            # First rate: no bootstrapping needed
+            spot_rates[i] = par_y
+        else:
+            # Solve for spot rate at this maturity
+            # Par bond: 100 = sum(c/(1+s_t)^t) + (100+c)/(1+s_n)^n
+            coupon = par_y * 100  # annual coupon payment
+            pv_coupons = sum(
+                coupon / (1 + spot_rates[j])**maturities[j]
+                for j in range(i)
+            )
+            # (100 + coupon) / (1 + s_n)^n = 100 - pv_coupons
+            remaining = 100 - pv_coupons
+            spot_rates[i] = ((100 + coupon) / remaining)**(1/mat) - 1
+
+    return spot_rates
+
+def forward_rate(spot_rates, maturities, t1_idx, t2_idx):
+    """Compute the forward rate between two maturities."""
+    s1 = spot_rates[t1_idx]
+    s2 = spot_rates[t2_idx]
+    t1 = maturities[t1_idx]
+    t2 = maturities[t2_idx]
+    return ((1 + s2)**t2 / (1 + s1)**t1)**(1/(t2 - t1)) - 1
+
+# Example: bootstrap from par yields
+par_yields_example = np.array([0.045, 0.046, 0.045, 0.044, 0.043,
+                                0.043, 0.044, 0.044, 0.046, 0.047])
+maturities_example = np.array([0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+
+spot_rates = bootstrap_spot_rates(par_yields_example, maturities_example)
+
+print("Bootstrapped Spot Rates:")
+print(f"{'Maturity':>10s} {'Par Yield':>10s} {'Spot Rate':>10s}")
+print(f"{'-'*32}")
+for mat, par, spot in zip(maturities_example, par_yields_example, spot_rates):
+    print(f"{mat:>10.2f} {par*100:>9.3f}% {spot*100:>9.3f}%")
+
+# Compute some forward rates
+print(f"\nImplied Forward Rates:")
+pairs = [(2, 5), (3, 7), (5, 9)]  # indices into maturities array
+for i1, i2 in pairs:
+    fwd = forward_rate(spot_rates, maturities_example, i1, i2)
+    m1, m2 = maturities_example[i1], maturities_example[i2]
+    print(f"  f({m1:.0f}Y, {m2:.0f}Y) = {fwd*100:.3f}%")</pre>
+
+
+    <!-- SECTION 5: BOND DURATION -->
+
+    <h2>5. Duration: The First Derivative of Bond Price w.r.t. Yield</h2>
+
+    <p>
+      When interest rates change, bond prices move in the opposite direction. <strong>Duration</strong>
+      measures how sensitive a bond's price is to changes in yield. It is, precisely, the
+      <strong>first derivative</strong> of the price-yield relationship, normalized by price.
+    </p>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Macaulay Duration:</strong> The weighted average time to receive a bond's cash
+        flows, where the weights are the present values of each cash flow. Measured in years.<br>
+        <strong>Modified Duration:</strong> Macaulay Duration / (1 + y). This directly measures
+        the percentage price change per unit change in yield.
+      </p>
+    </div>
+
+    <div class="formula-box">
+      D<sub>Mac</sub> = (1/P) &sum;<sub>t=1</sub><sup>N</sup> t &sdot; CF<sub>t</sub> / (1+y)<sup>t</sup>
+      <br><br>
+      D<sub>Mod</sub> = D<sub>Mac</sub> / (1 + y)
+      <br><br>
+      &Delta;P/P &asymp; &minus;D<sub>Mod</sub> &times; &Delta;y
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        Macaulay duration is a <strong>weighted mean</strong> &mdash; the expected value of
+        the time variable T, where T is distributed according to the present-value weights
+        of each cash flow. It's literally E[T] where T has the PV-weighted distribution.
+        Modified duration is the <strong>elasticity</strong> of price with respect to (1+y),
+        or equivalently, the <strong>first-order Taylor coefficient</strong> in the expansion
+        of P(y) around the current yield.
+      </p>
+    </div>
+
+    <h3>5.1 Duration Intuition</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Bond Type</th>
+          <th>Approximate Duration</th>
+          <th>Price Change if Rates Rise 1%</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Money market / T-bill</td>
+          <td>0.25 years</td>
+          <td>-0.25%</td>
+        </tr>
+        <tr>
+          <td>2-year Treasury note</td>
+          <td>1.9 years</td>
+          <td>-1.9%</td>
+        </tr>
+        <tr>
+          <td>10-year Treasury note (4% coupon)</td>
+          <td>8.3 years</td>
+          <td>-8.3%</td>
+        </tr>
+        <tr>
+          <td>30-year Treasury bond (4% coupon)</td>
+          <td>17.5 years</td>
+          <td>-17.5%</td>
+        </tr>
+        <tr>
+          <td>30-year zero-coupon bond</td>
+          <td>30.0 years</td>
+          <td>-30.0%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre class="code-block"><span class="code-label">Python</span>def bond_price(face, coupon_rate, ytm, n_years, freq=2):
+    """
+    Price a coupon bond.
+    freq: coupon frequency (2 = semi-annual, 1 = annual)
+    """
+    periods = int(n_years * freq)
+    coupon = face * coupon_rate / freq
+    y = ytm / freq
+
+    pv_coupons = sum(coupon / (1 + y)**t for t in range(1, periods + 1))
+    pv_face = face / (1 + y)**periods
+
+    return pv_coupons + pv_face
+
+def macaulay_duration(face, coupon_rate, ytm, n_years, freq=2):
+    """Compute Macaulay duration of a coupon bond."""
+    periods = int(n_years * freq)
+    coupon = face * coupon_rate / freq
+    y = ytm / freq
+    price = bond_price(face, coupon_rate, ytm, n_years, freq)
+
+    weighted_sum = 0
+    for t in range(1, periods + 1):
+        if t &lt; periods:
+            cf = coupon
+        else:
+            cf = coupon + face
+        weighted_sum += (t / freq) * cf / (1 + y)**t
+
+    return weighted_sum / price
+
+def modified_duration(face, coupon_rate, ytm, n_years, freq=2):
+    """Modified duration = Macaulay duration / (1 + y/freq)."""
+    mac_dur = macaulay_duration(face, coupon_rate, ytm, n_years, freq)
+    return mac_dur / (1 + ytm / freq)
+
+# ── Example: 10-year Treasury ─────────────────────────────
+face = 1000
+coupon = 0.04  # 4% coupon
+ytm = 0.045    # 4.5% yield
+maturity = 10
+
+price = bond_price(face, coupon, ytm, maturity)
+mac_dur = macaulay_duration(face, coupon, ytm, maturity)
+mod_dur = modified_duration(face, coupon, ytm, maturity)
+
+print(f"10-Year Bond Analysis (4% coupon, 4.5% YTM):")
+print(f"  Price:              ${price:>10.2f}")
+print(f"  Macaulay Duration:  {mac_dur:>10.4f} years")
+print(f"  Modified Duration:  {mod_dur:>10.4f}")
+print(f"  If yields rise 50bp: ~{-mod_dur*0.005*100:.2f}% price change")
+print(f"                       ~${-mod_dur*0.005*price:.2f}")
+
+# ── Duration for different coupons and maturities ─────────
+print(f"\nDuration Table (Modified Duration, YTM = 4.5%):")
+print(f"{'Maturity':>10s}", end='')
+for c in [0.00, 0.02, 0.04, 0.06, 0.08]:
+    print(f" {'c='+str(int(c*100))+'%':>8s}", end='')
+print()
+print(f"{'-'*52}")
+
+for m in [1, 2, 3, 5, 7, 10, 20, 30]:
+    print(f"{str(m)+'Y':>10s}", end='')
+    for c in [0.00, 0.02, 0.04, 0.06, 0.08]:
+        if c == 0 and m > 0:
+            # Zero coupon: duration = maturity / (1 + y/freq)
+            d = m / (1 + ytm/2)
+        else:
+            d = modified_duration(face, c, ytm, m)
+        print(f" {d:>8.2f}", end='')
+    print()</pre>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        Duration is a <strong>linear approximation</strong>. It works well for small yield
+        changes (&lt; 50 basis points) but becomes inaccurate for large changes because the
+        price-yield relationship is curved (convex), not linear. For large rate moves, you
+        need the second-order correction: convexity.
+      </p>
+    </div>
+
+
+    <!-- SECTION 6: CONVEXITY -->
+
+    <h2>6. Convexity: The Second Derivative (Curvature)</h2>
+
+    <p>
+      Convexity captures the <strong>curvature</strong> of the price-yield relationship. It
+      is the second derivative of the bond price with respect to yield, normalized by price:
+    </p>
+
+    <div class="formula-box">
+      C = (1/P) &sdot; d<sup>2</sup>P/dy<sup>2</sup>
+      = (1/P) &sum;<sub>t=1</sub><sup>N</sup> t(t+1) &sdot; CF<sub>t</sub> / [(1+y)<sup>t+2</sup> &sdot; freq<sup>2</sup>]
+    </div>
+
+    <h3>6.1 The Taylor Expansion of Bond Price</h3>
+
+    <p>
+      Combining duration and convexity gives us a second-order Taylor expansion of the
+      price change:
+    </p>
+
+    <div class="formula-box">
+      &Delta;P/P &asymp; &minus;D<sub>Mod</sub> &sdot; &Delta;y + &frac12; &sdot; C &sdot; (&Delta;y)<sup>2</sup>
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        This is exactly a <strong>second-order Taylor expansion</strong> of the function P(y)
+        around the current yield y<sub>0</sub>. Duration is the first derivative (slope),
+        convexity is the second derivative (curvature). If you've done a delta-method
+        approximation for the variance of a transformed estimator, you've used the same
+        Taylor expansion logic. The higher-order terms are called &ldquo;Greeks&rdquo; in
+        options pricing &mdash; delta, gamma, theta &mdash; which are first, second, and
+        time derivatives of the option price.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>def convexity(face, coupon_rate, ytm, n_years, freq=2):
+    """Compute convexity of a coupon bond."""
+    periods = int(n_years * freq)
+    coupon = face * coupon_rate / freq
+    y = ytm / freq
+    price = bond_price(face, coupon_rate, ytm, n_years, freq)
+
+    conv_sum = 0
+    for t in range(1, periods + 1):
+        if t &lt; periods:
+            cf = coupon
+        else:
+            cf = coupon + face
+        conv_sum += t * (t + 1) * cf / (1 + y)**(t + 2)
+
+    return conv_sum / (price * freq**2)
+
+def price_change_taylor(mod_dur, conv, delta_y):
+    """
+    Approximate price change using Taylor expansion.
+    Returns (first-order, second-order) approximations.
+    """
+    first_order = -mod_dur * delta_y
+    second_order = -mod_dur * delta_y + 0.5 * conv * delta_y**2
+    return first_order, second_order
+
+# ── Compute and compare approximations ────────────────────
+face = 1000
+coupon = 0.04
+ytm = 0.045
+maturity = 30  # 30-year bond for dramatic convexity
+
+price_0 = bond_price(face, coupon, ytm, maturity)
+mod_dur_val = modified_duration(face, coupon, ytm, maturity)
+conv_val = convexity(face, coupon, ytm, maturity)
+
+print(f"30-Year Bond (4% coupon, 4.5% YTM):")
+print(f"  Price:              ${price_0:.2f}")
+print(f"  Modified Duration:  {mod_dur_val:.4f}")
+print(f"  Convexity:          {conv_val:.4f}")
+
+# Compare approximations for different yield changes
+yield_changes = [-0.02, -0.01, -0.005, 0.005, 0.01, 0.02]
+
+print(f"\n{'Δy (bps)':>10s} {'Actual':>10s} {'Dur Only':>10s} "
+      f"{'Dur+Conv':>10s} {'Dur Err':>10s} {'D+C Err':>10s}")
+print(f"{'-'*62}")
+
+for dy in yield_changes:
+    # Actual price change
+    actual_price = bond_price(face, coupon, ytm + dy, maturity)
+    actual_pct = (actual_price - price_0) / price_0
+
+    # Taylor approximations
+    first, second = price_change_taylor(mod_dur_val, conv_val, dy)
+
+    err1 = abs(first - actual_pct)
+    err2 = abs(second - actual_pct)
+
+    print(f"{dy*10000:>+10.0f} {actual_pct*100:>+10.2f}% {first*100:>+10.2f}% "
+          f"{second*100:>+10.2f}% {err1*100:>10.3f}% {err2*100:>10.3f}%")
+
+# ── Visualization: price-yield curve with Taylor approx ──
+yields = np.linspace(0.01, 0.09, 200)
+actual_prices = [bond_price(face, coupon, y, maturity) for y in yields]
+
+# Taylor approximations centered at current yield
+dy_range = yields - ytm
+dur_approx = price_0 * (1 - mod_dur_val * dy_range)
+dur_conv_approx = price_0 * (1 - mod_dur_val * dy_range
+                             + 0.5 * conv_val * dy_range**2)
+
+fig, ax = plt.subplots(figsize=(10, 7))
+ax.plot(yields*100, actual_prices, color='#1a365d',
+        linewidth=2.5, label='Actual Price')
+ax.plot(yields*100, dur_approx, '--', color='#e53e3e',
+        linewidth=2, label='Duration Only (1st order)')
+ax.plot(yields*100, dur_conv_approx, '--', color='#38a169',
+        linewidth=2, label='Duration + Convexity (2nd order)')
+ax.scatter([ytm*100], [price_0], s=100, color='black', zorder=10,
+           label=f'Current (y={ytm*100}%)')
+
+ax.set_xlabel("Yield (%)")
+ax.set_ylabel("Bond Price ($)")
+ax.set_title("Price-Yield Curve: Duration and Convexity Approximations\n"
+             f"30-Year Bond, 4% Coupon")
+ax.legend(fontsize=10)
+ax.grid(True, alpha=0.3)
+ax.set_xlim(1, 9)
+
+plt.tight_layout()
+plt.savefig("duration_convexity.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Convexity is always positive for standard (option-free) bonds, and it is a <em>desirable</em>
+        property. A bond with higher convexity benefits more when rates fall (price rises more)
+        and suffers less when rates rise (price falls less) compared to a bond with the same
+        duration but lower convexity. This asymmetry means investors are willing to pay a
+        premium for convexity &mdash; it's like having a built-in insurance policy.
+      </p>
+    </div>
+
+
+    <!-- SECTION 7: BUILDING A YIELD CURVE IN PYTHON -->
+
+    <h2>7. Building and Analyzing a Yield Curve in Python</h2>
+
+    <p>
+      Let's put it all together with a comprehensive yield curve analysis.
+    </p>
+
+    <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline
+from scipy.optimize import minimize_scalar
+
+# ── Current Treasury yields (example data) ────────────────
+treasury_data = {
+    '1M':  (1/12,  4.55),
+    '3M':  (0.25,  4.50),
+    '6M':  (0.5,   4.45),
+    '1Y':  (1,     4.35),
+    '2Y':  (2,     4.20),
+    '3Y':  (3,     4.10),
+    '5Y':  (5,     4.05),
+    '7Y':  (7,     4.10),
+    '10Y': (10,    4.15),
+    '20Y': (20,    4.40),
+    '30Y': (30,    4.45),
+}
+
+maturities = np.array([v[0] for v in treasury_data.values()])
+yields = np.array([v[1] for v in treasury_data.values()]) / 100
+labels = list(treasury_data.keys())
+
+# ── Interpolate with cubic spline ─────────────────────────
+cs = CubicSpline(maturities, yields)
+mat_fine = np.linspace(maturities[0], maturities[-1], 500)
+yield_fine = cs(mat_fine)
+
+# ── Compute discount factors ──────────────────────────────
+discount_factors = np.exp(-yields * maturities)  # continuous
+discount_fine = np.exp(-yield_fine * mat_fine)
+
+# ── Compute forward rates ─────────────────────────────────
+# Instantaneous forward rate: f(t) = -d/dt [ln d(t)]
+# = y(t) + t * y'(t)
+yield_deriv = cs(mat_fine, 1)  # first derivative of yield curve
+forward_fine = yield_fine + mat_fine * yield_deriv
+
+# ── Comprehensive plot ────────────────────────────────────
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+# Panel 1: Yield curve
+ax = axes[0, 0]
+ax.plot(mat_fine, yield_fine * 100, color='#1a365d', linewidth=2)
+ax.scatter(maturities, yields * 100, s=60, color='#e53e3e', zorder=5)
+for m, y, l in zip(maturities, yields, labels):
+    ax.annotate(l, (m, y*100), fontsize=7,
+                textcoords="offset points", xytext=(0, 8), ha='center')
+ax.set_xlabel("Maturity (Years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Treasury Yield Curve")
+ax.grid(True, alpha=0.3)
+
+# Panel 2: Discount factor curve
+ax = axes[0, 1]
+ax.plot(mat_fine, discount_fine, color='#38a169', linewidth=2)
+ax.scatter(maturities, discount_factors, s=40, color='#38a169', zorder=5)
+ax.set_xlabel("Maturity (Years)")
+ax.set_ylabel("Discount Factor")
+ax.set_title("Discount Factor Curve")
+ax.grid(True, alpha=0.3)
+
+# Panel 3: Forward rate curve
+ax = axes[1, 0]
+ax.plot(mat_fine, forward_fine * 100, color='#d69e2e', linewidth=2,
+        label='Forward rate')
+ax.plot(mat_fine, yield_fine * 100, '--', color='#1a365d', linewidth=1.5,
+        label='Spot rate', alpha=0.7)
+ax.set_xlabel("Maturity (Years)")
+ax.set_ylabel("Rate (%)")
+ax.set_title("Spot vs Forward Rate Curves")
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+# Panel 4: Duration sensitivity
+ax = axes[1, 1]
+bond_mats = np.arange(1, 31)
+durations = []
+convexities = []
+for m in bond_mats:
+    ytm_m = float(cs(m))
+    d = modified_duration(1000, 0.04, ytm_m, m)
+    c = convexity(1000, 0.04, ytm_m, m)
+    durations.append(d)
+    convexities.append(c)
+
+ax.plot(bond_mats, durations, 'o-', color='#1a365d',
+        linewidth=2, markersize=4, label='Modified Duration')
+ax_twin = ax.twinx()
+ax_twin.plot(bond_mats, convexities, 's-', color='#e53e3e',
+             linewidth=2, markersize=4, label='Convexity')
+ax.set_xlabel("Bond Maturity (Years)")
+ax.set_ylabel("Modified Duration (years)", color='#1a365d')
+ax_twin.set_ylabel("Convexity", color='#e53e3e')
+ax.set_title("Duration and Convexity vs Maturity\n(4% Coupon Bonds)")
+ax.grid(True, alpha=0.3)
+
+# Combined legend
+lines1, labels1 = ax.get_legend_handles_labels()
+lines2, labels2 = ax_twin.get_legend_handles_labels()
+ax.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+plt.tight_layout()
+plt.savefig("yield_curve_analysis.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# ── Summary statistics ────────────────────────────────────
+print("Yield Curve Summary:")
+print(f"  Short end (3M):   {yields[1]*100:.2f}%")
+print(f"  Long end (30Y):   {yields[-1]*100:.2f}%")
+print(f"  Slope (10Y-2Y):   {(yields[8]-yields[4])*100:+.2f} bps")
+print(f"  Slope (30Y-3M):   {(yields[-1]-yields[1])*100:+.2f} bps")
+
+inverted = yields[8] &lt; yields[4]
+print(f"  10Y-2Y inverted?  {'YES - recession signal!' if inverted else 'No'}")</pre>
+
+
+    <!-- SECTION 8: REAL VS. NOMINAL RATES -->
+
+    <h2>8. Real vs. Nominal Interest Rates</h2>
+
+    <p>
+      The <strong>nominal</strong> interest rate is the rate you observe in the market. The
+      <strong>real</strong> interest rate adjusts for inflation &mdash; it measures the true
+      increase in purchasing power.
+    </p>
+
+    <div class="formula-box">
+      (1 + r<sub>nominal</sub>) = (1 + r<sub>real</sub>) &times; (1 + &pi;)
+      <br><br>
+      Approximation: &nbsp; r<sub>real</sub> &asymp; r<sub>nominal</sub> &minus; &pi;
+    </div>
+
+    <p>where &pi; is the inflation rate. The approximation is the <strong>Fisher equation</strong>.</p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The Fisher equation is a first-order approximation that drops the cross-term
+        r<sub>real</sub>&times;&pi;. This is valid when both rates are small. At high
+        inflation (like 50% or more in some countries), the approximation breaks down and
+        you must use the exact formula. This is similar to how the delta method approximation
+        for variance breaks down when the transformation is highly nonlinear.
+      </p>
+    </div>
+
+    <h3>8.1 TIPS: Treasury Inflation-Protected Securities</h3>
+
+    <p>
+      The difference between nominal Treasury yields and TIPS (inflation-protected) yields
+      is called the <strong>breakeven inflation rate</strong> &mdash; it represents the
+      market's expectation of future inflation.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Maturity</th>
+          <th>Nominal Yield</th>
+          <th>TIPS Yield (Real)</th>
+          <th>Breakeven Inflation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>5-Year</td><td>4.05%</td><td>1.80%</td><td>2.25%</td></tr>
+        <tr><td>10-Year</td><td>4.15%</td><td>1.90%</td><td>2.25%</td></tr>
+        <tr><td>30-Year</td><td>4.45%</td><td>2.10%</td><td>2.35%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        The breakeven inflation rate is the market's <strong>implied forecast</strong> of
+        average inflation over the given horizon. When breakeven inflation is 2.25% for
+        10 years, the bond market is pricing in average annual inflation of 2.25% over the
+        next decade. Comparing this to central bank targets (often 2%) and current inflation
+        gives useful information about whether the market expects inflation to rise or fall.
+      </p>
+    </div>
+
+
+    <!-- SECTION 9: PRACTICAL APPLICATIONS -->
+
+    <h2>9. Practical Applications for the Statistically Minded</h2>
+
+    <h3>9.1 Discounting in Statistical Decision Theory</h3>
+
+    <p>
+      The time value of money concept appears naturally in sequential decision problems.
+      In <strong>multi-armed bandits</strong> with discounting, the objective is to maximize
+      the expected discounted sum of rewards:
+    </p>
+
+    <div class="formula-box">
+      max E[&sum;<sub>t=0</sub><sup>&infin;</sup> &gamma;<sup>t</sup> R<sub>t</sub>]
+    </div>
+
+    <p>
+      where &gamma; = 1/(1+r) is the discount factor. The Gittins index, which solves this
+      problem optimally, is essentially a present-value calculation of the expected future
+      reward stream for each arm.
+    </p>
+
+    <h3>9.2 The Cost of Fees: A Present Value Analysis</h3>
+
+    <pre class="code-block"><span class="code-label">Python</span>def cost_of_fees(initial_investment, annual_return, years, fee_rate):
+    """
+    Compare wealth with and without fees over time.
+    """
+    net_return = annual_return - fee_rate
+    wealth_no_fee = initial_investment * (1 + annual_return)**np.arange(years+1)
+    wealth_with_fee = initial_investment * (1 + net_return)**np.arange(years+1)
+    fee_cost = wealth_no_fee - wealth_with_fee
+    return wealth_no_fee, wealth_with_fee, fee_cost
+
+# Compare 0.03% (Vanguard) vs 1.0% (typical active fund) vs 2.0% (hedge fund)
+years = 40
+initial = 100_000
+annual_return = 0.08
+
+fee_rates = [0.0003, 0.005, 0.01, 0.02]
+fee_labels = ['0.03% (Index)', '0.50% (Active)', '1.0% (Active)', '2.0% (Hedge Fund)']
+colors = ['#38a169', '#3182ce', '#d69e2e', '#e53e3e']
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+for fee, label, color in zip(fee_rates, fee_labels, colors):
+    no_fee, with_fee, cost = cost_of_fees(initial, annual_return, years, fee)
+    ax1.plot(range(years+1), with_fee/1000, color=color,
+             linewidth=2, label=label)
+
+ax1.set_xlabel("Years")
+ax1.set_ylabel("Portfolio Value ($thousands)")
+ax1.set_title(f"Growth of ${initial/1000:.0f}K at {annual_return*100:.0f}% "
+              f"Gross Return")
+ax1.legend(fontsize=9)
+ax1.grid(True, alpha=0.3)
+
+# Cumulative fee cost
+for fee, label, color in zip(fee_rates, fee_labels, colors):
+    no_fee, with_fee, cost = cost_of_fees(initial, annual_return, years, fee)
+    ax2.plot(range(years+1), cost/1000, color=color,
+             linewidth=2, label=label)
+
+ax2.set_xlabel("Years")
+ax2.set_ylabel("Cumulative Fee Cost ($thousands)")
+ax2.set_title("Wealth Lost to Fees")
+ax2.legend(fontsize=9)
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("cost_of_fees.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Summary table
+print(f"Impact of Fees over {years} Years (${initial:,} at {annual_return*100}% gross)")
+print(f"{'Fee':>20s} {'Final Wealth':>15s} {'Fee Cost':>12s} {'% Lost':>8s}")
+print(f"{'-'*57}")
+for fee, label in zip(fee_rates, fee_labels):
+    no_fee, with_fee, cost = cost_of_fees(initial, annual_return, years, fee)
+    pct_lost = cost[-1] / no_fee[-1] * 100
+    print(f"{label:>20s} ${with_fee[-1]:>13,.0f} ${cost[-1]:>10,.0f} "
+          f"{pct_lost:>7.1f}%")</pre>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        A 1% annual fee sounds small, but over 40 years at 8% gross return, it consumes about
+        <strong>28% of your final wealth</strong>. A 2% fee consumes nearly half. The compound
+        effect of fees is insidious because it's not just the fee itself &mdash; it's also the
+        foregone compound growth on the fee payments. This is why low-cost index funds (0.03%)
+        are so powerful: the difference between 0.03% and 1.0% over a career is hundreds of
+        thousands of dollars.
+      </p>
+    </div>
+
+
+    <!-- SECTION 10: SUMMARY -->
+
+    <h2>10. Chapter Summary</h2>
+
+    <p>
+      The time value of money is the foundation upon which all of finance is built:
+    </p>
+
+    <ul>
+      <li><strong>Present value</strong> discounts future cash flows by (1+r)<sup>&minus;n</sup>, an exponential decay function identical in form to the weighting in exponential smoothing.</li>
+      <li><strong>Compound interest</strong> produces geometric (exponential) growth, connecting to the geometric Brownian motion model for stock prices and the continuous-compounding framework of log returns.</li>
+      <li><strong>The yield curve</strong> maps interest rates to maturities, forming a functional data object that encodes market expectations about future rates, inflation, and economic growth.</li>
+      <li><strong>An inverted yield curve</strong> (10-year yield below 2-year yield) is one of the most reliable recession predictors in macroeconomics.</li>
+      <li><strong>Duration</strong> is the first derivative of bond price with respect to yield &mdash; a sensitivity measure that tells you how much a bond's price changes when rates move.</li>
+      <li><strong>Convexity</strong> is the second derivative (curvature), and together with duration forms a second-order Taylor approximation of the price-yield relationship.</li>
+      <li><strong>Real vs. nominal rates</strong> differ by expected inflation, and the breakeven inflation rate (from TIPS) reveals market expectations about future inflation.</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The mathematical toolkit for interest rates and time value of money is deeply connected
+        to concepts you already know: geometric series (perpetuity formulas), exponential decay
+        (discount factors), Taylor expansions (duration and convexity), functional data
+        analysis (yield curves), and nonparametric curve estimation (spline interpolation of
+        the term structure). The notation changes, but the mathematics is familiar territory.
+      </p>
+    </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-09/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-11/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

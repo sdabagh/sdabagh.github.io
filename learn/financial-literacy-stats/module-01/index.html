@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 01 of Financial Literacy for Statisticians: mapping financial data concepts onto statistical foundations you already know.">
+  <title>From Datasets to Markets — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 01: From Datasets to Markets</h1>
+      <p class="tagline">Mapping the financial data landscape onto the statistical concepts you already know</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 1 of 5</span>
+        <span class="meta-item">Module 01 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../index.html">&larr; Previous</a>
+      <span class="current">Module 01 of 22</span>
+      <a href="../module-02/index.html">Next &rarr;</a>
+    </div>
+
+
+      <h2>1. Introduction: Your First Financial Dataset</h2>
+
+      <p>
+        As a statistician, you have spent years working with datasets from clinical trials,
+        surveys, experiments, and simulations. Financial data shares many of the same structures
+        you already know &mdash; tabular observations, time-indexed measurements, missing values &mdash;
+        but it comes with its own vocabulary, conventions, and quirks that can trip up even
+        experienced analysts.
+      </p>
+
+      <p>
+        This module maps the financial data landscape onto the statistical concepts you already
+        understand. By the end, you will be able to pull live market data in Python, understand
+        what every column means, and recognize the structural differences between financial
+        time series and the kinds of data you have analyzed before.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Think of a stock ticker as a <strong>subject ID</strong> in a longitudinal study.
+        Just as patient #4023 has repeated measurements over time, ticker <code>AAPL</code>
+        has daily price observations stretching back decades. The &ldquo;study&rdquo; is the
+        market itself &mdash; an observational study with no control group.
+      </div>
+
+      <p>
+        We will move through six major topics: what tickers are and how they work, the OHLCV
+        data format, the peculiar time structure of market data, where to get financial data
+        programmatically, the different types of financial datasets, and a hands-on walkthrough
+        of downloading and exploring real stock data.
+      </p>
+
+
+      <h2>2. Tickers: The Naming Convention of Finance</h2>
+
+      <h3>2.1 What Is a Ticker?</h3>
+
+      <p>
+        A <strong>ticker symbol</strong> (or just &ldquo;ticker&rdquo;) is a short alphanumeric
+        code assigned to a publicly traded security. It is the financial world&rsquo;s equivalent
+        of a variable name or a primary key in a database.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Ticker Symbol:</strong> A unique identifier for a traded asset on a particular
+        exchange. Examples: <code>AAPL</code> (Apple Inc.), <code>MSFT</code> (Microsoft),
+        <code>TSLA</code> (Tesla). Think of it as the <code>subject_id</code> column in your
+        panel data.
+      </div>
+
+      <h3>2.2 Ticker Naming Conventions</h3>
+
+      <p>
+        Different exchanges and asset classes follow different naming patterns. Here is a
+        reference table:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Class</th>
+            <th>Example Ticker</th>
+            <th>Meaning</th>
+            <th>Statistical Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>US Stock</td>
+            <td><code>AAPL</code></td>
+            <td>Apple Inc. on NASDAQ</td>
+            <td>A single subject in a panel study</td>
+          </tr>
+          <tr>
+            <td>US Index</td>
+            <td><code>^GSPC</code></td>
+            <td>S&amp;P 500 Index</td>
+            <td>A population-level aggregate statistic</td>
+          </tr>
+          <tr>
+            <td>Futures Contract</td>
+            <td><code>GC=F</code></td>
+            <td>Gold futures (front month)</td>
+            <td>A derived variable with an expiration date</td>
+          </tr>
+          <tr>
+            <td>Currency Pair</td>
+            <td><code>EURUSD=X</code></td>
+            <td>Euro to US Dollar exchange rate</td>
+            <td>A ratio of two measurements</td>
+          </tr>
+          <tr>
+            <td>Cryptocurrency</td>
+            <td><code>BTC-USD</code></td>
+            <td>Bitcoin priced in USD</td>
+            <td>A 24/7 observed process (no gaps)</td>
+          </tr>
+          <tr>
+            <td>ETF</td>
+            <td><code>SPY</code></td>
+            <td>S&amp;P 500 ETF Trust</td>
+            <td>A portfolio (weighted composite variable)</td>
+          </tr>
+          <tr>
+            <td>Mutual Fund</td>
+            <td><code>VFIAX</code></td>
+            <td>Vanguard 500 Index Fund</td>
+            <td>End-of-day only (one observation per day)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Special Ticker Prefixes and Suffixes</h3>
+
+      <p>
+        The <code>^</code> prefix typically indicates an index (a computed aggregate, not a
+        directly tradeable security). The <code>=F</code> suffix marks a futures contract.
+        The <code>=X</code> suffix marks a currency exchange rate. These conventions vary
+        by data provider, so always check the documentation.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        An <strong>index</strong> like <code>^GSPC</code> (S&amp;P 500) is a
+        <em>sufficient statistic</em> of the market. You cannot buy it directly &mdash;
+        you buy an ETF like <code>SPY</code> that <em>tracks</em> it. The distinction
+        matters: ETFs have tracking error, management fees, and their own supply/demand
+        dynamics.
+      </div>
+
+      <h3>2.4 Ticker Pitfalls</h3>
+
+      <p>
+        Tickers are not permanent. Companies change tickers after mergers (e.g., Facebook
+        changed from <code>FB</code> to <code>META</code>). Delisted companies lose their
+        tickers, and new companies may reuse old ones. This creates an identification problem
+        analogous to changing subject IDs mid-study.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Never assume a ticker uniquely identifies a company across all time. The ticker
+        <code>TWTR</code> belonged to Twitter until it was delisted in 2022. If a new
+        company is assigned that ticker years later, historical lookups will mix two
+        completely different entities. Always cross-reference with a permanent identifier
+        like <strong>CUSIP</strong> or <strong>ISIN</strong> for longitudinal studies.
+      </div>
+
+
+      <h2>3. OHLCV: The Standard Observation Format</h2>
+
+      <h3>3.1 What OHLCV Means</h3>
+
+      <p>
+        Most financial datasets are delivered in <strong>OHLCV</strong> format. Each row
+        represents a single time period (usually one trading day), and the columns are:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Definition</th>
+            <th>Statistical Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Open</strong></td>
+            <td>Price at the start of the period</td>
+            <td>First observation in an intra-period sample</td>
+          </tr>
+          <tr>
+            <td><strong>High</strong></td>
+            <td>Maximum price during the period</td>
+            <td>Sample maximum &mdash; an order statistic</td>
+          </tr>
+          <tr>
+            <td><strong>Low</strong></td>
+            <td>Minimum price during the period</td>
+            <td>Sample minimum &mdash; an order statistic</td>
+          </tr>
+          <tr>
+            <td><strong>Close</strong></td>
+            <td>Price at the end of the period</td>
+            <td>Last observation in an intra-period sample</td>
+          </tr>
+          <tr>
+            <td><strong>Volume</strong></td>
+            <td>Number of shares/contracts traded</td>
+            <td>Sample size for that period (activity level)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Each OHLCV row is a <strong>summary statistic</strong> of all the trades that
+        happened during that period. If a stock traded 50,000 times in a day, you are
+        seeing five numbers that summarize those 50,000 observations: the first, the max,
+        the min, the last, and the count. This is extreme data compression, and it means
+        you are always working with aggregated data.
+      </div>
+
+      <h3>3.2 Adjusted Close</h3>
+
+      <p>
+        Many data sources include a sixth column: <strong>Adjusted Close</strong> (or
+        <code>Adj Close</code>). This is the closing price retroactively modified to account
+        for stock splits and dividend payments.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Stock Split:</strong> When a company divides its existing shares into
+        multiple new shares. A 4-for-1 split means each $400 share becomes four $100
+        shares. Statistically, it is a <em>change of units</em> &mdash; like converting
+        kilograms to grams. The Adjusted Close corrects for this so your time series
+        remains on a consistent scale.
+      </div>
+
+      <p>
+        When computing returns, <strong>always use Adjusted Close</strong>, not the raw
+        Close price. Using raw Close will introduce artificial jumps at every split and
+        dividend date, corrupting your analysis.
+      </p>
+
+      <h3>3.3 The High-Low Range as a Volatility Estimator</h3>
+
+      <p>
+        The difference between High and Low within a single period is a classical volatility
+        estimator. The <strong>Parkinson estimator</strong> uses this range:
+      </p>
+
+      <div class="formula-box">
+        &sigma;<sup>2</sup><sub>Parkinson</sub> = (1 / 4 ln 2) &middot; (ln H<sub>t</sub> &minus; ln L<sub>t</sub>)<sup>2</sup>
+      </div>
+
+      <p>
+        This is more efficient than the standard close-to-close estimator because it uses
+        more information from each period. In statistics terms, you are using sufficient
+        statistics (the range) rather than just one endpoint.
+      </p>
+
+      <h3>3.4 Volume: The Overlooked Dimension</h3>
+
+      <p>
+        Volume tells you <em>how many</em> shares were traded. High volume with a price
+        change signals conviction; low volume with a price change may be noise. Think of
+        volume as the <strong>sample size</strong> for each observation: a mean computed
+        from 10 million trades is more reliable than one computed from 10 trades.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        Volume-weighted average price (<strong>VWAP</strong>) is the financial equivalent
+        of a <em>weighted mean</em>. It computes the average price weighted by the number
+        of shares at each price level. When a trader says they &ldquo;beat VWAP,&rdquo;
+        they mean they bought at a price below the volume-weighted average &mdash; a
+        genuinely statistical claim.
+      </div>
+
+
+      <h2>4. Time Series Structure: Trading Days, Gaps, and Hours</h2>
+
+      <h3>4.1 Trading Days vs Calendar Days</h3>
+
+      <p>
+        US stock markets are open Monday through Friday, roughly 9:30 AM to 4:00 PM Eastern
+        Time. They are closed on weekends and about ten federal holidays per year. This means
+        a &ldquo;daily&rdquo; financial time series has approximately <strong>252 trading
+        days per year</strong>, not 365.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        This is an <strong>irregularly spaced time series</strong> when viewed on a calendar
+        basis, but a <strong>regularly spaced time series</strong> when indexed by trading
+        day number. Most financial analysis uses the trading-day index. If you apply calendar
+        time methods (like a 30-day rolling window), you will get different window sizes
+        depending on whether holidays fall within that window.
+      </div>
+
+      <h3>4.2 Weekend and Holiday Gaps</h3>
+
+      <p>
+        The gap between Friday close and Monday open is a 64-hour period compressed into a
+        single observation. Weekend news &mdash; earnings announcements, geopolitical events &mdash;
+        accumulate and are released as a &ldquo;jump&rdquo; at Monday&rsquo;s open.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Calendar Situation</th>
+            <th>Gap Duration</th>
+            <th>Statistical Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Weekday to weekday</td>
+            <td>~17.5 hours</td>
+            <td>Standard overnight gap</td>
+          </tr>
+          <tr>
+            <td>Friday to Monday</td>
+            <td>~64 hours</td>
+            <td>3.7x the standard gap; higher variance in returns</td>
+          </tr>
+          <tr>
+            <td>Before a 3-day holiday</td>
+            <td>~88 hours</td>
+            <td>5x the standard gap; potentially extreme jumps</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 Intraday Data and Market Microstructure</h3>
+
+      <p>
+        If you work with intraday data (1-minute or 5-minute bars), you must handle the
+        <strong>overnight gap</strong> explicitly. The return from the last bar of one day
+        to the first bar of the next day is not the same as a within-day 5-minute return &mdash;
+        it spans a closed-market period where no trading occurred.
+      </p>
+
+      <h3>4.4 Time Zones</h3>
+
+      <p>
+        US markets operate on Eastern Time. If you pull data for stocks on multiple exchanges
+        (e.g., London, Tokyo, New York), you must align time zones. The London Stock Exchange
+        closes at 4:30 PM GMT, which is 11:30 AM Eastern &mdash; while the US market is still
+        open. Failing to account for this introduces lead-lag artifacts in cross-market
+        correlations.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Some data providers return timestamps in UTC, others in the exchange&rsquo;s local
+        time, and others in your local time. <strong>Always verify the timezone of your
+        data before analysis.</strong> A one-day misalignment between two series can
+        introduce spurious correlations or destroy real ones.
+      </div>
+
+
+      <h2>5. Data Sources: Where to Get Financial Data in Python</h2>
+
+      <h3>5.1 yfinance: Free Yahoo Finance Data</h3>
+
+      <p>
+        The <code>yfinance</code> library is the most accessible way to pull financial data
+        in Python. It wraps Yahoo Finance&rsquo;s API and provides OHLCV data, fundamental
+        data, options chains, and more.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Download Apple stock data for the past 5 years</span>
+aapl = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2020-01-01"</span>, end=<span class="st">"2025-01-01"</span>)
+
+<span class="cm"># Inspect the structure</span>
+<span class="fn">print</span>(aapl.shape)          <span class="cm"># (n_trading_days, 6)</span>
+<span class="fn">print</span>(aapl.columns.tolist()) <span class="cm"># ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']</span>
+<span class="fn">print</span>(aapl.index.dtype)     <span class="cm"># DatetimeIndex</span>
+
+<span class="cm"># First few rows</span>
+<span class="fn">print</span>(aapl.head(<span class="nu">10</span>))</pre>
+
+      <h3>5.2 Downloading Multiple Tickers</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Download multiple tickers simultaneously</span>
+tickers = [<span class="st">"AAPL"</span>, <span class="st">"MSFT"</span>, <span class="st">"GOOG"</span>, <span class="st">"AMZN"</span>, <span class="st">"TSLA"</span>]
+data = yf.download(tickers, start=<span class="st">"2020-01-01"</span>, end=<span class="st">"2025-01-01"</span>)
+
+<span class="cm"># Result is a MultiIndex DataFrame</span>
+<span class="cm"># Level 0: Price type (Open, High, Low, Close, Adj Close, Volume)</span>
+<span class="cm"># Level 1: Ticker symbol</span>
+<span class="fn">print</span>(data.columns[:6])
+
+<span class="cm"># Extract just the Adjusted Close for all tickers</span>
+adj_close = data[<span class="st">"Adj Close"</span>]
+<span class="fn">print</span>(adj_close.head())</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The multi-ticker download produces a <strong>panel dataset</strong> (also called
+        longitudinal data): multiple subjects (tickers) observed over multiple time periods.
+        In R&rsquo;s <code>plm</code> package or Python&rsquo;s <code>linearmodels</code>,
+        this would be a panel with <code>entity = ticker</code> and <code>time = date</code>.
+      </div>
+
+      <h3>5.3 FRED: Federal Reserve Economic Data</h3>
+
+      <p>
+        The Federal Reserve Bank of St. Louis maintains <strong>FRED</strong> (Federal Reserve
+        Economic Data), one of the most important sources of macroeconomic data. It covers
+        interest rates, GDP, inflation, unemployment, and thousands of other series.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+
+<span class="cm"># Pull the 10-Year Treasury yield from FRED</span>
+treasury_10y = pdr.get_data_fred(<span class="st">"GS10"</span>, start=<span class="st">"2000-01-01"</span>)
+
+<span class="cm"># Pull the Federal Funds Rate</span>
+fed_funds = pdr.get_data_fred(<span class="st">"FEDFUNDS"</span>, start=<span class="st">"2000-01-01"</span>)
+
+<span class="cm"># Pull the Consumer Price Index</span>
+cpi = pdr.get_data_fred(<span class="st">"CPIAUCSL"</span>, start=<span class="st">"2000-01-01"</span>)
+
+<span class="cm"># Note: FRED series come at different frequencies</span>
+<span class="cm"># GS10 is monthly, FEDFUNDS is monthly, CPI is monthly</span>
+<span class="cm"># You must align frequencies before merging</span>
+<span class="fn">print</span>(treasury_10y.head())
+<span class="fn">print</span>(f<span class="st">"Frequency: {pd.infer_freq(treasury_10y.index)}"</span>)</pre>
+
+      <h3>5.4 Quandl / Nasdaq Data Link</h3>
+
+      <p>
+        Quandl (now Nasdaq Data Link) provides both free and premium datasets covering
+        commodities, futures, economic indicators, and alternative data.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> nasdaqdatalink
+
+<span class="cm"># Set your API key (free registration required)</span>
+nasdaqdatalink.ApiConfig.api_key = <span class="st">"YOUR_API_KEY"</span>
+
+<span class="cm"># Pull crude oil futures prices</span>
+oil = nasdaqdatalink.get(<span class="st">"CHRIS/CME_CL1"</span>, start_date=<span class="st">"2020-01-01"</span>)
+
+<span class="cm"># Pull Treasury yield curve data</span>
+yields = nasdaqdatalink.get(<span class="st">"USTREASURY/YIELD"</span>, start_date=<span class="st">"2020-01-01"</span>)
+
+<span class="fn">print</span>(oil.columns.tolist())
+<span class="fn">print</span>(yields.head())</pre>
+
+      <h3>5.5 Comparison of Data Sources</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Cost</th>
+            <th>Coverage</th>
+            <th>Frequency</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>yfinance</td>
+            <td>Free</td>
+            <td>Stocks, ETFs, indices, crypto, options</td>
+            <td>1m to daily</td>
+            <td>Quick analysis, prototyping</td>
+          </tr>
+          <tr>
+            <td>FRED</td>
+            <td>Free</td>
+            <td>Macroeconomic indicators</td>
+            <td>Daily to annual</td>
+            <td>Interest rates, GDP, inflation</td>
+          </tr>
+          <tr>
+            <td>Nasdaq Data Link</td>
+            <td>Free + Premium</td>
+            <td>Commodities, futures, alternative data</td>
+            <td>Varies</td>
+            <td>Research-grade data</td>
+          </tr>
+          <tr>
+            <td>Alpha Vantage</td>
+            <td>Free (limited)</td>
+            <td>Stocks, forex, crypto</td>
+            <td>1m to daily</td>
+            <td>Free API with rate limits</td>
+          </tr>
+          <tr>
+            <td>Bloomberg</td>
+            <td>$$$$ (terminal)</td>
+            <td>Everything</td>
+            <td>Tick to daily</td>
+            <td>Professional finance (gold standard)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Free data sources like yfinance are excellent for learning and prototyping, but
+        they have limitations: data may be delayed, adjusted prices may not match official
+        records exactly, and historical data for delisted securities may be missing. For
+        published research, use a vetted source like CRSP, Compustat, or Bloomberg.
+      </div>
+
+
+      <h2>6. Types of Financial Data</h2>
+
+      <h3>6.1 Cross-Sectional Data</h3>
+
+      <p>
+        A <strong>cross-section</strong> in finance is a snapshot of many assets at one point
+        in time. For example: the closing prices of all 500 stocks in the S&amp;P 500 on a
+        single day. This is exactly like a cross-sectional survey &mdash; many subjects, one
+        time point.
+      </p>
+
+      <p>
+        Cross-sectional analysis answers questions like: &ldquo;Which stocks have the highest
+        price-to-earnings ratio today?&rdquo; or &ldquo;Is there a cross-sectional
+        relationship between market capitalization and average return?&rdquo;
+      </p>
+
+      <h3>6.2 Time Series Data</h3>
+
+      <p>
+        A <strong>time series</strong> in finance tracks a single asset over many time periods.
+        The daily closing prices of Apple from 2010 to 2025 form a time series. This is
+        equivalent to a repeated-measures study on a single subject.
+      </p>
+
+      <h3>6.3 Panel Data</h3>
+
+      <p>
+        <strong>Panel data</strong> (or longitudinal data) combines both dimensions: multiple
+        assets over multiple time periods. Most serious financial research uses panel data.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        The classification of financial data mirrors exactly what you learned in your
+        econometrics or longitudinal data analysis course:
+        <ul>
+          <li><strong>Cross-section:</strong> N subjects, T = 1 &mdash; <em>one snapshot</em></li>
+          <li><strong>Time series:</strong> N = 1 subject, T periods &mdash; <em>one stock over time</em></li>
+          <li><strong>Panel:</strong> N subjects, T periods &mdash; <em>many stocks over time</em></li>
+        </ul>
+        The panel structure in finance creates the same challenges you already know:
+        within-entity correlation, between-entity heterogeneity, and the need for
+        clustered standard errors.
+      </div>
+
+      <h3>6.4 Tick Data</h3>
+
+      <p>
+        <strong>Tick data</strong> records every individual trade or quote change. A single
+        stock can generate millions of ticks per day. This is the raw, uncompressed version
+        of OHLCV &mdash; analogous to having individual patient readings every second versus
+        a daily summary.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>Granularity</th>
+            <th>Typical Size (1 stock, 1 year)</th>
+            <th>Statistical Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Daily OHLCV</td>
+            <td>1 row per trading day</td>
+            <td>~252 rows</td>
+            <td>Daily summary statistics</td>
+          </tr>
+          <tr>
+            <td>1-Minute Bars</td>
+            <td>1 row per minute</td>
+            <td>~98,000 rows</td>
+            <td>Minute-level aggregates</td>
+          </tr>
+          <tr>
+            <td>Tick Data</td>
+            <td>1 row per trade</td>
+            <td>~50,000,000 rows</td>
+            <td>The raw event stream</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.5 Alternative Data</h3>
+
+      <p>
+        Modern quantitative finance increasingly uses <strong>alternative data</strong>:
+        satellite imagery (to count cars in parking lots), credit card transactions,
+        social media sentiment, shipping container movements, and more. These are
+        covariates &mdash; additional predictor variables that might explain asset returns
+        beyond what price and volume alone can capture.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The explosion of alternative data is exactly the &ldquo;big data&rdquo; phenomenon
+        that statistics has been grappling with: more features (p) than observations (n),
+        the need for regularization, and the danger of overfitting. The same tools you
+        use for high-dimensional regression &mdash; LASSO, Ridge, cross-validation &mdash;
+        are directly applicable.
+      </div>
+
+
+      <h2>7. Hands-On: Exploring Apple Stock Data</h2>
+
+      <h3>7.1 Download and Inspect</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Download Apple stock data</span>
+aapl = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2015-01-01"</span>, end=<span class="st">"2025-01-01"</span>)
+
+<span class="cm"># Basic shape and info</span>
+<span class="fn">print</span>(f<span class="st">"Shape: {aapl.shape}"</span>)
+<span class="fn">print</span>(f<span class="st">"Date range: {aapl.index[0]} to {aapl.index[-1]}"</span>)
+<span class="fn">print</span>(f<span class="st">"Trading days: {len(aapl)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Calendar days: {(aapl.index[-1] - aapl.index[0]).days}"</span>)
+<span class="fn">print</span>(f<span class="st">"Ratio: {len(aapl) / (aapl.index[-1] - aapl.index[0]).days:.3f}"</span>)
+<span class="cm"># You'll see roughly 0.69 — about 252/365</span></pre>
+
+      <h3>7.2 Summary Statistics</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Statistical summary of each column</span>
+<span class="fn">print</span>(aapl.describe())
+
+<span class="cm"># Additional statistics a statistician would want</span>
+<span class="fn">print</span>(<span class="st">"\n--- Additional Statistics ---"</span>)
+<span class="fn">print</span>(f<span class="st">"Skewness of Close: {aapl['Close'].skew():.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Kurtosis of Close: {aapl['Close'].kurtosis():.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Coefficient of Variation: {aapl['Close'].std() / aapl['Close'].mean():.4f}"</span>)
+<span class="fn">print</span>(f<span class="st">"Median Volume: {aapl['Volume'].median():,.0f}"</span>)
+<span class="fn">print</span>(f<span class="st">"IQR of Volume: {aapl['Volume'].quantile(0.75) - aapl['Volume'].quantile(0.25):,.0f}"</span>)</pre>
+
+      <h3>7.3 Check for Missing Values</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Missing values check</span>
+<span class="fn">print</span>(<span class="st">"Missing values per column:"</span>)
+<span class="fn">print</span>(aapl.isnull().sum())
+
+<span class="cm"># Check for gaps in trading days</span>
+date_diffs = aapl.index.to_series().diff().dt.days
+<span class="fn">print</span>(f<span class="st">"\nDate gap statistics:"</span>)
+<span class="fn">print</span>(date_diffs.describe())
+
+<span class="cm"># Find the longest gaps (holidays + weekends)</span>
+long_gaps = date_diffs[date_diffs > <span class="nu">3</span>].sort_values(ascending=<span class="kw">False</span>)
+<span class="fn">print</span>(f<span class="st">"\nGaps longer than 3 days (holidays):"</span>)
+<span class="fn">print</span>(long_gaps.head(<span class="nu">10</span>))</pre>
+
+      <h3>7.4 Visualize the Data</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>fig, axes = plt.subplots(<span class="nu">3</span>, <span class="nu">1</span>, figsize=(<span class="nu">12</span>, <span class="nu">10</span>), sharex=<span class="kw">True</span>)
+
+<span class="cm"># Price chart</span>
+axes[<span class="nu">0</span>].plot(aapl.index, aapl[<span class="st">'Adj Close'</span>], color=<span class="st">'#1a365d'</span>, linewidth=<span class="nu">0.8</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Adjusted Close ($)'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'AAPL: Price, Daily Range, and Volume'</span>)
+
+<span class="cm"># Daily range (High - Low) as a volatility proxy</span>
+daily_range = (aapl[<span class="st">'High'</span>] - aapl[<span class="st">'Low'</span>]) / aapl[<span class="st">'Close'</span>] * <span class="nu">100</span>
+axes[<span class="nu">1</span>].bar(aapl.index, daily_range, color=<span class="st">'#e53e3e'</span>, alpha=<span class="nu">0.6</span>, width=<span class="nu">1</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'Daily Range (%)'</span>)
+
+<span class="cm"># Volume</span>
+axes[<span class="nu">2</span>].bar(aapl.index, aapl[<span class="st">'Volume'</span>] / <span class="nu">1e6</span>, color=<span class="st">'#3182ce'</span>, alpha=<span class="nu">0.6</span>, width=<span class="nu">1</span>)
+axes[<span class="nu">2</span>].set_ylabel(<span class="st">'Volume (millions)'</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="st">'aapl_exploration.png'</span>, dpi=<span class="nu">150</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.show()</pre>
+
+      <h3>7.5 Understanding the Date Index</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># The index is a DatetimeIndex — verify its properties</span>
+<span class="fn">print</span>(f<span class="st">"Index type: {type(aapl.index)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Timezone: {aapl.index.tz}"</span>)  <span class="cm"># Usually None (timezone-naive)</span>
+<span class="fn">print</span>(f<span class="st">"Freq: {aapl.index.freq}"</span>)    <span class="cm"># Usually None (irregular calendar spacing)</span>
+
+<span class="cm"># Distribution of day-of-week</span>
+dow_counts = aapl.index.dayofweek.value_counts().sort_index()
+dow_labels = [<span class="st">'Mon'</span>, <span class="st">'Tue'</span>, <span class="st">'Wed'</span>, <span class="st">'Thu'</span>, <span class="st">'Fri'</span>, <span class="st">'Sat'</span>, <span class="st">'Sun'</span>]
+<span class="fn">print</span>(<span class="st">"\nObservations by day of week:"</span>)
+<span class="kw">for</span> i, count <span class="kw">in</span> dow_counts.items():
+    <span class="fn">print</span>(f<span class="st">"  {dow_labels[i]}: {count}"</span>)
+<span class="cm"># You should see ~0 for Sat and Sun</span></pre>
+
+      <h3>7.6 Quick Correlation Check</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Correlation matrix of OHLCV columns</span>
+corr = aapl[[<span class="st">'Open'</span>, <span class="st">'High'</span>, <span class="st">'Low'</span>, <span class="st">'Close'</span>, <span class="st">'Volume'</span>]].corr()
+<span class="fn">print</span>(<span class="st">"Correlation matrix:"</span>)
+<span class="fn">print</span>(corr.round(<span class="nu">3</span>))
+
+<span class="cm"># Notice: Open, High, Low, Close are nearly perfectly correlated</span>
+<span class="cm"># This makes sense — they are all prices on the same day</span>
+<span class="cm"># Volume has a different (often negative) correlation with prices</span>
+<span class="cm"># This is because OHLC are nonstationary (trending), while volume is more stable</span></pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The near-perfect correlation among Open, High, Low, and Close is a classic example
+        of <strong>spurious correlation driven by nonstationarity</strong>. These four series
+        all contain the same underlying trend. To get meaningful correlations, you need to
+        transform prices into <em>returns</em> first &mdash; which is exactly the topic of
+        Module 02.
+      </div>
+
+
+      <h2>8. Chapter Summary</h2>
+
+      <p>Here is what we covered and the key mappings to your statistical knowledge:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Financial Concept</th>
+            <th>Statistical Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ticker symbol</td>
+            <td>Subject/entity identifier</td>
+          </tr>
+          <tr>
+            <td>OHLCV row</td>
+            <td>Summary statistics of intra-period observations</td>
+          </tr>
+          <tr>
+            <td>Adjusted Close</td>
+            <td>Scale-corrected measurement (unit normalization)</td>
+          </tr>
+          <tr>
+            <td>Trading days</td>
+            <td>Irregularly spaced time series on calendar scale</td>
+          </tr>
+          <tr>
+            <td>Volume</td>
+            <td>Sample size / observation weight</td>
+          </tr>
+          <tr>
+            <td>Index (e.g., S&amp;P 500)</td>
+            <td>Population aggregate / sufficient statistic</td>
+          </tr>
+          <tr>
+            <td>Panel of stocks</td>
+            <td>Longitudinal / panel data</td>
+          </tr>
+          <tr>
+            <td>Tick data</td>
+            <td>Raw event-level microdata</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        In the next module, we will tackle the most fundamental transformation in financial
+        analysis: converting prices into returns. You will learn why raw prices are nearly
+        useless for statistical analysis and how the simple act of differencing (or
+        log-differencing) transforms a nonstationary series into something you can actually
+        model.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-02/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

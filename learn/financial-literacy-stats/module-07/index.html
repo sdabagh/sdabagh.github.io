@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 07 of Financial Literacy for Statisticians: Mean-variance optimization through the lens of constrained quadratic programming">
+  <title>Portfolio Theory is Just Optimization — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 07: Portfolio Theory is Just Optimization</h1>
+      <p class="tagline">Mean-variance optimization through the lens of constrained quadratic programming</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 2 of 5</span>
+        <span class="meta-item">Module 07 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-06/index.html">&larr; Previous</a>
+      <span class="current">Module 07 of 22</span>
+      <a href="../module-08/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: THE MARKOWITZ FRAMEWORK          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>1. The Markowitz Framework: Mean-Variance Optimization</h2>
+
+      <p>
+        Modern Portfolio Theory (MPT), introduced by Harry Markowitz in 1952, formulates
+        portfolio construction as a <strong>constrained quadratic optimization problem</strong>.
+        The investor wants to choose portfolio weights to maximize expected return for a given
+        level of risk, or equivalently, minimize risk for a given level of return.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          If you've ever solved a penalized regression (Ridge, LASSO), you've solved a constrained
+          optimization problem. Markowitz optimization is structurally identical to <strong>Ridge
+          regression</strong>: minimize a quadratic objective (w'&Sigma;w, analogous to
+          &beta;'&beta;) subject to a linear constraint (&mu;'w = target return, analogous to
+          the data-fidelity term). The entire machinery of Lagrange multipliers, KKT conditions,
+          and quadratic programming applies directly.
+        </p>
+      </div>
+
+      <h3>1.1 The Setup</h3>
+
+      <p>
+        Consider N assets with:
+      </p>
+
+      <ul>
+        <li><strong>&mu;</strong> &isin; R<sup>N</sup>: the vector of expected returns</li>
+        <li><strong>&Sigma;</strong> &isin; R<sup>N&times;N</sup>: the covariance matrix of returns (symmetric, positive semi-definite)</li>
+        <li><strong>w</strong> &isin; R<sup>N</sup>: the vector of portfolio weights (what we're solving for)</li>
+      </ul>
+
+      <p>The portfolio's expected return and variance are:</p>
+
+      <div class="formula-box">
+        E[R<sub>p</sub>] = w'&mu;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Var(R<sub>p</sub>) = w'&Sigma;w
+      </div>
+
+      <h3>1.2 The Optimization Problem</h3>
+
+      <p>The standard formulation minimizes portfolio variance subject to constraints:</p>
+
+      <div class="formula-box">
+        min<sub>w</sub> &frac12; w'&Sigma;w
+        <br>
+        subject to: &nbsp; w'&mu; = &mu;<sub>target</sub>, &nbsp; w'1 = 1
+      </div>
+
+      <p>The first constraint sets the target return; the second ensures weights sum to 1 (fully invested). Additional constraints might include:</p>
+
+      <ul>
+        <li><strong>No short-selling:</strong> w<sub>i</sub> &ge; 0 for all i</li>
+        <li><strong>Position limits:</strong> w<sub>i</sub> &le; 0.10 (no more than 10% in any stock)</li>
+        <li><strong>Sector constraints:</strong> sum of weights in tech stocks &le; 30%</li>
+      </ul>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Long-only constraint:</strong> w<sub>i</sub> &ge; 0 means you can only buy
+          stocks, not sell short. <strong>Short selling</strong> (w<sub>i</sub> &lt; 0) means
+          borrowing a stock, selling it, and hoping to buy it back cheaper later. Many
+          institutional mandates prohibit short selling.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 2: THE EFFICIENT FRONTIER           -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>2. The Efficient Frontier: Pareto Optimality in (&sigma;, &mu;) Space</h2>
+
+      <p>
+        As we sweep the target return &mu;<sub>target</sub> from its minimum to its maximum,
+        each solution traces out a curve in (&sigma;, &mu;) space. This curve is the
+        <strong>efficient frontier</strong> &mdash; the set of portfolios that offer the maximum
+        expected return for each level of risk.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The efficient frontier is precisely the <strong>Pareto frontier</strong> of a
+          multi-objective optimization problem (minimize risk, maximize return). In statistics,
+          you encounter Pareto frontiers in bias-variance tradeoffs: the set of estimators that
+          achieve the minimum variance for each level of bias. The efficient frontier is the
+          bias-variance tradeoff of investing.
+        </p>
+      </div>
+
+      <h3>2.1 The Analytical Solution (No Inequality Constraints)</h3>
+
+      <p>
+        Without inequality constraints (allowing short selling), the problem is a quadratic
+        program with only equality constraints, and the solution has a closed form via
+        Lagrange multipliers:
+      </p>
+
+      <div class="formula-box">
+        L(w, &lambda;<sub>1</sub>, &lambda;<sub>2</sub>) = &frac12; w'&Sigma;w
+        &minus; &lambda;<sub>1</sub>(w'&mu; &minus; &mu;<sub>target</sub>)
+        &minus; &lambda;<sub>2</sub>(w'1 &minus; 1)
+      </div>
+
+      <p>Taking the gradient and setting it to zero:</p>
+
+      <div class="formula-box">
+        &nabla;<sub>w</sub>L = &Sigma;w &minus; &lambda;<sub>1</sub>&mu; &minus; &lambda;<sub>2</sub>1 = 0
+        <br>
+        &rArr; w* = &Sigma;<sup>&minus;1</sup>(&lambda;<sub>1</sub>&mu; + &lambda;<sub>2</sub>1)
+      </div>
+
+      <p>
+        Substituting back into the constraints gives a 2&times;2 system in (&lambda;<sub>1</sub>,
+        &lambda;<sub>2</sub>) that can be solved in closed form. The resulting efficient frontier
+        is a <strong>hyperbola</strong> in (&sigma;, &mu;) space.
+      </p>
+
+      <h3>2.2 Key Constants</h3>
+
+      <p>Define the following scalars (which appear throughout portfolio theory):</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Constant</th>
+            <th>Formula</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A</td>
+            <td>1'&Sigma;<sup>&minus;1</sup>&mu;</td>
+            <td>How much return the &ldquo;inverse-variance weighted&rdquo; portfolio earns</td>
+          </tr>
+          <tr>
+            <td>B</td>
+            <td>&mu;'&Sigma;<sup>&minus;1</sup>&mu;</td>
+            <td>Quadratic form of returns in the precision matrix</td>
+          </tr>
+          <tr>
+            <td>C</td>
+            <td>1'&Sigma;<sup>&minus;1</sup>1</td>
+            <td>Total &ldquo;precision&rdquo; of the asset universe</td>
+          </tr>
+          <tr>
+            <td>D</td>
+            <td>BC &minus; A<sup>2</sup></td>
+            <td>Discriminant (must be &gt; 0)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>The minimum variance for target return &mu;<sub>target</sub> is:</p>
+
+      <div class="formula-box">
+        &sigma;<sup>2</sup><sub>min</sub> = (C &sdot; &mu;<sub>target</sub><sup>2</sup>
+        &minus; 2A &sdot; &mu;<sub>target</sub> + B) / D
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 3: THE COVARIANCE ESTIMATION PROBLEM -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>3. The Covariance Matrix Estimation Problem</h2>
+
+      <p>
+        Here is where the statistician's alarm bells should start ringing. The optimization
+        requires two inputs: the expected return vector &mu; and the covariance matrix &Sigma;.
+        Both must be estimated from data, and the estimation is <em>hard</em>.
+      </p>
+
+      <h3>3.1 The Dimensionality Problem</h3>
+
+      <p>
+        For N assets, the covariance matrix has N(N+1)/2 unique parameters (it's symmetric).
+        The sample covariance matrix is:
+      </p>
+
+      <div class="formula-box">
+        &Sigma;&#770; = (1/(T&minus;1)) &sum;<sub>t=1</sub><sup>T</sup>
+        (r<sub>t</sub> &minus; r&#772;)(r<sub>t</sub> &minus; r&#772;)'
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>N (assets)</th>
+            <th>Parameters to estimate</th>
+            <th>T needed (10&times; oversampling)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>10</td><td>55</td><td>550</td></tr>
+          <tr><td>50</td><td>1,275</td><td>12,750</td></tr>
+          <tr><td>100</td><td>5,050</td><td>50,500</td></tr>
+          <tr><td>500</td><td>125,250</td><td>1,252,500</td></tr>
+          <tr><td>3,000</td><td>4,501,500</td><td>45,015,000</td></tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          With 500 stocks and 5 years of daily data (~1,250 observations), you're estimating
+          125,250 parameters from 1,250 observations. The sample covariance matrix is <em>singular</em>
+          when T &lt; N, and severely ill-conditioned when T is only slightly larger than N.
+          Plugging this directly into Markowitz optimization produces garbage.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is exactly the <strong>p &gt;&gt; n problem</strong> from high-dimensional statistics.
+          The sample covariance matrix is the MLE, but it's a terrible estimator in high dimensions.
+          The eigenvalues of &Sigma;&#770; are systematically dispersed relative to the true
+          eigenvalues (the Marcenko-Pastur law describes this). This is why shrinkage, factor
+          models, and regularization are essential in portfolio optimization &mdash; for the same
+          reason they're essential in high-dimensional regression.
+        </p>
+      </div>
+
+      <h3>3.2 Shrinkage Estimators: The Ledoit-Wolf Approach</h3>
+
+      <p>
+        Ledoit and Wolf (2004) proposed shrinking the sample covariance matrix toward a structured
+        target:
+      </p>
+
+      <div class="formula-box">
+        &Sigma;&#770;<sub>shrink</sub> = &delta; &sdot; F + (1 &minus; &delta;) &sdot; &Sigma;&#770;
+      </div>
+
+      <p>
+        where F is a structured target (e.g., the identity matrix scaled by the average variance,
+        or a single-factor model covariance) and &delta; &isin; [0, 1] is the optimal shrinkage
+        intensity, determined by minimizing the expected Frobenius loss:
+      </p>
+
+      <div class="formula-box">
+        &delta;* = argmin<sub>&delta;</sub> E[ ||&delta;F + (1&minus;&delta;)&Sigma;&#770; &minus; &Sigma;||<sub>F</sub><sup>2</sup> ]
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+from sklearn.covariance import LedoitWolf
+import yfinance as yf
+
+# Download data for a basket of stocks
+tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "META",
+           "JPM", "BAC", "WFC", "GS", "MS",
+           "JNJ", "PFE", "UNH", "MRK", "ABBV",
+           "XOM", "CVX", "COP", "SLB", "EOG"]
+
+data = yf.download(tickers, start="2020-01-01", end="2024-01-01")["Adj Close"]
+returns = np.log(data / data.shift(1)).dropna()
+
+# Sample covariance matrix
+sample_cov = returns.cov().values
+
+# Ledoit-Wolf shrinkage
+lw = LedoitWolf().fit(returns.values)
+shrunk_cov = lw.covariance_
+shrinkage_intensity = lw.shrinkage_
+
+print(f"Number of assets: {len(tickers)}")
+print(f"Number of observations: {len(returns)}")
+print(f"Parameters in covariance: {len(tickers)*(len(tickers)+1)//2}")
+print(f"Ledoit-Wolf shrinkage intensity: {shrinkage_intensity:.4f}")
+
+# Compare condition numbers
+cond_sample = np.linalg.cond(sample_cov)
+cond_shrunk = np.linalg.cond(shrunk_cov)
+print(f"\nCondition number (sample):  {cond_sample:.1f}")
+print(f"Condition number (shrunk):  {cond_shrunk:.1f}")
+print(f"Reduction factor:           {cond_sample/cond_shrunk:.1f}x")</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The shrinkage intensity &delta; is the analogue of the regularization parameter &lambda;
+          in Ridge regression. High &delta; means the data is unreliable and we should lean on
+          the prior structure; low &delta; means the data is informative. The Ledoit-Wolf formula
+          for &delta;* is an analytical cross-validation formula &mdash; no grid search needed.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 4: MINIMUM VARIANCE PORTFOLIO       -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>4. The Global Minimum Variance Portfolio</h2>
+
+      <p>
+        The simplest Markowitz portfolio ignores expected returns entirely and just minimizes
+        variance:
+      </p>
+
+      <div class="formula-box">
+        min<sub>w</sub> w'&Sigma;w &nbsp;&nbsp;&nbsp; subject to: w'1 = 1
+      </div>
+
+      <p>The analytical solution is:</p>
+
+      <div class="formula-box">
+        w<sub>GMV</sub> = &Sigma;<sup>&minus;1</sup>1 / (1'&Sigma;<sup>&minus;1</sup>1)
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The GMV portfolio weights are proportional to the <strong>row sums of the precision
+          matrix</strong> (inverse covariance). Assets that are lowly correlated with others
+          get higher weights. This is analogous to the <strong>optimal weighting in meta-analysis</strong>,
+          where studies are weighted by the inverse of their variance &mdash; more precise estimates
+          get more weight.
+        </p>
+      </div>
+
+      <h3>4.1 Why the GMV Portfolio Is Appealing</h3>
+
+      <p>
+        Expected returns are notoriously difficult to estimate. A classic result (Merton, 1980)
+        shows that with T observations, the standard error of the estimated mean return is
+        &sigma;/&radic;T, while the standard error of estimated volatility is &sigma;/&radic;(2T).
+        You need roughly four times as much data to estimate means as precisely as you estimate
+        volatilities.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Standard Error</th>
+            <th>With T=250 (1 year), &sigma;=20%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mean return &mu;</td>
+            <td>&sigma; / &radic;T</td>
+            <td>1.27% (vs ~8% true mean)</td>
+          </tr>
+          <tr>
+            <td>Volatility &sigma;</td>
+            <td>&sigma; / &radic;(2T)</td>
+            <td>0.89% (vs 20% true vol)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        The mean is estimated with a standard error that is a significant fraction of the signal,
+        while volatility is estimated much more precisely. The GMV portfolio sidesteps the
+        hardest estimation problem entirely.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>def global_minimum_variance(cov_matrix):
+    """Compute the Global Minimum Variance portfolio weights."""
+    n = cov_matrix.shape[0]
+    ones = np.ones(n)
+    inv_cov = np.linalg.inv(cov_matrix)
+    w = inv_cov @ ones / (ones @ inv_cov @ ones)
+    return w
+
+# Using the shrunk covariance matrix
+w_gmv = global_minimum_variance(shrunk_cov)
+
+print("Global Minimum Variance Portfolio Weights:")
+for ticker, weight in zip(tickers, w_gmv):
+    print(f"  {ticker:5s}: {weight:>7.2%}")
+
+# Portfolio statistics
+gmv_return = (returns.mean().values @ w_gmv) * 252
+gmv_vol = np.sqrt(w_gmv @ shrunk_cov @ w_gmv) * np.sqrt(252)
+print(f"\nAnnualized Return:     {gmv_return:.4f} ({gmv_return*100:.2f}%)")
+print(f"Annualized Volatility: {gmv_vol:.4f} ({gmv_vol*100:.2f}%)")</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 5: DIVERSIFICATION                  -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>5. Diversification: Variance Reduction Through Averaging</h2>
+
+      <p>
+        The fundamental insight of portfolio theory is that combining assets reduces risk.
+        The portfolio variance formula reveals exactly how:
+      </p>
+
+      <div class="formula-box">
+        Var(R<sub>p</sub>) = &sum;<sub>i</sub> w<sub>i</sub><sup>2</sup> &sigma;<sub>i</sub><sup>2</sup>
+        + &sum;<sub>i</sub>&sum;<sub>j&ne;i</sub> w<sub>i</sub>w<sub>j</sub> &sigma;<sub>i</sub>&sigma;<sub>j</sub> &rho;<sub>ij</sub>
+      </div>
+
+      <h3>5.1 The Equal-Weight Case</h3>
+
+      <p>
+        For N assets with equal weights w<sub>i</sub> = 1/N, equal variances &sigma;<sup>2</sup>,
+        and equal pairwise correlations &rho;:
+      </p>
+
+      <div class="formula-box">
+        Var(R<sub>p</sub>) = (1/N) &sdot; &sigma;<sup>2</sup> + (1 &minus; 1/N) &sdot; &rho; &sdot; &sigma;<sup>2</sup>
+      </div>
+
+      <p>As N &rarr; &infin;:</p>
+
+      <div class="formula-box">
+        Var(R<sub>p</sub>) &rarr; &rho; &sdot; &sigma;<sup>2</sup>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is identical to <strong>averaging correlated estimators</strong>. If you average
+          N estimators that each have variance &sigma;<sup>2</sup> and pairwise correlation &rho;,
+          the variance of the average converges to &rho;&sigma;<sup>2</sup>, not zero. The
+          irreducible &rho;&sigma;<sup>2</sup> is <strong>systematic risk</strong> &mdash; it cannot
+          be diversified away. The (1/N)&sigma;<sup>2</sup> that vanishes is <strong>idiosyncratic
+          risk</strong>. In statistics terms: systematic risk is bias, idiosyncratic risk is variance.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>import matplotlib.pyplot as plt
+
+def diversification_curve(returns_df, n_portfolios=1000):
+    """Show how portfolio volatility decreases with number of assets."""
+    tickers = returns_df.columns.tolist()
+    n_assets = len(tickers)
+    results = []
+
+    for n in range(1, n_assets + 1):
+        vols = []
+        for _ in range(n_portfolios if n < n_assets else 1):
+            # Random subset of n assets, equal weight
+            subset = np.random.choice(tickers, n, replace=False)
+            w = np.ones(n) / n
+            sub_returns = returns_df[subset].values
+            port_vol = np.sqrt(
+                w @ np.cov(sub_returns, rowvar=False) @ w
+            ) * np.sqrt(252)
+            vols.append(port_vol)
+        results.append({
+            'n': n,
+            'mean_vol': np.mean(vols),
+            'min_vol': np.min(vols),
+            'max_vol': np.max(vols)
+        })
+
+    df = pd.DataFrame(results)
+
+    plt.figure(figsize=(10, 6))
+    plt.fill_between(df['n'], df['min_vol']*100, df['max_vol']*100,
+                     alpha=0.2, color='#1a365d')
+    plt.plot(df['n'], df['mean_vol']*100, 'o-', color='#1a365d',
+             linewidth=2, markersize=4)
+    plt.xlabel("Number of Assets in Portfolio")
+    plt.ylabel("Annualized Volatility (%)")
+    plt.title("Diversification: Volatility vs Number of Assets")
+    plt.grid(True, alpha=0.3)
+
+    # Add theoretical limit
+    avg_corr = returns_df.corr().values[np.triu_indices(n_assets, k=1)].mean()
+    avg_vol = returns_df.std().mean() * np.sqrt(252)
+    systematic_vol = np.sqrt(avg_corr) * avg_vol * 100
+    plt.axhline(y=systematic_vol, color='#e53e3e', linestyle='--',
+                label=f'Systematic risk floor ({systematic_vol:.1f}%)')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig("diversification_curve.png", dpi=150, bbox_inches='tight')
+    plt.show()
+
+diversification_curve(returns)</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 6: BUILDING THE EFFICIENT FRONTIER  -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>6. Building the Efficient Frontier in Python</h2>
+
+      <p>
+        Now let's build the efficient frontier numerically using <code>scipy.optimize</code>.
+        This handles the general case with inequality constraints (long-only, position limits).
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+import matplotlib.pyplot as plt
+
+# ── Setup ──────────────────────────────────────────────────
+mu = returns.mean().values * 252          # annualized expected returns
+Sigma = shrunk_cov * 252                  # annualized covariance
+n_assets = len(tickers)
+
+# ── Portfolio optimization functions ───────────────────────
+def portfolio_vol(w, Sigma):
+    """Portfolio standard deviation."""
+    return np.sqrt(w @ Sigma @ w)
+
+def portfolio_ret(w, mu):
+    """Portfolio expected return."""
+    return w @ mu
+
+def neg_sharpe(w, mu, Sigma, rf=0.02):
+    """Negative Sharpe ratio (for minimization)."""
+    ret = w @ mu
+    vol = np.sqrt(w @ Sigma @ w)
+    return -(ret - rf) / vol
+
+# ── Constraints and bounds ─────────────────────────────────
+constraints = [
+    {'type': 'eq', 'fun': lambda w: np.sum(w) - 1}  # fully invested
+]
+bounds = [(0, 0.25)] * n_assets  # long-only, max 25% per asset
+
+# ── Compute efficient frontier ─────────────────────────────
+# Step 1: Find the feasible return range
+w0 = np.ones(n_assets) / n_assets  # starting point
+
+# Minimum variance portfolio
+res_min = minimize(
+    portfolio_vol, w0, args=(Sigma,),
+    method='SLSQP', bounds=bounds, constraints=constraints
+)
+w_min_var = res_min.x
+min_ret = portfolio_ret(w_min_var, mu)
+min_vol = portfolio_vol(w_min_var, Sigma)
+
+# Maximum return portfolio
+res_max = minimize(
+    lambda w: -portfolio_ret(w, mu),
+    w0, method='SLSQP', bounds=bounds, constraints=constraints
+)
+max_ret = portfolio_ret(res_max.x, mu)
+
+# Step 2: Sweep target returns across the feasible range
+target_returns = np.linspace(min_ret, max_ret * 0.99, 50)
+frontier_vols = []
+frontier_weights = []
+
+for target in target_returns:
+    cons = [
+        {'type': 'eq', 'fun': lambda w: np.sum(w) - 1},
+        {'type': 'eq', 'fun': lambda w, t=target: w @ mu - t}
+    ]
+    res = minimize(
+        portfolio_vol, w0, args=(Sigma,),
+        method='SLSQP', bounds=bounds, constraints=cons
+    )
+    frontier_vols.append(portfolio_vol(res.x, Sigma))
+    frontier_weights.append(res.x)
+
+frontier_vols = np.array(frontier_vols)
+
+# Step 3: Find the maximum Sharpe ratio portfolio
+res_sharpe = minimize(
+    neg_sharpe, w0, args=(mu, Sigma, 0.02),
+    method='SLSQP', bounds=bounds, constraints=constraints
+)
+w_sharpe = res_sharpe.x
+sharpe_ret = portfolio_ret(w_sharpe, mu)
+sharpe_vol = portfolio_vol(w_sharpe, Sigma)
+
+# ── Plot ───────────────────────────────────────────────────
+fig, ax = plt.subplots(figsize=(10, 7))
+
+# Individual assets
+for i, ticker in enumerate(tickers):
+    vol_i = np.sqrt(Sigma[i, i])
+    ax.scatter(vol_i*100, mu[i]*100, s=40, zorder=5, color='gray')
+    ax.annotate(ticker, (vol_i*100, mu[i]*100),
+                fontsize=7, ha='left', va='bottom')
+
+# Efficient frontier
+ax.plot(frontier_vols*100, target_returns*100,
+        'b-', linewidth=2.5, label='Efficient Frontier')
+
+# Special portfolios
+ax.scatter(min_vol*100, min_ret*100, s=150, marker='*',
+           color='green', zorder=10, label='Min Variance')
+ax.scatter(sharpe_vol*100, sharpe_ret*100, s=150, marker='*',
+           color='red', zorder=10, label='Max Sharpe')
+
+# Capital Market Line
+rf = 2.0
+cml_x = np.linspace(0, max(frontier_vols)*100*1.1, 100)
+sharpe_ratio = (sharpe_ret*100 - rf) / (sharpe_vol*100)
+cml_y = rf + sharpe_ratio * cml_x
+ax.plot(cml_x, cml_y, 'r--', alpha=0.5, label='Capital Market Line')
+
+ax.set_xlabel("Annualized Volatility (%)")
+ax.set_ylabel("Annualized Expected Return (%)")
+ax.set_title("Efficient Frontier with Long-Only Constraints")
+ax.legend(loc='upper left')
+ax.grid(True, alpha=0.3)
+ax.set_xlim(left=0)
+
+plt.tight_layout()
+plt.savefig("efficient_frontier.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Print max Sharpe portfolio weights
+print("\nMaximum Sharpe Ratio Portfolio:")
+print(f"  Expected Return: {sharpe_ret*100:.2f}%")
+print(f"  Volatility:      {sharpe_vol*100:.2f}%")
+print(f"  Sharpe Ratio:    {(sharpe_ret-0.02)/sharpe_vol:.4f}")
+print(f"\n  Weights:")
+for ticker, w in zip(tickers, w_sharpe):
+    if w > 0.001:
+        print(f"    {ticker:5s}: {w:>7.2%}")</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The efficient frontier with long-only constraints is always <em>inside</em> the
+          unconstrained frontier (higher risk for the same return). Constraints shrink the feasible
+          set. However, in practice, constrained portfolios often perform <em>better</em>
+          out-of-sample because the constraints act as implicit regularization, preventing the
+          optimizer from exploiting estimation errors.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 7: EQUAL WEIGHT VS OPTIMAL          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>7. Why 1/N Often Beats &ldquo;Optimal&rdquo; Portfolios</h2>
+
+      <p>
+        A landmark paper by DeMiguel, Garlappi, and Uppal (2009) showed that the naive 1/N
+        (equal-weight) portfolio outperforms most optimized portfolios out-of-sample across a
+        wide range of datasets. This was a shock to the quantitative finance community.
+      </p>
+
+      <h3>7.1 The Estimation Error Explanation</h3>
+
+      <p>
+        The Markowitz optimizer is an <strong>error maximizer</strong>. It overweights assets
+        whose returns are overestimated and whose risks are underestimated, and underweights
+        the opposite. The optimization amplifies estimation errors rather than signal.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is a textbook example of the <strong>bias-variance tradeoff</strong>. The
+          Markowitz solution is the &ldquo;unbiased&rdquo; optimizer (it targets the true
+          optimum), but it has enormous variance. The 1/N portfolio is biased (it ignores
+          all information about &mu; and &Sigma;), but it has zero estimation variance. When
+          estimation error is large relative to signal, the biased-but-stable estimator wins.
+          This is exactly why Ridge regression beats OLS when p is large relative to n.
+        </p>
+      </div>
+
+      <h3>7.2 How Many Observations Do You Need?</h3>
+
+      <p>
+        DeMiguel et al. derived a formula for the estimation window T* needed for Markowitz to
+        beat 1/N. For N = 50 assets:
+      </p>
+
+      <div class="formula-box">
+        T* &asymp; (N<sup>2</sup> &sdot; &mu;<sub>max</sub><sup>2</sup>) / (&sigma;<sub>min</sub><sup>2</sup> &sdot; SR<sup>2</sup>)
+      </div>
+
+      <p>
+        Under reasonable calibrations, T* can be <strong>3,000+ months</strong> (250+ years!)
+        for 50 assets. We simply do not have enough data for Markowitz optimization to dominate
+        the naive benchmark.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span># Backtest: Markowitz vs Equal-Weight vs Min Variance
+# Using rolling 252-day window, rebalance monthly
+
+def rolling_backtest(returns_df, window=252, rebalance_freq=21):
+    """Compare portfolio strategies with rolling estimation."""
+    n = len(returns_df)
+    tickers = returns_df.columns
+    n_assets = len(tickers)
+
+    strategies = {
+        'Equal Weight': [],
+        'Min Variance (sample)': [],
+        'Min Variance (shrunk)': [],
+    }
+    dates = []
+
+    for end in range(window, n, rebalance_freq):
+        train = returns_df.iloc[end-window:end].values
+        test = returns_df.iloc[end:min(end+rebalance_freq, n)].values
+
+        if len(test) == 0:
+            continue
+
+        dates.extend(returns_df.index[end:min(end+rebalance_freq, n)])
+
+        # Equal weight
+        w_ew = np.ones(n_assets) / n_assets
+
+        # Min variance (sample covariance)
+        cov_sample = np.cov(train, rowvar=False)
+        try:
+            w_mv_sample = global_minimum_variance(cov_sample)
+            w_mv_sample = np.clip(w_mv_sample, 0, None)
+            w_mv_sample /= w_mv_sample.sum()
+        except np.linalg.LinAlgError:
+            w_mv_sample = w_ew
+
+        # Min variance (Ledoit-Wolf shrinkage)
+        lw = LedoitWolf().fit(train)
+        w_mv_shrunk = global_minimum_variance(lw.covariance_)
+        w_mv_shrunk = np.clip(w_mv_shrunk, 0, None)
+        w_mv_shrunk /= w_mv_shrunk.sum()
+
+        # Compute daily returns for the test period
+        for day in test:
+            strategies['Equal Weight'].append(day @ w_ew)
+            strategies['Min Variance (sample)'].append(day @ w_mv_sample)
+            strategies['Min Variance (shrunk)'].append(day @ w_mv_shrunk)
+
+    # Build cumulative returns
+    results = pd.DataFrame(strategies, index=dates[:len(strategies['Equal Weight'])])
+    cumulative = (1 + results).cumprod()
+
+    return results, cumulative
+
+results, cumulative = rolling_backtest(returns)
+
+# Plot cumulative returns
+plt.figure(figsize=(10, 6))
+for col in cumulative.columns:
+    plt.plot(cumulative[col], label=col, linewidth=1.5)
+plt.title("Cumulative Returns: Equal Weight vs Min Variance")
+plt.ylabel("Growth of $1")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig("portfolio_backtest.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Summary statistics
+print("\nAnnualized Performance Summary:")
+for col in results.columns:
+    r = results[col]
+    ann_ret = r.mean() * 252
+    ann_vol = r.std() * np.sqrt(252)
+    sharpe = ann_ret / ann_vol
+    cum_ret = cumulative[col].iloc[-1] - 1
+    print(f"  {col:30s}: ret={ann_ret*100:>6.2f}%  "
+          f"vol={ann_vol*100:>6.2f}%  sharpe={sharpe:>5.2f}  "
+          f"cumul={cum_ret*100:>6.1f}%")</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Backtests of Markowitz optimization using the <em>full sample</em> covariance matrix
+          will always look impressive because the optimizer has access to future information.
+          Always use a <strong>rolling window</strong> or <strong>expanding window</strong> to
+          simulate realistic out-of-sample conditions. The gap between in-sample and out-of-sample
+          performance is the cost of estimation error.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 8: PRACTICAL CONSIDERATIONS          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>8. Practical Considerations and Extensions</h2>
+
+      <h3>8.1 Transaction Costs and Turnover</h3>
+
+      <p>
+        Markowitz optimization can produce wildly different weights from one period to the next,
+        generating high turnover and transaction costs. In practice, portfolios are rebalanced
+        with a <strong>turnover penalty</strong>:
+      </p>
+
+      <div class="formula-box">
+        min<sub>w</sub> w'&Sigma;w + &lambda; &sdot; ||w &minus; w<sub>prev</sub>||<sub>1</sub>
+      </div>
+
+      <p>
+        The L1 penalty on the weight change is analogous to LASSO &mdash; it encourages
+        sparse updates, keeping most weights at their previous values.
+      </p>
+
+      <h3>8.2 Black-Litterman Model</h3>
+
+      <p>
+        The Black-Litterman (1992) model takes a <strong>Bayesian approach</strong> to the
+        expected return estimation problem. Instead of estimating &mu; from historical data,
+        it starts with a prior (the market equilibrium returns implied by the CAPM) and updates
+        it with the investor's subjective views:
+      </p>
+
+      <div class="formula-box">
+        &mu;<sub>BL</sub> = [(&tau;&Sigma;)<sup>&minus;1</sup> + P'&Omega;<sup>&minus;1</sup>P]<sup>&minus;1</sup>
+        [(&tau;&Sigma;)<sup>&minus;1</sup>&Pi; + P'&Omega;<sup>&minus;1</sup>Q]
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is a <strong>Bayesian posterior mean</strong> &mdash; literally the formula for
+          the posterior mean in a conjugate normal-normal model. The prior is &Pi; (equilibrium
+          returns) with precision (&tau;&Sigma;)<sup>&minus;1</sup>, and the likelihood is the
+          investor's views Q with precision &Omega;<sup>&minus;1</sup>. The Black-Litterman model
+          is Bayesian shrinkage applied to expected returns.
+        </p>
+      </div>
+
+      <h3>8.3 Risk Parity</h3>
+
+      <p>
+        Risk parity allocates weights so that each asset contributes equally to total portfolio
+        risk. The risk contribution of asset i is:
+      </p>
+
+      <div class="formula-box">
+        RC<sub>i</sub> = w<sub>i</sub> &sdot; (&Sigma;w)<sub>i</sub> / &radic;(w'&Sigma;w)
+      </div>
+
+      <p>Risk parity sets RC<sub>i</sub> = RC<sub>j</sub> for all i, j.</p>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 9: SUMMARY                          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>9. Chapter Summary</h2>
+
+      <p>
+        Portfolio theory is optimization, and optimization is only as good as its inputs:
+      </p>
+
+      <ul>
+        <li><strong>Markowitz mean-variance optimization</strong> is a constrained quadratic program &mdash; the same machinery as Ridge regression and penalized estimation.</li>
+        <li><strong>The efficient frontier</strong> is a Pareto frontier in risk-return space, analogous to the bias-variance tradeoff curve.</li>
+        <li><strong>Covariance estimation</strong> is the critical bottleneck. With N assets, you need to estimate N(N+1)/2 parameters, and the sample covariance is a poor estimator in high dimensions.</li>
+        <li><strong>Shrinkage estimators</strong> (Ledoit-Wolf) and structured models dramatically improve covariance estimation &mdash; the same regularization you use in high-dimensional statistics.</li>
+        <li><strong>The global minimum variance portfolio</strong> avoids the hardest estimation problem (expected returns) and often performs well.</li>
+        <li><strong>Equal-weight portfolios beat &ldquo;optimal&rdquo; ones</strong> when estimation error is large &mdash; a direct application of the bias-variance tradeoff.</li>
+        <li><strong>Diversification</strong> is variance reduction through averaging correlated estimators, with systematic risk as the irreducible floor.</li>
+      </ul>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The deep lesson of portfolio theory for statisticians: <strong>the optimal solution to
+          a problem with estimated parameters is not the same as the solution you get by plugging
+          estimates into the formula for the optimal solution</strong>. Estimation uncertainty
+          changes the optimal strategy. This principle &mdash; called the &ldquo;separation of
+          estimation and optimization&rdquo; &mdash; recurs throughout quantitative finance and
+          statistical decision theory.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-06/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-08/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

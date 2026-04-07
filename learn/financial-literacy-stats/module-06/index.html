@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 06 of Financial Literacy for Statisticians: From Markowitz variance to modern downside risk measures">
+  <title>Risk = Variance (But Not Really) — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 06: Risk = Variance (But Not Really)</h1>
+      <p class="tagline">From Markowitz variance to modern downside risk measures</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 2 of 5</span>
+        <span class="meta-item">Module 06 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-05/index.html">&larr; Previous</a>
+      <span class="current">Module 06 of 22</span>
+      <a href="../module-07/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: INTRODUCTION                     -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>1. The Standard Story: Risk as Standard Deviation</h2>
+
+      <p>
+        In 1952, Harry Markowitz published his landmark paper on portfolio selection and gave finance
+        a precise, mathematical definition of risk: <strong>the variance (or standard deviation) of
+        returns</strong>. For a statistician, this is immediately familiar &mdash; risk is simply the
+        second central moment of the return distribution.
+      </p>
+
+      <div class="formula-box">
+        &sigma;<sup>2</sup> = Var(R) = E[(R &minus; &mu;)<sup>2</sup>]
+        &nbsp;&nbsp;&nbsp;where &mu; = E[R]
+      </div>
+
+      <p>
+        Standard deviation &sigma; is the square root of variance and is reported in the same units
+        as returns (e.g., percent per year). An annualized standard deviation of 20% means the
+        typical yearly return deviates about 20 percentage points from its mean.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, &sigma; measures <em>dispersion</em> around the mean. In finance, &sigma;
+          measures <em>risk</em>. Same formula, different name. When a financial analyst says
+          &ldquo;volatility is 25%,&rdquo; they literally mean &sigma; = 0.25 annualized.
+        </p>
+      </div>
+
+      <h3>1.1 Why Markowitz Chose Variance</h3>
+
+      <p>
+        Markowitz needed a tractable, computable measure that could be plugged into an optimization
+        framework. Variance has wonderful mathematical properties:
+      </p>
+
+      <ul>
+        <li><strong>Additivity under independence:</strong> Var(X + Y) = Var(X) + Var(Y) when X, Y are independent.</li>
+        <li><strong>Portfolio formula:</strong> Var(w'R) = w'&Sigma;w, a clean quadratic form in the weights.</li>
+        <li><strong>Sufficiency under normality:</strong> If returns are Gaussian, then (&mu;, &sigma;<sup>2</sup>) fully characterize the distribution.</li>
+        <li><strong>Analytical tractability:</strong> Quadratic optimization has closed-form solutions.</li>
+      </ul>
+
+      <h3>1.2 The Volatility Calculation in Practice</h3>
+
+      <p>
+        Given a series of daily log-returns r<sub>1</sub>, r<sub>2</sub>, &hellip;, r<sub>T</sub>,
+        the sample standard deviation is:
+      </p>
+
+      <div class="formula-box">
+        &sigma;<sub>daily</sub> = &radic;[ (1/(T&minus;1)) &sum;<sub>t=1</sub><sup>T</sup> (r<sub>t</sub> &minus; r&#772;)<sup>2</sup> ]
+      </div>
+
+      <p>
+        To annualize, multiply by &radic;252 (the typical number of trading days per year):
+      </p>
+
+      <div class="formula-box">
+        &sigma;<sub>annual</sub> = &sigma;<sub>daily</sub> &times; &radic;252
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import yfinance as yf
+
+# Download daily prices for a stock
+data = yf.download("AAPL", start="2020-01-01", end="2024-01-01")
+prices = data["Adj Close"]
+
+# Compute daily log returns
+log_returns = np.log(prices / prices.shift(1)).dropna()
+
+# Daily and annualized volatility
+daily_vol = log_returns.std()
+annual_vol = daily_vol * np.sqrt(252)
+
+print(f"Daily volatility:     {daily_vol:.4f}")
+print(f"Annualized volatility: {annual_vol:.4f}")
+print(f"Annualized volatility: {annual_vol*100:.2f}%")</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          The &radic;252 scaling assumes returns are i.i.d. &mdash; a strong assumption. If returns
+          are positively autocorrelated, the true annualized volatility is <em>higher</em> than
+          &sigma;<sub>daily</sub> &times; &radic;252. If negatively autocorrelated (mean-reverting),
+          it is lower. Always check the autocorrelation structure before blindly scaling.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 2: THE ASYMMETRY PROBLEM            -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>2. The Asymmetry Problem: Variance Is Symmetric, Risk Isn't</h2>
+
+      <p>
+        Here is the fundamental critique of variance as a risk measure: <strong>variance treats
+        upside and downside deviations equally</strong>. A stock that surges 30% above its mean
+        contributes just as much to variance as one that drops 30% below. But no investor lies
+        awake at night worrying about unexpectedly large gains.
+      </p>
+
+      <h3>2.1 Loss Aversion and Prospect Theory</h3>
+
+      <p>
+        Kahneman and Tversky's prospect theory (1979) showed that people feel losses roughly
+        <strong>twice as intensely</strong> as equivalent gains. The value function is:
+      </p>
+
+      <ul>
+        <li><strong>Concave</strong> for gains (diminishing marginal utility of gains)</li>
+        <li><strong>Convex</strong> for losses (increasing marginal pain of losses)</li>
+        <li><strong>Steeper</strong> for losses than gains (loss aversion coefficient &lambda; &asymp; 2.25)</li>
+      </ul>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistical decision theory, symmetric loss functions (like squared error) penalize
+          over- and under-prediction equally. But asymmetric loss functions &mdash; like LINEX
+          (linear-exponential) loss &mdash; penalize one direction more heavily. Risk measurement
+          in finance is precisely a case where asymmetric loss functions are appropriate.
+        </p>
+      </div>
+
+      <h3>2.2 Return Distributions Are Not Gaussian</h3>
+
+      <p>
+        If returns were truly Gaussian, variance <em>would</em> be sufficient &mdash; the
+        distribution is fully parameterized by (&mu;, &sigma;<sup>2</sup>), and knowing variance
+        tells you everything about tail behavior. But empirical return distributions exhibit:
+      </p>
+
+      <ul>
+        <li><strong>Excess kurtosis:</strong> Tails are heavier than Gaussian (&ldquo;fat tails&rdquo;). For the S&P 500, the kurtosis of daily returns is typically 8&ndash;12, versus 3 for a normal distribution.</li>
+        <li><strong>Negative skewness:</strong> Large drops are more common than large rallies, especially at the index level.</li>
+        <li><strong>Volatility clustering:</strong> Periods of high volatility cluster together (ARCH/GARCH effects).</li>
+      </ul>
+
+      <div class="formula-box">
+        Skewness = E[(R &minus; &mu;)<sup>3</sup>] / &sigma;<sup>3</sup>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Kurtosis = E[(R &minus; &mu;)<sup>4</sup>] / &sigma;<sup>4</sup>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>from scipy import stats
+
+# Compute higher moments of the return distribution
+skewness = log_returns.skew()
+kurtosis = log_returns.kurtosis()  # excess kurtosis (scipy default)
+
+print(f"Skewness:        {skewness:.4f}")
+print(f"Excess Kurtosis: {kurtosis:.4f}")
+print(f"(Gaussian would be: skew=0, kurtosis=0)")
+
+# Jarque-Bera test for normality
+jb_stat, jb_pval = stats.jarque_bera(log_returns)
+print(f"\nJarque-Bera statistic: {jb_stat:.2f}")
+print(f"p-value:               {jb_pval:.6f}")
+if jb_pval < 0.05:
+    print("=> Reject normality at 5% level")</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Many financial models assume normality because it makes the math clean. But with excess
+          kurtosis of 10+, the probability of a &ldquo;3-sigma event&rdquo; is far higher than
+          the Gaussian model predicts. The 2008 financial crisis was a &ldquo;25-sigma event&rdquo;
+          under Gaussian assumptions &mdash; an absurdity that reveals the model's failure, not
+          the event's impossibility.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 3: SEMI-VARIANCE                    -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>3. Semi-Variance: Measuring Only Downside Risk</h2>
+
+      <p>
+        The simplest fix for variance's symmetry problem is to only consider deviations
+        <em>below</em> a threshold. This gives us the <strong>semi-variance</strong> (or downside
+        variance):
+      </p>
+
+      <div class="formula-box">
+        SV = (1/T) &sum;<sub>t=1</sub><sup>T</sup> min(r<sub>t</sub> &minus; &tau;, 0)<sup>2</sup>
+      </div>
+
+      <p>
+        where &tau; is the target or threshold return (often the mean return, zero, or the
+        risk-free rate). The <strong>downside deviation</strong> is &radic;SV.
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Sortino Ratio:</strong> An improvement on the Sharpe ratio that uses downside
+          deviation instead of total standard deviation: Sortino = (R<sub>p</sub> &minus; r<sub>f</sub>)
+          / DD. This rewards strategies that have high upside volatility but limited downside risk.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Semi-variance is conceptually related to <strong>truncated moments</strong>. If you
+          condition on the event {R &lt; &tau;}, the semi-variance is the second moment of the
+          truncated distribution. This connects to the broader toolkit of conditional expectations
+          that we'll see again with CVaR.
+        </p>
+      </div>
+
+      <h3>3.1 The Sortino Ratio vs. the Sharpe Ratio</h3>
+
+      <p>
+        The Sharpe ratio penalizes all volatility equally. Consider two funds:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Fund A</th>
+            <th>Fund B</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mean annual return</td>
+            <td>12%</td>
+            <td>12%</td>
+          </tr>
+          <tr>
+            <td>Standard deviation</td>
+            <td>20%</td>
+            <td>20%</td>
+          </tr>
+          <tr>
+            <td>Downside deviation (target = 0%)</td>
+            <td>15%</td>
+            <td>8%</td>
+          </tr>
+          <tr>
+            <td>Sharpe ratio (r<sub>f</sub> = 2%)</td>
+            <td>0.50</td>
+            <td>0.50</td>
+          </tr>
+          <tr>
+            <td>Sortino ratio (r<sub>f</sub> = 2%)</td>
+            <td>0.67</td>
+            <td>1.25</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        Both funds look identical under the Sharpe ratio, but Fund B concentrates its volatility
+        on the upside. The Sortino ratio correctly identifies Fund B as less risky.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>def semi_variance(returns, target=0.0):
+    """Compute semi-variance (downside only) relative to a target."""
+    downside = np.minimum(returns - target, 0)
+    return np.mean(downside ** 2)
+
+def downside_deviation(returns, target=0.0):
+    """Square root of semi-variance."""
+    return np.sqrt(semi_variance(returns, target))
+
+def sortino_ratio(returns, rf=0.0, target=0.0):
+    """Sortino ratio: excess return per unit of downside risk."""
+    excess = returns.mean() - rf / 252  # daily risk-free rate
+    dd = downside_deviation(returns, target)
+    return (excess / dd) * np.sqrt(252)  # annualized
+
+def sharpe_ratio(returns, rf=0.0):
+    """Sharpe ratio: excess return per unit of total risk."""
+    excess = returns.mean() - rf / 252
+    return (excess / returns.std()) * np.sqrt(252)
+
+# Compare
+sharpe = sharpe_ratio(log_returns, rf=0.02)
+sortino = sortino_ratio(log_returns, rf=0.02, target=0.0)
+
+print(f"Sharpe Ratio:  {sharpe:.4f}")
+print(f"Sortino Ratio: {sortino:.4f}")</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 4: VALUE AT RISK (VaR)              -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>4. Value at Risk (VaR): The Quantile of the Loss Distribution</h2>
+
+      <p>
+        Value at Risk answers a seemingly simple question: <em>What is the maximum loss we can
+        expect over a given time horizon at a given confidence level?</em>
+      </p>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Value at Risk (VaR):</strong> The &alpha;-quantile of the loss distribution.
+          The 95% VaR is the loss level such that there is only a 5% probability of exceeding
+          it. If the 1-day 95% VaR is $1 million, then on 95% of days, losses will not exceed
+          $1 million.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          VaR is literally a <strong>quantile</strong>. If L is the loss random variable, then
+          VaR<sub>&alpha;</sub> = F<sub>L</sub><sup>&minus;1</sup>(&alpha;), the inverse CDF
+          evaluated at &alpha;. Every concept you know about quantile estimation, confidence
+          intervals for quantiles, and the Bahadur representation applies directly.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        VaR<sub>&alpha;</sub>(L) = inf { l &isin; R : P(L &le; l) &ge; &alpha; }
+        = F<sub>L</sub><sup>&minus;1</sup>(&alpha;)
+      </div>
+
+      <h3>4.1 Three Methods for Computing VaR</h3>
+
+      <h4>Historical VaR</h4>
+
+      <p>
+        The simplest approach: take your historical return series, sort it, and read off the
+        &alpha;-th percentile. No distributional assumptions required.
+      </p>
+
+      <ul>
+        <li><strong>Pros:</strong> Model-free, captures fat tails and skewness automatically.</li>
+        <li><strong>Cons:</strong> Limited by historical sample size; a 1% VaR from 250 days of data is determined by just 2&ndash;3 observations.</li>
+      </ul>
+
+      <h4>Parametric (Gaussian) VaR</h4>
+
+      <p>
+        Assume returns are normally distributed. Then VaR is simply a function of &mu; and &sigma;:
+      </p>
+
+      <div class="formula-box">
+        VaR<sub>&alpha;</sub> = &minus;(&mu; + z<sub>&alpha;</sub> &sdot; &sigma;)
+      </div>
+
+      <p>
+        where z<sub>&alpha;</sub> is the standard normal quantile. For 95% VaR, z<sub>0.05</sub>
+        &asymp; &minus;1.645.
+      </p>
+
+      <ul>
+        <li><strong>Pros:</strong> Simple, requires only &mu; and &sigma;.</li>
+        <li><strong>Cons:</strong> Assumes normality &mdash; underestimates tail risk when returns have fat tails.</li>
+      </ul>
+
+      <h4>Monte Carlo VaR</h4>
+
+      <p>
+        Simulate many possible future return paths from a fitted model (e.g., a GARCH model or
+        a multivariate distribution), compute the portfolio loss for each path, and take the
+        &alpha;-th percentile of the simulated loss distribution.
+      </p>
+
+      <ul>
+        <li><strong>Pros:</strong> Can handle any distributional assumption, non-linear portfolios, path dependence.</li>
+        <li><strong>Cons:</strong> Computationally intensive; results depend on the assumed model.</li>
+      </ul>
+
+      <pre class="code-block"><span class="code-label">Python</span>from scipy.stats import norm
+
+def historical_var(returns, alpha=0.05):
+    """Historical VaR: the alpha-th percentile of returns."""
+    return -np.percentile(returns, alpha * 100)
+
+def parametric_var(returns, alpha=0.05):
+    """Parametric (Gaussian) VaR."""
+    mu = returns.mean()
+    sigma = returns.std()
+    return -(mu + norm.ppf(alpha) * sigma)
+
+def monte_carlo_var(returns, alpha=0.05, n_simulations=100_000):
+    """Monte Carlo VaR assuming Gaussian returns."""
+    mu = returns.mean()
+    sigma = returns.std()
+    simulated = np.random.normal(mu, sigma, n_simulations)
+    return -np.percentile(simulated, alpha * 100)
+
+# Compute all three at the 95% confidence level (alpha = 0.05)
+h_var = historical_var(log_returns.values, 0.05)
+p_var = parametric_var(log_returns.values, 0.05)
+mc_var = monte_carlo_var(log_returns.values, 0.05)
+
+print("1-day 95% VaR (as positive loss):")
+print(f"  Historical:  {h_var:.4f}  ({h_var*100:.2f}%)")
+print(f"  Parametric:  {p_var:.4f}  ({p_var*100:.2f}%)")
+print(f"  Monte Carlo: {mc_var:.4f}  ({mc_var*100:.2f}%)")</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          VaR tells you <em>nothing</em> about what happens beyond the quantile. A 95% VaR of 3%
+          means that on the worst 5% of days, you lose <em>at least</em> 3% &mdash; but you could
+          lose 5%, 10%, or 50%. VaR is like saying &ldquo;you'll pass the exam 95% of the time&rdquo;
+          without specifying how badly you fail the other 5%.
+        </p>
+      </div>
+
+      <h3>4.2 VaR Is Not Subadditive</h3>
+
+      <p>
+        A well-behaved risk measure should satisfy <strong>subadditivity</strong>: the risk of a
+        combined portfolio should not exceed the sum of individual risks. Mathematically:
+      </p>
+
+      <div class="formula-box">
+        &rho;(X + Y) &le; &rho;(X) + &rho;(Y)
+      </div>
+
+      <p>
+        Diversification should reduce risk, and a subadditive measure reflects this. VaR, in
+        general, <strong>does not satisfy subadditivity</strong>. It is possible to construct
+        examples where combining two positions actually <em>increases</em> VaR beyond the sum
+        of individual VaRs. This was a major theoretical critique of VaR in the risk management
+        literature.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          In statistics, this connects to the theory of <strong>coherent risk measures</strong>
+          (Artzner et al., 1999). A coherent measure must be monotone, translation-invariant,
+          positively homogeneous, and subadditive. VaR fails the last property. Variance, despite
+          its other shortcomings, <em>is</em> subadditive (in fact, additive under independence).
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 5: CVaR / EXPECTED SHORTFALL        -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>5. CVaR / Expected Shortfall: What Happens in the Tail</h2>
+
+      <p>
+        Conditional Value at Risk (CVaR), also called <strong>Expected Shortfall (ES)</strong>,
+        addresses VaR's blind spot by asking: <em>given that we are in the worst &alpha;% of
+        outcomes, what is the expected loss?</em>
+      </p>
+
+      <div class="formula-box">
+        CVaR<sub>&alpha;</sub> = E[L | L &ge; VaR<sub>&alpha;</sub>]
+        = (1/&alpha;) &int;<sub>0</sub><sup>&alpha;</sup> VaR<sub>u</sub> du
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          CVaR is a <strong>conditional expectation</strong> &mdash; specifically, E[L | L is in
+          the upper tail]. If you've worked with truncated distributions or tail conditional
+          expectations, you already understand CVaR conceptually. For a Gaussian distribution,
+          CVaR<sub>&alpha;</sub> = &mu; + &sigma; &sdot; &phi;(z<sub>&alpha;</sub>) / &alpha;,
+          where &phi; is the standard normal PDF.
+        </p>
+      </div>
+
+      <h3>5.1 Why CVaR Is Superior to VaR</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>VaR</th>
+            <th>CVaR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Interpretation</td>
+            <td>Threshold loss at confidence level</td>
+            <td>Average loss in the tail beyond VaR</td>
+          </tr>
+          <tr>
+            <td>Subadditive?</td>
+            <td>No (in general)</td>
+            <td>Yes (always)</td>
+          </tr>
+          <tr>
+            <td>Coherent risk measure?</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Sensitivity to tail shape</td>
+            <td>None (it's a single quantile)</td>
+            <td>Full (averages over the entire tail)</td>
+          </tr>
+          <tr>
+            <td>Convexity (for optimization)</td>
+            <td>Non-convex</td>
+            <td>Convex</td>
+          </tr>
+          <tr>
+            <td>Regulatory acceptance</td>
+            <td>Basel II, Basel III (being phased out)</td>
+            <td>Basel III.1 / FRTB (the new standard)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span>def historical_cvar(returns, alpha=0.05):
+    """CVaR: average of returns below the alpha-th percentile."""
+    var = np.percentile(returns, alpha * 100)
+    tail_losses = returns[returns <= var]
+    return -tail_losses.mean()
+
+def parametric_cvar(returns, alpha=0.05):
+    """Parametric CVaR under Gaussian assumption."""
+    mu = returns.mean()
+    sigma = returns.std()
+    z = norm.ppf(alpha)
+    return -(mu + sigma * norm.pdf(z) / alpha)
+
+h_cvar = historical_cvar(log_returns.values, 0.05)
+p_cvar = parametric_cvar(log_returns.values, 0.05)
+
+print("1-day 95% CVaR (Expected Shortfall):")
+print(f"  Historical:  {h_cvar:.4f}  ({h_cvar*100:.2f}%)")
+print(f"  Parametric:  {p_cvar:.4f}  ({p_cvar*100:.2f}%)")
+print(f"\nNote: CVaR is always >= VaR")
+print(f"  VaR:  {h_var:.4f}")
+print(f"  CVaR: {h_cvar:.4f}")
+print(f"  Ratio CVaR/VaR: {h_cvar/h_var:.2f}")</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          For normal distributions, CVaR<sub>5%</sub> / VaR<sub>5%</sub> &asymp; 1.28. For fat-tailed
+          distributions, this ratio can be much larger (2.0 or more). The ratio itself is a useful
+          diagnostic for tail heaviness: the bigger it is, the more dangerous the tail.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 6: MAXIMUM DRAWDOWN                 -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>6. Maximum Drawdown: A Path-Dependent Risk Measure</h2>
+
+      <p>
+        All the measures above are distributional &mdash; they depend on the distribution of
+        returns, not the <em>sequence</em>. Maximum drawdown (MDD) is fundamentally different:
+        it is a <strong>path-dependent</strong> risk measure that captures the largest peak-to-trough
+        decline in cumulative portfolio value.
+      </p>
+
+      <div class="formula-box">
+        MDD = max<sub>t &isin; [0,T]</sub> [ max<sub>s &isin; [0,t]</sub> P(s) &minus; P(t) ] / max<sub>s &isin; [0,t]</sub> P(s)
+      </div>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Maximum Drawdown (MDD):</strong> The largest percentage decline from a historical
+          peak. If a portfolio grows from $100 to $150, then falls to $90, the drawdown from
+          the peak is ($150 &minus; $90) / $150 = 40%. MDD captures the worst-case &ldquo;buyer's
+          remorse&rdquo; &mdash; the maximum loss experienced by an investor who bought at the
+          worst possible time.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Maximum drawdown is related to the theory of <strong>running maxima of stochastic
+          processes</strong>. For a Brownian motion with drift &mu; and volatility &sigma;, the
+          distribution of the maximum drawdown is analytically tractable. MDD is also related to
+          the <strong>order statistics</strong> of the cumulative sum process &mdash; it's the
+          range of the running maximum minus the current value.
+        </p>
+      </div>
+
+      <h3>6.1 Why Practitioners Love Drawdowns</h3>
+
+      <ul>
+        <li><strong>Intuitive:</strong> &ldquo;This fund fell 35% from peak&rdquo; is immediately understandable.</li>
+        <li><strong>Path-dependent:</strong> Captures the investor's actual experience, not just statistical properties.</li>
+        <li><strong>Recovery time:</strong> A 50% drawdown requires a 100% gain to recover &mdash; drawdowns reveal the asymmetry of compounding.</li>
+        <li><strong>Behavioral relevance:</strong> Investors often abandon strategies during drawdowns, locking in losses.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Drawdown</th>
+            <th>Gain Needed to Recover</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>10%</td><td>11.1%</td></tr>
+          <tr><td>20%</td><td>25.0%</td></tr>
+          <tr><td>30%</td><td>42.9%</td></tr>
+          <tr><td>40%</td><td>66.7%</td></tr>
+          <tr><td>50%</td><td>100.0%</td></tr>
+          <tr><td>60%</td><td>150.0%</td></tr>
+          <tr><td>75%</td><td>300.0%</td></tr>
+          <tr><td>90%</td><td>900.0%</td></tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span>import pandas as pd
+import matplotlib.pyplot as plt
+
+def compute_drawdowns(prices):
+    """Compute the drawdown series and max drawdown."""
+    cumulative_max = prices.cummax()
+    drawdown = (prices - cumulative_max) / cumulative_max
+    max_drawdown = drawdown.min()
+    return drawdown, max_drawdown
+
+# Compute drawdown series
+dd_series, mdd = compute_drawdowns(prices)
+
+print(f"Maximum Drawdown: {mdd:.4f} ({mdd*100:.2f}%)")
+
+# Find the peak and trough dates
+peak_date = prices[:dd_series.idxmin()].idxmax()
+trough_date = dd_series.idxmin()
+print(f"Peak:   {peak_date.date()} (price: ${prices[peak_date]:.2f})")
+print(f"Trough: {trough_date.date()} (price: ${prices[trough_date]:.2f})")
+
+# Plot the drawdown
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+ax1.plot(prices, color='#1a365d', linewidth=1)
+ax1.fill_between(prices.index, prices, prices.cummax(),
+                 alpha=0.3, color='#e53e3e')
+ax1.set_title("Price and Drawdown Periods")
+ax1.set_ylabel("Price ($)")
+
+ax2.fill_between(dd_series.index, dd_series, 0,
+                 color='#e53e3e', alpha=0.5)
+ax2.set_title("Drawdown Series")
+ax2.set_ylabel("Drawdown (%)")
+ax2.set_xlabel("Date")
+
+plt.tight_layout()
+plt.savefig("drawdown_analysis.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 7: COMPARISON TABLE                 -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>7. Comparison: Risk Measures at a Glance</h2>
+
+      <p>
+        Each risk measure captures different aspects of the return distribution. There is no
+        single &ldquo;best&rdquo; measure &mdash; the appropriate choice depends on the context.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Measure</th>
+            <th>What It Captures</th>
+            <th>Statistical Analogue</th>
+            <th>Strengths</th>
+            <th>Weaknesses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Variance / &sigma;</strong></td>
+            <td>Total dispersion</td>
+            <td>Second central moment</td>
+            <td>Tractable, portfolio formula, optimization-friendly</td>
+            <td>Symmetric, penalizes upside</td>
+          </tr>
+          <tr>
+            <td><strong>Semi-variance</strong></td>
+            <td>Downside dispersion</td>
+            <td>Truncated second moment</td>
+            <td>Captures asymmetry, intuitive</td>
+            <td>Harder to optimize, loses portfolio formula</td>
+          </tr>
+          <tr>
+            <td><strong>VaR</strong></td>
+            <td>Threshold loss at &alpha;</td>
+            <td>Quantile function</td>
+            <td>Single number, regulatory standard</td>
+            <td>Not subadditive, blind to tail shape</td>
+          </tr>
+          <tr>
+            <td><strong>CVaR / ES</strong></td>
+            <td>Average tail loss</td>
+            <td>Conditional expectation</td>
+            <td>Coherent, convex, tail-sensitive</td>
+            <td>Harder to estimate accurately, requires more data</td>
+          </tr>
+          <tr>
+            <td><strong>Max Drawdown</strong></td>
+            <td>Worst peak-to-trough loss</td>
+            <td>Running max of stochastic process</td>
+            <td>Path-dependent, behaviorally relevant</td>
+            <td>Single event, hard to compare across time periods</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 8: COMPREHENSIVE PYTHON EXAMPLE     -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>8. Putting It All Together: A Complete Risk Dashboard</h2>
+
+      <p>
+        Let's build a comprehensive risk analysis that computes all the measures we've discussed
+        for a portfolio of stocks.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import pandas as pd
+import yfinance as yf
+from scipy.stats import norm
+import matplotlib.pyplot as plt
+
+# ── Download data ──────────────────────────────────────────
+tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "JPM"]
+data = yf.download(tickers, start="2019-01-01", end="2024-01-01")["Adj Close"]
+log_returns = np.log(data / data.shift(1)).dropna()
+
+# ── Equal-weight portfolio ─────────────────────────────────
+weights = np.array([1/len(tickers)] * len(tickers))
+portfolio_returns = log_returns @ weights
+
+# ── Risk Measures Function ─────────────────────────────────
+def full_risk_report(returns, name="Portfolio", alpha=0.05):
+    """Compute a comprehensive set of risk measures."""
+    mu = returns.mean() * 252
+    sigma = returns.std() * np.sqrt(252)
+
+    # Semi-variance (downside deviation)
+    downside = returns[returns < 0]
+    semi_var = np.mean(np.minimum(returns, 0)**2) * 252
+    dd = np.sqrt(semi_var)
+
+    # VaR
+    var_hist = -np.percentile(returns, alpha * 100)
+    var_param = -(returns.mean() + norm.ppf(alpha) * returns.std())
+
+    # CVaR
+    threshold = np.percentile(returns, alpha * 100)
+    tail = returns[returns <= threshold]
+    cvar_hist = -tail.mean()
+    z = norm.ppf(alpha)
+    cvar_param = -(returns.mean() +
+                   returns.std() * norm.pdf(z) / alpha)
+
+    # Maximum Drawdown
+    cum_returns = (1 + returns).cumprod()
+    running_max = cum_returns.cummax()
+    drawdown = (cum_returns - running_max) / running_max
+    max_dd = drawdown.min()
+
+    # Ratios
+    rf_daily = 0.02 / 252
+    sharpe = (returns.mean() - rf_daily) / returns.std() * np.sqrt(252)
+    sortino = (returns.mean() - rf_daily) / dd * np.sqrt(252) if dd > 0 else np.inf
+
+    print(f"\n{'='*55}")
+    print(f"  Risk Report: {name}")
+    print(f"{'='*55}")
+    print(f"  Annualized Return:       {mu*100:>8.2f}%")
+    print(f"  Annualized Volatility:   {sigma*100:>8.2f}%")
+    print(f"  Downside Deviation:      {dd*100:>8.2f}%")
+    print(f"  Sharpe Ratio:            {sharpe:>8.4f}")
+    print(f"  Sortino Ratio:           {sortino:>8.4f}")
+    print(f"  {'─'*53}")
+    print(f"  1-day {int((1-alpha)*100)}% VaR (Hist):   {var_hist*100:>8.4f}%")
+    print(f"  1-day {int((1-alpha)*100)}% VaR (Param):  {var_param*100:>8.4f}%")
+    print(f"  1-day {int((1-alpha)*100)}% CVaR (Hist):  {cvar_hist*100:>8.4f}%")
+    print(f"  1-day {int((1-alpha)*100)}% CVaR (Param): {cvar_param*100:>8.4f}%")
+    print(f"  CVaR / VaR Ratio:        {cvar_hist/var_hist:>8.4f}")
+    print(f"  {'─'*53}")
+    print(f"  Maximum Drawdown:        {max_dd*100:>8.2f}%")
+    print(f"  Skewness:                {returns.skew():>8.4f}")
+    print(f"  Excess Kurtosis:         {returns.kurtosis():>8.4f}")
+    print(f"{'='*55}")
+
+    return {
+        'return': mu, 'vol': sigma, 'dd': dd,
+        'sharpe': sharpe, 'sortino': sortino,
+        'var_hist': var_hist, 'cvar_hist': cvar_hist,
+        'max_dd': max_dd, 'skew': returns.skew(),
+        'kurtosis': returns.kurtosis()
+    }
+
+# ── Run report for each stock and the portfolio ────────────
+results = {}
+for ticker in tickers:
+    results[ticker] = full_risk_report(
+        log_returns[ticker], name=ticker
+    )
+results['EW Portfolio'] = full_risk_report(
+    portfolio_returns, name="Equal-Weight Portfolio"
+)
+
+# ── Summary comparison table ───────────────────────────────
+summary = pd.DataFrame(results).T
+summary.columns = [
+    'Ann. Return', 'Ann. Vol', 'Down. Dev.',
+    'Sharpe', 'Sortino', 'VaR (1d)', 'CVaR (1d)',
+    'Max DD', 'Skewness', 'Kurtosis'
+]
+print("\n\nSummary Comparison Table:")
+print(summary.round(4).to_string())</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Notice that the equal-weight portfolio typically has <em>lower</em> volatility, VaR, CVaR,
+          and maximum drawdown than any individual stock. This is diversification at work &mdash;
+          the same variance-reduction principle that makes averaging estimators more efficient.
+          Portfolio risk is always &le; the weighted average of individual risks (as long as
+          correlations &lt; 1).
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 9: ROLLING RISK AND TIME VARIATION  -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>9. Risk Is Not Static: Rolling Measures and Regime Changes</h2>
+
+      <p>
+        All the measures above assume a stationary return distribution. In practice, risk varies
+        dramatically over time &mdash; volatility clusters, correlations spike during crises,
+        and tail risk waxes and wanes.
+      </p>
+
+      <h3>9.1 Rolling Volatility and VaR</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span># Rolling risk measures with a 60-day window
+window = 60
+
+rolling_vol = portfolio_returns.rolling(window).std() * np.sqrt(252)
+
+rolling_var = portfolio_returns.rolling(window).apply(
+    lambda x: -np.percentile(x, 5), raw=True
+)
+
+rolling_cvar = portfolio_returns.rolling(window).apply(
+    lambda x: -x[x <= np.percentile(x, 5)].mean(), raw=True
+)
+
+fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
+
+axes[0].plot(rolling_vol, color='#1a365d', linewidth=1)
+axes[0].set_title(f"{window}-Day Rolling Annualized Volatility")
+axes[0].set_ylabel("Volatility")
+axes[0].axhline(y=portfolio_returns.std()*np.sqrt(252),
+                color='red', linestyle='--', alpha=0.5,
+                label='Full-sample vol')
+axes[0].legend()
+
+axes[1].plot(rolling_var, color='#e53e3e', linewidth=1)
+axes[1].set_title(f"{window}-Day Rolling 95% VaR (1-day)")
+axes[1].set_ylabel("VaR (loss)")
+
+axes[2].plot(rolling_cvar, color='#d69e2e', linewidth=1)
+axes[2].set_title(f"{window}-Day Rolling 95% CVaR (1-day)")
+axes[2].set_ylabel("CVaR (loss)")
+
+plt.tight_layout()
+plt.savefig("rolling_risk.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          Rolling windows are the financial analogue of <strong>local estimation</strong> or
+          <strong>kernel smoothing</strong>. The window size trades off bias and variance &mdash;
+          short windows are noisy but responsive; long windows are smooth but lagged. The optimal
+          window depends on the degree of nonstationarity, exactly as bandwidth selection depends
+          on the smoothness of the underlying function.
+        </p>
+      </div>
+
+      <h3>9.2 The Volatility of Volatility</h3>
+
+      <p>
+        If volatility itself is random (which it is &mdash; see GARCH models), then point estimates
+        of risk measures have <em>their own uncertainty</em>. The standard error of the sample
+        standard deviation under normality is:
+      </p>
+
+      <div class="formula-box">
+        SE(&sigma;&#770;) = &sigma; / &radic;(2T)
+      </div>
+
+      <p>
+        With fat-tailed distributions, the standard error is even larger. This means risk
+        estimates themselves carry substantial estimation risk, especially for tail measures
+        like VaR and CVaR which depend on very few observations.
+      </p>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          A 1% VaR estimated from one year (250 observations) relies on roughly 2.5 data points
+          in the tail. The confidence interval around this estimate is enormous. When someone
+          quotes a precise VaR number like &ldquo;$1,234,567.89,&rdquo; the false precision
+          masks massive estimation uncertainty. Always think about the standard error of
+          your risk estimates.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 10: SUMMARY                         -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>10. Chapter Summary</h2>
+
+      <p>
+        Risk in finance started as variance &mdash; a measure you know intimately from statistics.
+        But financial risk is richer and more nuanced than simple dispersion:
+      </p>
+
+      <ul>
+        <li><strong>Variance</strong> treats upside and downside symmetrically, which conflicts with how humans perceive risk.</li>
+        <li><strong>Semi-variance</strong> fixes the asymmetry by focusing only on downside deviations.</li>
+        <li><strong>VaR</strong> is a quantile &mdash; it answers &ldquo;how bad can it get?&rdquo; at a given confidence level, but says nothing about what happens in the tail.</li>
+        <li><strong>CVaR (Expected Shortfall)</strong> is the conditional expectation in the tail &mdash; a coherent risk measure that is replacing VaR in regulatory frameworks.</li>
+        <li><strong>Maximum drawdown</strong> captures the worst cumulative decline, reflecting the actual investor experience.</li>
+        <li><strong>All risk measures are estimates</strong> with their own sampling uncertainty, and they change over time.</li>
+      </ul>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          As a statistician, you are uniquely equipped to understand that <strong>risk measures
+          are just statistics of the return distribution</strong> &mdash; quantiles, moments,
+          conditional expectations, running extremes. The insight you bring is that all of these
+          are <em>estimated</em> quantities, subject to sampling error, model misspecification,
+          and nonstationarity. Healthy skepticism about point estimates of risk is one of the
+          most valuable things you can contribute to financial practice.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-05/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-07/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

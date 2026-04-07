@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 14 of Financial Literacy for Statisticians: Futures vs spot prices, contango/backwardation, gold as inflation hedge, and ties to predictive models">
+  <title>Commodities, Gold & Oil — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 14: Commodities, Gold &amp; Oil</h1>
+      <p class="tagline">Futures vs spot prices, contango/backwardation, gold as inflation hedge, and ties to predictive models</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 3 of 5</span>
+        <span class="meta-item">Module 14 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-13/index.html">&larr; Previous</a>
+      <span class="current">Module 14 of 22</span>
+      <a href="../module-15/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: What Are Commodities?                   -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>1. Commodities: Physical Assets vs. Financial Assets</h2>
+
+      <p>
+        Commodities are <strong>physical goods</strong> that are traded on markets: metals (gold,
+        silver, copper), energy (crude oil, natural gas), agriculture (wheat, corn, soybeans), and
+        livestock. They differ fundamentally from stocks and bonds because they are <em>real,
+        tangible assets</em> that must be stored, transported, and physically delivered.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Stocks and bonds are claims on <strong>cash flow processes</strong> (stochastic or
+          deterministic). Commodities are priced by <strong>supply-demand equilibrium</strong>
+          for physical goods. This means commodity prices are driven by a fundamentally different
+          data-generating process: weather, geopolitics, extraction costs, storage constraints,
+          and inventory levels. While financial asset returns are often modeled as random walks,
+          commodity prices tend to be <strong>mean-reverting</strong> &mdash; high prices incentivize
+          new supply and reduce demand, pushing prices back toward the cost of production.
+        </p>
+      </div>
+
+      <h3>1.1 Key Differences from Financial Assets</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Financial Assets (Stocks, Bonds)</th>
+            <th>Commodities</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nature</td>
+            <td>Claims on future cash flows (paper)</td>
+            <td>Physical goods with intrinsic use</td>
+          </tr>
+          <tr>
+            <td>Storage</td>
+            <td>Costless (electronic entries)</td>
+            <td>Costly (warehouses, refrigeration, tanks)</td>
+          </tr>
+          <tr>
+            <td>Yield</td>
+            <td>Dividends, coupons</td>
+            <td>No yield; instead a "convenience yield"</td>
+          </tr>
+          <tr>
+            <td>Price dynamics</td>
+            <td>Tend toward random walk (efficient market)</td>
+            <td>Tend toward mean-reversion (supply response)</td>
+          </tr>
+          <tr>
+            <td>Supply elasticity</td>
+            <td>Instantaneous (issue new shares)</td>
+            <td>Slow (takes years to build mines, wells)</td>
+          </tr>
+          <tr>
+            <td>Expiration</td>
+            <td>Perpetual (stocks) or fixed maturity (bonds)</td>
+            <td>Continuous production/consumption cycle</td>
+          </tr>
+          <tr>
+            <td>Return distribution</td>
+            <td>Slight positive skew (stocks), near-normal (bonds)</td>
+            <td>Positive skew, supply-shock driven fat tails</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Convenience yield</strong> = the non-monetary benefit of holding the physical
+          commodity rather than a futures contract. A refinery holding crude oil inventory can keep
+          running even during supply disruptions; this operational flexibility has value. The
+          convenience yield is like an implicit dividend that physical commodity holders earn.
+        </p>
+      </div>
+
+      <h3>1.2 Major Commodity Categories</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Examples</th>
+            <th>Key Price Drivers</th>
+            <th>Volatility Character</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Precious metals</td>
+            <td>Gold, silver, platinum</td>
+            <td>Monetary policy, inflation, safe-haven demand</td>
+            <td>Moderate; gold is least volatile</td>
+          </tr>
+          <tr>
+            <td>Energy</td>
+            <td>Crude oil, natural gas, gasoline</td>
+            <td>OPEC, geopolitics, economic growth, weather</td>
+            <td>High; supply shocks create extreme tails</td>
+          </tr>
+          <tr>
+            <td>Industrial metals</td>
+            <td>Copper, aluminum, zinc, iron ore</td>
+            <td>Industrial demand (especially China), mining supply</td>
+            <td>Moderate to high; cyclical</td>
+          </tr>
+          <tr>
+            <td>Agriculture</td>
+            <td>Wheat, corn, soybeans, coffee</td>
+            <td>Weather, crop yields, government policy</td>
+            <td>Seasonal patterns; weather-driven spikes</td>
+          </tr>
+          <tr>
+            <td>Livestock</td>
+            <td>Live cattle, lean hogs</td>
+            <td>Feed costs, disease outbreaks, demand</td>
+            <td>Moderate; biological production constraints</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 2: Spot vs. Futures                        -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>2. Spot Price vs. Futures Price</h2>
+
+      <p>
+        Every commodity has two types of prices that coexist in the market:
+      </p>
+
+      <ul>
+        <li><strong>Spot price (S)</strong>: The price for immediate delivery of the physical
+            commodity. Pay now, get the commodity now.</li>
+        <li><strong>Futures price (F)</strong>: The price agreed upon today for delivery at a
+            specified future date. No payment or delivery occurs until the contract expires.</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The spot price is an <strong>observed value</strong> (current measurement). The futures
+          price is a <strong>conditional expectation</strong> &mdash; the market's consensus forecast
+          of the future spot price, adjusted for risk premiums and carrying costs. The relationship
+          between spot and futures prices across different delivery dates forms the
+          <strong>term structure of commodity prices</strong>, analogous to the yield curve for bonds.
+        </p>
+      </div>
+
+      <h3>2.1 Contango and Backwardation</h3>
+
+      <p>
+        The relationship between spot and futures prices defines two market regimes:
+      </p>
+
+      <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Contango</strong>: Futures price &gt; Spot price (F &gt; S). The forward curve
+          slopes upward. This is the "normal" state for storable commodities where carrying costs
+          dominate.<br><br>
+          <strong>Backwardation</strong>: Futures price &lt; Spot price (F &lt; S). The forward
+          curve slopes downward. This occurs when there is strong immediate demand or supply
+          scarcity, making the physical commodity more valuable now than later.
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Contango (F &gt; S)</th>
+            <th>Backwardation (F &lt; S)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forward curve</td>
+            <td>Upward sloping</td>
+            <td>Downward sloping</td>
+          </tr>
+          <tr>
+            <td>What it signals</td>
+            <td>Adequate supply; storage costs dominate</td>
+            <td>Supply scarcity; immediate need is high</td>
+          </tr>
+          <tr>
+            <td>Convenience yield</td>
+            <td>Low (no urgency to hold physical)</td>
+            <td>High (physical inventory is very valuable)</td>
+          </tr>
+          <tr>
+            <td>Roll return for futures holders</td>
+            <td>Negative (buy high, sell low when rolling)</td>
+            <td>Positive (buy low, sell high when rolling)</td>
+          </tr>
+          <tr>
+            <td>Common for</td>
+            <td>Gold, financial futures</td>
+            <td>Oil during supply crises, perishable goods</td>
+          </tr>
+          <tr>
+            <td>Statistical analogue</td>
+            <td>E[S<sub>T</sub>|info] &lt; F (risk premium positive)</td>
+            <td>E[S<sub>T</sub>|info] &gt; F (risk premium negative)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          Many investors assume contango means the market expects prices to rise. This is wrong.
+          Contango primarily reflects <strong>carrying costs</strong> (storage + financing), not
+          price expectations. A market can be in contango even if participants expect the spot
+          price to fall. Similarly, backwardation does not necessarily mean the market expects
+          prices to drop. The futures-spot relationship is determined by carrying costs and
+          convenience yields, not pure expectations.
+        </p>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 3: Cost of Carry Model                     -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>3. The Cost of Carry Model</h2>
+
+      <p>
+        The fundamental pricing relationship for commodity futures is the <strong>cost of carry
+        model</strong>. It links the futures price to the spot price through the economics of
+        physically holding the commodity:
+      </p>
+
+      <div class="formula-box">
+        F = S &middot; e<sup>(r + u &minus; y) &middot; T</sup>
+      </div>
+
+      <p>where:</p>
+      <ul>
+        <li>F = futures price for delivery at time T</li>
+        <li>S = current spot price</li>
+        <li>r = risk-free interest rate (financing cost)</li>
+        <li>u = storage cost rate (annualized, as fraction of spot)</li>
+        <li>y = convenience yield (annualized)</li>
+        <li>T = time to delivery (years)</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The cost of carry model is a <strong>no-arbitrage relationship</strong>, not a forecasting
+          model. It says: the futures price must equal the spot price adjusted for the cost of
+          "carrying" the physical commodity until delivery. If F is too high relative to this formula,
+          an arbitrageur would buy the physical commodity, store it, and sell the futures &mdash;
+          locking in a riskless profit. This arbitrage keeps futures prices tied to the carry model,
+          just as no-arbitrage keeps put-call parity in the options world.
+        </p>
+      </div>
+
+      <h3>3.1 Components of the Carry Cost</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Description</th>
+            <th>Effect on Futures Price</th>
+            <th>Typical Magnitude</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Financing cost (r)</td>
+            <td>Opportunity cost of capital tied up in inventory</td>
+            <td>Increases F (contango)</td>
+            <td>4&ndash;6% per year</td>
+          </tr>
+          <tr>
+            <td>Storage cost (u)</td>
+            <td>Warehousing, insurance, maintenance</td>
+            <td>Increases F (contango)</td>
+            <td>0.1% (gold) to 5%+ (natural gas)</td>
+          </tr>
+          <tr>
+            <td>Convenience yield (y)</td>
+            <td>Benefit of holding physical supply</td>
+            <td>Decreases F (toward backwardation)</td>
+            <td>0% (gold) to 20%+ (scarce oil)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          For <strong>gold</strong>, the convenience yield is essentially zero (gold in a vault
+          provides no operational benefit), storage costs are minimal, and the cost of carry is
+          dominated by the interest rate. This is why gold is almost always in contango:
+          F &approx; S &middot; e<sup>rT</sup>. For <strong>crude oil</strong>, convenience yields
+          can be enormous during supply crises, pushing the market into steep backwardation.
+          The convenience yield is the key variable that distinguishes commodity from financial
+          asset pricing.
+        </p>
+      </div>
+
+      <h3>3.2 Implied Convenience Yield</h3>
+
+      <p>
+        We can invert the cost of carry model to extract the market's implied convenience yield,
+        just as we extracted implied volatility from option prices:
+      </p>
+
+      <div class="formula-box">
+        y<sub>implied</sub> = r + u &minus; (1/T) &middot; ln(F/S)
+      </div>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is another <strong>inverse problem</strong>: given the observables (S, F, r, u, T),
+          solve for the latent parameter (convenience yield). A high implied convenience yield
+          signals supply tightness &mdash; the market is placing a premium on having the physical
+          commodity available immediately. Tracking the implied convenience yield over time provides
+          a real-time indicator of supply-demand balance, analogous to tracking implied volatility
+          to monitor market fear.
+        </p>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 4: Gold as an Inflation Hedge              -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>4. Gold as an Inflation Hedge: A Hypothesis Test</h2>
+
+      <p>
+        One of the most persistent claims in finance is that gold is an <strong>inflation hedge</strong>
+        &mdash; that gold returns are positively correlated with inflation, preserving purchasing
+        power when the value of money declines. As statisticians, we should test this claim rather
+        than accept it as folklore.
+      </p>
+
+      <h3>4.1 The Hypothesis</h3>
+
+      <div class="formula-box">
+        H<sub>0</sub>: &rho;(R<sub>gold</sub>, &pi;) = 0 &nbsp;&nbsp;&nbsp;(gold returns uncorrelated with inflation)
+        <br>
+        H<sub>1</sub>: &rho;(R<sub>gold</sub>, &pi;) &gt; 0 &nbsp;&nbsp;&nbsp;(gold is a positive inflation hedge)
+      </div>
+
+      <p>where R<sub>gold</sub> is the gold return and &pi; is the inflation rate (CPI change).</p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is a standard <strong>one-sided hypothesis test for correlation</strong>. We can
+          use the Pearson correlation coefficient with a t-test, or a regression of gold returns
+          on CPI changes: R<sub>gold,t</sub> = &alpha; + &beta; &middot; &pi;<sub>t</sub> +
+          &epsilon;<sub>t</sub>. Under the inflation hedge hypothesis, &beta; &gt; 0 and
+          ideally &beta; &ge; 1 (gold more than compensates for inflation). But we must be
+          careful: the result depends heavily on the <strong>time horizon</strong>. Monthly
+          correlations may be near zero while decade-long correlations are strongly positive.
+        </p>
+      </div>
+
+      <h3>4.2 Empirical Evidence by Time Horizon</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Time Horizon</th>
+            <th>Gold-Inflation Correlation</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Monthly</td>
+            <td>~0.05 (near zero)</td>
+            <td>Gold is a poor short-term inflation hedge</td>
+          </tr>
+          <tr>
+            <td>Quarterly</td>
+            <td>~0.10</td>
+            <td>Weak relationship; not statistically significant</td>
+          </tr>
+          <tr>
+            <td>Annual</td>
+            <td>~0.25</td>
+            <td>Moderate positive correlation; marginally significant</td>
+          </tr>
+          <tr>
+            <td>5-year rolling</td>
+            <td>~0.50</td>
+            <td>Meaningful relationship at medium horizons</td>
+          </tr>
+          <tr>
+            <td>10-year rolling</td>
+            <td>~0.70</td>
+            <td>Strong long-term inflation hedge</td>
+          </tr>
+          <tr>
+            <td>Multi-century</td>
+            <td>~1.0</td>
+            <td>Near-perfect long-run purchasing power preservation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          Gold is a <strong>long-run inflation hedge but a poor short-run inflation hedge</strong>.
+          Over centuries, gold has maintained purchasing power remarkably well. Over months or even
+          years, gold prices are driven by many factors beyond inflation: real interest rates,
+          dollar strength, geopolitical risk, central bank purchases, and speculative flows. This
+          is a classic example of a relationship that exists at one time scale but not another &mdash;
+          a phenomenon familiar to any time-series statistician as <strong>scale-dependent
+          correlation</strong>.
+        </p>
+      </div>
+
+      <h3>4.3 Gold and Real Interest Rates</h3>
+
+      <p>
+        A more nuanced model recognizes that gold responds not to inflation itself but to
+        <strong>real interest rates</strong> (nominal rate minus inflation). When real rates are
+        low or negative, the opportunity cost of holding gold (which pays no interest) is low,
+        making gold more attractive.
+      </p>
+
+      <div class="formula-box">
+        R<sub>gold,t</sub> = &alpha; + &beta;<sub>1</sub> &middot; &pi;<sub>t</sub>
+        + &beta;<sub>2</sub> &middot; r<sub>real,t</sub>
+        + &beta;<sub>3</sub> &middot; &Delta;USD<sub>t</sub> + &epsilon;<sub>t</sub>
+      </div>
+
+      <p>
+        This multivariate regression typically finds &beta;<sub>2</sub> &lt; 0 (negative relationship
+        with real rates) to be the strongest predictor, often more significant than &beta;<sub>1</sub>
+        (direct inflation effect).
+      </p>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 5: Oil's Unique Dynamics                   -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>5. Oil's Unique Dynamics</h2>
+
+      <p>
+        Crude oil is the most economically significant commodity. Its price affects virtually
+        every sector of the global economy. Oil prices exhibit dynamics that are distinct from
+        other commodities due to three factors: cartel behavior, geopolitical risk, and storage
+        constraints.
+      </p>
+
+      <h3>5.1 OPEC as a Cartel</h3>
+
+      <p>
+        The Organization of the Petroleum Exporting Countries (OPEC) is a cartel of oil-producing
+        nations that collectively control approximately 35&ndash;40% of global oil production.
+        OPEC's production decisions directly affect global supply and therefore prices.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          OPEC introduces a <strong>strategic game-theoretic element</strong> into oil pricing.
+          Unlike most commodities where supply responds mechanically to price signals, OPEC members
+          make <em>strategic</em> production decisions. This means oil supply is not just a function
+          of price but also of <strong>oligopoly dynamics</strong>: each member's output depends on
+          what they believe other members will produce. In statistical terms, the data-generating
+          process for oil has an <strong>endogenous structural break mechanism</strong> &mdash; OPEC
+          meetings can discretely shift the supply function.
+        </p>
+      </div>
+
+      <h3>5.2 Supply Shocks and Fat Tails</h3>
+
+      <p>
+        Oil prices are subject to sudden supply disruptions caused by:
+      </p>
+
+      <ul>
+        <li><strong>Geopolitical events</strong>: Wars in the Middle East, sanctions on major
+            producers (Iran, Russia, Venezuela)</li>
+        <li><strong>Natural disasters</strong>: Hurricanes in the Gulf of Mexico disrupting offshore
+            production and refining</li>
+        <li><strong>OPEC decisions</strong>: Production cuts or increases decided in OPEC meetings</li>
+        <li><strong>Demand shocks</strong>: Recessions reduce demand; recoveries increase it</li>
+      </ul>
+
+      <p>
+        These shocks create a return distribution with <strong>extreme tails</strong>. Oil prices
+        have experienced moves of &plusmn;30% in a single month multiple times in the past 50 years.
+        The 2020 COVID demand shock briefly pushed oil futures to <em>negative</em> prices &mdash;
+        a previously unthinkable event.
+      </p>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          In April 2020, the WTI crude oil May futures contract settled at &minus;$37.63 per barrel.
+          This was not a data error. With demand collapsing and storage facilities at capacity,
+          holders of expiring futures faced the prospect of <em>physical delivery</em> with nowhere
+          to put the oil. They literally had to pay someone to take the oil off their hands. This
+          event demonstrated that commodity futures prices are <strong>not bounded below by zero</strong>
+          when physical delivery and storage constraints bind &mdash; a fact that broke many pricing
+          models that assumed positive prices.
+        </p>
+      </div>
+
+      <h3>5.3 Oil's Statistical Properties</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Typical Value</th>
+            <th>Implication</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Annual volatility</td>
+            <td>30&ndash;40%</td>
+            <td>Much higher than stocks (~15&ndash;20%) or bonds (~5&ndash;8%)</td>
+          </tr>
+          <tr>
+            <td>Skewness</td>
+            <td>Positive (supply-shock driven)</td>
+            <td>Large upward spikes more common than large drops</td>
+          </tr>
+          <tr>
+            <td>Kurtosis</td>
+            <td>6&ndash;10 (excess kurtosis 3&ndash;7)</td>
+            <td>Extremely fat tails; normal distribution is a poor fit</td>
+          </tr>
+          <tr>
+            <td>Mean reversion</td>
+            <td>Half-life of 2&ndash;5 years</td>
+            <td>Extreme prices tend to revert toward production cost</td>
+          </tr>
+          <tr>
+            <td>Autocorrelation of returns</td>
+            <td>Near zero (daily)</td>
+            <td>Short-term returns are approximately unpredictable</td>
+          </tr>
+          <tr>
+            <td>Volatility clustering</td>
+            <td>Strong GARCH effects</td>
+            <td>Calm and turbulent periods cluster together</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 6: Gold-to-Oil Ratio                       -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>6. The Gold-to-Oil Ratio: A Mean-Reverting Spread</h2>
+
+      <p>
+        The <strong>gold-to-oil ratio</strong> &mdash; the price of one ounce of gold divided by
+        the price of one barrel of crude oil &mdash; is one of the most watched inter-commodity
+        ratios in finance:
+      </p>
+
+      <div class="formula-box">
+        Gold/Oil Ratio = Price of Gold ($/oz) / Price of Oil ($/bbl)
+      </div>
+
+      <p>
+        Historically, this ratio has averaged about 15&ndash;20, meaning one ounce of gold buys
+        15&ndash;20 barrels of oil. The ratio is <strong>mean-reverting</strong>: when it deviates
+        far from its historical average, it tends to revert back.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The gold-to-oil ratio is a <strong>cointegration spread</strong>. While gold and oil
+          prices individually follow near-random-walk processes (non-stationary, I(1)), their ratio
+          (or log-difference) is stationary (I(0)). This is the definition of cointegration.
+          You can test this formally with the <strong>Augmented Dickey-Fuller test</strong> or
+          the <strong>Engle-Granger two-step procedure</strong>. The mean-reverting property makes
+          this spread tradeable: buy the spread when it is unusually low (gold cheap relative to
+          oil), sell when it is unusually high.
+        </p>
+      </div>
+
+      <h3>6.1 Interpreting Extreme Ratios</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ratio Level</th>
+            <th>Interpretation</th>
+            <th>Historical Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&lt; 10</td>
+            <td>Oil expensive relative to gold</td>
+            <td>Oil supply crises (1980, 2008 price spike)</td>
+          </tr>
+          <tr>
+            <td>10&ndash;15</td>
+            <td>Below average; oil relatively dear</td>
+            <td>Periods of strong oil demand</td>
+          </tr>
+          <tr>
+            <td>15&ndash;25</td>
+            <td>Normal range</td>
+            <td>Most of the time</td>
+          </tr>
+          <tr>
+            <td>25&ndash;40</td>
+            <td>Above average; gold relatively dear</td>
+            <td>Oil gluts, gold fear premium</td>
+          </tr>
+          <tr>
+            <td>&gt; 40</td>
+            <td>Extreme; oil very cheap relative to gold</td>
+            <td>2020 COVID crash (ratio briefly exceeded 100)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The gold-to-oil ratio is a relative value indicator, not a directional predictor. A
+          high ratio does not tell you whether gold will fall or oil will rise &mdash; only that
+          the <em>ratio</em> is likely to narrow. This is important for trading: you would trade
+          the spread (long oil, short gold, or vice versa) rather than taking a directional bet on
+          either commodity alone. This <strong>pairs trading</strong> approach exploits mean-reversion
+          while being market-neutral.
+        </p>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 7: Connection to Gold Prediction Model     -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>7. Connecting to Our Gold Prediction Model</h2>
+
+      <p>
+        Earlier in this course, we built a statistical model to predict gold prices. Now we can
+        place that model in the broader context of commodity pricing theory:
+      </p>
+
+      <h3>7.1 Model Features Revisited</h3>
+
+      <p>
+        The features we used in the gold prediction model correspond to the fundamental drivers
+        identified in commodity pricing theory:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Model Feature</th>
+            <th>Commodity Theory Explanation</th>
+            <th>Statistical Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Real interest rates</td>
+            <td>Opportunity cost of holding a zero-yield asset</td>
+            <td>Primary predictor; negative coefficient expected</td>
+          </tr>
+          <tr>
+            <td>CPI / Inflation rate</td>
+            <td>Gold as inflation hedge (long-run)</td>
+            <td>Positive coefficient, but weak at short horizons</td>
+          </tr>
+          <tr>
+            <td>US dollar index (DXY)</td>
+            <td>Gold priced in USD; weaker dollar = higher gold</td>
+            <td>Negative coefficient; strong relationship</td>
+          </tr>
+          <tr>
+            <td>VIX (market fear index)</td>
+            <td>Safe-haven demand during uncertainty</td>
+            <td>Positive coefficient during crises</td>
+          </tr>
+          <tr>
+            <td>Central bank gold reserves</td>
+            <td>Official sector demand shifts</td>
+            <td>Slow-moving covariate; structural shift</td>
+          </tr>
+          <tr>
+            <td>Oil price</td>
+            <td>Cointegrated with gold; input cost correlation</td>
+            <td>Positive coefficient; captures commodity cycle</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Our gold prediction model was essentially a <strong>reduced-form regression</strong>
+          that captures the equilibrium relationships in commodity pricing theory. Each feature
+          corresponds to a theoretical price driver. The model works because these economic
+          relationships are statistically stable (cointegrated). However, the model's out-of-sample
+          performance degrades during <strong>structural breaks</strong> &mdash; periods when the
+          relationship between gold and its drivers changes (e.g., when gold transitions from a
+          currency-linked asset to a freely traded commodity, as it did in 1971).
+        </p>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 8: Commodity Indices                       -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>8. Commodity Indices and Their Construction</h2>
+
+      <p>
+        Commodity indices aggregate the prices of multiple commodities into a single index, providing
+        a benchmark for the asset class. However, the construction methodology matters enormously
+        because it determines what the index actually measures.
+      </p>
+
+      <h3>8.1 Major Commodity Indices</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Weighting Scheme</th>
+            <th>Number of Commodities</th>
+            <th>Energy Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>S&amp;P GSCI</td>
+            <td>World production weighted</td>
+            <td>24</td>
+            <td>~54% (heavy energy tilt)</td>
+          </tr>
+          <tr>
+            <td>Bloomberg Commodity (BCOM)</td>
+            <td>Production + liquidity, with caps</td>
+            <td>23</td>
+            <td>~30% (more diversified)</td>
+          </tr>
+          <tr>
+            <td>CRB Index</td>
+            <td>Fixed arithmetic weights</td>
+            <td>19</td>
+            <td>~39%</td>
+          </tr>
+          <tr>
+            <td>DBIQ Optimum Yield</td>
+            <td>Optimized roll strategy</td>
+            <td>14</td>
+            <td>~33%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The weighting scheme of a commodity index is analogous to the choice of
+          <strong>weighting in a composite estimator</strong>. Production-weighted indices (like
+          S&amp;P GSCI) weight commodities by their economic importance, analogous to a GDP-weighted
+          average. Equal-weighted indices treat each commodity as equally informative, like an
+          unweighted sample mean. Cap-weighted indices with diversification constraints are like
+          <strong>shrinkage estimators</strong> that pull extreme weights toward a balanced allocation.
+          The choice of weighting fundamentally changes the index's statistical properties.
+        </p>
+      </div>
+
+      <h3>8.2 Return Components of Commodity Indices</h3>
+
+      <p>
+        The total return of a commodity futures index has three components:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Source</th>
+            <th>Magnitude</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spot return</td>
+            <td>Change in the spot price of the underlying commodity</td>
+            <td>Varies widely; can be &plusmn;50%+ in extreme years</td>
+          </tr>
+          <tr>
+            <td>Roll return</td>
+            <td>Gain or loss from rolling expiring futures to the next contract</td>
+            <td>Positive in backwardation, negative in contango; typically &minus;5% to +5%</td>
+          </tr>
+          <tr>
+            <td>Collateral return</td>
+            <td>Interest earned on the T-bill collateral backing futures positions</td>
+            <td>Equal to the short-term interest rate; currently ~5%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          The <strong>roll return</strong> is the most misunderstood component. When a market is in
+          contango, an index fund must sell the expiring (lower-priced) contract and buy the next
+          (higher-priced) contract &mdash; buying high and selling low. This creates a persistent
+          drag that can cause the index to underperform the spot price by several percent per year.
+          During 2005&ndash;2020, the roll yield drag on oil futures indices was approximately
+          &minus;5% to &minus;10% per year, meaning futures investors earned far less than the
+          spot price appreciation would suggest.
+        </p>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 9: Python Code                             -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>9. Python: Commodity Analysis</h2>
+
+      <h3>9.1 Testing the Gold-Inflation Hedge Hypothesis</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Simulated monthly data: gold returns and inflation (CPI change)</span>
+<span class="cm"># In practice, you would download this from FRED or similar</span>
+np.random.seed(<span class="nu">42</span>)
+n_months = <span class="nu">360</span>  <span class="cm"># 30 years of monthly data</span>
+
+<span class="cm"># Generate correlated gold returns and inflation</span>
+<span class="cm"># True correlation is weak at monthly frequency (~0.05)</span>
+rho_monthly = <span class="nu">0.05</span>
+cov_matrix = np.array([[<span class="nu">0.05</span>**<span class="nu">2</span>, rho_monthly * <span class="nu">0.05</span> * <span class="nu">0.003</span>],
+                        [rho_monthly * <span class="nu">0.05</span> * <span class="nu">0.003</span>, <span class="nu">0.003</span>**<span class="nu">2</span>]])
+data = np.random.multivariate_normal([<span class="nu">0.007</span>, <span class="nu">0.002</span>], cov_matrix, n_months)
+gold_returns = data[:, <span class="nu">0</span>]
+inflation = data[:, <span class="nu">1</span>]
+
+<span class="cm"># Test 1: Monthly correlation</span>
+r_monthly, p_monthly = stats.pearsonr(gold_returns, inflation)
+<span class="fn">print</span>(<span class="st">"=== Gold-Inflation Correlation by Time Horizon ==="</span>)
+<span class="fn">print</span>(<span class="st">f"Monthly:   r = {r_monthly:.4f}, p-value = {p_monthly:.4f}"</span>)
+
+<span class="cm"># Test 2: Quarterly (aggregate to 3-month periods)</span>
+n_quarters = n_months // <span class="nu">3</span>
+gold_q = gold_returns[:n_quarters*<span class="nu">3</span>].reshape(n_quarters, <span class="nu">3</span>).sum(axis=<span class="nu">1</span>)
+infl_q = inflation[:n_quarters*<span class="nu">3</span>].reshape(n_quarters, <span class="nu">3</span>).sum(axis=<span class="nu">1</span>)
+r_q, p_q = stats.pearsonr(gold_q, infl_q)
+<span class="fn">print</span>(<span class="st">f"Quarterly: r = {r_q:.4f}, p-value = {p_q:.4f}"</span>)
+
+<span class="cm"># Test 3: Annual (aggregate to 12-month periods)</span>
+n_years = n_months // <span class="nu">12</span>
+gold_y = gold_returns[:n_years*<span class="nu">12</span>].reshape(n_years, <span class="nu">12</span>).sum(axis=<span class="nu">1</span>)
+infl_y = inflation[:n_years*<span class="nu">12</span>].reshape(n_years, <span class="nu">12</span>).sum(axis=<span class="nu">1</span>)
+r_y, p_y = stats.pearsonr(gold_y, infl_y)
+<span class="fn">print</span>(<span class="st">f"Annual:    r = {r_y:.4f}, p-value = {p_y:.4f}"</span>)
+
+<span class="cm"># Test 4: 5-year rolling (aggregate to 60-month periods)</span>
+n_5y = n_months // <span class="nu">60</span>
+gold_5y = gold_returns[:n_5y*<span class="nu">60</span>].reshape(n_5y, <span class="nu">60</span>).sum(axis=<span class="nu">1</span>)
+infl_5y = inflation[:n_5y*<span class="nu">60</span>].reshape(n_5y, <span class="nu">60</span>).sum(axis=<span class="nu">1</span>)
+<span class="kw">if</span> <span class="fn">len</span>(gold_5y) > <span class="nu">2</span>:
+    r_5y, p_5y = stats.pearsonr(gold_5y, infl_5y)
+    <span class="fn">print</span>(<span class="st">f"5-Year:    r = {r_5y:.4f}, p-value = {p_5y:.4f}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\nConclusion: Correlation strengthens with time horizon."</span>)
+<span class="fn">print</span>(<span class="st">"Gold is a long-run inflation hedge, not a short-run one."</span>)</pre>
+
+      <h3>9.2 Cost of Carry and Contango/Backwardation</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">futures_price</span>(spot, r, storage, convenience_yield, T):
+    <span class="st">"""Cost of carry model for commodity futures."""</span>
+    <span class="kw">return</span> spot * np.exp((r + storage - convenience_yield) * T)
+
+<span class="kw">def</span> <span class="fn">implied_convenience_yield</span>(spot, futures, r, storage, T):
+    <span class="st">"""Extract implied convenience yield from observed prices."""</span>
+    <span class="kw">return</span> r + storage - np.log(futures / spot) / T
+
+<span class="cm"># === Gold: Near-zero convenience yield, always in contango ===</span>
+<span class="fn">print</span>(<span class="st">"=== Gold Futures Term Structure ==="</span>)
+gold_spot = <span class="nu">2000</span>  <span class="cm"># $/oz</span>
+r = <span class="nu">0.05</span>           <span class="cm"># 5% risk-free rate</span>
+gold_storage = <span class="nu">0.002</span>  <span class="cm"># 0.2% storage cost</span>
+gold_cy = <span class="nu">0.0</span>       <span class="cm"># zero convenience yield for gold</span>
+
+<span class="fn">print</span>(<span class="st">f"{'Delivery':>10} {'Futures Price':>15} {'Basis':>10} {'State':>15}"</span>)
+<span class="kw">for</span> months <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">6</span>, <span class="nu">12</span>, <span class="nu">24</span>]:
+    T = months / <span class="nu">12</span>
+    F = <span class="fn">futures_price</span>(gold_spot, r, gold_storage, gold_cy, T)
+    basis = F - gold_spot
+    state = <span class="st">"Contango"</span> <span class="kw">if</span> F > gold_spot <span class="kw">else</span> <span class="st">"Backwardation"</span>
+    <span class="fn">print</span>(<span class="st">f"  {months:>3}mo     ${F:>12.2f}   ${basis:>+8.2f}   {state}"</span>)
+
+<span class="cm"># === Oil: Varies between contango and backwardation ===</span>
+<span class="fn">print</span>(<span class="st">"\n=== Oil Futures: Contango vs Backwardation ==="</span>)
+oil_spot = <span class="nu">75</span>  <span class="cm"># $/bbl</span>
+oil_storage = <span class="nu">0.04</span>  <span class="cm"># 4% storage cost</span>
+
+<span class="cm"># Scenario 1: Low convenience yield (ample supply) = Contango</span>
+<span class="fn">print</span>(<span class="st">"\nScenario 1: Ample supply (convenience yield = 2%)"</span>)
+<span class="fn">print</span>(<span class="st">f"{'Delivery':>10} {'Futures':>10} {'Basis':>10} {'State':>15}"</span>)
+<span class="kw">for</span> months <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">6</span>, <span class="nu">12</span>]:
+    T = months / <span class="nu">12</span>
+    F = <span class="fn">futures_price</span>(oil_spot, r, oil_storage, <span class="nu">0.02</span>, T)
+    basis = F - oil_spot
+    state = <span class="st">"Contango"</span> <span class="kw">if</span> F > oil_spot <span class="kw">else</span> <span class="st">"Backwardation"</span>
+    <span class="fn">print</span>(<span class="st">f"  {months:>3}mo     ${F:>7.2f}   ${basis:>+7.2f}   {state}"</span>)
+
+<span class="cm"># Scenario 2: High convenience yield (supply crisis) = Backwardation</span>
+<span class="fn">print</span>(<span class="st">"\nScenario 2: Supply crisis (convenience yield = 20%)"</span>)
+<span class="fn">print</span>(<span class="st">f"{'Delivery':>10} {'Futures':>10} {'Basis':>10} {'State':>15}"</span>)
+<span class="kw">for</span> months <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">6</span>, <span class="nu">12</span>]:
+    T = months / <span class="nu">12</span>
+    F = <span class="fn">futures_price</span>(oil_spot, r, oil_storage, <span class="nu">0.20</span>, T)
+    basis = F - oil_spot
+    state = <span class="st">"Contango"</span> <span class="kw">if</span> F > oil_spot <span class="kw">else</span> <span class="st">"Backwardation"</span>
+    <span class="fn">print</span>(<span class="st">f"  {months:>3}mo     ${F:>7.2f}   ${basis:>+7.2f}   {state}"</span>)</pre>
+
+      <h3>9.3 Gold-to-Oil Ratio and Mean Reversion</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Simulate 30 years of monthly gold and oil prices</span>
+<span class="cm"># Both are non-stationary, but their ratio is mean-reverting</span>
+np.random.seed(<span class="nu">99</span>)
+n = <span class="nu">360</span>
+
+<span class="cm"># Gold: random walk with drift (non-stationary)</span>
+gold_log_returns = np.random.normal(<span class="nu">0.005</span>, <span class="nu">0.04</span>, n)
+gold_prices = <span class="nu">800</span> * np.exp(np.cumsum(gold_log_returns))
+
+<span class="cm"># Oil: random walk with drift, correlated with gold</span>
+oil_log_returns = <span class="nu">0.3</span> * gold_log_returns + np.random.normal(<span class="nu">0.003</span>, <span class="nu">0.06</span>, n)
+oil_prices = <span class="nu">50</span> * np.exp(np.cumsum(oil_log_returns))
+
+<span class="cm"># Compute ratio</span>
+ratio = gold_prices / oil_prices
+
+<span class="cm"># Summary statistics</span>
+<span class="fn">print</span>(<span class="st">"=== Gold-to-Oil Ratio Analysis ==="</span>)
+<span class="fn">print</span>(<span class="st">f"Mean ratio:   {ratio.mean():.1f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Median ratio: {np.median(ratio):.1f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Std dev:      {ratio.std():.1f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Min:          {ratio.min():.1f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Max:          {ratio.max():.1f}"</span>)
+
+<span class="cm"># Test for stationarity (ADF test approximation)</span>
+<span class="cm"># H0: ratio has a unit root (non-stationary)</span>
+<span class="cm"># H1: ratio is stationary (mean-reverting)</span>
+<span class="cm"># Simple check: regression of change on lagged level</span>
+delta_ratio = np.diff(ratio)
+lagged_ratio = ratio[:-<span class="nu">1</span>]
+slope, intercept, r_val, p_val, se = stats.linregress(lagged_ratio, delta_ratio)
+
+<span class="fn">print</span>(<span class="st">f"\n=== Mean Reversion Test ==="</span>)
+<span class="fn">print</span>(<span class="st">f"AR(1) coefficient on lagged level: {slope:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  (Negative = mean-reverting, should be significantly < 0)"</span>)
+<span class="fn">print</span>(<span class="st">f"t-statistic: {slope / se:.2f}"</span>)
+
+<span class="kw">if</span> slope < <span class="nu">0</span>:
+    half_life = -np.log(<span class="nu">2</span>) / np.log(<span class="nu">1</span> + slope)
+    <span class="fn">print</span>(<span class="st">f"Estimated half-life of mean reversion: {half_life:.1f} months"</span>)
+    <span class="fn">print</span>(<span class="st">f"  ({half_life / 12:.1f} years)"</span>)
+
+<span class="cm"># Trading signal: z-score of the ratio</span>
+z_score = (ratio - ratio.mean()) / ratio.std()
+<span class="fn">print</span>(<span class="st">f"\nCurrent ratio:  {ratio[-1]:.1f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Current z-score: {z_score[-1]:+.2f}"</span>)
+<span class="kw">if</span> z_score[-<span class="nu">1</span>] > <span class="nu">2</span>:
+    <span class="fn">print</span>(<span class="st">"Signal: Gold expensive vs oil. Consider long oil / short gold."</span>)
+<span class="kw">elif</span> z_score[-<span class="nu">1</span>] < -<span class="nu">2</span>:
+    <span class="fn">print</span>(<span class="st">"Signal: Oil expensive vs gold. Consider long gold / short oil."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Signal: Ratio within normal range. No trade."</span>)</pre>
+
+      <h3>9.4 Commodity Return Distribution Analysis</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Compare return distributions across asset classes</span>
+np.random.seed(<span class="nu">55</span>)
+n = <span class="nu">2520</span>  <span class="cm"># ~10 years of daily data</span>
+
+<span class="cm"># Simulate daily returns with realistic properties</span>
+stock_returns = np.random.standard_t(df=<span class="nu">5</span>, size=n) * <span class="nu">0.01</span> + <span class="nu">0.0003</span>
+bond_returns  = np.random.normal(<span class="nu">0.0001</span>, <span class="nu">0.003</span>, n)
+gold_returns  = np.random.standard_t(df=<span class="nu">7</span>, size=n) * <span class="nu">0.008</span> + <span class="nu">0.0002</span>
+oil_returns   = np.random.standard_t(df=<span class="nu">4</span>, size=n) * <span class="nu">0.015</span> + <span class="nu">0.0001</span>
+
+assets = {
+    <span class="st">'Stocks (S&P 500)'</span>: stock_returns,
+    <span class="st">'Bonds (10Y Treasury)'</span>: bond_returns,
+    <span class="st">'Gold'</span>: gold_returns,
+    <span class="st">'Crude Oil'</span>: oil_returns,
+}
+
+<span class="fn">print</span>(<span class="st">"=== Daily Return Distribution Comparison ==="</span>)
+<span class="fn">print</span>(<span class="st">f"{'Asset':>22} {'Mean':>8} {'Std':>8} {'Skew':>8} "
+      f"{'Kurt':>8} {'Min':>8} {'Max':>8}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">74</span>)
+
+<span class="kw">for</span> name, rets <span class="kw">in</span> assets.items():
+    <span class="fn">print</span>(<span class="st">f"{name:>22} {rets.mean():>+7.4f} {rets.std():>7.4f} "
+          f"{stats.skew(rets):>+7.2f}  {stats.kurtosis(rets):>6.1f} "
+          f"{rets.min():>+7.3f} {rets.max():>+7.3f}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\n(Kurtosis shown is excess kurtosis; normal distribution = 0)"</span>)
+<span class="fn">print</span>(<span class="st">"Note: Oil has the fattest tails and highest volatility."</span>)
+
+<span class="cm"># Normality test (Jarque-Bera)</span>
+<span class="fn">print</span>(<span class="st">"\n=== Jarque-Bera Normality Test ==="</span>)
+<span class="kw">for</span> name, rets <span class="kw">in</span> assets.items():
+    jb_stat, jb_p = stats.jarque_bera(rets)
+    normal = <span class="st">"Normal"</span> <span class="kw">if</span> jb_p > <span class="nu">0.05</span> <span class="kw">else</span> <span class="st">"Non-normal"</span>
+    <span class="fn">print</span>(<span class="st">f"  {name:>22}: JB = {jb_stat:>10.1f}, p = {jb_p:.4e}  [{normal}]"</span>)
+
+<span class="cm"># Correlation matrix</span>
+<span class="fn">print</span>(<span class="st">"\n=== Cross-Asset Correlation Matrix ==="</span>)
+returns_matrix = np.column_stack([stock_returns, bond_returns, gold_returns, oil_returns])
+corr = np.corrcoef(returns_matrix.T)
+labels = [<span class="st">'Stocks'</span>, <span class="st">'Bonds'</span>, <span class="st">'Gold'</span>, <span class="st">'Oil'</span>]
+
+<span class="fn">print</span>(<span class="st">f"{'':>10}"</span> + <span class="st">""</span>.join(<span class="st">f"{l:>10}"</span> <span class="kw">for</span> l <span class="kw">in</span> labels))
+<span class="kw">for</span> i, label <span class="kw">in</span> <span class="fn">enumerate</span>(labels):
+    <span class="fn">print</span>(<span class="st">f"{label:>10}"</span> + <span class="st">""</span>.join(<span class="st">f"{corr[i,j]:>10.3f}"</span> <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">4</span>)))
+
+<span class="fn">print</span>(<span class="st">"\nKey: Gold's low correlation with stocks makes it a diversifier."</span>)</pre>
+
+
+      <!-- ═══════════════════════════════════════════════════ -->
+      <!-- SECTION 10: Summary                                -->
+      <!-- ═══════════════════════════════════════════════════ -->
+
+      <h2>10. Summary</h2>
+
+      <p>
+        This module has covered the statistical foundations of commodity pricing and analysis:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Finance Concept</th>
+            <th>Statistical / Mathematical Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Commodity price dynamics</td>
+            <td>Mean-reverting process (Ornstein-Uhlenbeck), not random walk</td>
+          </tr>
+          <tr>
+            <td>Spot vs. futures price</td>
+            <td>Observed value vs. conditional expectation (adjusted)</td>
+          </tr>
+          <tr>
+            <td>Contango / backwardation</td>
+            <td>Sign of the carry cost; term structure shape</td>
+          </tr>
+          <tr>
+            <td>Cost of carry model</td>
+            <td>No-arbitrage constraint equation</td>
+          </tr>
+          <tr>
+            <td>Convenience yield</td>
+            <td>Latent variable extracted via inverse problem</td>
+          </tr>
+          <tr>
+            <td>Gold as inflation hedge</td>
+            <td>Scale-dependent correlation; long-run cointegration</td>
+          </tr>
+          <tr>
+            <td>Oil supply shocks</td>
+            <td>Heavy-tailed innovations; structural breaks (OPEC decisions)</td>
+          </tr>
+          <tr>
+            <td>Gold-to-oil ratio</td>
+            <td>Cointegration spread; mean-reverting (ADF testable)</td>
+          </tr>
+          <tr>
+            <td>Commodity index weights</td>
+            <td>Choice of composite estimator weighting (production vs. equal)</td>
+          </tr>
+          <tr>
+            <td>Roll return drag</td>
+            <td>Systematic bias in futures-based returns vs. spot</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        With stocks, bonds, options, and commodities now covered, you have a comprehensive
+        understanding of the four major asset classes. Each has distinct statistical properties,
+        return distributions, and pricing mechanisms. In the next module, we will explore how to
+        <strong>combine these assets into portfolios</strong> using the tools of modern portfolio
+        theory.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-13/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-15/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

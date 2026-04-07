@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 08 of Financial Literacy for Statisticians: Asset pricing models are regressions you already know how to run">
+  <title>CAPM & Factor Models = Regression — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 08: CAPM &amp; Factor Models = Regression</h1>
+      <p class="tagline">Asset pricing models are regressions you already know how to run</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 2 of 5</span>
+        <span class="meta-item">Module 08 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-07/index.html">&larr; Previous</a>
+      <span class="current">Module 08 of 22</span>
+      <a href="../module-09/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: THE CAPM AS OLS                  -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>1. The Capital Asset Pricing Model Is a Regression</h2>
+
+      <p>
+        The Capital Asset Pricing Model (CAPM), developed independently by Sharpe (1964),
+        Lintner (1965), and Mossin (1966), is the single most important model in asset pricing.
+        For a statistician, it has a beautifully simple interpretation: <strong>it is a simple
+        linear regression</strong>.
+      </p>
+
+      <div class="formula-box">
+        r<sub>i,t</sub> &minus; r<sub>f,t</sub> = &alpha;<sub>i</sub> + &beta;<sub>i</sub> (r<sub>m,t</sub> &minus; r<sub>f,t</sub>) + &epsilon;<sub>i,t</sub>
+      </div>
+
+      <p>This is an OLS regression where:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Finance Symbol</th>
+            <th>Regression Symbol</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>r<sub>i,t</sub> &minus; r<sub>f,t</sub></td>
+            <td>Y<sub>t</sub></td>
+            <td>Dependent variable: the stock's excess return over the risk-free rate</td>
+          </tr>
+          <tr>
+            <td>r<sub>m,t</sub> &minus; r<sub>f,t</sub></td>
+            <td>X<sub>t</sub></td>
+            <td>Independent variable: the market's excess return</td>
+          </tr>
+          <tr>
+            <td>&alpha;<sub>i</sub></td>
+            <td>Intercept</td>
+            <td>Excess return not explained by market exposure (&ldquo;alpha&rdquo;)</td>
+          </tr>
+          <tr>
+            <td>&beta;<sub>i</sub></td>
+            <td>Slope</td>
+            <td>Sensitivity to market movements (&ldquo;beta&rdquo;)</td>
+          </tr>
+          <tr>
+            <td>&epsilon;<sub>i,t</sub></td>
+            <td>Residual</td>
+            <td>Idiosyncratic (stock-specific) return</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The CAPM regression is exactly what you'd write in <code>statsmodels</code>:
+          <code>Y ~ X</code>. Beta is the OLS slope, alpha is the OLS intercept, epsilon is the
+          residual, and R-squared tells you what fraction of the stock's return variance is
+          explained by the market. Every diagnostic you know &mdash; residual plots,
+          heteroscedasticity tests, influence measures &mdash; applies directly.
+        </p>
+      </div>
+
+      <h3>1.1 The CAPM Prediction</h3>
+
+      <p>
+        The theoretical CAPM makes a strong prediction: <strong>&alpha;<sub>i</sub> = 0 for all
+        assets</strong>. If markets are efficient and CAPM is the correct model, no asset should
+        earn a return above or below what its market exposure (&beta;) predicts. A non-zero alpha
+        means the asset is mispriced.
+      </p>
+
+      <ul>
+        <li><strong>&alpha; &gt; 0:</strong> The asset earns more than its beta warrants &mdash; it's underpriced (a good buy).</li>
+        <li><strong>&alpha; &lt; 0:</strong> The asset earns less than its beta warrants &mdash; it's overpriced (avoid or short).</li>
+        <li><strong>&alpha; = 0:</strong> The asset is fairly priced &mdash; it earns exactly the return that compensates for its systematic risk.</li>
+      </ul>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>Alpha (&alpha;):</strong> The holy grail of active management. Fund managers are
+          judged by whether they generate &ldquo;alpha&rdquo; &mdash; returns in excess of what
+          a passive market exposure would produce. If a fund earns 12% but its beta to the market
+          is 1.2 and the market returned 10%, the CAPM-predicted return is 1.2 &times; 10% = 12%.
+          Alpha = 12% &minus; 12% = 0%. The manager added no value beyond market exposure.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 2: BETA IN DEPTH                    -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>2. Beta: The Regression Slope Coefficient</h2>
+
+      <p>
+        Beta has a clean formula that should be immediately recognizable:
+      </p>
+
+      <div class="formula-box">
+        &beta;<sub>i</sub> = Cov(r<sub>i</sub>, r<sub>m</sub>) / Var(r<sub>m</sub>)
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is the formula for the <strong>OLS slope coefficient</strong> in simple linear
+          regression: &beta;&#770; = Cov(Y, X) / Var(X). You've derived this a hundred times.
+          Beta is the regression coefficient of the stock's excess return on the market's excess
+          return. It measures how many percentage points the stock moves for each 1% move in the
+          market.
+        </p>
+      </div>
+
+      <h3>2.1 Interpreting Beta Values</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Beta Value</th>
+            <th>Interpretation</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&beta; = 1.0</td>
+            <td>Moves with the market</td>
+            <td>S&P 500 index fund (by definition)</td>
+          </tr>
+          <tr>
+            <td>&beta; &gt; 1.0</td>
+            <td>More volatile than market (amplifies movements)</td>
+            <td>Tech stocks, small-cap growth stocks</td>
+          </tr>
+          <tr>
+            <td>0 &lt; &beta; &lt; 1.0</td>
+            <td>Less volatile than market (dampens movements)</td>
+            <td>Utilities, consumer staples</td>
+          </tr>
+          <tr>
+            <td>&beta; = 0</td>
+            <td>Uncorrelated with market</td>
+            <td>Market-neutral hedge fund (by design)</td>
+          </tr>
+          <tr>
+            <td>&beta; &lt; 0</td>
+            <td>Moves opposite to market</td>
+            <td>Gold (sometimes), volatility products</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Beta Decomposition of Total Risk</h3>
+
+      <p>
+        The CAPM regression decomposes total variance into two components:
+      </p>
+
+      <div class="formula-box">
+        Var(r<sub>i</sub>) = &beta;<sub>i</sub><sup>2</sup> Var(r<sub>m</sub>) + Var(&epsilon;<sub>i</sub>)
+        <br><br>
+        Total Risk = Systematic Risk + Idiosyncratic Risk
+      </div>
+
+      <p>
+        The fraction of variance explained by the market is the R-squared:
+      </p>
+
+      <div class="formula-box">
+        R<sup>2</sup> = &beta;<sub>i</sub><sup>2</sup> Var(r<sub>m</sub>) / Var(r<sub>i</sub>)
+        = 1 &minus; Var(&epsilon;<sub>i</sub>) / Var(r<sub>i</sub>)
+      </div>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          For a typical individual stock, R<sup>2</sup> is only 20&ndash;40%, meaning 60&ndash;80%
+          of the stock's return variance is idiosyncratic (unexplained by the market). For a
+          diversified portfolio, R<sup>2</sup> is much higher (often 90%+) because diversification
+          averages away idiosyncratic risk. This is why &beta; matters more for portfolio
+          management than for individual stock analysis.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 3: RUNNING THE REGRESSION           -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>3. Running the CAPM Regression in Python</h2>
+
+      <p>
+        Let's run the CAPM regression for Apple (AAPL) against the market (S&P 500), with full
+        regression diagnostics.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import pandas as pd
+import yfinance as yf
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
+# ── Download data ──────────────────────────────────────────
+# Stock: Apple; Market proxy: S&P 500 ETF (SPY)
+# Risk-free rate: 3-month T-bill rate from FRED
+tickers = {"AAPL": "Apple", "SPY": "S&P 500 (SPY)"}
+data = yf.download(list(tickers.keys()), start="2019-01-01",
+                   end="2024-01-01")["Adj Close"]
+
+# Compute daily returns
+returns = data.pct_change().dropna()
+
+# Risk-free rate: approximate as constant 2% annual
+rf_daily = 0.02 / 252
+
+# Excess returns
+excess_stock = returns["AAPL"] - rf_daily
+excess_market = returns["SPY"] - rf_daily
+
+# ── Run the CAPM regression ───────────────────────────────
+X = sm.add_constant(excess_market)  # adds intercept column
+model = sm.OLS(excess_stock, X).fit()
+
+print(model.summary())
+
+# Extract key parameters
+alpha = model.params["const"]
+beta = model.params["SPY"]
+r_squared = model.rsquared
+alpha_tstat = model.tvalues["const"]
+alpha_pval = model.pvalues["const"]
+beta_tstat = model.tvalues["SPY"]
+beta_se = model.bse["SPY"]
+
+print(f"\n{'='*50}")
+print(f"  CAPM Results for AAPL")
+print(f"{'='*50}")
+print(f"  Alpha (daily):       {alpha:.6f}")
+print(f"  Alpha (annualized):  {alpha*252*100:.2f}%")
+print(f"  Alpha t-stat:        {alpha_tstat:.4f}")
+print(f"  Alpha p-value:       {alpha_pval:.4f}")
+print(f"  Alpha significant?   {'Yes' if alpha_pval < 0.05 else 'No'}")
+print(f"  {'─'*48}")
+print(f"  Beta:                {beta:.4f}")
+print(f"  Beta SE:             {beta_se:.4f}")
+print(f"  Beta 95% CI:         [{beta-1.96*beta_se:.4f}, {beta+1.96*beta_se:.4f}]")
+print(f"  Beta t-stat:         {beta_tstat:.4f}")
+print(f"  {'─'*48}")
+print(f"  R-squared:           {r_squared:.4f}")
+print(f"  Residual std (daily):{model.resid.std():.6f}")
+print(f"  Residual std (ann.): {model.resid.std()*np.sqrt(252)*100:.2f}%")
+print(f"{'='*50}")</pre>
+
+      <h3>3.1 The Security Characteristic Line</h3>
+
+      <p>
+        The scatter plot of the stock's excess return versus the market's excess return, with the
+        OLS regression line, is called the <strong>Security Characteristic Line (SCL)</strong>.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span># Plot the Security Characteristic Line
+fig, ax = plt.subplots(figsize=(10, 7))
+
+# Scatter plot of excess returns
+ax.scatter(excess_market*100, excess_stock*100, alpha=0.3,
+           s=10, color='#1a365d', label='Daily returns')
+
+# Regression line
+x_range = np.linspace(excess_market.min(), excess_market.max(), 100)
+y_pred = (alpha + beta * x_range) * 100
+ax.plot(x_range*100, y_pred, color='#e53e3e', linewidth=2,
+        label=f'SCL: y = {alpha*100:.4f} + {beta:.2f}x')
+
+# Reference lines
+ax.axhline(y=0, color='gray', linewidth=0.5, linestyle='-')
+ax.axvline(x=0, color='gray', linewidth=0.5, linestyle='-')
+
+# Annotations
+ax.set_xlabel("Market Excess Return (%)")
+ax.set_ylabel("AAPL Excess Return (%)")
+ax.set_title(f"Security Characteristic Line: AAPL\n"
+             f"Beta = {beta:.3f}, Alpha (ann.) = {alpha*252*100:.2f}%, "
+             f"R² = {r_squared:.3f}")
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("scl_aapl.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Beta is <em>not constant</em>. A stock's sensitivity to the market changes over time
+          as the company's leverage, business mix, and market conditions change. A rolling
+          60-day beta for AAPL can range from 0.8 to 1.8 depending on the period. Always report
+          the estimation window alongside the beta estimate.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 4: TESTING ALPHA SIGNIFICANCE       -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>4. Testing Alpha: Is the Manager Skilled or Lucky?</h2>
+
+      <p>
+        The central question of active management is whether a fund's alpha is statistically
+        significantly different from zero. This is a <strong>t-test on the regression intercept</strong>.
+      </p>
+
+      <div class="formula-box">
+        H<sub>0</sub>: &alpha; = 0 &nbsp;&nbsp;(no skill)
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        H<sub>1</sub>: &alpha; &ne; 0 &nbsp;&nbsp;(skill exists)
+        <br><br>
+        t = &alpha;&#770; / SE(&alpha;&#770;)
+      </div>
+
+      <h3>4.1 The Power Problem</h3>
+
+      <p>
+        Even if a manager truly generates 2% annual alpha, detecting it is extremely difficult.
+        With daily data, the daily alpha is 2%/252 = 0.008%, while daily idiosyncratic volatility
+        might be 1.5%. The signal-to-noise ratio is abysmal.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span>from scipy.stats import t as t_dist
+
+def alpha_power_analysis(true_alpha_annual, idio_vol_annual,
+                         n_years_list=[1, 3, 5, 10, 20]):
+    """
+    How many years of data do we need to detect alpha?
+    """
+    true_alpha_daily = true_alpha_annual / 252
+    idio_vol_daily = idio_vol_annual / np.sqrt(252)
+
+    print(f"True alpha: {true_alpha_annual*100:.1f}% annual")
+    print(f"Idiosyncratic volatility: {idio_vol_annual*100:.1f}% annual")
+    print(f"\n{'Years':>6s} {'T':>6s} {'t-stat':>8s} {'Power':>8s}")
+    print(f"{'-'*30}")
+
+    for n_years in n_years_list:
+        T = int(n_years * 252)
+        # Expected t-statistic under the alternative
+        se_alpha = idio_vol_daily / np.sqrt(T)
+        expected_t = true_alpha_daily / se_alpha
+
+        # Power: probability of rejecting H0 at 5% level
+        critical_value = t_dist.ppf(0.975, T - 2)
+        power = 1 - t_dist.cdf(critical_value - expected_t, T - 2)
+
+        print(f"{n_years:>6d} {T:>6d} {expected_t:>8.2f} {power:>8.1%}")
+
+# Scenario 1: Strong alpha (3% per year), typical stock vol
+print("Scenario 1: Strong alpha, individual stock")
+alpha_power_analysis(0.03, 0.25)
+
+print("\n")
+
+# Scenario 2: Moderate alpha (1% per year), diversified fund
+print("Scenario 2: Moderate alpha, diversified fund")
+alpha_power_analysis(0.01, 0.08)</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          To detect a 2% annual alpha with 80% power at the 5% significance level, you need
+          roughly <strong>15&ndash;20 years of daily data</strong> for a diversified fund,
+          and even more for individual stocks. This means that even genuinely skilled managers
+          will look indistinguishable from luck for many years. The &ldquo;is this alpha real?&rdquo;
+          question is fundamentally a <strong>low-power hypothesis test</strong>.
+        </p>
+      </div>
+
+      <h3>4.2 Multiple Testing and Survivorship Bias</h3>
+
+      <p>
+        When evaluating thousands of fund managers, the multiple comparisons problem is severe.
+        If 1,000 managers have zero alpha and you test each at &alpha; = 5%, you expect 50 false
+        positives. These &ldquo;star managers&rdquo; will be profiled in magazines, given more
+        capital, and then revert to the mean.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is the <strong>multiple testing problem</strong> (Bonferroni, BH-FDR). The finance
+          industry needs to apply <strong>False Discovery Rate control</strong> when evaluating
+          fund performance. Harvey, Liu, and Zhu (2016) argued that the t-statistic threshold for
+          a &ldquo;new factor&rdquo; should be 3.0, not 2.0, to account for the hundreds of
+          factors that have been tested. This is the FDR correction applied to asset pricing.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 5: FAMA-FRENCH 3-FACTOR MODEL       -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>5. Fama-French Three-Factor Model: Multiple Regression</h2>
+
+      <p>
+        The CAPM says the only risk that matters is market risk. But empirically, two other
+        factors have significant explanatory power: <strong>size</strong> (small stocks outperform
+        large) and <strong>value</strong> (cheap stocks outperform expensive). The Fama-French
+        three-factor model (1993) extends the CAPM to a multiple regression:
+      </p>
+
+      <div class="formula-box">
+        r<sub>i,t</sub> &minus; r<sub>f,t</sub> = &alpha;<sub>i</sub>
+        + &beta;<sub>i,MKT</sub> (r<sub>m,t</sub> &minus; r<sub>f,t</sub>)
+        + &beta;<sub>i,SMB</sub> SMB<sub>t</sub>
+        + &beta;<sub>i,HML</sub> HML<sub>t</sub>
+        + &epsilon;<sub>i,t</sub>
+      </div>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <p>
+          <strong>SMB (Small Minus Big):</strong> The return difference between portfolios of small
+          and large stocks. Captures the size premium.<br>
+          <strong>HML (High Minus Low):</strong> The return difference between portfolios of high
+          book-to-market (value) and low book-to-market (growth) stocks. Captures the value premium.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          This is <strong>multiple linear regression</strong> with three predictors. The
+          interpretation is identical to any multiple regression: each &beta; measures the
+          partial effect of that factor, controlling for the others. The model's R<sup>2</sup>
+          is typically 5&ndash;15 percentage points higher than the single-factor CAPM.
+        </p>
+      </div>
+
+      <h3>5.1 Extended Factor Models</h3>
+
+      <p>
+        The factor zoo has expanded considerably since Fama-French:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Factors</th>
+            <th>Regression Analogue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CAPM (1964)</td>
+            <td>Market</td>
+            <td>Simple regression (1 predictor)</td>
+          </tr>
+          <tr>
+            <td>Fama-French 3 (1993)</td>
+            <td>Market + SMB + HML</td>
+            <td>Multiple regression (3 predictors)</td>
+          </tr>
+          <tr>
+            <td>Carhart 4 (1997)</td>
+            <td>+ Momentum (UMD)</td>
+            <td>Multiple regression (4 predictors)</td>
+          </tr>
+          <tr>
+            <td>Fama-French 5 (2015)</td>
+            <td>+ Profitability (RMW) + Investment (CMA)</td>
+            <td>Multiple regression (5 predictors)</td>
+          </tr>
+          <tr>
+            <td>q-factor (2015)</td>
+            <td>Market + Size + Investment + Profitability</td>
+            <td>Multiple regression (4 predictors)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span>import pandas as pd
+import statsmodels.api as sm
+
+# ── Download Fama-French factors from Ken French's website ─
+# Using pandas_datareader (or download CSV manually)
+# For demonstration, we'll simulate or use the famafrench package
+
+try:
+    import pandas_datareader.data as web
+    ff_factors = web.DataReader('F-F_Research_Data_Factors_daily',
+                                'famafrench',
+                                start='2019-01-01',
+                                end='2024-01-01')[0]
+    ff_factors = ff_factors / 100  # Convert from percent to decimal
+except ImportError:
+    # If pandas_datareader not available, create synthetic factors
+    print("Note: using synthetic factor data for illustration")
+    dates = returns.index
+    np.random.seed(42)
+    ff_factors = pd.DataFrame({
+        'Mkt-RF': excess_market,
+        'SMB': np.random.normal(0.0002, 0.005, len(dates)),
+        'HML': np.random.normal(0.0001, 0.005, len(dates)),
+        'RF': rf_daily * np.ones(len(dates))
+    }, index=dates)
+
+# ── Merge stock returns with factors ──────────────────────
+merged = pd.concat([
+    excess_stock.rename('AAPL_excess'),
+    ff_factors[['Mkt-RF', 'SMB', 'HML']]
+], axis=1).dropna()
+
+# ── Run Fama-French 3-factor regression ───────────────────
+Y = merged['AAPL_excess']
+X_capm = sm.add_constant(merged[['Mkt-RF']])
+X_ff3 = sm.add_constant(merged[['Mkt-RF', 'SMB', 'HML']])
+
+model_capm = sm.OLS(Y, X_capm).fit()
+model_ff3 = sm.OLS(Y, X_ff3).fit()
+
+# ── Compare models ────────────────────────────────────────
+print("="*60)
+print("  Model Comparison: CAPM vs Fama-French 3-Factor")
+print("="*60)
+print(f"\n{'Metric':<30s} {'CAPM':>12s} {'FF3':>12s}")
+print(f"{'-'*54}")
+print(f"{'Alpha (daily)':<30s} {model_capm.params['const']:>12.6f} "
+      f"{model_ff3.params['const']:>12.6f}")
+print(f"{'Alpha (ann. %)':<30s} "
+      f"{model_capm.params['const']*252*100:>12.2f} "
+      f"{model_ff3.params['const']*252*100:>12.2f}")
+print(f"{'Alpha t-stat':<30s} {model_capm.tvalues['const']:>12.4f} "
+      f"{model_ff3.tvalues['const']:>12.4f}")
+print(f"{'Alpha p-value':<30s} {model_capm.pvalues['const']:>12.4f} "
+      f"{model_ff3.pvalues['const']:>12.4f}")
+print(f"{'Beta (Market)':<30s} {model_capm.params['Mkt-RF']:>12.4f} "
+      f"{model_ff3.params['Mkt-RF']:>12.4f}")
+print(f"{'Beta (SMB)':<30s} {'—':>12s} "
+      f"{model_ff3.params['SMB']:>12.4f}")
+print(f"{'Beta (HML)':<30s} {'—':>12s} "
+      f"{model_ff3.params['HML']:>12.4f}")
+print(f"{'R-squared':<30s} {model_capm.rsquared:>12.4f} "
+      f"{model_ff3.rsquared:>12.4f}")
+print(f"{'Adj. R-squared':<30s} {model_capm.rsquared_adj:>12.4f} "
+      f"{model_ff3.rsquared_adj:>12.4f}")
+print(f"{'AIC':<30s} {model_capm.aic:>12.1f} "
+      f"{model_ff3.aic:>12.1f}")
+print(f"{'BIC':<30s} {model_capm.bic:>12.1f} "
+      f"{model_ff3.bic:>12.1f}")</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 6: FACTOR MODELS AS PCA             -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>6. Factor Models as Dimension Reduction (PCA Connection)</h2>
+
+      <p>
+        Factor models decompose the N-dimensional space of asset returns into a low-dimensional
+        factor structure plus idiosyncratic noise. This is conceptually identical to
+        <strong>Principal Component Analysis (PCA)</strong>.
+      </p>
+
+      <div class="formula-box">
+        r = Bf + &epsilon;
+      </div>
+
+      <p>
+        where r is the N&times;1 return vector, B is the N&times;K factor loading matrix, f is
+        the K&times;1 factor vector, and &epsilon; is the idiosyncratic noise. The covariance
+        matrix then factors as:
+      </p>
+
+      <div class="formula-box">
+        &Sigma; = B &Sigma;<sub>f</sub> B' + D
+      </div>
+
+      <p>
+        where &Sigma;<sub>f</sub> is the K&times;K factor covariance and D is a diagonal matrix
+        of idiosyncratic variances. Instead of estimating N(N+1)/2 parameters, you estimate
+        NK + K(K+1)/2 + N parameters &mdash; a massive reduction.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The statistical factor model (PCA on the return covariance matrix) often recovers
+          factors that look like the Fama-French factors. The first principal component is almost
+          always a &ldquo;market&rdquo; factor (all loadings positive, roughly equal). The second
+          often looks like a &ldquo;size&rdquo; factor (small vs. large loadings). The third
+          resembles a &ldquo;value&rdquo; factor. The economic factor models and statistical
+          factor models converge.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span>from sklearn.decomposition import PCA
+
+# Download a broader set of stocks
+broad_tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "META",
+                 "JPM", "BAC", "WFC", "GS", "C",
+                 "JNJ", "PFE", "UNH", "MRK", "ABBV",
+                 "XOM", "CVX", "COP", "SLB", "BKR",
+                 "PG", "KO", "PEP", "WMT", "COST"]
+
+broad_data = yf.download(broad_tickers, start="2020-01-01",
+                         end="2024-01-01")["Adj Close"]
+broad_returns = broad_data.pct_change().dropna()
+
+# Run PCA
+pca = PCA(n_components=10)
+pca.fit(broad_returns.values)
+
+# Variance explained
+var_explained = pca.explained_variance_ratio_
+cumvar = np.cumsum(var_explained)
+
+print("Principal Components - Variance Explained:")
+print(f"{'PC':>4s} {'Var Explained':>14s} {'Cumulative':>12s}")
+print(f"{'-'*32}")
+for i in range(10):
+    print(f"{'PC'+str(i+1):>4s} {var_explained[i]:>14.4f} {cumvar[i]:>12.4f}")
+
+# Plot variance explained
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+ax1.bar(range(1, 11), var_explained * 100, color='#1a365d')
+ax1.set_xlabel("Principal Component")
+ax1.set_ylabel("Variance Explained (%)")
+ax1.set_title("Scree Plot")
+
+ax2.plot(range(1, 11), cumvar * 100, 'o-', color='#1a365d')
+ax2.axhline(y=80, color='#e53e3e', linestyle='--',
+            label='80% threshold')
+ax2.set_xlabel("Number of Components")
+ax2.set_ylabel("Cumulative Variance Explained (%)")
+ax2.set_title("Cumulative Variance Explained")
+ax2.legend()
+
+plt.tight_layout()
+plt.savefig("pca_factors.png", dpi=150, bbox_inches='tight')
+plt.show()
+
+# Examine the first 3 factor loadings
+loadings = pd.DataFrame(
+    pca.components_[:3].T,
+    columns=['PC1 (Market?)', 'PC2 (Sector?)', 'PC3 (Value?)'],
+    index=broad_tickers
+)
+print("\nFactor Loadings (first 3 PCs):")
+print(loadings.round(4).to_string())</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Typically, the first 3&ndash;5 principal components explain 60&ndash;80% of the variance
+          in a panel of stock returns. This means that the effective dimensionality of stock
+          returns is much lower than N. Factor models exploit this low-rank structure, just as
+          PCA compresses high-dimensional data into a few latent dimensions.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 7: REGRESSION DIAGNOSTICS           -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>7. Regression Diagnostics for Factor Models</h2>
+
+      <p>
+        Since the CAPM and factor models are regressions, all standard regression diagnostics
+        apply. Financial returns, however, have special properties that make some diagnostics
+        particularly important.
+      </p>
+
+      <h3>7.1 Heteroscedasticity</h3>
+
+      <p>
+        Returns exhibit <strong>volatility clustering</strong> (ARCH/GARCH effects), which means
+        the residual variance is not constant over time. This doesn't bias OLS estimates, but it
+        invalidates the usual standard errors.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span># ── Regression diagnostics for the CAPM model ─────────────
+from statsmodels.stats.diagnostic import het_breuschpagan
+from statsmodels.stats.diagnostic import acorr_ljungbox
+from scipy.stats import jarque_bera
+
+residuals = model_capm.resid
+
+# 1. Heteroscedasticity test (Breusch-Pagan)
+bp_stat, bp_pval, _, _ = het_breuschpagan(residuals, X_capm)
+print(f"Breusch-Pagan test: stat={bp_stat:.4f}, p={bp_pval:.4f}")
+if bp_pval < 0.05:
+    print("  => Heteroscedasticity detected! Use HAC standard errors.")
+
+# 2. Autocorrelation of residuals (Ljung-Box)
+lb_result = acorr_ljungbox(residuals, lags=[5, 10, 20],
+                           return_df=True)
+print(f"\nLjung-Box test for residual autocorrelation:")
+print(lb_result)
+
+# 3. Normality of residuals (Jarque-Bera)
+jb_stat, jb_pval = jarque_bera(residuals)
+print(f"\nJarque-Bera normality test: stat={jb_stat:.2f}, p={jb_pval:.6f}")
+
+# 4. Re-run with Heteroscedasticity and Autocorrelation
+#    Consistent (HAC) standard errors (Newey-West)
+model_hac = sm.OLS(Y, X_capm).fit(cov_type='HAC',
+                                    cov_kwds={'maxlags': 10})
+print("\n\nComparison: OLS vs HAC (Newey-West) standard errors:")
+print(f"{'Parameter':<12s} {'OLS SE':>10s} {'HAC SE':>10s} {'Ratio':>8s}")
+print(f"{'-'*42}")
+for param in ['const', 'Mkt-RF']:
+    ols_se = model_capm.bse[param]
+    hac_se = model_hac.bse[param]
+    print(f"{param:<12s} {ols_se:>10.6f} {hac_se:>10.6f} "
+          f"{hac_se/ols_se:>8.2f}")</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        <p>
+          Always use <strong>HAC (Newey-West) standard errors</strong> for financial regressions.
+          Volatility clustering means OLS standard errors are typically too small (by 10&ndash;30%),
+          making alpha and beta look more significant than they really are. In finance, the
+          correction matters for inference, even though the point estimates are unbiased.
+        </p>
+      </div>
+
+      <h3>7.2 Rolling Betas</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span># Rolling beta estimation
+window = 126  # ~6 months
+
+rolling_beta = excess_stock.rolling(window).cov(excess_market) / \
+               excess_market.rolling(window).var()
+
+rolling_alpha = excess_stock.rolling(window).mean() - \
+                rolling_beta * excess_market.rolling(window).mean()
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+ax1.plot(rolling_beta, color='#1a365d', linewidth=1)
+ax1.axhline(y=beta, color='#e53e3e', linestyle='--',
+            label=f'Full-sample beta = {beta:.3f}')
+ax1.axhline(y=1, color='gray', linestyle=':', alpha=0.5)
+ax1.set_ylabel("Beta")
+ax1.set_title(f"AAPL Rolling {window}-Day Beta")
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+ax2.plot(rolling_alpha * 252 * 100, color='#38a169', linewidth=1)
+ax2.axhline(y=0, color='gray', linestyle='-', alpha=0.5)
+ax2.set_ylabel("Annualized Alpha (%)")
+ax2.set_title(f"AAPL Rolling {window}-Day Alpha")
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("rolling_beta_alpha.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 8: PRACTICAL APPLICATIONS           -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>8. Practical Applications of Factor Models</h2>
+
+      <h3>8.1 Performance Attribution</h3>
+
+      <p>
+        Factor models decompose a portfolio's return into factor exposures and alpha:
+      </p>
+
+      <div class="formula-box">
+        R<sub>portfolio</sub> = &alpha; + &beta;<sub>MKT</sub> &sdot; R<sub>MKT</sub>
+        + &beta;<sub>SMB</sub> &sdot; R<sub>SMB</sub> + &beta;<sub>HML</sub> &sdot; R<sub>HML</sub>
+        + &epsilon;
+      </div>
+
+      <p>
+        This answers the question: &ldquo;Did the fund manager generate returns through skill
+        (&alpha;), or just by loading on known risk factors?&rdquo;
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Source</th>
+            <th>Should You Pay For It?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&beta;<sub>MKT</sub> contribution</td>
+            <td>Market exposure (easy to replicate with index fund)</td>
+            <td>No &mdash; costs 0.03% via Vanguard</td>
+          </tr>
+          <tr>
+            <td>&beta;<sub>SMB</sub> contribution</td>
+            <td>Small-cap tilt (replicable with small-cap ETF)</td>
+            <td>No &mdash; costs 0.05% via small-cap ETF</td>
+          </tr>
+          <tr>
+            <td>&beta;<sub>HML</sub> contribution</td>
+            <td>Value tilt (replicable with value ETF)</td>
+            <td>No &mdash; costs 0.06% via value ETF</td>
+          </tr>
+          <tr>
+            <td>&alpha;</td>
+            <td>Genuine skill (if statistically significant)</td>
+            <td>Maybe &mdash; if &alpha; &gt; fee</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>8.2 Risk Decomposition</h3>
+
+      <p>
+        For a portfolio with factor exposures &beta;, the variance decomposes as:
+      </p>
+
+      <div class="formula-box">
+        Var(R<sub>p</sub>) = &beta;' &Sigma;<sub>f</sub> &beta; + &sigma;<sub>&epsilon;</sub><sup>2</sup>
+        <br><br>
+        = (Systematic Risk) + (Idiosyncratic Risk)
+      </div>
+
+      <p>
+        This tells you exactly where the portfolio's risk comes from: how much is from market
+        exposure, how much from size tilts, how much from value tilts, and how much is
+        stock-specific.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        <p>
+          Factor models reveal that many &ldquo;hedge funds&rdquo; and &ldquo;active managers&rdquo;
+          are simply selling exposure to well-known factors at high fees. A fund that loads heavily
+          on the size and value factors is not demonstrating skill &mdash; it's selling something
+          you can buy for 5 basis points in an ETF. True alpha is the residual after accounting
+          for <em>all</em> known factor exposures.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- SECTION 9: SUMMARY                          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <h2>9. Chapter Summary</h2>
+
+      <p>
+        The CAPM and factor models are regressions &mdash; the most fundamental tool in a
+        statistician's toolkit, applied to the most important problem in finance:
+      </p>
+
+      <ul>
+        <li><strong>CAPM</strong> is a simple linear regression of a stock's excess return on the market's excess return. Beta is the slope; alpha is the intercept.</li>
+        <li><strong>Beta</strong> = Cov(r<sub>i</sub>, r<sub>m</sub>) / Var(r<sub>m</sub>) &mdash; the regression slope, measuring systematic risk exposure.</li>
+        <li><strong>Alpha</strong> is the intercept, measuring excess return not explained by factor exposure. Testing &alpha; = 0 is a standard t-test on the intercept.</li>
+        <li><strong>R-squared</strong> tells you what fraction of the stock's variance the model explains (typically 20&ndash;40% for individual stocks, 90%+ for diversified portfolios).</li>
+        <li><strong>Multi-factor models</strong> (Fama-French) are multiple regression with additional predictors, and each new factor comes with diminishing returns and the risk of overfitting.</li>
+        <li><strong>Factor models are dimension reduction</strong>, closely related to PCA. The first few factors capture the bulk of cross-sectional return variation.</li>
+        <li><strong>Regression diagnostics matter</strong>: always use HAC standard errors, check for time-varying betas, and beware the multiple testing problem when evaluating alpha.</li>
+      </ul>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        <p>
+          The entire field of empirical asset pricing is, at its core, applied regression analysis
+          with careful attention to standard errors, model selection, and the multiple testing
+          problem. Your training in regression, hypothesis testing, and model diagnostics is
+          directly transferable &mdash; finance just uses different variable names.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-07/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-09/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

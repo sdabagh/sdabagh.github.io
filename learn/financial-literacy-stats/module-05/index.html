@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 05 of Financial Literacy for Statisticians: The data you do not see can bias everything you measure">
+  <title>Missing Data & Survivorship Bias — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 05: Missing Data &amp; Survivorship Bias</h1>
+      <p class="tagline">The data you do not see can bias everything you measure</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 1 of 5</span>
+        <span class="meta-item">Module 05 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-04/index.html">&larr; Previous</a>
+      <span class="current">Module 05 of 22</span>
+      <a href="../module-06/index.html">Next &rarr;</a>
+    </div>
+
+
+<!-- SECTION 1: INTRODUCTION                                      -->
+      <!-- ============================================================ -->
+
+      <h2>1. Introduction: The Data You Do Not See</h2>
+
+      <p>
+        Every statistician knows that missing data can bias estimates. What makes financial
+        data special is that the missing data is <em>systematically</em> missing in ways
+        that are directly correlated with the quantity you are trying to measure. The
+        companies that disappeared from the stock market are disproportionately the ones
+        that <em>failed</em>. The hedge funds that stopped reporting are disproportionately
+        the ones that <em>performed poorly</em>. The trading strategies that never made it
+        into textbooks are disproportionately the ones that <em>did not work</em>.
+      </p>
+
+      <p>
+        This module applies the statistical framework of missing data &mdash; MCAR, MAR,
+        MNAR &mdash; to financial datasets, and quantifies how large the resulting biases
+        can be.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        If you have studied <strong>Rubin&rsquo;s missing data framework</strong>, you
+        already have the conceptual tools for this module. The key insight is that most
+        missing financial data is <strong>MNAR</strong> (Missing Not At Random): the
+        probability of a data point being missing depends on the unobserved value itself.
+        A company is missing from today&rsquo;s dataset <em>because</em> it went bankrupt
+        &mdash; and bankruptcy is directly related to its return (which would have been
+        &minus;100%). This is the hardest type of missing data to handle, and the most
+        common in finance.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 2: SURVIVORSHIP BIAS                                 -->
+      <!-- ============================================================ -->
+
+      <h2>2. Survivorship Bias: The Silent Killer of Backtests</h2>
+
+      <h3>2.1 What Is Survivorship Bias?</h3>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Survivorship Bias:</strong> The systematic error that arises from analyzing
+        only the entities (companies, funds, strategies) that survived to the present,
+        while ignoring those that failed, were delisted, or stopped reporting. This makes
+        the surviving population appear more successful than the true population.
+      </div>
+
+      <p>
+        Imagine you want to evaluate the average performance of US stocks over the past
+        20 years. If you download today&rsquo;s S&amp;P 500 constituents and look up their
+        historical returns, you are only looking at the 500 companies that are successful
+        <em>today</em>. Companies that went bankrupt, were acquired at distressed prices,
+        or shrank out of the index are excluded. Your sample is conditioned on the outcome
+        variable &mdash; a textbook selection bias.
+      </p>
+
+      <h3>2.2 The Magnitude of the Bias</h3>
+
+      <p>
+        Academic research has quantified the survivorship bias in various contexts:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Context</th>
+            <th>Estimated Bias</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>US mutual fund average returns</td>
+            <td>+0.9% to +1.5% per year</td>
+            <td>Elton, Gruber, Blake (1996)</td>
+          </tr>
+          <tr>
+            <td>Hedge fund database returns</td>
+            <td>+1.4% to +3.6% per year</td>
+            <td>Malkiel, Saha (2005)</td>
+          </tr>
+          <tr>
+            <td>US stock universe average returns</td>
+            <td>+0.5% to +1.0% per year</td>
+            <td>Various studies using CRSP</td>
+          </tr>
+          <tr>
+            <td>International equity indices</td>
+            <td>+1.0% to +2.5% per year</td>
+            <td>Dimson, Marsh, Staunton (2002)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        A 1.5% annual survivorship bias may sound small, but compounded over 20 years it
+        means you overestimate total returns by approximately 35%. A strategy that appears
+        to have returned 300% over 20 years may have actually returned only 220% on a
+        survivorship-free basis. This is not a minor correction &mdash; it can be the
+        difference between a strategy appearing profitable and appearing mediocre.
+      </div>
+
+      <h3>2.3 A Concrete Example</h3>
+
+      <p>
+        Consider the Dow Jones Industrial Average. In 2005, the DJIA included General Motors
+        (GM). By 2009, GM had filed for bankruptcy and was removed from the index. If you
+        backtest a strategy on the &ldquo;current DJIA constituents&rdquo; going back to
+        2005, you would not include GM&rsquo;s catastrophic decline, making the index
+        appear to have performed better than it actually did.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Simulate the survivorship bias effect</span>
+<span class="cm"># We will create a universe of 500 stocks and show what happens</span>
+<span class="cm"># when we only analyze the survivors.</span>
+
+np.random.seed(<span class="nu">42</span>)
+
+n_stocks = <span class="nu">500</span>
+n_years = <span class="nu">20</span>
+n_days = n_years * <span class="nu">252</span>
+
+<span class="cm"># Each stock has a random drift and volatility</span>
+mu_annual = np.random.normal(<span class="nu">0.07</span>, <span class="nu">0.08</span>, n_stocks)  <span class="cm"># avg 7% with dispersion</span>
+sigma_annual = np.random.uniform(<span class="nu">0.15</span>, <span class="nu">0.50</span>, n_stocks)  <span class="cm"># 15-50% annual vol</span>
+
+<span class="cm"># Convert to daily</span>
+mu_daily = mu_annual / <span class="nu">252</span>
+sigma_daily = sigma_annual / np.sqrt(<span class="nu">252</span>)
+
+<span class="cm"># Simulate price paths</span>
+all_log_returns = np.zeros((n_days, n_stocks))
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks):
+    all_log_returns[:, i] = np.random.normal(mu_daily[i], sigma_daily[i], n_days)
+
+<span class="cm"># Cumulative returns (starting at $100)</span>
+log_prices = np.cumsum(all_log_returns, axis=<span class="nu">0</span>)
+prices = <span class="nu">100</span> * np.exp(log_prices)
+
+<span class="cm"># Define "delisted" as price falling below $1 (penny stock threshold)</span>
+<span class="cm"># Once delisted, the stock is gone forever</span>
+survived = np.ones(n_stocks, dtype=<span class="kw">bool</span>)
+delisting_day = np.full(n_stocks, n_days)  <span class="cm"># default: survived entire period</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks):
+    below_threshold = np.where(prices[:, i] &lt; <span class="nu">1.0</span>)[<span class="nu">0</span>]
+    <span class="kw">if</span> <span class="fn">len</span>(below_threshold) > <span class="nu">0</span>:
+        survived[i] = <span class="kw">False</span>
+        delisting_day[i] = below_threshold[<span class="nu">0</span>]
+
+n_survived = survived.sum()
+n_failed = (~survived).sum()
+
+<span class="fn">print</span>(f<span class="st">"Universe: {n_stocks} stocks over {n_years} years"</span>)
+<span class="fn">print</span>(f<span class="st">"Survived: {n_survived} ({n_survived/n_stocks:.1%})"</span>)
+<span class="fn">print</span>(f<span class="st">"Failed:   {n_failed} ({n_failed/n_stocks:.1%})"</span>)</pre>
+
+      <h3>2.4 Quantifying the Bias</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Compute annualized returns for each stock</span>
+<span class="cm"># For failed stocks, use the return up to the delisting day</span>
+annualized_returns = np.zeros(n_stocks)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks):
+    end_day = delisting_day[i] <span class="kw">if</span> <span class="kw">not</span> survived[i] <span class="kw">else</span> n_days - <span class="nu">1</span>
+    <span class="kw">if</span> end_day > <span class="nu">0</span>:
+        total_log_ret = log_prices[end_day, i] - log_prices[<span class="nu">0</span>, i]
+        years = end_day / <span class="nu">252</span>
+        annualized_returns[i] = total_log_ret / years
+    <span class="kw">else</span>:
+        annualized_returns[i] = -<span class="nu">1.0</span>  <span class="cm"># total loss on day 1</span>
+
+<span class="cm"># For failed stocks that we "can't see," assign -100% return</span>
+<span class="cm"># (In reality, their final return is the loss at delisting)</span>
+
+<span class="cm"># Compare survivor-only vs full universe</span>
+mean_survivor = annualized_returns[survived].mean()
+mean_all = annualized_returns.mean()
+bias = mean_survivor - mean_all
+
+<span class="fn">print</span>(f<span class="st">"\n=== Survivorship Bias Quantification ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Mean annualized return (survivors only): {mean_survivor:.4f} ({mean_survivor*100:.2f}%)"</span>)
+<span class="fn">print</span>(f<span class="st">"Mean annualized return (full universe):  {mean_all:.4f} ({mean_all*100:.2f}%)"</span>)
+<span class="fn">print</span>(f<span class="st">"Survivorship bias:                       {bias:.4f} ({bias*100:.2f}%/year)"</span>)
+<span class="fn">print</span>(f<span class="st">"Over {n_years} years, this compounds to: {((1+mean_survivor)**n_years / (1+mean_all)**n_years - 1)*100:.1f}% difference"</span>)</pre>
+
+      <h3>2.5 Visualizing Survivorship Bias</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span>fig, axes = plt.subplots(<span class="nu">2</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">10</span>))
+
+<span class="cm"># Top-left: sample of surviving price paths</span>
+survivor_idx = np.where(survived)[<span class="nu">0</span>][:<span class="nu">30</span>]
+<span class="kw">for</span> i <span class="kw">in</span> survivor_idx:
+    axes[<span class="nu">0</span>, <span class="nu">0</span>].plot(prices[:, i], alpha=<span class="nu">0.4</span>, linewidth=<span class="nu">0.5</span>, color=<span class="st">'#38a169'</span>)
+axes[<span class="nu">0</span>, <span class="nu">0</span>].set_title(<span class="st">'Survivors Only (What You See)'</span>)
+axes[<span class="nu">0</span>, <span class="nu">0</span>].set_ylabel(<span class="st">'Price ($)'</span>)
+axes[<span class="nu">0</span>, <span class="nu">0</span>].set_yscale(<span class="st">'log'</span>)
+
+<span class="cm"># Top-right: sample of ALL price paths (including failed)</span>
+all_idx = np.random.choice(n_stocks, <span class="nu">50</span>, replace=<span class="kw">False</span>)
+<span class="kw">for</span> i <span class="kw">in</span> all_idx:
+    end = delisting_day[i] <span class="kw">if</span> <span class="kw">not</span> survived[i] <span class="kw">else</span> n_days
+    color = <span class="st">'#38a169'</span> <span class="kw">if</span> survived[i] <span class="kw">else</span> <span class="st">'#e53e3e'</span>
+    axes[<span class="nu">0</span>, <span class="nu">1</span>].plot(prices[:end, i], alpha=<span class="nu">0.4</span>, linewidth=<span class="nu">0.5</span>, color=color)
+axes[<span class="nu">0</span>, <span class="nu">1</span>].set_title(<span class="st">'Full Universe (What Actually Happened)'</span>)
+axes[<span class="nu">0</span>, <span class="nu">1</span>].set_ylabel(<span class="st">'Price ($)'</span>)
+axes[<span class="nu">0</span>, <span class="nu">1</span>].set_yscale(<span class="st">'log'</span>)
+
+<span class="cm"># Bottom-left: distribution of returns (survivors vs all)</span>
+axes[<span class="nu">1</span>, <span class="nu">0</span>].hist(annualized_returns[survived] * <span class="nu">100</span>, bins=<span class="nu">40</span>, alpha=<span class="nu">0.6</span>,
+               color=<span class="st">'#38a169'</span>, label=<span class="st">'Survivors'</span>, density=<span class="kw">True</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].hist(annualized_returns * <span class="nu">100</span>, bins=<span class="nu">40</span>, alpha=<span class="nu">0.4</span>,
+               color=<span class="st">'#e53e3e'</span>, label=<span class="st">'All stocks'</span>, density=<span class="kw">True</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].axvline(x=mean_survivor * <span class="nu">100</span>, color=<span class="st">'#38a169'</span>, linestyle=<span class="st">'--'</span>, linewidth=<span class="nu">2</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].axvline(x=mean_all * <span class="nu">100</span>, color=<span class="st">'#e53e3e'</span>, linestyle=<span class="st">'--'</span>, linewidth=<span class="nu">2</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].set_xlabel(<span class="st">'Annualized Return (%)'</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].set_title(<span class="st">'Return Distributions'</span>)
+axes[<span class="nu">1</span>, <span class="nu">0</span>].legend()
+
+<span class="cm"># Bottom-right: cumulative average return over time</span>
+<span class="cm"># Equal-weighted portfolio of survivors vs all</span>
+survivor_portfolio = np.zeros(n_days)
+all_portfolio = np.zeros(n_days)
+<span class="kw">for</span> t <span class="kw">in</span> <span class="fn">range</span>(n_days):
+    active = [i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks) <span class="kw">if</span> delisting_day[i] > t]
+    active_survivors = [i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks) <span class="kw">if</span> survived[i]]
+
+    <span class="kw">if</span> <span class="fn">len</span>(active) > <span class="nu">0</span>:
+        all_portfolio[t] = all_log_returns[t, active].mean()
+    <span class="kw">if</span> <span class="fn">len</span>(active_survivors) > <span class="nu">0</span>:
+        survivor_portfolio[t] = all_log_returns[t, active_survivors].mean()
+
+cum_all = np.exp(np.cumsum(all_portfolio)) * <span class="nu">100</span>
+cum_survivor = np.exp(np.cumsum(survivor_portfolio)) * <span class="nu">100</span>
+
+axes[<span class="nu">1</span>, <span class="nu">1</span>].plot(cum_survivor, color=<span class="st">'#38a169'</span>, linewidth=<span class="nu">1.5</span>, label=<span class="st">'Survivors only'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].plot(cum_all, color=<span class="st">'#e53e3e'</span>, linewidth=<span class="nu">1.5</span>, label=<span class="st">'Full universe'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].set_title(<span class="st">'Cumulative Growth of $100'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].set_ylabel(<span class="st">'Portfolio Value ($)'</span>)
+axes[<span class="nu">1</span>, <span class="nu">1</span>].legend()
+
+plt.tight_layout()
+plt.show()</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        Many popular financial data sources (including free APIs like yfinance) only provide
+        data for currently listed companies. If you download &ldquo;all NASDAQ stocks&rdquo;
+        using one of these sources, you are <em>automatically</em> subject to survivorship
+        bias because delisted companies are excluded. For research, you need a
+        <strong>survivorship-bias-free database</strong> like CRSP, which includes
+        historical data for every stock that was ever listed, including those that
+        subsequently failed or were delisted.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 3: HEDGE FUND BIASES                                 -->
+      <!-- ============================================================ -->
+
+      <h2>3. Hedge Fund Database Biases</h2>
+
+      <h3>3.1 Self-Selection Bias</h3>
+
+      <p>
+        Hedge funds are not required to report their returns to any database. Reporting is
+        <strong>voluntary</strong>. This creates a self-selection problem: funds that choose
+        to report may be systematically different from those that do not.
+      </p>
+
+      <ul>
+        <li>Funds with strong recent performance are more likely to report (to attract new investors).</li>
+        <li>Funds that are closing or performing poorly often stop reporting before they shut down.</li>
+        <li>New funds may only begin reporting once they have established a good track record.</li>
+      </ul>
+
+      <h3>3.2 Backfill (Instant History) Bias</h3>
+
+      <div class="finance-term">
+        <div class="cb-title">Finance Term</div>
+        <strong>Backfill Bias:</strong> When a fund joins a database, it typically submits
+        its entire historical track record. Since funds with poor track records are less
+        likely to join, the backfilled history tends to show above-average performance.
+        This creates an upward bias in the historical database, even for periods before
+        the fund started reporting.
+      </div>
+
+      <p>
+        Estimates suggest backfill bias inflates hedge fund database returns by
+        approximately 1.4% per year on average. To mitigate this, some researchers
+        discard the first 12&ndash;24 months of each fund&rsquo;s history in the database.
+      </p>
+
+      <h3>3.3 Look-Ahead Bias</h3>
+
+      <p>
+        <strong>Look-ahead bias</strong> occurs when your analysis uses information that
+        was not available at the time. In finance, common examples include:
+      </p>
+
+      <ul>
+        <li>Using revised GDP figures instead of the preliminary release that was actually available to traders</li>
+        <li>Using restated earnings instead of the originally reported figures</li>
+        <li>Selecting stocks based on future membership in an index (e.g., testing &ldquo;S&amp;P 500 stocks&rdquo; using today&rsquo;s constituents applied to historical data)</li>
+      </ul>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Look-ahead bias is a form of <strong>data leakage</strong> &mdash; the same
+        concept you encounter in machine learning when test set information leaks into
+        the training process. Just as a model that accidentally trains on test data will
+        appear to have unrealistically high accuracy, a trading strategy that uses
+        future information will appear to have unrealistically high returns.
+      </div>
+
+      <h3>3.4 Summary of Hedge Fund Biases</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Bias</th>
+            <th>Direction</th>
+            <th>Estimated Magnitude</th>
+            <th>Statistical Classification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Survivorship bias</td>
+            <td>Upward</td>
+            <td>+1.4% to +3.6%/year</td>
+            <td>MNAR (selection on outcome)</td>
+          </tr>
+          <tr>
+            <td>Backfill bias</td>
+            <td>Upward</td>
+            <td>+1.2% to +1.4%/year</td>
+            <td>MNAR (selection on past performance)</td>
+          </tr>
+          <tr>
+            <td>Self-selection bias</td>
+            <td>Upward</td>
+            <td>Varies</td>
+            <td>MNAR (voluntary reporting)</td>
+          </tr>
+          <tr>
+            <td>Look-ahead bias</td>
+            <td>Upward</td>
+            <td>Varies</td>
+            <td>Data leakage (not missing data per se)</td>
+          </tr>
+          <tr>
+            <td>Combined effect</td>
+            <td>Upward</td>
+            <td>+3% to +5%/year possible</td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        Hedge fund databases report average annualized returns of roughly 8&ndash;12% for
+        various strategies. After correcting for survivorship, backfill, and self-selection
+        biases, the true average may be closer to 4&ndash;7%. Combined biases of 3&ndash;5%
+        per year mean that a significant fraction of the &ldquo;alpha&rdquo; (excess return)
+        reported by hedge funds may be entirely illusory.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 4: RUBIN'S FRAMEWORK                                 -->
+      <!-- ============================================================ -->
+
+      <h2>4. Missing Data Framework Applied to Finance</h2>
+
+      <h3>4.1 MCAR, MAR, and MNAR in Financial Context</h3>
+
+      <p>
+        Rubin (1976) classified missing data mechanisms into three categories. Here is how
+        each manifests in financial data:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Mechanism</th>
+            <th>Definition</th>
+            <th>Financial Example</th>
+            <th>Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MCAR</strong><br>(Missing Completely At Random)</td>
+            <td>P(missing) is independent of both observed and unobserved data</td>
+            <td>A data vendor&rsquo;s server crashes randomly, causing occasional gaps in the feed</td>
+            <td>Benign: complete-case analysis is unbiased</td>
+          </tr>
+          <tr>
+            <td><strong>MAR</strong><br>(Missing At Random)</td>
+            <td>P(missing) depends on observed data but not on the missing value itself</td>
+            <td>Small-cap stocks have more missing data because fewer analysts cover them (missingness depends on market cap, which we observe)</td>
+            <td>Moderate: can correct with proper imputation methods</td>
+          </tr>
+          <tr>
+            <td><strong>MNAR</strong><br>(Missing Not At Random)</td>
+            <td>P(missing) depends on the missing value itself</td>
+            <td>A stock is missing because it went bankrupt (missingness depends on the return, which is &minus;100%)</td>
+            <td>Severe: cannot be fully corrected without external information</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Testing the Missing Data Mechanism</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Simulate and test whether missingness is related to the outcome</span>
+<span class="cm"># This mimics a hedge fund database where poorly performing funds stop reporting</span>
+
+np.random.seed(<span class="nu">123</span>)
+n_funds = <span class="nu">500</span>
+n_months = <span class="nu">120</span>  <span class="cm"># 10 years</span>
+
+<span class="cm"># True monthly returns (normally distributed for simplicity)</span>
+true_returns = np.random.normal(<span class="nu">0.005</span>, <span class="nu">0.03</span>, (n_months, n_funds))
+
+<span class="cm"># MNAR mechanism: funds with cumulative returns below -20% stop reporting</span>
+<span class="cm"># (they shut down and are removed from the database)</span>
+observed_returns = true_returns.copy()
+active = np.ones(n_funds, dtype=<span class="kw">bool</span>)
+stop_month = np.full(n_funds, n_months)
+
+<span class="kw">for</span> t <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1</span>, n_months):
+    cum_ret = true_returns[:t+<span class="nu">1</span>].sum(axis=<span class="nu">0</span>)
+    newly_dead = active &amp; (cum_ret &lt; -<span class="nu">0.20</span>)
+    stop_month[newly_dead] = t
+    active[newly_dead] = <span class="kw">False</span>
+    observed_returns[t, ~active] = np.nan
+
+<span class="cm"># Compare complete-case vs true statistics</span>
+true_mean_monthly = np.nanmean(true_returns)
+observed_mean_monthly = np.nanmean(observed_returns)
+bias = observed_mean_monthly - true_mean_monthly
+
+<span class="fn">print</span>(f<span class="st">"=== MNAR Simulation: Hedge Fund Database ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Funds that stopped reporting: {(~active).sum()} of {n_funds}"</span>)
+<span class="fn">print</span>(f<span class="st">"True mean monthly return:     {true_mean_monthly*100:.4f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Observed mean monthly return:  {observed_mean_monthly*100:.4f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Bias:                          {bias*100:.4f}%/month = {bias*1200:.2f}%/year"</span>)
+
+<span class="cm"># Test whether missingness is related to returns (it is, by construction)</span>
+<span class="cm"># For each fund, compute its average return before it stopped vs after</span>
+before_stop = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_funds):
+    <span class="kw">if</span> stop_month[i] &lt; n_months:
+        before_stop.append(true_returns[:stop_month[i], i].mean())
+
+still_active = [true_returns[:, i].mean() <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_funds) <span class="kw">if</span> active[i]]
+
+<span class="fn">print</span>(f<span class="st">"\nMean return of funds that stopped: {np.mean(before_stop)*100:.4f}%/month"</span>)
+<span class="fn">print</span>(f<span class="st">"Mean return of surviving funds:    {np.mean(still_active)*100:.4f}%/month"</span>)
+<span class="fn">print</span>(f<span class="st">"This confirms MNAR: stopping is correlated with performance"</span>)</pre>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        In the Rubin framework, MNAR data cannot be handled by standard missing data
+        techniques (multiple imputation, EM algorithm) without making untestable assumptions
+        about the missing data mechanism. The standard approaches &mdash; selection models
+        (Heckman correction) and pattern mixture models &mdash; require specifying how
+        missingness relates to the unobserved values. In finance, this means you need a
+        model for <em>why</em> funds shut down as a function of their (unobserved)
+        counterfactual returns.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 5: TIME SERIES GAPS                                  -->
+      <!-- ============================================================ -->
+
+      <h2>5. Weekend and Holiday Gaps: Not Really Missing Data</h2>
+
+      <h3>5.1 Structural vs Random Gaps</h3>
+
+      <p>
+        Financial time series have gaps on weekends and holidays. These are
+        <strong>structural</strong> gaps &mdash; they are perfectly predictable and affect
+        all stocks equally. They are <em>not</em> missing data in the Rubin sense because
+        there is no underlying value that &ldquo;should&rdquo; have been observed.
+      </p>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        Weekend gaps are deterministic, not random. Do <em>not</em> impute missing weekend
+        observations by interpolation or other methods &mdash; this would create artificial
+        data and distort the statistical properties of the series. Instead, use a
+        <strong>business day index</strong> that skips weekends and holidays entirely.
+        Pandas provides <code>pd.bdate_range()</code> and <code>CustomBusinessDay</code>
+        for exactly this purpose.
+      </div>
+
+      <h3>5.2 Handling Holidays Across Markets</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># US stock (NYSE) and Japanese stock (TSE) have different holidays</span>
+us_stock = yf.download(<span class="st">"AAPL"</span>, start=<span class="st">"2024-01-01"</span>, end=<span class="st">"2024-03-01"</span>, progress=<span class="kw">False</span>)
+jp_stock = yf.download(<span class="st">"7203.T"</span>, start=<span class="st">"2024-01-01"</span>, end=<span class="st">"2024-03-01"</span>, progress=<span class="kw">False</span>)
+
+<span class="fn">print</span>(f<span class="st">"AAPL trading days in Jan-Feb 2024: {len(us_stock)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Toyota trading days in Jan-Feb 2024: {len(jp_stock)}"</span>)
+
+<span class="cm"># Find dates where one market was open and the other closed</span>
+us_dates = set(us_stock.index)
+jp_dates = set(jp_stock.index)
+
+us_only = us_dates - jp_dates
+jp_only = jp_dates - us_dates
+
+<span class="fn">print</span>(f<span class="st">"\nDays only US was open:    {len(us_only)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Days only Japan was open: {len(jp_only)}"</span>)
+
+<span class="cm"># When merging, you must decide: inner join (common days only)</span>
+<span class="cm"># or outer join with NaN handling</span>
+inner = pd.merge(us_stock[[<span class="st">"Adj Close"</span>]], jp_stock[[<span class="st">"Adj Close"</span>]],
+                 left_index=<span class="kw">True</span>, right_index=<span class="kw">True</span>,
+                 suffixes=(<span class="st">"_US"</span>, <span class="st">"_JP"</span>), how=<span class="st">"inner"</span>)
+outer = pd.merge(us_stock[[<span class="st">"Adj Close"</span>]], jp_stock[[<span class="st">"Adj Close"</span>]],
+                 left_index=<span class="kw">True</span>, right_index=<span class="kw">True</span>,
+                 suffixes=(<span class="st">"_US"</span>, <span class="st">"_JP"</span>), how=<span class="st">"outer"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\nInner join: {len(inner)} common trading days"</span>)
+<span class="fn">print</span>(f<span class="st">"Outer join: {len(outer)} total days ({outer.isnull().sum().sum()} NaN values)"</span>)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        When computing cross-market correlations, using an outer join and forward-filling
+        the NaN values introduces a subtle bias: the &ldquo;return&rdquo; on a holiday will
+        be zero (since the forward-filled price is unchanged), which drags the correlation
+        toward zero. Use an <strong>inner join</strong> (common trading days only) for
+        correlation analysis, or compute returns only on days when both markets were open.
+      </div>
+
+      <h3>5.3 Thin Trading and Stale Prices</h3>
+
+      <p>
+        Some assets &mdash; particularly small-cap stocks, corporate bonds, and illiquid
+        securities &mdash; may not trade every day. When this happens, the reported
+        &ldquo;closing price&rdquo; is typically the price of the last trade, which may
+        have occurred hours or even days earlier. This is called a <strong>stale price</strong>.
+      </p>
+
+      <p>
+        Stale prices create artificial serial correlation in returns and artificial
+        cross-correlation patterns. The <strong>Scholes-Williams</strong> and
+        <strong>Dimson</strong> beta estimators were developed specifically to correct for
+        this effect.
+      </p>
+
+      <div class="stats-bridge">
+        <div class="cb-title">Stats Bridge</div>
+        Stale prices are a form of <strong>measurement error</strong>. The observed price
+        is the true price from some previous time point, not the current time. This
+        creates an errors-in-variables problem that attenuates estimates of beta (the
+        sensitivity to market movements) and inflates apparent diversification benefits.
+        Scholes-Williams corrects for this by including leading and lagging market returns
+        in the beta regression: &beta;<sub>adj</sub> = (&beta;<sub>&minus;1</sub> +
+        &beta;<sub>0</sub> + &beta;<sub>+1</sub>) / (1 + 2&rho;<sub>m</sub>).
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 6: DELISTED STOCKS                                   -->
+      <!-- ============================================================ -->
+
+      <h2>6. Delisted Stocks and What Happens to Their Data</h2>
+
+      <h3>6.1 Why Stocks Get Delisted</h3>
+
+      <p>
+        A stock is <strong>delisted</strong> when it is removed from an exchange. This can
+        happen for several reasons, each with different implications for the data:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Reason</th>
+            <th>Typical Final Return</th>
+            <th>Data Availability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Bankruptcy (Chapter 7)</td>
+            <td>&minus;100% (total loss)</td>
+            <td>Often disappears from free databases</td>
+          </tr>
+          <tr>
+            <td>Bankruptcy (Chapter 11)</td>
+            <td>&minus;80% to &minus;100%</td>
+            <td>May have residual value; data often incomplete</td>
+          </tr>
+          <tr>
+            <td>Merger/Acquisition (premium)</td>
+            <td>+20% to +50% (takeover premium)</td>
+            <td>Data ends at acquisition date</td>
+          </tr>
+          <tr>
+            <td>Going private</td>
+            <td>+15% to +30%</td>
+            <td>Data ends at privatization</td>
+          </tr>
+          <tr>
+            <td>Price too low (exchange rules)</td>
+            <td>Varies (often negative)</td>
+            <td>May continue on OTC markets</td>
+          </tr>
+          <tr>
+            <td>Compliance violations</td>
+            <td>Varies</td>
+            <td>Data may be retroactively removed</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 The Delisting Return Problem</h3>
+
+      <p>
+        When a stock is delisted, the <strong>delisting return</strong> &mdash; the return
+        from the last traded price to the actual value received by shareholders &mdash; is
+        often missing or difficult to determine. CRSP provides delisting returns for most
+        US stocks, but many other databases do not.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Demonstrate the impact of missing delisting returns</span>
+np.random.seed(<span class="nu">99</span>)
+
+n_sim = <span class="nu">10000</span>
+n_stocks_sim = <span class="nu">100</span>
+n_months_sim = <span class="nu">120</span>
+
+<span class="cm"># Track the bias from ignoring vs including delisting returns</span>
+biases = []
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(n_sim):
+    <span class="cm"># Each stock has a 2% annual probability of delisting for negative reasons</span>
+    <span class="cm"># and a 1% annual probability of delisting for positive reasons (acquisition)</span>
+    monthly_prob_neg = <span class="nu">1</span> - (<span class="nu">1</span> - <span class="nu">0.02</span>) ** (<span class="nu">1</span>/<span class="nu">12</span>)
+    monthly_prob_pos = <span class="nu">1</span> - (<span class="nu">1</span> - <span class="nu">0.01</span>) ** (<span class="nu">1</span>/<span class="nu">12</span>)
+
+    returns = np.random.normal(<span class="nu">0.006</span>, <span class="nu">0.04</span>, n_stocks_sim)  <span class="cm"># avg monthly return</span>
+
+    <span class="cm"># Apply delisting</span>
+    delisted_neg = np.random.random(n_stocks_sim) &lt; monthly_prob_neg
+    delisted_pos = np.random.random(n_stocks_sim) &lt; monthly_prob_pos
+
+    <span class="cm"># Negative delistings: replace return with -30% (typical bankruptcy return)</span>
+    returns[delisted_neg] = -<span class="nu">0.30</span>
+    <span class="cm"># Positive delistings: replace return with +25% (typical takeover premium)</span>
+    returns[delisted_pos &amp; ~delisted_neg] = <span class="nu">0.25</span>
+
+    <span class="cm"># True average includes delisting returns</span>
+    true_avg = returns.mean()
+
+    <span class="cm"># "Observed" average drops delisted stocks entirely</span>
+    observed = returns[~delisted_neg &amp; ~delisted_pos]
+    <span class="kw">if</span> <span class="fn">len</span>(observed) > <span class="nu">0</span>:
+        obs_avg = observed.mean()
+        biases.append(obs_avg - true_avg)
+
+biases = np.array(biases)
+<span class="fn">print</span>(f<span class="st">"=== Delisting Return Bias ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Mean bias per month: {biases.mean()*100:.4f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Mean bias per year:  {biases.mean()*1200:.2f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Note: positive bias because negative delistings are more harmful than"</span>)
+<span class="fn">print</span>(f<span class="st">"positive delistings are beneficial, and both are excluded"</span>)</pre>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The direction of the delisting bias depends on the relative frequency and magnitude
+        of negative vs positive delistings. In the US stock market, negative delistings
+        (bankruptcies) cause larger losses than positive delistings (acquisitions) create
+        gains, so the net bias from ignoring delisting returns is <em>positive</em> &mdash;
+        making the average stock return appear higher than it truly was.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 7: PRACTICAL MITIGATIONS                             -->
+      <!-- ============================================================ -->
+
+      <h2>7. Practical Strategies for Mitigating These Biases</h2>
+
+      <h3>7.1 Use Survivorship-Bias-Free Databases</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Database</th>
+            <th>Coverage</th>
+            <th>Survivorship-Free?</th>
+            <th>Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CRSP</td>
+            <td>US stocks (NYSE, AMEX, NASDAQ)</td>
+            <td>Yes (includes all delisted stocks)</td>
+            <td>Academic subscription</td>
+          </tr>
+          <tr>
+            <td>Compustat</td>
+            <td>Fundamental data (income, balance sheet)</td>
+            <td>Mostly (some historical gaps)</td>
+            <td>Academic subscription</td>
+          </tr>
+          <tr>
+            <td>Datastream</td>
+            <td>Global stocks, bonds, macro</td>
+            <td>Partially (dead stocks available)</td>
+            <td>Commercial</td>
+          </tr>
+          <tr>
+            <td>Bloomberg</td>
+            <td>Global (everything)</td>
+            <td>Yes (delisted securities available)</td>
+            <td>$$$$</td>
+          </tr>
+          <tr>
+            <td>yfinance (free)</td>
+            <td>Current listings</td>
+            <td><strong>No</strong> (major survivorship bias)</td>
+            <td>Free</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Point-in-Time Constituents</h3>
+
+      <p>
+        When studying an index like the S&amp;P 500, always use the <strong>point-in-time
+        constituent list</strong> &mdash; the list of stocks that were in the index at each
+        historical date &mdash; rather than today&rsquo;s list applied retroactively. This
+        eliminates the most common form of survivorship bias in index studies.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Pseudocode for point-in-time analysis</span>
+<span class="cm"># (Actual constituent data requires CRSP or similar database)</span>
+
+<span class="kw">def</span> <span class="fn">backtest_with_point_in_time</span>(strategy, constituent_history, price_data):
+    <span class="st">"""
+    Correct backtesting approach using point-in-time index membership.
+
+    Parameters:
+        strategy: function that selects stocks from available universe
+        constituent_history: dict mapping dates to lists of tickers
+        price_data: historical prices for ALL stocks (including delisted)
+
+    Returns:
+        portfolio returns without survivorship bias
+    """</span>
+    portfolio_returns = []
+
+    <span class="kw">for</span> date <span class="kw">in</span> sorted(constituent_history.keys()):
+        <span class="cm"># Only consider stocks that were ACTUALLY in the index on this date</span>
+        available_stocks = constituent_history[date]
+
+        <span class="cm"># Apply strategy to the historically correct universe</span>
+        selected = strategy(available_stocks, price_data, date)
+
+        <span class="cm"># Compute returns including any delistings</span>
+        ret = compute_returns(selected, price_data, date)
+        portfolio_returns.append(ret)
+
+    <span class="kw">return</span> portfolio_returns
+
+<span class="cm"># WRONG approach (survivorship bias):</span>
+<span class="cm"># current_sp500 = get_current_sp500_tickers()  # Today's list</span>
+<span class="cm"># historical_returns = get_returns(current_sp500, "2005-01-01", "2025-01-01")</span>
+<span class="cm"># This backfills today's "winners" into the historical universe!</span></pre>
+
+      <h3>7.3 Sensitivity Analysis</h3>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># When you cannot get survivorship-free data, quantify the potential bias</span>
+<span class="cm"># by running a sensitivity analysis</span>
+
+<span class="kw">def</span> <span class="fn">sensitivity_analysis</span>(observed_returns, delisting_rates, delisting_returns):
+    <span class="st">"""
+    Estimate the range of true returns given assumptions about
+    survivorship bias.
+
+    Parameters:
+        observed_returns: average return from survivor-only sample
+        delisting_rates: list of assumed annual delisting rates to test
+        delisting_returns: list of assumed average delisting returns to test
+    """</span>
+    <span class="fn">print</span>(f<span class="st">"Observed (survivor-only) annualized return: {observed_returns:.2%}"</span>)
+    <span class="fn">print</span>(f<span class="st">"\nSensitivity to survivorship bias assumptions:"</span>)
+    <span class="fn">print</span>(f<span class="st">"{'Delist Rate':>12} {'Delist Return':>14} {'True Return':>14} {'Bias':>10}"</span>)
+    <span class="fn">print</span>(<span class="st">"-"</span> * <span class="nu">55</span>)
+
+    <span class="kw">for</span> rate <span class="kw">in</span> delisting_rates:
+        <span class="kw">for</span> delist_ret <span class="kw">in</span> delisting_returns:
+            <span class="cm"># Approximate: true_return = (1 - rate) * observed + rate * delist_return</span>
+            true_return = (<span class="nu">1</span> - rate) * observed_returns + rate * delist_ret
+            bias = observed_returns - true_return
+            <span class="fn">print</span>(f<span class="st">"{rate:>11.1%} {delist_ret:>13.1%} {true_return:>13.2%} {bias:>9.2%}"</span>)
+
+<span class="cm"># Example: observed return is 10% annualized</span>
+sensitivity_analysis(
+    observed_returns=<span class="nu">0.10</span>,
+    delisting_rates=[<span class="nu">0.02</span>, <span class="nu">0.05</span>, <span class="nu">0.08</span>, <span class="nu">0.10</span>],
+    delisting_returns=[-<span class="nu">0.30</span>, -<span class="nu">0.50</span>, -<span class="nu">1.00</span>]
+)</pre>
+
+      <div class="common-pitfall">
+        <div class="cb-title">Common Pitfall</div>
+        When you present results based on freely available data (which likely has
+        survivorship bias), <strong>always acknowledge the limitation</strong> and provide
+        a rough estimate of the potential bias. A simple disclosure like &ldquo;these
+        results may overstate returns by 1&ndash;2% per year due to survivorship bias in
+        the data source&rdquo; is far better than ignoring the issue entirely.
+      </div>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 8: SIMULATION EXERCISE                               -->
+      <!-- ============================================================ -->
+
+      <h2>8. Comprehensive Simulation: Measuring the Full Effect</h2>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Monte Carlo simulation: full survivorship bias analysis</span>
+<span class="cm"># We simulate a realistic stock universe and measure the bias</span>
+<span class="cm"># from analyzing only survivors.</span>
+
+np.random.seed(<span class="nu">2024</span>)
+
+n_simulations = <span class="nu">100</span>
+n_stocks = <span class="nu">1000</span>
+n_years = <span class="nu">20</span>
+n_months = n_years * <span class="nu">12</span>
+
+survivor_means = []
+true_means = []
+
+<span class="kw">for</span> sim <span class="kw">in</span> <span class="fn">range</span>(n_simulations):
+    <span class="cm"># Each stock: random drift and volatility</span>
+    mu = np.random.normal(<span class="nu">0.005</span>, <span class="nu">0.005</span>, n_stocks)  <span class="cm"># monthly drift</span>
+    sigma = np.random.uniform(<span class="nu">0.03</span>, <span class="nu">0.12</span>, n_stocks)  <span class="cm"># monthly vol</span>
+
+    <span class="cm"># Simulate monthly log returns</span>
+    log_ret = np.zeros((n_months, n_stocks))
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks):
+        log_ret[:, i] = np.random.normal(mu[i], sigma[i], n_months)
+
+    <span class="cm"># Cumulative log returns</span>
+    cum_log_ret = np.cumsum(log_ret, axis=<span class="nu">0</span>)
+
+    <span class="cm"># Delisting rule: if cumulative return falls below -80%</span>
+    survived = np.ones(n_stocks, dtype=<span class="kw">bool</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_stocks):
+        <span class="kw">if</span> np.any(cum_log_ret[:, i] &lt; np.log(<span class="nu">0.20</span>)):  <span class="cm"># 80% loss</span>
+            survived[i] = <span class="kw">False</span>
+
+    <span class="cm"># Average annualized return</span>
+    total_ret_all = cum_log_ret[-<span class="nu">1</span>, :].mean() / n_years
+    total_ret_survivors = cum_log_ret[-<span class="nu">1</span>, survived].mean() / n_years
+
+    true_means.append(total_ret_all)
+    survivor_means.append(total_ret_survivors)
+
+true_means = np.array(true_means)
+survivor_means = np.array(survivor_means)
+bias_distribution = survivor_means - true_means
+
+<span class="fn">print</span>(f<span class="st">"=== Monte Carlo: Survivorship Bias Distribution ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Number of simulations: {n_simulations}"</span>)
+<span class="fn">print</span>(f<span class="st">"Universe: {n_stocks} stocks, {n_years} years each"</span>)
+<span class="fn">print</span>(f<span class="st">"\nTrue annualized return:     {true_means.mean()*100:.2f}% +/- {true_means.std()*100:.2f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Survivor annualized return: {survivor_means.mean()*100:.2f}% +/- {survivor_means.std()*100:.2f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Average bias:               {bias_distribution.mean()*100:.2f}%/year"</span>)
+<span class="fn">print</span>(f<span class="st">"95% CI for bias:            [{np.percentile(bias_distribution, 2.5)*100:.2f}%, {np.percentile(bias_distribution, 97.5)*100:.2f}%]"</span>)
+
+<span class="cm"># Plot</span>
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">14</span>, <span class="nu">5</span>))
+
+axes[<span class="nu">0</span>].hist(bias_distribution * <span class="nu">100</span>, bins=<span class="nu">30</span>, color=<span class="st">'#e53e3e'</span>, alpha=<span class="nu">0.7</span>,
+            edgecolor=<span class="st">'white'</span>)
+axes[<span class="nu">0</span>].axvline(x=bias_distribution.mean() * <span class="nu">100</span>, color=<span class="st">'black'</span>, linestyle=<span class="st">'--'</span>,
+               linewidth=<span class="nu">2</span>, label=f<span class="st">'Mean = {bias_distribution.mean()*100:.2f}%'</span>)
+axes[<span class="nu">0</span>].set_xlabel(<span class="st">'Survivorship Bias (%/year)'</span>)
+axes[<span class="nu">0</span>].set_ylabel(<span class="st">'Frequency'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'Distribution of Survivorship Bias Across Simulations'</span>)
+axes[<span class="nu">0</span>].legend()
+
+axes[<span class="nu">1</span>].scatter(true_means * <span class="nu">100</span>, survivor_means * <span class="nu">100</span>, alpha=<span class="nu">0.6</span>,
+               color=<span class="st">'#3182ce'</span>, s=<span class="nu">20</span>)
+axes[<span class="nu">1</span>].plot([<span class="nu">-5</span>, <span class="nu">15</span>], [<span class="nu">-5</span>, <span class="nu">15</span>], <span class="st">'k--'</span>, linewidth=<span class="nu">1</span>, label=<span class="st">'No bias line'</span>)
+axes[<span class="nu">1</span>].set_xlabel(<span class="st">'True Annualized Return (%)'</span>)
+axes[<span class="nu">1</span>].set_ylabel(<span class="st">'Survivor-Only Annualized Return (%)'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'True vs Survivor-Only Returns'</span>)
+axes[<span class="nu">1</span>].legend()
+
+plt.tight_layout()
+plt.show()</pre>
+
+
+      <!-- ============================================================ -->
+      <!-- SECTION 9: SUMMARY                                           -->
+      <!-- ============================================================ -->
+
+      <h2>9. Chapter Summary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Statistical Framework</th>
+            <th>Practical Recommendation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Survivorship bias</td>
+            <td>MNAR selection bias; conditioning on outcome</td>
+            <td>Use survivorship-free databases (CRSP, Bloomberg)</td>
+          </tr>
+          <tr>
+            <td>Backfill bias</td>
+            <td>MNAR; voluntary entry with backfilled history</td>
+            <td>Drop first 12&ndash;24 months of each fund&rsquo;s database history</td>
+          </tr>
+          <tr>
+            <td>Look-ahead bias</td>
+            <td>Data leakage; using future info in historical analysis</td>
+            <td>Use point-in-time data; avoid revised figures</td>
+          </tr>
+          <tr>
+            <td>Weekend/holiday gaps</td>
+            <td>Structural (deterministic) missing; not random</td>
+            <td>Use business-day index; do not impute</td>
+          </tr>
+          <tr>
+            <td>Cross-market gaps</td>
+            <td>Differential structural missingness</td>
+            <td>Use inner join for correlation; outer join with care</td>
+          </tr>
+          <tr>
+            <td>Stale prices</td>
+            <td>Measurement error / errors-in-variables</td>
+            <td>Use Scholes-Williams or Dimson beta adjustment</td>
+          </tr>
+          <tr>
+            <td>Delisting returns</td>
+            <td>MNAR; missing outcomes for failed entities</td>
+            <td>Use CRSP delisting returns; run sensitivity analysis</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+        <div class="cb-title">Key Insight</div>
+        The biases described in this module all push in the same direction: they make
+        financial performance appear <em>better</em> than it actually was. Survivorship bias,
+        backfill bias, and delisting return bias all inflate reported returns. This means that
+        any uncorrected analysis of financial data is likely to be <em>optimistic</em>. As
+        a statistician, your instinct to worry about selection bias is exactly the right
+        instinct &mdash; and the magnitude of these biases (1&ndash;5% per year) is large
+        enough to change substantive conclusions.
+      </div>
+
+      <p>
+        In the next module, we will shift from data quality issues to modeling: how to
+        estimate and forecast the volatility that we have seen is such a dominant feature
+        of financial return data.
+      </p>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-04/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-06/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

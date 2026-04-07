@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 22 of Financial Literacy for Statisticians: Capstone project: pull live data, compute risk metrics, visualize portfolio performance, and tie everything together">
+  <title>Building Your Own Financial Dashboard — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; }
+    .fn { color: #68d391; }
+    .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; }
+    .nu { color: #90cdf4; }
+    .op { color: #fc8181; }
+    .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 22: Building Your Own Financial Dashboard</h1>
+      <p class="tagline">Capstone project: pull live data, compute risk metrics, visualize portfolio performance, and tie everything together</p>
+      <div class="module-meta">
+        <span class="meta-item">Part 5 of 5</span>
+        <span class="meta-item">Module 22 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-21/index.html">&larr; Previous</a>
+      <span class="current">Module 22 of 22</span>
+      <a href="../index.html">Next &rarr;</a>
+    </div>
+
+
+<p>
+        This is the capstone module. Over the preceding 21 modules, you have learned to think
+        about financial data, risk, portfolios, derivatives, behavioral biases, macroeconomics,
+        and financial news through the lens of statistics. Now you will <strong>build something</strong>:
+        a personal financial dashboard that pulls live data and computes the metrics you have
+        learned throughout the course.
+      </p>
+
+      <p>
+        The dashboard has six components, each drawing on different modules:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>What It Does</th>
+            <th>Modules Referenced</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Portfolio Tracker</td>
+            <td>Track holdings, compute values, returns, weights</td>
+            <td>Modules 1&ndash;4 (data, returns, correlation)</td>
+          </tr>
+          <tr>
+            <td>2. Risk Metrics</td>
+            <td>VaR, CVaR, max drawdown, Sharpe ratio</td>
+            <td>Modules 5&ndash;8 (risk, volatility, tail risk)</td>
+          </tr>
+          <tr>
+            <td>3. Correlation Monitor</td>
+            <td>Rolling correlation heatmap</td>
+            <td>Module 4 (correlation), Module 9 (portfolio theory)</td>
+          </tr>
+          <tr>
+            <td>4. Factor Exposure</td>
+            <td>CAPM and Fama-French regressions</td>
+            <td>Modules 10&ndash;12 (factor models, regression)</td>
+          </tr>
+          <tr>
+            <td>5. Macro Context</td>
+            <td>GDP, inflation, yield curve status</td>
+            <td>Module 21 (macroeconomics)</td>
+          </tr>
+          <tr>
+            <td>6. News Sentiment</td>
+            <td>Headline sentiment analysis</td>
+            <td>Module 20 (reading financial news)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          A financial dashboard is not just a software project &mdash; it is a <strong>statistical
+          monitoring system</strong>. Each component is a summary statistic, a hypothesis test,
+          or a model output that helps you make decisions. Building it forces you to operationalize
+          everything you have learned.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.1 &mdash; Component 1: Portfolio Tracker</h2>
+
+      <p>
+        The foundation of any financial dashboard is knowing what you own. The portfolio tracker
+        takes a list of holdings (ticker, shares, purchase price) and computes current market
+        values, portfolio weights, and returns.
+      </p>
+
+      <h3>Data Model</h3>
+
+      <p>
+        A portfolio is a collection of positions. Each position has:
+      </p>
+
+      <ul>
+        <li><strong>Ticker:</strong> The stock symbol (e.g., AAPL, VTI, BND)</li>
+        <li><strong>Shares:</strong> Number of shares held</li>
+        <li><strong>Cost basis:</strong> Average purchase price per share</li>
+        <li><strong>Current price:</strong> Latest market price (pulled live)</li>
+        <li><strong>Market value:</strong> Shares &times; Current price</li>
+        <li><strong>Weight:</strong> Market value / Total portfolio value</li>
+        <li><strong>Gain/Loss:</strong> (Current price &minus; Cost basis) &times; Shares</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          A portfolio is a <strong>weighted mixture distribution</strong>. The portfolio return
+          is a weighted sum of individual asset returns: R<sub>p</sub> = &sum; w<sub>i</sub> R<sub>i</sub>.
+          The weights are not fixed &mdash; they drift as prices change, which means the portfolio's
+          statistical properties (mean, variance, skewness) evolve over time even without trading.
+          This is why periodic rebalancing is necessary to maintain a target allocation.
+        </p>
+      </div>
+
+      <div class="formula-box">
+        w<sub>i</sub> = (n<sub>i</sub> &middot; P<sub>i</sub>) / &sum;<sub>j</sub> (n<sub>j</sub> &middot; P<sub>j</sub>)
+        <br><br>
+        R<sub>portfolio</sub> = &sum;<sub>i</sub> w<sub>i</sub> &middot; R<sub>i</sub>
+        <br><br>
+        Total P&amp;L = &sum;<sub>i</sub> n<sub>i</sub> &middot; (P<sub>i,current</sub> &minus; P<sub>i,cost</sub>)
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 1: Portfolio Tracker</span>
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="fn">PortfolioTracker</span>:
+    <span class="st">"""Track a portfolio of holdings with live price data."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, holdings: <span class="kw">list</span>[<span class="kw">dict</span>]):
+        <span class="st">"""
+        holdings: list of dicts with keys 'ticker', 'shares', 'cost_basis'
+        Example: [{'ticker': 'AAPL', 'shares': 50, 'cost_basis': 150.00}, ...]
+        """</span>
+        self.holdings = pd.DataFrame(holdings)
+        self.tickers = self.holdings[<span class="st">"ticker"</span>].tolist()
+
+    <span class="kw">def</span> <span class="fn">fetch_prices</span>(self):
+        <span class="st">"""Fetch current prices for all holdings."""</span>
+        prices = {}
+        <span class="kw">for</span> ticker <span class="kw">in</span> self.tickers:
+            stock = yf.Ticker(ticker)
+            hist = stock.history(period=<span class="st">"1d"</span>)
+            <span class="kw">if</span> <span class="kw">not</span> hist.empty:
+                prices[ticker] = hist[<span class="st">"Close"</span>].iloc[-<span class="nu">1</span>]
+        self.holdings[<span class="st">"current_price"</span>] = self.holdings[<span class="st">"ticker"</span>].map(prices)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">compute_metrics</span>(self):
+        <span class="st">"""Compute portfolio metrics."""</span>
+        h = self.holdings
+        h[<span class="st">"market_value"</span>] = h[<span class="st">"shares"</span>] * h[<span class="st">"current_price"</span>]
+        h[<span class="st">"cost_value"</span>] = h[<span class="st">"shares"</span>] * h[<span class="st">"cost_basis"</span>]
+        h[<span class="st">"gain_loss"</span>] = h[<span class="st">"market_value"</span>] - h[<span class="st">"cost_value"</span>]
+        h[<span class="st">"return_pct"</span>] = (h[<span class="st">"current_price"</span>] / h[<span class="st">"cost_basis"</span>] - <span class="nu">1</span>) * <span class="nu">100</span>
+        total_value = h[<span class="st">"market_value"</span>].sum()
+        h[<span class="st">"weight"</span>] = h[<span class="st">"market_value"</span>] / total_value * <span class="nu">100</span>
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">summary</span>(self):
+        <span class="st">"""Print portfolio summary."""</span>
+        h = self.holdings
+        total_value = h[<span class="st">"market_value"</span>].sum()
+        total_cost = h[<span class="st">"cost_value"</span>].sum()
+        total_gain = h[<span class="st">"gain_loss"</span>].sum()
+        total_return = (total_value / total_cost - <span class="nu">1</span>) * <span class="nu">100</span>
+
+        <span class="fn">print</span>(<span class="st">"Portfolio Summary"</span>)
+        <span class="fn">print</span>(<span class="st">"=" * 70</span>)
+        cols = [<span class="st">"ticker"</span>, <span class="st">"shares"</span>, <span class="st">"cost_basis"</span>, <span class="st">"current_price"</span>,
+                <span class="st">"market_value"</span>, <span class="st">"gain_loss"</span>, <span class="st">"return_pct"</span>, <span class="st">"weight"</span>]
+        <span class="fn">print</span>(h[cols].to_string(index=<span class="kw">False</span>, float_format=<span class="st">"%.2f"</span>))
+        <span class="fn">print</span>(<span class="st">f"\nTotal Value:  ${total_value:,.2f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"Total Cost:   ${total_cost:,.2f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"Total Gain:   ${total_gain:+,.2f} ({total_return:+.1f}%)"</span>)
+        <span class="kw">return</span> h
+
+    <span class="kw">def</span> <span class="fn">fetch_history</span>(self, period=<span class="st">"1y"</span>):
+        <span class="st">"""Fetch historical prices for portfolio return computation."""</span>
+        prices = pd.DataFrame()
+        <span class="kw">for</span> ticker <span class="kw">in</span> self.tickers:
+            df = yf.download(ticker, period=period, progress=<span class="kw">False</span>)
+            prices[ticker] = df[<span class="st">"Close"</span>]
+        self.price_history = prices.dropna()
+        self.returns = self.price_history.pct_change().dropna()
+        <span class="kw">return</span> self
+
+<span class="cm"># Example usage</span>
+holdings = [
+    {<span class="st">"ticker"</span>: <span class="st">"VTI"</span>,  <span class="st">"shares"</span>: <span class="nu">100</span>, <span class="st">"cost_basis"</span>: <span class="nu">200.00</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"VXUS"</span>, <span class="st">"shares"</span>: <span class="nu">80</span>,  <span class="st">"cost_basis"</span>: <span class="nu">55.00</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"BND"</span>,  <span class="st">"shares"</span>: <span class="nu">150</span>, <span class="st">"cost_basis"</span>: <span class="nu">75.00</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"VNQ"</span>,  <span class="st">"shares"</span>: <span class="nu">40</span>,  <span class="st">"cost_basis"</span>: <span class="nu">85.00</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"GLD"</span>,  <span class="st">"shares"</span>: <span class="nu">30</span>,  <span class="st">"cost_basis"</span>: <span class="nu">170.00</span>},
+]
+
+tracker = PortfolioTracker(holdings)
+tracker.fetch_prices().compute_metrics().summary()
+tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.2 &mdash; Component 2: Risk Metrics</h2>
+
+      <p>
+        Knowing your portfolio's value is necessary but not sufficient. You must also know
+        your portfolio's <em>risk</em>. This component computes the key risk metrics covered
+        throughout the course.
+      </p>
+
+      <h3>Risk Metrics Overview</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>What It Measures</th>
+            <th>Formula</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Annualized Volatility</td>
+            <td>Dispersion of returns</td>
+            <td>&sigma;<sub>ann</sub> = &sigma;<sub>daily</sub> &times; &radic;252</td>
+            <td>Standard deviation of annual return</td>
+          </tr>
+          <tr>
+            <td>Value at Risk (VaR)</td>
+            <td>Maximum expected loss at confidence level</td>
+            <td>VaR<sub>&alpha;</sub> = &minus;F<sup>-1</sup>(&alpha;)</td>
+            <td>"95% of the time, daily loss will not exceed $X"</td>
+          </tr>
+          <tr>
+            <td>CVaR (Expected Shortfall)</td>
+            <td>Expected loss beyond VaR</td>
+            <td>CVaR<sub>&alpha;</sub> = E[&minus;R | R &le; &minus;VaR]</td>
+            <td>Average loss on the worst 5% of days</td>
+          </tr>
+          <tr>
+            <td>Maximum Drawdown</td>
+            <td>Largest peak-to-trough decline</td>
+            <td>MDD = max<sub>t</sub> (Peak<sub>t</sub> &minus; Trough<sub>t</sub>) / Peak<sub>t</sub></td>
+            <td>Worst cumulative loss experienced</td>
+          </tr>
+          <tr>
+            <td>Sharpe Ratio</td>
+            <td>Risk-adjusted return</td>
+            <td>SR = (R<sub>p</sub> &minus; R<sub>f</sub>) / &sigma;<sub>p</sub></td>
+            <td>Excess return per unit of risk; > 1 is good</td>
+          </tr>
+          <tr>
+            <td>Sortino Ratio</td>
+            <td>Downside risk-adjusted return</td>
+            <td>SoR = (R<sub>p</sub> &minus; R<sub>f</sub>) / &sigma;<sub>downside</sub></td>
+            <td>Like Sharpe but only penalizes downside volatility</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          VaR is the <strong>&alpha;-quantile</strong> of the loss distribution. CVaR is the
+          <strong>conditional expectation beyond that quantile</strong> (tail conditional
+          expectation). The Sharpe ratio is a <strong>signal-to-noise ratio</strong>. Max drawdown
+          is the <strong>running maximum of cumulative losses</strong> &mdash; a path-dependent
+          order statistic. Each of these maps directly to a concept from your statistics courses.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 2: Risk Metrics Engine</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="kw">class</span> <span class="fn">RiskMetrics</span>:
+    <span class="st">"""Compute comprehensive risk metrics for a portfolio."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, returns: pd.Series, risk_free_rate: <span class="kw">float</span> = <span class="nu">0.05</span>):
+        <span class="st">"""
+        returns: daily portfolio returns (simple, not log)
+        risk_free_rate: annualized risk-free rate
+        """</span>
+        self.returns = returns.dropna()
+        self.rf_daily = (<span class="nu">1</span> + risk_free_rate) ** (<span class="nu">1</span>/<span class="nu">252</span>) - <span class="nu">1</span>
+        self.rf_annual = risk_free_rate
+
+    <span class="kw">def</span> <span class="fn">annualized_return</span>(self):
+        <span class="st">"""Geometric mean annualized return."""</span>
+        total = (<span class="nu">1</span> + self.returns).prod()
+        n_years = <span class="fn">len</span>(self.returns) / <span class="nu">252</span>
+        <span class="kw">return</span> total ** (<span class="nu">1</span> / n_years) - <span class="nu">1</span>
+
+    <span class="kw">def</span> <span class="fn">annualized_volatility</span>(self):
+        <span class="st">"""Annualized standard deviation."""</span>
+        <span class="kw">return</span> self.returns.std() * np.sqrt(<span class="nu">252</span>)
+
+    <span class="kw">def</span> <span class="fn">sharpe_ratio</span>(self):
+        <span class="st">"""Annualized Sharpe ratio."""</span>
+        excess = self.returns - self.rf_daily
+        <span class="kw">return</span> excess.mean() / excess.std() * np.sqrt(<span class="nu">252</span>)
+
+    <span class="kw">def</span> <span class="fn">sortino_ratio</span>(self):
+        <span class="st">"""Sortino ratio (downside deviation only)."""</span>
+        excess = self.returns - self.rf_daily
+        downside = excess[excess < <span class="nu">0</span>]
+        downside_std = np.sqrt((downside ** <span class="nu">2</span>).mean()) * np.sqrt(<span class="nu">252</span>)
+        <span class="kw">return</span> excess.mean() * <span class="nu">252</span> / downside_std
+
+    <span class="kw">def</span> <span class="fn">var_historical</span>(self, confidence=<span class="nu">0.95</span>):
+        <span class="st">"""Historical VaR at given confidence level."""</span>
+        <span class="kw">return</span> -np.percentile(self.returns, (<span class="nu">1</span> - confidence) * <span class="nu">100</span>)
+
+    <span class="kw">def</span> <span class="fn">var_parametric</span>(self, confidence=<span class="nu">0.95</span>):
+        <span class="st">"""Parametric (Gaussian) VaR."""</span>
+        z = stats.norm.ppf(confidence)
+        <span class="kw">return</span> -(self.returns.mean() - z * self.returns.std())
+
+    <span class="kw">def</span> <span class="fn">cvar_historical</span>(self, confidence=<span class="nu">0.95</span>):
+        <span class="st">"""Historical CVaR (Expected Shortfall)."""</span>
+        var = self.var_historical(confidence)
+        tail_losses = self.returns[self.returns <= -var]
+        <span class="kw">return</span> -tail_losses.mean()
+
+    <span class="kw">def</span> <span class="fn">max_drawdown</span>(self):
+        <span class="st">"""Maximum drawdown (peak to trough)."""</span>
+        cumulative = (<span class="nu">1</span> + self.returns).cumprod()
+        running_max = cumulative.cummax()
+        drawdown = (cumulative - running_max) / running_max
+        <span class="kw">return</span> -drawdown.min()
+
+    <span class="kw">def</span> <span class="fn">calmar_ratio</span>(self):
+        <span class="st">"""Calmar ratio: annualized return / max drawdown."""</span>
+        <span class="kw">return</span> self.annualized_return() / self.max_drawdown()
+
+    <span class="kw">def</span> <span class="fn">skewness</span>(self):
+        <span class="kw">return</span> self.returns.skew()
+
+    <span class="kw">def</span> <span class="fn">kurtosis</span>(self):
+        <span class="kw">return</span> self.returns.kurtosis()
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        <span class="st">"""Generate full risk report."""</span>
+        <span class="fn">print</span>(<span class="st">"Risk Metrics Report"</span>)
+        <span class="fn">print</span>(<span class="st">"=" * 55</span>)
+        <span class="fn">print</span>(<span class="st">f"  Observations:           {len(self.returns)} days"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Annualized Return:      {self.annualized_return():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Annualized Volatility:  {self.annualized_volatility():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Sharpe Ratio:           {self.sharpe_ratio():.3f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Sortino Ratio:          {self.sortino_ratio():.3f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Calmar Ratio:           {self.calmar_ratio():.3f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"\n  VaR (95%, Historical):  {self.var_historical():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  VaR (95%, Parametric):  {self.var_parametric():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  CVaR (95%, Historical): {self.cvar_historical():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Maximum Drawdown:       {self.max_drawdown():.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"\n  Skewness:               {self.skewness():.3f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Excess Kurtosis:        {self.kurtosis():.3f}"</span>)
+
+        <span class="cm"># Statistical tests</span>
+        jb_stat, jb_p = stats.jarque_bera(self.returns)
+        <span class="fn">print</span>(<span class="st">f"\n  Jarque-Bera statistic:  {jb_stat:.1f} (p = {jb_p:.4f})"</span>)
+        normality = <span class="st">"REJECTED"</span> <span class="kw">if</span> jb_p < <span class="nu">0.05</span> <span class="kw">else</span> <span class="st">"Not rejected"</span>
+        <span class="fn">print</span>(<span class="st">f"  Normality:              {normality}"</span>)
+
+<span class="cm"># Example: compute risk for a portfolio</span>
+<span class="cm"># (Using tracker.returns from Component 1)</span>
+<span class="cm"># weights = tracker.holdings['weight'].values / 100</span>
+<span class="cm"># portfolio_returns = (tracker.returns * weights).sum(axis=1)</span>
+<span class="cm"># risk = RiskMetrics(portfolio_returns)</span>
+<span class="cm"># risk.report()</span></pre>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          <strong>Do not rely solely on parametric VaR.</strong> Financial returns are not normally
+          distributed (you learned this in Modules 3 and 5). Parametric VaR underestimates tail
+          risk because it assumes Gaussian tails. Always compute historical VaR alongside parametric
+          VaR and compare the two. If they differ substantially, your returns have fat tails and
+          the parametric estimate is dangerously optimistic.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.3 &mdash; Component 3: Correlation Monitor</h2>
+
+      <p>
+        Portfolio diversification depends on correlations between assets. But correlations are
+        not constant &mdash; they shift over time and spike during crises (exactly when you
+        need diversification most). The correlation monitor tracks this instability.
+      </p>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          A rolling correlation matrix is a <strong>time-varying parameter estimate</strong>.
+          The window length controls the bias-variance tradeoff: a short window (30 days)
+          is responsive but noisy; a long window (252 days) is smooth but may miss regime
+          changes. This is the same tradeoff you encounter in kernel density estimation (bandwidth
+          selection) or in exponential smoothing (the decay parameter &lambda;).
+        </p>
+      </div>
+
+      <h3>What to Monitor</h3>
+
+      <ul>
+        <li><strong>Pairwise correlations over time:</strong> Are your assets becoming more or
+            less correlated?</li>
+        <li><strong>Average portfolio correlation:</strong> High average correlation means poor
+            diversification.</li>
+        <li><strong>Correlation regime changes:</strong> Sudden jumps in correlation often signal
+            a market stress event.</li>
+        <li><strong>Stock-bond correlation:</strong> Historically negative (bonds diversify stocks),
+            but it can turn positive during inflation episodes.</li>
+      </ul>
+
+      <div class="formula-box">
+        Rolling &rho;<sub>ij,t</sub> = Corr(R<sub>i</sub>, R<sub>j</sub>)<sub>[t-w, t]</sub>
+        <br><br>
+        Average portfolio correlation: &rho;&#772; = (2 / n(n-1)) &sum;<sub>i&lt;j</sub> &rho;<sub>ij</sub>
+        <br><br>
+        Effective number of independent bets: N<sub>eff</sub> &approx; n / (1 + (n-1)&rho;&#772;)
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 3: Correlation Monitor</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+
+<span class="kw">class</span> <span class="fn">CorrelationMonitor</span>:
+    <span class="st">"""Monitor rolling correlations in a portfolio."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, returns: pd.DataFrame, window: <span class="kw">int</span> = <span class="nu">63</span>):
+        <span class="st">"""
+        returns: DataFrame with columns = tickers, index = dates
+        window: rolling window in trading days (63 ~ 3 months)
+        """</span>
+        self.returns = returns
+        self.window = window
+        self.tickers = returns.columns.tolist()
+        self.n_assets = <span class="fn">len</span>(self.tickers)
+
+    <span class="kw">def</span> <span class="fn">current_correlation</span>(self):
+        <span class="st">"""Current (full-sample) correlation matrix."""</span>
+        <span class="kw">return</span> self.returns.corr()
+
+    <span class="kw">def</span> <span class="fn">rolling_pairwise</span>(self, ticker1, ticker2):
+        <span class="st">"""Rolling correlation between two assets."""</span>
+        <span class="kw">return</span> self.returns[ticker1].rolling(self.window).corr(
+            self.returns[ticker2]
+        )
+
+    <span class="kw">def</span> <span class="fn">average_correlation</span>(self):
+        <span class="st">"""Average pairwise correlation (diversification measure)."""</span>
+        corr = self.current_correlation()
+        <span class="cm"># Extract upper triangle (excluding diagonal)</span>
+        mask = np.triu(np.ones_like(corr, dtype=<span class="kw">bool</span>), k=<span class="nu">1</span>)
+        upper = corr.where(mask)
+        <span class="kw">return</span> upper.stack().mean()
+
+    <span class="kw">def</span> <span class="fn">effective_independent_bets</span>(self):
+        <span class="st">"""Number of effective independent bets."""</span>
+        avg_corr = self.average_correlation()
+        <span class="kw">return</span> self.n_assets / (<span class="nu">1</span> + (self.n_assets - <span class="nu">1</span>) * avg_corr)
+
+    <span class="kw">def</span> <span class="fn">rolling_average_correlation</span>(self):
+        <span class="st">"""Rolling average pairwise correlation over time."""</span>
+        avg_corrs = []
+        dates = []
+        <span class="kw">for</span> end <span class="kw">in</span> <span class="fn">range</span>(self.window, <span class="fn">len</span>(self.returns)):
+            window_data = self.returns.iloc[end - self.window:end]
+            corr = window_data.corr()
+            mask = np.triu(np.ones_like(corr, dtype=<span class="kw">bool</span>), k=<span class="nu">1</span>)
+            avg_corrs.append(corr.where(mask).stack().mean())
+            dates.append(self.returns.index[end])
+        <span class="kw">return</span> pd.Series(avg_corrs, index=dates)
+
+    <span class="kw">def</span> <span class="fn">plot_heatmap</span>(self):
+        <span class="st">"""Plot correlation heatmap."""</span>
+        corr = self.current_correlation()
+        fig, ax = plt.subplots(figsize=(<span class="nu">8</span>, <span class="nu">6</span>))
+        sns.heatmap(corr, annot=<span class="kw">True</span>, fmt=<span class="st">".2f"</span>, cmap=<span class="st">"RdBu_r"</span>,
+                    center=<span class="nu">0</span>, vmin=-<span class="nu">1</span>, vmax=<span class="nu">1</span>, ax=ax,
+                    square=<span class="kw">True</span>, linewidths=<span class="nu">0.5</span>)
+        ax.set_title(<span class="st">f"Correlation Matrix ({self.window}-day window)"</span>)
+        plt.tight_layout()
+        <span class="kw">return</span> fig
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        <span class="st">"""Print correlation summary."""</span>
+        <span class="fn">print</span>(<span class="st">"Correlation Monitor Report"</span>)
+        <span class="fn">print</span>(<span class="st">"=" * 55</span>)
+        <span class="fn">print</span>(<span class="st">f"  Assets:                  {self.n_assets}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Rolling window:          {self.window} days"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Avg pairwise corr:       {self.average_correlation():.3f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Effective ind. bets:      {self.effective_independent_bets():.1f}"</span>)
+        <span class="fn">print</span>(<span class="st">f"\nCorrelation Matrix:"</span>)
+        <span class="fn">print</span>(self.current_correlation().round(<span class="nu">3</span>).to_string())
+
+<span class="cm"># Example usage</span>
+<span class="cm"># corr_monitor = CorrelationMonitor(tracker.returns, window=63)</span>
+<span class="cm"># corr_monitor.report()</span>
+<span class="cm"># corr_monitor.plot_heatmap()</span></pre>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          The "effective number of independent bets" is a powerful diversification diagnostic.
+          If you hold 5 assets but the effective number is only 2.1, your portfolio is really
+          just two independent bets wearing five different labels. This happens commonly with
+          portfolios heavy in US equities: large-cap, mid-cap, and small-cap are highly
+          correlated, so they count as roughly one bet.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.4 &mdash; Component 4: Factor Exposure Analysis</h2>
+
+      <p>
+        Understanding <em>why</em> your portfolio moves requires factor analysis. Are your
+        returns driven by the broad market (beta), by value exposure, by size exposure, or
+        by momentum? Factor regression answers this question.
+      </p>
+
+      <h3>CAPM: Single-Factor Model</h3>
+
+      <div class="formula-box">
+        R<sub>p,t</sub> &minus; R<sub>f,t</sub> = &alpha; + &beta; (R<sub>m,t</sub> &minus; R<sub>f,t</sub>) + &epsilon;<sub>t</sub>
+      </div>
+
+      <p>
+        Here &alpha; is the intercept (excess return not explained by the market), &beta; is
+        the market sensitivity, and &epsilon; is the idiosyncratic residual.
+      </p>
+
+      <h3>Fama-French Three-Factor Model</h3>
+
+      <div class="formula-box">
+        R<sub>p,t</sub> &minus; R<sub>f,t</sub> = &alpha; + &beta;<sub>1</sub>(R<sub>m,t</sub> &minus; R<sub>f,t</sub>)
+        + &beta;<sub>2</sub> SMB<sub>t</sub> + &beta;<sub>3</sub> HML<sub>t</sub> + &epsilon;<sub>t</sub>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Name</th>
+            <th>What It Captures</th>
+            <th>Statistical Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MKT &minus; R<sub>f</sub></td>
+            <td>Market excess return</td>
+            <td>Systematic market risk</td>
+            <td>First principal component of stock returns</td>
+          </tr>
+          <tr>
+            <td>SMB</td>
+            <td>Small Minus Big</td>
+            <td>Size premium (small caps vs large caps)</td>
+            <td>Long-short portfolio sorted on market cap</td>
+          </tr>
+          <tr>
+            <td>HML</td>
+            <td>High Minus Low</td>
+            <td>Value premium (value stocks vs growth stocks)</td>
+            <td>Long-short portfolio sorted on book-to-market</td>
+          </tr>
+          <tr>
+            <td>RMW</td>
+            <td>Robust Minus Weak</td>
+            <td>Profitability premium</td>
+            <td>Long-short portfolio sorted on operating profitability</td>
+          </tr>
+          <tr>
+            <td>CMA</td>
+            <td>Conservative Minus Aggressive</td>
+            <td>Investment premium</td>
+            <td>Long-short portfolio sorted on asset growth</td>
+          </tr>
+          <tr>
+            <td>MOM</td>
+            <td>Momentum</td>
+            <td>Trend-following premium</td>
+            <td>Long recent winners, short recent losers</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Factor regressions are <strong>multiple linear regressions</strong>. The R-squared
+          tells you how much of your portfolio's variance is explained by systematic factors.
+          The alpha (&alpha;) is the intercept &mdash; the return not attributable to any
+          factor. A statistically significant positive alpha would imply genuine skill (or an
+          omitted factor). The t-statistic on alpha is the key test: if |t| > 2, the alpha
+          is significant at approximately 5%. Most portfolios have alphas indistinguishable
+          from zero.
+        </p>
+      </div>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 4: Factor Exposure Analysis</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+
+<span class="kw">class</span> <span class="fn">FactorAnalysis</span>:
+    <span class="st">"""Run CAPM and Fama-French factor regressions."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, portfolio_returns: pd.Series, start_date: <span class="kw">str</span> = <span class="st">"2020-01-01"</span>):
+        self.port_ret = portfolio_returns
+        self.start_date = start_date
+        self._load_factors()
+
+    <span class="kw">def</span> <span class="fn">_load_factors</span>(self):
+        <span class="st">"""Load Fama-French factors from Ken French's data library."""</span>
+        <span class="kw">from</span> pandas_datareader.famafrench <span class="kw">import</span> get_available_datasets
+        ff3 = pdr.DataReader(<span class="st">"F-F_Research_Data_Factors_daily"</span>,
+                             <span class="st">"famafrench"</span>, start=self.start_date)
+        self.factors = ff3[<span class="nu">0</span>] / <span class="nu">100</span>  <span class="cm"># Convert from percent to decimal</span>
+
+    <span class="kw">def</span> <span class="fn">run_capm</span>(self):
+        <span class="st">"""Run CAPM regression."""</span>
+        merged = pd.DataFrame({
+            <span class="st">"excess_ret"</span>: self.port_ret - self.factors[<span class="st">"RF"</span>],
+            <span class="st">"mkt_excess"</span>: self.factors[<span class="st">"Mkt-RF"</span>]
+        }).dropna()
+
+        X = sm.add_constant(merged[<span class="st">"mkt_excess"</span>])
+        model = sm.OLS(merged[<span class="st">"excess_ret"</span>], X).fit(cov_type=<span class="st">"HC1"</span>)
+        <span class="kw">return</span> model
+
+    <span class="kw">def</span> <span class="fn">run_fama_french</span>(self):
+        <span class="st">"""Run Fama-French 3-factor regression."""</span>
+        merged = pd.DataFrame({
+            <span class="st">"excess_ret"</span>: self.port_ret - self.factors[<span class="st">"RF"</span>],
+            <span class="st">"Mkt_RF"</span>: self.factors[<span class="st">"Mkt-RF"</span>],
+            <span class="st">"SMB"</span>: self.factors[<span class="st">"SMB"</span>],
+            <span class="st">"HML"</span>: self.factors[<span class="st">"HML"</span>],
+        }).dropna()
+
+        X = sm.add_constant(merged[[<span class="st">"Mkt_RF"</span>, <span class="st">"SMB"</span>, <span class="st">"HML"</span>]])
+        model = sm.OLS(merged[<span class="st">"excess_ret"</span>], X).fit(cov_type=<span class="st">"HC1"</span>)
+        <span class="kw">return</span> model
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        <span class="st">"""Generate factor analysis report."""</span>
+        capm = self.run_capm()
+        ff3 = self.run_fama_french()
+
+        <span class="fn">print</span>(<span class="st">"Factor Exposure Report"</span>)
+        <span class="fn">print</span>(<span class="st">"=" * 60</span>)
+
+        <span class="cm"># CAPM results</span>
+        <span class="fn">print</span>(<span class="st">"\n--- CAPM (Single Factor) ---"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Alpha (daily):  {capm.params['const']:.6f} "</span>
+              <span class="st">f"(t = {capm.tvalues['const']:.2f}, p = {capm.pvalues['const']:.4f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Alpha (annual):  {capm.params['const'] * 252:.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Beta:           {capm.params['mkt_excess']:.3f} "</span>
+              <span class="st">f"(t = {capm.tvalues['mkt_excess']:.2f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  R-squared:      {capm.rsquared:.3f}"</span>)
+
+        <span class="cm"># FF3 results</span>
+        <span class="fn">print</span>(<span class="st">"\n--- Fama-French 3-Factor ---"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Alpha (daily):  {ff3.params['const']:.6f} "</span>
+              <span class="st">f"(t = {ff3.tvalues['const']:.2f}, p = {ff3.pvalues['const']:.4f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Alpha (annual):  {ff3.params['const'] * 252:.2%}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Market Beta:    {ff3.params['Mkt_RF']:.3f} (t = {ff3.tvalues['Mkt_RF']:.2f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  SMB (size):     {ff3.params['SMB']:.3f} (t = {ff3.tvalues['SMB']:.2f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  HML (value):    {ff3.params['HML']:.3f} (t = {ff3.tvalues['HML']:.2f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  R-squared:      {ff3.rsquared:.3f}"</span>)
+
+        <span class="cm"># Interpretation</span>
+        beta = ff3.params[<span class="st">"Mkt_RF"</span>]
+        smb = ff3.params[<span class="st">"SMB"</span>]
+        hml = ff3.params[<span class="st">"HML"</span>]
+        <span class="fn">print</span>(<span class="st">f"\n--- Interpretation ---"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Market exposure: {'Aggressive' if beta > 1 else 'Defensive'} (beta = {beta:.2f})"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Size tilt:       {'Small-cap' if smb > 0.05 else 'Large-cap' if smb < -0.05 else 'Neutral'}"</span>)
+        <span class="fn">print</span>(<span class="st">f"  Value tilt:      {'Value' if hml > 0.05 else 'Growth' if hml < -0.05 else 'Neutral'}"</span>)
+
+<span class="cm"># Example usage</span>
+<span class="cm"># factor_analysis = FactorAnalysis(portfolio_returns, start_date="2023-01-01")</span>
+<span class="cm"># factor_analysis.report()</span></pre>
+
+      <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+        <p>
+          A positive alpha in a CAPM regression does <em>not</em> necessarily mean skill.
+          It might mean you have exposure to omitted factors (size, value, momentum). Always
+          run the Fama-French model as a robustness check. If the CAPM alpha disappears
+          when you add SMB and HML, your "alpha" was just disguised factor exposure. True alpha
+          should survive the inclusion of all known factors.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.5 &mdash; Component 5: Macro Context</h2>
+
+      <p>
+        No portfolio exists in a vacuum. The macroeconomic environment determines the backdrop
+        for all investment returns. This component pulls the key macro indicators from FRED
+        and provides a concise summary of where the economy stands.
+      </p>
+
+      <h3>Key Macro Indicators for Investors</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Indicator</th>
+            <th>Why It Matters</th>
+            <th>What to Watch</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Real GDP Growth</td>
+            <td>Overall economic health</td>
+            <td>Negative growth = recession; watch for deceleration</td>
+          </tr>
+          <tr>
+            <td>Core PCE Inflation</td>
+            <td>Fed's target measure</td>
+            <td>Above 2%: Fed likely tightening. Below 2%: Fed may ease.</td>
+          </tr>
+          <tr>
+            <td>Unemployment Rate</td>
+            <td>Labor market health</td>
+            <td>Rising unemployment often precedes equity weakness</td>
+          </tr>
+          <tr>
+            <td>Fed Funds Rate</td>
+            <td>Cost of money</td>
+            <td>Rate hikes: headwind for bonds and growth stocks</td>
+          </tr>
+          <tr>
+            <td>10Y&minus;2Y Spread</td>
+            <td>Recession predictor</td>
+            <td>Inversion (negative) historically precedes recessions</td>
+          </tr>
+          <tr>
+            <td>VIX</td>
+            <td>Market fear gauge</td>
+            <td>>30: high fear; <15: complacency</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 5: Macro Context Dashboard</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+
+<span class="kw">class</span> <span class="fn">MacroContext</span>:
+    <span class="st">"""Pull and summarize macroeconomic context."""</span>
+
+    SERIES = {
+        <span class="st">"GDP Growth (Q/Q Ann.)"</span>: <span class="st">"A191RL1Q225SBEA"</span>,
+        <span class="st">"Core PCE Inflation"</span>: <span class="st">"PCEPILFE"</span>,
+        <span class="st">"CPI Inflation"</span>: <span class="st">"CPIAUCSL"</span>,
+        <span class="st">"Unemployment Rate"</span>: <span class="st">"UNRATE"</span>,
+        <span class="st">"Fed Funds Rate"</span>: <span class="st">"FEDFUNDS"</span>,
+        <span class="st">"10Y Treasury"</span>: <span class="st">"GS10"</span>,
+        <span class="st">"2Y Treasury"</span>: <span class="st">"GS2"</span>,
+        <span class="st">"Initial Claims"</span>: <span class="st">"ICSA"</span>,
+    }
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.data = {}
+        self._fetch_data()
+
+    <span class="kw">def</span> <span class="fn">_fetch_data</span>(self):
+        <span class="st">"""Download latest data from FRED."""</span>
+        start = (datetime.now() - timedelta(days=<span class="nu">365</span> * <span class="nu">3</span>)).strftime(<span class="st">"%Y-%m-%d"</span>)
+        <span class="kw">for</span> name, code <span class="kw">in</span> self.SERIES.items():
+            <span class="kw">try</span>:
+                df = pdr.get_data_fred(code, start=start)
+                self.data[name] = df.iloc[:, <span class="nu">0</span>]
+            <span class="kw">except</span> Exception <span class="kw">as</span> e:
+                <span class="fn">print</span>(<span class="st">f"  Warning: Could not fetch {name}: {e}"</span>)
+
+        <span class="cm"># VIX from Yahoo Finance</span>
+        <span class="kw">try</span>:
+            vix = yf.download(<span class="st">"^VIX"</span>, start=start, progress=<span class="kw">False</span>)
+            self.data[<span class="st">"VIX"</span>] = vix[<span class="st">"Close"</span>]
+        <span class="kw">except</span>:
+            <span class="kw">pass</span>
+
+    <span class="kw">def</span> <span class="fn">yield_curve_status</span>(self):
+        <span class="st">"""Determine yield curve status."""</span>
+        <span class="kw">if</span> <span class="st">"10Y Treasury"</span> <span class="kw">in</span> self.data <span class="kw">and</span> <span class="st">"2Y Treasury"</span> <span class="kw">in</span> self.data:
+            spread = (self.data[<span class="st">"10Y Treasury"</span>].dropna().iloc[-<span class="nu">1</span>] -
+                      self.data[<span class="st">"2Y Treasury"</span>].dropna().iloc[-<span class="nu">1</span>])
+            <span class="kw">if</span> spread < -<span class="nu">0.5</span>:
+                <span class="kw">return</span> spread, <span class="st">"DEEPLY INVERTED — Strong recession signal"</span>
+            <span class="kw">elif</span> spread < <span class="nu">0</span>:
+                <span class="kw">return</span> spread, <span class="st">"INVERTED — Recession warning"</span>
+            <span class="kw">elif</span> spread < <span class="nu">0.5</span>:
+                <span class="kw">return</span> spread, <span class="st">"FLAT — Late cycle, watch closely"</span>
+            <span class="kw">else</span>:
+                <span class="kw">return</span> spread, <span class="st">"NORMAL — No immediate recession signal"</span>
+        <span class="kw">return</span> <span class="kw">None</span>, <span class="st">"Data unavailable"</span>
+
+    <span class="kw">def</span> <span class="fn">inflation_status</span>(self):
+        <span class="st">"""Compute year-over-year inflation."""</span>
+        <span class="kw">if</span> <span class="st">"CPI Inflation"</span> <span class="kw">in</span> self.data:
+            cpi = self.data[<span class="st">"CPI Inflation"</span>].dropna()
+            yoy = (cpi.iloc[-<span class="nu">1</span>] / cpi.iloc[-<span class="nu">13</span>] - <span class="nu">1</span>) * <span class="nu">100</span> <span class="kw">if</span> <span class="fn">len</span>(cpi) > <span class="nu">13</span> <span class="kw">else</span> <span class="kw">None</span>
+            <span class="kw">return</span> yoy
+        <span class="kw">return</span> <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        <span class="st">"""Print macro context summary."""</span>
+        <span class="fn">print</span>(<span class="st">"Macroeconomic Context"</span>)
+        <span class="fn">print</span>(<span class="st">"=" * 60</span>)
+
+        <span class="kw">for</span> name, series <span class="kw">in</span> self.data.items():
+            s = series.dropna()
+            <span class="kw">if</span> <span class="fn">len</span>(s) > <span class="nu">0</span>:
+                <span class="fn">print</span>(<span class="st">f"  {name:30s}: {s.iloc[-1]:>8.2f}  ({s.index[-1].date()})"</span>)
+
+        spread, status = self.yield_curve_status()
+        <span class="kw">if</span> spread <span class="kw">is not None</span>:
+            <span class="fn">print</span>(<span class="st">f"\n  Yield Curve (10Y-2Y): {spread:+.2f}pp"</span>)
+            <span class="fn">print</span>(<span class="st">f"  Status: {status}"</span>)
+
+        infl = self.inflation_status()
+        <span class="kw">if</span> infl <span class="kw">is not None</span>:
+            target = <span class="st">"ABOVE TARGET"</span> <span class="kw">if</span> infl > <span class="nu">2.5</span> <span class="kw">else</span> (<span class="st">"NEAR TARGET"</span> <span class="kw">if</span> infl > <span class="nu">1.5</span> <span class="kw">else</span> <span class="st">"BELOW TARGET"</span>)
+            <span class="fn">print</span>(<span class="st">f"\n  CPI Inflation (YoY): {infl:.1f}% — {target}"</span>)
+
+<span class="cm"># macro = MacroContext()</span>
+<span class="cm"># macro.report()</span></pre>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The macro dashboard is a <strong>multivariate monitoring system</strong>, analogous
+          to a statistical process control (SPC) chart in quality engineering. Each indicator
+          has a "normal" range, and deviations trigger alerts. The challenge is that the indicators
+          are correlated (inflation and the Fed rate move together), so you need to think about
+          the joint distribution, not just marginals. A macro regime is a point in this
+          multivariate space.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.6 &mdash; Component 6: News Sentiment Monitor</h2>
+
+      <p>
+        The final component applies the critical reading skills from Module 20. Rather than
+        reading every headline manually, you can automate sentiment measurement across a
+        stream of financial news.
+      </p>
+
+      <h3>Approach: Loughran-McDonald Financial Sentiment</h3>
+
+      <p>
+        General-purpose sentiment lexicons (like VADER) perform poorly on financial text because
+        many financial-specific words have different sentiment connotations. The
+        <strong>Loughran-McDonald dictionary</strong> was developed specifically for financial
+        text analysis.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Word</th>
+            <th>General Sentiment</th>
+            <th>Financial Sentiment (L-M)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"liability"</td>
+            <td>Negative</td>
+            <td>Neutral (accounting term)</td>
+          </tr>
+          <tr>
+            <td>"outstanding"</td>
+            <td>Positive</td>
+            <td>Neutral ("shares outstanding")</td>
+          </tr>
+          <tr>
+            <td>"capital"</td>
+            <td>Neutral</td>
+            <td>Neutral (financial term)</td>
+          </tr>
+          <tr>
+            <td>"crude"</td>
+            <td>Negative</td>
+            <td>Neutral ("crude oil")</td>
+          </tr>
+          <tr>
+            <td>"tax"</td>
+            <td>Negative</td>
+            <td>Neutral (financial reporting)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># Component 6: News Sentiment Monitor</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> collections <span class="kw">import</span> Counter
+<span class="kw">import</span> re
+
+<span class="kw">class</span> <span class="fn">SentimentMonitor</span>:
+    <span class="st">"""Simple financial news sentiment analysis."""</span>
+
+    <span class="cm"># Loughran-McDonald inspired financial sentiment words (subset)</span>
+    POSITIVE = {
+        <span class="st">'beat'</span>, <span class="st">'surge'</span>, <span class="st">'rally'</span>, <span class="st">'gain'</span>, <span class="st">'profit'</span>, <span class="st">'growth'</span>, <span class="st">'strong'</span>,
+        <span class="st">'upgrade'</span>, <span class="st">'outperform'</span>, <span class="st">'record'</span>, <span class="st">'boom'</span>, <span class="st">'bullish'</span>, <span class="st">'optimistic'</span>,
+        <span class="st">'recovery'</span>, <span class="st">'rebound'</span>, <span class="st">'improve'</span>, <span class="st">'expand'</span>, <span class="st">'opportunity'</span>,
+        <span class="st">'exceed'</span>, <span class="st">'advance'</span>, <span class="st">'favorable'</span>, <span class="st">'positive'</span>, <span class="st">'upturn'</span>,
+    }
+
+    NEGATIVE = {
+        <span class="st">'loss'</span>, <span class="st">'crash'</span>, <span class="st">'plunge'</span>, <span class="st">'fear'</span>, <span class="st">'decline'</span>, <span class="st">'risk'</span>, <span class="st">'recession'</span>,
+        <span class="st">'downgrade'</span>, <span class="st">'miss'</span>, <span class="st">'weak'</span>, <span class="st">'selloff'</span>, <span class="st">'bearish'</span>, <span class="st">'pessimistic'</span>,
+        <span class="st">'crisis'</span>, <span class="st">'default'</span>, <span class="st">'bankrupt'</span>, <span class="st">'turmoil'</span>, <span class="st">'layoff'</span>,
+        <span class="st">'volatility'</span>, <span class="st">'slump'</span>, <span class="st">'adverse'</span>, <span class="st">'negative'</span>, <span class="st">'downturn'</span>,
+    }
+
+    UNCERTAINTY = {
+        <span class="st">'uncertain'</span>, <span class="st">'risk'</span>, <span class="st">'volatile'</span>, <span class="st">'unpredictable'</span>, <span class="st">'unclear'</span>,
+        <span class="st">'turbulent'</span>, <span class="st">'instability'</span>, <span class="st">'doubt'</span>, <span class="st">'speculation'</span>, <span class="st">'caution'</span>,
+    }
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="kw">pass</span>
+
+    <span class="kw">def</span> <span class="fn">analyze_headline</span>(self, headline: <span class="kw">str</span>) -> <span class="kw">dict</span>:
+        <span class="st">"""Analyze sentiment of a single headline."""</span>
+        words = <span class="fn">set</span>(re.findall(<span class="st">r'\b\w+\b'</span>, headline.lower()))
+        pos = <span class="fn">len</span>(words & self.POSITIVE)
+        neg = <span class="fn">len</span>(words & self.NEGATIVE)
+        unc = <span class="fn">len</span>(words & self.UNCERTAINTY)
+        total = pos + neg
+        score = (pos - neg) / total <span class="kw">if</span> total > <span class="nu">0</span> <span class="kw">else</span> <span class="nu">0.0</span>
+        <span class="kw">return</span> {
+            <span class="st">"headline"</span>: headline,
+            <span class="st">"score"</span>: score,
+            <span class="st">"positive_count"</span>: pos,
+            <span class="st">"negative_count"</span>: neg,
+            <span class="st">"uncertainty_count"</span>: unc,
+            <span class="st">"label"</span>: <span class="st">"Positive"</span> <span class="kw">if</span> score > <span class="nu">0.1</span> <span class="kw">else</span> (<span class="st">"Negative"</span> <span class="kw">if</span> score < -<span class="nu">0.1</span> <span class="kw">else</span> <span class="st">"Neutral"</span>)
+        }
+
+    <span class="kw">def</span> <span class="fn">analyze_batch</span>(self, headlines: <span class="kw">list</span>[<span class="kw">str</span>]) -> pd.DataFrame:
+        <span class="st">"""Analyze a batch of headlines."""</span>
+        results = [self.analyze_headline(h) <span class="kw">for</span> h <span class="kw">in</span> headlines]
+        <span class="kw">return</span> pd.DataFrame(results)
+
+    <span class="kw">def</span> <span class="fn">aggregate_sentiment</span>(self, df: pd.DataFrame) -> <span class="kw">dict</span>:
+        <span class="st">"""Compute aggregate sentiment statistics."""</span>
+        <span class="kw">return</span> {
+            <span class="st">"mean_score"</span>: df[<span class="st">"score"</span>].mean(),
+            <span class="st">"median_score"</span>: df[<span class="st">"score"</span>].median(),
+            <span class="st">"std_score"</span>: df[<span class="st">"score"</span>].std(),
+            <span class="st">"pct_positive"</span>: (df[<span class="st">"label"</span>] == <span class="st">"Positive"</span>).mean(),
+            <span class="st">"pct_negative"</span>: (df[<span class="st">"label"</span>] == <span class="st">"Negative"</span>).mean(),
+            <span class="st">"pct_neutral"</span>: (df[<span class="st">"label"</span>] == <span class="st">"Neutral"</span>).mean(),
+            <span class="st">"avg_uncertainty"</span>: df[<span class="st">"uncertainty_count"</span>].mean(),
+        }
+
+<span class="cm"># Example usage with sample headlines</span>
+monitor = SentimentMonitor()
+
+sample_headlines = [
+    <span class="st">"S&P 500 surges to record high on strong earnings growth"</span>,
+    <span class="st">"Federal Reserve signals caution amid recession fears"</span>,
+    <span class="st">"Tech stocks rally as AI boom drives profit expansion"</span>,
+    <span class="st">"Bank layoffs accelerate as credit risk mounts"</span>,
+    <span class="st">"Markets advance on positive jobs data despite inflation uncertainty"</span>,
+    <span class="st">"Oil prices plunge on weak demand outlook"</span>,
+    <span class="st">"Housing market shows signs of recovery after slump"</span>,
+    <span class="st">"Volatile trading session ends with modest gains"</span>,
+]
+
+results = monitor.analyze_batch(sample_headlines)
+agg = monitor.aggregate_sentiment(results)
+
+<span class="fn">print</span>(<span class="st">"News Sentiment Analysis"</span>)
+<span class="fn">print</span>(<span class="st">"=" * 60</span>)
+<span class="kw">for</span> _, row <span class="kw">in</span> results.iterrows():
+    <span class="fn">print</span>(<span class="st">f"  [{row['label']:>8s}] (score: {row['score']:+.2f}) {row['headline'][:55]}"</span>)
+
+<span class="fn">print</span>(<span class="st">f"\nAggregate Sentiment:"</span>)
+<span class="fn">print</span>(<span class="st">f"  Mean score:      {agg['mean_score']:+.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Positive:        {agg['pct_positive']:.0%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Negative:        {agg['pct_negative']:.0%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Neutral:         {agg['pct_neutral']:.0%}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Avg uncertainty: {agg['avg_uncertainty']:.1f} words/headline"</span>)</pre>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          Automated sentiment analysis is a <strong>noisy classifier</strong> that gives you a
+          rough directional read, not a precise signal. Its value is in aggregation: the
+          sentiment of one headline is meaningless, but the average sentiment across 100
+          headlines over a week provides a useful summary of the narrative environment. Think
+          of it as a sufficient statistic for the mood of the financial press.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.7 &mdash; Putting It All Together: The Complete Dashboard</h2>
+
+      <p>
+        Now we assemble all six components into a single script that generates a comprehensive
+        financial dashboard report. This is the culmination of the entire course.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm">#!/usr/bin/env python3</span>
+<span class="cm">"""
+Financial Dashboard for Statisticians
+======================================
+A comprehensive personal finance dashboard that combines:
+  1. Portfolio tracking
+  2. Risk metrics
+  3. Correlation monitoring
+  4. Factor exposure analysis
+  5. Macroeconomic context
+  6. News sentiment
+
+Generates an HTML report with charts and tables.
+
+Requirements:
+  pip install yfinance pandas numpy matplotlib seaborn
+  pip install statsmodels scipy pandas-datareader scikit-learn
+"""</span>
+
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib
+matplotlib.use(<span class="st">"Agg"</span>)  <span class="cm"># Non-interactive backend</span>
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta
+<span class="kw">import</span> base64
+<span class="kw">from</span> io <span class="kw">import</span> BytesIO
+<span class="kw">import</span> warnings
+warnings.filterwarnings(<span class="st">"ignore"</span>)
+
+
+<span class="cm"># ─── Configuration ───────────────────────────────────────</span>
+
+PORTFOLIO = [
+    {<span class="st">"ticker"</span>: <span class="st">"VTI"</span>,  <span class="st">"shares"</span>: <span class="nu">100</span>, <span class="st">"cost_basis"</span>: <span class="nu">200.00</span>, <span class="st">"name"</span>: <span class="st">"US Total Market"</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"VXUS"</span>, <span class="st">"shares"</span>: <span class="nu">80</span>,  <span class="st">"cost_basis"</span>: <span class="nu">55.00</span>,  <span class="st">"name"</span>: <span class="st">"Intl Stocks"</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"BND"</span>,  <span class="st">"shares"</span>: <span class="nu">150</span>, <span class="st">"cost_basis"</span>: <span class="nu">75.00</span>,  <span class="st">"name"</span>: <span class="st">"US Bonds"</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"VNQ"</span>,  <span class="st">"shares"</span>: <span class="nu">40</span>,  <span class="st">"cost_basis"</span>: <span class="nu">85.00</span>,  <span class="st">"name"</span>: <span class="st">"REITs"</span>},
+    {<span class="st">"ticker"</span>: <span class="st">"GLD"</span>,  <span class="st">"shares"</span>: <span class="nu">30</span>,  <span class="st">"cost_basis"</span>: <span class="nu">170.00</span>, <span class="st">"name"</span>: <span class="st">"Gold"</span>},
+]
+
+LOOKBACK_PERIOD = <span class="st">"2y"</span>
+RISK_FREE_RATE = <span class="nu">0.05</span>
+ROLLING_WINDOW = <span class="nu">63</span>  <span class="cm"># ~3 months</span>
+
+
+<span class="cm"># ─── Helper: embed matplotlib figure as base64 ──────────</span>
+
+<span class="kw">def</span> <span class="fn">fig_to_base64</span>(fig):
+    <span class="st">"""Convert matplotlib figure to base64 for HTML embedding."""</span>
+    buf = BytesIO()
+    fig.savefig(buf, format=<span class="st">"png"</span>, dpi=<span class="nu">120</span>, bbox_inches=<span class="st">"tight"</span>)
+    buf.seek(<span class="nu">0</span>)
+    b64 = base64.b64encode(buf.read()).decode(<span class="st">"utf-8"</span>)
+    plt.close(fig)
+    <span class="kw">return</span> <span class="st">f'&lt;img src="data:image/png;base64,{b64}" style="max-width:100%;"&gt;'</span>
+
+
+<span class="cm"># ─── 1. Portfolio Tracker ────────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[1/6] Fetching portfolio data..."</span>)
+holdings = pd.DataFrame(PORTFOLIO)
+tickers = holdings[<span class="st">"ticker"</span>].tolist()
+
+<span class="cm"># Current prices</span>
+current_prices = {}
+<span class="kw">for</span> t <span class="kw">in</span> tickers:
+    hist = yf.Ticker(t).history(period=<span class="st">"1d"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> hist.empty:
+        current_prices[t] = hist[<span class="st">"Close"</span>].iloc[-<span class="nu">1</span>]
+
+holdings[<span class="st">"current_price"</span>] = holdings[<span class="st">"ticker"</span>].map(current_prices)
+holdings[<span class="st">"market_value"</span>] = holdings[<span class="st">"shares"</span>] * holdings[<span class="st">"current_price"</span>]
+holdings[<span class="st">"cost_value"</span>] = holdings[<span class="st">"shares"</span>] * holdings[<span class="st">"cost_basis"</span>]
+holdings[<span class="st">"gain_loss"</span>] = holdings[<span class="st">"market_value"</span>] - holdings[<span class="st">"cost_value"</span>]
+holdings[<span class="st">"return_pct"</span>] = (holdings[<span class="st">"current_price"</span>] / holdings[<span class="st">"cost_basis"</span>] - <span class="nu">1</span>) * <span class="nu">100</span>
+total_value = holdings[<span class="st">"market_value"</span>].sum()
+holdings[<span class="st">"weight"</span>] = holdings[<span class="st">"market_value"</span>] / total_value * <span class="nu">100</span>
+
+<span class="cm"># Historical prices</span>
+price_history = pd.DataFrame()
+<span class="kw">for</span> t <span class="kw">in</span> tickers:
+    df = yf.download(t, period=LOOKBACK_PERIOD, progress=<span class="kw">False</span>)
+    price_history[t] = df[<span class="st">"Close"</span>]
+price_history = price_history.dropna()
+returns = price_history.pct_change().dropna()
+
+<span class="cm"># Portfolio returns (weighted)</span>
+weights = holdings.set_index(<span class="st">"ticker"</span>)[<span class="st">"weight"</span>].reindex(tickers) / <span class="nu">100</span>
+portfolio_returns = (returns * weights).sum(axis=<span class="nu">1</span>)
+
+<span class="cm"># Allocation pie chart</span>
+fig_alloc, ax = plt.subplots(figsize=(<span class="nu">6</span>, <span class="nu">6</span>))
+colors = [<span class="st">'#3182ce'</span>, <span class="st">'#38a169'</span>, <span class="st">'#d69e2e'</span>, <span class="st">'#e53e3e'</span>, <span class="st">'#805ad5'</span>]
+ax.pie(holdings[<span class="st">"weight"</span>], labels=holdings[<span class="st">"name"</span>], autopct=<span class="st">'%1.1f%%'</span>,
+       colors=colors, startangle=<span class="nu">90</span>)
+ax.set_title(<span class="st">"Portfolio Allocation"</span>)
+alloc_chart = fig_to_base64(fig_alloc)
+
+<span class="cm"># Cumulative return chart</span>
+fig_cum, ax = plt.subplots(figsize=(<span class="nu">10</span>, <span class="nu">5</span>))
+cum = (<span class="nu">1</span> + portfolio_returns).cumprod()
+ax.plot(cum.index, cum.values, color=<span class="st">'#3182ce'</span>, linewidth=<span class="nu">1.5</span>)
+ax.fill_between(cum.index, <span class="nu">1</span>, cum.values, alpha=<span class="nu">0.1</span>, color=<span class="st">'#3182ce'</span>)
+ax.axhline(<span class="nu">1</span>, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>)
+ax.set_title(<span class="st">"Cumulative Portfolio Return"</span>)
+ax.set_ylabel(<span class="st">"Growth of $1"</span>)
+cum_chart = fig_to_base64(fig_cum)
+
+
+<span class="cm"># ─── 2. Risk Metrics ─────────────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[2/6] Computing risk metrics..."</span>)
+rf_daily = (<span class="nu">1</span> + RISK_FREE_RATE) ** (<span class="nu">1</span>/<span class="nu">252</span>) - <span class="nu">1</span>
+excess = portfolio_returns - rf_daily
+
+ann_return = (<span class="nu">1</span> + portfolio_returns).prod() ** (<span class="nu">252</span> / <span class="fn">len</span>(portfolio_returns)) - <span class="nu">1</span>
+ann_vol = portfolio_returns.std() * np.sqrt(<span class="nu">252</span>)
+sharpe = excess.mean() / excess.std() * np.sqrt(<span class="nu">252</span>)
+downside = excess[excess < <span class="nu">0</span>]
+sortino = excess.mean() * <span class="nu">252</span> / (np.sqrt((downside**<span class="nu">2</span>).mean()) * np.sqrt(<span class="nu">252</span>))
+var_95 = -np.percentile(portfolio_returns, <span class="nu">5</span>)
+cvar_95 = -portfolio_returns[portfolio_returns <= -var_95].mean()
+cum_ret = (<span class="nu">1</span> + portfolio_returns).cumprod()
+max_dd = -((cum_ret - cum_ret.cummax()) / cum_ret.cummax()).min()
+skew = portfolio_returns.skew()
+kurt = portfolio_returns.kurtosis()
+jb_stat, jb_p = stats.jarque_bera(portfolio_returns)
+
+<span class="cm"># Drawdown chart</span>
+fig_dd, ax = plt.subplots(figsize=(<span class="nu">10</span>, <span class="nu">4</span>))
+drawdown = (cum_ret - cum_ret.cummax()) / cum_ret.cummax() * <span class="nu">100</span>
+ax.fill_between(drawdown.index, drawdown.values, <span class="nu">0</span>, color=<span class="st">'#e53e3e'</span>, alpha=<span class="nu">0.4</span>)
+ax.plot(drawdown.index, drawdown.values, color=<span class="st">'#e53e3e'</span>, linewidth=<span class="nu">0.8</span>)
+ax.set_title(<span class="st">"Portfolio Drawdown"</span>)
+ax.set_ylabel(<span class="st">"Drawdown (%)"</span>)
+dd_chart = fig_to_base64(fig_dd)
+
+<span class="cm"># Return distribution</span>
+fig_dist, ax = plt.subplots(figsize=(<span class="nu">10</span>, <span class="nu">5</span>))
+ax.hist(portfolio_returns * <span class="nu">100</span>, bins=<span class="nu">60</span>, density=<span class="kw">True</span>, alpha=<span class="nu">0.6</span>,
+        color=<span class="st">'#3182ce'</span>, edgecolor=<span class="st">'white'</span>, label=<span class="st">'Actual'</span>)
+x = np.linspace(portfolio_returns.min()*<span class="nu">100</span>, portfolio_returns.max()*<span class="nu">100</span>, <span class="nu">200</span>)
+ax.plot(x, stats.norm.pdf(x, portfolio_returns.mean()*<span class="nu">100</span>, portfolio_returns.std()*<span class="nu">100</span>),
+        color=<span class="st">'coral'</span>, linewidth=<span class="nu">2</span>, label=<span class="st">'Normal fit'</span>)
+ax.axvline(-var_95*<span class="nu">100</span>, color=<span class="st">'red'</span>, linestyle=<span class="st">'--'</span>, label=<span class="st">f'95% VaR ({var_95:.2%})'</span>)
+ax.set_title(<span class="st">"Return Distribution vs Normal"</span>)
+ax.set_xlabel(<span class="st">"Daily Return (%)"</span>)
+ax.legend()
+dist_chart = fig_to_base64(fig_dist)
+
+
+<span class="cm"># ─── 3. Correlation Monitor ──────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[3/6] Computing correlations..."</span>)
+corr_matrix = returns.corr()
+avg_corr_vals = corr_matrix.where(
+    np.triu(np.ones_like(corr_matrix, dtype=<span class="kw">bool</span>), k=<span class="nu">1</span>)
+).stack()
+avg_corr = avg_corr_vals.mean()
+n = <span class="fn">len</span>(tickers)
+eff_bets = n / (<span class="nu">1</span> + (n - <span class="nu">1</span>) * avg_corr)
+
+<span class="cm"># Heatmap</span>
+fig_heatmap, ax = plt.subplots(figsize=(<span class="nu">7</span>, <span class="nu">6</span>))
+sns.heatmap(corr_matrix, annot=<span class="kw">True</span>, fmt=<span class="st">".2f"</span>, cmap=<span class="st">"RdBu_r"</span>,
+            center=<span class="nu">0</span>, vmin=-<span class="nu">1</span>, vmax=<span class="nu">1</span>, ax=ax, square=<span class="kw">True</span>, linewidths=<span class="nu">0.5</span>)
+ax.set_title(<span class="st">"Correlation Matrix"</span>)
+heatmap_chart = fig_to_base64(fig_heatmap)
+
+<span class="cm"># Rolling average correlation</span>
+rolling_corrs = []
+<span class="kw">for</span> end <span class="kw">in</span> <span class="fn">range</span>(ROLLING_WINDOW, <span class="fn">len</span>(returns)):
+    window = returns.iloc[end-ROLLING_WINDOW:end]
+    c = window.corr()
+    mask = np.triu(np.ones_like(c, dtype=<span class="kw">bool</span>), k=<span class="nu">1</span>)
+    rolling_corrs.append(c.where(mask).stack().mean())
+rolling_corr_series = pd.Series(rolling_corrs, index=returns.index[ROLLING_WINDOW:])
+
+fig_rcorr, ax = plt.subplots(figsize=(<span class="nu">10</span>, <span class="nu">4</span>))
+ax.plot(rolling_corr_series.index, rolling_corr_series.values, color=<span class="st">'#805ad5'</span>)
+ax.axhline(avg_corr, color=<span class="st">'gray'</span>, linestyle=<span class="st">'--'</span>, alpha=<span class="nu">0.5</span>, label=<span class="st">f'Mean: {avg_corr:.2f}'</span>)
+ax.set_title(<span class="st">"Rolling Average Pairwise Correlation"</span>)
+ax.legend()
+rcorr_chart = fig_to_base64(fig_rcorr)
+
+
+<span class="cm"># ─── 4. Factor Exposure ──────────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[4/6] Running factor regressions..."</span>)
+<span class="kw">try</span>:
+    <span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr_data
+    ff3 = pdr_data.DataReader(<span class="st">"F-F_Research_Data_Factors_daily"</span>, <span class="st">"famafrench"</span>,
+                               start=price_history.index[<span class="nu">0</span>].strftime(<span class="st">"%Y-%m-%d"</span>))
+    factors = ff3[<span class="nu">0</span>] / <span class="nu">100</span>
+    merged = pd.DataFrame({
+        <span class="st">"port_excess"</span>: portfolio_returns - factors[<span class="st">"RF"</span>],
+        <span class="st">"Mkt_RF"</span>: factors[<span class="st">"Mkt-RF"</span>],
+        <span class="st">"SMB"</span>: factors[<span class="st">"SMB"</span>],
+        <span class="st">"HML"</span>: factors[<span class="st">"HML"</span>],
+    }).dropna()
+
+    <span class="cm"># CAPM</span>
+    X_capm = sm.add_constant(merged[<span class="st">"Mkt_RF"</span>])
+    capm = sm.OLS(merged[<span class="st">"port_excess"</span>], X_capm).fit(cov_type=<span class="st">"HC1"</span>)
+
+    <span class="cm"># Fama-French 3</span>
+    X_ff3 = sm.add_constant(merged[[<span class="st">"Mkt_RF"</span>, <span class="st">"SMB"</span>, <span class="st">"HML"</span>]])
+    ff3_model = sm.OLS(merged[<span class="st">"port_excess"</span>], X_ff3).fit(cov_type=<span class="st">"HC1"</span>)
+
+    factor_data_available = <span class="kw">True</span>
+<span class="kw">except</span> Exception <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="st">f"  Factor data unavailable: {e}"</span>)
+    factor_data_available = <span class="kw">False</span>
+
+
+<span class="cm"># ─── 5. Macro Context ────────────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[5/6] Fetching macro data..."</span>)
+macro_data = {}
+<span class="kw">try</span>:
+    <span class="kw">from</span> pandas_datareader <span class="kw">import</span> data <span class="kw">as</span> pdr_data
+    macro_series = {
+        <span class="st">"GDP Growth"</span>: <span class="st">"A191RL1Q225SBEA"</span>,
+        <span class="st">"Unemployment"</span>: <span class="st">"UNRATE"</span>,
+        <span class="st">"Fed Funds"</span>: <span class="st">"FEDFUNDS"</span>,
+        <span class="st">"10Y Yield"</span>: <span class="st">"GS10"</span>,
+        <span class="st">"2Y Yield"</span>: <span class="st">"GS2"</span>,
+        <span class="st">"CPI"</span>: <span class="st">"CPIAUCSL"</span>,
+    }
+    start = (datetime.now() - timedelta(days=<span class="nu">365</span>*<span class="nu">2</span>)).strftime(<span class="st">"%Y-%m-%d"</span>)
+    <span class="kw">for</span> name, code <span class="kw">in</span> macro_series.items():
+        <span class="kw">try</span>:
+            df = pdr_data.get_data_fred(code, start=start)
+            macro_data[name] = df.iloc[:, <span class="nu">0</span>].dropna().iloc[-<span class="nu">1</span>]
+        <span class="kw">except</span>:
+            <span class="kw">pass</span>
+    macro_available = <span class="kw">True</span>
+<span class="kw">except</span>:
+    macro_available = <span class="kw">False</span>
+
+
+<span class="cm"># ─── 6. Assemble HTML Report ─────────────────────────────</span>
+
+<span class="fn">print</span>(<span class="st">"[6/6] Generating HTML report..."</span>)
+
+report_date = datetime.now().strftime(<span class="st">"%B %d, %Y at %H:%M"</span>)
+
+html = <span class="st">f"""&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;Financial Dashboard Report&lt;/title&gt;
+&lt;style&gt;
+  body {{ font-family: 'Inter', sans-serif; max-width: 900px;
+         margin: 0 auto; padding: 2rem; background: #f7fafc; color: #2d3748; }}
+  h1 {{ color: #1a365d; border-bottom: 3px solid #e53e3e; padding-bottom: 0.5rem; }}
+  h2 {{ color: #2c5282; margin-top: 2rem; }}
+  table {{ width: 100%; border-collapse: collapse; margin: 1rem 0; }}
+  th {{ background: #1a365d; color: white; padding: 0.6rem; text-align: left; }}
+  td {{ padding: 0.5rem; border-bottom: 1px solid #e2e8f0; }}
+  .positive {{ color: #38a169; font-weight: 600; }}
+  .negative {{ color: #e53e3e; font-weight: 600; }}
+  .metric {{ background: white; padding: 1rem; border-radius: 8px;
+             border: 1px solid #e2e8f0; margin: 0.5rem 0; }}
+  .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }}
+  .chart {{ text-align: center; margin: 1.5rem 0; }}
+  .footer {{ text-align: center; color: #718096; margin-top: 3rem;
+             padding-top: 1rem; border-top: 1px solid #e2e8f0; }}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;Financial Dashboard Report&lt;/h1&gt;
+&lt;p&gt;Generated: {report_date}&lt;/p&gt;
+
+&lt;h2&gt;1. Portfolio Holdings&lt;/h2&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;th&gt;Asset&lt;/th&gt;&lt;th&gt;Ticker&lt;/th&gt;&lt;th&gt;Shares&lt;/th&gt;&lt;th&gt;Price&lt;/th&gt;
+    &lt;th&gt;Value&lt;/th&gt;&lt;th&gt;Gain/Loss&lt;/th&gt;&lt;th&gt;Return&lt;/th&gt;&lt;th&gt;Weight&lt;/th&gt;&lt;/tr&gt;
+"""</span>
+
+<span class="kw">for</span> _, row <span class="kw">in</span> holdings.iterrows():
+    gl_class = <span class="st">"positive"</span> <span class="kw">if</span> row[<span class="st">"gain_loss"</span>] >= <span class="nu">0</span> <span class="kw">else</span> <span class="st">"negative"</span>
+    html += <span class="st">f"""&lt;tr&gt;
+  &lt;td&gt;{row['name']}&lt;/td&gt;&lt;td&gt;{row['ticker']}&lt;/td&gt;
+  &lt;td&gt;{row['shares']}&lt;/td&gt;&lt;td&gt;${row['current_price']:.2f}&lt;/td&gt;
+  &lt;td&gt;${row['market_value']:,.2f}&lt;/td&gt;
+  &lt;td class="{gl_class}"&gt;${row['gain_loss']:+,.2f}&lt;/td&gt;
+  &lt;td class="{gl_class}"&gt;{row['return_pct']:+.1f}%&lt;/td&gt;
+  &lt;td&gt;{row['weight']:.1f}%&lt;/td&gt;
+&lt;/tr&gt;"""</span>
+
+total_gl = holdings[<span class="st">"gain_loss"</span>].sum()
+total_ret = (total_value / holdings[<span class="st">"cost_value"</span>].sum() - <span class="nu">1</span>) * <span class="nu">100</span>
+gl_class = <span class="st">"positive"</span> <span class="kw">if</span> total_gl >= <span class="nu">0</span> <span class="kw">else</span> <span class="st">"negative"</span>
+
+html += <span class="st">f"""&lt;tr style="font-weight:700; border-top:2px solid #1a365d;"&gt;
+  &lt;td colspan="4"&gt;TOTAL&lt;/td&gt;
+  &lt;td&gt;${total_value:,.2f}&lt;/td&gt;
+  &lt;td class="{gl_class}"&gt;${total_gl:+,.2f}&lt;/td&gt;
+  &lt;td class="{gl_class}"&gt;{total_ret:+.1f}%&lt;/td&gt;
+  &lt;td&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div class="chart"&gt;{alloc_chart}&lt;/div&gt;
+  &lt;div class="chart"&gt;{cum_chart}&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2&gt;2. Risk Metrics&lt;/h2&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="metric"&gt;Annualized Return: &lt;strong&gt;{ann_return:.2%}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Annualized Volatility: &lt;strong&gt;{ann_vol:.2%}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Sharpe Ratio: &lt;strong&gt;{sharpe:.3f}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Sortino Ratio: &lt;strong&gt;{sortino:.3f}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;VaR (95%): &lt;strong&gt;{var_95:.2%}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;CVaR (95%): &lt;strong&gt;{cvar_95:.2%}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Max Drawdown: &lt;strong class="negative"&gt;{max_dd:.2%}&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Skewness: &lt;strong&gt;{skew:.3f}&lt;/strong&gt; | Kurtosis: &lt;strong&gt;{kurt:.3f}&lt;/strong&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div class="chart"&gt;{dd_chart}&lt;/div&gt;
+  &lt;div class="chart"&gt;{dist_chart}&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Jarque-Bera: {jb_stat:.1f} (p = {jb_p:.4f}) — Normality
+{'REJECTED' if jb_p < 0.05 else 'not rejected'} at 5%&lt;/p&gt;
+
+&lt;h2&gt;3. Correlation Analysis&lt;/h2&gt;
+&lt;p&gt;Average pairwise correlation: &lt;strong&gt;{avg_corr:.3f}&lt;/strong&gt; |
+   Effective independent bets: &lt;strong&gt;{eff_bets:.1f}&lt;/strong&gt; out of {n}&lt;/p&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="chart"&gt;{heatmap_chart}&lt;/div&gt;
+  &lt;div class="chart"&gt;{rcorr_chart}&lt;/div&gt;
+&lt;/div&gt;
+"""</span>
+
+<span class="cm"># Factor exposure section</span>
+<span class="kw">if</span> factor_data_available:
+    html += <span class="st">f"""
+&lt;h2&gt;4. Factor Exposure&lt;/h2&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;th&gt;Model&lt;/th&gt;&lt;th&gt;Factor&lt;/th&gt;&lt;th&gt;Coefficient&lt;/th&gt;&lt;th&gt;t-stat&lt;/th&gt;&lt;th&gt;p-value&lt;/th&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;CAPM&lt;/td&gt;&lt;td&gt;Alpha (annual)&lt;/td&gt;
+    &lt;td&gt;{capm.params['const']*252:.2%}&lt;/td&gt;
+    &lt;td&gt;{capm.tvalues['const']:.2f}&lt;/td&gt;
+    &lt;td&gt;{capm.pvalues['const']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;CAPM&lt;/td&gt;&lt;td&gt;Market Beta&lt;/td&gt;
+    &lt;td&gt;{capm.params['Mkt_RF']:.3f}&lt;/td&gt;
+    &lt;td&gt;{capm.tvalues['Mkt_RF']:.2f}&lt;/td&gt;
+    &lt;td&gt;{capm.pvalues['Mkt_RF']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-top:2px solid #e2e8f0;"&gt;
+    CAPM R-squared: {capm.rsquared:.3f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FF3&lt;/td&gt;&lt;td&gt;Alpha (annual)&lt;/td&gt;
+    &lt;td&gt;{ff3_model.params['const']*252:.2%}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.tvalues['const']:.2f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.pvalues['const']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FF3&lt;/td&gt;&lt;td&gt;Market Beta&lt;/td&gt;
+    &lt;td&gt;{ff3_model.params['Mkt_RF']:.3f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.tvalues['Mkt_RF']:.2f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.pvalues['Mkt_RF']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FF3&lt;/td&gt;&lt;td&gt;SMB (Size)&lt;/td&gt;
+    &lt;td&gt;{ff3_model.params['SMB']:.3f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.tvalues['SMB']:.2f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.pvalues['SMB']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FF3&lt;/td&gt;&lt;td&gt;HML (Value)&lt;/td&gt;
+    &lt;td&gt;{ff3_model.params['HML']:.3f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.tvalues['HML']:.2f}&lt;/td&gt;
+    &lt;td&gt;{ff3_model.pvalues['HML']:.4f}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-top:2px solid #e2e8f0;"&gt;
+    FF3 R-squared: {ff3_model.rsquared:.3f}&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+"""</span>
+
+<span class="cm"># Macro context section</span>
+<span class="kw">if</span> macro_available <span class="kw">and</span> macro_data:
+    spread_val = macro_data.get(<span class="st">"10Y Yield"</span>, <span class="nu">0</span>) - macro_data.get(<span class="st">"2Y Yield"</span>, <span class="nu">0</span>)
+    curve_status = <span class="st">"INVERTED"</span> <span class="kw">if</span> spread_val < <span class="nu">0</span> <span class="kw">else</span> <span class="st">"Normal"</span>
+    html += <span class="st">f"""
+&lt;h2&gt;5. Macroeconomic Context&lt;/h2&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="metric"&gt;GDP Growth: &lt;strong&gt;{macro_data.get('GDP Growth', 'N/A'):.1f}%&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Unemployment: &lt;strong&gt;{macro_data.get('Unemployment', 'N/A'):.1f}%&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Fed Funds Rate: &lt;strong&gt;{macro_data.get('Fed Funds', 'N/A'):.2f}%&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class="metric"&gt;Yield Curve (10Y-2Y): &lt;strong&gt;{spread_val:+.2f}pp&lt;/strong&gt; ({curve_status})&lt;/div&gt;
+&lt;/div&gt;
+"""</span>
+
+html += <span class="st">f"""
+&lt;div class="footer"&gt;
+  &lt;p&gt;Financial Dashboard for Statisticians | Generated by the Module 22 Capstone Script&lt;/p&gt;
+  &lt;p&gt;Data sources: Yahoo Finance, FRED, Kenneth French Data Library&lt;/p&gt;
+&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;"""</span>
+
+<span class="cm"># Save the report</span>
+output_file = <span class="st">"financial_dashboard_report.html"</span>
+<span class="kw">with</span> <span class="fn">open</span>(output_file, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.write(html)
+
+<span class="fn">print</span>(<span class="st">f"\nDashboard report saved to: {output_file}"</span>)
+<span class="fn">print</span>(<span class="st">f"Open it in a browser to view the full interactive report."</span>)</pre>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.8 &mdash; Deploying as a Web Application</h2>
+
+      <p>
+        The script above generates a static HTML report. For a more interactive experience,
+        you can deploy it as a live web application using one of several Python frameworks.
+      </p>
+
+      <h3>Option A: Streamlit (Easiest)</h3>
+
+      <p>
+        Streamlit is a Python framework designed specifically for data dashboards. It turns
+        Python scripts into interactive web apps with minimal code changes.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># dashboard_streamlit.py</span>
+<span class="cm"># Run with: streamlit run dashboard_streamlit.py</span>
+
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+<span class="kw">import</span> yfinance <span class="kw">as</span> yf
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+st.set_page_config(page_title=<span class="st">"Financial Dashboard"</span>, layout=<span class="st">"wide"</span>)
+st.title(<span class="st">"Financial Dashboard for Statisticians"</span>)
+
+<span class="cm"># Sidebar: portfolio input</span>
+st.sidebar.header(<span class="st">"Portfolio Holdings"</span>)
+n_assets = st.sidebar.number_input(<span class="st">"Number of assets"</span>, <span class="nu">1</span>, <span class="nu">20</span>, <span class="nu">5</span>)
+
+holdings = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n_assets):
+    col1, col2, col3 = st.sidebar.columns(<span class="nu">3</span>)
+    ticker = col1.text_input(<span class="st">f"Ticker {i+1}"</span>, value=[<span class="st">"VTI"</span>,<span class="st">"VXUS"</span>,<span class="st">"BND"</span>,<span class="st">"VNQ"</span>,<span class="st">"GLD"</span>][i] <span class="kw">if</span> i<<span class="nu">5</span> <span class="kw">else</span> <span class="st">""</span>)
+    shares = col2.number_input(<span class="st">f"Shares {i+1}"</span>, value=<span class="nu">100</span>, key=<span class="st">f"shares_{i}"</span>)
+    cost = col3.number_input(<span class="st">f"Cost {i+1}"</span>, value=<span class="nu">100.0</span>, key=<span class="st">f"cost_{i}"</span>)
+    <span class="kw">if</span> ticker:
+        holdings.append({<span class="st">"ticker"</span>: ticker, <span class="st">"shares"</span>: shares, <span class="st">"cost_basis"</span>: cost})
+
+<span class="kw">if</span> st.sidebar.button(<span class="st">"Update Dashboard"</span>) <span class="kw">and</span> holdings:
+    <span class="cm"># ... (insert dashboard computation logic here)</span>
+    <span class="cm"># Use st.metric(), st.dataframe(), st.pyplot() for display</span>
+
+    col1, col2, col3 = st.columns(<span class="nu">3</span>)
+    col1.metric(<span class="st">"Portfolio Value"</span>, <span class="st">f"${total_value:,.0f}"</span>)
+    col2.metric(<span class="st">"Sharpe Ratio"</span>, <span class="st">f"{sharpe:.2f}"</span>)
+    col3.metric(<span class="st">"Max Drawdown"</span>, <span class="st">f"{max_dd:.1%}"</span>)
+
+    st.pyplot(fig_heatmap)
+    st.dataframe(holdings_df)</pre>
+
+      <h3>Option B: Plotly Dash (More Control)</h3>
+
+      <p>
+        Dash by Plotly provides more control over layout and interactivity. It uses a
+        callback-based architecture similar to reactive programming.
+      </p>
+
+      <pre class="code-block"><span class="code-label">Python</span><span class="cm"># dashboard_dash.py</span>
+<span class="cm"># Run with: python dashboard_dash.py</span>
+
+<span class="kw">import</span> dash
+<span class="kw">from</span> dash <span class="kw">import</span> dcc, html, dash_table
+<span class="kw">from</span> dash.dependencies <span class="kw">import</span> Input, Output
+<span class="kw">import</span> plotly.express <span class="kw">as</span> px
+<span class="kw">import</span> plotly.graph_objects <span class="kw">as</span> go
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div([
+    html.H1(<span class="st">"Financial Dashboard for Statisticians"</span>),
+
+    <span class="cm"># Portfolio input table</span>
+    dash_table.DataTable(
+        id=<span class="st">"portfolio-table"</span>,
+        columns=[
+            {<span class="st">"name"</span>: <span class="st">"Ticker"</span>, <span class="st">"id"</span>: <span class="st">"ticker"</span>, <span class="st">"editable"</span>: <span class="kw">True</span>},
+            {<span class="st">"name"</span>: <span class="st">"Shares"</span>, <span class="st">"id"</span>: <span class="st">"shares"</span>, <span class="st">"type"</span>: <span class="st">"numeric"</span>, <span class="st">"editable"</span>: <span class="kw">True</span>},
+            {<span class="st">"name"</span>: <span class="st">"Cost Basis"</span>, <span class="st">"id"</span>: <span class="st">"cost_basis"</span>, <span class="st">"type"</span>: <span class="st">"numeric"</span>, <span class="st">"editable"</span>: <span class="kw">True</span>},
+        ],
+        data=[
+            {<span class="st">"ticker"</span>: <span class="st">"VTI"</span>, <span class="st">"shares"</span>: <span class="nu">100</span>, <span class="st">"cost_basis"</span>: <span class="nu">200</span>},
+            {<span class="st">"ticker"</span>: <span class="st">"BND"</span>, <span class="st">"shares"</span>: <span class="nu">150</span>, <span class="st">"cost_basis"</span>: <span class="nu">75</span>},
+        ],
+        row_deletable=<span class="kw">True</span>,
+    ),
+
+    html.Button(<span class="st">"Add Row"</span>, id=<span class="st">"add-row-btn"</span>),
+
+    <span class="cm"># Charts</span>
+    dcc.Graph(id=<span class="st">"allocation-pie"</span>),
+    dcc.Graph(id=<span class="st">"cumulative-return"</span>),
+    dcc.Graph(id=<span class="st">"correlation-heatmap"</span>),
+
+    <span class="cm"># Auto-refresh every 5 minutes</span>
+    dcc.Interval(id=<span class="st">"interval"</span>, interval=<span class="nu">5</span>*<span class="nu">60</span>*<span class="nu">1000</span>),
+])
+
+<span class="cm"># Add callbacks for interactivity</span>
+<span class="cm"># @app.callback(Output('allocation-pie', 'figure'),</span>
+<span class="cm">#               Input('portfolio-table', 'data'))</span>
+<span class="cm"># def update_pie(data): ...</span>
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    app.run(debug=<span class="kw">True</span>)</pre>
+
+      <h3>Deployment Comparison</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Static HTML (this module)</th>
+            <th>Streamlit</th>
+            <th>Plotly Dash</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Setup difficulty</td>
+            <td>None (just run the script)</td>
+            <td>Easy (<code>pip install streamlit</code>)</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td>Interactivity</td>
+            <td>None (static report)</td>
+            <td>High (widgets, sliders)</td>
+            <td>Very high (custom callbacks)</td>
+          </tr>
+          <tr>
+            <td>Sharing</td>
+            <td>Email the HTML file</td>
+            <td>Streamlit Cloud (free)</td>
+            <td>Heroku, AWS, etc.</td>
+          </tr>
+          <tr>
+            <td>Live data</td>
+            <td>Snapshot at generation time</td>
+            <td>Refreshes on interaction</td>
+            <td>Periodic auto-refresh</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Personal use, quick reports</td>
+            <td>Rapid prototyping, sharing</td>
+            <td>Production applications</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.9 &mdash; Course Summary: What You Have Learned</h2>
+
+      <p>
+        Over 22 modules, you have built a comprehensive framework for understanding finance
+        through statistics. Here is a summary of the journey:
+      </p>
+
+      <h3>Part I: Financial Data as a Statistician Sees It</h3>
+      <ul>
+        <li><strong>Module 1:</strong> Financial data structures (OHLCV, time series, data sources)</li>
+        <li><strong>Module 2:</strong> Returns vs. prices; stationarity; log returns; random walks</li>
+        <li><strong>Module 3:</strong> Fat tails, excess kurtosis, volatility clustering, stylized facts</li>
+        <li><strong>Module 4:</strong> Correlation in finance; rolling correlations; copulas</li>
+      </ul>
+
+      <h3>Part II: Risk and Return</h3>
+      <ul>
+        <li><strong>Module 5:</strong> Volatility as a measure of risk; GARCH models</li>
+        <li><strong>Module 6:</strong> Value at Risk and Expected Shortfall; quantile regression</li>
+        <li><strong>Module 7:</strong> The risk-return tradeoff; Sharpe ratio; efficient frontiers</li>
+        <li><strong>Module 8:</strong> Extreme value theory; tail risk; Black Swan events</li>
+      </ul>
+
+      <h3>Part III: Portfolio Construction and Factor Models</h3>
+      <ul>
+        <li><strong>Module 9:</strong> Modern Portfolio Theory; mean-variance optimization</li>
+        <li><strong>Module 10:</strong> CAPM; beta; the security market line</li>
+        <li><strong>Module 11:</strong> Fama-French factors; multi-factor models</li>
+        <li><strong>Module 12:</strong> Factor investing; smart beta; portfolio tilts</li>
+      </ul>
+
+      <h3>Part IV: Advanced Topics</h3>
+      <ul>
+        <li><strong>Module 13:</strong> Fixed income; bond math; duration and convexity</li>
+        <li><strong>Module 14:</strong> Options and derivatives; Black-Scholes; the Greeks</li>
+        <li><strong>Module 15:</strong> Time series models for finance (ARIMA, GARCH, regime-switching)</li>
+        <li><strong>Module 16:</strong> Machine learning in finance; overfitting; cross-validation</li>
+        <li><strong>Module 17:</strong> Behavioral finance; cognitive biases; prospect theory</li>
+        <li><strong>Module 18:</strong> Performance evaluation; attribution analysis</li>
+        <li><strong>Module 19:</strong> Personal finance; tax optimization; retirement planning</li>
+      </ul>
+
+      <h3>Part V: Context and Capstone</h3>
+      <ul>
+        <li><strong>Module 20:</strong> Reading financial news statistically; debunking headlines</li>
+        <li><strong>Module 21:</strong> Macroeconomics; GDP, inflation, yield curves, business cycles</li>
+        <li><strong>Module 22:</strong> This capstone &mdash; building your own financial dashboard</li>
+      </ul>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          The entire course can be summarized as a mapping from statistics to finance:
+          <strong>distributions</strong> become return profiles, <strong>estimation</strong>
+          becomes valuation, <strong>hypothesis testing</strong> becomes performance evaluation,
+          <strong>regression</strong> becomes factor modeling, <strong>time series</strong>
+          becomes forecasting, <strong>Bayesian inference</strong> becomes belief updating,
+          and <strong>causal inference</strong> becomes policy analysis. You already had the
+          tools &mdash; now you have the financial vocabulary to apply them.
+        </p>
+      </div>
+
+
+      <!-- ════════════════════════════════════════════ -->
+      <h2>22.10 &mdash; Where to Go from Here</h2>
+
+      <p>
+        This course has given you the foundation. Here are pathways for deeper exploration:
+      </p>
+
+      <h3>For Deeper Financial Knowledge</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>Resource</th>
+            <th>Prerequisite from This Course</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Quantitative finance</td>
+            <td>Hull, <em>Options, Futures, and Other Derivatives</em></td>
+            <td>Modules 13&ndash;14</td>
+          </tr>
+          <tr>
+            <td>Financial econometrics</td>
+            <td>Campbell, Lo &amp; MacKinlay, <em>The Econometrics of Financial Markets</em></td>
+            <td>Modules 1&ndash;8, 15</td>
+          </tr>
+          <tr>
+            <td>Factor investing</td>
+            <td>Ang, <em>Asset Management</em></td>
+            <td>Modules 9&ndash;12</td>
+          </tr>
+          <tr>
+            <td>Behavioral finance</td>
+            <td>Shiller, <em>Irrational Exuberance</em></td>
+            <td>Module 17</td>
+          </tr>
+          <tr>
+            <td>Machine learning in finance</td>
+            <td>Lopez de Prado, <em>Advances in Financial Machine Learning</em></td>
+            <td>Module 16</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>For Hands-On Practice</h3>
+      <ul>
+        <li><strong>Build a real dashboard:</strong> Take the capstone script, customize it for
+            your actual portfolio, and deploy it with Streamlit.</li>
+        <li><strong>Replicate a paper:</strong> Pick a financial economics paper and replicate
+            its results. Start with Fama &amp; French (1993) or Jegadeesh &amp; Titman (1993).</li>
+        <li><strong>Kaggle competitions:</strong> Financial prediction competitions let you
+            test your models against others.</li>
+        <li><strong>FRED exploration:</strong> Browse the FRED database (700,000+ time series)
+            and explore macro relationships that interest you.</li>
+        <li><strong>Personal finance automation:</strong> Extend the dashboard to include your
+            bank accounts, budgeting, and tax projections.</li>
+      </ul>
+
+      <h3>Key Principles to Remember</h3>
+
+      <ol>
+        <li><strong>Returns are not normal.</strong> Every model that assumes normality is wrong.
+            Know how and when it is wrong enough to matter.</li>
+        <li><strong>Correlations are not constant.</strong> They spike during crises, exactly
+            when you need diversification most.</li>
+        <li><strong>Past performance is not predictive.</strong> Most patterns in financial data
+            are noise, not signal. Demand out-of-sample validation.</li>
+        <li><strong>Costs matter.</strong> Fees, taxes, and transaction costs erode returns.
+            The cheapest portfolio often wins.</li>
+        <li><strong>Risk is not just volatility.</strong> It is also tail risk, drawdown risk,
+            liquidity risk, and the risk of not meeting your goals.</li>
+        <li><strong>Simplicity beats complexity.</strong> A diversified index portfolio with
+            low fees beats most active strategies. Your statistical edge is in understanding
+            <em>why</em>, not in finding the next alpha signal.</li>
+        <li><strong>The biggest risks are behavioral.</strong> Panic selling, overconfidence,
+            and chasing performance destroy more wealth than any market crash.</li>
+      </ol>
+
+      <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+        <p>
+          Your statistical training is a genuine competitive advantage in personal finance.
+          Most investors cannot compute a Sharpe ratio, do not understand what a confidence
+          interval means, and confuse correlation with causation daily. You can. Use that
+          advantage not to chase alpha, but to make better decisions, avoid common pitfalls,
+          and build a robust financial plan grounded in evidence rather than narrative.
+        </p>
+      </div>
+
+      <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+        <p>
+          Finance is one of the richest applied domains for statistics. Every tool you have
+          learned &mdash; from the t-test to Markov chains, from maximum likelihood to
+          bootstrapping, from linear regression to Bayesian updating &mdash; has a direct
+          application in understanding financial markets. The mapping is complete. Now go
+          build something with it.
+        </p>
+      </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-21/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>

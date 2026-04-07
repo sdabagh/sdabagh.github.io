@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Efficient Market Hypothesis as a Statistical Claim — testing EMH with autocorrelation, variance ratio tests, event studies, and the joint hypothesis problem.">
+  <title>The Efficient Market Hypothesis as a Statistical Claim — Financial Literacy for Statisticians</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-header .tagline { font-size: 1.1rem; opacity: 0.92; }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.95rem; }
+
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .nav-buttons a { color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-buttons a:hover { text-decoration: underline; }
+    .nav-buttons .current { color: var(--text-light); font-size: 0.9rem; }
+
+    .stats-bridge { background: #ebf8ff; border-left: 4px solid #3182ce; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .stats-bridge .cb-title { font-weight: 700; color: #3182ce; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .key-insight { background: #f0fff4; border-left: 4px solid #38a169; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .key-insight .cb-title { font-weight: 700; color: #38a169; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .common-pitfall { background: #fffff0; border-left: 4px solid #d69e2e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .common-pitfall .cb-title { font-weight: 700; color: #d69e2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .finance-term { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .finance-term .cb-title { font-weight: 700; color: #e53e3e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+
+    .formula-box { background: #fefcf3; border: 1px solid #f6e05e; padding: 1rem 1.25rem; border-radius: var(--radius-md); margin: 1.25rem 0; text-align: center; font-family: Georgia, serif; font-size: 1.05rem; overflow-x: auto; }
+
+    pre.code-block { background: #1a202c; color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 1rem 0 1.5rem; position: relative; }
+    pre.code-block .code-label { position: absolute; top: 0; right: 0; background: var(--primary-color); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 0 var(--radius-md) 0 6px; font-family: var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .kw { color: #f687b3; } .fn { color: #68d391; } .st { color: #fbd38d; }
+    .cm { color: #718096; font-style: italic; } .nu { color: #90cdf4; }
+    .op { color: #fc8181; } .va { color: #b794f4; }
+
+    @media print {
+      header, footer, nav, .nav-buttons, .btn, button { display: none !important; }
+      body { font-family: Georgia, serif; font-size: 12pt; color: #000 !important; background: white !important; }
+      .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+      pre.code-block { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Safaa Dabagh</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="module-header">
+      <h1>Module 9: The Efficient Market Hypothesis as a Statistical Claim</h1>
+      <p class="tagline">Testing whether returns are predictable using your time series toolkit</p>
+      <div class="module-meta">
+        <span class="meta-item">Part II of 5</span>
+        <span class="meta-item">Module 9 of 22</span>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="../module-08/index.html">&larr; Previous</a>
+      <span class="current">Module 9 of 22</span>
+      <a href="../module-10/index.html">Next &rarr;</a>
+    </div>
+
+
+    <!-- SECTION 1: WHAT EMH ACTUALLY SAYS -->
+
+    <h2>1. What the Efficient Market Hypothesis Actually Says</h2>
+
+    <p>
+      The Efficient Market Hypothesis (EMH), formalized by Eugene Fama (1970), is one of the
+      most debated propositions in finance. It is also one of the most <em>misunderstood</em>.
+      Let's state it precisely, as a statistician would.
+    </p>
+
+    <div class="finance-term">
+      <div class="cb-title">Finance Term</div>
+      <p>
+        <strong>Efficient Market Hypothesis (EMH):</strong> Asset prices fully reflect all
+        available information. Formally, the conditional expectation of the asset's return,
+        given the information set &Omega;<sub>t</sub>, equals the equilibrium expected return:
+        E[r<sub>t+1</sub> | &Omega;<sub>t</sub>] = r<sub>equilibrium</sub>.
+      </p>
+    </div>
+
+    <p>
+      In plain language: <strong>you cannot systematically earn risk-adjusted excess returns
+      using the information in &Omega;<sub>t</sub></strong>. Any information you have is
+      already priced in. The returns you observe are &ldquo;fair&rdquo; compensation for the
+      risk you bear.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The EMH is a statement about <strong>conditional expectations</strong>. It says that
+        excess returns (after adjusting for risk) are a <strong>martingale difference sequence</strong>
+        with respect to the information filtration &Omega;<sub>t</sub>: E[&epsilon;<sub>t+1</sub> |
+        &Omega;<sub>t</sub>] = 0. This is equivalent to saying that excess returns are
+        <strong>unpredictable</strong> given the information set. Every test of EMH is a test
+        of whether some function of &Omega;<sub>t</sub> predicts future excess returns.
+      </p>
+    </div>
+
+    <h3>1.1 The Three Forms of EMH</h3>
+
+    <p>
+      The three forms differ in what information set &Omega;<sub>t</sub> contains:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Form</th>
+          <th>Information Set &Omega;<sub>t</sub></th>
+          <th>Implication</th>
+          <th>Statistical Test</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Weak</strong></td>
+          <td>Past prices and returns only</td>
+          <td>Technical analysis (chart patterns) cannot beat the market</td>
+          <td>Autocorrelation tests, variance ratio tests, runs tests</td>
+        </tr>
+        <tr>
+          <td><strong>Semi-strong</strong></td>
+          <td>All publicly available information</td>
+          <td>Fundamental analysis (earnings, ratios) cannot beat the market</td>
+          <td>Event studies, cross-sectional return predictability</td>
+        </tr>
+        <tr>
+          <td><strong>Strong</strong></td>
+          <td>All information (including insider information)</td>
+          <td>Even insiders cannot beat the market</td>
+          <td>Insider trading studies</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Most academic research supports the <strong>weak form</strong> and a qualified version
+        of the <strong>semi-strong form</strong>. The strong form is universally rejected &mdash;
+        insiders do earn excess returns, which is why insider trading is illegal. The interesting
+        debate is about the semi-strong form: can publicly available information (like accounting
+        ratios or analyst forecasts) predict risk-adjusted returns?
+      </p>
+    </div>
+
+    <h3>1.2 What EMH Does NOT Say</h3>
+
+    <ul>
+      <li><strong>EMH does NOT say prices are always &ldquo;correct.&rdquo;</strong> It says prices reflect available information. Information can be incomplete or wrong.</li>
+      <li><strong>EMH does NOT say markets never crash.</strong> Efficient markets can crash when new information arrives that is genuinely bad.</li>
+      <li><strong>EMH does NOT say prices don't move.</strong> Prices move all the time as new information arrives. EMH says the <em>direction</em> of the next move is unpredictable.</li>
+      <li><strong>EMH does NOT say all investors are rational.</strong> It only requires that irrational investors don't systematically move prices in a predictable direction.</li>
+    </ul>
+
+
+    <!-- SECTION 2: WEAK-FORM TESTS -->
+
+    <h2>2. Testing the Weak Form: Autocorrelation and Serial Dependence</h2>
+
+    <p>
+      The weak form of EMH implies that past returns should not predict future returns. If
+      returns are an i.i.d. sequence (or more generally, a martingale difference sequence),
+      then the autocorrelation at any lag should be zero.
+    </p>
+
+    <div class="formula-box">
+      &rho;(k) = Corr(r<sub>t</sub>, r<sub>t-k</sub>) = 0 &nbsp;&nbsp; for all k &ge; 1
+    </div>
+
+    <h3>2.1 The Autocorrelation Function Test</h3>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        This is a direct test of <strong>white noise</strong>. Under the null of no
+        autocorrelation, the sample autocorrelation &rho;&#770;(k) is approximately
+        N(0, 1/T). The Ljung-Box Q-statistic tests whether the first K autocorrelations
+        are jointly zero: Q = T(T+2) &sum;<sub>k=1</sub><sup>K</sup> &rho;&#770;(k)<sup>2</sup>/(T-k)
+        ~ &chi;<sup>2</sup>(K). This is a standard time series diagnostic you've used many times.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import acf
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+# ── Download S&P 500 returns ──────────────────────────────
+data = yf.download("SPY", start="2010-01-01", end="2024-01-01")
+prices = data["Adj Close"]
+returns = prices.pct_change().dropna()
+log_returns = np.log(prices / prices.shift(1)).dropna()
+
+# ── Autocorrelation analysis ──────────────────────────────
+max_lag = 20
+acf_values, confint = acf(returns, nlags=max_lag, alpha=0.05)
+
+print("Autocorrelation of Daily Returns (SPY):")
+print(f"{'Lag':>4s} {'ACF':>8s} {'95% CI Low':>11s} {'95% CI High':>12s} {'Signif?':>8s}")
+print(f"{'-'*45}")
+for k in range(1, max_lag + 1):
+    lower = confint[k][0] - acf_values[k]
+    upper = confint[k][1] - acf_values[k]
+    signif = "*" if abs(acf_values[k]) > 1.96 / np.sqrt(len(returns)) else ""
+    print(f"{k:>4d} {acf_values[k]:>8.4f} {confint[k][0]:>11.4f} "
+          f"{confint[k][1]:>12.4f} {signif:>8s}")
+
+# ── Ljung-Box test ────────────────────────────────────────
+lb_result = acorr_ljungbox(returns, lags=[5, 10, 20], return_df=True)
+print("\nLjung-Box Q-test:")
+print(lb_result)
+
+# ── Plot ACF ──────────────────────────────────────────────
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+# ACF of returns
+from statsmodels.graphics.tsaplots import plot_acf
+plot_acf(returns, lags=max_lag, ax=ax1, alpha=0.05)
+ax1.set_title("ACF of Daily Returns")
+ax1.set_xlabel("Lag (days)")
+
+# ACF of absolute returns (volatility clustering proxy)
+plot_acf(returns.abs(), lags=max_lag, ax=ax2, alpha=0.05)
+ax2.set_title("ACF of |Returns| (Volatility Clustering)")
+ax2.set_xlabel("Lag (days)")
+
+plt.tight_layout()
+plt.savefig("acf_analysis.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        A crucial subtlety: daily return autocorrelations for liquid stocks and indices are
+        tiny (typically |&rho;(1)| &lt; 0.05) and often statistically insignificant. But the
+        autocorrelation of <em>absolute</em> returns or <em>squared</em> returns is large and
+        highly significant, often persisting for weeks or months. Returns are approximately
+        uncorrelated (consistent with weak-form efficiency), but they are <strong>not
+        independent</strong> &mdash; the volatility process has strong memory. The EMH is about
+        the conditional <em>mean</em>, not the conditional <em>variance</em>.
+      </p>
+    </div>
+
+
+    <!-- SECTION 3: VARIANCE RATIO TEST -->
+
+    <h2>3. The Variance Ratio Test</h2>
+
+    <p>
+      The variance ratio test, introduced by Lo and MacKinlay (1988), is one of the most
+      elegant tests of the random walk hypothesis. The idea is simple:
+    </p>
+
+    <p>
+      If prices follow a random walk, then the variance of k-period returns should be exactly
+      k times the variance of 1-period returns. This follows from the independence assumption:
+    </p>
+
+    <div class="formula-box">
+      Var(r<sub>t</sub>(k)) = k &sdot; Var(r<sub>t</sub>(1))
+      <br><br>
+      where r<sub>t</sub>(k) = r<sub>t</sub> + r<sub>t-1</sub> + &hellip; + r<sub>t-k+1</sub>
+    </div>
+
+    <p>The variance ratio is:</p>
+
+    <div class="formula-box">
+      VR(k) = Var(r<sub>t</sub>(k)) / [k &sdot; Var(r<sub>t</sub>(1))]
+    </div>
+
+    <p>Under the random walk null, VR(k) = 1 for all k.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>VR(k) Value</th>
+          <th>Interpretation</th>
+          <th>Implication</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>VR(k) = 1</td>
+          <td>Random walk (returns are uncorrelated)</td>
+          <td>Consistent with weak-form EMH</td>
+        </tr>
+        <tr>
+          <td>VR(k) &gt; 1</td>
+          <td>Positive autocorrelation (momentum/trending)</td>
+          <td>Past winners continue winning</td>
+        </tr>
+        <tr>
+          <td>VR(k) &lt; 1</td>
+          <td>Negative autocorrelation (mean reversion)</td>
+          <td>Past losers tend to reverse</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The variance ratio test is related to the <strong>Bartlett test</strong> for white
+        noise. The test statistic under the null (assuming heteroscedasticity-robust version)
+        is asymptotically standard normal. Lo and MacKinlay developed both homoscedasticity-
+        assuming and heteroscedasticity-robust versions &mdash; always use the robust one for
+        financial data.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>def variance_ratio_test(returns, k, robust=True):
+    """
+    Lo-MacKinlay Variance Ratio test.
+
+    H0: VR(k) = 1 (random walk)
+    H1: VR(k) != 1
+
+    Parameters:
+      returns: array of log returns
+      k: holding period (e.g., 5 for weekly)
+      robust: if True, use heteroscedasticity-robust version
+    """
+    T = len(returns)
+    mu = returns.mean()
+
+    # Variance of 1-period returns
+    sigma2_1 = np.sum((returns - mu)**2) / (T - 1)
+
+    # Variance of k-period returns
+    k_returns = pd.Series(returns).rolling(k).sum().dropna().values
+    sigma2_k = np.sum((k_returns - k * mu)**2) / (T - k)
+
+    # Variance ratio
+    vr = sigma2_k / (k * sigma2_1)
+
+    if robust:
+        # Heteroscedasticity-robust test statistic
+        # (Lo-MacKinlay, 1988, Theorem 2)
+        delta_j = np.zeros(k - 1)
+        for j in range(1, k):
+            num = np.sum(
+                (returns[j:] - mu)**2 * (returns[:-j] - mu)**2
+            )
+            den = (np.sum((returns - mu)**2))**2
+            delta_j[j-1] = T * num / den
+
+        weights = np.array([2 * (k - j) / k for j in range(1, k)])
+        theta = np.sum(weights**2 * delta_j)
+        z_stat = (vr - 1) / np.sqrt(theta)
+    else:
+        # Under homoscedasticity
+        z_stat = (vr - 1) / np.sqrt(2 * (k - 1) / (3 * k * T))
+
+    from scipy.stats import norm
+    p_value = 2 * (1 - norm.cdf(abs(z_stat)))
+
+    return vr, z_stat, p_value
+
+# ── Run variance ratio tests for multiple horizons ────────
+print("Variance Ratio Tests for S&amp;P 500 (SPY)")
+print(f"{'k':>4s} {'VR(k)':>8s} {'z-stat':>8s} {'p-value':>10s} {'Result':>15s}")
+print(f"{'-'*48}")
+
+for k in [2, 5, 10, 20, 40, 60, 120]:
+    vr, z, p = variance_ratio_test(log_returns.values, k, robust=True)
+    result = "Reject H0" if p &lt; 0.05 else "Fail to reject"
+    print(f"{k:>4d} {vr:>8.4f} {z:>8.4f} {p:>10.4f} {result:>15s}")
+
+# ── Plot variance ratio vs k ─────────────────────────────
+ks = range(2, 121)
+vrs = [variance_ratio_test(log_returns.values, k, robust=True)[0]
+       for k in ks]
+
+plt.figure(figsize=(10, 6))
+plt.plot(list(ks), vrs, color='#1a365d', linewidth=1.5)
+plt.axhline(y=1, color='#e53e3e', linestyle='--', label='Random Walk (VR=1)')
+plt.fill_between(list(ks),
+                 [1 - 1.96*np.sqrt(2*(k-1)/(3*k*len(log_returns)))
+                  for k in ks],
+                 [1 + 1.96*np.sqrt(2*(k-1)/(3*k*len(log_returns)))
+                  for k in ks],
+                 alpha=0.2, color='#e53e3e', label='95% CI (homoscedastic)')
+plt.xlabel("Holding Period k (days)")
+plt.ylabel("Variance Ratio VR(k)")
+plt.title("Variance Ratio Test: SPY Daily Returns")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig("variance_ratio.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+
+    <!-- SECTION 4: RUNS TEST -->
+
+    <h2>4. The Runs Test for Randomness</h2>
+
+    <p>
+      The runs test is a non-parametric test for randomness. A <strong>run</strong> is a
+      consecutive sequence of returns with the same sign (all positive or all negative).
+      Under randomness, the expected number and length of runs have known distributions.
+    </p>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The Wald-Wolfowitz runs test is a standard non-parametric test you may have encountered
+        in your first statistics course. It tests whether a binary sequence is random by counting
+        the total number of runs. Under H<sub>0</sub> (randomness), the number of runs R is
+        approximately normal with known mean and variance for large samples.
+      </p>
+    </div>
+
+    <div class="formula-box">
+      E[R] = (2 n<sub>+</sub> n<sub>&minus;</sub>) / (n<sub>+</sub> + n<sub>&minus;</sub>) + 1
+      <br><br>
+      Var(R) = (2 n<sub>+</sub> n<sub>&minus;</sub> (2 n<sub>+</sub> n<sub>&minus;</sub> &minus; n<sub>+</sub> &minus; n<sub>&minus;</sub>))
+      / ((n<sub>+</sub> + n<sub>&minus;</sub>)<sup>2</sup> (n<sub>+</sub> + n<sub>&minus;</sub> &minus; 1))
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span>def runs_test(returns):
+    """
+    Wald-Wolfowitz runs test for randomness.
+    Tests whether the sequence of positive/negative returns is random.
+    """
+    from scipy.stats import norm
+
+    signs = np.sign(returns)
+    signs = signs[signs != 0]  # remove zeros
+
+    n_pos = np.sum(signs > 0)
+    n_neg = np.sum(signs &lt; 0)
+    n = n_pos + n_neg
+
+    # Count runs
+    runs = 1
+    for i in range(1, len(signs)):
+        if signs.iloc[i] != signs.iloc[i-1]:
+            runs += 1
+
+    # Expected runs and variance under H0
+    expected_runs = (2 * n_pos * n_neg) / n + 1
+    var_runs = (2 * n_pos * n_neg * (2 * n_pos * n_neg - n)) / \
+               (n**2 * (n - 1))
+
+    z_stat = (runs - expected_runs) / np.sqrt(var_runs)
+    p_value = 2 * (1 - norm.cdf(abs(z_stat)))
+
+    return {
+        'n_observations': n,
+        'n_positive': n_pos,
+        'n_negative': n_neg,
+        'observed_runs': runs,
+        'expected_runs': expected_runs,
+        'z_statistic': z_stat,
+        'p_value': p_value
+    }
+
+# Run the test
+result = runs_test(returns)
+
+print("Runs Test for Randomness (SPY Daily Returns)")
+print(f"{'='*50}")
+for key, val in result.items():
+    if isinstance(val, float):
+        print(f"  {key:20s}: {val:.4f}")
+    else:
+        print(f"  {key:20s}: {val}")
+
+if result['p_value'] &lt; 0.05:
+    if result['z_statistic'] &lt; 0:
+        print("\n  => Fewer runs than expected: POSITIVE autocorrelation")
+        print("     (Trending behavior / momentum)")
+    else:
+        print("\n  => More runs than expected: NEGATIVE autocorrelation")
+        print("     (Mean-reverting behavior)")
+else:
+    print("\n  => Cannot reject randomness at 5% level")
+    print("     (Consistent with weak-form EMH)")</pre>
+
+
+    <!-- SECTION 5: EVENT STUDIES -->
+
+    <h2>5. Event Studies: Testing Semi-Strong Form Efficiency</h2>
+
+    <p>
+      The event study methodology, pioneered by Fama, Fisher, Jensen, and Roll (1969), is the
+      workhorse for testing semi-strong efficiency. The logic is:
+    </p>
+
+    <ol>
+      <li><strong>Define the event</strong> (earnings announcement, merger, dividend change).</li>
+      <li><strong>Estimate normal returns</strong> using a model (e.g., CAPM) over an estimation window before the event.</li>
+      <li><strong>Compute abnormal returns</strong>: AR<sub>t</sub> = r<sub>t</sub> &minus; E[r<sub>t</sub> | model].</li>
+      <li><strong>Aggregate</strong>: Cumulative Abnormal Return (CAR) = &sum; AR<sub>t</sub> over the event window.</li>
+      <li><strong>Test</strong>: Is the CAR significantly different from zero?</li>
+    </ol>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        An event study is a <strong>difference-in-means test</strong> &mdash; or more precisely,
+        a test of whether the residuals from a regression model are systematically non-zero
+        around a specific date. The CAR is a cumulative sum of regression residuals, and its
+        t-test is straightforward. If you've done a pre-post analysis or a difference-in-
+        differences study, you've done an event study.
+      </p>
+    </div>
+
+    <div class="formula-box">
+      AR<sub>t</sub> = r<sub>t</sub> &minus; (&alpha;&#770; + &beta;&#770; &sdot; r<sub>m,t</sub>)
+      <br><br>
+      CAR(t<sub>1</sub>, t<sub>2</sub>) = &sum;<sub>t=t<sub>1</sub></sub><sup>t<sub>2</sub></sup> AR<sub>t</sub>
+      <br><br>
+      t<sub>CAR</sub> = CAR / (&sigma;&#770;<sub>AR</sub> &sdot; &radic;L)
+    </div>
+
+    <p>where L = t<sub>2</sub> &minus; t<sub>1</sub> + 1 is the length of the event window.</p>
+
+    <h3>5.1 What EMH Predicts for Event Studies</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Finding</th>
+          <th>Consistent with EMH?</th>
+          <th>Explanation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Price jumps immediately at announcement</td>
+          <td>Yes</td>
+          <td>New information incorporated instantly</td>
+        </tr>
+        <tr>
+          <td>Price drifts slowly after announcement</td>
+          <td>No</td>
+          <td>Post-Earnings Announcement Drift (PEAD) &mdash; the most robust anomaly</td>
+        </tr>
+        <tr>
+          <td>Price moves before announcement</td>
+          <td>Maybe</td>
+          <td>Could be information leakage, or market anticipation</td>
+        </tr>
+        <tr>
+          <td>No price reaction to announcement</td>
+          <td>Yes (if priced in)</td>
+          <td>Market already knew the information</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre class="code-block"><span class="code-label">Python</span>import numpy as np
+import pandas as pd
+import yfinance as yf
+import statsmodels.api as sm
+
+def simple_event_study(stock_ticker, market_ticker, event_date,
+                       estimation_window=120, event_window=10):
+    """
+    Conduct a simple event study around a given date.
+
+    Parameters:
+      stock_ticker: ticker of the stock to study
+      market_ticker: ticker of the market proxy
+      event_date: the event date (string, 'YYYY-MM-DD')
+      estimation_window: days before event for model estimation
+      event_window: days before and after event to analyze
+    """
+    # Download data with buffer
+    start = pd.Timestamp(event_date) - pd.Timedelta(days=estimation_window*2)
+    end = pd.Timestamp(event_date) + pd.Timedelta(days=event_window*3)
+    data = yf.download([stock_ticker, market_ticker],
+                       start=start, end=end)["Adj Close"]
+    rets = data.pct_change().dropna()
+
+    # Find the event date in trading calendar
+    event_ts = pd.Timestamp(event_date)
+    trading_dates = rets.index
+    event_idx = trading_dates.get_indexer([event_ts], method='nearest')[0]
+
+    # Estimation window: [-estimation_window, -event_window-1] relative to event
+    est_start = event_idx - estimation_window
+    est_end = event_idx - event_window - 1
+
+    # Event window: [-event_window, +event_window]
+    evt_start = event_idx - event_window
+    evt_end = event_idx + event_window
+
+    # Estimate CAPM in estimation window
+    est_data = rets.iloc[est_start:est_end+1]
+    X_est = sm.add_constant(est_data[market_ticker])
+    y_est = est_data[stock_ticker]
+    model = sm.OLS(y_est, X_est).fit()
+    alpha_hat = model.params['const']
+    beta_hat = model.params[market_ticker]
+    sigma_hat = model.resid.std()
+
+    # Compute abnormal returns in event window
+    evt_data = rets.iloc[evt_start:evt_end+1]
+    expected_returns = alpha_hat + beta_hat * evt_data[market_ticker]
+    abnormal_returns = evt_data[stock_ticker] - expected_returns
+
+    # Cumulative abnormal returns
+    car = abnormal_returns.cumsum()
+
+    # Relative day index
+    relative_days = range(-event_window, event_window + 1)
+
+    # t-test for CAR
+    L = len(abnormal_returns)
+    car_total = car.iloc[-1]
+    t_stat = car_total / (sigma_hat * np.sqrt(L))
+    from scipy.stats import t as t_dist
+    p_value = 2 * (1 - t_dist.cdf(abs(t_stat), model.df_resid))
+
+    # Print results
+    print(f"\nEvent Study: {stock_ticker} around {event_date}")
+    print(f"{'='*55}")
+    print(f"  Estimation window: {est_data.index[0].date()} to "
+          f"{est_data.index[-1].date()}")
+    print(f"  CAPM alpha: {alpha_hat:.6f}, beta: {beta_hat:.4f}")
+    print(f"  Residual std: {sigma_hat:.6f}")
+    print(f"  {'─'*53}")
+    print(f"  Event window: [{-event_window}, +{event_window}] days")
+    print(f"  CAR over event window: {car_total*100:.2f}%")
+    print(f"  t-statistic: {t_stat:.4f}")
+    print(f"  p-value: {p_value:.4f}")
+    print(f"{'='*55}")
+
+    # Plot
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
+    ax1.bar(relative_days[:len(abnormal_returns)],
+            abnormal_returns.values * 100,
+            color=['#38a169' if x > 0 else '#e53e3e'
+                   for x in abnormal_returns.values],
+            alpha=0.7)
+    ax1.axvline(x=0, color='black', linestyle='--', linewidth=1.5,
+                label='Event date')
+    ax1.set_ylabel("Abnormal Return (%)")
+    ax1.set_title(f"Abnormal Returns: {stock_ticker}")
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    ax2.plot(relative_days[:len(car)], car.values * 100,
+             'o-', color='#1a365d', linewidth=2)
+    ax2.axhline(y=0, color='gray', linestyle='-', alpha=0.5)
+    ax2.axvline(x=0, color='black', linestyle='--', linewidth=1.5,
+                label='Event date')
+    ax2.fill_between(relative_days[:len(car)], 0, car.values * 100,
+                     alpha=0.2, color='#1a365d')
+    ax2.set_ylabel("Cumulative Abnormal Return (%)")
+    ax2.set_xlabel("Days Relative to Event")
+    ax2.set_title(f"CAR: {stock_ticker} (t-stat = {t_stat:.2f})")
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"event_study_{stock_ticker}.png", dpi=150,
+                bbox_inches='tight')
+    plt.show()
+
+    return abnormal_returns, car
+
+# Example: Apple earnings announcement
+# (Use a known date - adjust as needed)
+ar, car = simple_event_study(
+    "AAPL", "SPY", "2023-10-26",  # Example earnings date
+    estimation_window=120, event_window=10
+)</pre>
+
+    <div class="common-pitfall">
+      <div class="cb-title">Common Pitfall</div>
+      <p>
+        The event study assumes that the CAPM (or whatever model you use for expected returns)
+        is correctly specified during the event window. If the model is wrong, the &ldquo;abnormal
+        returns&rdquo; you measure might just be model errors. This is the <strong>joint
+        hypothesis problem</strong> in action: you're simultaneously testing EMH and your
+        return model.
+      </p>
+    </div>
+
+
+    <!-- SECTION 6: THE JOINT HYPOTHESIS PROBLEM -->
+
+    <h2>6. The Joint Hypothesis Problem</h2>
+
+    <p>
+      This is the deepest conceptual issue in testing the EMH, and it's essentially a
+      <strong>model identification problem</strong>:
+    </p>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        You can <em>never</em> test EMH alone. Every test of market efficiency is simultaneously
+        a test of the model used to define &ldquo;expected returns.&rdquo; If you find that
+        stocks with low P/E ratios earn high returns, there are two explanations:
+        (1) the market is inefficient (P/E predicts mispricing), or
+        (2) the market is efficient, and low P/E is a proxy for some risk that the CAPM
+        doesn't capture. You cannot distinguish between these without knowing the
+        &ldquo;true&rdquo; model of expected returns &mdash; which you don't.
+      </p>
+    </div>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        This is the <strong>omitted variable bias problem</strong> from econometrics. If the
+        true model has K factors but you only use K&minus;1, the remaining factor's effect
+        shows up in the alpha &mdash; making it look like there's a predictable excess return
+        when there isn't. You can never be sure you've included all relevant factors. This is
+        why &ldquo;proving&rdquo; market inefficiency is extraordinarily difficult.
+      </p>
+    </div>
+
+    <p>
+      The joint hypothesis problem means that every &ldquo;anomaly&rdquo; (pattern in returns
+      that seems to violate EMH) has two possible interpretations:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Anomaly</th>
+          <th>Inefficiency Interpretation</th>
+          <th>Risk-Based Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Value premium (low P/E outperforms)</td>
+          <td>Market underprices boring/distressed firms</td>
+          <td>Value stocks are riskier (financial distress risk)</td>
+        </tr>
+        <tr>
+          <td>Size premium (small caps outperform)</td>
+          <td>Market neglects small firms</td>
+          <td>Small stocks have liquidity risk, higher beta in bad times</td>
+        </tr>
+        <tr>
+          <td>Momentum (past winners keep winning)</td>
+          <td>Investors under-react to information</td>
+          <td>Momentum is compensation for crash risk</td>
+        </tr>
+        <tr>
+          <td>Low volatility anomaly (safe stocks outperform)</td>
+          <td>Investors overpay for lottery-like stocks</td>
+          <td>Leverage constraints create demand for high-beta stocks</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- SECTION 7: PREDICTABILITY VS. PROFITABILITY -->
+
+    <h2>7. Predictability Does Not Equal Profitability</h2>
+
+    <p>
+      Even if you can statistically predict returns (reject the null of no predictability),
+      it does not follow that you can make money from the prediction. Several wedges stand
+      between statistical significance and economic significance:
+    </p>
+
+    <ul>
+      <li><strong>Transaction costs:</strong> The bid-ask spread, commissions, and market impact can eat up small predicted returns.</li>
+      <li><strong>Capacity constraints:</strong> Strategies that trade on small/illiquid stocks may not scale.</li>
+      <li><strong>Data-snooping:</strong> With enough variables tested, spurious predictability is guaranteed (multiple testing problem).</li>
+      <li><strong>Out-of-sample decay:</strong> Anomalies discovered in sample often weaken or disappear out-of-sample.</li>
+      <li><strong>Risk adjustment:</strong> The &ldquo;excess return&rdquo; may actually be fair compensation for a risk you're not measuring.</li>
+    </ul>
+
+    <pre class="code-block"><span class="code-label">Python</span>def economic_significance(returns, transaction_cost_bps=10):
+    """
+    Compare statistical significance of autocorrelation
+    with economic significance after transaction costs.
+    """
+    # Strategy: buy if yesterday's return was positive,
+    # sell if negative (momentum at daily frequency)
+    signals = np.sign(returns.shift(1))
+    strategy_returns = signals * returns
+
+    # Remove first observation (no signal)
+    strategy_returns = strategy_returns.dropna()
+
+    # Gross performance
+    gross_return = strategy_returns.mean() * 252
+    gross_sharpe = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
+
+    # Transaction costs (trade every day = 100% one-way turnover)
+    tc_daily = transaction_cost_bps / 10000
+    net_returns = strategy_returns - tc_daily  # every day we trade
+    net_return = net_returns.mean() * 252
+    net_sharpe = net_returns.mean() / net_returns.std() * np.sqrt(252)
+
+    # Autocorrelation test
+    from scipy.stats import pearsonr
+    corr, pval = pearsonr(returns.iloc[:-1], returns.iloc[1:])
+
+    print(f"Daily Momentum Strategy Analysis")
+    print(f"{'='*50}")
+    print(f"  Lag-1 autocorrelation:   {corr:.6f}")
+    print(f"  p-value:                 {pval:.4f}")
+    print(f"  Statistically signif.?   {'Yes' if pval &lt; 0.05 else 'No'}")
+    print(f"  {'─'*48}")
+    print(f"  Gross annual return:     {gross_return*100:.2f}%")
+    print(f"  Gross Sharpe ratio:      {gross_sharpe:.4f}")
+    print(f"  {'─'*48}")
+    print(f"  Transaction cost:        {transaction_cost_bps} bps per trade")
+    print(f"  Net annual return:       {net_return*100:.2f}%")
+    print(f"  Net Sharpe ratio:        {net_sharpe:.4f}")
+    print(f"  Economically signif.?    {'Yes' if net_return > 0 else 'No'}")
+    print(f"{'='*50}")
+
+economic_significance(returns, transaction_cost_bps=5)
+print()
+economic_significance(returns, transaction_cost_bps=10)
+print()
+economic_significance(returns, transaction_cost_bps=20)</pre>
+
+    <div class="key-insight">
+      <div class="cb-title">Key Insight</div>
+      <p>
+        Statistical significance at the 5% level requires an effect size proportional to
+        1/&radic;T. With T = 3,500 daily observations, an autocorrelation as tiny as 0.03
+        can be &ldquo;statistically significant.&rdquo; But a 0.03 autocorrelation generates
+        perhaps 50 basis points of annual return before costs &mdash; not enough to cover
+        transaction costs for most strategies. The market can be &ldquo;statistically
+        inefficient&rdquo; but &ldquo;economically efficient&rdquo; once you account for the
+        costs of exploiting the inefficiency.
+      </p>
+    </div>
+
+
+    <!-- SECTION 8: THE ADAPTIVE MARKET HYPOTHESIS -->
+
+    <h2>8. Beyond EMH: The Adaptive Market Hypothesis</h2>
+
+    <p>
+      Andrew Lo (2004) proposed the <strong>Adaptive Market Hypothesis (AMH)</strong> as a
+      reconciliation between EMH and behavioral finance. The key ideas:
+    </p>
+
+    <ul>
+      <li>Market efficiency is not a fixed state but <strong>varies over time</strong>.</li>
+      <li>Profit opportunities exist but are competed away as more traders discover them.</li>
+      <li>New inefficiencies emerge as market conditions change and old strategies decay.</li>
+      <li>The degree of efficiency depends on the number and sophistication of participants, the depth of the market, and the nature of the available information.</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The AMH is fundamentally about <strong>nonstationarity</strong>. Rather than testing
+        whether &rho;(1) = 0 over the entire sample, we should test whether &rho;(1)
+        <em>varies over time</em>. Rolling-window autocorrelation tests, structural break
+        tests, and regime-switching models are the appropriate statistical tools. The market
+        might be efficient in one regime and inefficient in another &mdash; the stationary
+        tests we've been running may miss this entirely.
+      </p>
+    </div>
+
+    <pre class="code-block"><span class="code-label">Python</span># Rolling autocorrelation to test the AMH
+window = 252  # 1-year rolling window
+
+rolling_acf1 = returns.rolling(window).apply(
+    lambda x: x.autocorr(lag=1), raw=False
+)
+
+# Rolling variance ratio (k=5)
+def rolling_vr(returns, window, k=5):
+    vr_series = []
+    for end in range(window, len(returns)):
+        chunk = returns.iloc[end-window:end].values
+        var_1 = np.var(chunk, ddof=1)
+        k_rets = pd.Series(chunk).rolling(k).sum().dropna().values
+        var_k = np.var(k_rets, ddof=1)
+        vr = var_k / (k * var_1) if var_1 > 0 else 1
+        vr_series.append(vr)
+    return pd.Series(vr_series, index=returns.index[window:])
+
+rolling_vr5 = rolling_vr(returns, window, k=5)
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+ax1.plot(rolling_acf1, color='#1a365d', linewidth=1)
+ax1.axhline(y=0, color='#e53e3e', linestyle='--')
+ax1.fill_between(rolling_acf1.index,
+                 -1.96/np.sqrt(window), 1.96/np.sqrt(window),
+                 alpha=0.2, color='#e53e3e', label='95% CI')
+ax1.set_ylabel("Lag-1 Autocorrelation")
+ax1.set_title("Rolling 1-Year Autocorrelation of SPY Returns")
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+ax2.plot(rolling_vr5, color='#1a365d', linewidth=1)
+ax2.axhline(y=1, color='#e53e3e', linestyle='--',
+            label='Random Walk (VR=1)')
+ax2.set_ylabel("Variance Ratio VR(5)")
+ax2.set_title("Rolling 1-Year Variance Ratio (k=5)")
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("adaptive_market.png", dpi=150, bbox_inches='tight')
+plt.show()</pre>
+
+
+    <!-- SECTION 9: SUMMARY -->
+
+    <h2>9. Chapter Summary</h2>
+
+    <p>
+      The Efficient Market Hypothesis is a statistical claim about the unpredictability of
+      risk-adjusted returns. Testing it requires the full arsenal of time series analysis:
+    </p>
+
+    <ul>
+      <li><strong>EMH states that excess returns are a martingale difference sequence</strong> &mdash; unpredictable given the information set. It is not a claim about prices being &ldquo;right,&rdquo; just that they are unpredictable.</li>
+      <li><strong>Weak-form tests</strong> (autocorrelation, variance ratio, runs tests) check whether past returns predict future returns. For large, liquid markets, these tests generally support weak-form efficiency.</li>
+      <li><strong>Semi-strong-form tests</strong> (event studies) check whether prices react efficiently to public information. Post-Earnings Announcement Drift remains a stubborn anomaly.</li>
+      <li><strong>The joint hypothesis problem</strong> means you can never test EMH without also testing a model of expected returns. Every &ldquo;anomaly&rdquo; has both a mispricing and a risk-based interpretation.</li>
+      <li><strong>Statistical significance is not economic significance.</strong> Transaction costs, capacity, and data-snooping can eliminate the apparent profitability of statistically detectable patterns.</li>
+      <li><strong>The Adaptive Market Hypothesis</strong> proposes that efficiency is time-varying and regime-dependent, requiring nonstationary statistical methods.</li>
+    </ul>
+
+    <div class="stats-bridge">
+      <div class="cb-title">Stats Bridge</div>
+      <p>
+        The EMH debate is fundamentally about <strong>predictability</strong> &mdash; can you
+        build a forecasting model for returns that has a positive out-of-sample R<sup>2</sup>
+        after accounting for transaction costs and risk? Your training in time series analysis,
+        forecasting evaluation, cross-validation, and multiple testing correction gives you
+        the exact tools to engage rigorously with this question. The answer, for what it's
+        worth, is: slightly, sometimes, for some assets, if you're careful.
+      </p>
+    </div>
+
+    <div class="nav-buttons" style="margin-top:2rem; border-top:1px solid var(--border-color); border-bottom:none; padding-top:var(--spacing-sm);">
+      <a href="../module-08/index.html">&larr; Previous</a>
+      <a href="../index.html">Course Home</a>
+      <a href="../module-10/index.html">Next &rarr;</a>
+    </div>
+
+  </main>
+  <footer>
+    <p>&copy; 2025 Safaa Dabagh. All rights reserved.</p>
+  </footer>
+</body>
+</html>
