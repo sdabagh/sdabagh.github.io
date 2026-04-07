@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 4: Least Squares Problems – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 7 Home</a><span class="text-muted">Lesson 4 of 4</span><a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a></div>
+    <h1>Lesson 4: Least Squares Problems</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Understand why overdetermined systems (more equations than unknowns) typically have no exact solution</li>
+      <li>Derive and solve the normal equations A^T A x-hat = A^T b</li>
+      <li>Apply least squares to find the best-fit line through data points</li>
+      <li>Connect least squares to projection: x-hat minimizes ||b - Ax||</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>The Problem: Inconsistent Systems</h2>
+      <p>When a system Ax = b has more equations than unknowns (overdetermined), there is usually no exact solution. Instead, we find the vector x-hat that makes Ax-hat as close to b as possible.</p>
+      <div class="definition-box"><p><strong>Least Squares Solution:</strong> x-hat minimizes ||b - Ax|| over all x. Equivalently, Ax-hat = proj_{col(A)}(b) -- the projection of b onto the column space of A.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Normal Equations</h2>
+      <p>The residual b - Ax-hat must be orthogonal to the column space of A. This means A^T(b - Ax-hat) = 0, which gives:</p>
+      <div class="definition-box"><p><strong>Normal Equations:</strong> A^T A x-hat = A^T b.</p>
+      <p>If A has linearly independent columns, then A^T A is invertible and x-hat = (A^T A)^{-1} A^T b.</p></div>
+      <div class="example-box"><h4>Worked Example 1</h4>
+        <p>Solve the least squares problem for Ax = b where A = [1 1; 1 2; 1 3], b = (1, 1, 3).</p>
+        <p>A^T A = [1 1 1; 1 2 3][1 1; 1 2; 1 3] = [3 6; 6 14].</p>
+        <p>A^T b = [1 1 1; 1 2 3](1, 1, 3)^T = [5; 12].</p>
+        <p>Solve [3 6; 6 14][x1; x2] = [5; 12]. From row 1: 3x1 + 6x2 = 5. Row 2 - 2*Row 1: 2x2 = 2, so x2 = 1. Then x1 = (5-6)/3 = -1/3.</p>
+        <p>Least squares solution: <strong>x-hat = (-1/3, 1)</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Best-Fit Line</h2>
+      <p>Given data points (t1, y1), ..., (tn, yn), the best-fit line y = c0 + c1*t minimizes the sum of squared residuals.</p>
+      <div class="definition-box"><p><strong>Setup:</strong> Let A = [1 t1; 1 t2; ...; 1 tn] and b = (y1, ..., yn). Solve A^T A x-hat = A^T b for x-hat = (c0, c1).</p></div>
+      <div class="example-box"><h4>Worked Example 2: Best-Fit Line</h4>
+        <p>Data: (1, 1), (2, 1), (3, 3). Find the best-fit line y = c0 + c1*t.</p>
+        <p>A = [1 1; 1 2; 1 3], b = (1, 1, 3). This is exactly Example 1!</p>
+        <p>x-hat = (-1/3, 1). Best-fit line: <strong>y = -1/3 + t</strong>.</p>
+        <p>Check predictions: t=1: y=2/3, t=2: y=5/3, t=3: y=8/3. Residuals: 1/3, -2/3, 1/3.</p>
+        <p>Sum of squared residuals: 1/9 + 4/9 + 1/9 = 6/9 = 2/3. No other line gives a smaller total.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Geometric Interpretation</h2>
+      <p>The least squares solution projects b onto col(A). The residual e = b - Ax-hat is perpendicular to col(A).</p>
+      <div class="example-box"><h4>Worked Example 3</h4>
+        <p>From Example 1: Ax-hat = [1 1; 1 2; 1 3](-1/3, 1)^T = (2/3, 5/3, 8/3).</p>
+        <p>Residual: e = b - Ax-hat = (1/3, -2/3, 1/3).</p>
+        <p>Check e &perp; col(A): A^T * e = [1 1 1; 1 2 3](1/3, -2/3, 1/3)^T = [0; 0]. Confirmed!</p>
+        <p>The least squares error: ||e|| = sqrt(1/9 + 4/9 + 1/9) = sqrt(6/9) = sqrt(6)/3.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Fitting Other Models</h2>
+      <p>Least squares is not limited to lines. Any model that is linear in the parameters can be fit this way.</p>
+      <div class="example-box"><h4>Worked Example 4: Best-Fit Parabola</h4>
+        <p>Data: (0, 1), (1, 0), (2, 1), (3, 4). Fit y = c0 + c1*t + c2*t^2.</p>
+        <p>A = [1 0 0; 1 1 1; 1 2 4; 1 3 9], b = (1, 0, 1, 4).</p>
+        <p>A^T A = [4 6 14; 6 14 36; 14 36 98]. A^T b = [6; 15; 41].</p>
+        <p>Solving gives approximately c0 = 1, c1 = -1.5, c2 = 0.75.</p>
+        <p>Best-fit parabola: y = 1 - 1.5t + 0.75t^2.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Connection to Statistics</h2>
+      <div class="definition-box"><p><strong>Linear Regression:</strong> The least squares method is the mathematical foundation of linear regression in statistics. The normal equations A^T A x-hat = A^T b give the ordinary least squares (OLS) estimator.</p>
+      <p>In statistics notation: X^T X beta-hat = X^T y, where X is the design matrix and beta-hat contains the estimated coefficients.</p></div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Write the normal equations for the least squares problem Ax = b.</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> A^T A x-hat = A^T b.</div></div>
+      <div class="question"><p>2. Data points: (0, 2), (1, 1), (2, 4). Set up the design matrix A and vector b for the best-fit line y = c0 + c1*t.</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> A = [1 0; 1 1; 1 2], b = (2, 1, 4). Then solve A^T A x = A^T b.</div></div>
+      <div class="question"><p>3. Why must the residual b - Ax-hat be orthogonal to col(A)?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Because Ax-hat is the projection of b onto col(A), and by the orthogonal decomposition theorem, the residual must lie in col(A)-perp.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>Normal equations:</strong> A^T A x-hat = A^T b gives the least squares solution</li>
+      <li>x-hat minimizes ||b - Ax|| (the sum of squared residuals)</li>
+      <li><strong>Best-fit line:</strong> A = [1 t1; ...; 1 tn], solve for (intercept, slope)</li>
+      <li>Geometric view: Ax-hat = proj_{col(A)}(b), and b - Ax-hat is in col(A)-perp</li>
+      <li>Can fit any model linear in parameters (lines, polynomials, etc.)</li>
+      <li>This is the <strong>mathematical foundation of linear regression</strong></li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Practice</h3><p>Test your skills with 10 problems.</p><a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 7 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

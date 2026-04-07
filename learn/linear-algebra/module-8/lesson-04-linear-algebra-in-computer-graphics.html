@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 4: Computer Graphics – Rotations, Scaling, Projections – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 8 Home</a><span class="text-muted">Lesson 4 of 4</span><a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a></div>
+    <h1>Lesson 4: Computer Graphics -- Rotations, Scaling, and Projections</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Write transformation matrices for rotation, scaling, reflection, and shearing</li>
+      <li>Use homogeneous coordinates to represent translations as matrix multiplication</li>
+      <li>Compose multiple transformations by multiplying matrices</li>
+      <li>Understand how 3D scenes are projected onto 2D screens</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>2D Transformation Matrices</h2>
+      <div class="definition-box"><p><strong>Basic 2D Transformations:</strong> Each is a 2x2 matrix that acts on points (x, y).</p></div>
+      <div class="example-box"><h4>Rotation by angle theta (counterclockwise)</h4>
+        <div class="matrix-display">R(theta) = [cos(theta) -sin(theta); sin(theta) cos(theta)]</div>
+        <p>R(90) = [0 -1; 1 0]. Sends (1, 0) to (0, 1) and (0, 1) to (-1, 0).</p>
+      </div>
+      <div class="example-box"><h4>Scaling by factors sx and sy</h4>
+        <div class="matrix-display">S = [sx 0; 0 sy]</div>
+        <p>Uniform scaling (sx = sy = k): S = kI. Non-uniform: stretches differently in each direction.</p>
+      </div>
+      <div class="example-box"><h4>Reflection and Shearing</h4>
+        <p>Reflection over x-axis: [1 0; 0 -1]. Over y-axis: [-1 0; 0 1]. Over y = x: [0 1; 1 0].</p>
+        <p>Horizontal shear by factor k: [1 k; 0 1]. Vertical shear by factor k: [1 0; k 1].</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Homogeneous Coordinates</h2>
+      <p>Translation (x, y) &rarr; (x + tx, y + ty) is NOT a linear transformation in 2D. The trick: add an extra coordinate.</p>
+      <div class="definition-box"><p><strong>Homogeneous Coordinates:</strong> Represent the 2D point (x, y) as the 3D vector (x, y, 1). Now translation becomes matrix multiplication:</p>
+      <div class="matrix-display">[1 0 tx; 0 1 ty; 0 0 1] * [x; y; 1] = [x+tx; y+ty; 1]</div></div>
+      <div class="example-box"><h4>Worked Example 1: Translation</h4>
+        <p>Translate (3, 2) by (5, -1):</p>
+        <p>[1 0 5; 0 1 -1; 0 0 1] * [3; 2; 1] = [8; 1; 1]. Result: (8, 1). Correct!</p>
+      </div>
+      <div class="definition-box"><p><strong>All 2D transforms in homogeneous coordinates:</strong></p>
+      <p>Rotation: [cos -sin 0; sin cos 0; 0 0 1]. Scaling: [sx 0 0; 0 sy 0; 0 0 1]. Translation: [1 0 tx; 0 1 ty; 0 0 1].</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Composing Transformations</h2>
+      <p>To apply multiple transformations, multiply their matrices. The order matters!</p>
+      <div class="definition-box"><p><strong>Composition Rule:</strong> Apply T1 first, then T2: the combined matrix is M = T2 * T1 (rightmost applied first).</p></div>
+      <div class="example-box"><h4>Worked Example 2: Rotate then Translate</h4>
+        <p>Rotate 90 degrees, then translate by (3, 0). In homogeneous coordinates:</p>
+        <p>R = [0 -1 0; 1 0 0; 0 0 1]. T = [1 0 3; 0 1 0; 0 0 1].</p>
+        <p>M = T * R = [0 -1 3; 1 0 0; 0 0 1].</p>
+        <p>Apply to (1, 0): M * (1, 0, 1)^T = (0+0+3, 1+0+0, 1)^T = (3, 1, 1). Result: (3, 1).</p>
+        <p>Check: rotate (1,0) 90 degrees gives (0,1). Translate by (3,0) gives (3, 1). Correct!</p>
+      </div>
+      <div class="example-box"><h4>Worked Example 3: Scale then Rotate vs. Rotate then Scale</h4>
+        <p>Scale by 2, then rotate 45 degrees vs. rotate 45 degrees, then scale by 2.</p>
+        <p>For uniform scaling (same factor in both directions), the order does not matter: 2R = R * 2I.</p>
+        <p>For non-uniform scaling, order matters! Scaling [2 0; 0 1] then rotating gives a different result than rotating then scaling.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>3D Transformations</h2>
+      <p>In 3D, use 4x4 matrices with homogeneous coordinates (x, y, z, 1).</p>
+      <div class="definition-box"><p><strong>3D Rotation Matrices (about coordinate axes):</strong></p>
+      <p>Rx(theta) = [1 0 0; 0 cos -sin; 0 sin cos] (rotation about x-axis)</p>
+      <p>Ry(theta) = [cos 0 sin; 0 1 0; -sin 0 cos] (rotation about y-axis)</p>
+      <p>Rz(theta) = [cos -sin 0; sin cos 0; 0 0 1] (rotation about z-axis)</p></div>
+      <div class="example-box"><h4>Worked Example 4: 3D Translation</h4>
+        <p>Translate (1, 2, 3) by (10, 0, -5) in homogeneous coordinates:</p>
+        <p>[1 0 0 10; 0 1 0 0; 0 0 1 -5; 0 0 0 1] * [1; 2; 3; 1] = [11; 2; -2; 1]. Result: (11, 2, -2).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Perspective Projection</h2>
+      <p>To display a 3D scene on a 2D screen, we project 3D points onto a viewing plane.</p>
+      <div class="definition-box"><p><strong>Simple Perspective:</strong> For a camera at the origin looking along the z-axis, a point (x, y, z) projects to (x/z, y/z) on the z = 1 plane (assuming z > 0).</p>
+      <p>In homogeneous coordinates: [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 1 0] * (x, y, z, 1)^T = (x, y, z, z)^T. Dividing by z gives (x/z, y/z, 1).</p></div>
+      <div class="example-box"><h4>Worked Example 5</h4>
+        <p>Project (6, 4, 2) with simple perspective: (6/2, 4/2) = <strong>(3, 2)</strong>.</p>
+        <p>Project (6, 4, 4): (6/4, 4/4) = <strong>(1.5, 1)</strong>. Farther objects appear smaller -- this creates the depth illusion.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Write the 2x2 rotation matrix for 180 degrees.</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> R(180) = [cos(180) -sin(180); sin(180) cos(180)] = [-1 0; 0 -1] = -I. Every point is sent to its opposite.</div></div>
+      <div class="question"><p>2. Why are homogeneous coordinates necessary for translation?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> Translation is NOT a linear transformation in R^2 (it does not map 0 to 0). Homogeneous coordinates embed R^2 into R^3 where translation becomes a linear (matrix) operation.</div></div>
+      <div class="question"><p>3. In composing transformations T1 then T2, which matrix goes on the left?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> T2 goes on the left: M = T2 * T1. The rightmost matrix is applied first. This is because (T2 * T1) * v = T2(T1(v)).</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>2D transformations:</strong> rotation, scaling, reflection, shearing -- all are 2x2 matrices</li>
+      <li><strong>Homogeneous coordinates:</strong> represent (x,y) as (x,y,1) to include translation in matrix multiplication</li>
+      <li><strong>Composition:</strong> M = T_last * ... * T_2 * T_1 (rightmost applied first)</li>
+      <li><strong>3D:</strong> 4x4 homogeneous matrices for rotation, scaling, translation</li>
+      <li><strong>Perspective projection:</strong> (x, y, z) maps to (x/z, y/z) -- farther objects appear smaller</li>
+      <li>Every transformation in computer graphics is a matrix multiplication</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Practice</h3><p>Test your skills with 10 problems.</p><a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 8 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

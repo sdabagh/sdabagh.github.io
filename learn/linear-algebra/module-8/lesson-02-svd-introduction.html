@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 2: Introduction to SVD – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 8 Home</a><span class="text-muted">Lesson 2 of 4</span><a href="lesson-03-linear-algebra-in-data-science.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 2: Introduction to the Singular Value Decomposition (SVD)</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>State the SVD theorem: A = U Sigma V^T</li>
+      <li>Compute the SVD for small matrices step by step</li>
+      <li>Understand the geometric interpretation: rotate, stretch, rotate</li>
+      <li>Connect singular values to eigenvalues of A^T A</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>What Is the SVD?</h2>
+      <div class="definition-box"><p><strong>Singular Value Decomposition:</strong> Every m x n matrix A can be factored as A = U * Sigma * V^T, where:</p>
+      <ul>
+        <li>U is m x m orthogonal (columns are left singular vectors)</li>
+        <li>Sigma is m x n diagonal (entries are singular values sigma_1 &ge; sigma_2 &ge; ... &ge; 0)</li>
+        <li>V is n x n orthogonal (columns are right singular vectors)</li>
+      </ul></div>
+      <p>Unlike diagonalization, the SVD exists for <em>every</em> matrix -- not just square ones, and not just diagonalizable ones.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Singular Values and Vectors</h2>
+      <div class="definition-box"><p><strong>Singular Values:</strong> The singular values of A are sigma_i = sqrt(lambda_i), where lambda_i are the eigenvalues of A^T A (arranged in decreasing order).</p>
+      <p><strong>Right singular vectors:</strong> Columns of V are the eigenvectors of A^T A (orthonormal).</p>
+      <p><strong>Left singular vectors:</strong> Columns of U are the eigenvectors of A*A^T (orthonormal), or computed from u_i = (1/sigma_i) A v_i.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Computing the SVD: Step by Step</h2>
+      <p><strong>Step 1:</strong> Compute A^T A and find its eigenvalues and eigenvectors. The eigenvectors (orthonormalized) form V.</p>
+      <p><strong>Step 2:</strong> The singular values are the square roots of the eigenvalues of A^T A.</p>
+      <p><strong>Step 3:</strong> Compute U columns: u_i = (1/sigma_i) A v_i for each nonzero singular value. Extend to a full orthonormal set if needed.</p>
+      <div class="example-box"><h4>Worked Example 1: SVD of a 2x2 Matrix</h4>
+        <p>A = [3 0; 0 2].</p>
+        <p><strong>Step 1:</strong> A^T A = [9 0; 0 4]. Eigenvalues: 9 and 4. V = I = [1 0; 0 1].</p>
+        <p><strong>Step 2:</strong> sigma_1 = 3, sigma_2 = 2. Sigma = [3 0; 0 2].</p>
+        <p><strong>Step 3:</strong> u1 = (1/3)A(1,0)^T = (1,0). u2 = (1/2)A(0,1)^T = (0,1). U = I.</p>
+        <p>A = I [3 0; 0 2] I^T. For diagonal matrices, the SVD is trivial!</p>
+      </div>
+      <div class="example-box"><h4>Worked Example 2: SVD of a Rectangular Matrix</h4>
+        <p>A = [1 1; 0 1; 1 0]. (3x2 matrix)</p>
+        <p><strong>Step 1:</strong> A^T A = [1 0 1; 1 1 0][1 1; 0 1; 1 0] = [2 1; 1 2]. Eigenvalues: 3 and 1.</p>
+        <p>lambda = 3: v1 = (1/sqrt(2))(1, 1). lambda = 1: v2 = (1/sqrt(2))(1, -1).</p>
+        <p><strong>Step 2:</strong> sigma_1 = sqrt(3), sigma_2 = 1.</p>
+        <p><strong>Step 3:</strong> u1 = (1/sqrt(3)) A v1 = (1/sqrt(3))(1/sqrt(2))(2, 1, 1) = (1/sqrt(6))(2, 1, 1).</p>
+        <p>u2 = A v2 = (1/sqrt(2))(0, 1, -1) = wait, let me recompute. u2 = (1/1)(1/sqrt(2))(0, -1, 1) = (1/sqrt(2))(0, -1, 1).</p>
+        <p>u3 is chosen to complete the orthonormal basis for R^3: u3 = (1/sqrt(3))(1, -1, -1) (after orthogonalization).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Geometric Interpretation</h2>
+      <p>The SVD reveals that every linear transformation can be decomposed into three simpler steps:</p>
+      <div class="matrix-display">A = U Sigma V^T: first rotate/reflect (V^T), then stretch (Sigma), then rotate/reflect (U)</div>
+      <div class="definition-box"><p><strong>Geometry:</strong> A maps the unit sphere to an ellipse. The singular values are the semi-axis lengths of the ellipse. The right singular vectors are the input directions, and the left singular vectors are the output directions.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Properties and Connections</h2>
+      <div class="definition-box"><p><strong>Key Properties:</strong></p>
+      <ul>
+        <li>rank(A) = number of nonzero singular values</li>
+        <li>||A|| (operator norm) = sigma_1 (the largest singular value)</li>
+        <li>||A||_F (Frobenius norm) = sqrt(sigma_1^2 + sigma_2^2 + ...)</li>
+        <li>The singular values of A are the square roots of the eigenvalues of A^T A</li>
+      </ul></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Low-Rank Approximation</h2>
+      <p>Truncating the SVD to the first k singular values gives the best rank-k approximation of A.</p>
+      <div class="definition-box"><p><strong>Eckart-Young Theorem:</strong> A_k = sigma_1 u1 v1^T + sigma_2 u2 v2^T + ... + sigma_k uk vk^T is the closest rank-k matrix to A (in both Frobenius and operator norms).</p></div>
+      <div class="example-box"><h4>Worked Example 3: Rank-1 Approximation</h4>
+        <p>A = [3 0; 0 2]. sigma_1 = 3, u1 = (1,0), v1 = (1,0).</p>
+        <p>Best rank-1 approximation: A_1 = 3 * (1,0)^T * (1,0) = [3 0; 0 0].</p>
+        <p>Error: ||A - A_1||_F = 2 (the second singular value). The approximation captures 3/sqrt(13) is about 83% of the information.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. What are the three factors in the SVD and what are their properties?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> A = U Sigma V^T. U is orthogonal (m x m), Sigma is diagonal (m x n) with nonnegative entries, V is orthogonal (n x n).</div></div>
+      <div class="question"><p>2. How do you find the singular values of A?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> Compute eigenvalues of A^T A. The singular values are the square roots of these eigenvalues.</div></div>
+      <div class="question"><p>3. A has singular values 5, 3, 0. What is the rank of A?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> rank = 2 (the number of nonzero singular values).</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>SVD:</strong> A = U Sigma V^T exists for every matrix</li>
+      <li>Singular values = sqrt(eigenvalues of A^T A)</li>
+      <li>Geometric meaning: rotate, stretch, rotate</li>
+      <li>rank(A) = number of nonzero singular values</li>
+      <li>Truncated SVD gives the <strong>best low-rank approximation</strong></li>
+      <li>Foundation for data compression, noise reduction, and recommender systems</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>PCA and Dimensionality Reduction.</p><a href="lesson-03-linear-algebra-in-data-science.html" class="btn btn-primary mt-2">Start Lesson 3</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 8 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

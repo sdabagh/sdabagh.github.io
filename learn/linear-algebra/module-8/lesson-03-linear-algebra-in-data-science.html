@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 3: PCA and Dimensionality Reduction – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 8 Home</a><span class="text-muted">Lesson 3 of 4</span><a href="lesson-04-linear-algebra-in-computer-graphics.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 3: PCA and Dimensionality Reduction</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Compute the covariance matrix of a data set</li>
+      <li>Find principal components as eigenvectors of the covariance matrix</li>
+      <li>Determine how much variance each principal component explains</li>
+      <li>Project data onto fewer dimensions while preserving maximum information</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>The Problem: High-Dimensional Data</h2>
+      <p>Real-world data often has many variables (features). With 100 features, you have data in R^100 -- impossible to visualize. PCA finds a small number of new axes that capture most of the variation in the data.</p>
+      <div class="definition-box"><p><strong>Principal Component Analysis (PCA):</strong> An orthogonal transformation that converts possibly correlated variables into linearly uncorrelated variables called principal components, ordered so that the first few retain most of the variation.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Step 1: Center the Data</h2>
+      <p>Subtract the mean of each variable so the data is centered at the origin. If X is an n x p data matrix (n observations, p variables), compute the mean of each column and subtract it.</p>
+      <div class="example-box"><h4>Worked Example 1: Centering</h4>
+        <p>Data points in R^2: (1, 2), (3, 4), (5, 6). Means: x-bar = 3, y-bar = 4.</p>
+        <p>Centered data: (-2, -2), (0, 0), (2, 2).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Step 2: The Covariance Matrix</h2>
+      <div class="definition-box"><p><strong>Sample Covariance Matrix:</strong> S = (1/(n-1)) X_c^T X_c, where X_c is the centered data matrix. S is a symmetric p x p matrix.</p>
+      <p>Diagonal entries of S = variances of each variable. Off-diagonal = covariances between pairs.</p></div>
+      <div class="example-box"><h4>Worked Example 2</h4>
+        <p>Centered data matrix X_c = [-2 -2; 0 0; 2 2].</p>
+        <p>X_c^T X_c = [(-2)^2+0+4, (-2)(-2)+0+4; same, same] = [8 8; 8 8].</p>
+        <p>S = (1/2)[8 8; 8 8] = [4 4; 4 4]. Both variables have variance 4 and covariance 4 (perfectly correlated).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Step 3: Eigendecomposition</h2>
+      <p>The principal components are the eigenvectors of S, and the eigenvalues tell you how much variance each component explains.</p>
+      <div class="example-box"><h4>Worked Example 3: Finding Principal Components</h4>
+        <p>S = [4 4; 4 4]. Eigenvalues: lambda^2 - 8*lambda = lambda(lambda - 8) = 0. lambda_1 = 8, lambda_2 = 0.</p>
+        <p>lambda_1 = 8: eigenvector (1/sqrt(2))(1, 1). This is PC1 -- the direction of maximum variance.</p>
+        <p>lambda_2 = 0: eigenvector (1/sqrt(2))(1, -1). This is PC2 -- zero variance in this direction (data is perfectly on a line).</p>
+        <p>Variance explained by PC1: 8/(8+0) = 100%. We can reduce to 1 dimension with no information loss!</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Variance Explained</h2>
+      <div class="definition-box"><p><strong>Proportion of Variance:</strong> The proportion of total variance explained by the k-th principal component is:</p>
+      <p>lambda_k / (lambda_1 + lambda_2 + ... + lambda_p)</p>
+      <p>The cumulative proportion of the first k components measures how much information is retained when projecting to k dimensions.</p></div>
+      <div class="example-box"><h4>Worked Example 4: How Many Components?</h4>
+        <p>A dataset with 4 variables has covariance eigenvalues: 10, 5, 2, 0.5. Total = 17.5.</p>
+        <p>PC1: 10/17.5 = 57.1%. PC2: 5/17.5 = 28.6%. Cumulative: 85.7%.</p>
+        <p>PC3: 2/17.5 = 11.4%. Cumulative: 97.1%. PC4: 2.9%.</p>
+        <p>Two components capture 85.7% of variance; three capture 97.1%. A common threshold is 90-95%, suggesting 3 components suffice here.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Step 4: Project the Data</h2>
+      <p>To reduce from p to k dimensions, project each data point onto the first k principal components.</p>
+      <div class="definition-box"><p><strong>Projection:</strong> If W = [v1 | v2 | ... | vk] contains the first k eigenvectors as columns, the reduced data is Y = X_c * W. Each row of Y gives the k-dimensional representation of that data point.</p></div>
+      <div class="example-box"><h4>Worked Example 5</h4>
+        <p>From Example 3, project onto PC1 = (1/sqrt(2))(1, 1).</p>
+        <p>Point (-2, -2): score = (-2, -2) &middot; (1/sqrt(2), 1/sqrt(2)) = -4/sqrt(2) = -2*sqrt(2).</p>
+        <p>Point (0, 0): score = 0. Point (2, 2): score = 2*sqrt(2).</p>
+        <p>1D representation: {-2*sqrt(2), 0, 2*sqrt(2)}. All the variation is captured on this one axis.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Connection to SVD</h2>
+      <div class="definition-box"><p><strong>PCA via SVD:</strong> If X_c = U Sigma V^T, then the principal components are the columns of V, and the singular values relate to eigenvalues of the covariance matrix by lambda_i = sigma_i^2 / (n-1).</p>
+      <p>In practice, SVD is the preferred numerical method for computing PCA.</p></div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Why do we center the data before PCA?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> Centering ensures we are analyzing variance around the mean, not distance from the origin. Without centering, the first PC would point toward the mean, not the direction of maximum variation.</div></div>
+      <div class="question"><p>2. Eigenvalues of a covariance matrix are 6, 3, 1. What percent of variance does PC1 explain?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> 6/(6+3+1) = 6/10 = 60%.</div></div>
+      <div class="question"><p>3. Why must the covariance matrix be symmetric and positive semi-definite?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Symmetric because cov(X,Y) = cov(Y,X). Positive semi-definite because variance is nonneg: for any vector w, w^T S w = var(w^T X) &ge; 0. This guarantees all eigenvalues are nonneg.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>PCA procedure:</strong> center data &rarr; covariance matrix &rarr; eigendecomposition &rarr; project</li>
+      <li>Principal components = eigenvectors of covariance matrix, ordered by eigenvalue</li>
+      <li>Eigenvalue = variance explained by that component</li>
+      <li>Choose k components to retain desired fraction of total variance (typically 90-95%)</li>
+      <li>SVD is the practical computational method for PCA</li>
+      <li>PCA is the foundation of many data science and machine learning techniques</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>Computer Graphics Transformations.</p><a href="lesson-04-linear-algebra-in-computer-graphics.html" class="btn btn-primary mt-2">Start Lesson 4</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 8 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

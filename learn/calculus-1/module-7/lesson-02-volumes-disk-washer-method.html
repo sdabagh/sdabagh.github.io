@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Volumes of Revolution - Disk and Washer Methods for computing volumes of solids of revolution">
+  <title>Lesson 2: Volumes: Disk and Washer Methods – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 7 Home</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-volumes-shell-method.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Volumes: Disk and Washer Methods</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Visualize a solid of revolution and identify the axis of rotation</li>
+        <li>Apply the disk method for solid regions with no hole</li>
+        <li>Apply the washer method for regions with a hole (between two curves)</li>
+        <li>Set up volume integrals for rotation about the x-axis and y-axis</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Solids of Revolution</h2>
+      <p>A <strong>solid of revolution</strong> is formed when a plane region is revolved around a line (the axis of rotation). Think of a potter's wheel: a 2D profile spins to create a 3D shape.</p>
+      <p>To find the volume of such a solid, we slice it into thin cross-sections, compute the area of each slice, and integrate.</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>The Disk Method</h2>
+      <p>When a region between y = f(x) and the x-axis is revolved around the x-axis, each cross-section is a circular <strong>disk</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Disk Method (rotation about the x-axis)</strong></p>
+        <p>If the region under y = f(x) on [a, b] is revolved about the x-axis:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>V = &pi; &int;<sub>a</sub><sup>b</sup> [f(x)]&sup2; dx</strong></p>
+        <p>Each disk has radius r = f(x) and thickness dx. Area of disk = &pi;r&sup2;.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Cone via Disk Method</h4>
+        <p>Find the volume of the solid obtained by revolving y = x on [0, 3] about the x-axis.</p>
+        <p><strong>Solution:</strong> V = &pi; &int;<sub>0</sub><sup>3</sup> x&sup2; dx = &pi; [x&sup3;/3]<sub>0</sub><sup>3</sup> = &pi;(9) = <strong>9&pi;</strong>.</p>
+        <p>This is indeed the volume of a cone with radius 3 and height 3: (1/3)&pi;r&sup2;h = (1/3)&pi;(9)(3) = 9&pi;.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Paraboloid</h4>
+        <p>Revolve y = &radic;x on [0, 4] about the x-axis.</p>
+        <p><strong>Solution:</strong> V = &pi; &int;<sub>0</sub><sup>4</sup> (&radic;x)&sup2; dx = &pi; &int;<sub>0</sub><sup>4</sup> x dx = &pi; [x&sup2;/2]<sub>0</sub><sup>4</sup> = <strong>8&pi;</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>The Washer Method</h2>
+      <p>When there is a gap between the region and the axis of rotation (or the region is between two curves), the cross-sections are <strong>washers</strong> (disks with holes).</p>
+
+      <div class="definition-box">
+        <p><strong>Washer Method (rotation about the x-axis)</strong></p>
+        <p>If the region between y = f(x) (outer curve) and y = g(x) (inner curve), with f(x) &ge; g(x) &ge; 0, is revolved about the x-axis:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>V = &pi; &int;<sub>a</sub><sup>b</sup> {[f(x)]&sup2; &minus; [g(x)]&sup2;} dx</strong></p>
+        <p>Outer radius R = f(x), inner radius r = g(x). Washer area = &pi;(R&sup2; &minus; r&sup2;).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Washer Method</h4>
+        <p>Find the volume when the region between y = x&sup2; and y = x on [0, 1] is revolved about the x-axis.</p>
+        <p><strong>Step 1:</strong> On [0, 1], x &ge; x&sup2;, so outer radius R = x, inner radius r = x&sup2;.</p>
+        <p><strong>Step 2:</strong> V = &pi; &int;<sub>0</sub><sup>1</sup> [x&sup2; &minus; x<sup>4</sup>] dx = &pi; [x&sup3;/3 &minus; x<sup>5</sup>/5]<sub>0</sub><sup>1</sup> = &pi;(1/3 &minus; 1/5) = <strong>2&pi;/15</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Rotation About the y-Axis</h2>
+      <p>For rotation about the y-axis, express x as a function of y and integrate with respect to y.</p>
+
+      <div class="definition-box">
+        <p><strong>Disk/Washer Method (rotation about the y-axis)</strong></p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>V = &pi; &int;<sub>c</sub><sup>d</sup> [f(y)]&sup2; dy</strong> &nbsp;(disk)</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>V = &pi; &int;<sub>c</sub><sup>d</sup> {[f(y)]&sup2; &minus; [g(y)]&sup2;} dy</strong> &nbsp;(washer)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Rotation About the y-Axis</h4>
+        <p>Find the volume when y = x&sup2; (i.e., x = &radic;y) on [0, 4] is revolved about the y-axis.</p>
+        <p><strong>Solution:</strong> The region from y = 0 to y = 4. Radius = x = &radic;y.</p>
+        <p>V = &pi; &int;<sub>0</sub><sup>4</sup> (&radic;y)&sup2; dy = &pi; &int;<sub>0</sub><sup>4</sup> y dy = &pi; [y&sup2;/2]<sub>0</sub><sup>4</sup> = <strong>8&pi;</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Rotation About Other Lines</h2>
+      <p>When the axis of rotation is not the x-axis or y-axis, you must adjust the radii by measuring the distance from the curve to the axis of rotation.</p>
+
+      <div class="example-box">
+        <h4>Example 5: Rotation About y = &minus;1</h4>
+        <p>Find the volume when y = &radic;x on [0, 4] is revolved about y = &minus;1.</p>
+        <p><strong>Solution:</strong> The outer radius from y = &minus;1 to y = &radic;x is R = &radic;x + 1. The inner radius from y = &minus;1 to y = 0 is r = 1.</p>
+        <p>V = &pi; &int;<sub>0</sub><sup>4</sup> [(&radic;x + 1)&sup2; &minus; 1&sup2;] dx = &pi; &int;<sub>0</sub><sup>4</sup> [x + 2&radic;x + 1 &minus; 1] dx</p>
+        <p>= &pi; &int;<sub>0</sub><sup>4</sup> (x + 2&radic;x) dx = &pi; [x&sup2;/2 + (4/3)x<sup>3/2</sup>]<sub>0</sub><sup>4</sup> = &pi;(8 + 32/3) = <strong>56&pi;/3</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Setting Up Volume Integrals: A Checklist</h2>
+      <ol>
+        <li><strong>Sketch</strong> the region and identify the axis of rotation.</li>
+        <li><strong>Draw a representative slice</strong> perpendicular to the axis of rotation.</li>
+        <li><strong>Identify R and r</strong> (outer and inner radius) as distances from the axis to the curves.</li>
+        <li><strong>Set up the integral:</strong> &pi; &int; (R&sup2; &minus; r&sup2;) with appropriate variable and limits.</li>
+        <li><strong>Evaluate</strong> the integral.</li>
+      </ol>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Disk method:</strong> V = &pi; &int; [R(x)]&sup2; dx. Use when the region touches the axis of rotation.</li>
+        <li><strong>Washer method:</strong> V = &pi; &int; [R&sup2; &minus; r&sup2;] dx. Use when there is a gap (hole in the cross-section).</li>
+        <li>Slices are <strong>perpendicular</strong> to the axis of rotation.</li>
+        <li>For non-standard axes, measure radii as <strong>distances</strong> from curves to the axis.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Find the volume when y = x&sup2; on [0, 2] is revolved about the x-axis.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> V = &pi; &int;<sub>0</sub><sup>2</sup> x<sup>4</sup> dx = &pi; [x<sup>5</sup>/5]<sub>0</sub><sup>2</sup> = <strong>32&pi;/5</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Find the volume when the region between y = x and y = x&sup2; on [0, 1] is revolved about the x-axis.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> Washer: V = &pi; &int;<sub>0</sub><sup>1</sup> (x&sup2; &minus; x<sup>4</sup>) dx = &pi;(1/3 &minus; 1/5) = <strong>2&pi;/15</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Set up the integral for the volume when y = 4 &minus; x&sup2; (for y &ge; 0) is revolved about the y-axis.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> x = &radic;(4 &minus; y), y ranges from 0 to 4. V = &pi; &int;<sub>0</sub><sup>4</sup> (4 &minus; y) dy = &pi;[4y &minus; y&sup2;/2]<sub>0</sub><sup>4</sup> = <strong>8&pi;</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>Lesson 3 introduces the shell method, an alternative approach to volumes of revolution.</p><a href="lesson-03-volumes-shell-method.html" class="btn btn-primary mt-2">Start Lesson 3</a></div>
+        <div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

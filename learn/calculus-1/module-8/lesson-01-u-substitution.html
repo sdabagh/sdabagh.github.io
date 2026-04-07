@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: u-Substitution - Choosing u, changing bounds for definite integrals, common patterns">
+  <title>Lesson 1: u-Substitution – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 8 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-integration-involving-trig.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: u-Substitution</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Recognize integrals suitable for u-substitution</li>
+        <li>Choose an effective u and compute du</li>
+        <li>Apply u-substitution to indefinite and definite integrals</li>
+        <li>Change the limits of integration when working with definite integrals</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>The Idea Behind u-Substitution</h2>
+      <p>u-Substitution is the integration counterpart of the chain rule. Recall: d/dx [F(g(x))] = F'(g(x)) &middot; g'(x). Running this in reverse:</p>
+
+      <div class="definition-box">
+        <p><strong>u-Substitution Rule</strong></p>
+        <p>If u = g(x) and du = g'(x) dx, then:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>&int; f(g(x)) &middot; g'(x) dx = &int; f(u) du</strong></p>
+      </div>
+
+      <p>The key is to identify a function and its derivative within the integrand, then substitute to simplify.</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>How to Choose u</h2>
+      <p>General guidelines for picking u:</p>
+      <ul>
+        <li><strong>Inner function:</strong> If you see a composite function, let u be the inner function.</li>
+        <li><strong>Complicated part:</strong> Let u be the part that makes the integral hard; its derivative should appear (or nearly appear) elsewhere in the integrand.</li>
+        <li><strong>Common patterns:</strong> &int; f(ax + b) dx, &int; x &middot; f(x&sup2;) dx, &int; f(sin x) cos x dx, etc.</li>
+      </ul>
+
+      <div class="example-box">
+        <h4>Example 1: Basic u-Substitution</h4>
+        <p>Evaluate &int; 2x(x&sup2; + 1)<sup>5</sup> dx.</p>
+        <p><strong>Step 1:</strong> Let u = x&sup2; + 1. Then du = 2x dx.</p>
+        <p><strong>Step 2:</strong> Substitute: &int; u<sup>5</sup> du = u<sup>6</sup>/6 + C.</p>
+        <p><strong>Step 3:</strong> Back-substitute: <strong>(x&sup2; + 1)<sup>6</sup>/6 + C</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Adjusting for a Constant</h4>
+        <p>Evaluate &int; x e<sup>x&sup2;</sup> dx.</p>
+        <p><strong>Step 1:</strong> Let u = x&sup2;. Then du = 2x dx, so x dx = du/2.</p>
+        <p><strong>Step 2:</strong> &int; e<sup>u</sup> (du/2) = (1/2)e<sup>u</sup> + C = <strong>(1/2)e<sup>x&sup2;</sup> + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Common u-Substitution Patterns</h2>
+
+      <div class="definition-box">
+        <p><strong>Pattern Recognition</strong></p>
+        <table style="width:100%; border-collapse:collapse; margin-top:0.5rem;">
+          <tr style="background:#AD1457; color:white;"><th style="padding:8px;border:1px solid #ccc;">Integral Form</th><th style="padding:8px;border:1px solid #ccc;">Let u =</th><th style="padding:8px;border:1px solid #ccc;">Result</th></tr>
+          <tr><td style="padding:8px;border:1px solid #ccc;">&int; f(ax + b) dx</td><td style="padding:8px;border:1px solid #ccc;">ax + b</td><td style="padding:8px;border:1px solid #ccc;">(1/a) F(ax + b) + C</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ccc;">&int; x<sup>n&minus;1</sup> f(x<sup>n</sup>) dx</td><td style="padding:8px;border:1px solid #ccc;">x<sup>n</sup></td><td style="padding:8px;border:1px solid #ccc;">(1/n) F(u) + C</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ccc;">&int; f(sin x) cos x dx</td><td style="padding:8px;border:1px solid #ccc;">sin x</td><td style="padding:8px;border:1px solid #ccc;">F(sin x) + C</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ccc;">&int; f(e<sup>x</sup>) e<sup>x</sup> dx</td><td style="padding:8px;border:1px solid #ccc;">e<sup>x</sup></td><td style="padding:8px;border:1px solid #ccc;">F(e<sup>x</sup>) + C</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ccc;">&int; f(ln x) / x dx</td><td style="padding:8px;border:1px solid #ccc;">ln x</td><td style="padding:8px;border:1px solid #ccc;">F(ln x) + C</td></tr>
+        </table>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Trig Pattern</h4>
+        <p>Evaluate &int; sin&sup3;x cos x dx.</p>
+        <p><strong>Step 1:</strong> Let u = sin x, du = cos x dx.</p>
+        <p><strong>Step 2:</strong> &int; u&sup3; du = u<sup>4</sup>/4 + C = <strong>sin<sup>4</sup>x / 4 + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Definite Integrals: Changing the Bounds</h2>
+      <p>For definite integrals, you have two options: (1) back-substitute and use the original bounds, or (2) change the bounds to u-values and evaluate directly in terms of u.</p>
+
+      <div class="definition-box">
+        <p><strong>Changing Bounds</strong></p>
+        <p>If u = g(x), then when x = a, u = g(a); when x = b, u = g(b):</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>&int;<sub>a</sub><sup>b</sup> f(g(x)) g'(x) dx = &int;<sub>g(a)</sub><sup>g(b)</sup> f(u) du</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Definite Integral with Changed Bounds</h4>
+        <p>Evaluate &int;<sub>0</sub><sup>1</sup> x(x&sup2; + 1)&sup3; dx.</p>
+        <p><strong>Step 1:</strong> u = x&sup2; + 1, du = 2x dx, x dx = du/2.</p>
+        <p><strong>Step 2:</strong> Change bounds: x = 0 &rarr; u = 1; x = 1 &rarr; u = 2.</p>
+        <p><strong>Step 3:</strong> (1/2) &int;<sub>1</sub><sup>2</sup> u&sup3; du = (1/2)[u<sup>4</sup>/4]<sub>1</sub><sup>2</sup> = (1/2)(16/4 &minus; 1/4) = (1/2)(15/4) = <strong>15/8</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Exponential with Changed Bounds</h4>
+        <p>Evaluate &int;<sub>0</sub><sup>ln 3</sup> e<sup>x</sup>/(e<sup>x</sup> + 1) dx.</p>
+        <p><strong>Step 1:</strong> u = e<sup>x</sup> + 1, du = e<sup>x</sup> dx.</p>
+        <p><strong>Step 2:</strong> x = 0 &rarr; u = 2; x = ln 3 &rarr; u = 4.</p>
+        <p><strong>Step 3:</strong> &int;<sub>2</sub><sup>4</sup> (1/u) du = [ln u]<sub>2</sub><sup>4</sup> = ln 4 &minus; ln 2 = <strong>ln 2</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>More Challenging Substitutions</h2>
+
+      <div class="example-box">
+        <h4>Example 6: Multiplying and Dividing to Create du</h4>
+        <p>Evaluate &int; tan x dx.</p>
+        <p><strong>Solution:</strong> &int; (sin x / cos x) dx. Let u = cos x, du = &minus;sin x dx.</p>
+        <p>= &int; (&minus;1/u) du = &minus;ln|u| + C = <strong>&minus;ln|cos x| + C</strong> = ln|sec x| + C.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 7: Algebraic Manipulation</h4>
+        <p>Evaluate &int; x/&radic;(1 &minus; x&sup2;) dx.</p>
+        <p><strong>Step 1:</strong> Let u = 1 &minus; x&sup2;, du = &minus;2x dx, so x dx = &minus;du/2.</p>
+        <p><strong>Step 2:</strong> &int; (&minus;1/2) u<sup>&minus;1/2</sup> du = &minus;u<sup>1/2</sup> + C = <strong>&minus;&radic;(1 &minus; x&sup2;) + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>When u-Substitution Does Not Work</h2>
+      <p>u-Substitution requires that the derivative of u appears (up to a constant) in the integrand. If it does not, you need a different technique:</p>
+      <ul>
+        <li>&int; x e<sup>x</sup> dx cannot be done with simple u-sub (need integration by parts).</li>
+        <li>&int; sin&sup2;x dx requires a trig identity, not u-sub.</li>
+        <li>&int; 1/&radic;(a&sup2; &minus; x&sup2;) dx needs trig substitution or recognizing an arcsin pattern.</li>
+      </ul>
+      <p>These techniques are covered in the upcoming lessons.</p>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>u-Substitution reverses the chain rule: look for a composite function and its inner derivative.</li>
+        <li>Let u = inner function, compute du, substitute, integrate, back-substitute.</li>
+        <li>For definite integrals, change bounds to u-values to avoid back-substitution.</li>
+        <li>If du does not appear (even with constant adjustment), try a different technique.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Evaluate &int; cos(3x) dx.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer"><strong>Answer:</strong> u = 3x, du = 3 dx. (1/3) &int; cos u du = <strong>(1/3) sin(3x) + C</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Evaluate &int; x&sup2;(x&sup3; + 5)<sup>4</sup> dx.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer"><strong>Answer:</strong> u = x&sup3; + 5, du = 3x&sup2; dx. (1/3) &int; u<sup>4</sup> du = (1/3)(u<sup>5</sup>/5) + C = <strong>(x&sup3; + 5)<sup>5</sup>/15 + C</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>3. Evaluate &int;<sub>0</sub><sup>2</sup> x &radic;(x&sup2; + 5) dx.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer"><strong>Answer:</strong> u = x&sup2; + 5, du = 2x dx. Bounds: u(0) = 5, u(2) = 9. (1/2)&int;<sub>5</sub><sup>9</sup> u<sup>1/2</sup> du = (1/2)[(2/3)u<sup>3/2</sup>]<sub>5</sub><sup>9</sup> = (1/3)(27 &minus; 5&radic;5) = <strong>(27 &minus; 5&radic;5)/3</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>4. Evaluate &int; (ln x)&sup2; / x dx.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer"><strong>Answer:</strong> u = ln x, du = (1/x) dx. &int; u&sup2; du = u&sup3;/3 + C = <strong>(ln x)&sup3;/3 + C</strong>.</div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>Lesson 2 covers integrals involving trigonometric functions.</p><a href="lesson-02-integration-involving-trig.html" class="btn btn-primary mt-2">Start Lesson 2</a></div>
+        <div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

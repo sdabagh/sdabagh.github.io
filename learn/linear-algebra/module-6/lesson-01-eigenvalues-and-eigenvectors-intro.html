@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 1: Eigenvalues and Eigenvectors – Introduction – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 6 Home</a><span class="text-muted">Lesson 1 of 4</span><a href="lesson-02-characteristic-equation.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 1: Eigenvalues and Eigenvectors -- Introduction</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Define eigenvalues and eigenvectors of a square matrix</li>
+      <li>Understand the geometric meaning of Av = lambda v</li>
+      <li>Find eigenvalues and eigenvectors of 2x2 matrices</li>
+      <li>Recognize the connection between eigenvalues and the characteristic equation</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>The Big Idea: Vectors That Only Get Scaled</h2>
+      <p>When you multiply a matrix A by most vectors, the result points in a completely new direction. But some special vectors only get stretched or compressed -- their direction stays the same (or reverses). These are the eigenvectors.</p>
+      <div class="definition-box"><p><strong>Eigenvalue and Eigenvector:</strong> Let A be an n x n matrix. A nonzero vector v is an <em>eigenvector</em> of A if Av = lambda v for some scalar lambda. The scalar lambda is the corresponding <em>eigenvalue</em>.</p>
+      <p>Important: v must be nonzero. The zero vector trivially satisfies A*0 = lambda*0 for any lambda, so we exclude it.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Geometric Interpretation</h2>
+      <p>If v is an eigenvector with eigenvalue lambda:</p>
+      <ul>
+        <li><strong>lambda &gt; 1:</strong> v is stretched (scaled up)</li>
+        <li><strong>0 &lt; lambda &lt; 1:</strong> v is compressed (scaled down)</li>
+        <li><strong>lambda = 1:</strong> v is unchanged (fixed direction and magnitude)</li>
+        <li><strong>lambda = 0:</strong> v is sent to the zero vector (collapsed)</li>
+        <li><strong>lambda &lt; 0:</strong> v is reversed and scaled by |lambda|</li>
+      </ul>
+      <div class="example-box"><h4>Geometric Example</h4>
+        <p>Consider the matrix A = [2 0; 0 3]. This scales the x-component by 2 and the y-component by 3.</p>
+        <p>A * (1, 0)^T = (2, 0)^T = 2 * (1, 0)^T. So (1, 0) is an eigenvector with eigenvalue 2.</p>
+        <p>A * (0, 1)^T = (0, 3)^T = 3 * (0, 1)^T. So (0, 1) is an eigenvector with eigenvalue 3.</p>
+        <p>A * (1, 1)^T = (2, 3)^T which is NOT a scalar multiple of (1, 1). So (1, 1) is NOT an eigenvector.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Finding Eigenvalues: The Key Equation</h2>
+      <p>Starting from Av = lambda v, we rearrange:</p>
+      <div class="matrix-display">Av = lambda v &rArr; Av - lambda v = 0 &rArr; (A - lambda I)v = 0</div>
+      <p>For a nonzero v to exist, the matrix (A - lambda I) must be singular:</p>
+      <div class="definition-box"><p><strong>Characteristic Equation:</strong> det(A - lambda I) = 0. The solutions lambda are the eigenvalues of A.</p></div>
+      <div class="example-box"><h4>Worked Example: Finding Eigenvalues of a 2x2 Matrix</h4>
+        <p>Find the eigenvalues of A = [4 1; 2 3].</p>
+        <p>A - lambda I = [4-lambda, 1; 2, 3-lambda].</p>
+        <p>det(A - lambda I) = (4-lambda)(3-lambda) - (1)(2) = lambda^2 - 7*lambda + 10 = 0.</p>
+        <p>Factor: (lambda - 5)(lambda - 2) = 0. Eigenvalues: <strong>lambda = 5</strong> and <strong>lambda = 2</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Finding Eigenvectors</h2>
+      <p>Once you have an eigenvalue lambda, find the eigenvectors by solving (A - lambda I)v = 0.</p>
+      <div class="example-box"><h4>Worked Example: Complete Eigen-Analysis of a 2x2</h4>
+        <p>For A = [4 1; 2 3] with eigenvalues lambda = 5 and lambda = 2.</p>
+        <p><strong>lambda = 5:</strong> (A - 5I)v = 0. A - 5I = [-1 1; 2 -2]. Row reduce: [1 -1; 0 0]. x1 = x2, so v = t(1, 1). Eigenvector: <strong>(1, 1)</strong>.</p>
+        <p><strong>lambda = 2:</strong> (A - 2I)v = 0. A - 2I = [2 1; 2 1]. Row reduce: [1 1/2; 0 0]. x1 = -x2/2, so v = t(-1, 2). Eigenvector: <strong>(-1, 2)</strong>.</p>
+        <p>Check: A*(1,1)^T = (5,5)^T = 5*(1,1)^T. A*(-1,2)^T = (-2,4)^T = 2*(-1,2)^T.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Special Cases and Observations</h2>
+      <div class="definition-box"><p><strong>Diagonal Matrices:</strong> The eigenvalues of a diagonal matrix are its diagonal entries. The eigenvectors are the standard basis vectors e1, e2, ..., en.</p></div>
+      <div class="definition-box"><p><strong>Triangular Matrices:</strong> The eigenvalues of a triangular matrix (upper or lower) are also the diagonal entries.</p></div>
+      <div class="example-box"><h4>Example: Triangular Matrix</h4>
+        <p>A = [3 1 4; 0 -2 5; 0 0 7]. Eigenvalues are the diagonal entries: lambda = 3, -2, 7.</p>
+      </div>
+      <div class="highlight-box"><h4>Key Properties</h4>
+        <p>For an n x n matrix A with eigenvalues lambda_1, ..., lambda_n (counted with multiplicity):</p>
+        <ul>
+          <li>det(A) = lambda_1 * lambda_2 * ... * lambda_n (product of eigenvalues)</li>
+          <li>trace(A) = lambda_1 + lambda_2 + ... + lambda_n (sum of eigenvalues = sum of diagonal entries)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Eigenvalue Zero and Invertibility</h2>
+      <p>An eigenvalue of zero has special significance: if Av = 0v = 0, then v is in the null space of A.</p>
+      <div class="definition-box"><p><strong>Key Connection:</strong> lambda = 0 is an eigenvalue of A if and only if A is <em>not invertible</em> (singular). This is equivalent to det(A) = 0.</p></div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. If Av = 3v for a nonzero vector v, what are the eigenvalue and eigenvector?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> lambda = 3 is the eigenvalue and v is the eigenvector.</div></div>
+      <div class="question"><p>2. Find the eigenvalues of A = [5 0; 0 -2].</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> A is diagonal, so eigenvalues are 5 and -2. Eigenvectors are (1,0) and (0,1).</div></div>
+      <div class="question"><p>3. Find the eigenvalues of A = [1 4; 2 3].</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> det(A - lambda I) = (1-lambda)(3-lambda) - 8 = lambda^2 - 4*lambda - 5 = (lambda-5)(lambda+1) = 0. Eigenvalues: lambda = 5 and lambda = -1.</div></div>
+      <div class="question"><p>4. If A is 3x3 with eigenvalues 1, 2, 3, what is det(A)?</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> det(A) = 1 * 2 * 3 = 6.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>Av = lambda v</strong> -- eigenvectors are directions preserved by the transformation</li>
+      <li>Find eigenvalues by solving <strong>det(A - lambda I) = 0</strong></li>
+      <li>Find eigenvectors by solving <strong>(A - lambda I)v = 0</strong></li>
+      <li>Diagonal/triangular matrices: eigenvalues are the diagonal entries</li>
+      <li>det(A) = product of eigenvalues; trace(A) = sum of eigenvalues</li>
+      <li>lambda = 0 is an eigenvalue if and only if A is singular</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>The Characteristic Equation in depth.</p><a href="lesson-02-characteristic-equation.html" class="btn btn-primary mt-2">Start Lesson 2</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 6 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

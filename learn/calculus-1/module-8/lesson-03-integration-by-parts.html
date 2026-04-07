@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Integration by Parts - Formula, LIATE rule, tabular method, repeated IBP">
+  <title>Lesson 3: Integration by Parts – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 8 Home</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-numerical-integration.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: Integration by Parts</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Derive the integration by parts formula from the product rule</li>
+        <li>Use the LIATE rule to choose u and dv</li>
+        <li>Apply the tabular method for repeated integration by parts</li>
+        <li>Handle integrals that require IBP twice, including "boomerang" integrals</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Deriving the Formula</h2>
+      <p>Integration by parts comes from reversing the product rule. If u and v are functions of x:</p>
+      <p>d(uv) = u dv + v du, so u dv = d(uv) &minus; v du.</p>
+      <p>Integrating both sides:</p>
+
+      <div class="definition-box">
+        <p><strong>Integration by Parts Formula</strong></p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>&int; u dv = uv &minus; &int; v du</strong></p>
+        <p>For definite integrals: &int;<sub>a</sub><sup>b</sup> u dv = [uv]<sub>a</sub><sup>b</sup> &minus; &int;<sub>a</sub><sup>b</sup> v du.</p>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>The LIATE Rule for Choosing u</h2>
+      <p>The hardest part of IBP is choosing what to call u and what to call dv. The LIATE rule is a guideline: choose u to be whichever type of function appears <em>first</em> in this list:</p>
+
+      <div class="definition-box">
+        <p><strong>LIATE Priority</strong></p>
+        <ol>
+          <li><strong>L</strong>ogarithmic: ln x, log x</li>
+          <li><strong>I</strong>nverse trig: arctan x, arcsin x</li>
+          <li><strong>A</strong>lgebraic: x, x&sup2;, polynomials</li>
+          <li><strong>T</strong>rigonometric: sin x, cos x</li>
+          <li><strong>E</strong>xponential: e<sup>x</sup>, 2<sup>x</sup></li>
+        </ol>
+        <p>Functions higher on the list become u (they simplify when differentiated).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Classic IBP</h4>
+        <p>Evaluate &int; x e<sup>x</sup> dx.</p>
+        <p><strong>LIATE:</strong> x is Algebraic, e<sup>x</sup> is Exponential. A before E, so u = x.</p>
+        <p>u = x, du = dx. dv = e<sup>x</sup> dx, v = e<sup>x</sup>.</p>
+        <p>&int; x e<sup>x</sup> dx = x e<sup>x</sup> &minus; &int; e<sup>x</sup> dx = x e<sup>x</sup> &minus; e<sup>x</sup> + C = <strong>e<sup>x</sup>(x &minus; 1) + C</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Logarithmic IBP</h4>
+        <p>Evaluate &int; ln x dx.</p>
+        <p><strong>LIATE:</strong> ln x is Logarithmic (highest priority). Let u = ln x, dv = dx.</p>
+        <p>du = (1/x) dx, v = x.</p>
+        <p>&int; ln x dx = x ln x &minus; &int; x &middot; (1/x) dx = x ln x &minus; x + C = <strong>x(ln x &minus; 1) + C</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Trig and Polynomial</h4>
+        <p>Evaluate &int; x sin x dx.</p>
+        <p>u = x (Algebraic), dv = sin x dx. du = dx, v = &minus;cos x.</p>
+        <p>= &minus;x cos x &minus; &int; (&minus;cos x) dx = &minus;x cos x + sin x + C.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Repeated Integration by Parts</h2>
+      <p>Sometimes the new integral &int; v du still requires IBP. You may need to apply the formula two or more times.</p>
+
+      <div class="example-box">
+        <h4>Example 4: IBP Twice</h4>
+        <p>Evaluate &int; x&sup2; e<sup>x</sup> dx.</p>
+        <p><strong>First IBP:</strong> u = x&sup2;, dv = e<sup>x</sup> dx. du = 2x dx, v = e<sup>x</sup>.</p>
+        <p>= x&sup2; e<sup>x</sup> &minus; 2 &int; x e<sup>x</sup> dx.</p>
+        <p><strong>Second IBP:</strong> (from Example 1) &int; x e<sup>x</sup> dx = e<sup>x</sup>(x &minus; 1).</p>
+        <p>= x&sup2; e<sup>x</sup> &minus; 2e<sup>x</sup>(x &minus; 1) + C = <strong>e<sup>x</sup>(x&sup2; &minus; 2x + 2) + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>The Tabular Method</h2>
+      <p>When you need IBP multiple times with a polynomial times an exponential/trig, the <strong>tabular method</strong> speeds things up dramatically.</p>
+
+      <div class="definition-box">
+        <p><strong>Tabular Method Procedure</strong></p>
+        <ol>
+          <li>List successive derivatives of u in one column (until you reach 0).</li>
+          <li>List successive antiderivatives of dv in another column.</li>
+          <li>Alternate signs: +, &minus;, +, &minus;, ...</li>
+          <li>Multiply diagonally and add the terms.</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Tabular Method</h4>
+        <p>Evaluate &int; x&sup3; e<sup>2x</sup> dx.</p>
+        <table style="width:auto; margin:0.5rem 0; border-collapse:collapse;">
+          <tr style="background:#AD1457; color:white;"><th style="padding:6px 12px;border:1px solid #ccc;">Sign</th><th style="padding:6px 12px;border:1px solid #ccc;">Derivatives of x&sup3;</th><th style="padding:6px 12px;border:1px solid #ccc;">Antiderivatives of e<sup>2x</sup></th></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #ccc;">+</td><td style="padding:6px 12px;border:1px solid #ccc;">x&sup3;</td><td style="padding:6px 12px;border:1px solid #ccc;">(1/2)e<sup>2x</sup></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #ccc;">&minus;</td><td style="padding:6px 12px;border:1px solid #ccc;">3x&sup2;</td><td style="padding:6px 12px;border:1px solid #ccc;">(1/4)e<sup>2x</sup></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #ccc;">+</td><td style="padding:6px 12px;border:1px solid #ccc;">6x</td><td style="padding:6px 12px;border:1px solid #ccc;">(1/8)e<sup>2x</sup></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #ccc;">&minus;</td><td style="padding:6px 12px;border:1px solid #ccc;">6</td><td style="padding:6px 12px;border:1px solid #ccc;">(1/16)e<sup>2x</sup></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #ccc;">+</td><td style="padding:6px 12px;border:1px solid #ccc;">0</td><td style="padding:6px 12px;border:1px solid #ccc;"></td></tr>
+        </table>
+        <p>Result: (1/2)x&sup3;e<sup>2x</sup> &minus; (3/4)x&sup2;e<sup>2x</sup> + (6/8)xe<sup>2x</sup> &minus; (6/16)e<sup>2x</sup> + C</p>
+        <p>= <strong>e<sup>2x</sup>[(1/2)x&sup3; &minus; (3/4)x&sup2; + (3/4)x &minus; 3/8] + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Boomerang Integrals</h2>
+      <p>Sometimes after two rounds of IBP, the original integral reappears on the right side. You can then solve for it algebraically.</p>
+
+      <div class="example-box">
+        <h4>Example 6: Boomerang &mdash; &int; e<sup>x</sup> sin x dx</h4>
+        <p><strong>First IBP:</strong> u = sin x, dv = e<sup>x</sup> dx. du = cos x dx, v = e<sup>x</sup>.</p>
+        <p>I = e<sup>x</sup> sin x &minus; &int; e<sup>x</sup> cos x dx.</p>
+        <p><strong>Second IBP:</strong> u = cos x, dv = e<sup>x</sup> dx. du = &minus;sin x dx, v = e<sup>x</sup>.</p>
+        <p>I = e<sup>x</sup> sin x &minus; [e<sup>x</sup> cos x + &int; e<sup>x</sup> sin x dx]</p>
+        <p>I = e<sup>x</sup> sin x &minus; e<sup>x</sup> cos x &minus; I.</p>
+        <p><strong>Solve:</strong> 2I = e<sup>x</sup>(sin x &minus; cos x), so I = <strong>(e<sup>x</sup>/2)(sin x &minus; cos x) + C</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Definite Integrals with IBP</h2>
+
+      <div class="example-box">
+        <h4>Example 7: Definite IBP</h4>
+        <p>Evaluate &int;<sub>1</sub><sup>e</sup> ln x dx.</p>
+        <p>From Example 2: &int; ln x dx = x(ln x &minus; 1) + C.</p>
+        <p>[x(ln x &minus; 1)]<sub>1</sub><sup>e</sup> = e(1 &minus; 1) &minus; 1(0 &minus; 1) = 0 + 1 = <strong>1</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>&int; u dv = uv &minus; &int; v du. Choose u using LIATE.</li>
+        <li>The goal is for &int; v du to be simpler than the original integral.</li>
+        <li>Tabular method streamlines repeated IBP (polynomial times e<sup>x</sup> or trig).</li>
+        <li>Boomerang integrals: if the original integral reappears, solve algebraically.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Evaluate &int; x cos x dx.</p><button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button><div id="answer1" class="answer"><strong>Answer:</strong> u = x, dv = cos x dx. = x sin x &minus; &int; sin x dx = <strong>x sin x + cos x + C</strong>.</div></div>
+      <div class="question"><p>2. Evaluate &int; x&sup2; sin x dx.</p><button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button><div id="answer2" class="answer"><strong>Answer:</strong> u = x&sup2;, dv = sin x dx. = &minus;x&sup2; cos x + 2&int; x cos x dx = &minus;x&sup2; cos x + 2(x sin x + cos x) + C = <strong>&minus;x&sup2; cos x + 2x sin x + 2 cos x + C</strong>.</div></div>
+      <div class="question"><p>3. Evaluate &int;<sub>0</sub><sup>1</sup> x e<sup>&minus;x</sup> dx.</p><button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button><div id="answer3" class="answer"><strong>Answer:</strong> u = x, dv = e<sup>&minus;x</sup> dx. = [&minus;xe<sup>&minus;x</sup>]<sub>0</sub><sup>1</sup> + &int;<sub>0</sub><sup>1</sup> e<sup>&minus;x</sup> dx = &minus;e<sup>&minus;1</sup> + [&minus;e<sup>&minus;x</sup>]<sub>0</sub><sup>1</sup> = &minus;1/e + (&minus;1/e + 1) = <strong>1 &minus; 2/e</strong>.</div></div>
+      <div class="question"><p>4. Evaluate &int; arctan x dx.</p><button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button><div id="answer4" class="answer"><strong>Answer:</strong> u = arctan x, dv = dx. du = 1/(1 + x&sup2;) dx, v = x. = x arctan x &minus; &int; x/(1 + x&sup2;) dx = x arctan x &minus; (1/2) ln(1 + x&sup2;) + C.</div></div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>Lesson 4 covers numerical integration methods.</p><a href="lesson-04-numerical-integration.html" class="btn btn-primary mt-2">Start Lesson 4</a></div>
+        <div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

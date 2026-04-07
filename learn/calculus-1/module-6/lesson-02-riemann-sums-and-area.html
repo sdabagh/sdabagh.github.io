@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Riemann Sums and Approximating Area - Learn left, right, and midpoint sums with sigma notation">
+  <title>Lesson 2: Riemann Sums and Area – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; }
+  .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 6 Home</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-definite-integral-and-ftc-part1.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Riemann Sums and Approximating Area</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Use sigma notation to express sums compactly</li>
+        <li>Compute left, right, and midpoint Riemann sums</li>
+        <li>Determine whether a Riemann sum overestimates or underestimates the true area</li>
+        <li>Understand that the definite integral is the limit of Riemann sums as n &rarr; &infin;</li>
+      </ul>
+    </div>
+
+    <!-- Section 1: The Area Problem -->
+    <section class="content-section">
+      <h2>The Area Problem</h2>
+      <p>One of the central problems in calculus is computing the area of a region bounded by a curve, the x-axis, and two vertical lines x = a and x = b. For simple shapes like rectangles and triangles we have formulas, but what about the area under y = x&sup2; from x = 0 to x = 1? We need a new strategy: approximate the region with rectangles, then take a limit.</p>
+
+      <div class="definition-box">
+        <p><strong>Key Idea</strong></p>
+        <p>Divide the interval [a, b] into n subintervals of equal width &Delta;x = (b &minus; a)/n. On each subinterval, build a rectangle whose height is determined by the function value at a chosen sample point. The sum of the rectangle areas approximates the area under the curve.</p>
+      </div>
+    </section>
+
+    <!-- Section 2: Sigma Notation -->
+    <section class="content-section">
+      <h2>Sigma Notation Review</h2>
+      <p>Sigma notation provides a compact way to write sums. The Greek letter &Sigma; (sigma) means "add up":</p>
+
+      <div class="definition-box">
+        <p><strong>Sigma Notation</strong></p>
+        <p style="text-align:center; font-size:1.15rem;">&sum;<sub>i=1</sub><sup>n</sup> a<sub>i</sub> = a<sub>1</sub> + a<sub>2</sub> + &hellip; + a<sub>n</sub></p>
+        <p>Here i is the <em>index of summation</em>, 1 is the lower limit, and n is the upper limit.</p>
+      </div>
+
+      <p><strong>Useful formulas:</strong></p>
+      <ul>
+        <li>&sum;<sub>i=1</sub><sup>n</sup> c = cn (sum of a constant)</li>
+        <li>&sum;<sub>i=1</sub><sup>n</sup> i = n(n + 1)/2</li>
+        <li>&sum;<sub>i=1</sub><sup>n</sup> i&sup2; = n(n + 1)(2n + 1)/6</li>
+        <li>&sum;<sub>i=1</sub><sup>n</sup> i&sup3; = [n(n + 1)/2]&sup2;</li>
+      </ul>
+
+      <div class="example-box">
+        <h4>Example 1: Evaluating a Sigma Sum</h4>
+        <p>Evaluate &sum;<sub>i=1</sub><sup>4</sup> (2i + 1).</p>
+        <p><strong>Step 1:</strong> Write out each term: (2(1)+1) + (2(2)+1) + (2(3)+1) + (2(4)+1).</p>
+        <p><strong>Step 2:</strong> Compute: 3 + 5 + 7 + 9 = <strong>24</strong>.</p>
+        <p><strong>Alternatively:</strong> &sum;(2i + 1) = 2&sum;i + &sum;1 = 2(4)(5)/2 + 4 = 20 + 4 = <strong>24</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3: Left Riemann Sums -->
+    <section class="content-section">
+      <h2>Left Riemann Sums</h2>
+
+      <div class="definition-box">
+        <p><strong>Left Riemann Sum (L<sub>n</sub>)</strong></p>
+        <p>Use the <em>left endpoint</em> of each subinterval as the sample point:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>L<sub>n</sub> = &sum;<sub>i=0</sub><sup>n&minus;1</sup> f(x<sub>i</sub>) &middot; &Delta;x</strong></p>
+        <p>where x<sub>i</sub> = a + i &middot; &Delta;x.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Left Riemann Sum</h4>
+        <p>Approximate the area under f(x) = x&sup2; on [0, 2] using n = 4 subintervals with a left Riemann sum.</p>
+        <p><strong>Step 1:</strong> &Delta;x = (2 &minus; 0)/4 = 0.5.</p>
+        <p><strong>Step 2:</strong> Left endpoints: x<sub>0</sub> = 0, x<sub>1</sub> = 0.5, x<sub>2</sub> = 1, x<sub>3</sub> = 1.5.</p>
+        <p><strong>Step 3:</strong> Function values: f(0) = 0, f(0.5) = 0.25, f(1) = 1, f(1.5) = 2.25.</p>
+        <p><strong>Step 4:</strong> L<sub>4</sub> = (0 + 0.25 + 1 + 2.25)(0.5) = 3.5(0.5) = <strong>1.75</strong>.</p>
+        <p>Since f(x) = x&sup2; is increasing on [0, 2], the left sum <em>underestimates</em> the true area.</p>
+      </div>
+    </section>
+
+    <!-- Section 4: Right Riemann Sums -->
+    <section class="content-section">
+      <h2>Right Riemann Sums</h2>
+
+      <div class="definition-box">
+        <p><strong>Right Riemann Sum (R<sub>n</sub>)</strong></p>
+        <p>Use the <em>right endpoint</em> of each subinterval:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>R<sub>n</sub> = &sum;<sub>i=1</sub><sup>n</sup> f(x<sub>i</sub>) &middot; &Delta;x</strong></p>
+        <p>where x<sub>i</sub> = a + i &middot; &Delta;x.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Right Riemann Sum</h4>
+        <p>Approximate the area under f(x) = x&sup2; on [0, 2] using n = 4 with a right sum.</p>
+        <p><strong>Step 1:</strong> &Delta;x = 0.5 (same as before).</p>
+        <p><strong>Step 2:</strong> Right endpoints: x<sub>1</sub> = 0.5, x<sub>2</sub> = 1, x<sub>3</sub> = 1.5, x<sub>4</sub> = 2.</p>
+        <p><strong>Step 3:</strong> f(0.5) = 0.25, f(1) = 1, f(1.5) = 2.25, f(2) = 4.</p>
+        <p><strong>Step 4:</strong> R<sub>4</sub> = (0.25 + 1 + 2.25 + 4)(0.5) = 7.5(0.5) = <strong>3.75</strong>.</p>
+        <p>Since f is increasing, the right sum <em>overestimates</em>. The true area (8/3 &approx; 2.667) lies between L<sub>4</sub> = 1.75 and R<sub>4</sub> = 3.75.</p>
+      </div>
+    </section>
+
+    <!-- Section 5: Midpoint Riemann Sums -->
+    <section class="content-section">
+      <h2>Midpoint Riemann Sums</h2>
+
+      <div class="definition-box">
+        <p><strong>Midpoint Riemann Sum (M<sub>n</sub>)</strong></p>
+        <p>Use the <em>midpoint</em> of each subinterval:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>M<sub>n</sub> = &sum;<sub>i=1</sub><sup>n</sup> f(x&#772;<sub>i</sub>) &middot; &Delta;x</strong></p>
+        <p>where x&#772;<sub>i</sub> = (x<sub>i&minus;1</sub> + x<sub>i</sub>)/2 is the midpoint of the i-th subinterval.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Midpoint Sum</h4>
+        <p>Approximate the area under f(x) = x&sup2; on [0, 2] with n = 4 using midpoints.</p>
+        <p><strong>Step 1:</strong> &Delta;x = 0.5. Midpoints: 0.25, 0.75, 1.25, 1.75.</p>
+        <p><strong>Step 2:</strong> f(0.25) = 0.0625, f(0.75) = 0.5625, f(1.25) = 1.5625, f(1.75) = 3.0625.</p>
+        <p><strong>Step 3:</strong> M<sub>4</sub> = (0.0625 + 0.5625 + 1.5625 + 3.0625)(0.5) = 5.25(0.5) = <strong>2.625</strong>.</p>
+        <p>This is much closer to the true value 8/3 &approx; 2.667 than either L<sub>4</sub> or R<sub>4</sub>. Midpoint sums typically give better approximations.</p>
+      </div>
+    </section>
+
+    <!-- Section 6: Over/Underestimates and Increasing n -->
+    <section class="content-section">
+      <h2>Over- and Underestimates</h2>
+      <p>Whether a sum overestimates or underestimates depends on the function's behavior:</p>
+      <ul>
+        <li><strong>Increasing function:</strong> Left sum underestimates; right sum overestimates.</li>
+        <li><strong>Decreasing function:</strong> Left sum overestimates; right sum underestimates.</li>
+        <li><strong>Concave up:</strong> Midpoint sum underestimates; trapezoidal sum overestimates.</li>
+        <li><strong>Concave down:</strong> Midpoint sum overestimates; trapezoidal sum underestimates.</li>
+      </ul>
+
+      <p>As n increases (more, thinner rectangles), all Riemann sums converge to the same value: the <em>definite integral</em>.</p>
+
+      <div class="example-box">
+        <h4>Example 5: Computing with Sigma Formulas</h4>
+        <p>Use the formula for &sum;i&sup2; to find the exact area under f(x) = x&sup2; on [0, 2] via a right Riemann sum as n &rarr; &infin;.</p>
+        <p><strong>Step 1:</strong> &Delta;x = 2/n, x<sub>i</sub> = 2i/n.</p>
+        <p><strong>Step 2:</strong> R<sub>n</sub> = &sum;<sub>i=1</sub><sup>n</sup> (2i/n)&sup2; &middot; (2/n) = &sum;<sub>i=1</sub><sup>n</sup> (4i&sup2;/n&sup2;)(2/n) = (8/n&sup3;) &sum;<sub>i=1</sub><sup>n</sup> i&sup2;.</p>
+        <p><strong>Step 3:</strong> Substitute the formula: = (8/n&sup3;) &middot; n(n+1)(2n+1)/6 = 8(n+1)(2n+1)/(6n&sup2;).</p>
+        <p><strong>Step 4:</strong> Take the limit: lim<sub>n&rarr;&infin;</sub> 8(n+1)(2n+1)/(6n&sup2;) = 8(2)/6 = <strong>8/3</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Riemann Sum from a Table</h4>
+        <p>A car's velocity v(t) in ft/s is measured every 2 seconds:</p>
+        <table style="width:auto; margin:0.5rem 0; border-collapse:collapse;">
+          <tr><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;font-weight:bold;">t</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">0</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">2</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">4</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">6</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;font-weight:bold;">v(t)</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">10</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">18</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">24</td><td style="border:1px solid #ccc;padding:0.3rem 0.8rem;">28</td></tr>
+        </table>
+        <p>Estimate the total distance traveled on [0, 6] using a left Riemann sum.</p>
+        <p><strong>Solution:</strong> &Delta;t = 2. L<sub>3</sub> = v(0)&middot;2 + v(2)&middot;2 + v(4)&middot;2 = 10(2) + 18(2) + 24(2) = 20 + 36 + 48 = <strong>104 ft</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Riemann sums approximate area by summing rectangle areas: &sum; f(x<sub>i</sub>*) &middot; &Delta;x.</li>
+        <li><strong>Left, right, and midpoint</strong> sums differ only in where the sample point is chosen in each subinterval.</li>
+        <li>For monotone functions, left and right sums bound the true area from below and above.</li>
+        <li>The midpoint sum usually gives a better approximation than left or right sums for the same n.</li>
+        <li>The exact area equals lim<sub>n&rarr;&infin;</sub> &sum; f(x<sub>i</sub>*) &Delta;x, which is the <strong>definite integral</strong>.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Compute the right Riemann sum for f(x) = 3x on [1, 5] with n = 4.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> &Delta;x = 1. Right endpoints: 2, 3, 4, 5. R<sub>4</sub> = [3(2) + 3(3) + 3(4) + 3(5)](1) = 6 + 9 + 12 + 15 = <strong>42</strong>. (The true area is 36.)
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. If f is decreasing on [a, b], does the left Riemann sum overestimate or underestimate?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> <strong>Overestimates.</strong> For a decreasing function, the left endpoint gives the largest value on each subinterval, so each rectangle is taller than the curve.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Evaluate &sum;<sub>i=1</sub><sup>5</sup> (i&sup2; + 1).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> &sum;i&sup2; + &sum;1 = 5(6)(11)/6 + 5 = 55 + 5 = <strong>60</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. Using n = 3 subintervals and a midpoint sum, approximate the area under f(x) = 1/x on [1, 4].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer:</strong> &Delta;x = 1. Midpoints: 1.5, 2.5, 3.5. M<sub>3</sub> = [1/1.5 + 1/2.5 + 1/3.5](1) = 0.6667 + 0.4 + 0.2857 &approx; <strong>1.352</strong>. (True value: ln 4 &approx; 1.386.)
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, you will define the definite integral as a limit of Riemann sums and discover the Fundamental Theorem of Calculus Part 1.</p>
+          <a href="lesson-03-definite-integral-and-ftc-part1.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2! Keep going to master integration.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

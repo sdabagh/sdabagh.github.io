@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Properties of Matrix Arithmetic and Transpose">
+  <title>Lesson 2: Properties of Matrix Arithmetic – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #2E7D32; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2E7D32; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2E7D32; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #1B5E20; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .matrix-display { text-align: center; margin: 1rem 0; font-size: 1.1rem; font-family: 'Courier New', monospace; }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="lesson-01-matrix-operations.html" class="back-link">&larr; Lesson 1</a><span class="text-muted">Lesson 2 of 4</span><a href="lesson-03-inverse-matrices.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+
+    <h1>Lesson 2: Properties of Matrix Arithmetic and Transpose</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>State and apply the algebraic properties of matrix addition and multiplication</li>
+        <li>Understand why matrix multiplication is NOT commutative</li>
+        <li>Compute the transpose of a matrix</li>
+        <li>Apply properties of the transpose, including (AB)^T = B^T A^T</li>
+        <li>Identify symmetric matrices</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Properties of Matrix Addition</h2>
+      <div class="definition-box">
+        <p><strong>For matrices A, B, C of the same size and scalar c:</strong></p>
+        <ul>
+          <li>A + B = B + A (commutative)</li>
+          <li>(A + B) + C = A + (B + C) (associative)</li>
+          <li>A + O = A where O is the zero matrix</li>
+          <li>A + (-A) = O</li>
+          <li>c(A + B) = cA + cB (scalar distributes over addition)</li>
+          <li>(c + d)A = cA + dA</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Properties of Matrix Multiplication</h2>
+      <div class="definition-box">
+        <p><strong>For matrices of compatible sizes:</strong></p>
+        <ul>
+          <li>A(BC) = (AB)C (associative)</li>
+          <li>A(B + C) = AB + AC (left distributive)</li>
+          <li>(A + B)C = AC + BC (right distributive)</li>
+          <li>AI = A and IA = A (identity)</li>
+          <li>c(AB) = (cA)B = A(cB)</li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Warnings: What Does NOT Work</h4>
+        <ul>
+          <li><strong>AB does not equal BA in general!</strong> Matrix multiplication is not commutative.</li>
+          <li><strong>AB = 0 does NOT imply A = 0 or B = 0.</strong> You cannot "cancel" like with real numbers.</li>
+          <li><strong>AB = AC does NOT imply B = C.</strong> You cannot "cancel" A from both sides.</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: AB is not equal to BA</h4>
+        <div class="matrix-display">
+          A = [ 1 &nbsp; 2 ] &nbsp;&nbsp; B = [ 0 &nbsp; 1 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;[ 0 &nbsp; 0 ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ 0 &nbsp; 0 ]
+        </div>
+        <p>AB = [ 0 1 ; 0 0 ] but BA = [ 0 0 ; 0 0 ]. These are clearly different.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: AB = 0 but A and B are not zero</h4>
+        <div class="matrix-display">
+          A = [ 1 &nbsp; 0 ] &nbsp;&nbsp; B = [ 0 &nbsp; 0 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;[ 0 &nbsp; 0 ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ 3 &nbsp; 4 ]
+        </div>
+        <p>AB = [ 0 0 ; 0 0 ] = O. Neither A nor B is the zero matrix, yet their product is zero!</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Transpose</h2>
+      <div class="definition-box">
+        <p><strong>Transpose:</strong> The transpose of an m x n matrix A, written A^T, is the n x m matrix whose rows are the columns of A. That is, (A^T)_{ij} = a_{ji}.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example</h4>
+        <div class="matrix-display">
+          A = [ 1 &nbsp; 2 &nbsp; 3 ] &nbsp;&nbsp;&nbsp; A^T = [ 1 &nbsp; 4 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;[ 4 &nbsp; 5 &nbsp; 6 ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ 2 &nbsp; 5 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ 3 &nbsp; 6 ]
+        </div>
+        <p>A is 2x3; A^T is 3x2. Row 1 of A becomes column 1 of A^T.</p>
+      </div>
+
+      <div class="definition-box">
+        <p><strong>Properties of Transpose:</strong></p>
+        <ul>
+          <li>(A^T)^T = A</li>
+          <li>(A + B)^T = A^T + B^T</li>
+          <li>(cA)^T = cA^T</li>
+          <li><strong>(AB)^T = B^T A^T</strong> (order reverses!)</li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        <h4>The Shoe-Sock Rule</h4>
+        <p>When transposing a product, the order reverses: (AB)^T = B^T A^T. Think of it like putting on shoes and socks: you put socks on first, but take shoes off first (reverse order).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Symmetric Matrices</h2>
+      <div class="definition-box">
+        <p><strong>Symmetric Matrix:</strong> A square matrix A such that A^T = A. That is, a_{ij} = a_{ji} for all i, j. The matrix is symmetric about its main diagonal.</p>
+      </div>
+      <div class="example-box">
+        <h4>Example</h4>
+        <div class="matrix-display">
+          A = [ 1 &nbsp; 3 &nbsp; 5 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;[ 3 &nbsp; 2 &nbsp; 4 ]<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;[ 5 &nbsp; 4 &nbsp; 7 ]
+        </div>
+        <p>A^T = A, so A is symmetric. Notice the entries mirror across the main diagonal.</p>
+      </div>
+      <p><strong>Key fact:</strong> For any matrix A (not necessarily square), A^T A is always symmetric. Proof: (A^T A)^T = A^T (A^T)^T = A^T A.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. If A is 2x3 and B is 3x2, what are the sizes of AB and BA?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> AB is 2x2. BA is 3x3. Both products are defined but have different sizes -- they cannot possibly be equal.</div></div>
+      <div class="question"><p>2. Find A^T if A = [ 1 -2 ; 3 4 ; 0 5 ].</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> A is 3x2, so A^T is 2x3: A^T = [ 1 3 0 ; -2 4 5 ].</div></div>
+      <div class="question"><p>3. If (AB)^T = ?, express it using transposes of A and B.</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> (AB)^T = B^T A^T. The order reverses.</div></div>
+      <div class="question"><p>4. True or False: If AB = AC then B = C.</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> False. You cannot cancel matrices from both sides in general. Cancellation only works if A is invertible (which we study in the next lesson).</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Matrix multiplication is <strong>associative</strong> and <strong>distributive</strong> but <strong>NOT commutative</strong></li>
+        <li>You cannot cancel matrices: AB = 0 does not imply A = 0 or B = 0</li>
+        <li>The <strong>transpose</strong> flips rows and columns: (A^T)_{ij} = a_{ji}</li>
+        <li><strong>(AB)^T = B^T A^T</strong> -- the shoe-sock rule (order reverses)</li>
+        <li>A <strong>symmetric matrix</strong> satisfies A^T = A; the product A^T A is always symmetric</li>
+      </ul>
+    </div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>Lesson 3: The <strong>Inverse of a Matrix</strong>.</p><a href="lesson-03-inverse-matrices.html" class="btn btn-primary mt-2">Start Lesson 3</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 2 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

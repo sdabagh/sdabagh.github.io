@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: The Mean Value Theorem - Understand one of the most important theorems in calculus">
+  <title>Lesson 4: The Mean Value Theorem – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-extreme-values-and-critical-points.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: The Mean Value Theorem</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>State Rolle's Theorem and the Mean Value Theorem</li>
+        <li>Verify that hypotheses are satisfied before applying these theorems</li>
+        <li>Find the value of c guaranteed by the MVT</li>
+        <li>Apply the MVT to draw conclusions about function behavior</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Rolle's Theorem</h2>
+
+      <div class="definition-box">
+        <p><strong>Rolle's Theorem</strong></p>
+        <p>If f is (1) continuous on [a, b], (2) differentiable on (a, b), and (3) f(a) = f(b), then there exists at least one c in (a, b) such that <strong>f'(c) = 0</strong>.</p>
+      </div>
+
+      <p>Rolle's Theorem says: if a smooth curve starts and ends at the same height, it must have at least one horizontal tangent in between.</p>
+
+      <div class="example-box">
+        <h4>Example 1: Applying Rolle's Theorem</h4>
+        <p>Show that f(x) = x&sup2; &minus; 4x + 3 has a point where f'(c) = 0 in [1, 3].</p>
+        <p><strong>Check:</strong> f is a polynomial (continuous and differentiable everywhere). f(1) = 0, f(3) = 0. So f(1) = f(3).</p>
+        <p><strong>Find c:</strong> f'(x) = 2x &minus; 4 = 0 when x = <strong>2</strong>. Indeed, c = 2 is in (1, 3).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Mean Value Theorem</h2>
+
+      <div class="definition-box">
+        <p><strong>Mean Value Theorem (MVT)</strong></p>
+        <p>If f is (1) continuous on [a, b] and (2) differentiable on (a, b), then there exists at least one c in (a, b) such that:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>f'(c) = [f(b) &minus; f(a)] / (b &minus; a)</strong></p>
+      </div>
+
+      <p>The MVT says the instantaneous rate of change equals the average rate of change at some point. Geometrically, there is a tangent line parallel to the secant line through (a, f(a)) and (b, f(b)).</p>
+
+      <div class="example-box">
+        <h4>Example 2: Finding c in the MVT</h4>
+        <p>Find the value of c guaranteed by the MVT for f(x) = x&sup3; on [0, 2].</p>
+        <p><strong>Average rate:</strong> [f(2) &minus; f(0)]/(2 &minus; 0) = (8 &minus; 0)/2 = 4.</p>
+        <p><strong>Set f'(c) = 4:</strong> 3c&sup2; = 4, so c = 2/&radic;3 = <strong>2&radic;3/3 &asymp; 1.155</strong>, which is in (0, 2).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: MVT Application - Speed Limit</h4>
+        <p>A car travels 150 miles in 2 hours. Can we conclude it was going 75 mph at some moment?</p>
+        <p><strong>Yes!</strong> Let s(t) = position. Average speed = 150/2 = 75 mph. If s is differentiable, the MVT guarantees some time c where s'(c) = 75 mph.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Consequences of the MVT</h2>
+
+      <div class="definition-box">
+        <p><strong>Key Consequence</strong></p>
+        <p>If f'(x) = 0 for all x in an interval, then f is constant on that interval.</p>
+        <p>If f'(x) &gt; 0 on an interval, then f is increasing. If f'(x) &lt; 0, then f is decreasing.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Proving Two Functions Differ by a Constant</h4>
+        <p>If f'(x) = g'(x) for all x, what can we conclude?</p>
+        <p>Let h(x) = f(x) &minus; g(x). Then h'(x) = 0 for all x. By the MVT consequence, h(x) = C (a constant). So <strong>f(x) = g(x) + C</strong>.</p>
+      </div>
+    </section>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Rolle's Theorem:</strong> same start and end values guarantee a horizontal tangent.</li>
+        <li><strong>MVT:</strong> instantaneous rate equals average rate at some interior point.</li>
+        <li>Always <strong>check hypotheses</strong>: continuity on [a, b] and differentiability on (a, b).</li>
+        <li>The MVT justifies that f' &gt; 0 implies f is increasing, and f' = 0 implies f is constant.</li>
+      </ul>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question">
+        <p>1. Find c satisfying the MVT for f(x) = x&sup2; + 2x on [1, 3].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer"><strong>Answer:</strong> Average rate: [f(3) &minus; f(1)]/(3 &minus; 1) = (15 &minus; 3)/2 = 6. f'(x) = 2x + 2 = 6, so x = <strong>2</strong>.</div>
+      </div>
+      <div class="question">
+        <p>2. Can we apply the MVT to f(x) = |x| on [&minus;1, 1]?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer"><strong>Answer: No.</strong> f is continuous on [&minus;1, 1] but not differentiable at x = 0. The MVT hypotheses are not satisfied.</div>
+      </div>
+      <div class="question">
+        <p>3. If f is differentiable and f'(x) &ge; 2 for all x, and f(0) = 5, what is the minimum possible value of f(3)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer"><strong>Answer:</strong> By MVT: f(3) &minus; f(0) = f'(c) &middot; 3 &ge; 2 &middot; 3 = 6. So f(3) &ge; 5 + 6 = <strong>11</strong>.</div>
+      </div>
+      <div class="question">
+        <p>4. Apply Rolle's Theorem to show sin x = 0 has no more than one root in [&pi;/4, 3&pi;/4].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer"><strong>Answer:</strong> sin x &gt; 0 on [&pi;/4, 3&pi;/4], so sin x never equals 0 there. In fact, sin x = 0 has <strong>no</strong> roots in [&pi;/4, 3&pi;/4].</div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Practice all Module 4 topics with 10 problems.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed all four lessons in Module 4!</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') { answer.style.display = 'block'; button.textContent = 'Hide Answer'; }
+      else { answer.style.display = 'none'; button.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

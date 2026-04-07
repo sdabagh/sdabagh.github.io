@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 1: Average and Instantaneous Rates of Change – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav>
+  </header>
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 2 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-derivative-definition-and-notation.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Average and Instantaneous Rates of Change</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Calculate the average rate of change of a function over an interval</li>
+        <li>Interpret the average rate of change as the slope of a secant line</li>
+        <li>Understand the difference quotient and its role in calculus</li>
+        <li>Transition from average to instantaneous rate of change using limits</li>
+        <li>Interpret instantaneous rate of change as the slope of a tangent line</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Average Rate of Change</h2>
+      <p>The <strong>average rate of change</strong> of a function f over the interval [a, b] measures how much the output changes per unit change in input, on average.</p>
+
+      <div class="definition-box">
+        <p><strong>Average Rate of Change</strong></p>
+        <p>The average rate of change of f on [a, b] is: <strong>[f(b) &minus; f(a)] / (b &minus; a)</strong></p>
+        <p>Geometrically, this is the slope of the <strong>secant line</strong> connecting the points (a, f(a)) and (b, f(b)).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Average Velocity</h4>
+        <p>A ball is dropped from a tower. Its height after t seconds is h(t) = 100 &minus; 16t&sup2; feet. Find the average velocity from t = 1 to t = 2.</p>
+        <p><strong>Step 1:</strong> h(1) = 100 &minus; 16(1) = 84 ft. h(2) = 100 &minus; 16(4) = 36 ft.</p>
+        <p><strong>Step 2:</strong> Average velocity = [h(2) &minus; h(1)]/(2 &minus; 1) = (36 &minus; 84)/1 = <strong>&minus;48 ft/s</strong>.</p>
+        <p>The negative sign indicates the ball is falling (height is decreasing).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Average Rate from a Formula</h4>
+        <p>Find the average rate of change of f(x) = x&sup3; from x = 1 to x = 3.</p>
+        <p><strong>Solution:</strong> [f(3) &minus; f(1)]/(3 &minus; 1) = (27 &minus; 1)/2 = 26/2 = <strong>13</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Difference Quotient</h2>
+      <p>To make the average rate of change more flexible, we use a general expression called the <strong>difference quotient</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Difference Quotient</strong></p>
+        <p>For a function f and a small increment h: <strong>[f(a + h) &minus; f(a)] / h</strong></p>
+        <p>This gives the average rate of change of f over the interval [a, a + h].</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Computing a Difference Quotient</h4>
+        <p>For f(x) = x&sup2;, compute the difference quotient at x = a.</p>
+        <p><strong>Step 1:</strong> f(a + h) = (a + h)&sup2; = a&sup2; + 2ah + h&sup2;</p>
+        <p><strong>Step 2:</strong> f(a + h) &minus; f(a) = a&sup2; + 2ah + h&sup2; &minus; a&sup2; = 2ah + h&sup2;</p>
+        <p><strong>Step 3:</strong> Divide by h: (2ah + h&sup2;)/h = <strong>2a + h</strong></p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>From Average to Instantaneous</h2>
+      <p>The average rate of change over [a, a+h] gives the slope of the secant line through two points. As h &rarr; 0, this secant line rotates toward the <strong>tangent line</strong> at x = a. The slope of the tangent line is the <strong>instantaneous rate of change</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Instantaneous Rate of Change</strong></p>
+        <p>The instantaneous rate of change of f at x = a is:</p>
+        <p><strong>lim<sub>h&rarr;0</sub> [f(a + h) &minus; f(a)] / h</strong></p>
+        <p>provided this limit exists. This is the slope of the tangent line to y = f(x) at the point (a, f(a)).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Instantaneous Rate of Change</h4>
+        <p>Find the instantaneous rate of change of f(x) = x&sup2; at x = 3.</p>
+        <p><strong>Step 1:</strong> From Example 3, the difference quotient for f(x) = x&sup2; is 2a + h.</p>
+        <p><strong>Step 2:</strong> At a = 3: difference quotient = 2(3) + h = 6 + h.</p>
+        <p><strong>Step 3:</strong> Take the limit: lim<sub>h&rarr;0</sub> (6 + h) = <strong>6</strong>.</p>
+        <p>The slope of the tangent line to y = x&sup2; at x = 3 is 6.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Instantaneous Velocity</h4>
+        <p>Using h(t) = 100 &minus; 16t&sup2;, find the instantaneous velocity at t = 1.</p>
+        <p><strong>Step 1:</strong> [h(1+h) &minus; h(1)]/h = [100 &minus; 16(1+h)&sup2; &minus; 84]/h</p>
+        <p><strong>Step 2:</strong> = [100 &minus; 16(1 + 2h + h&sup2;) &minus; 84]/h = [100 &minus; 16 &minus; 32h &minus; 16h&sup2; &minus; 84]/h</p>
+        <p><strong>Step 3:</strong> = (&minus;32h &minus; 16h&sup2;)/h = &minus;32 &minus; 16h</p>
+        <p><strong>Step 4:</strong> lim<sub>h&rarr;0</sub> (&minus;32 &minus; 16h) = <strong>&minus;32 ft/s</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Tangent Line</h2>
+      <p>Once you know the instantaneous rate of change (slope) at a point, you can write the equation of the tangent line using point-slope form.</p>
+
+      <div class="definition-box">
+        <p><strong>Equation of the Tangent Line</strong></p>
+        <p>The tangent line to y = f(x) at x = a is: <strong>y &minus; f(a) = m(x &minus; a)</strong></p>
+        <p>where m = lim<sub>h&rarr;0</sub> [f(a+h) &minus; f(a)]/h is the slope.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Equation of a Tangent Line</h4>
+        <p>Find the equation of the tangent line to f(x) = x&sup2; at x = 3.</p>
+        <p><strong>Step 1:</strong> f(3) = 9, so the point is (3, 9).</p>
+        <p><strong>Step 2:</strong> From Example 4, the slope m = 6.</p>
+        <p><strong>Step 3:</strong> y &minus; 9 = 6(x &minus; 3), so <strong>y = 6x &minus; 9</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Graphical Interpretation</h2>
+      <p>The relationship between secant and tangent lines is fundamental:</p>
+      <ul>
+        <li>A <strong>secant line</strong> passes through two points on a curve. Its slope equals the average rate of change.</li>
+        <li>A <strong>tangent line</strong> touches the curve at one point and has the same direction as the curve at that point. Its slope equals the instantaneous rate of change.</li>
+        <li>As the two points on the secant line get closer together, the secant line approaches the tangent line.</li>
+      </ul>
+    </section>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Average rate of change</strong> = [f(b) &minus; f(a)]/(b &minus; a) = slope of the secant line.</li>
+        <li>The <strong>difference quotient</strong> [f(a+h) &minus; f(a)]/h generalizes this with a variable step size h.</li>
+        <li><strong>Instantaneous rate of change</strong> = lim<sub>h&rarr;0</sub> [f(a+h) &minus; f(a)]/h = slope of the tangent line.</li>
+        <li>The tangent line equation is y &minus; f(a) = m(x &minus; a) where m is the instantaneous rate.</li>
+        <li>This limit of the difference quotient is exactly what we will call the <strong>derivative</strong> in the next lesson.</li>
+      </ul>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question">
+        <p>1. Find the average rate of change of f(x) = 2x&sup2; + 1 from x = 1 to x = 4.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">[f(4) &minus; f(1)]/(4 &minus; 1) = (33 &minus; 3)/3 = 30/3 = <strong>10</strong>.</div>
+      </div>
+      <div class="question">
+        <p>2. Compute the difference quotient for f(x) = 3x &minus; x&sup2; at x = a.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">f(a+h) = 3(a+h) &minus; (a+h)&sup2; = 3a+3h &minus; a&sup2; &minus; 2ah &minus; h&sup2;. f(a+h) &minus; f(a) = 3h &minus; 2ah &minus; h&sup2;. Divide by h: <strong>3 &minus; 2a &minus; h</strong>.</div>
+      </div>
+      <div class="question">
+        <p>3. Find the instantaneous rate of change of f(x) = 3x &minus; x&sup2; at x = 1.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">lim<sub>h&rarr;0</sub> (3 &minus; 2(1) &minus; h) = 3 &minus; 2 = <strong>1</strong>.</div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>Lesson 2 formalizes the derivative and introduces standard notation.</p><a href="lesson-02-derivative-definition-and-notation.html" class="btn btn-primary mt-2">Start Lesson 2</a></div>
+        <div class="card"><h3>Module Progress</h3><p>Lesson 1 of 4 complete.</p><a href="index.html" class="btn btn-outline mt-2">Module Home</a></div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

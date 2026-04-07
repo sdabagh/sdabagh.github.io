@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Gauss-Jordan Elimination and Reduced Row Echelon Form">
+  <title>Lesson 3: Gauss-Jordan and RREF – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #2E7D32; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2E7D32; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2E7D32; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #1B5E20; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .matrix-display { text-align: center; margin: 1rem 0; font-size: 1.1rem; font-family: 'Courier New', monospace; }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-gaussian-elimination.html" class="back-link">&larr; Lesson 2</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-solution-sets-and-parametric-form.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: Gauss-Jordan and Reduced Row Echelon Form</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Define reduced row echelon form (RREF) and its properties</li>
+        <li>Continue from REF to RREF using back-elimination</li>
+        <li>Read solutions directly from RREF without back-substitution</li>
+        <li>Understand why RREF is unique for any given matrix</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>From REF to RREF</h2>
+      <p>In Lesson 2, Gaussian elimination produced <strong>row echelon form</strong> (REF), and we used back-substitution to finish. Gauss-Jordan elimination takes it further: we continue using row operations to also eliminate entries <em>above</em> each pivot, and we scale each pivot to 1. The result is <strong>reduced row echelon form</strong> (RREF).</p>
+
+      <div class="definition-box">
+        <p><strong>Reduced Row Echelon Form (RREF):</strong> A matrix is in RREF if it satisfies all REF conditions plus:</p>
+        <ol>
+          <li>Every pivot is equal to 1.</li>
+          <li>Every pivot is the <em>only</em> nonzero entry in its column (zeros above and below).</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: REF vs. RREF</h4>
+        <p><strong>REF (not reduced):</strong></p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 3 &nbsp;| &nbsp;10 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 4 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 2 &nbsp;| &nbsp; 6 ]
+        </div>
+        <p>Pivots are 1, 1, and 2. The last pivot is not 1, and there are nonzero entries above pivots.</p>
+
+        <p class="mt-1"><strong>RREF:</strong></p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp;1 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 0 &nbsp;| &nbsp;1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp;3 ]
+        </div>
+        <p>Every pivot is 1, and each pivot column has zeros everywhere else. You can read off: x_1 = 1, x_2 = 1, x_3 = 3.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Gauss-Jordan Elimination Algorithm</h2>
+
+      <div class="highlight-box">
+        <h4>Steps (continuing from REF)</h4>
+        <ol>
+          <li><strong>Scale each pivot to 1:</strong> Divide each pivot row by its pivot value.</li>
+          <li><strong>Eliminate above each pivot:</strong> Working from the rightmost pivot to the left, use row replacement to create zeros above each pivot.</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Worked Example: Full Gauss-Jordan Elimination</h4>
+        <p>Take the REF from above:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 3 &nbsp;| &nbsp;10 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 4 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 2 &nbsp;| &nbsp; 6 ]
+        </div>
+
+        <p><strong>Step 1: Scale row 3.</strong> (1/2)R_3 &rarr; R_3:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 3 &nbsp;| &nbsp;10 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 4 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp; 3 ]
+        </div>
+
+        <p><strong>Step 2: Eliminate above pivot in column 3.</strong></p>
+        <p>R_2 - R_3 &rarr; R_2: [0, 1, 1-1 | 4-3] = [0, 1, 0 | 1]</p>
+        <p>R_1 - 3R_3 &rarr; R_1: [1, 2, 3-3 | 10-9] = [1, 2, 0 | 1]</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 0 &nbsp;| &nbsp;1 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 0 &nbsp;| &nbsp;1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp;3 ]
+        </div>
+
+        <p><strong>Step 3: Eliminate above pivot in column 2.</strong></p>
+        <p>R_1 - 2R_2 &rarr; R_1: [1, 2-2, 0 | 1-2] = [1, 0, 0 | -1]</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp;-1 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 0 &nbsp;| &nbsp; 1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp; 3 ]
+        </div>
+
+        <p><strong>Read the solution:</strong> x_1 = -1, x_2 = 1, x_3 = 3.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Uniqueness of RREF</h2>
+      <div class="definition-box">
+        <p><strong>Uniqueness Theorem:</strong> Every matrix has exactly one reduced row echelon form. Different sequences of row operations may be used, but they all lead to the same RREF.</p>
+      </div>
+      <p>This is important: while there are many possible REFs for a matrix (depending on which operations you choose), the RREF is <em>unique</em>. This makes RREF the canonical or standard form for any matrix.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Pivot Columns and Free Variables</h2>
+      <p>In RREF, each pivot occupies a column. We call these <strong>pivot columns</strong>. Columns without a pivot correspond to <strong>free variables</strong> -- variables that can take any value. This is the key to understanding infinite solution sets, which we explore fully in Lesson 4.</p>
+
+      <div class="example-box">
+        <h4>Example: Identifying Pivot and Free Variables</h4>
+        <p>RREF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 3 &nbsp;| &nbsp;5 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-2 &nbsp;| &nbsp;1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp;0 ]
+        </div>
+        <p><strong>Pivot columns:</strong> Columns 1 and 2 (where the 1s are).</p>
+        <p><strong>Free variable:</strong> x_3 (column 3 has no pivot).</p>
+        <p><strong>Reading the solution:</strong> x_1 + 3x_3 = 5 and x_2 - 2x_3 = 1. Let x_3 = t (any real number). Then x_1 = 5 - 3t, x_2 = 1 + 2t, x_3 = t.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Is this matrix in RREF? [ 1 0 2 | 3 ] / [ 0 2 1 | 4 ]</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> No. The pivot in row 2 is 2, but in RREF every pivot must equal 1. You would need to scale row 2 by 1/2.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Reduce to RREF: [ 1 3 | 7 ] / [ 0 2 | 4 ]</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> Scale R_2: (1/2)R_2 gives [0 1 | 2]. Then R_1 - 3R_2 &rarr; R_1: [1, 0 | 7-6] = [1, 0 | 1]. RREF: [ 1 0 | 1 ] / [ 0 1 | 2 ]. Solution: x = 1, y = 2.</div>
+      </div>
+
+      <div class="question">
+        <p>3. What is the advantage of RREF over REF?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> In RREF, you can read the solutions directly without needing back-substitution. Each pivot variable equals the constant in its row (for unique solutions), or the relationship with free variables is explicit.</div>
+      </div>
+
+      <div class="question">
+        <p>4. In the RREF [ 1 0 -1 | 2 ] / [ 0 1 3 | -1 ] / [ 0 0 0 | 0 ], identify the pivot variables and free variables.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> Pivot variables: x_1 (column 1) and x_2 (column 2). Free variable: x_3 (column 3 has no pivot). The solution is x_1 = 2 + x_3, x_2 = -1 - 3x_3, x_3 is free.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>RREF</strong> requires all pivots equal to 1 and zeros both above and below each pivot</li>
+        <li><strong>Gauss-Jordan elimination</strong> = forward elimination (to REF) + scaling pivots to 1 + back-elimination (clearing above pivots)</li>
+        <li>Every matrix has a <strong>unique RREF</strong></li>
+        <li>Columns with pivots give <strong>pivot variables</strong>; columns without pivots give <strong>free variables</strong></li>
+        <li>RREF lets you read solutions directly without back-substitution</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>Lesson 4 explores <strong>solution sets in depth</strong> -- unique, infinitely many, and no solution -- and how to express them in parametric vector form.</p>
+          <a href="lesson-04-solution-sets-and-parametric-form.html" class="btn btn-primary mt-2">Start Lesson 4</a>
+        </div>
+        <div class="card">
+          <h3>Module Home</h3>
+          <a href="index.html" class="btn btn-outline mt-2">Module 1 Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const el = document.getElementById(id);
+      const btn = el.previousElementSibling;
+      if (el.style.display === 'none' || el.style.display === '') { el.style.display = 'block'; btn.textContent = 'Hide Answer'; }
+      else { el.style.display = 'none'; btn.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

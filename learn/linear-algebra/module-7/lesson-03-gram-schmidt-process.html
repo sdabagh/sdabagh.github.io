@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 3: The Gram-Schmidt Process – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 7 Home</a><span class="text-muted">Lesson 3 of 4</span><a href="lesson-04-least-squares-problems.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 3: The Gram-Schmidt Process</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Apply the Gram-Schmidt process to convert a basis into an orthogonal basis</li>
+      <li>Normalize an orthogonal basis to produce an orthonormal basis</li>
+      <li>Understand the connection to QR factorization</li>
+      <li>Recognize why orthogonal bases are computationally superior</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>The Algorithm</h2>
+      <p>Given a basis {x1, x2, ..., xk} for a subspace W, Gram-Schmidt produces an orthogonal basis {v1, v2, ..., vk} for the same subspace.</p>
+      <div class="definition-box"><p><strong>Gram-Schmidt Process:</strong></p>
+      <p>v1 = x1</p>
+      <p>v2 = x2 - proj_{v1}(x2) = x2 - [(x2 &middot; v1)/(v1 &middot; v1)] v1</p>
+      <p>v3 = x3 - proj_{v1}(x3) - proj_{v2}(x3) = x3 - [(x3 &middot; v1)/(v1 &middot; v1)] v1 - [(x3 &middot; v2)/(v2 &middot; v2)] v2</p>
+      <p>Continue: each new vector = original minus projections onto all previous orthogonal vectors.</p></div>
+      <div class="highlight-box"><h4>Key Idea</h4><p>At each step, we subtract the components in the directions we have already built. What remains is the new orthogonal direction.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Gram-Schmidt in R^2</h2>
+      <div class="example-box"><h4>Worked Example 1</h4>
+        <p>Basis: x1 = (1, 1), x2 = (0, 1). Apply Gram-Schmidt.</p>
+        <p><strong>Step 1:</strong> v1 = x1 = (1, 1).</p>
+        <p><strong>Step 2:</strong> v2 = x2 - [(x2 &middot; v1)/(v1 &middot; v1)] v1 = (0,1) - [(0+1)/2](1,1) = (0,1) - (1/2, 1/2) = <strong>(-1/2, 1/2)</strong>.</p>
+        <p>Check: v1 &middot; v2 = (1)(-1/2) + (1)(1/2) = 0. Orthogonal!</p>
+        <p>Orthonormal basis: e1 = v1/||v1|| = (1/sqrt(2), 1/sqrt(2)), e2 = v2/||v2|| = (-1/sqrt(2), 1/sqrt(2)).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Gram-Schmidt in R^3</h2>
+      <div class="example-box"><h4>Worked Example 2</h4>
+        <p>Basis: x1 = (1, 1, 0), x2 = (1, 0, 1), x3 = (0, 1, 1).</p>
+        <p><strong>Step 1:</strong> v1 = (1, 1, 0). v1 &middot; v1 = 2.</p>
+        <p><strong>Step 2:</strong> x2 &middot; v1 = 1+0+0 = 1. v2 = (1,0,1) - (1/2)(1,1,0) = (1/2, -1/2, 1). v2 &middot; v2 = 1/4 + 1/4 + 1 = 3/2.</p>
+        <p>Check: v1 &middot; v2 = 1/2 - 1/2 + 0 = 0.</p>
+        <p><strong>Step 3:</strong> x3 &middot; v1 = 0+1+0 = 1. x3 &middot; v2 = 0 - 1/2 + 1 = 1/2.</p>
+        <p>v3 = (0,1,1) - (1/2)(1,1,0) - (1/3)(1/2,-1/2,1) = (0,1,1) - (1/2,1/2,0) - (1/6,-1/6,1/3).</p>
+        <p>v3 = (0 - 1/2 - 1/6, 1 - 1/2 + 1/6, 1 - 0 - 1/3) = <strong>(-2/3, 2/3, 2/3)</strong>.</p>
+        <p>Check: v1 &middot; v3 = -2/3 + 2/3 + 0 = 0. v2 &middot; v3 = -1/3 - 1/3 + 2/3 = 0.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Applying to a Subspace Basis</h2>
+      <div class="example-box"><h4>Worked Example 3</h4>
+        <p>Find an orthogonal basis for W = span{(1, 0, 1, 0), (0, 1, 0, 1)}.</p>
+        <p>v1 = (1, 0, 1, 0). v1 &middot; v1 = 2.</p>
+        <p>x2 &middot; v1 = 0. So v2 = x2 - 0 = (0, 1, 0, 1). The original vectors were already orthogonal!</p>
+        <p>This will sometimes happen. When it does, Gram-Schmidt confirms it automatically.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>QR Factorization</h2>
+      <div class="definition-box"><p><strong>QR Factorization:</strong> If A is an m x n matrix with linearly independent columns, then A = QR where:</p>
+      <ul>
+        <li>Q is m x n with orthonormal columns (obtained by normalizing the Gram-Schmidt output)</li>
+        <li>R is n x n upper triangular with positive diagonal entries</li>
+      </ul></div>
+      <div class="example-box"><h4>Worked Example 4</h4>
+        <p>A = [1 0; 1 1; 0 1] (columns are x1 = (1,1,0), x2 = (0,1,1)).</p>
+        <p>Gram-Schmidt: v1 = (1,1,0), v2 = (0,1,1) - (1/2)(1,1,0) = (-1/2, 1/2, 1).</p>
+        <p>Normalize: q1 = (1/sqrt(2), 1/sqrt(2), 0), q2 = (-1/sqrt(6), 1/sqrt(6), 2/sqrt(6)).</p>
+        <p>Q = [q1 | q2], R = [||v1|| (x2&middot;q1); 0 ||v2||] = [sqrt(2) 1/sqrt(2); 0 sqrt(3/2)].</p>
+      </div>
+      <div class="highlight-box"><h4>Why QR Matters</h4><p>QR factorization is the standard numerical method for solving least-squares problems. It is more numerically stable than forming A^T*A directly.</p></div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Apply Gram-Schmidt to x1 = (1, 0), x2 = (3, 4).</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> v1 = (1, 0). v2 = (3,4) - [(3)/1](1,0) = (3,4) - (3,0) = (0, 4). Orthogonal basis: {(1,0), (0,4)} or normalized {(1,0), (0,1)}.</div></div>
+      <div class="question"><p>2. Why does Gram-Schmidt require the input vectors to be linearly independent?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> If the vectors are linearly dependent, at some step the new vector minus its projections will be the zero vector, and we cannot normalize 0 or continue.</div></div>
+      <div class="question"><p>3. In QR factorization, Q has orthonormal columns. What is Q^T * Q?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Q^T * Q = I (the identity matrix). This is the defining property of a matrix with orthonormal columns.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>Gram-Schmidt:</strong> subtract projections onto previous vectors to build orthogonal basis</li>
+      <li>Each new vector = original - sum of projections onto all previous orthogonal vectors</li>
+      <li>Normalize to get an orthonormal basis: divide each vector by its length</li>
+      <li><strong>QR factorization:</strong> A = QR where Q has orthonormal columns, R is upper triangular</li>
+      <li>QR is the practical way to implement Gram-Schmidt and solve least squares</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>Least Squares Problems.</p><a href="lesson-04-least-squares-problems.html" class="btn btn-primary mt-2">Start Lesson 4</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 7 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

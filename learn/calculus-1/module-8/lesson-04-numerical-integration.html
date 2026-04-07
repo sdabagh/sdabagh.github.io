@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Numerical Integration - Trapezoidal Rule, Simpson's Rule, error bounds, and comparison">
+  <title>Lesson 4: Numerical Integration – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 8 Home</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Numerical Integration</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Apply the Trapezoidal Rule to approximate definite integrals</li>
+        <li>Apply Simpson's Rule for higher-accuracy approximation</li>
+        <li>Understand error bounds for each method</li>
+        <li>Compare the methods and know when to use each</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Why Numerical Integration?</h2>
+      <p>Many important integrals cannot be expressed in terms of elementary functions. Examples include &int; e<sup>&minus;x&sup2;</sup> dx (the Gaussian integral), &int; sin(x&sup2;) dx, and &int; &radic;(1 + x<sup>4</sup>) dx. For these, we need <strong>numerical methods</strong> to approximate the value.</p>
+      <p>Even when an antiderivative exists, numerical methods can be faster for one-time computations or when the integrand is given as a table of data points.</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>The Trapezoidal Rule</h2>
+      <p>Instead of approximating the area with rectangles (Riemann sums), the Trapezoidal Rule uses trapezoids, which fit the curve more closely.</p>
+
+      <div class="definition-box">
+        <p><strong>Trapezoidal Rule</strong></p>
+        <p>With n subintervals and &Delta;x = (b &minus; a)/n:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>T<sub>n</sub> = (&Delta;x/2)[f(x<sub>0</sub>) + 2f(x<sub>1</sub>) + 2f(x<sub>2</sub>) + ... + 2f(x<sub>n&minus;1</sub>) + f(x<sub>n</sub>)]</strong></p>
+        <p>Note the pattern: first and last values get weight 1; all interior values get weight 2.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Trapezoidal Rule</h4>
+        <p>Approximate &int;<sub>0</sub><sup>2</sup> e<sup>&minus;x&sup2;</sup> dx with n = 4.</p>
+        <p><strong>Step 1:</strong> &Delta;x = 2/4 = 0.5. Points: x<sub>0</sub>=0, x<sub>1</sub>=0.5, x<sub>2</sub>=1, x<sub>3</sub>=1.5, x<sub>4</sub>=2.</p>
+        <p><strong>Step 2:</strong> Evaluate: f(0) = 1, f(0.5) = 0.7788, f(1) = 0.3679, f(1.5) = 0.1054, f(2) = 0.0183.</p>
+        <p><strong>Step 3:</strong> T<sub>4</sub> = (0.5/2)[1 + 2(0.7788) + 2(0.3679) + 2(0.1054) + 0.0183]</p>
+        <p>= 0.25[1 + 1.5576 + 0.7358 + 0.2108 + 0.0183] = 0.25(3.5225) &approx; <strong>0.8806</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Simpson's Rule</h2>
+      <p>Simpson's Rule approximates the integrand with parabolas instead of straight lines, yielding much better accuracy. It requires n to be <strong>even</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Simpson's Rule</strong></p>
+        <p>With n subintervals (n even) and &Delta;x = (b &minus; a)/n:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>S<sub>n</sub> = (&Delta;x/3)[f(x<sub>0</sub>) + 4f(x<sub>1</sub>) + 2f(x<sub>2</sub>) + 4f(x<sub>3</sub>) + 2f(x<sub>4</sub>) + ... + 4f(x<sub>n&minus;1</sub>) + f(x<sub>n</sub>)]</strong></p>
+        <p>Pattern: 1, 4, 2, 4, 2, ..., 4, 1.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Simpson's Rule</h4>
+        <p>Approximate &int;<sub>0</sub><sup>2</sup> e<sup>&minus;x&sup2;</sup> dx with n = 4 (same as Example 1).</p>
+        <p>S<sub>4</sub> = (0.5/3)[1 + 4(0.7788) + 2(0.3679) + 4(0.1054) + 0.0183]</p>
+        <p>= (1/6)[1 + 3.1152 + 0.7358 + 0.4216 + 0.0183] = (1/6)(5.2909) &approx; <strong>0.8818</strong>.</p>
+        <p>(The true value is approximately 0.8821. Simpson's is already very close with just n = 4!)</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Error Bounds</h2>
+
+      <div class="definition-box">
+        <p><strong>Error Bound for Trapezoidal Rule</strong></p>
+        <p>|E<sub>T</sub>| &le; M(b &minus; a)&sup3; / (12n&sup2;), where M = max |f''(x)| on [a, b].</p>
+        <p>Error decreases as O(1/n&sup2;): doubling n cuts the error by 4.</p>
+      </div>
+
+      <div class="definition-box">
+        <p><strong>Error Bound for Simpson's Rule</strong></p>
+        <p>|E<sub>S</sub>| &le; K(b &minus; a)<sup>5</sup> / (180n<sup>4</sup>), where K = max |f<sup>(4)</sup>(x)| on [a, b].</p>
+        <p>Error decreases as O(1/n<sup>4</sup>): doubling n cuts the error by 16!</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Comparing Accuracy</h4>
+        <p>For &int;<sub>0</sub><sup>1</sup> x&sup3; dx (exact answer = 1/4), compare T<sub>4</sub> and S<sub>4</sub>.</p>
+        <p>&Delta;x = 0.25. Points: 0, 0.25, 0.5, 0.75, 1. Values: 0, 0.0156, 0.125, 0.4219, 1.</p>
+        <p>T<sub>4</sub> = (0.25/2)[0 + 2(0.0156) + 2(0.125) + 2(0.4219) + 1] = 0.125(2.1250) = <strong>0.2656</strong>. Error: 0.0156.</p>
+        <p>S<sub>4</sub> = (0.25/3)[0 + 4(0.0156) + 2(0.125) + 4(0.4219) + 1] = (1/12)(3.0000) = <strong>0.2500</strong>. Error: 0!</p>
+        <p>Simpson's Rule gives the exact answer for cubics (because f<sup>(4)</sup> = 0 for polynomials of degree 3 or less).</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Working with Data Tables</h2>
+      <p>Numerical methods are essential when you only have data points (no formula).</p>
+
+      <div class="example-box">
+        <h4>Example 4: From a Data Table</h4>
+        <p>Estimate &int;<sub>0</sub><sup>6</sup> f(x) dx using Simpson's Rule given:</p>
+        <table style="width:auto; margin:0.5rem 0; border-collapse:collapse;">
+          <tr style="background:#AD1457; color:white;"><th style="padding:6px 12px;border:1px solid #ccc;">x</th><td style="padding:6px 12px;border:1px solid #ccc;color:white;">0</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">1</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">2</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">3</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">4</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">5</td><td style="padding:6px 12px;border:1px solid #ccc;color:white;">6</td></tr>
+          <tr><th style="padding:6px 12px;border:1px solid #ccc;">f(x)</th><td style="padding:6px 12px;border:1px solid #ccc;">3</td><td style="padding:6px 12px;border:1px solid #ccc;">5</td><td style="padding:6px 12px;border:1px solid #ccc;">4</td><td style="padding:6px 12px;border:1px solid #ccc;">6</td><td style="padding:6px 12px;border:1px solid #ccc;">7</td><td style="padding:6px 12px;border:1px solid #ccc;">5</td><td style="padding:6px 12px;border:1px solid #ccc;">2</td></tr>
+        </table>
+        <p>n = 6 (even), &Delta;x = 1.</p>
+        <p>S<sub>6</sub> = (1/3)[3 + 4(5) + 2(4) + 4(6) + 2(7) + 4(5) + 2] = (1/3)[3 + 20 + 8 + 24 + 14 + 20 + 2] = 91/3 &approx; <strong>30.33</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Comparison and Guidelines</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr style="background:#AD1457; color:white;"><th style="padding:8px;border:1px solid #ccc;">Method</th><th style="padding:8px;border:1px solid #ccc;">Accuracy</th><th style="padding:8px;border:1px solid #ccc;">Requirement</th><th style="padding:8px;border:1px solid #ccc;">Best For</th></tr>
+        <tr><td style="padding:8px;border:1px solid #ccc;">Trapezoidal</td><td style="padding:8px;border:1px solid #ccc;">O(1/n&sup2;)</td><td style="padding:8px;border:1px solid #ccc;">Any n</td><td style="padding:8px;border:1px solid #ccc;">Quick estimates, odd n</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ccc;">Simpson's</td><td style="padding:8px;border:1px solid #ccc;">O(1/n<sup>4</sup>)</td><td style="padding:8px;border:1px solid #ccc;">n must be even</td><td style="padding:8px;border:1px solid #ccc;">Best accuracy per function evaluation</td></tr>
+      </table>
+      <p><strong>Rule of thumb:</strong> Simpson's Rule with n = 10 often matches the Trapezoidal Rule with n = 100 in terms of accuracy.</p>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Trapezoidal Rule: weighted average with pattern 1, 2, 2, ..., 2, 1. Error is O(1/n&sup2;).</li>
+        <li>Simpson's Rule: pattern 1, 4, 2, 4, 2, ..., 4, 1. Requires even n. Error is O(1/n<sup>4</sup>).</li>
+        <li>Simpson's is exact for polynomials of degree 3 or less.</li>
+        <li>Both methods work with data tables when no formula is available.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Use the Trapezoidal Rule with n = 4 to approximate &int;<sub>1</sub><sup>3</sup> (1/x) dx.</p><button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button><div id="answer1" class="answer"><strong>Answer:</strong> &Delta;x = 0.5. Points: 1, 1.5, 2, 2.5, 3. Values: 1, 0.667, 0.5, 0.4, 0.333. T<sub>4</sub> = 0.25[1 + 2(0.667) + 2(0.5) + 2(0.4) + 0.333] = 0.25(4.467) &approx; <strong>1.117</strong>. (Exact: ln 3 &approx; 1.099.)</div></div>
+      <div class="question"><p>2. Use Simpson's Rule with n = 4 for the same integral.</p><button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button><div id="answer2" class="answer"><strong>Answer:</strong> S<sub>4</sub> = (0.5/3)[1 + 4(0.667) + 2(0.5) + 4(0.4) + 0.333] = (1/6)[1 + 2.667 + 1 + 1.6 + 0.333] = (1/6)(6.600) = <strong>1.100</strong>. Much closer to ln 3!</div></div>
+      <div class="question"><p>3. If you need the Trapezoidal Rule error to be less than 0.001 for &int;<sub>0</sub><sup>1</sup> e<sup>x</sup> dx, how many subintervals do you need?</p><button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button><div id="answer3" class="answer"><strong>Answer:</strong> f''(x) = e<sup>x</sup>, max on [0,1] is e. Error &le; e(1)&sup3;/(12n&sup2;) &lt; 0.001. n&sup2; &gt; e/0.012 &approx; 226.5. n &gt; 15.05, so <strong>n = 16</strong>.</div></div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Practice Problems</h3><p>Test all your integration techniques with 10 problems.</p><a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a></div>
+        <div class="card"><h3>Module Home</h3><p>You have completed all 4 lessons in Module 8!</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Area Between Curves - Setting up integrals, determining which curve is on top, integrating with respect to y">
+  <title>Lesson 1: Area Between Curves – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 7 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-volumes-disk-washer-method.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Area Between Curves</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Set up an integral for the area between two curves</li>
+        <li>Determine which curve is the "top" curve on a given interval</li>
+        <li>Handle regions where the curves cross by splitting into sub-intervals</li>
+        <li>Integrate with respect to y when it simplifies the problem</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>The Basic Area Formula</h2>
+      <p>In Module 6 you learned that &int;<sub>a</sub><sup>b</sup> f(x) dx computes the signed area between f and the x-axis. Now we generalize: the area between two curves f(x) and g(x) on [a, b] where f(x) &ge; g(x) is given by:</p>
+
+      <div class="definition-box">
+        <p><strong>Area Between Two Curves (integrating with respect to x)</strong></p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>A = &int;<sub>a</sub><sup>b</sup> [f(x) &minus; g(x)] dx</strong></p>
+        <p>where f(x) &ge; g(x) on [a, b]. Here f is the "top" curve and g is the "bottom" curve.</p>
+      </div>
+
+      <p><strong>Key idea:</strong> At each x, the height of a thin vertical strip is f(x) &minus; g(x). We integrate these heights across [a, b].</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>Finding the Intersection Points</h2>
+      <p>The limits of integration a and b are usually the x-values where the curves intersect. To find them, set f(x) = g(x) and solve.</p>
+
+      <div class="example-box">
+        <h4>Example 1: Area Between a Parabola and a Line</h4>
+        <p>Find the area enclosed between y = x&sup2; and y = x + 2.</p>
+        <p><strong>Step 1: Find intersections.</strong> x&sup2; = x + 2 gives x&sup2; &minus; x &minus; 2 = 0, so (x &minus; 2)(x + 1) = 0. Intersections at x = &minus;1, x = 2.</p>
+        <p><strong>Step 2: Determine top curve.</strong> Test x = 0: line gives 2, parabola gives 0. So x + 2 &ge; x&sup2; on [&minus;1, 2].</p>
+        <p><strong>Step 3: Integrate.</strong></p>
+        <p>A = &int;<sub>&minus;1</sub><sup>2</sup> [(x + 2) &minus; x&sup2;] dx = &int;<sub>&minus;1</sub><sup>2</sup> (x + 2 &minus; x&sup2;) dx</p>
+        <p>= [x&sup2;/2 + 2x &minus; x&sup3;/3]<sub>&minus;1</sub><sup>2</sup> = (2 + 4 &minus; 8/3) &minus; (1/2 &minus; 2 + 1/3)</p>
+        <p>= 10/3 &minus; (&minus;7/6) = 10/3 + 7/6 = 27/6 = <strong>9/2</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>When Curves Cross: Splitting the Integral</h2>
+      <p>If the curves switch positions (one is on top on part of the interval, the other is on top for the rest), you must split the integral at each crossing point.</p>
+
+      <div class="example-box">
+        <h4>Example 2: Curves That Cross</h4>
+        <p>Find the total area between y = x&sup3; and y = x on [&minus;1, 1].</p>
+        <p><strong>Step 1:</strong> x&sup3; = x gives x(x&sup2; &minus; 1) = 0, so x = &minus;1, 0, 1.</p>
+        <p><strong>Step 2:</strong> On (&minus;1, 0): test x = &minus;0.5. x&sup3; = &minus;0.125, x = &minus;0.5. So x&sup3; &gt; x (x&sup3; is above).</p>
+        <p>On (0, 1): test x = 0.5. x&sup3; = 0.125, x = 0.5. So x &gt; x&sup3; (x is above).</p>
+        <p><strong>Step 3:</strong></p>
+        <p>A = &int;<sub>&minus;1</sub><sup>0</sup> (x&sup3; &minus; x) dx + &int;<sub>0</sub><sup>1</sup> (x &minus; x&sup3;) dx</p>
+        <p>= [x<sup>4</sup>/4 &minus; x&sup2;/2]<sub>&minus;1</sub><sup>0</sup> + [x&sup2;/2 &minus; x<sup>4</sup>/4]<sub>0</sub><sup>1</sup></p>
+        <p>= (0 &minus; (1/4 &minus; 1/2)) + ((1/2 &minus; 1/4) &minus; 0) = 1/4 + 1/4 = <strong>1/2</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Integrating with Respect to y</h2>
+      <p>Sometimes horizontal strips are simpler. If we express curves as x = f(y) and x = g(y), we integrate with respect to y:</p>
+
+      <div class="definition-box">
+        <p><strong>Area Between Two Curves (integrating with respect to y)</strong></p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>A = &int;<sub>c</sub><sup>d</sup> [f(y) &minus; g(y)] dy</strong></p>
+        <p>where f(y) &ge; g(y) on [c, d]. Here f is the "right" curve and g is the "left" curve.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Integrating with Respect to y</h4>
+        <p>Find the area enclosed by x = y&sup2; and x = y + 2.</p>
+        <p><strong>Step 1:</strong> Find intersections: y&sup2; = y + 2 gives y&sup2; &minus; y &minus; 2 = 0, so (y &minus; 2)(y + 1) = 0. y = &minus;1, y = 2.</p>
+        <p><strong>Step 2:</strong> Which is rightmost? At y = 0: y + 2 = 2, y&sup2; = 0. So x = y + 2 is to the right.</p>
+        <p><strong>Step 3:</strong></p>
+        <p>A = &int;<sub>&minus;1</sub><sup>2</sup> [(y + 2) &minus; y&sup2;] dy = [y&sup2;/2 + 2y &minus; y&sup3;/3]<sub>&minus;1</sub><sup>2</sup></p>
+        <p>= (2 + 4 &minus; 8/3) &minus; (1/2 &minus; 2 + 1/3) = 10/3 + 7/6 = <strong>9/2</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Strategy: When to Use dy vs. dx</h2>
+      <ul>
+        <li><strong>Use dx</strong> when the region is naturally bounded by top/bottom functions of x, and neither curve requires splitting into multiple functions of x.</li>
+        <li><strong>Use dy</strong> when the region is more naturally described by left/right functions of y, or when using dx would require splitting into multiple integrals but dy gives a single integral.</li>
+      </ul>
+
+      <div class="example-box">
+        <h4>Example 4: Choosing the Better Variable</h4>
+        <p>Find the area enclosed by y = &radic;x, y = 0, and x = 4.</p>
+        <p><strong>Using dx:</strong> A = &int;<sub>0</sub><sup>4</sup> &radic;x dx = [(2/3)x<sup>3/2</sup>]<sub>0</sub><sup>4</sup> = (2/3)(8) = <strong>16/3</strong>.</p>
+        <p>This is straightforward with dx since the top curve is y = &radic;x and the bottom is y = 0.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Area Between Three or More Curves</h2>
+      <p>When a region is bounded by three or more curves, sketch the region first, then identify which curves form the top and bottom (or left and right) boundaries. You may need to split into sub-regions.</p>
+
+      <div class="example-box">
+        <h4>Example 5: Region with Multiple Boundaries</h4>
+        <p>Find the area enclosed by y = x&sup2;, y = 2 &minus; x, and y = 0 in the first quadrant.</p>
+        <p><strong>Step 1:</strong> Find intersections. x&sup2; = 2 &minus; x gives x&sup2; + x &minus; 2 = 0, so x = 1 (positive root). Also, 2 &minus; x = 0 at x = 2, and x&sup2; = 0 at x = 0.</p>
+        <p><strong>Step 2:</strong> The region splits at x = 1. On [0, 1]: top is y = 2 &minus; x, bottom is y = x&sup2;. On [1, 2]: top is y = 2 &minus; x, bottom is y = 0.</p>
+        <p><strong>Step 3:</strong></p>
+        <p>A = &int;<sub>0</sub><sup>1</sup> [(2 &minus; x) &minus; x&sup2;] dx + &int;<sub>1</sub><sup>2</sup> (2 &minus; x) dx</p>
+        <p>= [2x &minus; x&sup2;/2 &minus; x&sup3;/3]<sub>0</sub><sup>1</sup> + [2x &minus; x&sup2;/2]<sub>1</sub><sup>2</sup></p>
+        <p>= (2 &minus; 1/2 &minus; 1/3) + [(4 &minus; 2) &minus; (2 &minus; 1/2)] = 7/6 + 1/2 = <strong>5/3</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Area = &int; (top &minus; bottom) dx or &int; (right &minus; left) dy.</li>
+        <li>Always find intersection points to determine limits of integration.</li>
+        <li>If curves cross within the interval, split the integral at each crossing point.</li>
+        <li>Choose dx or dy based on which gives a simpler single integral.</li>
+        <li>The integrand must always be non-negative: (top &minus; bottom) &ge; 0.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Find the area between y = x&sup2; and y = 4.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> Intersections: x&sup2; = 4, x = &plusmn;2. A = &int;<sub>&minus;2</sub><sup>2</sup> (4 &minus; x&sup2;) dx = [4x &minus; x&sup3;/3]<sub>&minus;2</sub><sup>2</sup> = (8 &minus; 8/3) &minus; (&minus;8 + 8/3) = 16 &minus; 16/3 = <strong>32/3</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Find the area between y = sin x and y = cos x on [0, &pi;/2].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> They cross at x = &pi;/4. On [0, &pi;/4]: cos x &ge; sin x. On [&pi;/4, &pi;/2]: sin x &ge; cos x. A = &int;<sub>0</sub><sup>&pi;/4</sup> (cos x &minus; sin x) dx + &int;<sub>&pi;/4</sub><sup>&pi;/2</sup> (sin x &minus; cos x) dx = [sin x + cos x]<sub>0</sub><sup>&pi;/4</sup> + [&minus;cos x &minus; sin x]<sub>&pi;/4</sub><sup>&pi;/2</sup> = (&radic;2 &minus; 1) + ((&minus;1) &minus; (&minus;&radic;2)) = <strong>2&radic;2 &minus; 2</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Set up (but do not evaluate) the integral for the area between x = y&sup2; &minus; 1 and x = 3 &minus; y&sup2;.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> y&sup2; &minus; 1 = 3 &minus; y&sup2; gives 2y&sup2; = 4, y = &plusmn;&radic;2. Right curve: 3 &minus; y&sup2;. Left curve: y&sup2; &minus; 1. A = &int;<sub>&minus;&radic;2</sub><sup>&radic;2</sup> [(3 &minus; y&sup2;) &minus; (y&sup2; &minus; 1)] dy = &int;<sub>&minus;&radic;2</sub><sup>&radic;2</sup> (4 &minus; 2y&sup2;) dy.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. Find the area enclosed by y = x&sup3; and y = x on [0, 1].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer:</strong> On [0, 1], x &ge; x&sup3;. A = &int;<sub>0</sub><sup>1</sup> (x &minus; x&sup3;) dx = [x&sup2;/2 &minus; x<sup>4</sup>/4]<sub>0</sub><sup>1</sup> = 1/2 &minus; 1/4 = <strong>1/4</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>Lesson 2 covers volumes of solids of revolution using disk and washer methods.</p><a href="lesson-02-volumes-disk-washer-method.html" class="btn btn-primary mt-2">Start Lesson 2</a></div>
+        <div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

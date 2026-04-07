@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 2: Computing Limits Algebraically – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 1 Home</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-limits-at-infinity-and-asymptotes.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Computing Limits Algebraically</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Apply direct substitution to evaluate limits of continuous functions</li>
+        <li>State and use the basic limit laws (sum, product, quotient, power)</li>
+        <li>Evaluate limits by factoring and canceling common factors</li>
+        <li>Use rationalization (conjugate multiplication) to compute limits involving radicals</li>
+        <li>Apply the Squeeze Theorem to evaluate limits</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Direct Substitution</h2>
+      <p>The simplest strategy for evaluating a limit is <strong>direct substitution</strong>: just plug in the target value. This works whenever the function is continuous at the target.</p>
+
+      <div class="definition-box">
+        <p><strong>Direct Substitution Property</strong></p>
+        <p>If f is a polynomial or rational function and a is in the domain of f, then lim<sub>x&rarr;a</sub> f(x) = f(a).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Polynomial Limit</h4>
+        <p>Evaluate lim<sub>x&rarr;3</sub> (2x&sup2; &minus; 5x + 1).</p>
+        <p><strong>Solution:</strong> Since polynomials are continuous everywhere, substitute directly:</p>
+        <p style="margin-left:2rem;">= 2(3)&sup2; &minus; 5(3) + 1 = 18 &minus; 15 + 1 = <strong>4</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Rational Function Limit</h4>
+        <p>Evaluate lim<sub>x&rarr;2</sub> (x + 1)/(x&sup2; + 3).</p>
+        <p><strong>Solution:</strong> Check the denominator: 2&sup2; + 3 = 7 &ne; 0, so substitute:</p>
+        <p style="margin-left:2rem;">= (2 + 1)/(4 + 3) = <strong>3/7</strong></p>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>Limit Laws</h2>
+      <p>When direct substitution does not work immediately, the <strong>limit laws</strong> let us break complicated limits into simpler pieces.</p>
+
+      <div class="definition-box">
+        <p><strong>Basic Limit Laws</strong></p>
+        <p>Suppose lim<sub>x&rarr;a</sub> f(x) = L and lim<sub>x&rarr;a</sub> g(x) = M. Then:</p>
+        <ul>
+          <li><strong>Sum Law:</strong> lim<sub>x&rarr;a</sub> [f(x) + g(x)] = L + M</li>
+          <li><strong>Difference Law:</strong> lim<sub>x&rarr;a</sub> [f(x) &minus; g(x)] = L &minus; M</li>
+          <li><strong>Constant Multiple Law:</strong> lim<sub>x&rarr;a</sub> [c &middot; f(x)] = c &middot; L</li>
+          <li><strong>Product Law:</strong> lim<sub>x&rarr;a</sub> [f(x) &middot; g(x)] = L &middot; M</li>
+          <li><strong>Quotient Law:</strong> lim<sub>x&rarr;a</sub> [f(x)/g(x)] = L/M, provided M &ne; 0</li>
+          <li><strong>Power Law:</strong> lim<sub>x&rarr;a</sub> [f(x)]<sup>n</sup> = L<sup>n</sup></li>
+          <li><strong>Root Law:</strong> lim<sub>x&rarr;a</sub> &radic;[f(x)] = &radic;L (when L &ge; 0 for even roots)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Using Limit Laws</h4>
+        <p>Given lim<sub>x&rarr;1</sub> f(x) = 4 and lim<sub>x&rarr;1</sub> g(x) = &minus;2, find lim<sub>x&rarr;1</sub> [3f(x) &minus; g(x)&sup2;].</p>
+        <p><strong>Step 1:</strong> By the constant multiple law: lim 3f(x) = 3(4) = 12</p>
+        <p><strong>Step 2:</strong> By the power law: lim [g(x)]&sup2; = (&minus;2)&sup2; = 4</p>
+        <p><strong>Step 3:</strong> By the difference law: 12 &minus; 4 = <strong>8</strong></p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Limits by Factoring</h2>
+      <p>When direct substitution gives the indeterminate form <strong>0/0</strong>, try factoring the numerator and denominator to cancel the common factor causing the zero.</p>
+
+      <div class="example-box">
+        <h4>Example 4: Factor and Cancel</h4>
+        <p>Evaluate lim<sub>x&rarr;3</sub> (x&sup2; &minus; 9)/(x &minus; 3).</p>
+        <p><strong>Step 1:</strong> Direct substitution gives 0/0 (indeterminate).</p>
+        <p><strong>Step 2:</strong> Factor the numerator: x&sup2; &minus; 9 = (x &minus; 3)(x + 3).</p>
+        <p><strong>Step 3:</strong> Cancel: (x &minus; 3)(x + 3)/(x &minus; 3) = x + 3 for x &ne; 3.</p>
+        <p><strong>Step 4:</strong> Now substitute: lim<sub>x&rarr;3</sub> (x + 3) = 3 + 3 = <strong>6</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Factoring a Cubic</h4>
+        <p>Evaluate lim<sub>x&rarr;&minus;1</sub> (x&sup3; + 1)/(x + 1).</p>
+        <p><strong>Step 1:</strong> Direct substitution: 0/0, indeterminate.</p>
+        <p><strong>Step 2:</strong> Factor sum of cubes: x&sup3; + 1 = (x + 1)(x&sup2; &minus; x + 1).</p>
+        <p><strong>Step 3:</strong> Cancel: (x + 1)(x&sup2; &minus; x + 1)/(x + 1) = x&sup2; &minus; x + 1.</p>
+        <p><strong>Step 4:</strong> Substitute: (&minus;1)&sup2; &minus; (&minus;1) + 1 = 1 + 1 + 1 = <strong>3</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Limits by Rationalization</h2>
+      <p>When a limit involves a square root and gives 0/0, multiply numerator and denominator by the <strong>conjugate</strong> to eliminate the radical.</p>
+
+      <div class="definition-box">
+        <p><strong>Conjugate</strong></p>
+        <p>The conjugate of &radic;a + b is &radic;a &minus; b, and vice versa. Multiplying conjugates uses the difference of squares: (&radic;a + b)(&radic;a &minus; b) = a &minus; b&sup2;.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Rationalization</h4>
+        <p>Evaluate lim<sub>x&rarr;0</sub> (&radic;(x + 4) &minus; 2)/x.</p>
+        <p><strong>Step 1:</strong> Substitution gives (&radic;4 &minus; 2)/0 = 0/0.</p>
+        <p><strong>Step 2:</strong> Multiply by the conjugate:</p>
+        <p style="margin-left:2rem;">[(&radic;(x+4) &minus; 2)/x] &middot; [(&radic;(x+4) + 2)/(&radic;(x+4) + 2)]</p>
+        <p style="margin-left:2rem;">= [(x + 4) &minus; 4] / [x(&radic;(x+4) + 2)]</p>
+        <p style="margin-left:2rem;">= x / [x(&radic;(x+4) + 2)]</p>
+        <p><strong>Step 3:</strong> Cancel x: = 1/(&radic;(x+4) + 2)</p>
+        <p><strong>Step 4:</strong> Substitute x = 0: = 1/(&radic;4 + 2) = 1/(2 + 2) = <strong>1/4</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>The Squeeze Theorem</h2>
+      <p>The Squeeze Theorem (also called the Sandwich Theorem) lets us find limits by trapping a function between two others whose limits we know.</p>
+
+      <div class="definition-box">
+        <p><strong>Squeeze Theorem</strong></p>
+        <p>If g(x) &le; f(x) &le; h(x) for all x near a (except possibly at a), and lim<sub>x&rarr;a</sub> g(x) = lim<sub>x&rarr;a</sub> h(x) = L, then lim<sub>x&rarr;a</sub> f(x) = L.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 7: Using the Squeeze Theorem</h4>
+        <p>Show that lim<sub>x&rarr;0</sub> x&sup2; sin(1/x) = 0.</p>
+        <p><strong>Step 1:</strong> We know &minus;1 &le; sin(1/x) &le; 1 for all x &ne; 0.</p>
+        <p><strong>Step 2:</strong> Multiply by x&sup2; (which is non-negative): &minus;x&sup2; &le; x&sup2; sin(1/x) &le; x&sup2;.</p>
+        <p><strong>Step 3:</strong> lim<sub>x&rarr;0</sub> (&minus;x&sup2;) = 0 and lim<sub>x&rarr;0</sub> x&sup2; = 0.</p>
+        <p><strong>Step 4:</strong> By the Squeeze Theorem: lim<sub>x&rarr;0</sub> x&sup2; sin(1/x) = <strong>0</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Special Trigonometric Limits</h2>
+      <p>Two important limits involving trigonometric functions appear frequently. These should be memorized.</p>
+
+      <div class="definition-box">
+        <p><strong>Fundamental Trig Limits</strong></p>
+        <p>1. lim<sub>x&rarr;0</sub> (sin x)/x = <strong>1</strong></p>
+        <p>2. lim<sub>x&rarr;0</sub> (1 &minus; cos x)/x = <strong>0</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 8: Using the Fundamental Trig Limit</h4>
+        <p>Evaluate lim<sub>x&rarr;0</sub> (sin 5x)/(3x).</p>
+        <p><strong>Step 1:</strong> Rewrite to match the pattern (sin u)/u:</p>
+        <p style="margin-left:2rem;">(sin 5x)/(3x) = (5/3) &middot; (sin 5x)/(5x)</p>
+        <p><strong>Step 2:</strong> Let u = 5x. As x &rarr; 0, u &rarr; 0:</p>
+        <p style="margin-left:2rem;">= (5/3) &middot; lim<sub>u&rarr;0</sub> (sin u)/u = (5/3)(1) = <strong>5/3</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 7 -->
+    <section class="content-section">
+      <h2>Strategy Summary</h2>
+      <p>When evaluating lim<sub>x&rarr;a</sub> f(x), follow this strategy:</p>
+      <ol>
+        <li><strong>Try direct substitution.</strong> If you get a number, that is the answer.</li>
+        <li><strong>If you get 0/0</strong>, try algebraic simplification: factor, rationalize, or simplify complex fractions.</li>
+        <li><strong>If you get nonzero/0</strong>, the limit is &pm;&infin; or DNE &mdash; check sign from each side.</li>
+        <li><strong>If trig functions are involved</strong>, try rewriting using (sin x)/x or (1 &minus; cos x)/x.</li>
+        <li><strong>If trapped</strong>, try the Squeeze Theorem.</li>
+      </ol>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Direct substitution</strong> works for polynomials, rational functions (when denominator is nonzero), trig, exponential, and log functions at points in their domain.</li>
+        <li>The <strong>limit laws</strong> let you break a complex limit into simpler pieces (sum, product, quotient, power).</li>
+        <li>An <strong>indeterminate form 0/0</strong> signals that algebraic simplification is needed (factor, rationalize, or rewrite).</li>
+        <li><strong>Rationalization</strong> multiplies by the conjugate to clear radicals.</li>
+        <li>The <strong>Squeeze Theorem</strong> bounds a function between two simpler ones.</li>
+        <li>The special trig limits lim (sin x)/x = 1 and lim (1 &minus; cos x)/x = 0 are essential tools.</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Evaluate lim<sub>x&rarr;4</sub> (x&sup2; &minus; 16)/(x &minus; 4).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> Factor: (x&minus;4)(x+4)/(x&minus;4) = x + 4. Substitute x = 4: 4 + 4 = <strong>8</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Evaluate lim<sub>x&rarr;0</sub> (&radic;(x+9) &minus; 3)/x.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> Rationalize: multiply by (&radic;(x+9) + 3)/(&radic;(x+9) + 3). Numerator becomes (x+9) &minus; 9 = x. Cancel x: 1/(&radic;(x+9) + 3). Substitute x = 0: 1/(3 + 3) = <strong>1/6</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Evaluate lim<sub>x&rarr;0</sub> (sin 3x)/(sin 5x).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> Rewrite: (sin 3x)/(sin 5x) = [(sin 3x)/(3x)] &middot; [5x/(sin 5x)] &middot; (3x)/(5x). As x &rarr; 0, each ratio &rarr; 1, so the result is (3/5)(1)(1) = <strong>3/5</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. What does the Squeeze Theorem require?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer:</strong> It requires three functions g(x) &le; f(x) &le; h(x) near the point in question, and that the outer two functions g and h have the <strong>same limit L</strong>. Then f must also have limit L.
+        </div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3 you will explore limits at infinity, end behavior, and asymptotes.</p>
+          <a href="lesson-03-limits-at-infinity-and-asymptotes.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

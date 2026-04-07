@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Average Value of a Function - Formula, Mean Value Theorem for Integrals, and applications">
+  <title>Lesson 4: Average Value of a Function – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 7 Home</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Average Value of a Function</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Define and compute the average value of a continuous function on an interval</li>
+        <li>State and apply the Mean Value Theorem for Integrals</li>
+        <li>Interpret the average value geometrically</li>
+        <li>Apply average value in real-world contexts</li>
+      </ul>
+    </div>
+
+    <!-- Section 1 -->
+    <section class="content-section">
+      <h2>Motivation: Averaging Continuously</h2>
+      <p>The average of n numbers x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub> is (x<sub>1</sub> + x<sub>2</sub> + ... + x<sub>n</sub>)/n. But how do we average a function that takes on infinitely many values over an interval?</p>
+      <p>The answer comes from recognizing that a Riemann sum of f over [a, b] with n equal subintervals is &Delta;x &middot; &sum; f(x<sub>i</sub>). Dividing the integral by the interval length (b &minus; a) gives us the continuous analog of a discrete average.</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="content-section">
+      <h2>The Average Value Formula</h2>
+
+      <div class="definition-box">
+        <p><strong>Average Value of a Function</strong></p>
+        <p>If f is continuous on [a, b], the <em>average value</em> of f on [a, b] is:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>f<sub>avg</sub> = (1/(b &minus; a)) &int;<sub>a</sub><sup>b</sup> f(x) dx</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Average Value of a Quadratic</h4>
+        <p>Find the average value of f(x) = x&sup2; on [0, 3].</p>
+        <p><strong>Solution:</strong> f<sub>avg</sub> = (1/(3 &minus; 0)) &int;<sub>0</sub><sup>3</sup> x&sup2; dx = (1/3) [x&sup3;/3]<sub>0</sub><sup>3</sup> = (1/3)(9) = <strong>3</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Average Value of a Trig Function</h4>
+        <p>Find the average value of f(x) = sin x on [0, &pi;].</p>
+        <p><strong>Solution:</strong> f<sub>avg</sub> = (1/&pi;) &int;<sub>0</sub><sup>&pi;</sup> sin x dx = (1/&pi;) [&minus;cos x]<sub>0</sub><sup>&pi;</sup> = (1/&pi;)(1 + 1) = <strong>2/&pi; &approx; 0.637</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="content-section">
+      <h2>Geometric Interpretation</h2>
+      <p>The average value f<sub>avg</sub> is the height of the rectangle with base [a, b] whose area equals the area under the curve:</p>
+      <p style="text-align:center;">f<sub>avg</sub> &middot; (b &minus; a) = &int;<sub>a</sub><sup>b</sup> f(x) dx</p>
+      <p>In other words, a horizontal line at height f<sub>avg</sub> creates a rectangle with exactly the same area as the region under f.</p>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="content-section">
+      <h2>Mean Value Theorem for Integrals</h2>
+
+      <div class="definition-box">
+        <p><strong>Mean Value Theorem for Integrals (MVT-I)</strong></p>
+        <p>If f is continuous on [a, b], then there exists a number c in [a, b] such that:</p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>f(c) = (1/(b &minus; a)) &int;<sub>a</sub><sup>b</sup> f(x) dx = f<sub>avg</sub></strong></p>
+        <p>That is, a continuous function actually <em>attains</em> its average value at some point.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Finding c from MVT-I</h4>
+        <p>For f(x) = x&sup2; on [0, 3], we found f<sub>avg</sub> = 3. Find the value c where f(c) = 3.</p>
+        <p><strong>Solution:</strong> c&sup2; = 3, so c = &radic;3 &approx; 1.732. (We take the positive root since c must be in [0, 3].) The function attains its average value at x = &radic;3.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: MVT-I with Exponential</h4>
+        <p>Find the average value of f(x) = e<sup>x</sup> on [0, 2] and the value c where it is attained.</p>
+        <p><strong>Solution:</strong> f<sub>avg</sub> = (1/2) &int;<sub>0</sub><sup>2</sup> e<sup>x</sup> dx = (1/2)(e&sup2; &minus; 1) &approx; 3.195.</p>
+        <p>Find c: e<sup>c</sup> = (e&sup2; &minus; 1)/2, so c = ln[(e&sup2; &minus; 1)/2] &approx; <strong>1.161</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="content-section">
+      <h2>Applications</h2>
+
+      <div class="example-box">
+        <h4>Example 5: Average Temperature</h4>
+        <p>The temperature in a city over 12 hours is modeled by T(t) = 60 + 15 sin(&pi;t/12) (in degrees F). Find the average temperature from t = 0 to t = 12.</p>
+        <p><strong>Solution:</strong> T<sub>avg</sub> = (1/12) &int;<sub>0</sub><sup>12</sup> [60 + 15 sin(&pi;t/12)] dt</p>
+        <p>= (1/12) [60t &minus; 15(12/&pi;) cos(&pi;t/12)]<sub>0</sub><sup>12</sup></p>
+        <p>= (1/12) [(720 &minus; (180/&pi;)(&minus;1)) &minus; (0 &minus; (180/&pi;)(1))]</p>
+        <p>= (1/12) [720 + 360/&pi;] = 60 + 30/&pi; &approx; <strong>69.55&deg;F</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Average Velocity</h4>
+        <p>A particle moves with velocity v(t) = 3t&sup2; &minus; 6t on [0, 4]. Find the average velocity.</p>
+        <p><strong>Solution:</strong> v<sub>avg</sub> = (1/4) &int;<sub>0</sub><sup>4</sup> (3t&sup2; &minus; 6t) dt = (1/4)[t&sup3; &minus; 3t&sup2;]<sub>0</sub><sup>4</sup> = (1/4)(64 &minus; 48) = <strong>4</strong>.</p>
+        <p>Note: average velocity = displacement / time = (s(4) &minus; s(0)) / 4, consistent with the net change theorem.</p>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="content-section">
+      <h2>Average Value vs. Average Rate of Change</h2>
+      <p>Do not confuse:</p>
+      <ul>
+        <li><strong>Average value of f on [a, b]:</strong> (1/(b &minus; a)) &int;<sub>a</sub><sup>b</sup> f(x) dx. This is the average <em>height</em> of f.</li>
+        <li><strong>Average rate of change of f on [a, b]:</strong> [f(b) &minus; f(a)] / (b &minus; a). This is the slope of the secant line.</li>
+      </ul>
+      <p>These are conceptually different quantities. However, the average value of f' equals the average rate of change of f (by FTC).</p>
+    </section>
+
+    <!-- Key Takeaways -->
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Average value: f<sub>avg</sub> = (1/(b &minus; a)) &int;<sub>a</sub><sup>b</sup> f(x) dx.</li>
+        <li>Geometrically, f<sub>avg</sub> is the height of a rectangle with the same area as the region under f.</li>
+        <li>MVT for Integrals: a continuous function attains its average value at some point c in [a, b].</li>
+        <li>Average value of f' = average rate of change of f (a nice FTC connection).</li>
+      </ul>
+    </div>
+
+    <!-- Check Your Understanding -->
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Find the average value of f(x) = 4x &minus; x&sup2; on [0, 4].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> f<sub>avg</sub> = (1/4) &int;<sub>0</sub><sup>4</sup> (4x &minus; x&sup2;) dx = (1/4)[2x&sup2; &minus; x&sup3;/3]<sub>0</sub><sup>4</sup> = (1/4)(32 &minus; 64/3) = (1/4)(32/3) = <strong>8/3</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Find the average value of f(x) = cos x on [0, &pi;/2].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> f<sub>avg</sub> = (2/&pi;) &int;<sub>0</sub><sup>&pi;/2</sup> cos x dx = (2/&pi;)[sin x]<sub>0</sub><sup>&pi;/2</sup> = (2/&pi;)(1) = <strong>2/&pi;</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. For f(x) = x&sup2; on [1, 3], find the value c guaranteed by MVT-I.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> f<sub>avg</sub> = (1/2)&int;<sub>1</sub><sup>3</sup> x&sup2; dx = (1/2)[x&sup3;/3]<sub>1</sub><sup>3</sup> = (1/2)(26/3) = 13/3. Then c&sup2; = 13/3, c = &radic;(13/3) &approx; <strong>2.082</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. True or false: The average value of a non-negative function on [a, b] is always non-negative.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer: True.</strong> If f(x) &ge; 0, then &int;<sub>a</sub><sup>b</sup> f(x) dx &ge; 0, and dividing by (b &minus; a) &gt; 0 preserves the sign.
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Practice Problems</h3><p>Test your skills with 10 problems covering all Module 7 topics.</p><a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a></div>
+        <div class="card"><h3>Module Home</h3><p>You have completed all 4 lessons in Module 7!</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../student-resources.html">Student Resources</a><a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a><a href="../../research.html">Research</a><a href="../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>function toggleAnswer(answerId){const answer=document.getElementById(answerId);const button=answer.previousElementSibling;if(answer.style.display==='none'||answer.style.display===''){answer.style.display='block';button.textContent='Hide Answer';}else{answer.style.display='none';button.textContent='Show Answer';}}</script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

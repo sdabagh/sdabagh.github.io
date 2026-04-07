@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Gaussian Elimination and Row Echelon Form - Master forward elimination and back-substitution">
+  <title>Lesson 2: Gaussian Elimination – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #2E7D32; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2E7D32; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2E7D32; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #1B5E20; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .matrix-display { text-align: center; margin: 1rem 0; font-size: 1.1rem; font-family: 'Courier New', monospace; }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-systems-and-augmented-matrices.html" class="back-link">&larr; Lesson 1</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-gauss-jordan-and-rref.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Gaussian Elimination and Row Echelon Form</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Define row echelon form (REF) and identify pivots</li>
+        <li>Apply Gaussian elimination (forward elimination) to reach REF</li>
+        <li>Solve a system by back-substitution from REF</li>
+        <li>Handle systems with 2 and 3 unknowns</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Row Echelon Form (REF)</h2>
+      <p>Gaussian elimination transforms an augmented matrix into a specific shape called <strong>row echelon form</strong>. Once in this form, the system can be solved easily by back-substitution.</p>
+
+      <div class="definition-box">
+        <p><strong>Row Echelon Form (REF):</strong> A matrix is in row echelon form if:</p>
+        <ol>
+          <li>All rows of all zeros are at the bottom.</li>
+          <li>The first nonzero entry (the <strong>pivot</strong> or <strong>leading entry</strong>) in each nonzero row is to the right of the pivot in the row above.</li>
+          <li>All entries below a pivot are zero.</li>
+        </ol>
+      </div>
+
+      <div class="definition-box">
+        <p><strong>Pivot:</strong> The first nonzero entry in each row of a row echelon form. Pivots mark the "staircase" pattern descending from left to right.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Matrices in REF</h4>
+        <p>This matrix IS in row echelon form (pivots shown with *):</p>
+        <div class="matrix-display">
+          [ *1 &nbsp; 3 &nbsp; 2 &nbsp;| &nbsp; 5 ]<br>
+          [ &nbsp;0 &nbsp;*2 &nbsp; 1 &nbsp;| &nbsp; 3 ]<br>
+          [ &nbsp;0 &nbsp; 0 &nbsp;*4 &nbsp;| &nbsp; 8 ]
+        </div>
+        <p>Notice the staircase: each pivot is to the right of and below the previous one, with zeros below each pivot.</p>
+        <p class="mt-1">This matrix is NOT in REF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 3 &nbsp;| &nbsp;5 ]<br>
+          [ 2 &nbsp; 1 &nbsp;| &nbsp;7 ]
+        </div>
+        <p>The entry below the first pivot (the 2 in row 2, column 1) is not zero.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Gaussian Elimination Algorithm</h2>
+      <p>The algorithm works left to right, top to bottom, creating zeros below each pivot:</p>
+
+      <div class="highlight-box">
+        <h4>Gaussian Elimination Steps</h4>
+        <ol>
+          <li><strong>Find the pivot:</strong> In the leftmost column that has a nonzero entry, find the topmost nonzero entry. Swap rows if necessary to move it to the current pivot row.</li>
+          <li><strong>Create zeros below the pivot:</strong> For each row below the pivot row, use row replacement to make the entry in the pivot column equal to zero.</li>
+          <li><strong>Move to the next pivot position:</strong> Move one row down and one column right. Repeat from step 1.</li>
+          <li><strong>Stop</strong> when all rows below are processed or all remaining rows are zero.</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Worked Example: Full 3x3 Gaussian Elimination</h4>
+        <p>Solve the system:</p>
+        <div class="matrix-display">
+          x + 2y + z = 9<br>
+          2x + 5y + 3z = 23<br>
+          -x + y + 2z = 5
+        </div>
+        <p><strong>Step 1: Write the augmented matrix.</strong></p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 1 &nbsp;| &nbsp; 9 ]<br>
+          [ 2 &nbsp; 5 &nbsp; 3 &nbsp;| &nbsp;23 ]<br>
+          [-1 &nbsp; 1 &nbsp; 2 &nbsp;| &nbsp; 5 ]
+        </div>
+
+        <p class="mt-1"><strong>Step 2: Eliminate below pivot in column 1.</strong></p>
+        <p>R_2 - 2R_1 &rarr; R_2: [2-2, 5-4, 3-2 | 23-18] = [0, 1, 1 | 5]</p>
+        <p>R_3 + R_1 &rarr; R_3: [-1+1, 1+2, 2+1 | 5+9] = [0, 3, 3 | 14]</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 1 &nbsp;| &nbsp; 9 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 5 ]<br>
+          [ 0 &nbsp; 3 &nbsp; 3 &nbsp;| &nbsp;14 ]
+        </div>
+
+        <p class="mt-1"><strong>Step 3: Eliminate below pivot in column 2.</strong></p>
+        <p>R_3 - 3R_2 &rarr; R_3: [0-0, 3-3, 3-3 | 14-15] = [0, 0, 0 | -1]</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 1 &nbsp;| &nbsp; 9 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 5 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp;-1 ]
+        </div>
+
+        <p class="mt-1"><strong>Step 4: Interpret.</strong></p>
+        <p>Row 3 says 0x + 0y + 0z = -1, which simplifies to 0 = -1. This is a contradiction!</p>
+        <p><strong>This system has no solution (it is inconsistent).</strong></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Worked Example: A Consistent 3x3 System</h4>
+        <p>Solve:</p>
+        <div class="matrix-display">
+          x + y + z = 6<br>
+          2x + 3y + z = 14<br>
+          x + 2y - z = 2
+        </div>
+        <p><strong>Augmented matrix:</strong></p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp; 6 ]<br>
+          [ 2 &nbsp; 3 &nbsp; 1 &nbsp;| &nbsp;14 ]<br>
+          [ 1 &nbsp; 2 &nbsp;-1 &nbsp;| &nbsp; 2 ]
+        </div>
+
+        <p>R_2 - 2R_1 &rarr; R_2 and R_3 - R_1 &rarr; R_3:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp;6 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-1 &nbsp;| &nbsp;2 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-2 &nbsp;| &nbsp;-4 ]
+        </div>
+
+        <p>R_3 - R_2 &rarr; R_3:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 1 &nbsp; 1 &nbsp;| &nbsp;6 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-1 &nbsp;| &nbsp;2 ]<br>
+          [ 0 &nbsp; 0 &nbsp;-1 &nbsp;| &nbsp;-6 ]
+        </div>
+
+        <p class="mt-1"><strong>Back-substitution:</strong></p>
+        <p>From row 3: -z = -6, so <strong>z = 6</strong>.</p>
+        <p>From row 2: y - z = 2, so y = 2 + 6 = <strong>8</strong>. Wait, let me recheck. y - 6 = 2, so y = 8.</p>
+        <p>From row 1: x + y + z = 6, so x + 8 + 6 = 6, x = <strong>-8</strong>.</p>
+        <p><strong>Solution: (x, y, z) = (-8, 8, 6).</strong></p>
+        <p>Verify in original equation 2: 2(-8) + 3(8) + 6 = -16 + 24 + 6 = 14. &#10003;</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Back-Substitution</h2>
+      <p>Once in REF, solve from the <strong>bottom row up</strong>:</p>
+      <ol>
+        <li>The bottom nonzero row gives one variable directly (or detects a contradiction).</li>
+        <li>Substitute that value into the row above to find the next variable.</li>
+        <li>Continue upward until all variables are found.</li>
+      </ol>
+      <p>This is called <strong>back-substitution</strong> because you work backwards through the rows.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Is this matrix in row echelon form? [ 1 2 3 | 4 ] / [ 0 0 5 | 2 ] / [ 0 1 0 | 3 ]</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> No. The pivot in row 3 (the 1 in column 2) is not to the right of the pivot in row 2 (the 5 in column 3). In fact, the pivot in row 3 is to the LEFT of the pivot in row 2. The rows would need to be swapped.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Apply Gaussian elimination to: [ 1 -1 | 3 ] / [ 2 1 | 9 ]. Then solve by back-substitution.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> R_2 - 2R_1 &rarr; R_2: [0, 1+2 | 9-6] = [0, 3 | 3]. So: [ 1 -1 | 3 ] / [ 0 3 | 3 ]. From row 2: 3y = 3, y = 1. From row 1: x - 1 = 3, x = 4. Solution: (4, 1).</div>
+      </div>
+
+      <div class="question">
+        <p>3. What does a row [0 0 0 | 5] in REF tell you about the system?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> It represents the equation 0 = 5, which is impossible. The system is <strong>inconsistent</strong> (has no solution).</div>
+      </div>
+
+      <div class="question">
+        <p>4. What does a row [0 0 0 | 0] in REF tell you?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> It represents 0 = 0, which is always true. This row provides no new information. It typically means the system has either a free variable (infinitely many solutions) or was redundant.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Row echelon form</strong> has a staircase pattern of pivots with zeros below each pivot</li>
+        <li><strong>Gaussian elimination</strong> uses row replacement to create zeros below each pivot, working left to right</li>
+        <li><strong>Back-substitution</strong> solves the system from the bottom row upward</li>
+        <li>A row [0 0 ... 0 | b] with b nonzero signals <strong>no solution</strong></li>
+        <li>A row of all zeros is always true and indicates possible free variables</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, learn <strong>Gauss-Jordan elimination</strong> to reach reduced row echelon form, where solutions can be read off directly.</p>
+          <a href="lesson-03-gauss-jordan-and-rref.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Home</h3>
+          <a href="index.html" class="btn btn-outline mt-2">Module 1 Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const el = document.getElementById(id);
+      const btn = el.previousElementSibling;
+      if (el.style.display === 'none' || el.style.display === '') { el.style.display = 'block'; btn.textContent = 'Hide Answer'; }
+      else { el.style.display = 'none'; btn.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Module 1: Systems of Linear Equations - Learn augmented matrices, Gaussian elimination, and solution sets">
+  <title>Module 1: Systems of Linear Equations – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .module-header {
+      background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%);
+      color: white;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .module-header h1 { color: white; margin-bottom: var(--spacing-sm); }
+    .module-meta { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin-top: var(--spacing-md); opacity: 0.95; }
+    .meta-item { display: flex; align-items: center; gap: var(--spacing-xs); }
+    .objectives-list { list-style: none; margin: 0; padding: 0; }
+    .objectives-list li { padding: var(--spacing-sm) 0; padding-left: var(--spacing-lg); position: relative; }
+    .objectives-list li::before { content: ""; position: absolute; left: 0; color: var(--success); font-weight: bold; font-size: 1.2rem; }
+    .lesson-card { background: white; border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-md); transition: var(--transition); display: flex; gap: var(--spacing-md); align-items: flex-start; }
+    .lesson-card:hover { border-color: #2E7D32; box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .lesson-number { background: #2E7D32; color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0; }
+    .lesson-content { flex: 1; }
+    .lesson-content h3 { margin-top: 0; margin-bottom: var(--spacing-xs); color: #1B5E20; }
+    .lesson-duration { color: var(--text-secondary); font-size: 0.875rem; }
+    .progress-tracker { background: var(--background-alt); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); }
+    .progress-steps { display: flex; justify-content: space-between; gap: var(--spacing-sm); margin-top: var(--spacing-md); flex-wrap: wrap; }
+    .progress-step { flex: 1; min-width: 120px; text-align: center; padding: var(--spacing-sm); background: white; border: 2px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.875rem; }
+    .progress-step.current { border-color: #2E7D32; background: #2E7D32; color: white; font-weight: 600; }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this page:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <a href="../index.html" class="back-link">&larr; Back to Linear Algebra Course</a>
+
+    <div class="module-header">
+      <h1>Module 1: Systems of Linear Equations</h1>
+      <p>Learn to represent and solve systems of linear equations using matrices and systematic elimination methods.</p>
+      <div class="module-meta">
+        <div class="meta-item"><span>4 Lessons</span></div>
+        <div class="meta-item"><span>~3-4 hours</span></div>
+        <div class="meta-item"><span>10 Practice Problems</span></div>
+        <div class="meta-item"><span>Module Quiz</span></div>
+      </div>
+    </div>
+
+    <div class="progress-tracker">
+      <h3>Your Progress</h3>
+      <div class="progress-steps">
+        <div class="progress-step current">Lessons 1-4</div>
+        <div class="progress-step">Practice</div>
+        <div class="progress-step">Module Quiz</div>
+        <div class="progress-step">Review</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <div class="card">
+        <p>By the end of this module, you will be able to:</p>
+        <ul class="objectives-list">
+          <li><strong>Write</strong> a system of linear equations as an augmented matrix</li>
+          <li><strong>Perform</strong> the three elementary row operations</li>
+          <li><strong>Apply</strong> Gaussian elimination to reach row echelon form</li>
+          <li><strong>Apply</strong> Gauss-Jordan elimination to reach reduced row echelon form</li>
+          <li><strong>Classify</strong> systems as consistent/inconsistent and dependent/independent</li>
+          <li><strong>Express</strong> solution sets in parametric vector form</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Module Lessons</h2>
+
+      <div class="lesson-card">
+        <div class="lesson-number">1</div>
+        <div class="lesson-content">
+          <h3>Systems and Augmented Matrices</h3>
+          <p>Learn to translate systems of linear equations into augmented matrix form and understand the three elementary row operations.</p>
+          <p class="lesson-duration">30-40 minutes</p>
+          <div class="mt-2"><a href="lesson-01-systems-and-augmented-matrices.html" class="btn btn-outline">Start Lesson 1</a></div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">2</div>
+        <div class="lesson-content">
+          <h3>Gaussian Elimination and Row Echelon Form</h3>
+          <p>Master the systematic process of forward elimination to produce an upper-triangular matrix, then solve by back-substitution.</p>
+          <p class="lesson-duration">35-45 minutes</p>
+          <div class="mt-2"><a href="lesson-02-gaussian-elimination.html" class="btn btn-outline">Start Lesson 2</a></div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">3</div>
+        <div class="lesson-content">
+          <h3>Gauss-Jordan and Reduced Row Echelon Form</h3>
+          <p>Continue elimination to produce the unique RREF, reading solutions directly without back-substitution.</p>
+          <p class="lesson-duration">30-40 minutes</p>
+          <div class="mt-2"><a href="lesson-03-gauss-jordan-and-rref.html" class="btn btn-outline">Start Lesson 3</a></div>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lesson-number">4</div>
+        <div class="lesson-content">
+          <h3>Solution Sets: Unique, Infinite, and None</h3>
+          <p>Classify systems by their solution types and express infinite solution sets using free variables and parametric vector form.</p>
+          <p class="lesson-duration">35-45 minutes</p>
+          <div class="mt-2"><a href="lesson-04-solution-sets-and-parametric-form.html" class="btn btn-outline">Start Lesson 4</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>After the Lessons</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Apply what you have learned with 10 practice problems covering all module topics. Step-by-step solutions included!</p>
+          <a href="practice.html" class="btn btn-outline mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Test your understanding with a 10-question quiz covering systems, row reduction, and solution sets.</p>
+          <a href="quiz.html" class="btn btn-primary mt-2">Take Module Quiz</a>
+        </div>
+        <div class="card">
+          <h3>Study Materials</h3>
+          <p>Printable study guide and quick reference card for exam prep.</p>
+          <div class="cta-group mt-2">
+            <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+            <a href="quick-reference.html" class="btn btn-outline">Quick Ref Card</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="text-center mt-3 mb-3">
+      <a href="lesson-01-systems-and-augmented-matrices.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Begin Module 1 &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Linear Approximation and Differentials - Use tangent lines to approximate function values">
+  <title>Lesson 2: Linear Approximation and Differentials – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+  <style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; } .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-related-rates.html" class="back-link">&larr; Lesson 1</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-extreme-values-and-critical-points.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Linear Approximation and Differentials</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Write the linearization of a function at a point</li>
+        <li>Use linearization to approximate function values</li>
+        <li>Understand and compute differentials dy and dx</li>
+        <li>Estimate errors using differentials</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Linearization</h2>
+      <p>Near a point x = a, a differentiable function is well approximated by its tangent line. This tangent-line approximation is called the <strong>linearization</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Linearization</strong></p>
+        <p>The linearization of f at x = a is: <strong>L(x) = f(a) + f'(a)(x &minus; a)</strong></p>
+        <p>For x close to a: f(x) &asymp; L(x).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Approximating a Square Root</h4>
+        <p>Approximate &radic;4.1 using linearization of f(x) = &radic;x at a = 4.</p>
+        <p><strong>Step 1:</strong> f(4) = 2, f'(x) = 1/(2&radic;x), so f'(4) = 1/4.</p>
+        <p><strong>Step 2:</strong> L(x) = 2 + (1/4)(x &minus; 4).</p>
+        <p><strong>Step 3:</strong> L(4.1) = 2 + (1/4)(0.1) = 2 + 0.025 = <strong>2.025</strong>.</p>
+        <p>Actual value: &radic;4.1 &asymp; 2.02485. The error is about 0.00015.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Approximating sin(0.1)</h4>
+        <p>Use linearization of f(x) = sin x at a = 0.</p>
+        <p><strong>Step 1:</strong> f(0) = 0, f'(0) = cos 0 = 1.</p>
+        <p><strong>Step 2:</strong> L(x) = 0 + 1(x &minus; 0) = x.</p>
+        <p><strong>Step 3:</strong> sin(0.1) &asymp; <strong>0.1</strong>. (Actual: 0.09983...)</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Differentials</h2>
+
+      <div class="definition-box">
+        <p><strong>Differentials</strong></p>
+        <p>If y = f(x), the <strong>differential</strong> is: <strong>dy = f'(x) dx</strong></p>
+        <p>Here dx is an independent variable (a small change in x), and dy approximates the resulting change in y.</p>
+      </div>
+
+      <p>The actual change is &Delta;y = f(x + dx) &minus; f(x). The differential dy approximates &Delta;y when dx is small.</p>
+
+      <div class="example-box">
+        <h4>Example 3: Using Differentials</h4>
+        <p>A cube's side is measured as 5 cm with an error of &pm;0.02 cm. Estimate the error in the computed volume.</p>
+        <p><strong>Step 1:</strong> V = s&sup3;, so dV = 3s&sup2; ds.</p>
+        <p><strong>Step 2:</strong> dV = 3(25)(0.02) = <strong>1.5 cm&sup3;</strong>.</p>
+        <p>The volume error is approximately &pm;1.5 cm&sup3; out of V = 125 cm&sup3;, a relative error of 1.2%.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Relative and Percentage Error</h4>
+        <p>If a sphere's radius is measured as 10 cm with error dr = 0.1 cm, estimate the percentage error in volume.</p>
+        <p><strong>Step 1:</strong> V = (4/3)&pi;r&sup3;, dV = 4&pi;r&sup2; dr.</p>
+        <p><strong>Step 2:</strong> Relative error: dV/V = (4&pi;r&sup2; dr)/((4/3)&pi;r&sup3;) = 3 dr/r = 3(0.1/10) = 0.03.</p>
+        <p><strong>Result:</strong> <strong>3% error</strong> in volume from a 1% error in radius.</p>
+      </div>
+    </section>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Linearization</strong> L(x) = f(a) + f'(a)(x &minus; a) gives a tangent-line approximation.</li>
+        <li>The approximation is best when x is <strong>close to a</strong>.</li>
+        <li><strong>Differentials:</strong> dy = f'(x) dx approximates the actual change &Delta;y.</li>
+        <li>Relative error = dy/y; percentage error = (dy/y) &times; 100%.</li>
+      </ul>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question">
+        <p>1. Use linearization of f(x) = x<sup>1/3</sup> at a = 8 to approximate 8.1<sup>1/3</sup>.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer"><strong>Answer:</strong> f(8) = 2, f'(x) = (1/3)x<sup>&minus;2/3</sup>, f'(8) = 1/12. L(8.1) = 2 + (1/12)(0.1) = <strong>2.00833</strong>.</div>
+      </div>
+      <div class="question">
+        <p>2. If y = x<sup>4</sup> and x changes from 2 to 2.01, estimate dy.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer"><strong>Answer:</strong> dy = 4x&sup3; dx = 4(8)(0.01) = <strong>0.32</strong>. (Actual &Delta;y = 2.01<sup>4</sup> &minus; 16 &asymp; 0.3224.)</div>
+      </div>
+      <div class="question">
+        <p>3. A circle's radius is 20 cm with error &pm;0.5 cm. Estimate the error in the area.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer"><strong>Answer:</strong> dA = 2&pi;r dr = 2&pi;(20)(0.5) = <strong>20&pi; &asymp; 62.8 cm&sup2;</strong>.</div>
+      </div>
+      <div class="question">
+        <p>4. For f(x) = cos x, find the linearization at a = &pi;/2.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer"><strong>Answer:</strong> f(&pi;/2) = 0, f'(&pi;/2) = &minus;sin(&pi;/2) = &minus;1. L(x) = <strong>&minus;(x &minus; &pi;/2)</strong> = &pi;/2 &minus; x.</div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>Lesson 3 covers extreme values and critical points.</p>
+          <a href="lesson-03-extreme-values-and-critical-points.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2!</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') { answer.style.display = 'block'; button.textContent = 'Hide Answer'; }
+      else { answer.style.display = 'none'; button.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

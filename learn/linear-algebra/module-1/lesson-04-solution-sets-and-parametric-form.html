@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Solution Sets - Unique, Infinite, and No Solution with Parametric Vector Form">
+  <title>Lesson 4: Solution Sets and Parametric Form – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #2E7D32; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2E7D32; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2E7D32; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #1B5E20; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .matrix-display { text-align: center; margin: 1rem 0; font-size: 1.1rem; font-family: 'Courier New', monospace; }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-gauss-jordan-and-rref.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Solution Sets -- Unique, Infinite, and None</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Classify a system as consistent or inconsistent from its RREF</li>
+        <li>Distinguish unique solutions from infinitely many solutions</li>
+        <li>Identify free variables and express solutions in parametric form</li>
+        <li>Write solution sets in parametric vector form</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Three Possibilities for Solution Sets</h2>
+      <p>A system of linear equations has exactly one of three outcomes:</p>
+
+      <div class="definition-box">
+        <p><strong>Existence and Uniqueness:</strong></p>
+        <ol>
+          <li><strong>Exactly one solution</strong> (consistent, independent) -- the system has a unique answer.</li>
+          <li><strong>Infinitely many solutions</strong> (consistent, dependent) -- free variables parameterize a family of solutions.</li>
+          <li><strong>No solution</strong> (inconsistent) -- the equations contradict each other.</li>
+        </ol>
+      </div>
+
+      <div class="highlight-box">
+        <h4>How to Tell from RREF</h4>
+        <ul>
+          <li><strong>No solution:</strong> A row of the form [0 0 ... 0 | b] with b nonzero (contradiction).</li>
+          <li><strong>Unique solution:</strong> No contradiction rows, and every column (except the last) is a pivot column.</li>
+          <li><strong>Infinitely many solutions:</strong> No contradiction rows, and at least one column (other than the last) is <em>not</em> a pivot column (free variable exists).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Case 1: Unique Solution</h2>
+      <div class="example-box">
+        <h4>Example</h4>
+        <p>RREF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp; 2 ]<br>
+          [ 0 &nbsp; 1 &nbsp; 0 &nbsp;| &nbsp;-1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp; 4 ]
+        </div>
+        <p>Every variable column is a pivot column. There are no free variables.</p>
+        <p><strong>Solution:</strong> x_1 = 2, x_2 = -1, x_3 = 4. The solution set is the single point {(2, -1, 4)}.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Case 2: Infinitely Many Solutions</h2>
+      <div class="example-box">
+        <h4>Example</h4>
+        <p>RREF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 3 &nbsp; 0 &nbsp;| &nbsp; 5 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-2 &nbsp; 0 &nbsp;| &nbsp; 1 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp;-3 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp; 0 ]
+        </div>
+        <p><strong>Pivot columns:</strong> 1, 2, 4. <strong>Free variable:</strong> x_3 (column 3).</p>
+        <p>Let x_3 = t where t is any real number. Then:</p>
+        <ul>
+          <li>x_1 = 5 - 3t</li>
+          <li>x_2 = 1 + 2t</li>
+          <li>x_3 = t</li>
+          <li>x_4 = -3</li>
+        </ul>
+      </div>
+
+      <h3>Parametric Vector Form</h3>
+      <p>We can write the solution more elegantly by separating the constant part from the part that depends on the free variable:</p>
+
+      <div class="definition-box">
+        <p><strong>Parametric Vector Form:</strong> Express the solution as a vector sum: a particular solution plus a linear combination of direction vectors scaled by free parameters.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Writing in Parametric Vector Form</h4>
+        <p>From the example above:</p>
+        <div class="matrix-display">
+          x = (5, 1, 0, -3) + t(- 3, 2, 1, 0)
+        </div>
+        <p>where t can be any real number. Here:</p>
+        <ul>
+          <li><strong>(5, 1, 0, -3)</strong> is a particular solution (set t = 0)</li>
+          <li><strong>(-3, 2, 1, 0)</strong> is the direction vector corresponding to the free variable x_3</li>
+        </ul>
+        <p>Geometrically, the solution set is a <strong>line</strong> through (5, 1, 0, -3) in the direction (-3, 2, 1, 0) in R^4.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Two Free Variables</h4>
+        <p>RREF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 2 &nbsp; 0 &nbsp; 1 &nbsp;| &nbsp;3 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 1 &nbsp;-1 &nbsp;| &nbsp;2 ]
+        </div>
+        <p><strong>Pivot columns:</strong> 1, 3. <strong>Free variables:</strong> x_2 = s, x_4 = t.</p>
+        <p>From row 1: x_1 = 3 - 2s - t</p>
+        <p>From row 2: x_3 = 2 + t</p>
+        <div class="matrix-display">
+          x = (3, 0, 2, 0) + s(-2, 1, 0, 0) + t(-1, 0, 1, 1)
+        </div>
+        <p>The solution set is a <strong>plane</strong> in R^4, parameterized by two free variables.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Case 3: No Solution</h2>
+      <div class="example-box">
+        <h4>Example</h4>
+        <p>RREF:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 2 &nbsp;| &nbsp;5 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-1 &nbsp;| &nbsp;3 ]<br>
+          [ 0 &nbsp; 0 &nbsp; 0 &nbsp;| &nbsp;1 ]
+        </div>
+        <p>Row 3 says 0 = 1, which is impossible. The system is <strong>inconsistent</strong>. The solution set is <strong>empty</strong>.</p>
+        <p>Geometrically, the planes represented by the equations do not all share a common point.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Homogeneous Systems</h2>
+      <div class="definition-box">
+        <p><strong>Homogeneous System:</strong> A system where every constant on the right-hand side is zero: Ax = 0. A homogeneous system always has at least the <strong>trivial solution</strong> x = 0. It is <em>always consistent</em>.</p>
+      </div>
+      <p>The interesting question for homogeneous systems is: does it have <em>nontrivial</em> solutions (solutions other than x = 0)?</p>
+
+      <div class="highlight-box">
+        <h4>Key Fact</h4>
+        <p>If a homogeneous system has more unknowns than equations (more columns than rows in the coefficient matrix), it must have a free variable and therefore <strong>infinitely many solutions</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Homogeneous System</h4>
+        <p>Solve Ax = 0 where the augmented matrix reduces to:</p>
+        <div class="matrix-display">
+          [ 1 &nbsp; 0 &nbsp; 2 &nbsp;| &nbsp;0 ]<br>
+          [ 0 &nbsp; 1 &nbsp;-3 &nbsp;| &nbsp;0 ]
+        </div>
+        <p>Free variable: x_3 = t. Solution: x = t(- 2, 3, 1).</p>
+        <p>The solution set is a <strong>line through the origin</strong>. For homogeneous systems, the particular solution is always the zero vector, so the solution set is spanned by the direction vectors alone.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. A system in 4 unknowns reduces to RREF with 3 pivot columns. How many free variables are there? Is the solution unique?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> 4 - 3 = 1 free variable. The solution is NOT unique (assuming the system is consistent); there are infinitely many solutions parameterized by that one free variable.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Write the solution in parametric vector form: RREF is [ 1 -1 | 4 ] / [ 0 0 | 0 ].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> Free variable: x_2 = t. From row 1: x_1 = 4 + t. Parametric vector form: x = (4, 0) + t(1, 1).</div>
+      </div>
+
+      <div class="question">
+        <p>3. A homogeneous system has 3 equations and 5 unknowns. Can the only solution be the trivial solution?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> No. With 5 unknowns and at most 3 pivots, there are at least 5 - 3 = 2 free variables. The system must have infinitely many (nontrivial) solutions.</div>
+      </div>
+
+      <div class="question">
+        <p>4. Classify the system whose RREF is [ 1 0 0 | 3 ] / [ 0 1 0 | -2 ] / [ 0 0 1 | 7 ].</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> Consistent with a unique solution (3, -2, 7). Every variable column is a pivot column and there are no contradiction rows.</div>
+      </div>
+
+      <div class="question">
+        <p>5. How many direction vectors appear in the parametric vector form if there are 2 free variables?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a5')">Show Answer</button>
+        <div id="a5" class="answer"><strong>Answer:</strong> Two direction vectors -- one for each free variable. The solution set is a plane (if the system is nonhomogeneous, a translated plane; if homogeneous, a plane through the origin).</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>A system has <strong>no solution</strong> if RREF contains a row [0 ... 0 | b] with b nonzero</li>
+        <li>A system has a <strong>unique solution</strong> if it is consistent and every variable column is a pivot column</li>
+        <li>A system has <strong>infinitely many solutions</strong> if it is consistent and has at least one free variable</li>
+        <li><strong>Parametric vector form:</strong> x = p + t_1 v_1 + t_2 v_2 + ... where p is a particular solution and v_i are direction vectors</li>
+        <li><strong>Homogeneous systems</strong> (Ax = 0) are always consistent and have nontrivial solutions when there are more unknowns than equations</li>
+        <li>Number of free variables = number of unknowns - number of pivots</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Test your skills with 10 problems covering all of Module 1.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Ready to test? Take the Module 1 quiz.</p>
+          <a href="quiz.html" class="btn btn-outline mt-2">Take Quiz</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const el = document.getElementById(id);
+      const btn = el.previousElementSibling;
+      if (el.style.display === 'none' || el.style.display === '') { el.style.display = 'block'; btn.textContent = 'Hide Answer'; }
+      else { el.style.display = 'none'; btn.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

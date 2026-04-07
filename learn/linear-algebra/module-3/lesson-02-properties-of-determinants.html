@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 2: Properties of Determinants – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="lesson-01-determinant-definition-and-cofactors.html" class="back-link">&larr; Lesson 1</a><span class="text-muted">Lesson 2 of 4</span><a href="lesson-03-cramers-rule.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 2: Properties of Determinants</h1>
+    <p class="text-muted">Estimated time: 35-40 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Describe how each row operation affects the determinant</li>
+      <li>Use row reduction to compute determinants efficiently</li>
+      <li>Apply the multiplicative property: det(AB) = det(A)det(B)</li>
+      <li>State additional properties: det(A^T) = det(A), det(A^{-1}) = 1/det(A)</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>Row Operations and the Determinant</h2>
+      <div class="definition-box"><p><strong>Three Rules:</strong></p>
+        <ol>
+          <li><strong>Row swap:</strong> Swapping two rows <em>negates</em> the determinant. det(E_swap A) = -det(A).</li>
+          <li><strong>Row scaling by c:</strong> Multiplying a row by c <em>multiplies</em> the determinant by c. det(E_scale A) = c * det(A).</li>
+          <li><strong>Row replacement:</strong> Adding a multiple of one row to another does <em>not change</em> the determinant. det(E_replace A) = det(A).</li>
+        </ol>
+      </div>
+      <div class="example-box"><h4>Example: Computing det via Row Reduction</h4>
+        <p>A = [2 4; 1 5]. Instead of the formula, let us row reduce.</p>
+        <p>R_1 &harr; R_2 (swap -- det changes sign): [1 5; 2 4]. Det of new = -det(A).</p>
+        <p>R_2 - 2R_1 (replacement -- no change): [1 5; 0 -6]. Det = -det(A).</p>
+        <p>Upper triangular: det = product of diagonal = 1*(-6) = -6. So -det(A) = -6, meaning det(A) = 6.</p>
+        <p>Check with formula: 2(5) - 4(1) = 10 - 4 = 6. Confirmed!</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Multiplicative Property</h2>
+      <div class="definition-box"><p><strong>det(AB) = det(A) * det(B)</strong> for any two n x n matrices A and B.</p></div>
+      <div class="example-box"><h4>Example</h4>
+        <p>A = [2 0; 0 3], det(A) = 6. B = [1 1; 0 2], det(B) = 2.</p>
+        <p>AB = [2 2; 0 6], det(AB) = 12 = 6 * 2 = det(A)*det(B). &#10003;</p>
+      </div>
+      <div class="highlight-box"><h4>Warning</h4><p>det(A + B) is NOT equal to det(A) + det(B) in general. The determinant is multiplicative, not additive.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>More Properties</h2>
+      <div class="definition-box"><p><strong>Additional Properties:</strong></p>
+        <ul>
+          <li>det(A^T) = det(A)</li>
+          <li>det(A^{-1}) = 1/det(A) (when A is invertible)</li>
+          <li>det(cA) = c^n det(A) for an n x n matrix (every row is scaled by c)</li>
+          <li>If A has a row or column of all zeros, det(A) = 0</li>
+          <li>If two rows (or columns) are identical, det(A) = 0</li>
+          <li>If two rows (or columns) are proportional, det(A) = 0</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. If det(A) = 5 and det(B) = -3, what is det(AB)?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> det(AB) = det(A)*det(B) = 5*(-3) = -15.</div></div>
+      <div class="question"><p>2. If A is 3x3 and det(A) = 4, what is det(2A)?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> det(2A) = 2^3 * det(A) = 8 * 4 = 32. Each of the 3 rows is scaled by 2.</div></div>
+      <div class="question"><p>3. You row reduce a 3x3 matrix using 1 row swap and no scaling, arriving at an upper triangular matrix with diagonal entries 1, 3, -2. What is the original determinant?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Triangular det = 1*3*(-2) = -6. One row swap negates: original det = -(-6) = 6.</div></div>
+      <div class="question"><p>4. True or False: det(A + B) = det(A) + det(B).</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> False. The determinant is multiplicative, not additive.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>Row swap</strong> negates det; <strong>row scaling by c</strong> multiplies det by c; <strong>row replacement</strong> leaves det unchanged</li>
+      <li><strong>det(AB) = det(A)det(B)</strong> (multiplicative property)</li>
+      <li>det(A^T) = det(A) and det(A^{-1}) = 1/det(A)</li>
+      <li>det(cA) = c^n det(A) for n x n matrix A</li>
+      <li>A row/column of zeros, or two identical/proportional rows, forces det = 0</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><a href="lesson-03-cramers-rule.html" class="btn btn-primary mt-2">Lesson 3: Cramer's Rule</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 3</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

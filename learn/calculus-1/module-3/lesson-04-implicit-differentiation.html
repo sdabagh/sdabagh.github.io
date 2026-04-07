@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Implicit Differentiation - Learn to find dy/dx for curves defined implicitly">
+  <title>Lesson 4: Implicit Differentiation – Calculus I</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #AD1457 0%, #F06292 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #AD1457; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #AD1457; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #AD1457; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; transition: var(--transition); }
+    .reveal-btn:hover { background: #880E4F; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .key-takeaways ul { margin-bottom: 0; }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } .lesson-nav a { width: 100%; text-align: center; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  h1 { font-size: 20pt; } h2 { font-size: 16pt; } h3 { font-size: 13pt; }
+  .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span>
+      <button onclick="window.print()" style="background:#AD1457;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button>
+    </div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-derivatives-of-trig-functions.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Implicit Differentiation</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Distinguish between explicit and implicit functions</li>
+        <li>Apply the technique of implicit differentiation</li>
+        <li>Find tangent lines to implicitly defined curves</li>
+        <li>Use implicit differentiation to find d&sup2;y/dx&sup2;</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Explicit vs. Implicit Functions</h2>
+      <p>An <strong>explicit</strong> function is written y = f(x), like y = x&sup2; + 3. An <strong>implicit</strong> relation defines a relationship between x and y without isolating y, such as x&sup2; + y&sup2; = 25 (a circle).</p>
+      <p>Many important curves cannot be written as a single explicit function. Implicit differentiation lets us find dy/dx directly from the equation.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>The Technique</h2>
+
+      <div class="definition-box">
+        <p><strong>Implicit Differentiation Procedure</strong></p>
+        <ol>
+          <li>Differentiate both sides of the equation with respect to x.</li>
+          <li>Every time you differentiate a term containing y, apply the Chain Rule: d/dx [f(y)] = f'(y) &middot; dy/dx.</li>
+          <li>Collect all terms with dy/dx on one side.</li>
+          <li>Factor out dy/dx and solve.</li>
+        </ol>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Circle</h4>
+        <p>Find dy/dx for x&sup2; + y&sup2; = 25.</p>
+        <p><strong>Step 1:</strong> Differentiate both sides: 2x + 2y(dy/dx) = 0.</p>
+        <p><strong>Step 2:</strong> Solve for dy/dx: 2y(dy/dx) = &minus;2x, so dy/dx = <strong>&minus;x/y</strong>.</p>
+        <p><strong>Interpretation:</strong> At the point (3, 4), the slope is &minus;3/4. At (3, &minus;4), the slope is 3/4.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Product of x and y</h4>
+        <p>Find dy/dx for xy = 6.</p>
+        <p><strong>Step 1:</strong> Differentiate using the Product Rule: (1)(y) + x(dy/dx) = 0.</p>
+        <p><strong>Step 2:</strong> Solve: x(dy/dx) = &minus;y, so dy/dx = <strong>&minus;y/x</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: More Complex Equation</h4>
+        <p>Find dy/dx for x&sup3; + y&sup3; = 6xy.</p>
+        <p><strong>Step 1:</strong> Differentiate: 3x&sup2; + 3y&sup2;(dy/dx) = 6y + 6x(dy/dx).</p>
+        <p><strong>Step 2:</strong> Collect dy/dx terms: 3y&sup2;(dy/dx) &minus; 6x(dy/dx) = 6y &minus; 3x&sup2;.</p>
+        <p><strong>Step 3:</strong> Factor: (3y&sup2; &minus; 6x)(dy/dx) = 6y &minus; 3x&sup2;.</p>
+        <p><strong>Step 4:</strong> Solve: dy/dx = <strong>(6y &minus; 3x&sup2;) / (3y&sup2; &minus; 6x)</strong> = (2y &minus; x&sup2;) / (y&sup2; &minus; 2x).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Tangent Lines to Implicit Curves</h2>
+
+      <div class="example-box">
+        <h4>Example 4: Tangent to an Ellipse</h4>
+        <p>Find the equation of the tangent line to x&sup2;/4 + y&sup2;/9 = 1 at the point (1, 3&radic;3/2).</p>
+        <p><strong>Step 1:</strong> Differentiate: 2x/4 + 2y(dy/dx)/9 = 0, i.e., x/2 + (2y/9)(dy/dx) = 0.</p>
+        <p><strong>Step 2:</strong> Solve: dy/dx = &minus;9x/(4y).</p>
+        <p><strong>Step 3:</strong> At (1, 3&radic;3/2): dy/dx = &minus;9(1)/(4 &middot; 3&radic;3/2) = &minus;9/(6&radic;3) = &minus;3/(2&radic;3) = <strong>&minus;&radic;3/2</strong>.</p>
+        <p><strong>Step 4:</strong> Tangent line: y &minus; 3&radic;3/2 = (&minus;&radic;3/2)(x &minus; 1).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Second Derivatives Implicitly</h2>
+
+      <div class="example-box">
+        <h4>Example 5: Finding d&sup2;y/dx&sup2;</h4>
+        <p>Given x&sup2; + y&sup2; = 25 and dy/dx = &minus;x/y, find d&sup2;y/dx&sup2;.</p>
+        <p><strong>Differentiate dy/dx = &minus;x/y</strong> using the Quotient Rule:</p>
+        <p style="margin-left:2rem;">d&sup2;y/dx&sup2; = &minus;[y(1) &minus; x(dy/dx)] / y&sup2;</p>
+        <p><strong>Substitute dy/dx = &minus;x/y:</strong></p>
+        <p style="margin-left:2rem;">= &minus;[y &minus; x(&minus;x/y)] / y&sup2; = &minus;[y + x&sup2;/y] / y&sup2; = &minus;(y&sup2; + x&sup2;) / y&sup3;</p>
+        <p><strong>Since x&sup2; + y&sup2; = 25:</strong> d&sup2;y/dx&sup2; = <strong>&minus;25/y&sup3;</strong>.</p>
+      </div>
+    </section>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Implicit differentiation</strong> uses the Chain Rule: every time you differentiate y, attach a factor of dy/dx.</li>
+        <li>The result for dy/dx may contain <strong>both x and y</strong>. That is expected.</li>
+        <li>You can find <strong>tangent lines</strong> and <strong>second derivatives</strong> for implicit curves.</li>
+        <li>The technique works for any equation relating x and y, including circles, ellipses, and more exotic curves.</li>
+      </ul>
+    </div>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Find dy/dx for x&sup2; &minus; y&sup2; = 16.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer1')">Show Answer</button>
+        <div id="answer1" class="answer">
+          <strong>Answer:</strong> 2x &minus; 2y(dy/dx) = 0, so dy/dx = <strong>x/y</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Find dy/dx for sin y + x = 1.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer2')">Show Answer</button>
+        <div id="answer2" class="answer">
+          <strong>Answer:</strong> cos y &middot; (dy/dx) + 1 = 0, so dy/dx = <strong>&minus;1/cos y</strong> = &minus;sec y.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Find the slope of the tangent to x&sup2; + y&sup2; = 25 at (3, &minus;4).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer3')">Show Answer</button>
+        <div id="answer3" class="answer">
+          <strong>Answer:</strong> dy/dx = &minus;x/y = &minus;3/(&minus;4) = <strong>3/4</strong>.
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. Find dy/dx for e<sup>y</sup> + xy = 5.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('answer4')">Show Answer</button>
+        <div id="answer4" class="answer">
+          <strong>Answer:</strong> e<sup>y</sup>(dy/dx) + y + x(dy/dx) = 0. Factor: (e<sup>y</sup> + x)(dy/dx) = &minus;y. So dy/dx = <strong>&minus;y / (e<sup>y</sup> + x)</strong>.
+        </div>
+      </div>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Test all the differentiation rules from this module with 10 practice problems.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed all four lessons in Module 3!</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a><a href="../../free-courses.html">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      const button = answer.previousElementSibling;
+      if (answer.style.display === 'none' || answer.style.display === '') {
+        answer.style.display = 'block';
+        button.textContent = 'Hide Answer';
+      } else {
+        answer.style.display = 'none';
+        button.textContent = 'Show Answer';
+      }
+    }
+  </script>
+  <script src="../../accessibility.js"></script>
+</body>
+</html>

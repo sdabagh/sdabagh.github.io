@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 1: Linear Transformations – Definition and Examples – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
+  <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 5 Home</a><span class="text-muted">Lesson 1 of 4</span><a href="lesson-02-matrix-of-a-transformation.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
+    <h1>Lesson 1: Linear Transformations -- Definition and Examples</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+    <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
+      <li>Define a linear transformation between vector spaces</li>
+      <li>Verify whether a given function is a linear transformation</li>
+      <li>Identify standard transformations: rotation, reflection, projection, and scaling</li>
+      <li>Understand the connection between linear transformations and matrix multiplication</li>
+    </ul></div>
+
+    <section class="content-section">
+      <h2>What Is a Linear Transformation?</h2>
+      <p>A linear transformation is a function between vector spaces that preserves the two fundamental operations: vector addition and scalar multiplication. Think of it as a function that "plays nicely" with the structure of the vector space.</p>
+      <div class="definition-box"><p><strong>Definition:</strong> A function T : R^n &rarr; R^m is a <em>linear transformation</em> if for all vectors u, v in R^n and all scalars c:</p>
+      <p>(1) T(u + v) = T(u) + T(v) &nbsp;&nbsp; (preserves addition)</p>
+      <p>(2) T(cu) = cT(u) &nbsp;&nbsp; (preserves scalar multiplication)</p></div>
+      <p>These two conditions can be combined into one: T(cu + dv) = cT(u) + dT(v) for all vectors u, v and scalars c, d. This is called <em>superposition</em>.</p>
+      <div class="example-box"><h4>Quick Consequence</h4>
+        <p>Every linear transformation maps the zero vector to the zero vector: T(0) = T(0 * v) = 0 * T(v) = 0.</p>
+        <p>This gives a quick test: if T(0) is not 0, then T is NOT linear.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Verifying Linearity</h2>
+      <div class="example-box"><h4>Worked Example 1: A Linear Transformation</h4>
+        <p>Let T : R^2 &rarr; R^2 be defined by T(x, y) = (2x + y, 3x - y).</p>
+        <p><strong>Check addition:</strong> Let u = (x1, y1) and v = (x2, y2).</p>
+        <p>T(u + v) = T(x1+x2, y1+y2) = (2(x1+x2) + (y1+y2), 3(x1+x2) - (y1+y2))</p>
+        <p>= (2x1+y1, 3x1-y1) + (2x2+y2, 3x2-y2) = T(u) + T(v). &check;</p>
+        <p><strong>Check scalar multiplication:</strong> T(cu) = T(cx1, cy1) = (2cx1 + cy1, 3cx1 - cy1) = c(2x1+y1, 3x1-y1) = cT(u). &check;</p>
+        <p>T is linear. In fact, T(x,y) = [2 1; 3 -1] * [x; y] -- it is matrix multiplication.</p>
+      </div>
+      <div class="example-box"><h4>Worked Example 2: NOT Linear</h4>
+        <p>Let T : R^2 &rarr; R^2 be defined by T(x, y) = (x + 1, y).</p>
+        <p><strong>Quick test:</strong> T(0, 0) = (0 + 1, 0) = (1, 0) &ne; (0, 0).</p>
+        <p>Since T(0) &ne; 0, T is not linear. The "+1" is a translation, which breaks linearity.</p>
+      </div>
+      <div class="example-box"><h4>Worked Example 3: NOT Linear</h4>
+        <p>Let T : R^2 &rarr; R be defined by T(x, y) = x * y.</p>
+        <p><strong>Check:</strong> T(2, 3) = 6. But T(2*(1,1)) = T(2,2) = 4, while 2*T(1,1) = 2*1 = 2. Since 4 &ne; 2, T is not linear.</p>
+        <p>Products of components are never linear -- they are quadratic.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Standard Transformations in R^2</h2>
+      <p>These are the building blocks of geometry in linear algebra. Each one is a linear transformation described by a 2x2 matrix.</p>
+
+      <div class="definition-box"><p><strong>Rotation by angle &theta;:</strong> T(x, y) rotates the vector by &theta; counterclockwise about the origin.</p>
+      <div class="matrix-display">A = [cos&theta; &nbsp; -sin&theta;]<br>&nbsp;&nbsp;&nbsp;&nbsp;[sin&theta; &nbsp;&nbsp; cos&theta;]</div></div>
+
+      <div class="example-box"><h4>Example: Rotation by 90 degrees</h4>
+        <p>cos(90) = 0, sin(90) = 1. Matrix: [0 -1; 1 0].</p>
+        <p>T(1, 0) = (0, 1). T(0, 1) = (-1, 0). T(3, 2) = (-2, 3). &check;</p>
+      </div>
+
+      <div class="definition-box"><p><strong>Reflection across the x-axis:</strong> T(x, y) = (x, -y). Matrix: [1 0; 0 -1].</p>
+      <p><strong>Reflection across the y-axis:</strong> T(x, y) = (-x, y). Matrix: [-1 0; 0 1].</p>
+      <p><strong>Reflection across y = x:</strong> T(x, y) = (y, x). Matrix: [0 1; 1 0].</p></div>
+
+      <div class="definition-box"><p><strong>Projection onto the x-axis:</strong> T(x, y) = (x, 0). Matrix: [1 0; 0 0].</p>
+      <p><strong>Projection onto the y-axis:</strong> T(x, y) = (0, y). Matrix: [0 0; 0 1].</p></div>
+
+      <div class="example-box"><h4>Example: Projection</h4>
+        <p>Let T project onto the x-axis: T(x,y) = (x, 0).</p>
+        <p>T(3, 5) = (3, 0). T(0, 7) = (0, 0). The entire y-component is "lost."</p>
+        <p>Notice: T(T(v)) = T(v). Applying a projection twice gives the same result as once. This property is called <em>idempotence</em>.</p>
+      </div>
+
+      <div class="definition-box"><p><strong>Scaling:</strong> T(x, y) = (kx, ky) for scalar k. Matrix: [k 0; 0 k] = kI.</p>
+      <p>This scales every vector by factor k. If k &lt; 0, it also reverses direction.</p></div>
+    </section>
+
+    <section class="content-section">
+      <h2>Linear Transformations and Matrix Multiplication</h2>
+      <div class="definition-box"><p><strong>Key Fact:</strong> Every linear transformation T : R^n &rarr; R^m can be written as T(x) = Ax for some m x n matrix A. Conversely, every matrix defines a linear transformation.</p></div>
+      <p>This is the central insight of the chapter: linear transformations and matrices are two views of the same thing. We will see how to construct A in Lesson 2.</p>
+    </section>
+
+    <div class="check-understanding"><h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Is T(x, y) = (3x, x + y, 0) a linear transformation from R^2 to R^3?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> Yes. T(0,0)=(0,0,0). T(u+v) = T(u)+T(v) and T(cu)=cT(u) both hold because each component is a linear combination of x and y. The matrix is [3 0; 1 1; 0 0].</div></div>
+      <div class="question"><p>2. Is T(x, y) = (x^2, y) linear?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> No. T(2, 0) = (4, 0), but 2*T(1, 0) = 2*(1, 0) = (2, 0). Since (4,0) &ne; (2,0), scalar multiplication is not preserved.</div></div>
+      <div class="question"><p>3. What matrix performs reflection across the line y = x?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> [0 1; 1 0]. It swaps the coordinates: T(x,y) = (y,x).</div></div>
+      <div class="question"><p>4. If T is linear and T(0) = (5, 2), what can you conclude?</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> T is NOT linear. Every linear transformation must satisfy T(0) = 0.</div></div>
+    </div>
+
+    <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
+      <li><strong>Linearity</strong> means T(cu + dv) = cT(u) + dT(v) -- addition and scalar multiplication are preserved</li>
+      <li><strong>Quick non-linearity test:</strong> If T(0) &ne; 0, then T is not linear</li>
+      <li>Standard 2D transformations -- rotation, reflection, projection, scaling -- are all linear</li>
+      <li>Translations (adding a constant vector) are NOT linear</li>
+      <li>Every linear transformation from R^n to R^m is multiplication by an m x n matrix</li>
+    </ul></div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Next Lesson</h3><p>The Matrix of a Linear Transformation.</p><a href="lesson-02-matrix-of-a-transformation.html" class="btn btn-primary mt-2">Start Lesson 2</a></div><div class="card"><h3>Module Home</h3><a href="index.html" class="btn btn-outline mt-2">Module 5 Home</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

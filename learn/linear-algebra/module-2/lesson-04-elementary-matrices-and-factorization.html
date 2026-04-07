@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Elementary Matrices and LU Factorization">
+  <title>Lesson 4: Elementary Matrices and LU Factorization – Linear Algebra</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #2E7D32; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #2E7D32; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #2E7D32; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #1B5E20; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    .matrix-display { text-align: center; margin: 1rem 0; font-size: 1.1rem; font-family: 'Courier New', monospace; }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+    <div class="lesson-nav"><a href="lesson-03-inverse-matrices.html" class="back-link">&larr; Lesson 3</a><span class="text-muted">Lesson 4 of 4</span><a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a></div>
+
+    <h1>Lesson 4: Elementary Matrices and LU Factorization</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Define elementary matrices and relate them to row operations</li>
+        <li>Find the inverse of an elementary matrix</li>
+        <li>Express a matrix as a product of elementary matrices and an upper-triangular matrix</li>
+        <li>Understand the LU factorization A = LU</li>
+        <li>Use LU factorization to solve systems efficiently</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Elementary Matrices</h2>
+      <div class="definition-box">
+        <p><strong>Elementary Matrix:</strong> A matrix obtained by performing a single elementary row operation on the identity matrix. If E is the elementary matrix for a row operation, then EA performs that same operation on A.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example: Three Types of Elementary Matrices (3x3)</h4>
+        <p><strong>Row swap R_1 &harr; R_2:</strong></p>
+        <div class="matrix-display">E_1 = [ 0 1 0 ; 1 0 0 ; 0 0 1 ]</div>
+        <p><strong>Row scaling 3R_2:</strong></p>
+        <div class="matrix-display">E_2 = [ 1 0 0 ; 0 3 0 ; 0 0 1 ]</div>
+        <p><strong>Row replacement R_3 + (-2)R_1 &rarr; R_3:</strong></p>
+        <div class="matrix-display">E_3 = [ 1 0 0 ; 0 1 0 ; -2 0 1 ]</div>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Key Insight</h4>
+        <p>Every elementary matrix is invertible. Its inverse is the elementary matrix that <em>undoes</em> the operation:</p>
+        <ul>
+          <li>Swap inverse = same swap</li>
+          <li>Scale by c inverse = scale by 1/c</li>
+          <li>Add c times row j to row i inverse = subtract c times row j from row i</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Factoring with Elementary Matrices</h2>
+      <p>If you row reduce A to REF U using operations E_1, E_2, ..., E_k, then:</p>
+      <div class="matrix-display">E_k ... E_2 E_1 A = U</div>
+      <p>Solving for A: A = E_1^{-1} E_2^{-1} ... E_k^{-1} U. This expresses A as a product of elementary matrices and U.</p>
+      <p>If A is invertible and U = I, then A^{-1} = E_k ... E_2 E_1 (the product of the elementary matrices used in row reduction).</p>
+    </section>
+
+    <section class="content-section">
+      <h2>LU Factorization</h2>
+      <div class="definition-box">
+        <p><strong>LU Factorization:</strong> A = LU where L is <em>lower triangular</em> (zeros above diagonal) and U is <em>upper triangular</em> (zeros below diagonal). L captures the multipliers used during forward elimination.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Worked Example</h4>
+        <p>Factor A = [ 2 1 ; 6 4 ].</p>
+        <p><strong>Forward elimination:</strong> R_2 - 3R_1 &rarr; R_2 (multiplier = 3):</p>
+        <div class="matrix-display">U = [ 2 &nbsp; 1 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[ 0 &nbsp; 1 ]</div>
+        <p><strong>Build L:</strong> Start with the identity, place the multiplier (3) in position (2,1):</p>
+        <div class="matrix-display">L = [ 1 &nbsp; 0 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[ 3 &nbsp; 1 ]</div>
+        <p><strong>Verify:</strong> LU = [ 1(2)+0(0), 1(1)+0(1) ; 3(2)+1(0), 3(1)+1(1) ] = [ 2 1 ; 6 4 ] = A. &#10003;</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Worked Example: 3x3 LU</h4>
+        <p>Factor A = [ 1 2 1 ; 2 5 3 ; -1 1 2 ].</p>
+        <p><strong>Step 1:</strong> R_2 - 2R_1 (multiplier m_{21} = 2) and R_3 + 1R_1 (multiplier m_{31} = -1):</p>
+        <div class="matrix-display">[ 1 &nbsp; 2 &nbsp; 1 ]<br>[ 0 &nbsp; 1 &nbsp; 1 ]<br>[ 0 &nbsp; 3 &nbsp; 3 ]</div>
+        <p><strong>Step 2:</strong> R_3 - 3R_2 (multiplier m_{32} = 3):</p>
+        <div class="matrix-display">U = [ 1 &nbsp; 2 &nbsp; 1 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[ 0 &nbsp; 1 &nbsp; 1 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[ 0 &nbsp; 0 &nbsp; 0 ]</div>
+        <p><strong>Build L</strong> from the multipliers:</p>
+        <div class="matrix-display">L = [ 1 &nbsp; 0 &nbsp; 0 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[ 2 &nbsp; 1 &nbsp; 0 ]<br>&nbsp;&nbsp;&nbsp;&nbsp;[-1 &nbsp; 3 &nbsp; 1 ]</div>
+        <p>A = LU. &#10003;</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Solving with LU</h2>
+      <p>To solve Ax = b using A = LU:</p>
+      <ol>
+        <li><strong>Forward solve</strong> Ly = b (easy because L is lower triangular).</li>
+        <li><strong>Back solve</strong> Ux = y (easy because U is upper triangular).</li>
+      </ol>
+      <p><strong>Advantage:</strong> If you need to solve Ax = b for many different b vectors (same A), compute the LU factorization once, then do two cheap triangular solves for each new b.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. What elementary matrix performs R_2 + 5R_1 on a 2x2 matrix?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> E = [ 1 0 ; 5 1 ]. Apply this row operation to I_2.</div></div>
+      <div class="question"><p>2. What is the inverse of the elementary matrix E = [ 1 0 ; 5 1 ]?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> E^{-1} = [ 1 0 ; -5 1 ]. The inverse undoes the operation: subtract 5 times row 1 from row 2.</div></div>
+      <div class="question"><p>3. In an LU factorization, where do the elimination multipliers go?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> The multipliers go into the lower-triangular matrix L, below the diagonal, in the same position as the entry they eliminated. L has 1s on its diagonal.</div></div>
+      <div class="question"><p>4. Why is LU factorization useful in practice?</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> Once you have A = LU, you can solve Ax = b for many different right-hand sides b by doing two triangular solves each time, which is much faster than re-doing Gaussian elimination from scratch.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Elementary matrices</strong> are identity matrices with one row operation applied</li>
+        <li>Left-multiplying by E performs that row operation: EA</li>
+        <li>Every elementary matrix is <strong>invertible</strong>; its inverse undoes the operation</li>
+        <li><strong>LU factorization:</strong> A = LU where L is lower triangular (with multipliers) and U is upper triangular (REF)</li>
+        <li>LU is efficient for solving <strong>multiple systems</strong> with the same coefficient matrix</li>
+      </ul>
+    </div>
+
+    <section class="content-section"><div class="course-grid"><div class="card"><h3>Practice Problems</h3><p>Apply your matrix algebra skills.</p><a href="practice.html" class="btn btn-primary mt-2">Practice</a></div><div class="card"><h3>Module Quiz</h3><a href="quiz.html" class="btn btn-outline mt-2">Take Quiz</a></div></div></section>
+  </main>
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const el=document.getElementById(id);const btn=el.previousElementSibling;if(el.style.display==='none'||el.style.display===''){el.style.display='block';btn.textContent='Hide Answer';}else{el.style.display='none';btn.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>
