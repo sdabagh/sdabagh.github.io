@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Definition and Basic Laplace Transforms - integral definition, transforms of elementary functions">
+  <title>Lesson 1: Definition and Basic Transforms – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 6 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-inverse-laplace-partial-fractions.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Definition and Basic Transforms</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>State the definition of the Laplace transform as an improper integral</li>
+        <li>Compute L{1}, L{t<sup>n</sup>}, L{e<sup>at</sup>}, L{sin(at)}, and L{cos(at)} from the definition</li>
+        <li>Apply the linearity property of the Laplace transform</li>
+        <li>Use a table of basic transforms to quickly find L{f(t)}</li>
+        <li>State the conditions for existence of the Laplace transform</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Laplace Transform Definition</h2>
+      <div class="definition-box">
+        <p><strong>Laplace Transform:</strong> For a function f(t) defined for t &ge; 0, the Laplace transform is L{f(t)} = F(s) = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> f(t) dt, provided the integral converges. The variable s is typically a real number (or complex) large enough for convergence.</p>
+      </div>
+      <p>The Laplace transform converts a function of time t into a function of the frequency variable s. It turns differentiation into multiplication by s, which is why it simplifies differential equations.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Computing Basic Transforms from the Definition</h2>
+
+      <div class="example-box">
+        <h4>Example 1: L{1}</h4>
+        <p>L{1} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> dt = [-e<sup>-st</sup>/s]<sub>0</sub><sup>&infin;</sup> = 0 - (-1/s) = <strong>1/s</strong>, for s &gt; 0.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: L{e<sup>at</sup>}</h4>
+        <p>L{e<sup>at</sup>} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> e<sup>at</sup> dt = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-(s-a)t</sup> dt = 1/(s-a), for s &gt; a.</p>
+        <p><strong>Result:</strong> L{e<sup>at</sup>} = <strong>1/(s-a)</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: L{t}</h4>
+        <p>L{t} = &int;<sub>0</sub><sup>&infin;</sup> t e<sup>-st</sup> dt. Using integration by parts (u = t, dv = e<sup>-st</sup>dt):</p>
+        <p>= [-te<sup>-st</sup>/s]<sub>0</sub><sup>&infin;</sup> + (1/s)&int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> dt = 0 + (1/s)(1/s) = <strong>1/s&sup2;</strong>.</p>
+        <p>More generally: L{t<sup>n</sup>} = <strong>n!/s<sup>n+1</sup></strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: L{sin(at)} and L{cos(at)}</h4>
+        <p>Using integration by parts twice (or Euler's formula):</p>
+        <p>L{sin(at)} = <strong>a/(s&sup2; + a&sup2;)</strong>, s &gt; 0.</p>
+        <p>L{cos(at)} = <strong>s/(s&sup2; + a&sup2;)</strong>, s &gt; 0.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Linearity</h2>
+      <div class="definition-box">
+        <p><strong>Linearity Property:</strong> L{&alpha;f(t) + &beta;g(t)} = &alpha;F(s) + &beta;G(s). The Laplace transform of a linear combination is the same linear combination of the transforms.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Using Linearity</h4>
+        <p>Find L{3t&sup2; - 5e<sup>2t</sup> + 7sin(4t)}.</p>
+        <p class="mt-2"><strong>Step 1:</strong> L{t&sup2;} = 2!/s&sup3; = 2/s&sup3;.</p>
+        <p><strong>Step 2:</strong> L{e<sup>2t</sup>} = 1/(s-2).</p>
+        <p><strong>Step 3:</strong> L{sin 4t} = 4/(s&sup2;+16).</p>
+        <p><strong>Answer:</strong> L{3t&sup2; - 5e<sup>2t</sup> + 7sin 4t} = <strong>6/s&sup3; - 5/(s-2) + 28/(s&sup2;+16)</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Table of Basic Laplace Transforms</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">f(t)</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">F(s) = L{f(t)}</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Condition</th></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">1</td><td style="border:1px solid #ccc;padding:8px;">1/s</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">t<sup>n</sup></td><td style="border:1px solid #ccc;padding:8px;">n!/s<sup>n+1</sup></td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup></td><td style="border:1px solid #ccc;padding:8px;">1/(s-a)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">sin(at)</td><td style="border:1px solid #ccc;padding:8px;">a/(s&sup2;+a&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">cos(at)</td><td style="border:1px solid #ccc;padding:8px;">s/(s&sup2;+a&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup>sin(bt)</td><td style="border:1px solid #ccc;padding:8px;">b/[(s-a)&sup2;+b&sup2;]</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup>cos(bt)</td><td style="border:1px solid #ccc;padding:8px;">(s-a)/[(s-a)&sup2;+b&sup2;]</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">t<sup>n</sup>e<sup>at</sup></td><td style="border:1px solid #ccc;padding:8px;">n!/(s-a)<sup>n+1</sup></td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+      </table>
+    </section>
+
+    <section class="content-section">
+      <h2>Existence of the Transform</h2>
+      <div class="definition-box">
+        <p><strong>Existence Theorem:</strong> If f(t) is piecewise continuous on [0, &infin;) and of <strong>exponential order</strong> (|f(t)| &le; Me<sup>ct</sup> for some constants M, c), then L{f(t)} exists for s &gt; c.</p>
+      </div>
+      <p>All polynomials, exponentials, sines, cosines, and their combinations satisfy these conditions. Functions like e<sup>t&sup2;</sup> do not (they grow too fast).</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Compute L{5 + 2t - e<sup>-3t</sup>}.</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> 5/s + 2/s&sup2; - 1/(s+3).</div></div>
+      <div class="question"><p>2. What is L{t&sup3;}?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> 3!/s<sup>4</sup> = <strong>6/s<sup>4</sup></strong>.</div></div>
+      <div class="question"><p>3. Find L{e<sup>2t</sup>cos(3t)}.</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> (s-2)/[(s-2)&sup2;+9].</div></div>
+      <div class="question"><p>4. Does L{e<sup>t&sup2;</sup>} exist? Why or why not?</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> No. e<sup>t&sup2;</sup> is not of exponential order because it grows faster than any Me<sup>ct</sup>.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The Laplace transform L{f(t)} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup>f(t) dt converts functions of t to functions of s.</li>
+        <li>Key transforms: L{1}=1/s, L{t<sup>n</sup>}=n!/s<sup>n+1</sup>, L{e<sup>at</sup>}=1/(s-a).</li>
+        <li>Trig: L{sin at}=a/(s&sup2;+a&sup2;), L{cos at}=s/(s&sup2;+a&sup2;).</li>
+        <li><strong>Linearity</strong> lets you transform term by term.</li>
+        <li>The transform exists for functions of exponential order.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>In Lesson 2, learn to go backward: <strong>inverse Laplace transforms</strong>.</p><a href="lesson-02-inverse-laplace-partial-fractions.html" class="btn btn-primary mt-2">Start Lesson 2</a></div>
+        <div class="card"><h3>Module Progress</h3><p>You have completed Lesson 1 of 4.</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

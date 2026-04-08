@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Solving IVPs with Laplace Transforms - complete procedure from ODE to solution">
+  <title>Lesson 3: Solving IVPs with Laplace Transforms – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-inverse-laplace-partial-fractions.html" class="back-link">&larr; Lesson 2</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-step-functions-discontinuous-forcing.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: Solving IVPs with Laplace Transforms</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Apply the Laplace transform to both sides of a differential equation</li>
+        <li>Use the derivative property to incorporate initial conditions automatically</li>
+        <li>Solve the resulting algebraic equation for Y(s)</li>
+        <li>Invert Y(s) using partial fractions to obtain y(t)</li>
+        <li>Solve first-order and second-order IVPs using the full Laplace procedure</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Laplace Transform Procedure</h2>
+      <div class="definition-box">
+        <p><strong>Procedure for Solving IVPs:</strong></p>
+        <p>1. Take the Laplace transform of both sides of the ODE.</p>
+        <p>2. Use L{y'} = sY - y(0) and L{y''} = s&sup2;Y - sy(0) - y'(0) to substitute.</p>
+        <p>3. Solve the algebraic equation for Y(s).</p>
+        <p>4. Find y(t) = L<sup>-1</sup>{Y(s)} using partial fractions and the table.</p>
+      </div>
+      <p>The beauty: initial conditions are built into step 2 automatically. No need to find the general solution first and then apply ICs.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>First-Order Examples</h2>
+      <div class="example-box">
+        <h4>Example 1: First-Order IVP</h4>
+        <p>Solve y' + 3y = 6, y(0) = 2.</p>
+        <p class="mt-2"><strong>Step 1:</strong> Transform: sY - y(0) + 3Y = 6/s. So sY - 2 + 3Y = 6/s.</p>
+        <p><strong>Step 2:</strong> (s+3)Y = 6/s + 2 = (6 + 2s)/s.</p>
+        <p><strong>Step 3:</strong> Y = (2s+6)/[s(s+3)].</p>
+        <p><strong>Step 4:</strong> Partial fractions: (2s+6)/[s(s+3)] = A/s + B/(s+3). 2s+6 = A(s+3) + Bs. s=0: 6=3A, A=2. s=-3: 0=-3B, B=0.</p>
+        <p><strong>Answer:</strong> Y = 2/s, so y(t) = <strong>2</strong>. Let us verify: y'=0, y'+3y = 0+6 = 6. Check: y(0) = 2. Verified!</p>
+        <p>(Actually, let me recompute. 2s+6 = 2(s+3), so Y = 2(s+3)/[s(s+3)] = 2/s. y = 2. This is correct.)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: First-Order IVP with Exponential</h4>
+        <p>Solve y' - 2y = e<sup>3t</sup>, y(0) = 1.</p>
+        <p class="mt-2"><strong>Step 1:</strong> sY - 1 - 2Y = 1/(s-3).</p>
+        <p><strong>Step 2:</strong> (s-2)Y = 1/(s-3) + 1 = (s-3+1)/(s-3) = (s-2)/(s-3).</p>
+        <p><strong>Step 3:</strong> Y = 1/(s-3).</p>
+        <p><strong>Answer:</strong> y(t) = e<sup>3t</sup>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Second-Order Examples</h2>
+      <div class="example-box">
+        <h4>Example 3: Second-Order IVP</h4>
+        <p>Solve y'' + 4y = 0, y(0) = 3, y'(0) = -2.</p>
+        <p class="mt-2"><strong>Step 1:</strong> s&sup2;Y - sy(0) - y'(0) + 4Y = 0. So s&sup2;Y - 3s + 2 + 4Y = 0.</p>
+        <p><strong>Step 2:</strong> (s&sup2;+4)Y = 3s - 2.</p>
+        <p><strong>Step 3:</strong> Y = (3s-2)/(s&sup2;+4) = 3s/(s&sup2;+4) - 2/(s&sup2;+4) = 3 &middot; s/(s&sup2;+4) - 1 &middot; 2/(s&sup2;+4).</p>
+        <p><strong>Answer:</strong> y(t) = 3cos(2t) - sin(2t).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: Nonhomogeneous Second-Order</h4>
+        <p>Solve y'' + 5y' + 6y = 2e<sup>-t</sup>, y(0) = 0, y'(0) = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> s&sup2;Y + 5sY + 6Y = 2/(s+1).</p>
+        <p><strong>Step 2:</strong> Y(s&sup2;+5s+6) = 2/(s+1). Y = 2/[(s+1)(s+2)(s+3)].</p>
+        <p><strong>Step 3:</strong> Partial fractions: A/(s+1) + B/(s+2) + C/(s+3).</p>
+        <p>2 = A(s+2)(s+3) + B(s+1)(s+3) + C(s+1)(s+2).</p>
+        <p>s=-1: 2 = A(1)(2) = 2A, A=1. s=-2: 2 = B(-1)(1) = -B, B=-2. s=-3: 2 = C(-2)(-1) = 2C, C=1.</p>
+        <p><strong>Answer:</strong> y(t) = e<sup>-t</sup> - 2e<sup>-2t</sup> + e<sup>-3t</sup>.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. What is the first step when solving an IVP using Laplace transforms?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> Take the Laplace transform of both sides and use the derivative properties to substitute L{y'} = sY - y(0) and L{y''} = s&sup2;Y - sy(0) - y'(0).</div></div>
+      <div class="question"><p>2. Solve y' + y = 0, y(0) = 5 using Laplace transforms.</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> sY - 5 + Y = 0. (s+1)Y = 5. Y = 5/(s+1). <strong>y = 5e<sup>-t</sup></strong>.</div></div>
+      <div class="question"><p>3. Why is the Laplace method advantageous over traditional methods for IVPs?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Initial conditions are incorporated automatically in step 1. You go directly from the ODE+ICs to the particular solution without finding the general solution first.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Transform both sides</strong>: derivatives become polynomials in s times Y(s), minus initial values.</li>
+        <li><strong>Solve algebraically</strong> for Y(s) -- no differential equations in the s-domain.</li>
+        <li><strong>Invert</strong> using partial fractions and the table to find y(t).</li>
+        <li>Initial conditions are <strong>built in automatically</strong>, giving the particular solution directly.</li>
+        <li>The method works for any order, any constant-coefficient linear ODE.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>In Lesson 4, handle <strong>discontinuous forcing</strong> with step functions.</p><a href="lesson-04-step-functions-discontinuous-forcing.html" class="btn btn-primary mt-2">Start Lesson 4</a></div>
+        <div class="card"><h3>Module Progress</h3><p>You have completed Lesson 3 of 4.</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

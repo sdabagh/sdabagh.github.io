@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Newton's Law of Cooling - dT/dt = k(T - Tenv), forensic and cooking applications">
+  <title>Lesson 4: Newton's Law of Cooling – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-mixing-problems.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Newton's Law of Cooling</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>State Newton's Law of Cooling as a differential equation</li>
+        <li>Solve dT/dt = k(T - T<sub>env</sub>) and interpret the solution</li>
+        <li>Determine k from temperature measurements</li>
+        <li>Apply the model to forensic time-of-death estimation</li>
+        <li>Apply the model to cooking and engineering problems</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Law</h2>
+      <p>Newton's Law of Cooling states that the rate of temperature change of an object is proportional to the difference between the object's temperature and the ambient (environmental) temperature.</p>
+
+      <div class="definition-box">
+        <p><strong>Newton's Law of Cooling:</strong> dT/dt = k(T - T<sub>env</sub>), where T(t) is the object's temperature, T<sub>env</sub> is the constant ambient temperature, and k &lt; 0 (cooling) or k &gt; 0 (warming toward a hotter environment).</p>
+      </div>
+
+      <p>Note: When an object is hotter than its surroundings, T - T<sub>env</sub> &gt; 0 and the object cools (dT/dt &lt; 0), so k must be negative. Some textbooks write dT/dt = -k(T - T<sub>env</sub>) with k &gt; 0; both formulations are equivalent.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Solving the Equation</h2>
+      <p>Let u = T - T<sub>env</sub>. Then du/dt = dT/dt = ku, so u(t) = u<sub>0</sub>e<sup>kt</sup>.</p>
+
+      <div class="definition-box">
+        <p><strong>General Solution:</strong> T(t) = T<sub>env</sub> + (T<sub>0</sub> - T<sub>env</sub>)e<sup>kt</sup>, where T<sub>0</sub> = T(0) is the initial temperature.</p>
+      </div>
+
+      <p>As t &rarr; &infin;, the exponential term decays to 0 (since k &lt; 0 for cooling), and T &rarr; T<sub>env</sub>. The object approaches ambient temperature asymptotically -- it never quite reaches it.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Determining k from Data</h2>
+
+      <div class="example-box">
+        <h4>Example 1: Finding the Cooling Constant</h4>
+        <p>A cup of coffee at 90&deg;C is placed in a 20&deg;C room. After 10 minutes, the coffee is 70&deg;C. Find k.</p>
+        <p class="mt-2"><strong>Step 1:</strong> T(t) = 20 + (90 - 20)e<sup>kt</sup> = 20 + 70e<sup>kt</sup>.</p>
+        <p><strong>Step 2:</strong> T(10) = 70: 70 = 20 + 70e<sup>10k</sup> &rArr; 50 = 70e<sup>10k</sup> &rArr; e<sup>10k</sup> = 5/7.</p>
+        <p><strong>Step 3:</strong> k = ln(5/7)/10 = (ln 5 - ln 7)/10 &approx; -0.03365 per minute.</p>
+        <p><strong>Model:</strong> T(t) = 20 + 70e<sup>-0.03365t</sup>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: When Will the Coffee Be Drinkable?</h4>
+        <p>Using the model above, when does the coffee reach 50&deg;C?</p>
+        <p class="mt-2"><strong>Solution:</strong> 50 = 20 + 70e<sup>-0.03365t</sup> &rArr; 30 = 70e<sup>-0.03365t</sup> &rArr; e<sup>-0.03365t</sup> = 3/7.</p>
+        <p style="padding-left:1rem;">t = -ln(3/7)/0.03365 = ln(7/3)/0.03365 &approx; <strong>25.2 minutes</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Forensic Application: Time of Death</h2>
+      <p>A key application of Newton's Law is estimating time of death. Normal body temperature is about 37&deg;C (98.6&deg;F). After death, the body cools toward ambient temperature following this law.</p>
+
+      <div class="example-box">
+        <h4>Example 3: Time of Death Estimation</h4>
+        <p>A body is found at 8:00 PM with temperature 29&deg;C. The room is 20&deg;C. At 9:00 PM, the body is 27&deg;C. Estimate the time of death (assuming normal body temp of 37&deg;C at death).</p>
+        <p class="mt-2"><strong>Step 1:</strong> Let t = 0 be 8:00 PM. T(0) = 29, T(1) = 27, T<sub>env</sub> = 20.</p>
+        <p><strong>Step 2:</strong> T(t) = 20 + 9e<sup>kt</sup>. From T(1) = 27: 27 = 20 + 9e<sup>k</sup> &rArr; e<sup>k</sup> = 7/9 &rArr; k = ln(7/9) &approx; -0.2513.</p>
+        <p><strong>Step 3:</strong> At the time of death (t = t<sub>d</sub>), body was 37&deg;C. Working backwards from 8:00 PM:</p>
+        <p style="padding-left:1rem;">37 = 20 + (37 - 20)e<sup>kt<sub>d</sub></sup> where t<sub>d</sub> is measured from death to 8:00 PM.</p>
+        <p>Actually, let us set t = 0 at time of death. Then T(0) = 37, and at time t<sub>1</sub> (the time from death to 8 PM), T(t<sub>1</sub>) = 29.</p>
+        <p style="padding-left:1rem;">29 = 20 + 17e<sup>kt<sub>1</sub></sup> &rArr; e<sup>kt<sub>1</sub></sup> = 9/17.</p>
+        <p style="padding-left:1rem;">Also T(t<sub>1</sub> + 1) = 27: 27 = 20 + 17e<sup>k(t<sub>1</sub>+1)</sup> &rArr; e<sup>k(t<sub>1</sub>+1)</sup> = 7/17.</p>
+        <p style="padding-left:1rem;">Dividing: e<sup>k</sup> = 7/9 &rArr; k = ln(7/9) &approx; -0.2513 (consistent).</p>
+        <p style="padding-left:1rem;">t<sub>1</sub> = ln(9/17)/k = ln(9/17)/ln(7/9) &approx; 0.6376/0.2513 &approx; 2.54 hours.</p>
+        <p><strong>Conclusion:</strong> Death occurred about 2.5 hours before 8:00 PM, i.e., around <strong>5:30 PM</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Warming Problems</h2>
+      <p>The same equation applies when an object warms up (cold object in a warm environment). Here T<sub>0</sub> &lt; T<sub>env</sub>, and the object's temperature increases toward T<sub>env</sub>.</p>
+
+      <div class="example-box">
+        <h4>Example 4: Warming a Cold Object</h4>
+        <p>A thermometer reading 5&deg;C is brought into a 25&deg;C room. After 3 minutes it reads 15&deg;C. When will it read 24&deg;C?</p>
+        <p class="mt-2"><strong>Step 1:</strong> T(t) = 25 + (5 - 25)e<sup>kt</sup> = 25 - 20e<sup>kt</sup>.</p>
+        <p><strong>Step 2:</strong> T(3) = 15: 15 = 25 - 20e<sup>3k</sup> &rArr; 20e<sup>3k</sup> = 10 &rArr; e<sup>3k</sup> = 1/2 &rArr; k = -ln 2/3 &approx; -0.2310.</p>
+        <p><strong>Step 3:</strong> Find t when T = 24: 24 = 25 - 20e<sup>kt</sup> &rArr; 20e<sup>kt</sup> = 1 &rArr; e<sup>kt</sup> = 1/20.</p>
+        <p style="padding-left:1rem;">t = ln(1/20)/k = ln(20) &middot; 3/ln(2) &approx; <strong>12.97 minutes</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Limitations of the Model</h2>
+      <ul>
+        <li>Assumes constant ambient temperature T<sub>env</sub>.</li>
+        <li>Works best when the temperature difference is moderate (not extreme).</li>
+        <li>Assumes the object has uniform temperature (no significant internal temperature gradients).</li>
+        <li>For very hot objects (radiation is significant), more complex models are needed.</li>
+      </ul>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. A hot plate at 150&deg;C cools in a 25&deg;C room. Write the general solution for T(t).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> T(t) = 25 + (150 - 25)e<sup>kt</sup> = <strong>25 + 125e<sup>kt</sup></strong> where k &lt; 0 is the cooling constant.</div>
+      </div>
+
+      <div class="question">
+        <p>2. As t &rarr; &infin;, what temperature does the hot plate approach?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> T &rarr; <strong>25&deg;C</strong> (the ambient temperature). The exponential term decays to zero.</div>
+      </div>
+
+      <div class="question">
+        <p>3. A body at 35&deg;C is in a 22&deg;C room. One hour later it is 31&deg;C. Find k.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> 31 = 22 + 13e<sup>k</sup> &rArr; 9 = 13e<sup>k</sup> &rArr; k = ln(9/13) &approx; <strong>-0.3677 per hour</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>4. Using Newton's cooling with T<sub>env</sub> = 20, T<sub>0</sub> = 80, and k = -0.1, find the temperature after 5 minutes.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> T(5) = 20 + 60e<sup>-0.1(5)</sup> = 20 + 60e<sup>-0.5</sup> &approx; 20 + 60(0.6065) = 20 + 36.39 = <strong>56.39&deg;C</strong>.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Newton's Law:</strong> dT/dt = k(T - T<sub>env</sub>) with solution T(t) = T<sub>env</sub> + (T<sub>0</sub> - T<sub>env</sub>)e<sup>kt</sup>.</li>
+        <li>The object temperature <strong>approaches ambient</strong> temperature asymptotically (never quite reaches it).</li>
+        <li>Find k by using <strong>two temperature measurements</strong> at known times.</li>
+        <li>Key applications: forensic time-of-death estimation, cooking times, engineering heat transfer.</li>
+        <li>The model assumes constant T<sub>env</sub>, uniform object temperature, and moderate temperature differences.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Module 3 Complete!</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Reinforce your skills with 10 problems covering all Module 3 topics.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Test your mastery of first-order ODE applications.</p>
+          <a href="quiz.html" class="btn btn-outline mt-2">Take the Quiz</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

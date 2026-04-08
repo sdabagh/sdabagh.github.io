@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Homogeneous Second-Order ODEs with Constant Coefficients - Characteristic equation setup">
+  <title>Lesson 1: Homogeneous with Constant Coefficients – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 4 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-characteristic-equation-cases.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Homogeneous with Constant Coefficients</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Recognize the standard form ay'' + by' + cy = 0</li>
+        <li>Explain the superposition principle for linear homogeneous ODEs</li>
+        <li>Derive the characteristic equation from the exponential guess y = e<sup>rt</sup></li>
+        <li>State the general solution structure using two linearly independent solutions</li>
+        <li>Verify linear independence using the Wronskian</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Standard Form</h2>
+      <p>A <strong>second-order linear ODE with constant coefficients</strong> has the form:</p>
+      <p style="text-align:center; font-size:1.2rem; margin:1rem 0;"><strong>ay'' + by' + cy = g(t)</strong></p>
+      <p>where a, b, c are constants and g(t) is the forcing function. When g(t) = 0, the equation is <strong>homogeneous</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Homogeneous Second-Order Linear ODE:</strong> ay'' + by' + cy = 0 with a &ne; 0. This is the equation we solve in this lesson.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>The Superposition Principle</h2>
+      <div class="definition-box">
+        <p><strong>Superposition Principle:</strong> If y<sub>1</sub> and y<sub>2</sub> are solutions to the homogeneous equation ay'' + by' + cy = 0, then c<sub>1</sub>y<sub>1</sub> + c<sub>2</sub>y<sub>2</sub> is also a solution for any constants c<sub>1</sub>, c<sub>2</sub>.</p>
+      </div>
+      <p>This means the set of all solutions forms a <strong>two-dimensional vector space</strong>. We need exactly two linearly independent solutions to span it.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>The Characteristic Equation</h2>
+      <p>We guess y = e<sup>rt</sup> for some constant r. Substituting into ay'' + by' + cy = 0:</p>
+      <p style="padding-left:1rem;">a r&sup2; e<sup>rt</sup> + b r e<sup>rt</sup> + c e<sup>rt</sup> = 0</p>
+      <p style="padding-left:1rem;">e<sup>rt</sup>(ar&sup2; + br + c) = 0</p>
+      <p>Since e<sup>rt</sup> &ne; 0, we need:</p>
+
+      <div class="definition-box">
+        <p><strong>Characteristic Equation:</strong> ar&sup2; + br + c = 0. The roots r<sub>1</sub> and r<sub>2</sub> determine the form of the general solution.</p>
+      </div>
+
+      <p>The discriminant D = b&sup2; - 4ac determines three cases:</p>
+      <ul>
+        <li><strong>D &gt; 0:</strong> Two distinct real roots (covered in Example 1 below; detailed in Lesson 2)</li>
+        <li><strong>D = 0:</strong> One repeated real root (detailed in Lesson 2)</li>
+        <li><strong>D &lt; 0:</strong> Complex conjugate roots (detailed in Lesson 2)</li>
+      </ul>
+
+      <div class="example-box">
+        <h4>Example 1: Distinct Real Roots</h4>
+        <p>Solve y'' - 5y' + 6y = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> Characteristic equation: r&sup2; - 5r + 6 = 0.</p>
+        <p><strong>Step 2:</strong> Factor: (r - 2)(r - 3) = 0, so r<sub>1</sub> = 2, r<sub>2</sub> = 3.</p>
+        <p><strong>Step 3:</strong> General solution: y(t) = c<sub>1</sub>e<sup>2t</sup> + c<sub>2</sub>e<sup>3t</sup>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Finding Particular Solutions from IVPs</h4>
+        <p>Solve y'' - 5y' + 6y = 0, y(0) = 2, y'(0) = 5.</p>
+        <p class="mt-2"><strong>Step 1:</strong> General solution: y = c<sub>1</sub>e<sup>2t</sup> + c<sub>2</sub>e<sup>3t</sup> (from Example 1).</p>
+        <p><strong>Step 2:</strong> Apply y(0) = 2: c<sub>1</sub> + c<sub>2</sub> = 2.</p>
+        <p><strong>Step 3:</strong> y' = 2c<sub>1</sub>e<sup>2t</sup> + 3c<sub>2</sub>e<sup>3t</sup>. Apply y'(0) = 5: 2c<sub>1</sub> + 3c<sub>2</sub> = 5.</p>
+        <p><strong>Step 4:</strong> Solve the system: c<sub>1</sub> = 1, c<sub>2</sub> = 1.</p>
+        <p><strong>Answer:</strong> y(t) = e<sup>2t</sup> + e<sup>3t</sup>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Linear Independence and the Wronskian</h2>
+      <div class="definition-box">
+        <p><strong>Wronskian:</strong> For two functions y<sub>1</sub> and y<sub>2</sub>, the Wronskian is W(y<sub>1</sub>, y<sub>2</sub>) = y<sub>1</sub>y<sub>2</sub>' - y<sub>2</sub>y<sub>1</sub>'. If W &ne; 0, the functions are linearly independent.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Checking Linear Independence</h4>
+        <p>Verify that y<sub>1</sub> = e<sup>2t</sup> and y<sub>2</sub> = e<sup>3t</sup> are linearly independent.</p>
+        <p class="mt-2">W = e<sup>2t</sup> &middot; 3e<sup>3t</sup> - e<sup>3t</sup> &middot; 2e<sup>2t</sup> = 3e<sup>5t</sup> - 2e<sup>5t</sup> = e<sup>5t</sup> &ne; 0.</p>
+        <p>Since W &ne; 0, the solutions are linearly independent, confirming they form a fundamental set.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Structure of the General Solution</h2>
+      <div class="definition-box">
+        <p><strong>General Solution (Homogeneous):</strong> If y<sub>1</sub> and y<sub>2</sub> are linearly independent solutions, then the general solution is y = c<sub>1</sub>y<sub>1</sub> + c<sub>2</sub>y<sub>2</sub>, where c<sub>1</sub> and c<sub>2</sub> are arbitrary constants. An IVP with y(t<sub>0</sub>) = y<sub>0</sub>, y'(t<sub>0</sub>) = y<sub>0</sub>' determines c<sub>1</sub> and c<sub>2</sub> uniquely.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Write the characteristic equation for y'' + 4y' + 3y = 0 and find its roots.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> r&sup2; + 4r + 3 = 0 &rArr; (r+1)(r+3) = 0 &rArr; r = -1, r = -3. General solution: y = c<sub>1</sub>e<sup>-t</sup> + c<sub>2</sub>e<sup>-3t</sup>.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Solve y'' - y = 0.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> r&sup2; - 1 = 0 &rArr; r = 1, r = -1. General solution: y = c<sub>1</sub>e<sup>t</sup> + c<sub>2</sub>e<sup>-t</sup>.</div>
+      </div>
+
+      <div class="question">
+        <p>3. Compute the Wronskian of y<sub>1</sub> = e<sup>-t</sup> and y<sub>2</sub> = e<sup>-3t</sup>.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> W = e<sup>-t</sup>(-3e<sup>-3t</sup>) - e<sup>-3t</sup>(-e<sup>-t</sup>) = -3e<sup>-4t</sup> + e<sup>-4t</sup> = <strong>-2e<sup>-4t</sup></strong> &ne; 0. Linearly independent.</div>
+      </div>
+
+      <div class="question">
+        <p>4. Why does a second-order ODE need two initial conditions to determine a unique solution?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> The general solution has <strong>two arbitrary constants</strong> (c<sub>1</sub> and c<sub>2</sub>). Two equations (from y(t<sub>0</sub>) and y'(t<sub>0</sub>)) are needed to determine these two unknowns.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>For ay'' + by' + cy = 0, guess y = e<sup>rt</sup> to get the <strong>characteristic equation</strong> ar&sup2; + br + c = 0.</li>
+        <li>The <strong>superposition principle</strong> says any linear combination of solutions is also a solution.</li>
+        <li>Two linearly independent solutions form a <strong>fundamental set</strong>; the general solution is y = c<sub>1</sub>y<sub>1</sub> + c<sub>2</sub>y<sub>2</sub>.</li>
+        <li>The <strong>Wronskian</strong> W = y<sub>1</sub>y<sub>2</sub>' - y<sub>2</sub>y<sub>1</sub>' tests linear independence (W &ne; 0 means independent).</li>
+        <li>An IVP needs <strong>two initial conditions</strong> (y and y') to determine the two constants.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 2, you will master all <strong>three cases</strong> of the characteristic equation in detail.</p>
+          <a href="lesson-02-characteristic-equation-cases.html" class="btn btn-primary mt-2">Start Lesson 2</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 1 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

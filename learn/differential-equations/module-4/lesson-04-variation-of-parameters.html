@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Variation of Parameters - Wronskian formula, general particular solutions">
+  <title>Lesson 4: Variation of Parameters – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-nonhomogeneous-undetermined-coefficients.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Variation of Parameters</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain when variation of parameters is preferred over undetermined coefficients</li>
+        <li>Compute the Wronskian of two solutions</li>
+        <li>Apply the variation of parameters formula to find y<sub>p</sub></li>
+        <li>Solve nonhomogeneous ODEs with non-standard forcing functions</li>
+        <li>Compare the two methods and choose the right one for each problem</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Why Another Method?</h2>
+      <p>Undetermined coefficients works beautifully for polynomials, exponentials, and trig functions. But what about g(t) = tan(t), g(t) = sec(t), g(t) = 1/t, or g(t) = e<sup>t</sup>/t? For these, we need <strong>variation of parameters</strong> -- a completely general method.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>The Formula</h2>
+      <p>Given y'' + p(t)y' + q(t)y = g(t) with homogeneous solutions y<sub>1</sub> and y<sub>2</sub>:</p>
+
+      <div class="definition-box">
+        <p><strong>Variation of Parameters Formula:</strong></p>
+        <p style="margin-top:0.5rem;">y<sub>p</sub>(t) = -y<sub>1</sub>&int;(y<sub>2</sub>g/W) dt + y<sub>2</sub>&int;(y<sub>1</sub>g/W) dt</p>
+        <p style="margin-top:0.5rem;">where W = W(y<sub>1</sub>, y<sub>2</sub>) = y<sub>1</sub>y<sub>2</sub>' - y<sub>2</sub>y<sub>1</sub>' is the Wronskian.</p>
+      </div>
+
+      <p><strong>Important:</strong> The ODE must be in standard form y'' + p(t)y' + q(t)y = g(t) with leading coefficient 1. If the leading coefficient is a &ne; 1, divide through by a first.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Step-by-Step Procedure</h2>
+      <ol>
+        <li><strong>Write in standard form</strong> (leading coefficient = 1).</li>
+        <li><strong>Find y<sub>h</sub></strong> = c<sub>1</sub>y<sub>1</sub> + c<sub>2</sub>y<sub>2</sub>.</li>
+        <li><strong>Compute the Wronskian</strong> W = y<sub>1</sub>y<sub>2</sub>' - y<sub>2</sub>y<sub>1</sub>'.</li>
+        <li><strong>Set up the integrals</strong> for the formula.</li>
+        <li><strong>Evaluate the integrals</strong> (this is often the hardest step).</li>
+        <li><strong>Write y<sub>p</sub></strong> and combine with y<sub>h</sub>.</li>
+      </ol>
+    </section>
+
+    <section class="content-section">
+      <h2>Worked Examples</h2>
+
+      <div class="example-box">
+        <h4>Example 1: y'' + y = sec(t)</h4>
+        <p>This cannot be done by undetermined coefficients (sec is not polynomial, exponential, or trig).</p>
+        <p class="mt-2"><strong>Step 1:</strong> Already in standard form. g(t) = sec(t).</p>
+        <p><strong>Step 2:</strong> r&sup2; + 1 = 0 &rArr; r = &plusmn;i. y<sub>1</sub> = cos t, y<sub>2</sub> = sin t.</p>
+        <p><strong>Step 3:</strong> W = cos(t) &middot; cos(t) - sin(t) &middot; (-sin(t)) = cos&sup2;t + sin&sup2;t = 1.</p>
+        <p><strong>Step 4:</strong> y<sub>p</sub> = -cos(t) &int;[sin(t) sec(t)/1] dt + sin(t) &int;[cos(t) sec(t)/1] dt</p>
+        <p style="padding-left:1rem;">= -cos(t) &int; tan(t) dt + sin(t) &int; 1 dt</p>
+        <p style="padding-left:1rem;">= -cos(t) &middot; (-ln|cos t|) + sin(t) &middot; t</p>
+        <p><strong>Answer:</strong> y<sub>p</sub> = cos(t) ln|cos t| + t sin(t).</p>
+        <p>General solution: y = c<sub>1</sub>cos t + c<sub>2</sub>sin t + cos(t) ln|cos t| + t sin(t).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: y'' + y = tan(t)</h4>
+        <p class="mt-2"><strong>Step 1:</strong> y<sub>1</sub> = cos t, y<sub>2</sub> = sin t, W = 1 (same as above).</p>
+        <p><strong>Step 2:</strong> y<sub>p</sub> = -cos(t) &int; sin(t) tan(t) dt + sin(t) &int; cos(t) tan(t) dt</p>
+        <p style="padding-left:1rem;">= -cos(t) &int; sin&sup2;t/cos t dt + sin(t) &int; sin t dt</p>
+        <p style="padding-left:1rem;">= -cos(t) &int; (sec t - cos t) dt + sin(t)(-cos t)</p>
+        <p style="padding-left:1rem;">= -cos(t)[ln|sec t + tan t| - sin t] - sin(t) cos(t)</p>
+        <p style="padding-left:1rem;">= -cos(t) ln|sec t + tan t| + sin(t) cos(t) - sin(t) cos(t)</p>
+        <p><strong>Answer:</strong> y<sub>p</sub> = -cos(t) ln|sec t + tan t|.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: y'' - 2y' + y = e<sup>t</sup>/t</h4>
+        <p class="mt-2"><strong>Step 1:</strong> r&sup2; - 2r + 1 = (r-1)&sup2; = 0. y<sub>1</sub> = e<sup>t</sup>, y<sub>2</sub> = te<sup>t</sup>.</p>
+        <p><strong>Step 2:</strong> W = e<sup>t</sup>(e<sup>t</sup> + te<sup>t</sup>) - te<sup>t</sup>(e<sup>t</sup>) = e<sup>2t</sup> + te<sup>2t</sup> - te<sup>2t</sup> = e<sup>2t</sup>.</p>
+        <p><strong>Step 3:</strong> g(t) = e<sup>t</sup>/t.</p>
+        <p style="padding-left:1rem;">y<sub>p</sub> = -e<sup>t</sup>&int;[te<sup>t</sup>(e<sup>t</sup>/t)/e<sup>2t</sup>] dt + te<sup>t</sup>&int;[e<sup>t</sup>(e<sup>t</sup>/t)/e<sup>2t</sup>] dt</p>
+        <p style="padding-left:1rem;">= -e<sup>t</sup>&int; 1 dt + te<sup>t</sup>&int; (1/t) dt = -te<sup>t</sup> + te<sup>t</sup> ln|t|.</p>
+        <p><strong>Answer:</strong> y<sub>p</sub> = te<sup>t</sup>(ln|t| - 1). The -te<sup>t</sup> part is absorbed into y<sub>h</sub>, so y<sub>p</sub> = te<sup>t</sup> ln|t|.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>When to Use Which Method</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Method</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Use When</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Advantage</th></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Undetermined Coefficients</td><td style="border:1px solid #ccc;padding:8px;">g(t) is polynomial, exponential, sin/cos, or products thereof</td><td style="border:1px solid #ccc;padding:8px;">Faster, no integration required</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Variation of Parameters</td><td style="border:1px solid #ccc;padding:8px;">Any g(t), including tan, sec, 1/t, ln(t), etc.</td><td style="border:1px solid #ccc;padding:8px;">Always works (if you can do the integrals)</td></tr>
+      </table>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. For y'' + 4y = sec(2t), find the Wronskian of y<sub>1</sub> = cos(2t), y<sub>2</sub> = sin(2t).</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> W = cos(2t)(2cos(2t)) - sin(2t)(-2sin(2t)) = 2cos&sup2;(2t) + 2sin&sup2;(2t) = <strong>2</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>2. Could you use undetermined coefficients for y'' + y = e<sup>t</sup> ln(t)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> <strong>No.</strong> ln(t) is not a polynomial, exponential, or trig function. You must use variation of parameters.</div>
+      </div>
+
+      <div class="question">
+        <p>3. Why must the ODE be in standard form (leading coefficient 1) for variation of parameters?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> The formula assumes the equation is y'' + py' + qy = g. If you have ay'' + by' + cy = f(t), you must divide by a first so that g(t) = f(t)/a.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Variation of parameters</strong> works for any forcing function g(t), not just special forms.</li>
+        <li>The formula: y<sub>p</sub> = -y<sub>1</sub>&int;(y<sub>2</sub>g/W)dt + y<sub>2</sub>&int;(y<sub>1</sub>g/W)dt.</li>
+        <li>The ODE <strong>must be in standard form</strong> (leading coefficient 1) before applying the formula.</li>
+        <li>Use <strong>undetermined coefficients when possible</strong> (faster); use variation of parameters when you must.</li>
+        <li>The hardest part is usually <strong>evaluating the integrals</strong>.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Module 4 Complete!</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>10 problems covering all second-order linear ODE techniques.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Test your mastery of second-order methods.</p>
+          <a href="quiz.html" class="btn btn-outline mt-2">Take the Quiz</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: Mixing Problems - Rate in minus rate out, setting up the ODE, tank problems">
+  <title>Lesson 3: Mixing Problems – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-02-population-models.html" class="back-link">&larr; Lesson 2</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-newtons-law-of-cooling.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: Mixing Problems</h1>
+    <p class="text-muted">Estimated time: 30-40 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Identify the key components of a mixing problem (tank, inflow, outflow, concentration)</li>
+        <li>Set up the ODE using the rate-in minus rate-out principle</li>
+        <li>Solve mixing problems where inflow rate equals outflow rate (constant volume)</li>
+        <li>Handle mixing problems where the volume changes over time</li>
+        <li>Interpret solutions in the physical context of the problem</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The General Framework</h2>
+      <p>A mixing problem involves a tank containing a well-stirred solution. Liquid flows in carrying some concentration of a dissolved substance, and liquid flows out. We want to track the <strong>amount of substance</strong> in the tank over time.</p>
+
+      <div class="definition-box">
+        <p><strong>Fundamental Mixing Principle:</strong> dQ/dt = (rate in) - (rate out), where Q(t) is the amount of substance at time t.</p>
+        <p style="margin-top:0.5rem;"><strong>Rate in</strong> = (inflow rate) &times; (inflow concentration)</p>
+        <p><strong>Rate out</strong> = (outflow rate) &times; (concentration in tank) = (outflow rate) &times; Q(t)/V(t)</p>
+      </div>
+
+      <p>The concentration in the tank at time t is Q(t)/V(t), where V(t) is the volume of liquid in the tank. If inflow rate &ne; outflow rate, V changes with time.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Constant Volume Case</h2>
+      <p>When inflow rate = outflow rate = F (liters per minute), the volume V stays constant. The ODE becomes:</p>
+      <p style="padding-left:1rem;">dQ/dt = F &middot; c<sub>in</sub> - F &middot; Q/V</p>
+      <p>This is a first-order linear ODE: dQ/dt + (F/V)Q = F &middot; c<sub>in</sub>.</p>
+
+      <div class="example-box">
+        <h4>Example 1: Basic Mixing (Equal Flow Rates)</h4>
+        <p>A 200-liter tank is full of pure water. Brine containing 3 g/L salt enters at 5 L/min, and the well-mixed solution drains at 5 L/min. Find Q(t), the grams of salt at time t.</p>
+        <p class="mt-2"><strong>Step 1: Identify components.</strong></p>
+        <p style="padding-left:1rem;">V = 200 L (constant), F = 5 L/min, c<sub>in</sub> = 3 g/L, Q(0) = 0.</p>
+        <p><strong>Step 2: Write the ODE.</strong></p>
+        <p style="padding-left:1rem;">dQ/dt = 5(3) - 5(Q/200) = 15 - Q/40.</p>
+        <p><strong>Step 3: Solve.</strong> This is linear: dQ/dt + Q/40 = 15.</p>
+        <p style="padding-left:1rem;">Integrating factor: &mu; = e<sup>t/40</sup>.</p>
+        <p style="padding-left:1rem;">d/dt[e<sup>t/40</sup> Q] = 15e<sup>t/40</sup>.</p>
+        <p style="padding-left:1rem;">e<sup>t/40</sup> Q = 600e<sup>t/40</sup> + C.</p>
+        <p style="padding-left:1rem;">Q(t) = 600 + Ce<sup>-t/40</sup>. With Q(0) = 0: C = -600.</p>
+        <p><strong>Answer:</strong> Q(t) = 600(1 - e<sup>-t/40</sup>) grams.</p>
+        <p><strong>Check:</strong> As t &rarr; &infin;, Q &rarr; 600 g, which gives concentration 600/200 = 3 g/L (matches inflow).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Initial Salt Present</h4>
+        <p>Same setup as Example 1, but the tank initially contains 100 g of salt. Find Q(t).</p>
+        <p class="mt-2"><strong>Solution:</strong> Same ODE but Q(0) = 100.</p>
+        <p style="padding-left:1rem;">Q(t) = 600 + Ce<sup>-t/40</sup>. With Q(0) = 100: 100 = 600 + C, so C = -500.</p>
+        <p><strong>Answer:</strong> Q(t) = 600 - 500e<sup>-t/40</sup> grams.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Variable Volume Case</h2>
+      <p>When inflow rate &ne; outflow rate, the volume changes: V(t) = V<sub>0</sub> + (F<sub>in</sub> - F<sub>out</sub>)t.</p>
+
+      <div class="example-box">
+        <h4>Example 3: Tank Filling (Inflow &gt; Outflow)</h4>
+        <p>A 500-liter tank initially contains 200 L of pure water. Brine with 2 g/L enters at 6 L/min. Solution drains at 4 L/min. Find Q(t) and the concentration when the tank is full.</p>
+        <p class="mt-2"><strong>Step 1:</strong> V(t) = 200 + 2t. Tank is full when 200 + 2t = 500, i.e., t = 150 min.</p>
+        <p><strong>Step 2:</strong> dQ/dt = 6(2) - 4 &middot; Q/V(t) = 12 - 4Q/(200 + 2t).</p>
+        <p style="padding-left:1rem;">Rewrite: dQ/dt + [4/(200 + 2t)]Q = 12. This is linear with P(t) = 4/(200 + 2t) = 2/(100 + t).</p>
+        <p><strong>Step 3:</strong> Integrating factor: &mu; = e<sup>&int;2/(100+t) dt</sup> = (100 + t)<sup>2</sup>.</p>
+        <p style="padding-left:1rem;">d/dt[(100 + t)<sup>2</sup> Q] = 12(100 + t)<sup>2</sup>.</p>
+        <p style="padding-left:1rem;">(100 + t)<sup>2</sup> Q = 4(100 + t)<sup>3</sup> + C.</p>
+        <p style="padding-left:1rem;">Q(t) = 4(100 + t) + C(100 + t)<sup>-2</sup>.</p>
+        <p><strong>Step 4:</strong> Q(0) = 0: 0 = 4(100) + C(100)<sup>-2</sup> &rArr; C = -400 &middot; 10000 = -4,000,000.</p>
+        <p style="padding-left:1rem;">Q(t) = 4(100 + t) - 4,000,000/(100 + t)<sup>2</sup>.</p>
+        <p><strong>Step 5:</strong> At t = 150: Q(150) = 4(250) - 4,000,000/250<sup>2</sup> = 1000 - 64 = 936 g.</p>
+        <p>Concentration = 936/500 = <strong>1.872 g/L</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Strategy for Setting Up Mixing Problems</h2>
+      <ol>
+        <li><strong>Define Q(t)</strong> = amount of substance in the tank at time t.</li>
+        <li><strong>Compute V(t)</strong> = initial volume + (inflow rate - outflow rate) &times; t.</li>
+        <li><strong>Rate in</strong> = (inflow rate) &times; (inflow concentration).</li>
+        <li><strong>Rate out</strong> = (outflow rate) &times; Q(t)/V(t).</li>
+        <li><strong>Write the ODE:</strong> dQ/dt = rate in - rate out.</li>
+        <li><strong>Solve</strong> using the integrating factor method (it is always linear!).</li>
+        <li><strong>Apply the initial condition</strong> Q(0) = initial amount of substance.</li>
+      </ol>
+    </section>
+
+    <section class="content-section">
+      <h2>Flushing a Contaminant</h2>
+
+      <div class="example-box">
+        <h4>Example 4: Removing Pollution</h4>
+        <p>A 1000-liter tank contains water with 50 g of pollutant. Fresh water (0 g/L) enters at 10 L/min and well-mixed solution exits at 10 L/min. How long until the pollutant drops to 5 g?</p>
+        <p class="mt-2"><strong>ODE:</strong> dQ/dt = 10(0) - 10(Q/1000) = -Q/100.</p>
+        <p><strong>Solution:</strong> Q(t) = 50e<sup>-t/100</sup>.</p>
+        <p><strong>Find t:</strong> 5 = 50e<sup>-t/100</sup> &rArr; e<sup>-t/100</sup> = 0.1 &rArr; t = -100 ln(0.1) = 100 ln(10) &approx; <strong>230.3 minutes</strong>.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. A 100-L tank of pure water receives brine at 4 g/L, flowing in at 2 L/min with outflow at 2 L/min. What is the ODE for Q(t)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> dQ/dt = 2(4) - 2(Q/100) = 8 - Q/50. This is linear: dQ/dt + Q/50 = 8.</div>
+      </div>
+
+      <div class="question">
+        <p>2. For the problem above, what is the steady-state amount of salt?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> At steady state, dQ/dt = 0, so Q/50 = 8, giving Q = <strong>400 g</strong>. The concentration approaches 400/100 = 4 g/L (matching inflow concentration).</div>
+      </div>
+
+      <div class="question">
+        <p>3. In a mixing problem, if the inflow rate is 3 L/min and outflow is 5 L/min starting with 400 L, what is V(t) and when is the tank empty?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> V(t) = 400 + (3 - 5)t = 400 - 2t. Tank is empty when 400 - 2t = 0, i.e., t = <strong>200 minutes</strong>.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The mixing ODE is always <strong>dQ/dt = rate in - rate out</strong>, where rate out = (outflow rate) &times; Q/V.</li>
+        <li>When inflow = outflow, volume is constant and the ODE is <strong>first-order linear</strong> with constant coefficients.</li>
+        <li>When inflow &ne; outflow, V(t) changes and the integrating factor involves variable coefficients.</li>
+        <li>The steady-state concentration always equals the inflow concentration (when volume is constant).</li>
+        <li>Always assume the solution is <strong>well-stirred</strong> (instantaneous mixing throughout the tank).</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 4, you will study <strong>Newton's Law of Cooling</strong> and its applications to forensics and cooking.</p>
+          <a href="lesson-04-newtons-law-of-cooling.html" class="btn btn-primary mt-2">Start Lesson 4</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 3 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Exponential Growth and Decay - dP/dt = kP, half-life, doubling time, radioactive decay, compound interest">
+  <title>Lesson 1: Exponential Growth and Decay – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 3 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-population-models.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Exponential Growth and Decay</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Derive and solve the exponential growth/decay equation dP/dt = kP</li>
+        <li>Compute half-life and doubling time from the growth/decay constant k</li>
+        <li>Apply the model to radioactive decay problems</li>
+        <li>Apply the model to continuously compounded interest</li>
+        <li>Determine k from experimental data (two data points)</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Fundamental Model</h2>
+      <p>The simplest and most important first-order ODE application is the <strong>exponential model</strong>. It arises whenever the rate of change of a quantity is proportional to the quantity itself.</p>
+
+      <div class="definition-box">
+        <p><strong>Exponential Growth/Decay Equation:</strong> dP/dt = kP, where P(t) is the quantity at time t and k is the growth (k &gt; 0) or decay (k &lt; 0) constant. The general solution is P(t) = P<sub>0</sub>e<sup>kt</sup>, where P<sub>0</sub> = P(0) is the initial amount.</p>
+      </div>
+
+      <p>This equation is separable. Separating variables: dP/P = k dt. Integrating both sides: ln|P| = kt + C, so P = Ae<sup>kt</sup>. Setting t = 0 gives A = P<sub>0</sub>.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Half-Life and Doubling Time</h2>
+
+      <div class="definition-box">
+        <p><strong>Half-Life (t<sub>1/2</sub>):</strong> The time for a decaying quantity to reach half its initial value. From P<sub>0</sub>e<sup>kt<sub>1/2</sub></sup> = P<sub>0</sub>/2, we get <strong>t<sub>1/2</sub> = ln(2)/|k|</strong>.</p>
+      </div>
+
+      <div class="definition-box">
+        <p><strong>Doubling Time (t<sub>d</sub>):</strong> The time for a growing quantity to double. From P<sub>0</sub>e<sup>kt<sub>d</sub></sup> = 2P<sub>0</sub>, we get <strong>t<sub>d</sub> = ln(2)/k</strong>.</p>
+      </div>
+
+      <p>Notice the beautiful symmetry: both formulas involve ln(2) &approx; 0.693. This gives us a quick estimation rule -- if a quantity grows at r% per unit time (continuously), its doubling time is approximately 69.3/r.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Radioactive Decay</h2>
+      <p>Radioactive substances decay at a rate proportional to the amount present. The decay constant k is negative, and each isotope has a characteristic half-life.</p>
+
+      <div class="example-box">
+        <h4>Example 1: Carbon-14 Dating</h4>
+        <p>Carbon-14 has a half-life of 5730 years. A bone fragment contains 40% of its original C-14. How old is it?</p>
+        <p class="mt-2"><strong>Step 1:</strong> Find k from the half-life.</p>
+        <p style="padding-left:1rem;">t<sub>1/2</sub> = ln(2)/|k| &rArr; 5730 = ln(2)/|k| &rArr; k = -ln(2)/5730 &approx; -0.000121 per year.</p>
+        <p><strong>Step 2:</strong> Use P(t) = P<sub>0</sub>e<sup>kt</sup> with P(t)/P<sub>0</sub> = 0.40.</p>
+        <p style="padding-left:1rem;">0.40 = e<sup>-0.000121t</sup> &rArr; ln(0.40) = -0.000121t &rArr; t = -ln(0.40)/0.000121 &approx; <strong>7573 years</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Iodine-131 Decay</h4>
+        <p>Iodine-131 (used in thyroid treatment) has a half-life of 8 days. If a patient receives 100 mCi, how much remains after 20 days?</p>
+        <p class="mt-2"><strong>Step 1:</strong> k = -ln(2)/8 &approx; -0.08664 per day.</p>
+        <p><strong>Step 2:</strong> P(20) = 100 e<sup>-0.08664(20)</sup> = 100 e<sup>-1.7328</sup> &approx; 100(0.1768) &approx; <strong>17.68 mCi</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Continuously Compounded Interest</h2>
+      <p>If a principal A<sub>0</sub> is invested at annual rate r compounded continuously, the balance satisfies dA/dt = rA with solution A(t) = A<sub>0</sub>e<sup>rt</sup>.</p>
+
+      <div class="example-box">
+        <h4>Example 3: Investment Growth</h4>
+        <p>You invest $5,000 at 6% annual interest compounded continuously. How long until the investment doubles?</p>
+        <p class="mt-2"><strong>Solution:</strong> We need A(t) = 2A<sub>0</sub>.</p>
+        <p style="padding-left:1rem;">5000 e<sup>0.06t</sup> = 10000 &rArr; e<sup>0.06t</sup> = 2 &rArr; 0.06t = ln 2 &rArr; t = ln(2)/0.06 &approx; <strong>11.55 years</strong>.</p>
+        <p>This matches the doubling time formula: t<sub>d</sub> = ln(2)/0.06 &approx; 11.55.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Determining k from Data</h2>
+      <p>Often we are given two measurements and must find k. The strategy: use P(t<sub>1</sub>) = P<sub>0</sub>e<sup>kt<sub>1</sub></sup> and P(t<sub>2</sub>) = P<sub>0</sub>e<sup>kt<sub>2</sub></sup>, then divide to eliminate P<sub>0</sub>.</p>
+
+      <div class="example-box">
+        <h4>Example 4: Bacterial Culture</h4>
+        <p>A bacterial culture has 800 cells at t = 0 and 2200 cells after 3 hours. Find k and predict the population at t = 5 hours.</p>
+        <p class="mt-2"><strong>Step 1:</strong> P(3) = 800 e<sup>3k</sup> = 2200.</p>
+        <p style="padding-left:1rem;">e<sup>3k</sup> = 2200/800 = 2.75 &rArr; 3k = ln(2.75) &rArr; k = ln(2.75)/3 &approx; 0.3370 per hour.</p>
+        <p><strong>Step 2:</strong> P(5) = 800 e<sup>0.3370(5)</sup> = 800 e<sup>1.685</sup> &approx; 800(5.393) &approx; <strong>4314 cells</strong>.</p>
+        <p><strong>Doubling time:</strong> t<sub>d</sub> = ln(2)/0.3370 &approx; 2.06 hours.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>When Exponential Models Break Down</h2>
+      <p>The exponential model assumes unlimited resources and no competition. In reality:</p>
+      <ul>
+        <li>Populations encounter limited food, space, and other resources.</li>
+        <li>Growth rates slow as populations become large.</li>
+        <li>The exponential model is best for <strong>short time horizons</strong> or <strong>small populations</strong> far from capacity limits.</li>
+      </ul>
+      <p>This motivates the <strong>logistic model</strong> in the next lesson, which adds a carrying capacity to account for resource limitations.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. A radioactive isotope has k = -0.05 per hour. What is its half-life?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> t<sub>1/2</sub> = ln(2)/|k| = ln(2)/0.05 = 0.693/0.05 = <strong>13.86 hours</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>2. A population doubles every 4 years. What is the continuous growth rate k?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> k = ln(2)/t<sub>d</sub> = ln(2)/4 = 0.693/4 &approx; <strong>0.1733 per year</strong> (about 17.33% per year).</div>
+      </div>
+
+      <div class="question">
+        <p>3. You deposit $10,000 at 4% compounded continuously. What is the balance after 10 years?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> A(10) = 10000 e<sup>0.04(10)</sup> = 10000 e<sup>0.4</sup> &approx; 10000(1.4918) = <strong>$14,918.25</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>4. A sample of 500 mg of a substance decays to 350 mg in 10 days. Find k and the half-life.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> 350 = 500 e<sup>10k</sup> &rArr; e<sup>10k</sup> = 0.7 &rArr; k = ln(0.7)/10 &approx; -0.03567 per day. Half-life = ln(2)/0.03567 &approx; <strong>19.43 days</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>5. Why does the exponential growth model predict infinite population as t &rarr; &infin;? Is this realistic?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a5')">Show Answer</button>
+        <div id="a5" class="answer"><strong>Answer:</strong> Because P(t) = P<sub>0</sub>e<sup>kt</sup> grows without bound when k &gt; 0. This is <strong>not realistic</strong> for biological populations because resources are finite. The model is only accurate for early-stage growth when the population is far below environmental limits.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>dP/dt = kP</strong> has solution P(t) = P<sub>0</sub>e<sup>kt</sup>; k &gt; 0 is growth, k &lt; 0 is decay.</li>
+        <li><strong>Half-life</strong> = ln(2)/|k| and <strong>doubling time</strong> = ln(2)/k -- both depend only on k, not on P<sub>0</sub>.</li>
+        <li>To find k from two data points, use the ratio P(t<sub>2</sub>)/P(t<sub>1</sub>) to eliminate P<sub>0</sub>.</li>
+        <li>Applications include radioactive decay, carbon dating, bacterial growth, and continuously compounded interest.</li>
+        <li>Exponential growth is unrealistic for large populations -- the logistic model (next lesson) corrects this.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 2, you will study the <strong>logistic equation</strong>, which adds a carrying capacity to model realistic population growth.</p>
+          <a href="lesson-02-population-models.html" class="btn btn-primary mt-2">Start Lesson 2</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 1 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Population Models - Logistic Equation, carrying capacity, equilibria, harvesting">
+  <title>Lesson 2: Population Models: Logistic Equation – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-exponential-growth-decay.html" class="back-link">&larr; Lesson 1</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-mixing-problems.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Population Models: The Logistic Equation</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain why the exponential model is inadequate for large populations</li>
+        <li>State and interpret the logistic equation dP/dt = rP(1 - P/K)</li>
+        <li>Find equilibrium solutions and determine their stability</li>
+        <li>Solve the logistic equation using partial fractions</li>
+        <li>Analyze logistic models with harvesting</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>From Exponential to Logistic</h2>
+      <p>The exponential model dP/dt = rP assumes unlimited resources. To model a finite environment, we introduce a <strong>braking factor</strong> that slows growth as P approaches the environment's capacity.</p>
+
+      <div class="definition-box">
+        <p><strong>Logistic Equation:</strong> dP/dt = rP(1 - P/K), where r is the intrinsic growth rate and K is the <strong>carrying capacity</strong> -- the maximum sustainable population.</p>
+      </div>
+
+      <p>When P is small relative to K, the factor (1 - P/K) &approx; 1 and growth is nearly exponential. As P approaches K, the factor approaches 0 and growth slows to a halt.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Equilibrium Analysis</h2>
+      <p>Set dP/dt = 0: rP(1 - P/K) = 0 gives two equilibria:</p>
+      <ul>
+        <li><strong>P = 0</strong> (extinction) -- unstable equilibrium</li>
+        <li><strong>P = K</strong> (carrying capacity) -- stable equilibrium</li>
+      </ul>
+
+      <div class="definition-box">
+        <p><strong>Stability Analysis:</strong> For 0 &lt; P &lt; K: dP/dt &gt; 0 (population increasing). For P &gt; K: dP/dt &lt; 0 (population decreasing). So P = K attracts nearby solutions from both sides -- it is <strong>asymptotically stable</strong>.</p>
+      </div>
+
+      <p>The logistic curve has a characteristic S-shape (sigmoid). The inflection point occurs at P = K/2, where growth rate dP/dt is maximized.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Solving the Logistic Equation</h2>
+      <p>The logistic equation is separable. We separate and use partial fractions:</p>
+      <p style="padding-left:1rem;">dP / [P(1 - P/K)] = r dt</p>
+      <p style="padding-left:1rem;">Partial fractions: 1/[P(1 - P/K)] = 1/P + (1/K)/(1 - P/K)</p>
+
+      <div class="example-box">
+        <h4>Example 1: Solving the Logistic Equation</h4>
+        <p>Solve dP/dt = 0.5P(1 - P/1000) with P(0) = 100.</p>
+        <p class="mt-2"><strong>Step 1:</strong> Here r = 0.5 and K = 1000. The general logistic solution is:</p>
+        <p style="padding-left:1rem;">P(t) = K / (1 + Ae<sup>-rt</sup>) where A = (K - P<sub>0</sub>)/P<sub>0</sub>.</p>
+        <p><strong>Step 2:</strong> A = (1000 - 100)/100 = 9.</p>
+        <p><strong>Step 3:</strong> P(t) = 1000 / (1 + 9e<sup>-0.5t</sup>).</p>
+        <p><strong>Check:</strong> P(0) = 1000/(1 + 9) = 100. As t &rarr; &infin;, e<sup>-0.5t</sup> &rarr; 0, so P &rarr; 1000 = K.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Finding the Inflection Point</h4>
+        <p>For the solution above, when does the population grow fastest?</p>
+        <p class="mt-2"><strong>Solution:</strong> Maximum growth occurs at P = K/2 = 500.</p>
+        <p style="padding-left:1rem;">500 = 1000/(1 + 9e<sup>-0.5t</sup>) &rArr; 1 + 9e<sup>-0.5t</sup> = 2 &rArr; e<sup>-0.5t</sup> = 1/9 &rArr; t = -2 ln(1/9) = 2 ln 9 &approx; <strong>4.39 time units</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Logistic Equation with Harvesting</h2>
+      <p>If a population is harvested at a constant rate h, the model becomes:</p>
+      <p style="padding-left:1rem;">dP/dt = rP(1 - P/K) - h</p>
+
+      <div class="definition-box">
+        <p><strong>Critical Harvesting Rate:</strong> The maximum sustainable harvest rate is h<sub>max</sub> = rK/4 (the peak of the growth curve at P = K/2). If h &gt; rK/4, the population will collapse to extinction.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Harvesting Analysis</h4>
+        <p>A fish population satisfies dP/dt = 0.4P(1 - P/5000) - h. Find the maximum sustainable harvest rate.</p>
+        <p class="mt-2"><strong>Solution:</strong> h<sub>max</sub> = rK/4 = 0.4(5000)/4 = <strong>500 fish per unit time</strong>.</p>
+        <p>At h = 500, the only equilibrium is P = K/2 = 2500 (a semi-stable equilibrium). For h &gt; 500, no positive equilibria exist and the population goes extinct.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Comparing Exponential and Logistic</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Feature</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Exponential</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Logistic</th></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Equation</td><td style="border:1px solid #ccc;padding:8px;">dP/dt = rP</td><td style="border:1px solid #ccc;padding:8px;">dP/dt = rP(1 - P/K)</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Long-term behavior</td><td style="border:1px solid #ccc;padding:8px;">P &rarr; &infin;</td><td style="border:1px solid #ccc;padding:8px;">P &rarr; K</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Growth shape</td><td style="border:1px solid #ccc;padding:8px;">J-curve</td><td style="border:1px solid #ccc;padding:8px;">S-curve (sigmoid)</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Resource assumption</td><td style="border:1px solid #ccc;padding:8px;">Unlimited</td><td style="border:1px solid #ccc;padding:8px;">Limited (capacity K)</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Best for</td><td style="border:1px solid #ccc;padding:8px;">Short-term, small P</td><td style="border:1px solid #ccc;padding:8px;">Long-term predictions</td></tr>
+      </table>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. For dP/dt = 0.3P(1 - P/2000), what are the equilibria? Which is stable?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> Equilibria: P = 0 (unstable) and P = 2000 (stable). For 0 &lt; P &lt; 2000, dP/dt &gt; 0; for P &gt; 2000, dP/dt &lt; 0. Solutions converge to K = 2000.</div>
+      </div>
+
+      <div class="question">
+        <p>2. A population of 200 follows dP/dt = 0.5P(1 - P/1000). Write the explicit solution.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> A = (K - P<sub>0</sub>)/P<sub>0</sub> = (1000 - 200)/200 = 4. So P(t) = 1000/(1 + 4e<sup>-0.5t</sup>).</div>
+      </div>
+
+      <div class="question">
+        <p>3. At what population level is the logistic growth rate maximized?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> At P = K/2 (half the carrying capacity). This is the inflection point of the logistic curve and where dP/dt reaches its maximum value of rK/4.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The <strong>logistic equation</strong> dP/dt = rP(1 - P/K) models resource-limited growth with carrying capacity K.</li>
+        <li>Two equilibria: P = 0 (unstable) and P = K (stable). Solutions form an S-shaped curve.</li>
+        <li>The explicit solution is P(t) = K/(1 + Ae<sup>-rt</sup>) with A = (K - P<sub>0</sub>)/P<sub>0</sub>.</li>
+        <li>Maximum growth rate occurs at P = K/2. Maximum sustainable harvest is rK/4.</li>
+        <li>Harvesting above h = rK/4 causes population collapse.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, you will learn to set up and solve <strong>mixing problems</strong> using first-order linear ODEs.</p>
+          <a href="lesson-03-mixing-problems.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

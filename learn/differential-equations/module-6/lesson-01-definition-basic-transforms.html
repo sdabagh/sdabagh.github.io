@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 1: Definition and Basic Laplace Transforms - the Laplace integral, transforms of elementary functions">
+  <title>Lesson 1: Definition and Basic Transforms – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 6 Home</a>
+      <span class="text-muted">Lesson 1 of 4</span>
+      <a href="lesson-02-inverse-laplace-partial-fractions.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 1: Definition and Basic Transforms</h1>
+    <p class="text-muted">Estimated time: 45-55 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>State the definition of the Laplace transform as an improper integral</li>
+        <li>Compute Laplace transforms of basic functions from the definition</li>
+        <li>Use linearity to combine transforms</li>
+        <li>Apply the first shifting theorem (s-shifting)</li>
+        <li>Build and use a table of common Laplace transforms</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>What Is the Laplace Transform?</h2>
+      <p>The Laplace transform converts a function of time f(t) into a function of a complex variable F(s). It turns derivatives into algebraic operations, making differential equations much easier to solve.</p>
+      <div class="definition-box">
+        <p><strong>Laplace Transform:</strong> L{f(t)} = F(s) = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> f(t) dt, defined for values of s where the integral converges.</p>
+      </div>
+      <p>The key idea: differentiation in the t-domain becomes multiplication by s in the s-domain. This converts a differential equation into an algebraic equation.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Computing Transforms from the Definition</h2>
+
+      <div class="example-box">
+        <h4>Example 1: L{1}</h4>
+        <p>L{1} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> dt = [-e<sup>-st</sup>/s]<sub>0</sub><sup>&infin;</sup> = 0 - (-1/s) = <strong>1/s</strong>, for s &gt; 0.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: L{e<sup>at</sup>}</h4>
+        <p>L{e<sup>at</sup>} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> e<sup>at</sup> dt = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-(s-a)t</sup> dt = <strong>1/(s-a)</strong>, for s &gt; a.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: L{t}</h4>
+        <p>L{t} = &int;<sub>0</sub><sup>&infin;</sup> t e<sup>-st</sup> dt. Integration by parts: u = t, dv = e<sup>-st</sup>dt.</p>
+        <p>= [-te<sup>-st</sup>/s]<sub>0</sub><sup>&infin;</sup> + (1/s)&int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> dt = 0 + (1/s)(1/s) = <strong>1/s&sup2;</strong>, for s &gt; 0.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: L{sin(bt)}</h4>
+        <p>L{sin(bt)} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> sin(bt) dt. Using integration by parts twice (or the formula):</p>
+        <p><strong>L{sin(bt)} = b/(s&sup2; + b&sup2;)</strong>, for s &gt; 0.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Table of Common Transforms</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">f(t)</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">F(s) = L{f(t)}</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Condition</th></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">1</td><td style="border:1px solid #ccc;padding:8px;">1/s</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">t<sup>n</sup></td><td style="border:1px solid #ccc;padding:8px;">n!/s<sup>n+1</sup></td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup></td><td style="border:1px solid #ccc;padding:8px;">1/(s-a)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">sin(bt)</td><td style="border:1px solid #ccc;padding:8px;">b/(s&sup2;+b&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">cos(bt)</td><td style="border:1px solid #ccc;padding:8px;">s/(s&sup2;+b&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; 0</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup>sin(bt)</td><td style="border:1px solid #ccc;padding:8px;">b/((s-a)&sup2;+b&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">e<sup>at</sup>cos(bt)</td><td style="border:1px solid #ccc;padding:8px;">(s-a)/((s-a)&sup2;+b&sup2;)</td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">t<sup>n</sup>e<sup>at</sup></td><td style="border:1px solid #ccc;padding:8px;">n!/(s-a)<sup>n+1</sup></td><td style="border:1px solid #ccc;padding:8px;">s &gt; a</td></tr>
+      </table>
+    </section>
+
+    <section class="content-section">
+      <h2>Linearity</h2>
+      <div class="definition-box">
+        <p><strong>Linearity Property:</strong> L{af(t) + bg(t)} = aL{f(t)} + bL{g(t)} = aF(s) + bG(s) for any constants a, b.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 5: Using Linearity</h4>
+        <p>Find L{3t&sup2; - 5e<sup>2t</sup> + 4sin(3t)}.</p>
+        <p class="mt-2">= 3 L{t&sup2;} - 5 L{e<sup>2t</sup>} + 4 L{sin(3t)}</p>
+        <p>= 3(2!/s&sup3;) - 5/(s-2) + 4(3/(s&sup2;+9))</p>
+        <p>= <strong>6/s&sup3; - 5/(s-2) + 12/(s&sup2;+9)</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>First Shifting Theorem (s-Shifting)</h2>
+      <div class="definition-box">
+        <p><strong>First Shifting Theorem:</strong> If L{f(t)} = F(s), then L{e<sup>at</sup>f(t)} = F(s-a). Multiplying by e<sup>at</sup> in the t-domain shifts s to s-a in the s-domain.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 6: Applying s-Shifting</h4>
+        <p>Find L{e<sup>3t</sup>cos(2t)}.</p>
+        <p class="mt-2">L{cos(2t)} = s/(s&sup2;+4). Shifting s to s-3:</p>
+        <p>L{e<sup>3t</sup>cos(2t)} = <strong>(s-3)/((s-3)&sup2;+4)</strong>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Transforms of Derivatives</h2>
+      <div class="definition-box">
+        <p><strong>Derivative Property:</strong> L{f'(t)} = sF(s) - f(0). L{f''(t)} = s&sup2;F(s) - sf(0) - f'(0). Each derivative multiplies by s and subtracts initial conditions.</p>
+      </div>
+      <p>This is the property that makes Laplace transforms so powerful for solving IVPs: derivatives become algebraic expressions involving s and the initial values.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. Compute L{5e<sup>-2t</sup>} from the table.</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> L{e<sup>at</sup>} = 1/(s-a). With a=-2: 5/(s+2).</div></div>
+      <div class="question"><p>2. Find L{t&sup3;}.</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> L{t<sup>n</sup>} = n!/s<sup>n+1</sup>. With n=3: 3!/s<sup>4</sup> = <strong>6/s<sup>4</sup></strong>.</div></div>
+      <div class="question"><p>3. Use the first shifting theorem to find L{e<sup>-t</sup>sin(4t)}.</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> L{sin(4t)} = 4/(s&sup2;+16). Shift s to s+1: <strong>4/((s+1)&sup2;+16)</strong>.</div></div>
+      <div class="question"><p>4. What does the derivative property say about L{y''}?</p><button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button><div id="a4" class="answer"><strong>Answer:</strong> L{y''} = s&sup2;Y(s) - sy(0) - y'(0). The second derivative becomes an algebraic expression in s times Y(s) minus initial conditions.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>L{f(t)} = &int;<sub>0</sub><sup>&infin;</sup> e<sup>-st</sup> f(t) dt converts functions from the t-domain to the s-domain.</li>
+        <li>The transform is <strong>linear</strong>: constants factor out, sums split.</li>
+        <li>The <strong>s-shifting theorem</strong>: L{e<sup>at</sup>f(t)} = F(s-a).</li>
+        <li><strong>Derivatives become algebra</strong>: L{f'} = sF(s) - f(0).</li>
+        <li>Memorize the <strong>basic transform table</strong> -- it is the foundation for everything that follows.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>In Lesson 2, learn to go backwards: <strong>inverse Laplace transforms</strong> using partial fractions.</p><a href="lesson-02-inverse-laplace-partial-fractions.html" class="btn btn-primary mt-2">Start Lesson 2</a></div>
+        <div class="card"><h3>Module Progress</h3><p>You have completed Lesson 1 of 4.</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

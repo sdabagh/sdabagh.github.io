@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Direction Fields and Solution Curves - Visualize differential equations through slope fields">
+  <title>Lesson 2: Direction Fields and Solution Curves – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-01-what-is-a-differential-equation.html" class="back-link">&larr; Lesson 1</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-existence-and-uniqueness.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Direction Fields and Solution Curves</h1>
+    <p class="text-muted">Estimated time: 30-35 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain what a direction field (slope field) represents</li>
+        <li>Compute slopes at sample points to construct a direction field by hand</li>
+        <li>Sketch solution curves that follow direction field patterns</li>
+        <li>Identify equilibrium solutions from a direction field</li>
+        <li>Recognize autonomous equations and their special properties</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Idea Behind Direction Fields</h2>
+      <p>A first-order ODE of the form dy/dx = f(x, y) tells us the <strong>slope of the solution curve</strong> at every point (x, y). Even when we cannot solve the equation analytically, we can still <em>visualize</em> the solution by plotting these slopes.</p>
+
+      <div class="definition-box">
+        <p><strong>Direction Field (Slope Field):</strong> A graphical representation of a first-order ODE dy/dx = f(x, y). At each sample point (x, y) in the plane, draw a short line segment with slope f(x, y). The resulting pattern shows how solution curves flow.</p>
+      </div>
+
+      <p>Think of each little segment as a signpost telling the solution which way to go. A solution curve must be tangent to these segments at every point it passes through.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Constructing a Direction Field by Hand</h2>
+
+      <div class="example-box">
+        <h4>Example 1: Direction Field for dy/dx = x - y</h4>
+        <p>Build a small direction field by computing slopes at a grid of points.</p>
+        <p class="mt-2"><strong>Step 1:</strong> Choose sample points and evaluate f(x,y) = x - y.</p>
+        <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+          <tr><th style="border:1px solid #ccc;padding:6px;">(x, y)</th><th style="border:1px solid #ccc;padding:6px;">Slope = x - y</th></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(0, 0)</td><td style="border:1px solid #ccc;padding:6px;">0</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(1, 0)</td><td style="border:1px solid #ccc;padding:6px;">1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(0, 1)</td><td style="border:1px solid #ccc;padding:6px;">-1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(1, 1)</td><td style="border:1px solid #ccc;padding:6px;">0</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(2, 1)</td><td style="border:1px solid #ccc;padding:6px;">1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(1, 2)</td><td style="border:1px solid #ccc;padding:6px;">-1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(-1, 0)</td><td style="border:1px solid #ccc;padding:6px;">-1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">(2, 2)</td><td style="border:1px solid #ccc;padding:6px;">0</td></tr>
+        </table>
+        <p class="mt-1"><strong>Step 2:</strong> At each point, draw a tiny segment with the computed slope. Horizontal segments where slope = 0, upward-sloping where positive, downward where negative.</p>
+        <p><strong>Observation:</strong> The slope is 0 along the line y = x. Above this line (y &gt; x), slopes are negative; below it (y &lt; x), slopes are positive. Solution curves are attracted toward the line y = x.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Isoclines</h2>
+      <div class="definition-box">
+        <p><strong>Isocline:</strong> A curve along which all slopes in the direction field have the same value. For dy/dx = f(x,y), the isocline for slope c is the curve f(x,y) = c.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Isoclines for dy/dx = x - y</h4>
+        <p>Setting x - y = c gives y = x - c. These are parallel lines with slope 1.</p>
+        <p style="padding-left:1rem;">c = 0: y = x (horizontal segments)</p>
+        <p style="padding-left:1rem;">c = 1: y = x - 1 (segments with slope 1)</p>
+        <p style="padding-left:1rem;">c = -1: y = x + 1 (segments with slope -1)</p>
+        <p class="mt-1">Isoclines give you a fast way to build a direction field: draw the isocline, then fill it with segments all tilted at the same angle.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Autonomous Equations and Equilibria</h2>
+      <div class="definition-box">
+        <p><strong>Autonomous ODE:</strong> A first-order ODE of the form dy/dx = f(y), where the right side depends on y alone (not explicitly on x). The direction field has identical columns -- slopes depend only on the y-coordinate.</p>
+      </div>
+
+      <div class="definition-box">
+        <p><strong>Equilibrium Solution:</strong> A constant solution y = c where f(c) = 0. On the direction field, horizontal segments form a horizontal line. The solution simply stays at y = c for all time.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Equilibria of dy/dx = y(1 - y)</h4>
+        <p>Set f(y) = y(1 - y) = 0. This gives y = 0 and y = 1.</p>
+        <p class="mt-1"><strong>Analysis:</strong></p>
+        <p style="padding-left:1rem;">For 0 &lt; y &lt; 1: f(y) &gt; 0, so dy/dx &gt; 0 and solutions increase.</p>
+        <p style="padding-left:1rem;">For y &gt; 1: f(y) &lt; 0, so dy/dx &lt; 0 and solutions decrease.</p>
+        <p style="padding-left:1rem;">For y &lt; 0: f(y) &lt; 0, so solutions decrease.</p>
+        <p class="mt-1"><strong>Conclusion:</strong> y = 1 is a <em>stable</em> equilibrium (nearby solutions approach it). y = 0 is an <em>unstable</em> equilibrium (nearby solutions move away). This is the logistic equation -- we will study it in depth in Module 3.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Sketching Solution Curves</h2>
+      <p>To sketch a solution curve through a specific initial point:</p>
+      <ol>
+        <li>Place your pencil at the initial point (x<sub>0</sub>, y<sub>0</sub>).</li>
+        <li>Follow the local slope indicated by the direction field.</li>
+        <li>Extend the curve in both directions (forward and backward in x).</li>
+        <li>Ensure the curve stays tangent to the field segments at every point.</li>
+      </ol>
+
+      <div class="example-box">
+        <h4>Example 4: Solution Curves for dy/dx = -y</h4>
+        <p>The direction field has slopes that depend only on y:</p>
+        <p style="padding-left:1rem;">When y &gt; 0: slopes are negative (curves decrease).</p>
+        <p style="padding-left:1rem;">When y &lt; 0: slopes are positive (curves increase).</p>
+        <p style="padding-left:1rem;">When y = 0: slope = 0 (equilibrium).</p>
+        <p class="mt-1">All solution curves approach y = 0 as x increases. The general solution is y = Ce<sup>-x</sup>, which confirms this behavior: as x &rarr; +&infin;, y &rarr; 0.</p>
+      </div>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. For dy/dx = x + y, what is the slope at the point (1, -1)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> Slope = x + y = 1 + (-1) = <strong>0</strong>. A horizontal segment goes at (1, -1).</div>
+      </div>
+
+      <div class="question">
+        <p>2. For the autonomous equation dy/dx = y&sup2; - 4, find all equilibrium solutions.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> Set y&sup2; - 4 = 0, so y&sup2; = 4, giving <strong>y = 2 and y = -2</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>3. In the previous problem, is y = 2 stable or unstable? What about y = -2?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> For y slightly above 2, y&sup2; - 4 &gt; 0, so solutions move away from 2. For y slightly below 2, y&sup2; - 4 &lt; 0, so solutions also move away. Thus <strong>y = 2 is unstable</strong>. For y = -2: slightly above -2 gives f &lt; 0 (solutions decrease toward -2), slightly below gives f &gt; 0 (solutions increase toward -2). Thus <strong>y = -2 is stable</strong>.</div>
+      </div>
+
+      <div class="question">
+        <p>4. What are the isoclines for dy/dx = 2y? Describe their shape.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> Setting 2y = c gives y = c/2. The isoclines are <strong>horizontal lines</strong>. Along y = 0, all segments are horizontal (slope 0). Along y = 1, all segments have slope 2. Since this is autonomous, the slopes are the same across each horizontal strip.</div>
+      </div>
+
+      <div class="question">
+        <p>5. Why are direction fields useful even when we can solve the DE analytically?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a5')">Show Answer</button>
+        <div id="a5" class="answer"><strong>Answer:</strong> Direction fields provide qualitative insight about <strong>long-term behavior, stability, and the overall shape</strong> of solution families at a glance. They also help verify analytic solutions and reveal features (like equilibria) that might not be immediately obvious from formulas.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>A <strong>direction field</strong> plots short line segments with slope f(x,y) at sample points, giving a visual map of solution behavior.</li>
+        <li><strong>Isoclines</strong> are curves where all slopes equal a constant c; they speed up direction field construction.</li>
+        <li>An <strong>autonomous</strong> equation dy/dx = f(y) has a direction field with identical columns (slopes depend only on y).</li>
+        <li><strong>Equilibrium solutions</strong> occur where f(y) = 0; they can be stable (nearby solutions approach) or unstable (nearby solutions flee).</li>
+        <li>Solution curves follow the flow of the direction field and must be tangent to the segments at every point.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Next Lesson</h3>
+          <p>In Lesson 3, you will study the <strong>Existence and Uniqueness Theorem</strong>, which tells you when an IVP is guaranteed to have exactly one solution.</p>
+          <a href="lesson-03-existence-and-uniqueness.html" class="btn btn-primary mt-2">Start Lesson 3</a>
+        </div>
+        <div class="card">
+          <h3>Module Progress</h3>
+          <p>You have completed Lesson 2 of 4.</p>
+          <a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

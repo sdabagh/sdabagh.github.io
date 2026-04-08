@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 2: Forced Vibrations and Resonance - particular solutions, resonance, beating phenomenon">
+  <title>Lesson 2: Forced Vibrations and Resonance – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 5 Home</a>
+      <span class="text-muted">Lesson 2 of 4</span>
+      <a href="lesson-03-rlc-circuits.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 2: Forced Vibrations and Resonance</h1>
+    <p class="text-muted">Estimated time: 40-50 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Set up and solve the forced vibration equation mx'' + cx' + kx = F<sub>0</sub>cos(&omega;t)</li>
+        <li>Find the particular solution using undetermined coefficients</li>
+        <li>Explain resonance and what happens when the driving frequency matches the natural frequency</li>
+        <li>Describe the beating phenomenon when &omega; is close to &omega;<sub>0</sub></li>
+        <li>Calculate amplitude and phase of the steady-state response</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>The Forced Vibration Equation</h2>
+      <p>When an external periodic force F(t) = F<sub>0</sub>cos(&omega;t) acts on a spring-mass system, the equation becomes:</p>
+      <div class="definition-box">
+        <p><strong>Forced Vibration Equation:</strong> mx'' + cx' + kx = F<sub>0</sub>cos(&omega;t), where &omega; is the driving (forcing) frequency, &omega;<sub>0</sub> = &radic;(k/m) is the natural frequency, and F<sub>0</sub> is the amplitude of the external force.</p>
+      </div>
+      <p>The general solution is y = y<sub>h</sub> + y<sub>p</sub>. The homogeneous part y<sub>h</sub> is the <strong>transient solution</strong> (decays if c &gt; 0), and the particular part y<sub>p</sub> is the <strong>steady-state solution</strong>.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Undamped Forced Vibrations (c = 0, &omega; &ne; &omega;<sub>0</sub>)</h2>
+      <p>With no damping and driving frequency different from natural frequency: mx'' + kx = F<sub>0</sub>cos(&omega;t).</p>
+      <p>The homogeneous solution is x<sub>h</sub> = c<sub>1</sub>cos(&omega;<sub>0</sub>t) + c<sub>2</sub>sin(&omega;<sub>0</sub>t). For the particular solution, guess x<sub>p</sub> = A cos(&omega;t):</p>
+      <div class="definition-box">
+        <p><strong>Particular Solution (Undamped, &omega; &ne; &omega;<sub>0</sub>):</strong> x<sub>p</sub> = F<sub>0</sub> / [m(&omega;<sub>0</sub>&sup2; - &omega;&sup2;)] cos(&omega;t). The amplitude depends on how close &omega; is to &omega;<sub>0</sub>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Undamped Forced Vibration</h4>
+        <p>Solve x'' + 9x = 6cos(2t), x(0) = 0, x'(0) = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> &omega;<sub>0</sub> = 3, &omega; = 2. Since &omega; &ne; &omega;<sub>0</sub>, no resonance.</p>
+        <p><strong>Step 2:</strong> x<sub>h</sub> = c<sub>1</sub>cos 3t + c<sub>2</sub>sin 3t.</p>
+        <p><strong>Step 3:</strong> Guess x<sub>p</sub> = A cos 2t. Then x<sub>p</sub>'' = -4A cos 2t. Substituting: -4A + 9A = 6, so 5A = 6, A = 6/5.</p>
+        <p><strong>Step 4:</strong> General solution: x = c<sub>1</sub>cos 3t + c<sub>2</sub>sin 3t + (6/5)cos 2t.</p>
+        <p><strong>Step 5:</strong> x(0) = c<sub>1</sub> + 6/5 = 0, so c<sub>1</sub> = -6/5. x'(0) = 3c<sub>2</sub> = 0, c<sub>2</sub> = 0.</p>
+        <p><strong>Answer:</strong> x(t) = -(6/5)cos 3t + (6/5)cos 2t = (6/5)(cos 2t - cos 3t).</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Resonance (&omega; = &omega;<sub>0</sub>, Undamped)</h2>
+      <p>When &omega; = &omega;<sub>0</sub>, the guess x<sub>p</sub> = A cos(&omega;<sub>0</sub>t) duplicates the homogeneous solution. We must multiply by t:</p>
+      <div class="definition-box">
+        <p><strong>Resonance Solution:</strong> When &omega; = &omega;<sub>0</sub> in the undamped system x'' + &omega;<sub>0</sub>&sup2;x = (F<sub>0</sub>/m)cos(&omega;<sub>0</sub>t), the particular solution is x<sub>p</sub> = [F<sub>0</sub>/(2m&omega;<sub>0</sub>)] t sin(&omega;<sub>0</sub>t). The amplitude grows linearly with time &mdash; this is <strong>pure resonance</strong>.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Pure Resonance</h4>
+        <p>Solve x'' + 4x = 10cos(2t), x(0) = 0, x'(0) = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> &omega;<sub>0</sub> = 2. The forcing frequency &omega; = 2 = &omega;<sub>0</sub>. Resonance!</p>
+        <p><strong>Step 2:</strong> x<sub>h</sub> = c<sub>1</sub>cos 2t + c<sub>2</sub>sin 2t.</p>
+        <p><strong>Step 3:</strong> cos 2t is in x<sub>h</sub>, so guess x<sub>p</sub> = t(A cos 2t + B sin 2t).</p>
+        <p><strong>Step 4:</strong> x<sub>p</sub>' = (A cos 2t + B sin 2t) + t(-2A sin 2t + 2B cos 2t).</p>
+        <p>x<sub>p</sub>'' = (-2A sin 2t + 2B cos 2t) + (-2A sin 2t + 2B cos 2t) + t(-4A cos 2t - 4B sin 2t).</p>
+        <p>= -4A sin 2t + 4B cos 2t - 4t(A cos 2t + B sin 2t).</p>
+        <p><strong>Step 5:</strong> x<sub>p</sub>'' + 4x<sub>p</sub> = -4A sin 2t + 4B cos 2t = 10 cos 2t. So A = 0, B = 5/2.</p>
+        <p><strong>Step 6:</strong> x = c<sub>1</sub>cos 2t + c<sub>2</sub>sin 2t + (5/2)t sin 2t. ICs: c<sub>1</sub> = 0, c<sub>2</sub> = 0.</p>
+        <p><strong>Answer:</strong> x(t) = (5/2) t sin(2t). Amplitude grows without bound.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Beating Phenomenon</h2>
+      <p>When &omega; is close to (but not equal to) &omega;<sub>0</sub>, and x(0) = x'(0) = 0, the solution can be written using a trigonometric identity:</p>
+      <div class="definition-box">
+        <p><strong>Beating:</strong> x(t) = [2F<sub>0</sub>/(m(&omega;<sub>0</sub>&sup2; - &omega;&sup2;))] sin[(&omega;<sub>0</sub> - &omega;)t/2] sin[(&omega;<sub>0</sub> + &omega;)t/2]. The slowly oscillating envelope sin[(&omega;<sub>0</sub> - &omega;)t/2] modulates the fast oscillation. The <strong>beat frequency</strong> is |&omega;<sub>0</sub> - &omega;|.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: Beating</h4>
+        <p>Solve x'' + 25x = 4cos(4.5t), x(0) = 0, x'(0) = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> &omega;<sub>0</sub> = 5, &omega; = 4.5. Close but not equal, so expect beating.</p>
+        <p><strong>Step 2:</strong> x<sub>p</sub> = 4/(25 - 20.25) cos(4.5t) = 4/4.75 cos(4.5t) = (16/19)cos(4.5t).</p>
+        <p><strong>Step 3:</strong> x = c<sub>1</sub>cos 5t + c<sub>2</sub>sin 5t + (16/19)cos(4.5t). x(0)=0: c<sub>1</sub> = -16/19. x'(0)=0: 5c<sub>2</sub>=0, c<sub>2</sub>=0.</p>
+        <p><strong>Step 4:</strong> x = (16/19)(cos 4.5t - cos 5t).</p>
+        <p><strong>Step 5:</strong> Using cos A - cos B = 2 sin[(B-A)/2] sin[(B+A)/2]:</p>
+        <p><strong>Answer:</strong> x(t) = (32/19) sin(0.25t) sin(4.75t). Beat frequency = |5 - 4.5| = 0.5 rad/s.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Damped Forced Vibrations</h2>
+      <p>With damping (c &gt; 0), the transient y<sub>h</sub> decays, leaving only the steady-state response:</p>
+      <div class="definition-box">
+        <p><strong>Steady-State Amplitude:</strong> For mx'' + cx' + kx = F<sub>0</sub>cos(&omega;t), the steady-state particular solution has amplitude C = F<sub>0</sub> / &radic;[(k - m&omega;&sup2;)&sup2; + (c&omega;)&sup2;] and phase lag &phi; = arctan[c&omega;/(k - m&omega;&sup2;)].</p>
+      </div>
+      <p>The amplitude C is maximized near (but not exactly at) &omega; = &omega;<sub>0</sub> when damping is present. Unlike the undamped case, the amplitude stays bounded.</p>
+
+      <div class="example-box">
+        <h4>Example 4: Damped Forced System</h4>
+        <p>Find the steady-state solution for x'' + 2x' + 5x = 4cos(t).</p>
+        <p class="mt-2"><strong>Step 1:</strong> m = 1, c = 2, k = 5, F<sub>0</sub> = 4, &omega; = 1.</p>
+        <p><strong>Step 2:</strong> Guess x<sub>p</sub> = A cos t + B sin t.</p>
+        <p>x<sub>p</sub>' = -A sin t + B cos t. x<sub>p</sub>'' = -A cos t - B sin t.</p>
+        <p><strong>Step 3:</strong> Substituting: (-A + 2B + 5A)cos t + (-B - 2A + 5B)sin t = 4cos t.</p>
+        <p>(4A + 2B) = 4 and (-2A + 4B) = 0. From the second: A = 2B. Then 8B + 2B = 4, B = 2/5, A = 4/5.</p>
+        <p><strong>Answer:</strong> x<sub>p</sub>(t) = (4/5)cos t + (2/5)sin t. Amplitude = &radic;(16/25 + 4/25) = &radic;(4/5) = 2/&radic;5.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Summary: Frequency Response</h2>
+      <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+        <tr><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Scenario</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Condition</th><th style="border:1px solid #ccc;padding:8px;background:#E65100;color:white;">Behavior</th></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">No resonance</td><td style="border:1px solid #ccc;padding:8px;">&omega; far from &omega;<sub>0</sub></td><td style="border:1px solid #ccc;padding:8px;">Bounded oscillation at two frequencies</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Beating</td><td style="border:1px solid #ccc;padding:8px;">&omega; &approx; &omega;<sub>0</sub>, c = 0</td><td style="border:1px solid #ccc;padding:8px;">Slow amplitude modulation</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Pure resonance</td><td style="border:1px solid #ccc;padding:8px;">&omega; = &omega;<sub>0</sub>, c = 0</td><td style="border:1px solid #ccc;padding:8px;">Amplitude grows without bound (t sin)</td></tr>
+        <tr><td style="border:1px solid #ccc;padding:8px;">Damped resonance</td><td style="border:1px solid #ccc;padding:8px;">&omega; &approx; &omega;<sub>0</sub>, c &gt; 0</td><td style="border:1px solid #ccc;padding:8px;">Large but bounded steady-state amplitude</td></tr>
+      </table>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. For x'' + 16x = 5cos(4t), is this resonance? Why or why not?</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> Yes! &omega;<sub>0</sub> = 4 and &omega; = 4, so &omega; = &omega;<sub>0</sub>. The particular solution will contain t sin(4t), growing without bound.</div></div>
+      <div class="question"><p>2. In a damped system, why does the transient solution eventually vanish?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> The homogeneous solution contains exponential factors e<sup>&alpha;t</sup> where &alpha; &lt; 0 (since c &gt; 0). These decay to zero as t &rarr; &infin;, leaving only the steady-state particular solution.</div></div>
+      <div class="question"><p>3. If &omega;<sub>0</sub> = 10 and &omega; = 9.8, what is the beat frequency?</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> Beat frequency = |&omega;<sub>0</sub> - &omega;| = |10 - 9.8| = <strong>0.2 rad/s</strong>. The beat period is 2&pi;/0.2 = 10&pi; &approx; 31.4 seconds.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The forced vibration equation mx'' + cx' + kx = F<sub>0</sub>cos(&omega;t) combines a transient and steady-state response.</li>
+        <li><strong>Pure resonance</strong> occurs when &omega; = &omega;<sub>0</sub> and c = 0, producing unbounded growth x<sub>p</sub> = (F<sub>0</sub>/(2m&omega;<sub>0</sub>)) t sin(&omega;<sub>0</sub>t).</li>
+        <li><strong>Beating</strong> occurs when &omega; &approx; &omega;<sub>0</sub> and c = 0: a slow amplitude envelope modulates fast oscillations.</li>
+        <li>Damping prevents unbounded growth but allows <strong>large amplitudes</strong> near resonance.</li>
+        <li>The steady-state amplitude C = F<sub>0</sub>/&radic;[(k - m&omega;&sup2;)&sup2; + (c&omega;)&sup2;] is maximized near &omega; = &omega;<sub>0</sub>.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>In Lesson 3, apply the same math to <strong>RLC electrical circuits</strong>.</p><a href="lesson-03-rlc-circuits.html" class="btn btn-primary mt-2">Start Lesson 3</a></div>
+        <div class="card"><h3>Module Progress</h3><p>You have completed Lesson 2 of 4.</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

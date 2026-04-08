@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 4: Euler's Method for Numerical Approximation of differential equations">
+  <title>Lesson 4: Euler's Method – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>
+@media print {
+  header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; }
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; }
+  .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; }
+  .example-box, .definition-box, .key-takeaways { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; }
+  table { border-collapse: collapse; width: 100%; } th, td { border: 1pt solid #ccc; padding: 4pt 6pt; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="lesson-03-existence-and-uniqueness.html" class="back-link">&larr; Lesson 3</a>
+      <span class="text-muted">Lesson 4 of 4</span>
+      <a href="practice.html" class="btn btn-outline">Practice Problems &rarr;</a>
+    </div>
+
+    <h1>Lesson 4: Euler's Method for Numerical Approximation</h1>
+    <p class="text-muted">Estimated time: 30-35 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Explain the geometric idea behind Euler's method</li>
+        <li>Apply the Euler iteration formula to approximate solutions step by step</li>
+        <li>Organize computations in a table</li>
+        <li>Understand how step size affects accuracy</li>
+        <li>Recognize the limitations of Euler's method</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Why Numerical Methods?</h2>
+      <p>Most differential equations that arise in practice <strong>cannot be solved analytically</strong>. Even a simple-looking equation like dy/dx = e<sup>-x&sup2;</sup> + y has no closed-form solution. Numerical methods let us compute approximate values of the solution at discrete points.</p>
+      <p>Euler's method is the simplest numerical method. While more sophisticated methods (Runge-Kutta, etc.) are used in practice, Euler's method beautifully illustrates the core idea that all numerical ODE solvers share.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>The Euler Iteration</h2>
+
+      <div class="definition-box">
+        <p><strong>Euler's Method:</strong> Given the IVP dy/dx = f(x, y), y(x<sub>0</sub>) = y<sub>0</sub>, and a step size h:</p>
+        <p style="text-align:center; font-size:1.15rem; margin:0.75rem 0;"><strong>x<sub>n+1</sub> = x<sub>n</sub> + h</strong></p>
+        <p style="text-align:center; font-size:1.15rem;"><strong>y<sub>n+1</sub> = y<sub>n</sub> + h &middot; f(x<sub>n</sub>, y<sub>n</sub>)</strong></p>
+        <p class="mt-1">Starting from the known point (x<sub>0</sub>, y<sub>0</sub>), each step follows the tangent line for a distance h to produce the next approximate point.</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Geometric Interpretation</h4>
+        <p>At each step, Euler's method approximates the true solution curve with a straight line (the tangent). You walk along the tangent for a short distance h, arrive at a new point, recalculate the slope, and repeat. Smaller h means shorter tangent segments and a better approximation of the curve.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Worked Examples</h2>
+
+      <div class="example-box">
+        <h4>Example 1: Euler's Method with h = 0.1</h4>
+        <p>Approximate y(0.3) for the IVP: dy/dx = x + y, &nbsp; y(0) = 1, using h = 0.1.</p>
+        <p class="mt-2"><strong>Solution:</strong> We need 3 steps to go from x = 0 to x = 0.3.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:0.75rem 0;">
+          <tr><th style="border:1px solid #ccc;padding:6px;">n</th><th style="border:1px solid #ccc;padding:6px;">x<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">y<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">f(x<sub>n</sub>,y<sub>n</sub>) = x<sub>n</sub>+y<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">h &middot; f</th></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">0</td><td style="border:1px solid #ccc;padding:6px;">0</td><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">0 + 1 = 1</td><td style="border:1px solid #ccc;padding:6px;">0.1</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">0.1</td><td style="border:1px solid #ccc;padding:6px;">1.1</td><td style="border:1px solid #ccc;padding:6px;">0.1 + 1.1 = 1.2</td><td style="border:1px solid #ccc;padding:6px;">0.12</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">2</td><td style="border:1px solid #ccc;padding:6px;">0.2</td><td style="border:1px solid #ccc;padding:6px;">1.22</td><td style="border:1px solid #ccc;padding:6px;">0.2 + 1.22 = 1.42</td><td style="border:1px solid #ccc;padding:6px;">0.142</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">3</td><td style="border:1px solid #ccc;padding:6px;">0.3</td><td style="border:1px solid #ccc;padding:6px;"><strong>1.362</strong></td><td style="border:1px solid #ccc;padding:6px;">--</td><td style="border:1px solid #ccc;padding:6px;">--</td></tr>
+        </table>
+
+        <p><strong>Euler approximation:</strong> y(0.3) &approx; <strong>1.362</strong>.</p>
+        <p class="mt-1">The exact solution is y = 2e<sup>x</sup> - x - 1, giving y(0.3) = 2e<sup>0.3</sup> - 0.3 - 1 &approx; 1.3997. The error is about 0.038, or roughly 2.7%.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Euler's Method with h = 0.5</h4>
+        <p>Approximate y(1) for the IVP: dy/dx = y, &nbsp; y(0) = 1, using h = 0.5.</p>
+        <p class="mt-2"><strong>Solution:</strong> We need 2 steps.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:0.75rem 0;">
+          <tr><th style="border:1px solid #ccc;padding:6px;">n</th><th style="border:1px solid #ccc;padding:6px;">x<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">y<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">f = y<sub>n</sub></th><th style="border:1px solid #ccc;padding:6px;">h &middot; f</th></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">0</td><td style="border:1px solid #ccc;padding:6px;">0</td><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">0.5</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">0.5</td><td style="border:1px solid #ccc;padding:6px;">1.5</td><td style="border:1px solid #ccc;padding:6px;">1.5</td><td style="border:1px solid #ccc;padding:6px;">0.75</td></tr>
+          <tr><td style="border:1px solid #ccc;padding:6px;">2</td><td style="border:1px solid #ccc;padding:6px;">1.0</td><td style="border:1px solid #ccc;padding:6px;"><strong>2.25</strong></td><td style="border:1px solid #ccc;padding:6px;">--</td><td style="border:1px solid #ccc;padding:6px;">--</td></tr>
+        </table>
+
+        <p>Exact: y(1) = e<sup>1</sup> &approx; 2.7183. Euler gives 2.25. Error &approx; 0.47 (17%). The large step size produces a poor approximation.</p>
+        <p class="mt-1">With h = 0.1 (10 steps), Euler gives y(1) &approx; 2.5937, much closer. With h = 0.01 (100 steps), y(1) &approx; 2.7048. Smaller h gives better accuracy.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 3: More Steps for Better Accuracy</h4>
+        <p>For dy/dx = -2xy, y(0) = 1, approximate y(0.2) using h = 0.1 (2 steps).</p>
+        <p class="mt-2"><strong>Solution:</strong></p>
+        <p><strong>Step 0:</strong> (x<sub>0</sub>, y<sub>0</sub>) = (0, 1). f(0, 1) = -2(0)(1) = 0.</p>
+        <p style="padding-left:1rem;">y<sub>1</sub> = 1 + 0.1(0) = 1. &nbsp; x<sub>1</sub> = 0.1.</p>
+        <p><strong>Step 1:</strong> f(0.1, 1) = -2(0.1)(1) = -0.2.</p>
+        <p style="padding-left:1rem;">y<sub>2</sub> = 1 + 0.1(-0.2) = 1 - 0.02 = 0.98. &nbsp; x<sub>2</sub> = 0.2.</p>
+        <p class="mt-1"><strong>Euler approximation:</strong> y(0.2) &approx; <strong>0.98</strong>.</p>
+        <p>The exact solution is y = e<sup>-x&sup2;</sup>, giving y(0.2) = e<sup>-0.04</sup> &approx; 0.9608. The Euler estimate is close.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Error and Step Size</h2>
+      <p>Euler's method has a <strong>local truncation error</strong> of order O(h&sup2;) per step. Over a fixed interval, the accumulated <strong>global error</strong> is O(h). This means:</p>
+      <ul>
+        <li>Halving h roughly halves the global error.</li>
+        <li>To get one more decimal place of accuracy, you need about 10 times as many steps.</li>
+        <li>More sophisticated methods (like the 4th-order Runge-Kutta) achieve O(h<sup>4</sup>) global error, which is why they are preferred in practice.</li>
+      </ul>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+
+      <div class="question">
+        <p>1. Use Euler's method with h = 0.1 to take ONE step for dy/dx = 3x&sup2;, y(1) = 2. Find y<sub>1</sub>.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button>
+        <div id="a1" class="answer"><strong>Answer:</strong> f(1, 2) = 3(1)&sup2; = 3. y<sub>1</sub> = 2 + 0.1(3) = <strong>2.3</strong>. x<sub>1</sub> = 1.1.</div>
+      </div>
+
+      <div class="question">
+        <p>2. For dy/dx = y, y(0) = 1, with h = 1 (one step), what is the Euler estimate for y(1)?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button>
+        <div id="a2" class="answer"><strong>Answer:</strong> y<sub>1</sub> = 1 + 1 &middot; f(0,1) = 1 + 1(1) = <strong>2</strong>. The exact answer is e &approx; 2.718, so this single giant step is quite inaccurate.</div>
+      </div>
+
+      <div class="question">
+        <p>3. If you halve the step size in Euler's method, roughly by what factor does the global error decrease?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button>
+        <div id="a3" class="answer"><strong>Answer:</strong> The global error is O(h), so halving h roughly <strong>halves</strong> the error. (It takes twice as many steps, but each step is more accurate.)</div>
+      </div>
+
+      <div class="question">
+        <p>4. Use Euler with h = 0.5: dy/dx = -y, y(0) = 4. Find y(1) in 2 steps.</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a4')">Show Answer</button>
+        <div id="a4" class="answer"><strong>Answer:</strong> Step 0: f(0,4) = -4. y<sub>1</sub> = 4 + 0.5(-4) = 2. Step 1: f(0.5, 2) = -2. y<sub>2</sub> = 2 + 0.5(-2) = <strong>1</strong>. (Exact: y(1) = 4e<sup>-1</sup> &approx; 1.472.)</div>
+      </div>
+
+      <div class="question">
+        <p>5. What is the geometric interpretation of one Euler step?</p>
+        <button class="reveal-btn" onclick="toggleAnswer('a5')">Show Answer</button>
+        <div id="a5" class="answer"><strong>Answer:</strong> One Euler step follows the <strong>tangent line</strong> to the solution curve at the current point for a horizontal distance h. The new y-value is the tangent-line approximation evaluated at x + h.</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li><strong>Euler's method</strong> approximates solutions by stepping along tangent lines: y<sub>n+1</sub> = y<sub>n</sub> + h f(x<sub>n</sub>, y<sub>n</sub>).</li>
+        <li>Smaller step size h gives better accuracy but requires more computation.</li>
+        <li>The global error is <strong>O(h)</strong> -- first-order accurate.</li>
+        <li>Organize your work in a table with columns for n, x<sub>n</sub>, y<sub>n</sub>, f(x<sub>n</sub>, y<sub>n</sub>), and h &middot; f.</li>
+        <li>Euler's method illustrates the core idea of all numerical ODE solvers: follow the slope locally, then correct and repeat.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Module 1 Complete!</h2>
+      <div class="course-grid">
+        <div class="card">
+          <h3>Practice Problems</h3>
+          <p>Test your skills on all Module 1 topics with 10 practice problems.</p>
+          <a href="practice.html" class="btn btn-primary mt-2">Practice Problems</a>
+        </div>
+        <div class="card">
+          <h3>Module Quiz</h3>
+          <p>Ready for the quiz? 10 questions covering the entire module.</p>
+          <a href="quiz.html" class="btn btn-primary mt-2">Take Quiz</a>
+        </div>
+        <div class="card">
+          <h3>Study Materials</h3>
+          <p>Review with the study guide and quick reference card.</p>
+          <div class="cta-group mt-2">
+            <a href="study-guide.html" class="btn btn-outline">Study Guide</a>
+            <a href="quick-reference.html" class="btn btn-outline">Quick Reference</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleAnswer(id) {
+      const a = document.getElementById(id);
+      const b = a.previousElementSibling;
+      if (a.style.display === 'none' || a.style.display === '') { a.style.display = 'block'; b.textContent = 'Hide Answer'; }
+      else { a.style.display = 'none'; b.textContent = 'Show Answer'; }
+    }
+  </script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>

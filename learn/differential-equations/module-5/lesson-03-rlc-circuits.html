@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lesson 3: RLC Electrical Circuits - charge, current, overdamped, underdamped, critically damped circuits">
+  <title>Lesson 3: RLC Electrical Circuits – Differential Equations</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .lesson-nav { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+    .lesson-objectives { background: linear-gradient(135deg, #E65100 0%, #FFB74D 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
+    .lesson-objectives h3 { color: white; margin-top: 0; }
+    .lesson-objectives ul { margin: 0; padding-left: var(--spacing-lg); }
+    .lesson-objectives li { margin-bottom: var(--spacing-xs); }
+    .content-section { margin-bottom: var(--spacing-xl); }
+    .example-box { background: var(--accent-light); border-left: 4px solid var(--accent-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .example-box h4 { margin-top: 0; color: var(--primary-dark); }
+    .definition-box { background: var(--info-light); border: 2px solid var(--info); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-md) 0; }
+    .definition-box strong { color: var(--info); font-size: 1.1rem; }
+    .check-understanding { background: white; border: 2px solid #E65100; border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-xl) 0; }
+    .check-understanding h3 { color: #E65100; margin-top: 0; }
+    .question { background: var(--background-alt); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .question p { font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .reveal-btn { background: #E65100; color: white; border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; }
+    .reveal-btn:hover { background: #BF360C; }
+    .answer { display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm); background: white; border-left: 3px solid var(--success); border-radius: var(--radius-sm); }
+    .key-takeaways { background: var(--success-light); border-left: 4px solid var(--success); padding: var(--spacing-lg); border-radius: var(--radius-md); margin: var(--spacing-xl) 0; }
+    .key-takeaways h3 { margin-top: 0; color: var(--success); }
+    @media (max-width: 768px) { .lesson-nav { flex-direction: column; align-items: stretch; } }
+  </style>
+<style>@media print { header, footer, nav, .btn, button, .back-link, .lesson-nav { display: none !important; } body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000 !important; background: white !important; } .container, main { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 1cm !important; } .example-box, .definition-box, .key-takeaways, .check-understanding { border: 1pt solid #ccc !important; background: #f9f9f9 !important; color: #000 !important; padding: 0.3cm !important; } }</style>
+</head>
+<body>
+  <header><div class="site-title">Learn Without Walls</div><nav><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="../../../instructor/index.html">Instructor</a></nav></header>
+
+  <main class="container">
+<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#E65100;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
+
+    <div class="lesson-nav">
+      <a href="index.html" class="back-link">&larr; Module 5 Home</a>
+      <span class="text-muted">Lesson 3 of 4</span>
+      <a href="lesson-04-comparing-mechanical-electrical.html" class="btn btn-outline">Next Lesson &rarr;</a>
+    </div>
+
+    <h1>Lesson 3: RLC Electrical Circuits</h1>
+    <p class="text-muted">Estimated time: 35-45 minutes</p>
+
+    <div class="lesson-objectives">
+      <h3>Learning Objectives</h3>
+      <p>By the end of this lesson, you will be able to:</p>
+      <ul>
+        <li>Derive the RLC circuit ODE from Kirchhoff's voltage law</li>
+        <li>Set up and solve Lq'' + Rq' + q/C = E(t) for charge q(t)</li>
+        <li>Find current i(t) = q'(t) from the charge solution</li>
+        <li>Classify circuit behavior as overdamped, critically damped, or underdamped</li>
+        <li>Solve RLC circuit IVPs with DC and AC voltage sources</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Kirchhoff's Voltage Law and the RLC Equation</h2>
+      <p>A series RLC circuit contains a resistor R, inductor L, and capacitor C connected in series with a voltage source E(t). Kirchhoff's voltage law states the sum of voltage drops equals the applied voltage:</p>
+      <div class="definition-box">
+        <p><strong>RLC Circuit Equation:</strong> Lq'' + Rq' + (1/C)q = E(t), where q(t) is the charge on the capacitor, i(t) = q'(t) is the current, and the voltage drops are: L di/dt across the inductor, Ri across the resistor, and q/C across the capacitor.</p>
+      </div>
+      <p>This has exactly the same form as the spring-mass equation mx'' + cx' + kx = F(t), with L playing the role of mass, R playing the role of damping, and 1/C playing the role of the spring constant.</p>
+    </section>
+
+    <section class="content-section">
+      <h2>Free Response (E(t) = 0)</h2>
+      <p>The characteristic equation is Lr&sup2; + Rr + 1/C = 0 with discriminant D = R&sup2; - 4L/C.</p>
+      <div class="definition-box">
+        <p><strong>Circuit Damping Classification:</strong></p>
+        <p>Overdamped: R&sup2; &gt; 4L/C (large resistance, no oscillation)</p>
+        <p>Critically damped: R&sup2; = 4L/C (fastest decay without oscillation)</p>
+        <p>Underdamped: R&sup2; &lt; 4L/C (oscillating current and charge)</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 1: Classifying an RLC Circuit</h4>
+        <p>Classify: L = 1 H, R = 4 &Omega;, C = 1/5 F.</p>
+        <p class="mt-2"><strong>Step 1:</strong> Compute 4L/C = 4(1)(5) = 20.</p>
+        <p><strong>Step 2:</strong> R&sup2; = 16 &lt; 20.</p>
+        <p><strong>Answer:</strong> <strong>Underdamped.</strong> The circuit oscillates with decaying amplitude.</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 2: Underdamped Circuit</h4>
+        <p>Solve q'' + 4q' + 5q = 0, q(0) = 2 (coulombs), q'(0) = i(0) = 0.</p>
+        <p class="mt-2"><strong>Step 1:</strong> r&sup2; + 4r + 5 = 0, r = (-4 &plusmn; &radic;(16-20))/2 = -2 &plusmn; i.</p>
+        <p><strong>Step 2:</strong> q(t) = e<sup>-2t</sup>(c<sub>1</sub>cos t + c<sub>2</sub>sin t).</p>
+        <p><strong>Step 3:</strong> q(0) = c<sub>1</sub> = 2.</p>
+        <p><strong>Step 4:</strong> q'(t) = e<sup>-2t</sup>[(-2c<sub>1</sub>+c<sub>2</sub>)cos t + (-c<sub>1</sub>-2c<sub>2</sub>)sin t]. q'(0) = -2c<sub>1</sub> + c<sub>2</sub> = -4 + c<sub>2</sub> = 0, c<sub>2</sub> = 4.</p>
+        <p><strong>Answer:</strong> q(t) = e<sup>-2t</sup>(2 cos t + 4 sin t). Current: i(t) = q'(t) = e<sup>-2t</sup>(0 &middot; cos t - 10 sin t) = -10e<sup>-2t</sup> sin t.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Forced Response with DC Source</h2>
+      <p>If E(t) = E<sub>0</sub> (constant), the particular solution for charge is q<sub>p</sub> = CE<sub>0</sub>.</p>
+
+      <div class="example-box">
+        <h4>Example 3: DC Source</h4>
+        <p>Solve q'' + 6q' + 8q = 24, q(0) = 0, q'(0) = 0 (L=1, R=6, 1/C=8).</p>
+        <p class="mt-2"><strong>Step 1:</strong> q<sub>h</sub>: r&sup2; + 6r + 8 = (r+2)(r+4) = 0. q<sub>h</sub> = c<sub>1</sub>e<sup>-2t</sup> + c<sub>2</sub>e<sup>-4t</sup>. (Overdamped.)</p>
+        <p><strong>Step 2:</strong> Particular: guess q<sub>p</sub> = A. Then 8A = 24, A = 3.</p>
+        <p><strong>Step 3:</strong> q = c<sub>1</sub>e<sup>-2t</sup> + c<sub>2</sub>e<sup>-4t</sup> + 3. q(0) = c<sub>1</sub> + c<sub>2</sub> + 3 = 0. q'(0) = -2c<sub>1</sub> - 4c<sub>2</sub> = 0.</p>
+        <p><strong>Step 4:</strong> c<sub>1</sub> = 2c<sub>2</sub>, so 2c<sub>2</sub> + c<sub>2</sub> = -3, c<sub>2</sub> = -1. Then c<sub>1</sub> = -2 -- wait, let me recheck. From c<sub>1</sub> = 2c<sub>2</sub>: 2c<sub>2</sub>+c<sub>2</sub>=-3 gives 3c<sub>2</sub>=-3, so c<sub>2</sub>=-1, c<sub>1</sub>=-2.</p>
+        <p><strong>Answer:</strong> q(t) = -2e<sup>-2t</sup> - e<sup>-4t</sup> + 3. As t &rarr; &infin;, q &rarr; 3 = CE<sub>0</sub>.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Forced Response with AC Source</h2>
+      <p>When E(t) = E<sub>0</sub> cos(&omega;t), we use undetermined coefficients just as with forced vibrations.</p>
+      <div class="definition-box">
+        <p><strong>Steady-State Current (AC):</strong> The steady-state current has amplitude I = E<sub>0</sub>/Z where Z = &radic;[R&sup2; + (&omega;L - 1/(&omega;C))&sup2;] is the <strong>impedance</strong>. Maximum current occurs when &omega;L = 1/(&omega;C), i.e., &omega; = 1/&radic;(LC).</p>
+      </div>
+
+      <div class="example-box">
+        <h4>Example 4: AC Source</h4>
+        <p>Find the steady-state charge for q'' + 2q' + 5q = 10cos(t) (L=1, R=2, 1/C=5).</p>
+        <p class="mt-2"><strong>Step 1:</strong> Guess q<sub>p</sub> = A cos t + B sin t.</p>
+        <p><strong>Step 2:</strong> q<sub>p</sub>'' + 2q<sub>p</sub>' + 5q<sub>p</sub> = (-A+2B+5A)cos t + (-B-2A+5B)sin t = (4A+2B)cos t + (-2A+4B)sin t.</p>
+        <p><strong>Step 3:</strong> 4A + 2B = 10 and -2A + 4B = 0. From the second: A = 2B. Then 8B+2B = 10, B = 1, A = 2.</p>
+        <p><strong>Answer:</strong> q<sub>p</sub>(t) = 2cos t + sin t. Steady-state current: i<sub>p</sub> = q<sub>p</sub>' = -2sin t + cos t.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Resonance in Circuits</h2>
+      <p>Electrical resonance occurs when the impedance is minimized. For the undamped LC circuit (R = 0), driving at frequency &omega; = 1/&radic;(LC) produces resonance with unbounded charge, analogous to pure mechanical resonance. With resistance, the amplitude is large but bounded.</p>
+    </section>
+
+    <div class="check-understanding">
+      <h3>Check Your Understanding</h3>
+      <div class="question"><p>1. An RLC circuit has L = 2 H, R = 12 &Omega;, C = 1/18 F. Classify the damping.</p><button class="reveal-btn" onclick="toggleAnswer('a1')">Show Answer</button><div id="a1" class="answer"><strong>Answer:</strong> 4L/C = 4(2)(18) = 144. R&sup2; = 144. Since R&sup2; = 4L/C, the circuit is <strong>critically damped</strong>.</div></div>
+      <div class="question"><p>2. What physical quantity in a circuit is analogous to velocity in a mechanical system?</p><button class="reveal-btn" onclick="toggleAnswer('a2')">Show Answer</button><div id="a2" class="answer"><strong>Answer:</strong> <strong>Current</strong> i(t) = q'(t) is analogous to velocity x'(t), since charge is analogous to displacement.</div></div>
+      <div class="question"><p>3. For the circuit 0.5q'' + 3q' + 4q = 0, find the roots and classify.</p><button class="reveal-btn" onclick="toggleAnswer('a3')">Show Answer</button><div id="a3" class="answer"><strong>Answer:</strong> r = (-3 &plusmn; &radic;(9-8))/1 = -3 &plusmn; 1. r = -2, -4. Two distinct negative real roots: <strong>overdamped</strong>. q(t) = c<sub>1</sub>e<sup>-2t</sup> + c<sub>2</sub>e<sup>-4t</sup>.</div></div>
+    </div>
+
+    <div class="key-takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>The RLC equation <strong>Lq'' + Rq' + (1/C)q = E(t)</strong> is mathematically identical to the spring-mass equation.</li>
+        <li>Damping classification uses R&sup2; vs 4L/C (same as c&sup2; vs 4mk).</li>
+        <li>Current i(t) = q'(t): differentiate the charge solution to get current.</li>
+        <li><strong>Impedance</strong> Z = &radic;[R&sup2; + (&omega;L - 1/(&omega;C))&sup2;] determines steady-state amplitude.</li>
+        <li>Electrical resonance at &omega; = 1/&radic;(LC) maximizes current amplitude.</li>
+      </ul>
+    </div>
+
+    <section class="content-section">
+      <h2>Ready for More?</h2>
+      <div class="course-grid">
+        <div class="card"><h3>Next Lesson</h3><p>In Lesson 4, see the full <strong>mechanical-electrical analogy</strong> side by side.</p><a href="lesson-04-comparing-mechanical-electrical.html" class="btn btn-primary mt-2">Start Lesson 4</a></div>
+        <div class="card"><h3>Module Progress</h3><p>You have completed Lesson 3 of 4.</p><a href="index.html" class="btn btn-outline mt-2">Back to Module Home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-links"><a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../student-resources.html">Student Resources</a><a href="../../../young-learners.html">Young Learners</a><a href="../../../free-courses.html">Free Courses</a><a href="../../../research.html">Research</a><a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>function toggleAnswer(id){const a=document.getElementById(id);const b=a.previousElementSibling;if(a.style.display==='none'||a.style.display===''){a.style.display='block';b.textContent='Hide Answer';}else{a.style.display='none';b.textContent='Show Answer';}}</script>
+  <script src="../../../accessibility.js"></script>
+</body>
+</html>
