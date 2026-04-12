@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Horizon Bucks — A classroom economy system for 6th grade enrichment at New Horizon School Westside. Students earn and manage money through participation, activities, and a capstone business project.">
+  <title>Horizon Bucks — Classroom Economy System</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    :root {
+      --nhsw-teal: #2A9D8F;
+      --nhsw-gold: #C4A747;
+      --nhsw-navy: #1D3557;
+      --nhsw-light: #FDF8E8;
+    }
+
+    .hb-hero {
+      background: linear-gradient(135deg, var(--nhsw-navy) 0%, var(--nhsw-teal) 100%);
+      color: white; padding: var(--spacing-xl) var(--spacing-lg);
+      border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);
+      text-align: center;
+    }
+    .hb-hero h1 { color: white; font-size: 2.5rem; margin-bottom: 0.25rem; }
+    .hb-hero .subtitle { font-size: 1.15rem; opacity: 0.92; margin-bottom: var(--spacing-md); }
+    .hb-hero .badge-row { display: flex; gap: var(--spacing-sm); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-md); }
+    .hb-hero .badge-item { background: rgba(255,255,255,0.2); padding: 0.35rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+
+    .section-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--spacing-md); }
+    .section-icon { font-size: 1.8rem; }
+    .section-title h2 { margin: 0; border: none; display: inline; }
+
+    .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    @media (max-width: 768px) { .rules-grid { grid-template-columns: 1fr; } }
+
+    .earn-card { background: #f0fff4; border: 2px solid #38a169; border-radius: var(--radius-lg); padding: var(--spacing-lg); }
+    .earn-card h3 { color: #38a169; margin-top: 0; }
+
+    .fine-card { background: #fff5f5; border: 2px solid #e53e3e; border-radius: var(--radius-lg); padding: var(--spacing-lg); }
+    .fine-card h3 { color: #e53e3e; margin-top: 0; }
+
+    .rules-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-sm); }
+    .rules-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+    .rules-table td:last-child { text-align: right; font-weight: 700; font-size: 1.1rem; }
+    .earn-card .rules-table td:last-child { color: #38a169; }
+    .fine-card .rules-table td:last-child { color: #e53e3e; }
+
+    .printables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    .printable-card {
+      background: white; border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      text-align: center; transition: var(--transition);
+    }
+    .printable-card:hover { border-color: var(--nhsw-teal); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .printable-card .icon { font-size: 2.5rem; margin-bottom: var(--spacing-sm); }
+    .printable-card h3 { margin-top: 0; color: var(--nhsw-navy); }
+    .printable-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--spacing-md); }
+
+    .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    .session-card {
+      background: white; border-left: 4px solid var(--nhsw-teal);
+      border-radius: var(--radius-md); padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .session-card .session-num { font-size: 0.8rem; font-weight: 700; color: var(--nhsw-teal); text-transform: uppercase; letter-spacing: 0.05em; }
+    .session-card h3 { margin: 0.25rem 0 0.5rem; color: var(--nhsw-navy); font-size: 1.1rem; }
+    .session-card p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+    .session-card .date { font-size: 0.85rem; color: var(--nhsw-gold); font-weight: 600; margin-top: 0.5rem; }
+
+    .project-box {
+      background: linear-gradient(135deg, var(--nhsw-light) 0%, #f0f8ff 100%);
+      border: 2px solid var(--nhsw-gold); border-radius: var(--radius-lg);
+      padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);
+    }
+    .project-box h2 { color: var(--nhsw-navy); margin-top: 0; border: none; display: block; }
+    .three-goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-top: var(--spacing-md); }
+    .goal-item { background: white; border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; border: 1px solid var(--border-color); }
+    .goal-item .goal-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .goal-item h4 { color: var(--nhsw-navy); margin: 0.25rem 0; }
+    .goal-item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+
+    .ledger-info {
+      background: var(--background-alt); border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    .ledger-info h2 { margin-top: 0; border: none; display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../../index.html">Home</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../student-resources.html">Student Resources</a>
+      <a href="../../../young-learners.html">Young Learners</a>
+      <a href="../../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../../research.html">Research</a>
+      <a href="../../../books.html">Books</a>
+      <a href="../../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero -->
+    <div class="hb-hero">
+      <h1>Horizon Bucks</h1>
+      <p class="subtitle">A Classroom Economy for Enrichment 06 — New Horizon School Westside</p>
+      <div class="badge-row">
+        <span class="badge-item">Earn Money</span>
+        <span class="badge-item">Run a Business</span>
+        <span class="badge-item">Shop at the Store</span>
+        <span class="badge-item">Give Back</span>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="section-title">
+      <span class="section-icon">&#128176;</span>
+      <h2>How Horizon Bucks Work</h2>
+    </div>
+    <p>In this class, there are no letter grades. Instead, your success is measured by <strong>Horizon Bucks</strong> — the official currency of Enrichment 06. You earn money by participating, completing activities, helping classmates, and showing respect. You lose money for disruptive behavior. At the end of the program, you'll spend your earnings at the <strong>Classroom Store</strong> and use your business skills to give back to the school.</p>
+
+    <p><strong>Every student starts with $50 Horizon Bucks.</strong> Your goal? Earn as much as you can through hard work, smart choices, and teamwork.</p>
+
+    <!-- Earning & Losing Rules -->
+    <div class="rules-grid">
+      <div class="earn-card">
+        <h3>Ways to EARN Horizon Bucks</h3>
+        <table class="rules-table">
+          <tr><td>Arriving on time and ready</td><td>+$5</td></tr>
+          <tr><td>Participating in discussion</td><td>+$5</td></tr>
+          <tr><td>Completing an activity</td><td>+$10</td></tr>
+          <tr><td>Helping a classmate</td><td>+$5</td></tr>
+          <tr><td>Answering a quiz question correctly</td><td>+$5</td></tr>
+          <tr><td>Perfect behavior for full session</td><td>+$10</td></tr>
+          <tr><td>Going above and beyond</td><td>+$20</td></tr>
+          <tr><td>Winning a class challenge</td><td>+$15</td></tr>
+          <tr><td>Business project milestones</td><td>+$10-$50</td></tr>
+          <tr><td>Teaching something to the class</td><td>+$25</td></tr>
+        </table>
+      </div>
+      <div class="fine-card">
+        <h3>Ways to LOSE Horizon Bucks</h3>
+        <table class="rules-table">
+          <tr><td>Interrupting the teacher or classmates</td><td>-$5</td></tr>
+          <tr><td>Disrespecting classmates or teacher</td><td>-$10</td></tr>
+          <tr><td>Not following directions</td><td>-$5</td></tr>
+          <tr><td>Using phone without permission</td><td>-$10</td></tr>
+          <tr><td>Disturbing others who are working</td><td>-$5</td></tr>
+          <tr><td>Refusing to participate</td><td>-$5</td></tr>
+          <tr><td>Being unkind</td><td>-$10</td></tr>
+          <tr><td>Damaging materials</td><td>-$15</td></tr>
+        </table>
+        <p style="margin-top:var(--spacing-sm); font-size:0.85rem; color:var(--text-secondary);">
+          <strong>Note:</strong> Your balance can never go below $0. If you reach $0, you must earn your way back before you can shop at the store.
+        </p>
+      </div>
+    </div>
+
+    <!-- Printable Materials -->
+    <div class="section-title">
+      <span class="section-icon">&#128424;</span>
+      <h2>Printable Materials</h2>
+    </div>
+    <div class="printables-grid">
+      <a href="currency.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128181;</div>
+        <h3>Horizon Bucks Currency</h3>
+        <p>Print $1, $5, $10, and $20 bills with the NHSW crest. Cut and distribute to students.</p>
+        <span class="btn btn-primary" style="display:inline-block;">Print Currency</span>
+      </a>
+      <a href="bank-book.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128218;</div>
+        <h3>Student Bank Book</h3>
+        <p>Personal ledger for each student to track deposits, withdrawals, and running balance.</p>
+        <span class="btn btn-primary" style="display:inline-block;">Print Bank Books</span>
+      </a>
+      <a href="rules-poster.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128203;</div>
+        <h3>Rules Poster</h3>
+        <p>Large classroom display showing all earning and spending rules. Hang on the wall.</p>
+        <span class="btn btn-primary" style="display:inline-block;">Print Poster</span>
+      </a>
+      <a href="store-menu.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128722;</div>
+        <h3>Store Menu</h3>
+        <p>Classroom store price list. Fill in your items and prices. Students plan their purchases.</p>
+        <span class="btn btn-primary" style="display:inline-block;">Print Menu</span>
+      </a>
+      <a href="business-plan.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128188;</div>
+        <h3>Business Plan Worksheet</h3>
+        <p>Guided template for the capstone business project. Groups plan their micro-business.</p>
+        <span class="btn btn-primary" style="display:inline-block;">Print Worksheet</span>
+      </a>
+      <a href="ledger-template.html" class="printable-card" style="text-decoration:none; color:inherit;">
+        <div class="icon">&#128202;</div>
+        <h3>Google Sheets Ledger Guide</h3>
+        <p>Step-by-step instructions for setting up the digital class ledger in Google Sheets.</p>
+        <span class="btn btn-primary" style="display:inline-block;">View Guide</span>
+      </a>
+    </div>
+
+    <!-- Business Project -->
+    <div class="project-box">
+      <h2>Capstone: The Class Business Project</h2>
+      <p>In sessions 3-7, your team will create a <strong>real micro-business</strong>. You'll brainstorm an idea, write a business plan, launch your business, and use the profits to achieve three goals:</p>
+      <div class="three-goals">
+        <div class="goal-item">
+          <div class="goal-icon">&#127979;</div>
+          <h4>For the Class</h4>
+          <p>Buy something the class needs — supplies, a decoration, a shared tool</p>
+        </div>
+        <div class="goal-item">
+          <div class="goal-icon">&#127873;</div>
+          <h4>For Each Student</h4>
+          <p>Buy something each student wants — a personal reward for their hard work</p>
+        </div>
+        <div class="goal-item">
+          <div class="goal-icon">&#128156;</div>
+          <h4>For the School</h4>
+          <p>Donate something to NHSW — giving back to your community</p>
+        </div>
+      </div>
+      <p style="margin-top:var(--spacing-md); font-size:0.9rem; color:var(--text-secondary);"><strong>Business ideas:</strong> Bake sale, handmade crafts, art commissions, tutoring service, recycling collection, bookmark/card design, or your own original idea!</p>
+    </div>
+
+    <!-- Session Schedule -->
+    <div class="section-title">
+      <span class="section-icon">&#128197;</span>
+      <h2>Session Schedule</h2>
+    </div>
+    <div class="schedule-grid">
+      <div class="session-card">
+        <span class="session-num">Session 1</span>
+        <h3>Launch Day: Welcome to Horizon Bucks!</h3>
+        <p>Introduce the economy, hand out bank books, set up rules, earn your first Bucks.</p>
+        <div class="date">Friday, April 17</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 2</span>
+        <h3>Budgeting Challenge</h3>
+        <p>Learn needs vs wants, create a spending plan, practice making financial decisions.</p>
+        <div class="date">Wednesday, April 22</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 3</span>
+        <h3>Business Brainstorm</h3>
+        <p>Form teams, pitch business ideas, vote on the best concepts, begin planning.</p>
+        <div class="date">Friday, May 1</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 4</span>
+        <h3>Business Plan Workshop</h3>
+        <p>Complete your business plan: product, pricing, marketing, budget, and roles.</p>
+        <div class="date">Wednesday, May 6</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 5</span>
+        <h3>Business Launch Day</h3>
+        <p>Execute your business! Sell products or services. Track every transaction.</p>
+        <div class="date">Friday, May 8</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 6</span>
+        <h3>Business Results</h3>
+        <p>Count revenue, subtract expenses, calculate profit. Which team earned the most?</p>
+        <div class="date">Friday, May 15</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 7</span>
+        <h3>Shopping Day + Donations</h3>
+        <p>Spend your Horizon Bucks at the store! Class purchases, personal picks, and school donation.</p>
+        <div class="date">Wednesday, May 20</div>
+      </div>
+      <div class="session-card">
+        <span class="session-num">Session 8</span>
+        <h3>Celebration + Reflection</h3>
+        <p>Awards ceremony, reflect on what you learned, celebrate your achievements!</p>
+        <div class="date">Friday, May 22 (Tentative)</div>
+      </div>
+    </div>
+
+    <!-- Google Sheets Ledger -->
+    <div class="ledger-info">
+      <h2>Digital Tracking: Google Sheets Ledger</h2>
+      <p>In addition to physical bank books, Ms. Safaa keeps a <strong>digital ledger</strong> in Google Sheets. This is the official record of every student's balance. You can check your balance anytime in Google Classroom.</p>
+      <p><strong>How it works:</strong></p>
+      <ul>
+        <li>Every earning and fine is recorded with the date and reason</li>
+        <li>Your running balance updates automatically</li>
+        <li>Green = money earned, Red = money lost</li>
+        <li>Check your balance before Shopping Day to plan your purchases!</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+  </footer>
+
+  <script src="../../../mobile-nav.js"></script>
+</body>
+</html>
