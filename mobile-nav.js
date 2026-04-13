@@ -46,5 +46,17 @@
         btn.classList.remove('active');
       }
     });
+
+    // Dropdown toggle for mobile (tap instead of hover)
+    var dropdowns = document.querySelectorAll('.nav-dropdown > a');
+    dropdowns.forEach(function(dropLink) {
+      dropLink.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+          var parent = this.parentElement;
+          parent.classList.toggle('open');
+        }
+      });
+    });
   });
 })();
