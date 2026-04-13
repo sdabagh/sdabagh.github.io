@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>70/20/10 Budget Calculator — Learn Without Walls</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .calc-hero {
+      background: linear-gradient(135deg, #1a365d 0%, #2A9D8F 100%);
+      color: white; padding: 2rem 1.5rem; border-radius: 12px;
+      margin-bottom: 2rem; text-align: center;
+    }
+    .calc-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.25rem; }
+    .calc-hero p { opacity: 0.9; margin: 0; }
+
+    .lang-toggle { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; }
+    .lang-btn { padding: 0.5rem 1.5rem; border: 2px solid #e1e4e8; border-radius: 20px; background: white; cursor: pointer; font-weight: 600; }
+    .lang-btn.active { background: #1a365d; color: white; border-color: #1a365d; }
+    .content-ar { display: none; direction: rtl; text-align: right; }
+
+    .input-section { text-align: center; margin-bottom: 2rem; }
+    .input-label { font-size: 1.1rem; font-weight: 600; color: #1a365d; margin-bottom: 0.75rem; }
+    .income-input {
+      font-size: 2rem; font-weight: 700; text-align: center;
+      border: 3px solid #2A9D8F; border-radius: 12px; padding: 0.75rem 1.5rem;
+      width: 280px; max-width: 90%; color: #1a365d; outline: none;
+    }
+    .income-input:focus { border-color: #1a365d; box-shadow: 0 0 0 3px rgba(42,157,143,0.2); }
+
+    .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .result-card {
+      background: white; border-radius: 12px; padding: 1.5rem;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-top: 4px solid;
+    }
+    .result-card .percent { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+    .result-card .amount { font-size: 2.2rem; font-weight: 800; margin: 0.25rem 0; }
+    .result-card .label { font-size: 0.85rem; color: #5a5a5a; }
+
+    .card-expenses { border-color: #2A9D8F; }
+    .card-expenses .percent, .card-expenses .amount { color: #2A9D8F; }
+    .card-invest { border-color: #1a365d; }
+    .card-invest .percent, .card-invest .amount { color: #1a365d; }
+    .card-savings { border-color: #C4A747; }
+    .card-savings .percent, .card-savings .amount { color: #C4A747; }
+
+    .bar-chart { margin: 1.5rem 0; background: #f0f0f0; border-radius: 8px; height: 40px; display: flex; overflow: hidden; }
+    .bar-seg { display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: white; transition: width 0.3s; }
+    .bar-expenses { background: #2A9D8F; width: 70%; }
+    .bar-invest { background: #1a365d; width: 20%; }
+    .bar-savings { background: #C4A747; width: 10%; }
+
+    .detail-section { margin-top: 2rem; }
+    .detail-card {
+      background: white; border: 1px solid #e1e4e8; border-radius: 8px;
+      padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .detail-card h3 { margin-top: 0; font-size: 1.05rem; }
+    .detail-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+    .detail-row:last-child { border-bottom: none; }
+
+    .milestone-box {
+      background: #f0fff4; border: 2px solid #38a169; border-radius: 8px;
+      padding: 1.25rem; margin-top: 1.5rem; text-align: center;
+    }
+    .milestone-box .months { font-size: 2rem; font-weight: 800; color: #38a169; }
+
+    .redirect-note {
+      background: #e3f2fd; border-left: 4px solid #1565C0;
+      padding: 1rem; border-radius: 0 8px 8px 0; margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) { .income-input { font-size: 1.5rem; width: 220px; } .result-card .amount { font-size: 1.6rem; } }
+    @media print { header, footer, nav, .lang-toggle, .mobile-nav-toggle { display: none !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="calc-hero">
+      <h1>70 / 20 / 10 Budget Calculator</h1>
+      <p>Enter your income. See your plan. Build your wealth.</p>
+    </div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
+      <button class="lang-btn" data-lang="ar" onclick="setLang('ar')">العربية</button>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="content-en">
+      <div class="input-section">
+        <p class="input-label">Enter your monthly income</p>
+        <input type="number" class="income-input" id="income-en" placeholder="0" oninput="calculate('en')">
+      </div>
+
+      <div class="results">
+        <div class="result-card card-expenses">
+          <div class="percent">70% — Expenses</div>
+          <div class="amount" id="exp-en">$0</div>
+          <div class="label">Rent, food, bills, daily life</div>
+        </div>
+        <div class="result-card card-invest">
+          <div class="percent">20% — Investments</div>
+          <div class="amount" id="inv-en">$0</div>
+          <div class="label">Stocks, ETFs, retirement, wealth</div>
+        </div>
+        <div class="result-card card-savings">
+          <div class="percent">10% — Savings</div>
+          <div class="amount" id="sav-en">$0</div>
+          <div class="label">Emergency fund, safety net</div>
+        </div>
+      </div>
+
+      <div class="bar-chart">
+        <div class="bar-seg bar-expenses">70%</div>
+        <div class="bar-seg bar-invest">20%</div>
+        <div class="bar-seg bar-savings">10%</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-card">
+          <h3 style="color:#2A9D8F;">70% Expenses Breakdown</h3>
+          <div class="detail-row"><span>Needs (rent, utilities, insurance)</span><span id="needs-en" style="font-weight:700;">$0</span></div>
+          <div class="detail-row"><span>Wants (food, entertainment, shopping)</span><span id="wants-en" style="font-weight:700;">$0</span></div>
+          <div class="detail-row"><span>Other (subscriptions, personal)</span><span id="other-en" style="font-weight:700;">$0</span></div>
+        </div>
+
+        <div class="detail-card">
+          <h3 style="color:#1a365d;">20% Investment Suggestions</h3>
+          <div class="detail-row"><span>Growth ETFs (e.g., S&amp;P 500)</span><span>30%</span></div>
+          <div class="detail-row"><span>Income ETFs (dividends)</span><span>10%</span></div>
+          <div class="detail-row"><span>Real Estate ETFs</span><span>10%</span></div>
+          <div class="detail-row"><span>Gold / Protection</span><span>20%</span></div>
+          <div class="detail-row"><span>Cash (opportunity fund)</span><span>20%</span></div>
+          <div class="detail-row"><span>Calculated risk</span><span>10%</span></div>
+        </div>
+
+        <div class="milestone-box">
+          <p style="margin:0 0 0.25rem; font-weight:600; color:#1a365d;">Emergency Fund Goal</p>
+          <p style="margin:0; font-size:0.9rem; color:#5a5a5a;">6 months of expenses = <strong id="ef-goal-en">$0</strong></p>
+          <div class="months" id="ef-months-en">0</div>
+          <p style="margin:0; font-size:0.85rem; color:#5a5a5a;">months to reach your goal</p>
+        </div>
+
+        <div class="redirect-note">
+          <strong>After your emergency fund is full:</strong> Redirect the 10% savings into investments. Your investment allocation jumps from 20% to 30% — accelerating your wealth!
+        </div>
+      </div>
+    </div>
+
+    <!-- ARABIC -->
+    <div class="content-ar" dir="rtl" lang="ar">
+      <div class="input-section">
+        <p class="input-label">أدخل دخلك الشهري</p>
+        <input type="number" class="income-input" id="income-ar" placeholder="0" oninput="calculate('ar')">
+      </div>
+
+      <div class="results">
+        <div class="result-card card-expenses">
+          <div class="percent">٧٠٪ — المصروفات</div>
+          <div class="amount" id="exp-ar">$0</div>
+          <div class="label">الإيجار، الطعام، الفواتير، الحياة اليومية</div>
+        </div>
+        <div class="result-card card-invest">
+          <div class="percent">٢٠٪ — الاستثمار</div>
+          <div class="amount" id="inv-ar">$0</div>
+          <div class="label">الأسهم، صناديق المؤشرات، التقاعد</div>
+        </div>
+        <div class="result-card card-savings">
+          <div class="percent">١٠٪ — الادخار</div>
+          <div class="amount" id="sav-ar">$0</div>
+          <div class="label">صندوق الطوارئ، شبكة الأمان</div>
+        </div>
+      </div>
+
+      <div class="bar-chart">
+        <div class="bar-seg bar-expenses">٧٠٪</div>
+        <div class="bar-seg bar-invest">٢٠٪</div>
+        <div class="bar-seg bar-savings">١٠٪</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-card">
+          <h3 style="color:#2A9D8F;">تفصيل المصروفات ٧٠٪</h3>
+          <div class="detail-row"><span>الاحتياجات (إيجار، مرافق، تأمين)</span><span id="needs-ar" style="font-weight:700;">$0</span></div>
+          <div class="detail-row"><span>الرغبات (طعام، ترفيه، تسوق)</span><span id="wants-ar" style="font-weight:700;">$0</span></div>
+          <div class="detail-row"><span>أخرى (اشتراكات، شخصية)</span><span id="other-ar" style="font-weight:700;">$0</span></div>
+        </div>
+
+        <div class="milestone-box">
+          <p style="margin:0 0 0.25rem; font-weight:600; color:#1a365d;">هدف صندوق الطوارئ</p>
+          <p style="margin:0; font-size:0.9rem; color:#5a5a5a;">٦ أشهر من المصروفات = <strong id="ef-goal-ar">$0</strong></p>
+          <div class="months" id="ef-months-ar">0</div>
+          <p style="margin:0; font-size:0.85rem; color:#5a5a5a;">شهر للوصول إلى هدفك</p>
+        </div>
+
+        <div class="redirect-note">
+          <strong>بعد اكتمال صندوق الطوارئ:</strong> حوّل الـ ١٠٪ من الادخار إلى الاستثمار. سيرتفع إجمالي استثمارك من ٢٠٪ إلى ٣٠٪ — مما يسرّع بناء ثروتك!
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:2rem;">
+      <a href="hub.html" style="color:#2C5F7C; font-weight:600;">&larr; Back to Financial Literacy</a>
+    </div>
+
+  </main>
+  <footer><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+  <script>
+  function fmt(n) { return '$' + n.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+
+  function calculate(lang) {
+    var income = parseFloat(document.getElementById('income-' + lang).value) || 0;
+    var exp = income * 0.7;
+    var inv = income * 0.2;
+    var sav = income * 0.1;
+
+    document.getElementById('exp-' + lang).textContent = fmt(exp);
+    document.getElementById('inv-' + lang).textContent = fmt(inv);
+    document.getElementById('sav-' + lang).textContent = fmt(sav);
+
+    // Expense breakdown
+    document.getElementById('needs-' + lang).textContent = fmt(income * 0.35);
+    document.getElementById('wants-' + lang).textContent = fmt(income * 0.25);
+    document.getElementById('other-' + lang).textContent = fmt(income * 0.10);
+
+    // Emergency fund
+    var efGoal = exp * 6;
+    var efMonths = sav > 0 ? Math.ceil(efGoal / sav) : 0;
+    document.getElementById('ef-goal-' + lang).textContent = fmt(efGoal);
+    document.getElementById('ef-months-' + lang).textContent = efMonths;
+  }
+
+  function setLang(lang) {
+    document.querySelector('.content-en').style.display = lang === 'en' ? 'block' : 'none';
+    document.querySelector('.content-ar').style.display = lang === 'ar' ? 'block' : 'none';
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelector('[data-lang="' + lang + '"]').classList.add('active');
+    localStorage.setItem('fin-lit-lang', lang);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('fin-lit-lang') === 'ar') setLang('ar');
+  });
+  </script>
+  <script src="../../mobile-nav.js"></script>
+</body>
+</html>

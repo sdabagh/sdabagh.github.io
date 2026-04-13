@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Tracker — Learn Without Walls</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .tracker-hero {
+      background: linear-gradient(135deg, #1a365d 0%, #2A9D8F 100%);
+      color: white; padding: 1.5rem; border-radius: 12px;
+      margin-bottom: 1.5rem; text-align: center;
+    }
+    .tracker-hero h1 { color: white; font-size: 1.8rem; margin-bottom: 0.25rem; }
+
+    .privacy-banner {
+      background: #f0fff4; border: 2px solid #38a169; border-radius: 8px;
+      padding: 0.75rem 1rem; margin-bottom: 1.5rem; text-align: center;
+      font-size: 0.9rem;
+    }
+    .privacy-banner strong { color: #38a169; }
+
+    .setup-row {
+      display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;
+      margin-bottom: 1.5rem; padding: 1.25rem;
+      background: #f8f9fa; border-radius: 8px;
+    }
+    .field { flex: 1; min-width: 150px; }
+    .field label { display: block; font-weight: 600; font-size: 0.85rem; color: #1a365d; margin-bottom: 0.3rem; }
+    .field input, .field select {
+      width: 100%; padding: 0.6rem; border: 2px solid #e1e4e8;
+      border-radius: 8px; font-size: 1rem;
+    }
+    .field input:focus, .field select:focus { border-color: #2A9D8F; outline: none; }
+
+    .targets {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .target-card {
+      text-align: center; padding: 0.75rem; border-radius: 8px;
+      background: white; border: 2px solid;
+    }
+    .target-card .t-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .target-card .t-amount { font-size: 1.3rem; font-weight: 800; }
+    .t-exp { border-color: #2A9D8F; } .t-exp .t-label, .t-exp .t-amount { color: #2A9D8F; }
+    .t-inv { border-color: #1a365d; } .t-inv .t-label, .t-inv .t-amount { color: #1a365d; }
+    .t-sav { border-color: #C4A747; } .t-sav .t-label, .t-sav .t-amount { color: #C4A747; }
+
+    .add-form {
+      background: white; border: 2px solid #e1e4e8; border-radius: 8px;
+      padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .add-form h3 { margin-top: 0; color: #1a365d; font-size: 1.05rem; }
+    .form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
+    .form-row .field { min-width: 120px; }
+    .add-btn {
+      background: #2A9D8F; color: white; border: none; padding: 0.6rem 1.5rem;
+      border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: #238b7e; }
+
+    .expense-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .expense-table th { background: #1a365d; color: white; padding: 0.6rem 0.5rem; text-align: left; font-size: 0.8rem; }
+    .expense-table td { padding: 0.5rem; border-bottom: 1px solid #eee; }
+    .expense-table tr:hover { background: #f8f9fa; }
+    .del-btn { background: #e53e3e; color: white; border: none; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+
+    .summary-card {
+      background: white; border: 2px solid #1a365d; border-radius: 12px;
+      padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .summary-card h3 { margin-top: 0; color: #1a365d; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .val { font-weight: 700; }
+    .status-badge {
+      display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px;
+      font-weight: 700; font-size: 0.85rem; margin-top: 0.5rem;
+    }
+    .status-good { background: #f0fff4; color: #38a169; }
+    .status-warn { background: #fff8e1; color: #e65100; }
+    .status-bad { background: #fff5f5; color: #e53e3e; }
+
+    .progress-section { margin-bottom: 1.5rem; }
+    .progress-item { margin-bottom: 0.75rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .progress-bar { height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 6px; transition: width 0.3s; }
+
+    .data-actions {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem;
+      padding: 1rem; background: #f8f9fa; border-radius: 8px;
+    }
+    .action-btn {
+      padding: 0.5rem 1rem; border: 2px solid #e1e4e8; border-radius: 8px;
+      background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+    }
+    .action-btn:hover { border-color: #1a365d; }
+    .action-btn.danger { border-color: #e53e3e; color: #e53e3e; }
+    .action-btn.danger:hover { background: #e53e3e; color: white; }
+
+    .empty-state { text-align: center; padding: 2rem; color: #767676; }
+
+    @media (max-width: 768px) {
+      .targets { grid-template-columns: 1fr; }
+      .form-row { flex-direction: column; }
+      .setup-row { flex-direction: column; }
+    }
+    @media print { header, footer, nav, .mobile-nav-toggle, .add-form, .data-actions, .del-btn { display: none !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../student-resources.html">Student Resources</a>
+      <a href="../../young-learners.html">Young Learners</a>
+      <a href="../../free-courses.html" class="active">Free Courses</a>
+      <a href="../../research.html">Research</a>
+      <a href="../../books.html">Books</a>
+      <a href="../../instructor/index.html">Instructor</a>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div class="tracker-hero">
+      <h1>Budget Tracker</h1>
+      <p style="margin:0; opacity:0.9;">Track your spending. Stay on target. Build wealth.</p>
+    </div>
+
+    <div class="privacy-banner">
+      <strong>Your data stays on YOUR device.</strong> We never collect, store, or transmit your financial information. All data is saved locally in your browser.
+    </div>
+
+    <!-- Setup -->
+    <div class="setup-row">
+      <div class="field">
+        <label>Month</label>
+        <select id="sel-month"></select>
+      </div>
+      <div class="field">
+        <label>Year</label>
+        <select id="sel-year"></select>
+      </div>
+      <div class="field">
+        <label>Monthly Income ($)</label>
+        <input type="number" id="income-input" placeholder="0" oninput="updateIncome()">
+      </div>
+    </div>
+
+    <!-- Targets -->
+    <div class="targets">
+      <div class="target-card t-exp"><div class="t-label">70% Expenses</div><div class="t-amount" id="target-exp">$0</div></div>
+      <div class="target-card t-inv"><div class="t-label">20% Invest</div><div class="t-amount" id="target-inv">$0</div></div>
+      <div class="target-card t-sav"><div class="t-label">10% Save</div><div class="t-amount" id="target-sav">$0</div></div>
+    </div>
+
+    <!-- Add Expense -->
+    <div class="add-form">
+      <h3>Add Expense</h3>
+      <div class="form-row">
+        <div class="field" style="flex:0.7;"><label>Date</label><input type="date" id="exp-date"></div>
+        <div class="field" style="flex:1;">
+          <label>Category</label>
+          <select id="exp-cat">
+            <option>Housing</option><option>Food</option><option>Transportation</option>
+            <option>Utilities</option><option>Entertainment</option><option>Shopping</option>
+            <option>Healthcare</option><option>Education</option><option>Personal</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;"><label>Description</label><input type="text" id="exp-desc" placeholder="What was it?"></div>
+        <div class="field" style="flex:0.5;"><label>Amount ($)</label><input type="number" id="exp-amt" placeholder="0" step="0.01"></div>
+        <button class="add-btn" onclick="addExpense()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-card">
+      <h3>Monthly Summary</h3>
+      <div class="summary-row"><span>Income</span><span class="val" id="sum-income">$0</span></div>
+      <div class="summary-row"><span>Total Expenses</span><span class="val" id="sum-expenses" style="color:#e53e3e;">$0</span></div>
+      <div class="summary-row"><span>Remaining for Investments</span><span class="val" id="sum-invest" style="color:#1a365d;">$0</span></div>
+      <div class="summary-row"><span>Remaining for Savings</span><span class="val" id="sum-save" style="color:#C4A747;">$0</span></div>
+      <div style="text-align:center; margin-top:0.5rem;"><span class="status-badge status-good" id="sum-status">On Track</span></div>
+    </div>
+
+    <!-- Progress Bars -->
+    <div class="progress-section">
+      <h3 style="color:#1a365d;">Spending by Category</h3>
+      <div id="cat-progress"></div>
+    </div>
+
+    <!-- Expense Table -->
+    <h3 style="color:#1a365d;">Expense Log</h3>
+    <div style="overflow-x:auto;">
+      <table class="expense-table">
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+        <tbody id="expense-body"><tr><td colspan="5" class="empty-state">No expenses yet. Add your first one above!</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Data Actions -->
+    <div class="data-actions">
+      <button class="action-btn" onclick="exportCSV()">Export CSV</button>
+      <button class="action-btn danger" onclick="clearMonth()">Clear This Month</button>
+      <button class="action-btn danger" onclick="clearAll()">Clear All Data</button>
+    </div>
+
+    <div style="text-align:center; margin-bottom:2rem;">
+      <a href="hub.html" style="color:#2C5F7C; font-weight:600;">&larr; Back to Financial Literacy</a>
+    </div>
+
+  </main>
+  <footer><p>&copy; 2026 Learn Without Walls. All rights reserved.</p></footer>
+
+  <script>
+  var STORE_KEY = 'lww-budget-tracker';
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Init month/year selectors
+  (function() {
+    var sm = document.getElementById('sel-month');
+    var sy = document.getElementById('sel-year');
+    var now = new Date();
+    months.forEach(function(m, i) {
+      var o = document.createElement('option');
+      o.value = i; o.textContent = m;
+      if (i === now.getMonth()) o.selected = true;
+      sm.appendChild(o);
+    });
+    for (var y = 2024; y <= 2030; y++) {
+      var o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      if (y === now.getFullYear()) o.selected = true;
+      sy.appendChild(o);
+    }
+    document.getElementById('exp-date').value = now.toISOString().split('T')[0];
+    sm.onchange = sy.onchange = loadMonth;
+    loadMonth();
+  })();
+
+  function getKey() {
+    var m = parseInt(document.getElementById('sel-month').value) + 1;
+    var y = document.getElementById('sel-year').value;
+    return y + '-' + (m < 10 ? '0' + m : m);
+  }
+
+  function getData() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; }
+  }
+
+  function getMonth() {
+    var d = getData();
+    var k = getKey();
+    if (!d[k]) d[k] = { income: 0, expenses: [] };
+    return d[k];
+  }
+
+  function saveMonth(m) {
+    var d = getData();
+    d[getKey()] = m;
+    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+  }
+
+  function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  function loadMonth() {
+    var m = getMonth();
+    document.getElementById('income-input').value = m.income || '';
+    updateTargets(m.income || 0);
+    renderExpenses(m);
+    updateSummary(m);
+  }
+
+  function updateIncome() {
+    var inc = parseFloat(document.getElementById('income-input').value) || 0;
+    var m = getMonth();
+    m.income = inc;
+    saveMonth(m);
+    updateTargets(inc);
+    updateSummary(m);
+  }
+
+  function updateTargets(inc) {
+    document.getElementById('target-exp').textContent = fmt(inc * 0.7);
+    document.getElementById('target-inv').textContent = fmt(inc * 0.2);
+    document.getElementById('target-sav').textContent = fmt(inc * 0.1);
+  }
+
+  function addExpense() {
+    var date = document.getElementById('exp-date').value;
+    var cat = document.getElementById('exp-cat').value;
+    var desc = document.getElementById('exp-desc').value;
+    var amt = parseFloat(document.getElementById('exp-amt').value);
+    if (!date || !amt) return alert('Please enter a date and amount.');
+    var m = getMonth();
+    m.expenses.push({ id: Date.now(), date: date, category: cat, description: desc || cat, amount: amt });
+    saveMonth(m);
+    document.getElementById('exp-desc').value = '';
+    document.getElementById('exp-amt').value = '';
+    renderExpenses(m);
+    updateSummary(m);
+  }
+
+  function deleteExpense(id) {
+    var m = getMonth();
+    m.expenses = m.expenses.filter(function(e) { return e.id !== id; });
+    saveMonth(m);
+    renderExpenses(m);
+    updateSummary(m);
+  }
+
+  function renderExpenses(m) {
+    var tbody = document.getElementById('expense-body');
+    if (!m.expenses.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No expenses yet. Add your first one above!</td></tr>';
+      return;
+    }
+    var sorted = m.expenses.slice().sort(function(a, b) { return a.date > b.date ? -1 : 1; });
+    tbody.innerHTML = sorted.map(function(e) {
+      return '<tr><td>' + e.date + '</td><td>' + e.category + '</td><td>' + e.description + '</td><td style="font-weight:600; color:#e53e3e;">' + fmt(e.amount) + '</td><td><button class="del-btn" onclick="deleteExpense(' + e.id + ')">X</button></td></tr>';
+    }).join('');
+  }
+
+  function updateSummary(m) {
+    var inc = m.income || 0;
+    var total = m.expenses.reduce(function(s, e) { return s + e.amount; }, 0);
+    var expTarget = inc * 0.7;
+    var invRemain = Math.max(0, inc * 0.2);
+    var savRemain = Math.max(0, inc * 0.1);
+    var afterExp = inc - total;
+
+    document.getElementById('sum-income').textContent = fmt(inc);
+    document.getElementById('sum-expenses').textContent = fmt(total);
+    document.getElementById('sum-invest').textContent = fmt(Math.max(0, afterExp - savRemain > invRemain ? invRemain : Math.max(0, afterExp - savRemain)));
+    document.getElementById('sum-save').textContent = fmt(Math.max(0, Math.min(savRemain, afterExp)));
+
+    var statusEl = document.getElementById('sum-status');
+    var pct = inc > 0 ? (total / expTarget) * 100 : 0;
+    if (pct <= 85) { statusEl.textContent = 'On Track'; statusEl.className = 'status-badge status-good'; }
+    else if (pct <= 100) { statusEl.textContent = 'Approaching Limit'; statusEl.className = 'status-badge status-warn'; }
+    else { statusEl.textContent = 'Over Budget'; statusEl.className = 'status-badge status-bad'; }
+
+    // Category progress
+    var cats = {};
+    m.expenses.forEach(function(e) { cats[e.category] = (cats[e.category] || 0) + e.amount; });
+    var progDiv = document.getElementById('cat-progress');
+    var catKeys = Object.keys(cats).sort(function(a, b) { return cats[b] - cats[a]; });
+    if (!catKeys.length) { progDiv.innerHTML = '<p style="color:#767676; text-align:center;">Add expenses to see category breakdown.</p>'; return; }
+    progDiv.innerHTML = catKeys.map(function(c) {
+      var pct = expTarget > 0 ? Math.min(100, (cats[c] / expTarget) * 100) : 0;
+      var color = pct < 30 ? '#38a169' : pct < 60 ? '#C4A747' : '#e53e3e';
+      return '<div class="progress-item"><div class="progress-label"><span>' + c + '</span><span>' + fmt(cats[c]) + '</span></div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%; background:' + color + ';"></div></div></div>';
+    }).join('');
+  }
+
+  function exportCSV() {
+    var m = getMonth();
+    if (!m.expenses.length) return alert('No expenses to export.');
+    var csv = 'Date,Category,Description,Amount\n';
+    m.expenses.forEach(function(e) {
+      csv += e.date + ',' + e.category + ',"' + (e.description || '') + '",' + e.amount.toFixed(2) + '\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'budget-' + getKey() + '.csv';
+    a.click();
+  }
+
+  function clearMonth() {
+    if (!confirm('Clear all expenses for this month? This cannot be undone.')) return;
+    var d = getData();
+    delete d[getKey()];
+    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    loadMonth();
+  }
+
+  function clearAll() {
+    if (!confirm('Delete ALL budget data from ALL months? This cannot be undone.')) return;
+    localStorage.removeItem(STORE_KEY);
+    loadMonth();
+  }
+  </script>
+  <script src="../../mobile-nav.js"></script>
+</body>
+</html>
