@@ -13,6 +13,7 @@ def make_nav(prefix):
       <div class="nav-dropdown"><a href="{p}free-courses.html">Courses</a><div class="dropdown-menu"><a href="{p}free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="{p}learn/financial-literacy/hub.html">Financial Literacy</a><a href="{p}learn/trigonometry/index.html">Math Courses</a><a href="{p}learn/intro-python/index.html">Programming</a><a href="{p}learn/ai-course/index.html">AI &amp; Technology</a><a href="{p}student-resources.html">Student Resources</a></div></div>
       <a href="{p}young-learners.html">Young Learners</a>
       <div class="nav-dropdown"><a href="{p}books.html">Resources</a><div class="dropdown-menu"><a href="{p}books.html">Books</a><a href="{p}publications.html">Publications</a><a href="{p}instructor/index.html">Instructor Resources</a></div></div>
+      <a href="{p}support.html">Support</a>
     </nav>'''
 
 # Map prefix patterns
