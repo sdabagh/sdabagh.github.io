@@ -397,15 +397,7 @@ window.firebaseFunctions = functions;
 Add to `<head>` of all HTML pages:
 
 ```html
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
-
-<!-- Your Firebase Config -->
-<script src="/firebase-config.js"></script>
-```
+<!-- Firebase SDK --> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script> <!-- Your Firebase Config --> <script src="/firebase-config.js"></script> ```
 
 ---
 
@@ -678,14 +670,14 @@ Before going to production:
 
 ## Next Steps
 
-1. ✅ Complete Firebase setup
-2. ⏳ Implement authentication in web app
-3. ⏳ Deploy Cloud Functions
-4. ⏳ Test with sample interactions
-5. ⏳ Build analytics dashboard
-6. ⏳ IRB approval
-7. ⏳ Pilot study with 10-20 users
-8. ⏳ Full study launch
+1.  Complete Firebase setup
+2.  Implement authentication in web app
+3.  Deploy Cloud Functions
+4.  Test with sample interactions
+5.  Build analytics dashboard
+6.  IRB approval
+7.  Pilot study with 10-20 users
+8.  Full study launch
 
 ---
 

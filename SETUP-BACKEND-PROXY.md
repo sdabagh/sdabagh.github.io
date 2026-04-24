@@ -24,7 +24,7 @@ Canvas blocks direct API calls to Anthropic. Also, **NEVER put your API key in b
 2. Click **"Add variable"**
 3. Name: `ANTHROPIC_API_KEY`
 4. Value: Your actual API key (paste here)
-5. Check **"Encrypt"** ✅
+5. Check **"Encrypt"** 
 6. Click **"Save"**
 
 ### Step 4: Get Your Worker URL
@@ -186,11 +186,11 @@ After deploying your worker, I'll update `ai-tutor-live.html` to use your proxy 
 
 ## Security Benefits
 
-✅ API key is encrypted on Cloudflare's servers
-✅ Key never exposed in browser
-✅ Only your website can call the proxy (CORS protection)
-✅ You can monitor all requests
-✅ Works perfectly in Canvas iframe
+ API key is encrypted on Cloudflare's servers
+ Key never exposed in browser
+ Only your website can call the proxy (CORS protection)
+ You can monitor all requests
+ Works perfectly in Canvas iframe
 
 ## Cost
 
@@ -201,11 +201,11 @@ After deploying your worker, I'll update `ai-tutor-live.html` to use your proxy 
 
 ## Next Steps
 
-1. ✅ Revoke the exposed API key
-2. ✅ Set up Cloudflare Worker with the code above
-3. ✅ Add your API key to Worker environment (encrypted)
-4. ✅ Get your Worker URL
-5. ✅ Tell me the URL and I'll update the AI tutor code
+1.  Revoke the exposed API key
+2.  Set up Cloudflare Worker with the code above
+3.  Add your API key to Worker environment (encrypted)
+4.  Get your Worker URL
+5.  Tell me the URL and I'll update the AI tutor code
 
 ---
 

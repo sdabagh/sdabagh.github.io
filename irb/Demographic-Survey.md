@@ -360,10 +360,10 @@ _________________________________________________________________
 Thank you for completing this demographic survey!
 
 **Reminder**: All of your responses are:
-- ✅ **Anonymous** - linked only to your random participant ID
-- ✅ **Confidential** - only the research team will see your individual responses
-- ✅ **Optional** - you could skip any questions you wanted
-- ✅ **For research only** - used to understand who uses the platform and improve education
+-  **Anonymous** - linked only to your random participant ID
+-  **Confidential** - only the research team will see your individual responses
+-  **Optional** - you could skip any questions you wanted
+-  **For research only** - used to understand who uses the platform and improve education
 
 **What happens next?**
 

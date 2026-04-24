@@ -33,7 +33,7 @@ async function checkCanvasPage() {
   } else {
     // Show message to navigate to Canvas
     const statusDiv = document.getElementById('status-message');
-    statusDiv.textContent = '⚠️ Please navigate to a Canvas discussion or SpeedGrader page to use grading features';
+    statusDiv.textContent = ' Please navigate to a Canvas discussion or SpeedGrader page to use grading features';
     statusDiv.className = 'status-message info';
   }
 }
@@ -78,7 +78,7 @@ async function saveApiKey() {
   }
 
   await chrome.storage.local.set({ apiKey });
-  showStatus('config-status', '✅ API key saved successfully!', 'success');
+  showStatus('config-status', ' API key saved successfully!', 'success');
 }
 
 // Save worker URL to storage
@@ -96,13 +96,13 @@ async function saveWorkerUrl() {
   }
 
   await chrome.storage.local.set({ workerUrl });
-  showStatus('config-status', '✅ Worker URL saved successfully!', 'success');
+  showStatus('config-status', ' Worker URL saved successfully!', 'success');
 }
 
 // Extract discussion content from Canvas (searches all frames)
 async function extractDiscussion() {
   try {
-    showStatus('status-message', '🔍 Extracting discussion content...', 'info');
+    showStatus('status-message', ' Extracting discussion content...', 'info');
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -195,7 +195,7 @@ async function extractDiscussion() {
         // Student's first post is the initial post
         if (studentPosts.length > 0) {
           combined.initialPost = studentPosts[0].content;
-          console.log('✅ Found student initial post');
+          console.log(' Found student initial post');
           // Additional student posts are also included
           if (studentPosts.length > 1) {
             for (let i = 1; i < studentPosts.length; i++) {
@@ -204,7 +204,7 @@ async function extractDiscussion() {
           }
         } else {
           // Fallback: if name matching failed, treat first post as student's
-          console.log('⚠️ Name matching failed, using first post as initial post');
+          console.log(' Name matching failed, using first post as initial post');
           if (combined.allPosts.length > 0) {
             combined.initialPost = combined.allPosts[0].content;
             // Treat remaining posts as peer responses
@@ -238,7 +238,7 @@ async function extractDiscussion() {
     }
 
     if (!combined.initialPost && combined.allPosts.length === 0) {
-      showStatus('status-message', '❌ No discussion content found. Make sure you\'re viewing a discussion in SpeedGrader.', 'error');
+      showStatus('status-message', ' No discussion content found. Make sure you\'re viewing a discussion in SpeedGrader.', 'error');
       return;
     }
 
@@ -259,10 +259,7 @@ async function extractDiscussion() {
       : 'No peer responses found';
 
     previewDiv.innerHTML = `
-      <strong>Initial Post:</strong><br>
-      ${escapeHtml(initialPreview)}<br><br>
-      <strong>Peer Responses (${peerCount}):</strong><br>
-      ${escapeHtml(peerPreview).replace(/\n/g, '<br>')}
+      <strong>Initial Post:</strong><br> ${escapeHtml(initialPreview)}<br><br> <strong>Peer Responses (${peerCount}):</strong><br> ${escapeHtml(peerPreview).replace(/\n/g, '<br>')}
     `;
 
     // Populate raw data textarea with JSON
@@ -270,11 +267,11 @@ async function extractDiscussion() {
 
     // Show grade button
     document.getElementById('grade-btn').classList.remove('hidden');
-    showStatus('status-message', `✅ Extracted ${totalPostsFound} discussion posts successfully!`, 'success');
+    showStatus('status-message', ` Extracted ${totalPostsFound} discussion posts successfully!`, 'success');
 
   } catch (error) {
     console.error('Extract error:', error);
-    showStatus('status-message', `❌ Error: ${error.message}`, 'error');
+    showStatus('status-message', ` Error: ${error.message}`, 'error');
   }
 }
 
@@ -342,8 +339,8 @@ Given a student's discussion post content, provide:
     "initialPost": "Detailed explanation for initial post score...",
     "peerResponses": "Detailed explanation for peer responses score...",
     "clarity": "Detailed explanation for clarity/mechanics score...",
-    "participation": "⚠️ Cannot assess from content. Instructor must verify: Posted on 2+ days AND replied to instructor.",
-    "timeliness": "⚠️ Cannot assess from content. Instructor must verify: First post by Wednesday."
+    "participation": " Cannot assess from content. Instructor must verify: Posted on 2+ days AND replied to instructor.",
+    "timeliness": " Cannot assess from content. Instructor must verify: First post by Wednesday."
   },
   "feedbackComment": "Overall feedback comment for Canvas. Start with positive aspects, then constructive suggestions. Include the AI-assessed total (/90 pts) and note that participation/timeliness need manual verification."
 }
@@ -613,12 +610,12 @@ async function gradeWithAI() {
     const config = await chrome.storage.local.get(['apiKey', 'workerUrl']);
 
     if (!config.apiKey) {
-      showStatus('status-message', '❌ Please configure API key first', 'error');
+      showStatus('status-message', ' Please configure API key first', 'error');
       return;
     }
 
     if (!currentDiscussion) {
-      showStatus('status-message', '❌ Please extract discussion content first', 'error');
+      showStatus('status-message', ' Please extract discussion content first', 'error');
       return;
     }
 
@@ -633,7 +630,7 @@ async function gradeWithAI() {
         discussionToGrade = editedData;
         console.log('Using edited discussion data from textarea');
       } catch (e) {
-        showStatus('status-message', '⚠️ Invalid JSON in raw data field. Using original extracted data.', 'error');
+        showStatus('status-message', ' Invalid JSON in raw data field. Using original extracted data.', 'error');
         // Fall back to currentDiscussion
       }
     }
@@ -691,13 +688,13 @@ async function gradeWithAI() {
     // Populate grading results
     populateGradingResults(grading);
 
-    showStatus('status-message', '✅ AI grading complete! Review and adjust as needed.', 'success');
+    showStatus('status-message', ' AI grading complete! Review and adjust as needed.', 'success');
 
   } catch (error) {
     console.error('Grading error:', error);
     document.getElementById('grading-progress').classList.add('hidden');
     document.getElementById('grade-btn').disabled = false;
-    showStatus('status-message', `❌ Error: ${error.message}`, 'error');
+    showStatus('status-message', ` Error: ${error.message}`, 'error');
   }
 }
 
@@ -755,11 +752,11 @@ async function applyToCanvas() {
       args: [gradingData]
     });
 
-    showStatus('status-message', '✅ Grades applied to Canvas! Please review before submitting.', 'success');
+    showStatus('status-message', ' Grades applied to Canvas! Please review before submitting.', 'success');
 
   } catch (error) {
     console.error('Apply error:', error);
-    showStatus('status-message', `❌ Error: ${error.message}`, 'error');
+    showStatus('status-message', ` Error: ${error.message}`, 'error');
   }
 }
 
@@ -796,7 +793,7 @@ function resetGrading() {
   document.getElementById('grade-btn').disabled = false;
   document.getElementById('discussion-preview').innerHTML = 'Click "Extract Discussion" to load content from Canvas';
 
-  showStatus('status-message', '🔄 Reset complete. Extract a new discussion to grade.', 'info');
+  showStatus('status-message', ' Reset complete. Extract a new discussion to grade.', 'info');
 }
 
 // Show status message

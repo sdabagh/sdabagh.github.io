@@ -1,29 +1,29 @@
 # Canvas AI Grader Extension - Production TODO
 
-## 🎯 **Goal**
+##  **Goal**
 Prepare the Canvas AI Grader Chrome extension for sharing with SMC Math Department instructors.
 
 ---
 
-## ✅ **Current Status**
+##  **Current Status**
 
 ### **Working:**
-- ✅ Grading functionality is fully operational
-- ✅ Cloudflare Worker processes submissions correctly
-- ✅ AI feedback generation via Claude API
-- ✅ Extension communicates with Worker successfully
-- ✅ Grading results are accurate and helpful
+-  Grading functionality is fully operational
+-  Cloudflare Worker processes submissions correctly
+-  AI feedback generation via Claude API
+-  Extension communicates with Worker successfully
+-  Grading results are accurate and helpful
 
 ### **Known Issues:**
-- ❌ "View Grading" button behavior is inconsistent
+-  "View Grading" button behavior is inconsistent
   - Grading happens correctly in background
   - Button visibility/functionality needs debugging
 
 ---
 
-## 🔧 **MUST FIX - Critical Issues**
+##  **MUST FIX - Critical Issues**
 
-### 1. Fix "View Grading" Button ⚠️ HIGH PRIORITY
+### 1. Fix "View Grading" Button  HIGH PRIORITY
 - [ ] Add detailed console logging to trace button behavior
 - [ ] Debug DOM update timing issues
 - [ ] Test button across different Canvas pages/contexts
@@ -51,7 +51,7 @@ Prepare the Canvas AI Grader Chrome extension for sharing with SMC Math Departme
 
 ---
 
-## 📚 **SHOULD HAVE - Polish for Professional Use**
+##  **SHOULD HAVE - Polish for Professional Use**
 
 ### 4. User Documentation
 - [ ] **Installation Guide** (`INSTALLATION.md`)
@@ -90,7 +90,7 @@ Prepare the Canvas AI Grader Chrome extension for sharing with SMC Math Departme
 
 ---
 
-## 🔒 **CRITICAL - Privacy & Security**
+##  **CRITICAL - Privacy & Security**
 
 ### 7. Data Privacy Review
 - [ ] **Document data flow:**
@@ -114,7 +114,7 @@ Prepare the Canvas AI Grader Chrome extension for sharing with SMC Math Departme
 
 ---
 
-## 🎁 **NICE TO HAVE - Future Enhancements**
+##  **NICE TO HAVE - Future Enhancements**
 
 ### 9. Advanced Features (Post-Launch)
 - [ ] Batch grading (grade all submissions at once)
@@ -131,7 +131,7 @@ Prepare the Canvas AI Grader Chrome extension for sharing with SMC Math Departme
 
 ---
 
-## 📋 **Pre-Launch Checklist**
+##  **Pre-Launch Checklist**
 
 Before sharing with Math Department Chair:
 
@@ -145,7 +145,7 @@ Before sharing with Math Department Chair:
 
 ---
 
-## 🚀 **Launch Plan**
+##  **Launch Plan**
 
 ### Phase 1: Beta Testing (1-2 instructors)
 - Share with trusted colleagues
@@ -167,7 +167,7 @@ Before sharing with Math Department Chair:
 
 ---
 
-## 📝 **Notes & Context**
+##  **Notes & Context**
 
 **Current Setup:**
 - Chrome extension: `/chrome-extension/` directory

@@ -178,7 +178,7 @@ function createDiceSimulator(containerId) {
   buttonDiv.style.marginTop = '15px';
 
   const rollButton = document.createElement('button');
-  rollButton.textContent = '🎲 Roll Die';
+  rollButton.textContent = ' Roll Die';
   rollButton.className = 'btn btn-primary';
   rollButton.style.marginRight = '10px';
   rollButton.onclick = () => {
@@ -189,7 +189,7 @@ function createDiceSimulator(containerId) {
   };
 
   const roll10Button = document.createElement('button');
-  roll10Button.textContent = '🎲 Roll 10 Times';
+  roll10Button.textContent = ' Roll 10 Times';
   roll10Button.className = 'btn btn-accent';
   roll10Button.style.marginRight = '10px';
   roll10Button.onclick = () => {
@@ -202,7 +202,7 @@ function createDiceSimulator(containerId) {
   };
 
   const resetButton = document.createElement('button');
-  resetButton.textContent = '🔄 Reset';
+  resetButton.textContent = ' Reset';
   resetButton.className = 'btn btn-outline';
   resetButton.onclick = () => {
     rolls = [0, 0, 0, 0, 0, 0];

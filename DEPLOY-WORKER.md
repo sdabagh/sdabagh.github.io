@@ -1,4 +1,4 @@
-# 🚀 How to Deploy the Worker to Cloudflare
+#  How to Deploy the Worker to Cloudflare
 
 ## Current Issue
 - Your HTML pages call: `https://stats-tutor-api.sdabagh-stats.workers.dev`
@@ -67,7 +67,7 @@ wrangler secret put ANTHROPIC_API_KEY --name stats-tutor-api
 
 ---
 
-## ✅ Verification Checklist
+##  Verification Checklist
 
 After deployment:
 
@@ -82,7 +82,7 @@ After deployment:
 
 ---
 
-## 🐛 If It Still Doesn't Work
+##  If It Still Doesn't Work
 
 Check the Cloudflare logs:
 1. Go to your worker
@@ -92,25 +92,25 @@ Check the Cloudflare logs:
 
 Common issues:
 - **API key not set**: Go to Settings → Variables → Add `ANTHROPIC_API_KEY`
-- **Wrong model**: Code uses `claude-3-5-sonnet-20241022` (correct ✅)
-- **CORS error**: Code allows `https://sdabagh.github.io` (correct ✅)
+- **Wrong model**: Code uses `claude-3-5-sonnet-20241022` (correct )
+- **CORS error**: Code allows `https://sdabagh.github.io` (correct )
 
 ---
 
-## 📝 Current File Status
+##  Current File Status
 
 **Worker Code Files:**
-- ✅ `cloudflare-worker-proxy.js` - Best version (USE THIS)
-- ⚠️ `cloudflare-worker/worker.js` - Older version (simpler)
+-  `cloudflare-worker-proxy.js` - Best version (USE THIS)
+-  `cloudflare-worker/worker.js` - Older version (simpler)
 
 **HTML Files (need correct URL):**
 - `ai-tutor-live.html` - Line 272
 - `smc-counselor.html` - Line 315
 
 **Current API Key:**
-- ✅ Created: Feb 20, 2026
-- ❌ Last Used: Never
-- ⚠️ This means the worker never successfully called the API
+-  Created: Feb 20, 2026
+-  Last Used: Never
+-  This means the worker never successfully called the API
 
 ---
 

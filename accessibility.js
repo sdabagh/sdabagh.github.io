@@ -39,43 +39,16 @@
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Accessibility Options');
     panel.innerHTML = `
-      <h3>Accessibility</h3>
-
-      <div class="a11y-row">
-        <span>🌙 Dark Mode</span>
-        <button class="a11y-toggle ${get(KEYS.dark) === 'true' ? 'on' : ''}"
+      <h3>Accessibility</h3> <div class="a11y-row"> <span> Dark Mode</span> <button class="a11y-toggle ${get(KEYS.dark) === 'true' ? 'on' : ''}"
                 id="a11y-dark-btn" aria-pressed="${get(KEYS.dark) === 'true'}"
-                aria-label="Toggle dark mode"></button>
-      </div>
-
-      <div class="a11y-row">
-        <span>🔡 Font Size</span>
-        <div class="a11y-btn-group">
-          <button class="a11y-btn ${!get(KEYS.fontSize) || get(KEYS.fontSize) === 'normal' ? 'active' : ''}"
-                  data-font="normal" aria-label="Normal font size">A</button>
-          <button class="a11y-btn ${get(KEYS.fontSize) === 'large' ? 'active' : ''}"
-                  data-font="large" aria-label="Large font size">A+</button>
-          <button class="a11y-btn ${get(KEYS.fontSize) === 'xl' ? 'active' : ''}"
-                  data-font="xl" aria-label="Extra large font size">A++</button>
-        </div>
-      </div>
-
-      <div class="a11y-row">
-        <span>📖 Dyslexia Font</span>
-        <button class="a11y-toggle ${get(KEYS.dyslexia) === 'true' ? 'on' : ''}"
+                aria-label="Toggle dark mode"></button></div> <div class="a11y-row"> <span> Font Size</span> <div class="a11y-btn-group"> <button class="a11y-btn ${!get(KEYS.fontSize) || get(KEYS.fontSize) === 'normal' ? 'active' : ''}"
+                  data-font="normal" aria-label="Normal font size">A</button> <button class="a11y-btn ${get(KEYS.fontSize) === 'large' ? 'active' : ''}"
+                  data-font="large" aria-label="Large font size">A+</button> <button class="a11y-btn ${get(KEYS.fontSize) === 'xl' ? 'active' : ''}"
+                  data-font="xl" aria-label="Extra large font size">A++</button></div></div> <div class="a11y-row"> <span> Dyslexia Font</span> <button class="a11y-toggle ${get(KEYS.dyslexia) === 'true' ? 'on' : ''}"
                 id="a11y-dyslexia-btn" aria-pressed="${get(KEYS.dyslexia) === 'true'}"
-                aria-label="Toggle dyslexia-friendly font"></button>
-      </div>
-
-      <div class="a11y-row">
-        <span>📄 Reading Mode</span>
-        <button class="a11y-toggle ${get(KEYS.reading) === 'true' ? 'on' : ''}"
+                aria-label="Toggle dyslexia-friendly font"></button></div> <div class="a11y-row"> <span> Reading Mode</span> <button class="a11y-toggle ${get(KEYS.reading) === 'true' ? 'on' : ''}"
                 id="a11y-reading-btn" aria-pressed="${get(KEYS.reading) === 'true'}"
-                aria-label="Toggle reading mode"></button>
-      </div>
-
-      <button class="a11y-reset" id="a11y-reset-btn">Reset to defaults</button>
-    `;
+                aria-label="Toggle reading mode"></button></div> <button class="a11y-reset" id="a11y-reset-btn">Reset to defaults</button> `;
     document.body.appendChild(panel);
 
     // Toggle panel open/close

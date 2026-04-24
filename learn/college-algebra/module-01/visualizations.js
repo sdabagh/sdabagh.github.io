@@ -133,9 +133,7 @@ function createCoordinatePlane(containerId) {
   points.forEach(p => {
     const px = centerX + p.x * scale;
     const py = centerY - p.y * scale;
-    svg += `<circle cx="${px}" cy="${py}" r="5" fill="${p.color}" stroke="white" stroke-width="2">
-      <title>${p.label} in Quadrant</title>
-    </circle>`;
+    svg += `<circle cx="${px}" cy="${py}" r="5" fill="${p.color}" stroke="white" stroke-width="2"> <title>${p.label} in Quadrant</title></circle>`;
     svg += `<text x="${px + 10}" y="${py - 10}" font-size="11" font-weight="600" fill="${p.color}">${p.label}</text>`;
   });
 
@@ -233,7 +231,7 @@ function createVerticalLineTest(containerId) {
 
   // FUNCTION EXAMPLE: Parabola
   const g1X = 40;
-  svg += `<text x="${g1X + graphWidth/2}" y="${graphY + 20}" text-anchor="middle" font-size="14" font-weight="600" fill="#28A745">✓ IS a Function</text>`;
+  svg += `<text x="${g1X + graphWidth/2}" y="${graphY + 20}" text-anchor="middle" font-size="14" font-weight="600" fill="#28A745"> IS a Function</text>`;
   svg += `<text x="${g1X + graphWidth/2}" y="${graphY + 38}" text-anchor="middle" font-size="11" fill="#666">f(x) = x²</text>`;
 
   // Axes
@@ -253,11 +251,11 @@ function createVerticalLineTest(containerId) {
   // Vertical line
   svg += `<line x1="${centerX1 + 30}" y1="${graphY + 60}" x2="${centerX1 + 30}" y2="${graphY + 60 + graphHeight}" stroke="#2C5F7C" stroke-width="2" stroke-dasharray="5,5"/>`;
   svg += `<circle cx="${centerX1 + 30}" cy="${centerY1 - 22.5}" r="4" fill="#DC3545"/>`;
-  svg += `<text x="${centerX1 + 30}" y="${graphY + 60 + graphHeight + 15}" text-anchor="middle" font-size="10" fill="#28A745">Hits ONCE ✓</text>`;
+  svg += `<text x="${centerX1 + 30}" y="${graphY + 60 + graphHeight + 15}" text-anchor="middle" font-size="10" fill="#28A745">Hits ONCE</text>`;
 
   // NOT FUNCTION EXAMPLE: Circle
   const g2X = width / 2 + 20;
-  svg += `<text x="${g2X + graphWidth/2}" y="${graphY + 20}" text-anchor="middle" font-size="14" font-weight="600" fill="#DC3545">✗ NOT a Function</text>`;
+  svg += `<text x="${g2X + graphWidth/2}" y="${graphY + 20}" text-anchor="middle" font-size="14" font-weight="600" fill="#DC3545"> NOT a Function</text>`;
   svg += `<text x="${g2X + graphWidth/2}" y="${graphY + 38}" text-anchor="middle" font-size="11" fill="#666">x² + y² = r²</text>`;
 
   // Axes
@@ -275,7 +273,7 @@ function createVerticalLineTest(containerId) {
   const circleY2 = centerY2 + Math.sqrt(3600 - 400);
   svg += `<circle cx="${centerX2 + 20}" cy="${circleY1}" r="4" fill="#DC3545"/>`;
   svg += `<circle cx="${centerX2 + 20}" cy="${circleY2}" r="4" fill="#DC3545"/>`;
-  svg += `<text x="${centerX2 + 20}" y="${graphY + 60 + graphHeight + 15}" text-anchor="middle" font-size="10" fill="#DC3545">Hits TWICE ✗</text>`;
+  svg += `<text x="${centerX2 + 20}" y="${graphY + 60 + graphHeight + 15}" text-anchor="middle" font-size="10" fill="#DC3545">Hits TWICE</text>`;
 
   svg += `</svg>`;
   container.innerHTML = svg;

@@ -54,9 +54,7 @@ function createBarChart(containerId) {
     const y = height - padding.bottom - barHeight;
 
     // Bar with hover effect
-    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${d.color}" stroke="#333" stroke-width="1" opacity="0.9">
-      <title>${d.label}: ${d.value} people</title>
-    </rect>`;
+    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${d.color}" stroke="#333" stroke-width="1" opacity="0.9"> <title>${d.label}: ${d.value} people</title></rect>`;
 
     // Value on top of bar
     svg += `<text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle" font-size="12" font-weight="600" fill="#333">${d.value}</text>`;
@@ -125,9 +123,7 @@ function createHistogram(containerId) {
     const y = height - padding.bottom - barHeight;
 
     // Bar - note: no gaps between bars!
-    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" stroke="#2C5F7C" stroke-width="1" opacity="0.85">
-      <title>${d.range}: ${d.count} students</title>
-    </rect>`;
+    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" stroke="#2C5F7C" stroke-width="1" opacity="0.85"> <title>${d.range}: ${d.count} students</title></rect>`;
 
     // Value on top
     svg += `<text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle" font-size="12" font-weight="600" fill="#333">${d.count}</text>`;
@@ -189,9 +185,7 @@ function createPieChart(containerId) {
       'Z'
     ].join(' ');
 
-    svg += `<path d="${pathData}" fill="${d.color}" stroke="white" stroke-width="2" opacity="0.9">
-      <title>${d.label}: ${d.value}%</title>
-    </path>`;
+    svg += `<path d="${pathData}" fill="${d.color}" stroke="white" stroke-width="2" opacity="0.9"> <title>${d.label}: ${d.value}%</title></path>`;
 
     // Label
     const labelAngle = startAngle + sliceAngle / 2;
@@ -290,9 +284,7 @@ function createLineGraph(containerId) {
 
   // Draw points
   points.forEach(p => {
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#D97D54" stroke="white" stroke-width="2">
-      <title>${p.month}: ${p.temp}°F</title>
-    </circle>`;
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#D97D54" stroke="white" stroke-width="2"> <title>${p.month}: ${p.temp}°F</title></circle>`;
   });
 
   svg += `</svg>`;
@@ -352,9 +344,7 @@ function createScatterplot(containerId) {
     const x = padding.left + (d.hours / 15) * chartWidth;
     const y = height - padding.bottom - (d.score / 100) * chartHeight;
 
-    svg += `<circle cx="${x}" cy="${y}" r="4" fill="#3A7CA5" opacity="0.6" stroke="#2C5F7C" stroke-width="1">
-      <title>${d.hours.toFixed(1)} hrs → ${d.score.toFixed(0)}%</title>
-    </circle>`;
+    svg += `<circle cx="${x}" cy="${y}" r="4" fill="#3A7CA5" opacity="0.6" stroke="#2C5F7C" stroke-width="1"> <title>${d.hours.toFixed(1)} hrs → ${d.score.toFixed(0)}%</title></circle>`;
   });
 
   // Trend annotation
@@ -380,12 +370,7 @@ function createMisleadingComparison(containerId) {
   const chartHeight = 280;
   const padding = { top: 60, bottom: 60, left: 10, right: 10 };
 
-  let html = `<div style="text-align: center; margin-bottom: 1rem;">
-    <button onclick="toggleMisleadingGraph()" style="padding: 0.75rem 2rem; background: #D97D54; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-      ${showMisleading ? '👁️ Show Honest Graph' : '⚠️ Show Misleading Graph'}
-    </button>
-    <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">Click to toggle between honest and misleading versions</p>
-  </div>`;
+  let html = `<div style="text-align: center; margin-bottom: 1rem;"> <button onclick="toggleMisleadingGraph()" style="padding: 0.75rem 2rem; background: #D97D54; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"> ${showMisleading ? ' Show Honest Graph' : ' Show Misleading Graph'}</button> <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">Click to toggle between honest and misleading versions</p></div>`;
 
   html += `<svg width="${width}" height="${height}" style="background: white; border-radius: 8px;">`;
 
@@ -396,7 +381,7 @@ function createMisleadingComparison(containerId) {
     const yRange = yMax - yMin;
 
     // Title
-    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#D9534F">⚠️ MISLEADING: Truncated Y-Axis</text>`;
+    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#D9534F"> MISLEADING: Truncated Y-Axis</text>`;
     html += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">Y-axis starts at $95,000 instead of $0</text>`;
 
     // Y-axis
@@ -430,7 +415,7 @@ function createMisleadingComparison(containerId) {
     });
 
     // Warning annotation
-    html += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" font-size="11" font-weight="600" fill="#D9534F">Visual impression: Sales MORE THAN DOUBLED! 📈</text>`;
+    html += `<text x="${width/2}" y="${height - 25}" text-anchor="middle" font-size="11" font-weight="600" fill="#D9534F">Visual impression: Sales MORE THAN DOUBLED!</text>`;
     html += `<text x="${width/2}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#666">(But actually only increased 4%)</text>`;
 
   } else {
@@ -438,7 +423,7 @@ function createMisleadingComparison(containerId) {
     const yMax = 120000;
 
     // Title
-    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#28A745">✅ HONEST: Y-Axis Starts at Zero</text>`;
+    html += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#28A745"> HONEST: Y-Axis Starts at Zero</text>`;
     html += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">Shows true proportions</text>`;
 
     // Y-axis

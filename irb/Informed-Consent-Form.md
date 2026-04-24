@@ -35,11 +35,11 @@ This study is being conducted by Safaa Dabagh, a PhD student in the Department o
 
 You may participate in this study if you:
 
-- ✅ Are **18 years of age or older**
-- ✅ Are a **community college student** or recent graduate (within 2 years)
-- ✅ Have **interest in learning statistics** (no prior statistics experience required)
-- ✅ Have **reliable internet access** and a computer or tablet
-- ✅ Can **read and understand English** at a college level
+-  Are **18 years of age or older**
+-  Are a **community college student** or recent graduate (within 2 years)
+-  Have **interest in learning statistics** (no prior statistics experience required)
+-  Have **reliable internet access** and a computer or tablet
+-  Can **read and understand English** at a college level
 
 ---
 
@@ -99,10 +99,10 @@ If you consent to participate in research, we will collect:
 - Feedback about your learning experience
 
 ### What We DO NOT Collect:
-- ❌ Your name or student ID number
-- ❌ Your email address (unless you voluntarily provide it for contact)
-- ❌ Your IP address or device information
-- ❌ Any information that could directly identify you
+-  Your name or student ID number
+-  Your email address (unless you voluntarily provide it for contact)
+-  Your IP address or device information
+-  Any information that could directly identify you
 
 All data is linked only to a randomly generated anonymous ID. We cannot connect your responses back to you personally.
 
@@ -129,12 +129,12 @@ If you experience significant distress while using the platform, please contact 
 ## WHAT ARE THE BENEFITS?
 
 ### Benefits to You:
-- ✅ **Free statistics education**: Complete access to a comprehensive introductory statistics course (equivalent to a college course worth several hundred dollars)
-- ✅ **AI tutoring support**: 24/7 access to an AI tutor to help you learn
-- ✅ **Flexible learning**: Self-paced with no deadlines or pressure
-- ✅ **Certificate of completion**: Receive a certificate when you finish the course
-- ✅ **Valuable skills**: Learn statistics applicable to many careers and academic fields
-- ✅ **Contribute to research**: Help improve education for future students
+-  **Free statistics education**: Complete access to a comprehensive introductory statistics course (equivalent to a college course worth several hundred dollars)
+-  **AI tutoring support**: 24/7 access to an AI tutor to help you learn
+-  **Flexible learning**: Self-paced with no deadlines or pressure
+-  **Certificate of completion**: Receive a certificate when you finish the course
+-  **Valuable skills**: Learn statistics applicable to many careers and academic fields
+-  **Contribute to research**: Help improve education for future students
 
 ### Benefits to Others:
 - Advance scientific understanding of how AI can improve education
@@ -259,7 +259,7 @@ By selecting one of the options below, I indicate my decision regarding particip
 
 ---
 
-### ☐ **I AGREE to participate in research**
+###  **I AGREE to participate in research**
 
 By checking this box, I voluntarily agree to participate in this research study. I understand that:
 - My anonymous learning data will be used for research purposes
@@ -271,7 +271,7 @@ By checking this box, I voluntarily agree to participate in this research study.
 
 ---
 
-### ☐ **I DECLINE to participate in research**
+###  **I DECLINE to participate in research**
 
 By checking this box, I choose NOT to participate in research. I understand that:
 - I can still use the learning platform for free

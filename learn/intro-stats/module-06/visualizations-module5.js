@@ -177,21 +177,8 @@ function createSamplingSimulator(containerId) {
   const controls = document.createElement('div');
   controls.style.cssText = 'text-align: center; margin-top: 15px;';
   controls.innerHTML = `
-    <button onclick="takeSample_${containerId}()" style="background: #3A7CA5; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 1 Sample</button>
-    <button onclick="takeManySamples_${containerId}(10)" style="background: #2C5F7C; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 10 Samples</button>
-    <button onclick="takeManySamples_${containerId}(100)" style="background: #2C5F7C; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 100 Samples</button>
-    <button onclick="reset_${containerId}()" style="background: #999; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Reset</button>
-    <br>
-    <label style="margin: 10px; font-size: 14px;">Sample Size:
-      <select onchange="changeSampleSize_${containerId}(this.value)" style="padding: 5px; font-size: 14px;">
-        <option value="2">2</option>
-        <option value="5" selected>5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-      </select>
-    </label>
-  `;
+    <button onclick="takeSample_${containerId}()" style="background: #3A7CA5; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 1 Sample</button> <button onclick="takeManySamples_${containerId}(10)" style="background: #2C5F7C; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 10 Samples</button> <button onclick="takeManySamples_${containerId}(100)" style="background: #2C5F7C; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Take 100 Samples</button> <button onclick="reset_${containerId}()" style="background: #999; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Reset</button> <br> <label style="margin: 10px; font-size: 14px;">Sample Size:
+      <select onchange="changeSampleSize_${containerId}(this.value)" style="padding: 5px; font-size: 14px;"> <option value="2">2</option> <option value="5" selected>5</option> <option value="10">10</option> <option value="20">20</option> <option value="30">30</option></select></label> `;
   container.parentNode.appendChild(controls);
 
   // Global functions for buttons
@@ -369,23 +356,8 @@ function createCLTVisualizer(containerId) {
   controls.style.cssText = 'text-align: center; margin-top: 15px;';
   controls.innerHTML = `
     <label style="margin: 10px; font-size: 14px;">Population Shape:
-      <select onchange="changePopulation_${containerId}(this.value)" style="padding: 5px; font-size: 14px;">
-        <option value="uniform" selected>Uniform</option>
-        <option value="skewed">Right-Skewed</option>
-        <option value="normal">Normal</option>
-      </select>
-    </label>
-    <label style="margin: 10px; font-size: 14px;">Sample Size:
-      <select onchange="changeSampleSize_${containerId}(this.value)" style="padding: 5px; font-size: 14px;">
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="30" selected>30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
-    </label>
-    <button onclick="redraw_${containerId}()" style="background: #3A7CA5; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Regenerate</button>
-  `;
+      <select onchange="changePopulation_${containerId}(this.value)" style="padding: 5px; font-size: 14px;"> <option value="uniform" selected>Uniform</option> <option value="skewed">Right-Skewed</option> <option value="normal">Normal</option></select></label> <label style="margin: 10px; font-size: 14px;">Sample Size:
+      <select onchange="changeSampleSize_${containerId}(this.value)" style="padding: 5px; font-size: 14px;"> <option value="5">5</option> <option value="10">10</option> <option value="30" selected>30</option> <option value="50">50</option> <option value="100">100</option></select></label> <button onclick="redraw_${containerId}()" style="background: #3A7CA5; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px;">Regenerate</button> `;
   container.parentNode.appendChild(controls);
 
   window[`changePopulation_${containerId}`] = function(val) {
@@ -506,18 +478,10 @@ function createSampleSizeEffect(containerId) {
   const controls = document.createElement('div');
   controls.style.cssText = 'text-align: center; margin-top: 15px;';
   controls.innerHTML = `
-    <label style="display: block; margin: 10px; font-size: 14px;">
-      Sample Size (n): <span id="nValue_${containerId}">${n}</span>
-      <br>
-      <input type="range" min="1" max="100" value="${n}"
+    <label style="display: block; margin: 10px; font-size: 14px;"> Sample Size (n): <span id="nValue_${containerId}">${n}</span> <br> <input type="range" min="1" max="100" value="${n}"
         oninput="updateN_${containerId}(this.value)"
-        style="width: 400px; max-width: 90%; margin-top: 10px;">
-    </label>
-    <p style="font-size: 13px; color: #666; margin-top: 15px;">
-      💡 <strong>Try it:</strong> Move the slider to see how SE changes with sample size.
-      Notice: To cut SE in half, you need 4× the sample size!
-    </p>
-  `;
+        style="width: 400px; max-width: 90%; margin-top: 10px;"></label> <p style="font-size: 13px; color: #666; margin-top: 15px;"> <strong>Try it:</strong> Move the slider to see how SE changes with sample size.
+      Notice: To cut SE in half, you need 4× the sample size!</p> `;
   container.parentNode.appendChild(controls);
 
   window[`updateN_${containerId}`] = function(val) {
@@ -552,7 +516,7 @@ function createProportionDistribution(containerId) {
     // Title
     svg += `<text x="${width/2}" y="25" text-anchor="middle" font-size="16" font-weight="600" fill="#2D2D2D">Sampling Distribution of Sample Proportion (p̂)</text>`;
     svg += `<text x="${width/2}" y="45" text-anchor="middle" font-size="12" fill="#666">Population proportion: p = ${p.toFixed(2)} | Sample size: n = ${n}</text>`;
-    svg += `<text x="${width/2}" y="60" text-anchor="middle" font-size="11" fill="${normalOK ? '#28A745' : '#DC3545'}">np = ${np.toFixed(1)}, n(1-p) = ${nq.toFixed(1)} ${normalOK ? '✓ Normal approx OK' : '✗ Normal approx NOT OK'}</text>`;
+    svg += `<text x="${width/2}" y="60" text-anchor="middle" font-size="11" fill="${normalOK ? '#28A745' : '#DC3545'}">np = ${np.toFixed(1)}, n(1-p) = ${nq.toFixed(1)} ${normalOK ? ' Normal approx OK' : ' Normal approx NOT OK'}</text>`;
 
     // Draw normal curve if conditions met
     if (normalOK) {
@@ -642,26 +606,10 @@ function createProportionDistribution(containerId) {
   const controls = document.createElement('div');
   controls.style.cssText = 'text-align: center; margin-top: 15px;';
   controls.innerHTML = `
-    <label style="margin: 10px; font-size: 14px;">
-      Population Proportion (p): <span id="pValue_${containerId}">${p.toFixed(2)}</span>
-      <br>
-      <input type="range" min="0.05" max="0.95" step="0.05" value="${p}"
+    <label style="margin: 10px; font-size: 14px;"> Population Proportion (p): <span id="pValue_${containerId}">${p.toFixed(2)}</span> <br> <input type="range" min="0.05" max="0.95" step="0.05" value="${p}"
         oninput="updateP_${containerId}(this.value)"
-        style="width: 300px; max-width: 80%; margin-top: 5px;">
-    </label>
-    <label style="margin: 10px; font-size: 14px;">Sample Size (n):
-      <select onchange="updateN_${containerId}(this.value)" style="padding: 5px; font-size: 14px;">
-        <option value="20">20</option>
-        <option value="50">50</option>
-        <option value="100" selected>100</option>
-        <option value="200">200</option>
-        <option value="500">500</option>
-      </select>
-    </label>
-    <p style="font-size: 13px; color: #666; margin-top: 10px;">
-      💡 <strong>Explore:</strong> Try different values of p and n. Notice when normal approximation works!
-    </p>
-  `;
+        style="width: 300px; max-width: 80%; margin-top: 5px;"></label> <label style="margin: 10px; font-size: 14px;">Sample Size (n):
+      <select onchange="updateN_${containerId}(this.value)" style="padding: 5px; font-size: 14px;"> <option value="20">20</option> <option value="50">50</option> <option value="100" selected>100</option> <option value="200">200</option> <option value="500">500</option></select></label> <p style="font-size: 13px; color: #666; margin-top: 10px;"> <strong>Explore:</strong> Try different values of p and n. Notice when normal approximation works!</p> `;
   container.parentNode.appendChild(controls);
 
   window[`updateP_${containerId}`] = function(val) {

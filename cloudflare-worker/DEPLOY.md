@@ -79,7 +79,7 @@ If you don't have one yet:
 
 ---
 
-## You're Done! 🎉
+## You're Done! 
 
 Once deployed and the API key is added, students can immediately use:
 - **Statistics Tutor**: https://sdabagh.github.io/ai-tutor-live.html

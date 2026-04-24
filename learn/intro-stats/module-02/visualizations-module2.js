@@ -109,9 +109,7 @@ function createSpreadComparison(containerId) {
     // Data points
     dataset.data.forEach(value => {
       const x = padding.left + (value - minVal) * xScale;
-      svg += `<circle cx="${x}" cy="${yOffset + 25}" r="5" fill="${dataset.color}" opacity="0.8">
-        <title>${value}</title>
-      </circle>`;
+      svg += `<circle cx="${x}" cy="${yOffset + 25}" r="5" fill="${dataset.color}" opacity="0.8"> <title>${value}</title></circle>`;
     });
 
     // Range indicator
@@ -130,7 +128,7 @@ function createSpreadComparison(containerId) {
   });
 
   // Legend
-  svg += `<text x="${padding.left}" y="${height - 15}" font-size="11" fill="#666" font-style="italic">💡 Notice: Higher spread = larger range and standard deviation</text>`;
+  svg += `<text x="${padding.left}" y="${height - 15}" font-size="11" fill="#666" font-style="italic"> Notice: Higher spread = larger range and standard deviation</text>`;
 
   svg += `</svg>`;
   container.innerHTML = svg;
@@ -230,7 +228,7 @@ function createSkewnessDemo(containerId) {
   svg += `<line x1="${padding.left + 200}" y1="${height - 35}" x2="${padding.left + 230}" y2="${height - 35}" stroke="#28A745" stroke-width="3"/>`;
   svg += `<text x="${padding.left + 235}" y="${height - 31}" font-size="11" fill="#666">Median (resistant to outliers)</text>`;
 
-  svg += `<text x="${width/2}" y="${height - 10}" text-anchor="middle" font-size="11" fill="#666" font-style="italic">💡 The mean is always pulled in the direction of the skew (toward the tail)</text>`;
+  svg += `<text x="${width/2}" y="${height - 10}" text-anchor="middle" font-size="11" fill="#666" font-style="italic"> The mean is always pulled in the direction of the skew (toward the tail)</text>`;
 
   svg += `</svg>`;
   container.innerHTML = svg;
@@ -256,22 +254,7 @@ function createBoxplotBuilder(containerId) {
 
   const container = document.getElementById(containerId);
   container.innerHTML = `
-    <div style="background: white; padding: 1.5rem; border-radius: 8px;">
-      <h3 style="margin-top: 0; color: #2C5F7C; text-align: center;">Interactive Boxplot Builder</h3>
-      <p style="text-align: center; color: #666; font-size: 0.95rem;">Select a dataset to see its five-number summary and boxplot</p>
-
-      <div style="text-align: center; margin: 1rem 0;">
-        <select id="${containerId}_select" style="padding: 0.5rem; font-size: 1rem; border-radius: 4px; border: 2px solid #3A7CA5;">
-          <option value="symmetric">Symmetric Data</option>
-          <option value="rightSkewed">Right-Skewed Data</option>
-          <option value="withOutliers">Data with Outliers</option>
-        </select>
-      </div>
-
-      <div id="${containerId}_stats" style="background: #F8F9FA; padding: 1rem; border-radius: 4px; margin: 1rem 0;"></div>
-      <div id="${containerId}_chart"></div>
-    </div>
-  `;
+    <div style="background: white; padding: 1.5rem; border-radius: 8px;"> <h3 style="margin-top: 0; color: #2C5F7C; text-align: center;">Interactive Boxplot Builder</h3> <p style="text-align: center; color: #666; font-size: 0.95rem;">Select a dataset to see its five-number summary and boxplot</p> <div style="text-align: center; margin: 1rem 0;"> <select id="${containerId}_select" style="padding: 0.5rem; font-size: 1rem; border-radius: 4px; border: 2px solid #3A7CA5;"> <option value="symmetric">Symmetric Data</option> <option value="rightSkewed">Right-Skewed Data</option> <option value="withOutliers">Data with Outliers</option></select></div> <div id="${containerId}_stats" style="background: #F8F9FA; padding: 1rem; border-radius: 4px; margin: 1rem 0;"></div> <div id="${containerId}_chart"></div></div> `;
 
   function updateBoxplot(datasetKey) {
     const data = datasets[datasetKey].data.sort((a, b) => a - b);
@@ -290,35 +273,10 @@ function createBoxplotBuilder(containerId) {
     // Display statistics
     const statsDiv = document.getElementById(`${containerId}_stats`);
     statsDiv.innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; text-align: center;">
-        <div>
-          <div style="font-weight: 600; color: #2C5F7C;">Minimum</div>
-          <div style="font-size: 1.2rem; color: #333;">${min}</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; color: #2C5F7C;">Q1</div>
-          <div style="font-size: 1.2rem; color: #333;">${q.q1.toFixed(1)}</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; color: #2C5F7C;">Median (Q2)</div>
-          <div style="font-size: 1.2rem; color: #333;">${q.q2.toFixed(1)}</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; color: #2C5F7C;">Q3</div>
-          <div style="font-size: 1.2rem; color: #333;">${q.q3.toFixed(1)}</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; color: #2C5F7C;">Maximum</div>
-          <div style="font-size: 1.2rem; color: #333;">${max}</div>
-        </div>
-      </div>
-      <div style="margin-top: 1rem; text-align: center; color: #666;">
-        <strong>IQR:</strong> ${iqr.toFixed(1)} |
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; text-align: center;"> <div> <div style="font-weight: 600; color: #2C5F7C;">Minimum</div> <div style="font-size: 1.2rem; color: #333;">${min}</div></div> <div> <div style="font-weight: 600; color: #2C5F7C;">Q1</div> <div style="font-size: 1.2rem; color: #333;">${q.q1.toFixed(1)}</div></div> <div> <div style="font-weight: 600; color: #2C5F7C;">Median (Q2)</div> <div style="font-size: 1.2rem; color: #333;">${q.q2.toFixed(1)}</div></div> <div> <div style="font-weight: 600; color: #2C5F7C;">Q3</div> <div style="font-size: 1.2rem; color: #333;">${q.q3.toFixed(1)}</div></div> <div> <div style="font-weight: 600; color: #2C5F7C;">Maximum</div> <div style="font-size: 1.2rem; color: #333;">${max}</div></div></div> <div style="margin-top: 1rem; text-align: center; color: #666;"> <strong>IQR:</strong> ${iqr.toFixed(1)} |
         <strong>Lower Fence:</strong> ${lowerFence.toFixed(1)} |
         <strong>Upper Fence:</strong> ${upperFence.toFixed(1)}
-        ${outliers.length > 0 ? ` | <span style="color: #DC3545;"><strong>Outliers:</strong> ${outliers.join(', ')}</span>` : ''}
-      </div>
-    `;
+        ${outliers.length > 0 ? ` | <span style="color: #DC3545;"><strong>Outliers:</strong> ${outliers.join(', ')}</span>` : ''}</div> `;
 
     // Draw boxplot
     const chartDiv = document.getElementById(`${containerId}_chart`);
@@ -364,9 +322,7 @@ function createBoxplotBuilder(containerId) {
 
     // Outliers
     outliers.forEach(val => {
-      svg += `<circle cx="${x(val)}" cy="${yCenter}" r="5" fill="#DC3545" stroke="#8B0000" stroke-width="1">
-        <title>Outlier: ${val}</title>
-      </circle>`;
+      svg += `<circle cx="${x(val)}" cy="${yCenter}" r="5" fill="#DC3545" stroke="#8B0000" stroke-width="1"> <title>Outlier: ${val}</title></circle>`;
     });
 
     // Labels

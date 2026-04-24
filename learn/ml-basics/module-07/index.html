@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Module 7: Evaluating Models — Machine Learning Basics. Confusion matrices, precision, recall, F1-score, and when accuracy misleads.">
-  <title>Module 7: Evaluating Models - ML Basics</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-  <style>
-    .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Module 7: Evaluating Models — Machine Learning Basics. Confusion matrices, precision, recall, F1-score, and when accuracy misleads."> <title>Module 7: Evaluating Models - ML Basics</title> <link rel="stylesheet" href="../../../style.css"> <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script> <style> .mod-header { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 60%, #AB47BC 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); text-align: center; }
     .mod-header h1 { color: white; font-size: 1.9rem; margin-bottom: 0.25rem; }
     .mod-header .mod-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
     .mod-header p { opacity: 0.92; font-size: 1rem; margin: 0; }
@@ -54,10 +44,7 @@
     .metric-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
     .metric-chip { background: #EDE7F6; border: 2px solid #7B1FA2; border-radius: 10px; padding: 1rem; flex: 1; min-width: 180px; }
     .metric-chip h4 { color: #4A148C; margin-top: 0; font-size: 1rem; }
-    .metric-chip .formula { font-family: monospace; color: #6A1B9A; }
-  </style>
-<style>
-@media print {
+    .metric-chip .formula { font-family: monospace; color: #6A1B9A; }</style> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -78,122 +65,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a>
-
-    <div class="mod-header">
-      <div class="mod-label">Module 7 of 8 &mdash; Machine Learning Basics</div>
-      <h1>Evaluating Models</h1>
-      <p>Why &ldquo;99% accurate&rdquo; can be completely useless &mdash; and what to measure instead</p>
-    </div>
-
-    <div class="mod-nav">
-      <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Linear Regression</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span>
-      <a href="../module-08/index.html" class="nav-next">Module 8: Capstone Project &rarr;</a>
-    </div>
-
-    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python&hellip; (first load ~15 seconds)</div>
-
-    <!-- BEFORE YOU START -->
-    <div class="before-start">
-      <h2>&#128204; Before You Start</h2>
-      <ul>
-        <li>Modules 1&ndash;6 completed</li>
-        <li>Understanding of binary classification (two classes: positive / negative)</li>
-      </ul>
-      <p><strong>Estimated time:</strong> ~55 minutes</p>
-      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> The accuracy trap, the confusion matrix, precision, recall, F1-score, and which metric to prioritize in different real-world scenarios.</p>
-    </div>
-
-    <!-- BIG IDEA -->
-    <div class="big-idea">
-      <h2>&#128161; The Big Idea</h2>
-      <p style="font-size:1.1rem">Imagine a dataset with 1,000 emails: 990 normal, 10 spam. A model that <strong>always predicts &ldquo;not spam&rdquo;</strong> achieves 99% accuracy &mdash; yet it&rsquo;s completely useless because it never catches spam.</p>
-      <p>This is the <strong>accuracy trap</strong>. When classes are imbalanced, accuracy is a misleading metric.</p>
-      <p>Better evaluation requires understanding four types of outcomes: True Positives, True Negatives, False Positives, and False Negatives &mdash; the <strong>confusion matrix</strong>. From these, we derive precision, recall, and F1-score, each capturing a different aspect of model quality.</p>
-      <p style="margin-bottom:0">The right metric depends on your problem. In cancer detection, missing a real cancer (false negative) is catastrophic. In spam filtering, marking a real email as spam (false positive) is merely annoying. <strong>The stakes determine the metric.</strong></p>
-    </div>
-
-    <!-- HOW IT WORKS -->
-    <div class="how-it-works">
-      <h2>&#129504; How It Works</h2>
-
-      <h3 style="color:#4A148C">The Confusion Matrix</h3>
-      <p>For a binary classifier (positive = has cancer, negative = no cancer):</p>
-
-      <div class="cm-grid">
-        <div class="cm-cell cm-label"></div>
-        <div class="cm-cell cm-label">Predicted POSITIVE</div>
-        <div class="cm-cell cm-label">Predicted NEGATIVE</div>
-        <div class="cm-cell cm-label" style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.8rem">Actual POSITIVE</div>
-        <div class="cm-cell cm-tp">TP &mdash; True Positive<br><small>Correctly flagged cancer</small></div>
-        <div class="cm-cell cm-fn">FN &mdash; False Negative<br><small>Missed real cancer ⚠️</small></div>
-        <div class="cm-cell cm-label" style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.8rem">Actual NEGATIVE</div>
-        <div class="cm-cell cm-fp">FP &mdash; False Positive<br><small>Wrongly flagged healthy</small></div>
-        <div class="cm-cell cm-tn">TN &mdash; True Negative<br><small>Correctly cleared healthy</small></div>
-      </div>
-
-      <h3 style="color:#4A148C;margin-top:1.5rem">The Metrics</h3>
-
-      <div class="metric-row">
-        <div class="metric-chip">
-          <h4>Accuracy</h4>
-          <p class="formula">= (TP + TN) / Total</p>
-          <p style="font-size:0.9rem;margin:0">Fraction of all predictions that were correct. Misleading when classes are imbalanced.</p>
-        </div>
-        <div class="metric-chip">
-          <h4>Precision</h4>
-          <p class="formula">= TP / (TP + FP)</p>
-          <p style="font-size:0.9rem;margin:0">Of everything the model flagged as positive, how many were actually positive? High precision = few false alarms.</p>
-        </div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-chip">
-          <h4>Recall (Sensitivity)</h4>
-          <p class="formula">= TP / (TP + FN)</p>
-          <p style="font-size:0.9rem;margin:0">Of all actual positives, how many did we catch? High recall = few missed cases. Critical for medical diagnosis.</p>
-        </div>
-        <div class="metric-chip">
-          <h4>F1-Score</h4>
-          <p class="formula">= 2 × (P × R) / (P + R)</p>
-          <p style="font-size:0.9rem;margin:0">Harmonic mean of precision and recall. Best single number when you need to balance both. Range: 0 to 1.</p>
-        </div>
-      </div>
-
-      <h3 style="color:#4A148C;margin-top:1rem">When to Prioritize Which Metric</h3>
-      <table style="width:100%;border-collapse:collapse;">
-        <tr style="background:#4A148C;color:white;"><th style="padding:8px 12px;text-align:left">Scenario</th><th style="padding:8px 12px">Worst Error</th><th style="padding:8px 12px">Prioritize</th></tr>
-        <tr style="background:#F3E5F5;"><td style="padding:8px 12px">Cancer detection</td><td style="padding:8px 12px;text-align:center">Missing cancer (FN)</td><td style="padding:8px 12px;text-align:center;color:#C62828"><strong>Recall</strong></td></tr>
-        <tr><td style="padding:8px 12px">Spam filter</td><td style="padding:8px 12px;text-align:center">Blocking real email (FP)</td><td style="padding:8px 12px;text-align:center;color:#1565C0"><strong>Precision</strong></td></tr>
-        <tr style="background:#F3E5F5;"><td style="padding:8px 12px">Fraud detection</td><td style="padding:8px 12px;text-align:center">Depends on cost of each</td><td style="padding:8px 12px;text-align:center;color:#2E7D32"><strong>F1-Score</strong></td></tr>
-        <tr><td style="padding:8px 12px">Balanced dataset</td><td style="padding:8px 12px;text-align:center">Equal concern</td><td style="padding:8px 12px;text-align:center"><strong>Accuracy</strong> (ok here)</td></tr>
-      </table>
-    </div>
-
-    <!-- SEE IT IN CODE -->
-    <div class="see-it">
-      <h2 style="color:#AB47BC">&#9654;&#65039; See It In Code</h2>
-      <p style="color:#ccc">Full evaluation pipeline on the breast cancer dataset: confusion matrix and classification report.</p>
-      <div class="worked-code">import micropip
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to Machine Learning Basics</a> <div class="mod-header"> <div class="mod-label">Module 7 of 8 &mdash; Machine Learning Basics</div> <h1>Evaluating Models</h1> <p>Why &ldquo;99% accurate&rdquo; can be completely useless &mdash; and what to measure instead</p></div> <div class="mod-nav"> <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Linear Regression</a> <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span> <a href="../module-08/index.html" class="nav-next">Module 8: Capstone Project &rarr;</a></div> <div id="pyodide-status" class="pyodide-status"> Loading Python&hellip; (first load ~15 seconds)</div> <!-- BEFORE YOU START --> <div class="before-start"> <h2> Before You Start</h2> <ul> <li>Modules 1&ndash;6 completed</li> <li>Understanding of binary classification (two classes: positive / negative)</li></ul> <p><strong>Estimated time:</strong> ~55 minutes</p> <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> The accuracy trap, the confusion matrix, precision, recall, F1-score, and which metric to prioritize in different real-world scenarios.</p></div> <!-- BIG IDEA --> <div class="big-idea"> <h2> The Big Idea</h2> <p style="font-size:1.1rem">Imagine a dataset with 1,000 emails: 990 normal, 10 spam. A model that <strong>always predicts &ldquo;not spam&rdquo;</strong> achieves 99% accuracy &mdash; yet it&rsquo;s completely useless because it never catches spam.</p> <p>This is the <strong>accuracy trap</strong>. When classes are imbalanced, accuracy is a misleading metric.</p> <p>Better evaluation requires understanding four types of outcomes: True Positives, True Negatives, False Positives, and False Negatives &mdash; the <strong>confusion matrix</strong>. From these, we derive precision, recall, and F1-score, each capturing a different aspect of model quality.</p> <p style="margin-bottom:0">The right metric depends on your problem. In cancer detection, missing a real cancer (false negative) is catastrophic. In spam filtering, marking a real email as spam (false positive) is merely annoying. <strong>The stakes determine the metric.</strong></p></div> <!-- HOW IT WORKS --> <div class="how-it-works"> <h2> How It Works</h2> <h3 style="color:#4A148C">The Confusion Matrix</h3> <p>For a binary classifier (positive = has cancer, negative = no cancer):</p> <div class="cm-grid"> <div class="cm-cell cm-label"></div> <div class="cm-cell cm-label">Predicted POSITIVE</div> <div class="cm-cell cm-label">Predicted NEGATIVE</div> <div class="cm-cell cm-label" style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.8rem">Actual POSITIVE</div> <div class="cm-cell cm-tp">TP &mdash; True Positive<br><small>Correctly flagged cancer</small></div> <div class="cm-cell cm-fn">FN &mdash; False Negative<br><small>Missed real cancer</small></div> <div class="cm-cell cm-label" style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.8rem">Actual NEGATIVE</div> <div class="cm-cell cm-fp">FP &mdash; False Positive<br><small>Wrongly flagged healthy</small></div> <div class="cm-cell cm-tn">TN &mdash; True Negative<br><small>Correctly cleared healthy</small></div></div> <h3 style="color:#4A148C;margin-top:1.5rem">The Metrics</h3> <div class="metric-row"> <div class="metric-chip"> <h4>Accuracy</h4> <p class="formula">= (TP + TN) / Total</p> <p style="font-size:0.9rem;margin:0">Fraction of all predictions that were correct. Misleading when classes are imbalanced.</p></div> <div class="metric-chip"> <h4>Precision</h4> <p class="formula">= TP / (TP + FP)</p> <p style="font-size:0.9rem;margin:0">Of everything the model flagged as positive, how many were actually positive? High precision = few false alarms.</p></div></div> <div class="metric-row"> <div class="metric-chip"> <h4>Recall (Sensitivity)</h4> <p class="formula">= TP / (TP + FN)</p> <p style="font-size:0.9rem;margin:0">Of all actual positives, how many did we catch? High recall = few missed cases. Critical for medical diagnosis.</p></div> <div class="metric-chip"> <h4>F1-Score</h4> <p class="formula">= 2 × (P × R) / (P + R)</p> <p style="font-size:0.9rem;margin:0">Harmonic mean of precision and recall. Best single number when you need to balance both. Range: 0 to 1.</p></div></div> <h3 style="color:#4A148C;margin-top:1rem">When to Prioritize Which Metric</h3> <table style="width:100%;border-collapse:collapse;"> <tr style="background:#4A148C;color:white;"><th style="padding:8px 12px;text-align:left">Scenario</th><th style="padding:8px 12px">Worst Error</th><th style="padding:8px 12px">Prioritize</th></tr> <tr style="background:#F3E5F5;"><td style="padding:8px 12px">Cancer detection</td><td style="padding:8px 12px;text-align:center">Missing cancer (FN)</td><td style="padding:8px 12px;text-align:center;color:#C62828"><strong>Recall</strong></td></tr> <tr><td style="padding:8px 12px">Spam filter</td><td style="padding:8px 12px;text-align:center">Blocking real email (FP)</td><td style="padding:8px 12px;text-align:center;color:#1565C0"><strong>Precision</strong></td></tr> <tr style="background:#F3E5F5;"><td style="padding:8px 12px">Fraud detection</td><td style="padding:8px 12px;text-align:center">Depends on cost of each</td><td style="padding:8px 12px;text-align:center;color:#2E7D32"><strong>F1-Score</strong></td></tr> <tr><td style="padding:8px 12px">Balanced dataset</td><td style="padding:8px 12px;text-align:center">Equal concern</td><td style="padding:8px 12px;text-align:center"><strong>Accuracy</strong> (ok here)</td></tr></table></div><!-- SEE IT IN CODE --> <div class="see-it"> <h2 style="color:#AB47BC">&#9654; See It In Code</h2> <p style="color:#ccc">Full evaluation pipeline on the breast cancer dataset: confusion matrix and classification report.</p> <div class="worked-code">import micropip
 await micropip.install(['scikit-learn'])
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.neighbors import KNeighborsClassifier
@@ -229,15 +101,7 @@ print(f"TN (correctly cleared healthy): {cm[1,1]}")
 
 # Classification Report
 print("\n=== Classification Report ===")
-print(classification_report(y_test, y_pred, target_names=cancer.target_names))
-</div>
-    </div>
-
-    <!-- YOUR TURN -->
-    <div class="your-turn">
-      <h2>&#128075; Your Turn</h2>
-      <p>Look at the output from the code above (or run the modified version below). In cancer detection, <strong>which is worse: a false positive or a false negative?</strong> Add code that calculates recall manually and prints a recommendation about which metric matters most here.</p>
-      <textarea class="code-editor" id="editor1">import micropip
+print(classification_report(y_test, y_pred, target_names=cancer.target_names))</div></div><!-- YOUR TURN --> <div class="your-turn"> <h2> Your Turn</h2> <p>Look at the output from the code above (or run the modified version below). In cancer detection, <strong>which is worse: a false positive or a false negative?</strong> Add code that calculates recall manually and prints a recommendation about which metric matters most here.</p> <textarea class="code-editor" id="editor1">import micropip
 await micropip.install(['scikit-learn'])
 from sklearn.metrics import confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
@@ -271,78 +135,14 @@ print(f"TP={TP}, FN={FN}, FP={FP}, TN={TN}")
 
 # Example:
 # accuracy = (TP + TN) / (TP + FN + FP + TN)
-# print(f"Accuracy: {accuracy:.1%}")
-</textarea>
-      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button>
-      <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (~10 seconds first run)</div>
-      <div class="hint-box">&#128161; <strong>Hint:</strong> A false negative in cancer detection means a patient with cancer is told they&rsquo;re healthy. They won&rsquo;t get treatment. A false positive means a healthy patient gets more tests &mdash; stressful, but survivable. Which error has more serious consequences?</div>
-    </div>
-
-    <!-- BRAIN BREAK -->
-    <div class="brain-break">
-      <h2>&#9749; Brain Break &mdash; 2 Minutes</h2>
-      <p>The justice system faces the same tradeoff:</p>
-      <ul>
-        <li><strong>False Positive</strong> = convicting an innocent person</li>
-        <li><strong>False Negative</strong> = acquitting a guilty person</li>
-      </ul>
-      <p>Western legal systems say &ldquo;innocent until proven guilty&rdquo; &mdash; they are tuned for <em>high precision</em>. It&rsquo;s considered worse to convict an innocent person than to let a guilty person go free.</p>
-      <p style="margin-bottom:0">Different societies and different problems make different choices. There&rsquo;s no universally &ldquo;correct&rdquo; tradeoff &mdash; it always depends on the <strong>real-world consequences</strong> of each type of error. This is why understanding your domain matters as much as understanding your algorithm.</p>
-    </div>
-
-    <!-- KEY TAKEAWAYS -->
-    <div class="key-takeaways">
-      <h2>&#9989; Key Takeaways</h2>
-      <ul>
-        <li><strong>Accuracy</strong> is misleading when classes are imbalanced &mdash; always check class distribution first.</li>
-        <li>The <strong>confusion matrix</strong> shows TP, TN, FP, FN &mdash; the raw counts behind every classification metric.</li>
-        <li><strong>Precision</strong> = &ldquo;when you say positive, how often are you right?&rdquo; High precision = fewer false alarms.</li>
-        <li><strong>Recall</strong> = &ldquo;of all actual positives, how many did you catch?&rdquo; High recall = fewer missed cases. Use for medical/safety problems.</li>
-        <li><strong>F1-score</strong> balances precision and recall. Use when you can&rsquo;t clearly prioritize one over the other.</li>
-      </ul>
-    </div>
-
-    <!-- COMPLETE -->
-    <div class="mod-complete">
-      <h2>&#127881; Module 7 Complete!</h2>
-      <p>You now have a full toolkit: data prep, two classifiers, regression, and proper evaluation. Time to put it all together in the capstone!</p>
-      <p style="margin-bottom:1.5rem"><a href="../module-08/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 8: Capstone Project &rarr;</a></p>
-      <button id="complete-btn" onclick="markComplete()"
-        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-        Mark Complete
-      </button>
-    </div>
-
-    <div class="mod-nav" style="margin-top:2rem">
-      <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Linear Regression</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span>
-      <a href="../module-08/index.html" class="nav-next">Module 8: Capstone Project &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">Machine Learning Basics &mdash; Module 7: Evaluating Models</p>
-  </footer>
-
-  <script>
-    let pyodide = null;
+# print(f"Accuracy: {accuracy:.1%}")</textarea> <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#9654; Run</button> <div id="output1" class="code-output">Output will appear here after you click Run&hellip; (~10 seconds first run)</div> <div class="hint-box"> <strong>Hint:</strong> A false negative in cancer detection means a patient with cancer is told they&rsquo;re healthy. They won&rsquo;t get treatment. A false positive means a healthy patient gets more tests &mdash; stressful, but survivable. Which error has more serious consequences?</div></div><!-- BRAIN BREAK --> <div class="brain-break"> <h2> Brain Break &mdash; 2 Minutes</h2> <p>The justice system faces the same tradeoff:</p> <ul><li><strong>False Positive</strong> = convicting an innocent person</li> <li><strong>False Negative</strong> = acquitting a guilty person</li></ul> <p>Western legal systems say &ldquo;innocent until proven guilty&rdquo; &mdash; they are tuned for <em>high precision</em>. It&rsquo;s considered worse to convict an innocent person than to let a guilty person go free.</p> <p style="margin-bottom:0">Different societies and different problems make different choices. There&rsquo;s no universally &ldquo;correct&rdquo; tradeoff &mdash; it always depends on the <strong>real-world consequences</strong> of each type of error. This is why understanding your domain matters as much as understanding your algorithm.</p></div><!-- KEY TAKEAWAYS --> <div class="key-takeaways"> <h2> Key Takeaways</h2> <ul><li><strong>Accuracy</strong> is misleading when classes are imbalanced &mdash; always check class distribution first.</li> <li>The <strong>confusion matrix</strong> shows TP, TN, FP, FN &mdash; the raw counts behind every classification metric.</li> <li><strong>Precision</strong> = &ldquo;when you say positive, how often are you right?&rdquo; High precision = fewer false alarms.</li> <li><strong>Recall</strong> = &ldquo;of all actual positives, how many did you catch?&rdquo; High recall = fewer missed cases. Use for medical/safety problems.</li> <li><strong>F1-score</strong> balances precision and recall. Use when you can&rsquo;t clearly prioritize one over the other.</li></ul></div><!-- COMPLETE --> <div class="mod-complete"> <h2> Module 7 Complete!</h2> <p>You now have a full toolkit: data prep, two classifiers, regression, and proper evaluation. Time to put it all together in the capstone!</p> <p style="margin-bottom:1.5rem"><a href="../module-08/index.html" style="color:#CE93D8;font-weight:700">Continue to Module 8: Capstone Project &rarr;</a></p> <button id="complete-btn" onclick="markComplete()"
+        style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button></div><div class="mod-nav" style="margin-top:2rem"> <a href="../module-06/index.html" class="nav-prev">&larr; Module 6: Linear Regression</a> <span style="font-weight:600;color:var(--text-secondary)">Module 7 of 8</span> <a href="../module-08/index.html" class="nav-next">Module 8: Capstone Project &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div><p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">Machine Learning Basics &mdash; Module 7: Evaluating Models</p></footer> <script> let pyodide = null;
     async function initPyodide() {
       const statusEl = document.getElementById('pyodide-status');
-      if (statusEl) statusEl.textContent = '⏳ Loading Python... (first load ~15 seconds)';
+      if (statusEl) statusEl.textContent = ' Loading Python... (first load ~15 seconds)';
       pyodide = await loadPyodide();
       if (statusEl) {
-        statusEl.textContent = '✅ Python ready! Click ▶ Run to execute.';
+        statusEl.textContent = ' Python ready! Click ▶ Run to execute.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -361,21 +161,16 @@ print(f"TP={TP}, FN={FN}, FP={FP}, TN={TN}")
         const out = pyodide.runPython('sys.stdout.getvalue()');
         const err = pyodide.runPython('sys.stderr.getvalue()');
         if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
-        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
-      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || ' Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = ' ' + e.message; outputEl.classList.add('error'); }
     }
     const MODULE_ID = 'ml-module-07';
     function markComplete() { localStorage.setItem(MODULE_ID, 'complete'); updateCompleteBtn(); }
     function updateCompleteBtn() {
       const btn = document.getElementById('complete-btn');
       if (!btn) return;
-      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = '✅ Completed!'; btn.style.background = '#2E7D32'; }
+      if (localStorage.getItem(MODULE_ID) === 'complete') { btn.textContent = ' Completed!'; btn.style.background = '#2E7D32'; }
       else { btn.textContent = 'Mark Complete'; btn.style.background = '#1565C0'; }
     }
     document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-    initPyodide();
-  </script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+    initPyodide();</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

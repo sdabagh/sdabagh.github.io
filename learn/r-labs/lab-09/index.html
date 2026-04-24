@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 9: Professional Output and Reporting — R Practice Labs. Communicate your analysis like a professional using cat, sprintf, and formatted reports.">
-  <title>Lab 9: Professional Output &amp; Reporting - R Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 9: Professional Output and Reporting — R Practice Labs. Communicate your analysis like a professional using cat, sprintf, and formatted reports."> <title>Lab 9: Professional Output &amp; Reporting - R Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
@@ -40,19 +31,16 @@
     .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -74,7 +62,7 @@
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
         const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -86,15 +74,12 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally { shelter.purge(); }
     }
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -115,60 +100,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 9 of 10</div>
-      <h1>Professional Output &amp; Reporting</h1>
-      <p>Communicating your analysis like a professional</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span>
-      <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>R gives you powerful tools for formatting output that looks like a real professional report:</p>
-      <ul>
-        <li><strong>cat()</strong> &mdash; print text with <code>\n</code> newlines and <code>\t</code> tabs; concatenates multiple values</li>
-        <li><strong>sprintf()</strong> &mdash; C-style string formatting: <code>%s</code> (string), <code>%d</code> (integer), <code>%.2f</code> (float 2 decimal), <code>%-20s</code> (left-aligned 20 wide)</li>
-        <li><strong>paste() / paste0()</strong> &mdash; combine strings; <code>paste0()</code> with no separator</li>
-        <li><strong>format()</strong> &mdash; format numbers with <code>big.mark=","</code>, <code>nsmall=2</code></li>
-        <li><strong>strrep()</strong> &mdash; repeat a string: <code>strrep("=", 50)</code> makes a 50-char divider</li>
-      </ul>
-      <p style="margin-bottom:0">The key is building <strong>report generator functions</strong> that take data and produce formatted, readable output automatically.</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>A professional report generator using aligned columns and dividers:</p>
-      <div class="worked-code">generate_report &lt;- function(data, title = "Analysis Report") {
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 9 of 10</div> <h1>Professional Output &amp; Reporting</h1> <p>Communicating your analysis like a professional</p></div> <div class="lab-nav"> <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span> <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>R gives you powerful tools for formatting output that looks like a real professional report:</p> <ul> <li><strong>cat()</strong>&mdash; print text with <code>\n</code> newlines and <code>\t</code> tabs; concatenates multiple values</li> <li><strong>sprintf()</strong> &mdash; C-style string formatting: <code>%s</code> (string), <code>%d</code> (integer), <code>%.2f</code> (float 2 decimal), <code>%-20s</code> (left-aligned 20 wide)</li> <li><strong>paste() / paste0()</strong> &mdash; combine strings; <code>paste0()</code> with no separator</li> <li><strong>format()</strong> &mdash; format numbers with <code>big.mark=","</code>, <code>nsmall=2</code></li> <li><strong>strrep()</strong> &mdash; repeat a string: <code>strrep("=", 50)</code>makes a 50-char divider</li></ul> <p style="margin-bottom:0">The key is building <strong>report generator functions</strong> that take data and produce formatted, readable output automatically.</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>A professional report generator using aligned columns and dividers:</p> <div class="worked-code">generate_report &lt;- function(data, title = "Analysis Report") {
   cat(strrep("=", 50), "\n", title, "\n", strrep("=", 50), "\n\n", sep="")
   cat("SUMMARY STATISTICS\n", strrep("-", 30), "\n", sep="")
   cat(sprintf("%-20s %10s\n", "Metric", "Value"))
@@ -180,15 +112,7 @@
   cat(strrep("-", 30), "\n", sep="")
 }
 sales &lt;- data.frame(rep=c("Alice","Bob","Carol","David"), revenue=c(38300,29200,47500,28800))
-generate_report(sales, "Q1 Sales Report")</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Sales Leaderboard with Medals</h3>
-      <p>Run this leaderboard printer and study the sprintf formatting. Then try adding a 4th and 5th place row without medals.</p>
-      <textarea class="code-editor" id="editor1">sales &lt;- data.frame(
+generate_report(sales, "Q1 Sales Report")</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Sales Leaderboard with Medals</h3> <p>Run this leaderboard printer and study the sprintf formatting. Then try adding a 4th and 5th place row without medals.</p> <textarea class="code-editor" id="editor1">sales &lt;- data.frame(
   rep     = c("Carol","Alice","David","Bob","Eve"),
   revenue = c(47500, 38300, 31200, 29200, 24800),
   deals   = c(12, 9, 8, 7, 6)
@@ -212,18 +136,7 @@ print_leaderboard &lt;- function(df) {
               format(sum(df$revenue), big.mark=",")))
 }
 
-print_leaderboard(sales)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>%-12s</code> means left-aligned, 12 characters wide &mdash; the <code>-</code> flag left-justifies text. <code>%10s</code> right-aligns to 10 chars. <code>format(n, big.mark=",")</code> adds thousands separators like &ldquo;47,500&rdquo;.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Monthly Report Function</h3>
-      <p>Write a <code>monthly_report(sales_df)</code> function that prints a complete professional report with: a header, summary stats table, top 3 performers section, monthly totals section, and a footer with a simulated timestamp.</p>
-      <textarea class="code-editor" id="editor2">sales_df &lt;- data.frame(
+print_leaderboard(sales)</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>%-12s</code> means left-aligned, 12 characters wide &mdash; the <code>-</code> flag left-justifies text. <code>%10s</code> right-aligns to 10 chars. <code>format(n, big.mark=",")</code> adds thousands separators like &ldquo;47,500&rdquo;.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Monthly Report Function</h3> <p>Write a <code>monthly_report(sales_df)</code> function that prints a complete professional report with: a header, summary stats table, top 3 performers section, monthly totals section, and a footer with a simulated timestamp.</p> <textarea class="code-editor" id="editor2">sales_df &lt;- data.frame(
   rep     = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   month   = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb"),
   revenue = c(18500,12300,22100,19800,15600,16900,25400,13200),
@@ -263,18 +176,7 @@ monthly_report &lt;- function(df) {
   cat(strrep("-", 50), "\n", sep="")
 }
 
-monthly_report(sales_df)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>tapply(revenue, rep, sum)</code> gives total revenue per rep. Wrap in <code>sort(..., decreasing=TRUE)</code> for the leaderboard order. Use <code>names()</code> to get the rep names from the sorted result.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Side-by-Side Comparison Report</h3>
-      <p>Write <code>comparison_report(group1, group2, label1, label2)</code> that prints: side-by-side stats, marks which group is higher with &#9650;, a plain-English t-test interpretation, and a text bar chart of the two means.</p>
-      <textarea class="code-editor" id="editor3">set.seed(42)
+monthly_report(sales_df)</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>tapply(revenue, rep, sum)</code> gives total revenue per rep. Wrap in <code>sort(..., decreasing=TRUE)</code> for the leaderboard order. Use <code>names()</code> to get the rep names from the sorted result.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Side-by-Side Comparison Report</h3> <p>Write <code>comparison_report(group1, group2, label1, label2)</code> that prints: side-by-side stats, marks which group is higher with &#9650;, a plain-English t-test interpretation, and a text bar chart of the two means.</p> <textarea class="code-editor" id="editor3">set.seed(42)
 group1 &lt;- rnorm(25, mean=78, sd=10)
 group2 &lt;- rnorm(25, mean=72, sd=12)
 
@@ -318,18 +220,7 @@ comparison_report &lt;- function(g1, g2, label1="Group A", label2="Group B") {
   cat(sprintf("  %-10s %s %.1f\n", label2, bar2, m2))
 }
 
-comparison_report(group1, group2, "Treatment", "Control")</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>\u25B2</code> is the Unicode up-arrow &#9650;. <code>strrep("|", n)</code> creates a text bar of length n. Scale bars to the maximum mean so the wider bar always fills to 20 characters.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Executive Summary Generator</span>
-      <h3>Auto-Generated Executive Report</h3>
-      <p>Build a complete <code>exec_summary(sales)</code> function that automatically generates a multi-section executive report from any sales data frame, including auto-written insight sentences.</p>
-      <textarea class="code-editor" id="editor4" style="min-height:360px;">sales &lt;- data.frame(
+comparison_report(group1, group2, "Treatment", "Control")</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>\u25B2</code> is the Unicode up-arrow &#9650;. <code>strrep("|", n)</code> creates a text bar of length n. Scale bars to the maximum mean so the wider bar always fills to 20 characters.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project &mdash; Executive Summary Generator</span> <h3>Auto-Generated Executive Report</h3> <p>Build a complete <code>exec_summary(sales)</code> function that automatically generates a multi-section executive report from any sales data frame, including auto-written insight sentences.</p> <textarea class="code-editor" id="editor4" style="min-height:360px;">sales &lt;- data.frame(
   rep     = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David","Eve","Eve"),
   region  = c("West","East","West","West","South","East","West","South","North","North"),
   month   = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb","Jan","Feb"),
@@ -397,49 +288,8 @@ exec_summary &lt;- function(df) {
   cat("\n", strrep("#", 52), "\n", sep="")
 }
 
-exec_summary(sales)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Store computed values in named variables at the top of the function so the insight sentences can reference them naturally: <code>cat(sprintf("... %s ...", top_rep))</code>. This makes the report auto-update when the data changes.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 9 Complete!</h2>
-      <p>You can now build professional, auto-generated reports in R using sprintf, cat, and structured formatting. This skill transforms raw analysis into polished deliverables that communicate clearly to any audience.</p>
-      <p style="margin-bottom:0"><a href="../lab-10/index.html">Continue to Lab 10: Capstone Analysis &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span>
-      <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 9: Professional Output &amp; Reporting</p>
-  </footer>
-<script>
-// Progress tracking via localStorage
+exec_summary(sales)</textarea> <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Store computed values in named variables at the top of the function so the insight sentences can reference them naturally: <code>cat(sprintf("... %s ...", top_rep))</code>. This makes the report auto-update when the data changes.</div></div> <!-- LAB COMPLETE --><div class="lab-complete"> <h2> Lab 9 Complete!</h2> <p>You can now build professional, auto-generated reports in R using sprintf, cat, and structured formatting. This skill transforms raw analysis into polished deliverables that communicate clearly to any audience.</p> <p style="margin-bottom:0"><a href="../lab-10/index.html">Continue to Lab 10: Capstone Analysis &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-08/index.html" class="nav-prev">&larr; Lab 8: Tidyr</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 9 of 10</span> <a href="../lab-10/index.html" class="nav-next">Lab 10: Capstone &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">R Practice Labs &mdash; Lab 9: Professional Output &amp; Reporting</p></footer> <script> // Progress tracking via localStorage
 const LAB_ID = 'r-lab-09';
 
 function isComplete() {
@@ -461,7 +311,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -473,9 +323,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

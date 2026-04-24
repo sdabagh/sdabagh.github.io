@@ -85,8 +85,8 @@ Given a student's discussion post content, provide:
     "initialPost": "Detailed explanation for initial post score...",
     "peerResponses": "Detailed explanation for peer responses score...",
     "clarity": "Detailed explanation for clarity/mechanics score...",
-    "participation": "⚠️ Cannot assess from content. Instructor must verify: Posted on 2+ days AND replied to instructor.",
-    "timeliness": "⚠️ Cannot assess from content. Instructor must verify: First post by Wednesday."
+    "participation": " Cannot assess from content. Instructor must verify: Posted on 2+ days AND replied to instructor.",
+    "timeliness": " Cannot assess from content. Instructor must verify: First post by Wednesday."
   },
   "feedbackComment": "Overall feedback comment for Canvas. Start with positive aspects, then constructive suggestions. Include the AI-assessed total (/90 pts) and note that participation/timeliness need manual verification."
 }

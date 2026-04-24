@@ -35,11 +35,11 @@ I'm researching how AI-powered "scaffolding" (adaptive support at different leve
 
 **BENEFITS:**
 
-- ✅ Free statistics course (equivalent to a college course worth $$$)
-- ✅ 24/7 AI tutoring support
-- ✅ Skills applicable to many careers (business, healthcare, tech, social sciences)
-- ✅ Certificate of completion
-- ✅ Help advance educational research
+-  Free statistics course (equivalent to a college course worth $$$)
+-  24/7 AI tutoring support
+-  Skills applicable to many careers (business, healthcare, tech, social sciences)
+-  Certificate of completion
+-  Help advance educational research
 
 **YOUR PRIVACY IS PROTECTED:**
 
@@ -158,11 +158,11 @@ Statistics is a required course for many degree programs (psychology, business, 
 
 **STUDENT BENEFITS:**
 
-✅ Free comprehensive statistics course (12 modules)
-✅ 24/7 AI tutor support
-✅ Self-paced, no deadlines
-✅ Certificate of completion
-✅ Contribute to educational research (optional)
+ Free comprehensive statistics course (12 modules)
+ 24/7 AI tutor support
+ Self-paced, no deadlines
+ Certificate of completion
+ Contribute to educational research (optional)
 
 **ELIGIBILITY:**
 
@@ -311,19 +311,19 @@ dabagh_safaa@smc.edu
 
 **Text**:
 
-📊 FREE STATISTICS COURSE + AI TUTOR 🤖
+ FREE STATISTICS COURSE + AI TUTOR 
 
 Learn statistics at your own pace while helping advance education research!
 
-✅ 12 comprehensive modules
-✅ 24/7 AI tutoring
-✅ Self-paced, no deadlines
-✅ Certificate of completion
-✅ 100% free!
+ 12 comprehensive modules
+ 24/7 AI tutoring
+ Self-paced, no deadlines
+ Certificate of completion
+ 100% free!
 
 Perfect for community college students preparing for stats courses.
 
-👉 Learn more: https://sdabagh.github.io/participate.html
+ Learn more: https://sdabagh.github.io/participate.html
 
 #Statistics #AIinEducation #FreeCourse #UCLA #Research #CommunityCollege #EducationalEquity
 

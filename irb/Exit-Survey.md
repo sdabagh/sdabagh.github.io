@@ -4,7 +4,7 @@
 
 ## Introduction
 
-**Congratulations on completing the AI-Powered Statistics Learning course!** 🎉
+**Congratulations on completing the AI-Powered Statistics Learning course!** 
 
 Thank you for being part of this research study. Your feedback is **extremely valuable** for improving the platform and understanding how AI can support statistics education.
 
@@ -572,7 +572,7 @@ Email: _______________________
 
 ---
 
-## THANK YOU! 🎉
+## THANK YOU! 
 
 **Thank you so much for completing this exit survey and for participating in this research study!**
 

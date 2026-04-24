@@ -362,16 +362,16 @@ Logged to Firestore
 
 ## Next Steps
 
-1. ✅ Complete scaffolding design (this document)
-2. ⏳ Build chat interface HTML/CSS
-3. ⏳ Implement scaffolding logic (JavaScript)
-4. ⏳ Write system prompts for each level
-5. ⏳ Set up Firebase project and Cloud Functions
-6. ⏳ Integrate Claude API
-7. ⏳ Implement conversation logging
-8. ⏳ Test with sample student interactions
-9. ⏳ IRB approval for pilot study
-10. ⏳ Winter 2026 pilot launch
+1.  Complete scaffolding design (this document)
+2.  Build chat interface HTML/CSS
+3.  Implement scaffolding logic (JavaScript)
+4.  Write system prompts for each level
+5.  Set up Firebase project and Cloud Functions
+6.  Integrate Claude API
+7.  Implement conversation logging
+8.  Test with sample student interactions
+9.  IRB approval for pilot study
+10.  Winter 2026 pilot launch
 
 ---
 

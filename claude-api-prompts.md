@@ -369,9 +369,9 @@ So most values fall between roughly 14 and 22.
 - Large SD = data scattered widely
 
 **Common Mistakes to Avoid:**
-✗ Forgetting to square the deviations
-✗ Using (n-1) vs n in denominator (depends on sample vs population)
-✗ Forgetting to take final square root
+ Forgetting to square the deviations
+ Using (n-1) vs n in denominator (depends on sample vs population)
+ Forgetting to take final square root
 
 **Next Steps - Pick What Works for You:**
 1. Want practice problems with solutions? I can provide 3-4

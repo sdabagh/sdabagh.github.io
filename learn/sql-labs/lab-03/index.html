@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 3: ORDER BY, LIMIT & DISTINCT — SQL Practice Labs. Sort, limit, and deduplicate your SQL results.">
-  <title>Lab 3: ORDER BY, LIMIT &amp; DISTINCT - SQL Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 3: ORDER BY, LIMIT & DISTINCT — SQL Practice Labs. Sort, limit, and deduplicate your SQL results."> <title>Lab 3: ORDER BY, LIMIT &amp; DISTINCT - SQL Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
@@ -50,10 +40,7 @@
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
     .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
-  </style>
-<style>
-@media print {
+    .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}</style> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -74,63 +61,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to SQL Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 3 of 10 &mdash; Foundations</div>
-      <h1>ORDER BY, LIMIT &amp; DISTINCT</h1>
-      <p>Sort, limit, and deduplicate your results</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
-      <a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a>
-    </div>
-
-    <div id="sql-status" class="sql-status">&#x23F3; Loading SQL engine...</div>
-
-    <div class="schema-box">
-      <div class="schema-label">&#x1F4CB; DATABASE SCHEMA &mdash; Available Tables</div>
-      TABLE: students (id, name, major, gpa, year, scholarship, city, age)
-    </div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <ul>
-        <li><strong>ORDER BY column ASC</strong> &mdash; sorts A&rarr;Z, 0&rarr;9 (ASC is the default)</li>
-        <li><strong>ORDER BY column DESC</strong> &mdash; sorts Z&rarr;A, 9&rarr;0</li>
-        <li><strong>ORDER BY col1, col2</strong> &mdash; sort by multiple columns; second column breaks ties</li>
-        <li><strong>LIMIT n</strong> &mdash; return only the first n rows (comes after ORDER BY)</li>
-        <li><strong>SELECT DISTINCT column</strong> &mdash; removes duplicate values in the result</li>
-      </ul>
-      <p style="margin-bottom:0;">Full clause order: <code>SELECT &rarr; FROM &rarr; WHERE &rarr; ORDER BY &rarr; LIMIT</code></p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <div class="worked-code">-- Top 3 students by GPA
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to SQL Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 3 of 10 &mdash; Foundations</div> <h1>ORDER BY, LIMIT &amp; DISTINCT</h1> <p>Sort, limit, and deduplicate your results</p></div> <div class="lab-nav"> <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span> <a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a></div> <div id="sql-status" class="sql-status"> Loading SQL engine...</div> <div class="schema-box"> <div class="schema-label"> DATABASE SCHEMA &mdash; Available Tables</div> TABLE: students (id, name, major, gpa, year, scholarship, city, age)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <ul> <li><strong>ORDER BY column ASC</strong> &mdash; sorts A&rarr;Z, 0&rarr;9 (ASC is the default)</li> <li><strong>ORDER BY column DESC</strong> &mdash; sorts Z&rarr;A, 9&rarr;0</li> <li><strong>ORDER BY col1, col2</strong> &mdash; sort by multiple columns; second column breaks ties</li> <li><strong>LIMIT n</strong> &mdash; return only the first n rows (comes after ORDER BY)</li> <li><strong>SELECT DISTINCT column</strong> &mdash; removes duplicate values in the result</li></ul> <p style="margin-bottom:0;">Full clause order: <code>SELECT &rarr; FROM &rarr; WHERE &rarr; ORDER BY &rarr; LIMIT</code></p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <div class="worked-code">-- Top 3 students by GPA
 SELECT name, major, gpa
 FROM students
 ORDER BY gpa DESC
@@ -142,67 +73,14 @@ SELECT DISTINCT major FROM students ORDER BY major;
 -- Students sorted by year, then by GPA within each year
 SELECT name, year, gpa
 FROM students
-ORDER BY year ASC, gpa DESC;</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Lowest GPA Students</h3>
-      <p>Fill in the blanks to find the 3 students with the lowest GPA (students who may need academic support).</p>
-      <textarea class="code-editor" id="editor1">-- Bottom 3 GPA students
+ORDER BY year ASC, gpa DESC;</div></div> <!-- EXERCISE 1 --><div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Lowest GPA Students</h3> <p>Fill in the blanks to find the 3 students with the lowest GPA (students who may need academic support).</p> <textarea class="code-editor" id="editor1">-- Bottom 3 GPA students
 SELECT name, major, gpa
 FROM students
 ORDER BY gpa ___   -- ascending or descending?
-LIMIT ___;</textarea>
-      <button class="run-btn" id="run1" onclick="runQuery('editor1','output1')" disabled>&#x25B6; Run</button>
-      <div id="output1" class="output-area"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> To get the lowest GPA first, sort ascending (<code>ASC</code>). Then limit to 3 rows.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; City Top Students</h3>
-      <p>Write a query that sorts students by city (A&rarr;Z), then by GPA (highest first) within each city. Show name, city, and GPA. Note what you observe &mdash; we&rsquo;ll learn how to get exactly one per city with GROUP BY later.</p>
-      <textarea class="code-editor" id="editor2">-- Sort by city, then by GPA within each city
-</textarea>
-      <button class="run-btn" id="run2" onclick="runQuery('editor2','output2')" disabled>&#x25B6; Run</button>
-      <div id="output2" class="output-area"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>ORDER BY city ASC, gpa DESC</code> &mdash; two columns separated by a comma.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; DISTINCT Combinations</h3>
-      <p>Write <strong>two queries</strong>:</p>
-      <ol>
-        <li>Unique cities where students live, ordered alphabetically</li>
-        <li>Unique major + year combinations (use both columns in SELECT with DISTINCT), ordered by major then year</li>
-      </ol>
-      <textarea class="code-editor" id="editor3">-- Query 1: Unique cities alphabetically
+LIMIT ___;</textarea> <button class="run-btn" id="run1" onclick="runQuery('editor1','output1')" disabled>&#x25B6; Run</button> <div id="output1" class="output-area"></div> <div class="hint-box"> <strong>Hint:</strong> To get the lowest GPA first, sort ascending (<code>ASC</code>). Then limit to 3 rows.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; City Top Students</h3> <p>Write a query that sorts students by city (A&rarr;Z), then by GPA (highest first) within each city. Show name, city, and GPA. Note what you observe &mdash; we&rsquo;ll learn how to get exactly one per city with GROUP BY later.</p> <textarea class="code-editor" id="editor2">-- Sort by city, then by GPA within each city</textarea> <button class="run-btn" id="run2" onclick="runQuery('editor2','output2')" disabled>&#x25B6; Run</button> <div id="output2" class="output-area"></div> <div class="hint-box"> <strong>Hint:</strong> <code>ORDER BY city ASC, gpa DESC</code> &mdash; two columns separated by a comma.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; DISTINCT Combinations</h3> <p>Write <strong>two queries</strong>:</p> <ol> <li>Unique cities where students live, ordered alphabetically</li> <li>Unique major + year combinations (use both columns in SELECT with DISTINCT), ordered by major then year</li></ol> <textarea class="code-editor" id="editor3">-- Query 1: Unique cities alphabetically
 SELECT DISTINCT city FROM students ORDER BY city;
 
--- Query 2: Unique major + year combinations
-</textarea>
-      <button class="run-btn" id="run3" onclick="runQuery('editor3','output3')" disabled>&#x25B6; Run</button>
-      <div id="output3" class="output-area"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>SELECT DISTINCT major, year FROM students ORDER BY major, year;</code> &mdash; DISTINCT applies to the combination of both columns.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
-      <h3>Mini Project &mdash; Student Directory</h3>
-      <p>You&rsquo;re building a student directory. Write 4 queries:</p>
-      <ol>
-        <li><strong>Full directory A&ndash;Z</strong> &mdash; all students sorted by name ascending</li>
-        <li><strong>Dean&rsquo;s list</strong> &mdash; top 3 students by GPA (use LIMIT 3)</li>
-        <li><strong>Freshmen roster</strong> &mdash; only year = 1 students, sorted by name</li>
-        <li><strong>Unique majors offered</strong> &mdash; use DISTINCT, show distinct major names ordered alphabetically</li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:240px;">-- Query 1: Full directory A-Z
+-- Query 2: Unique major + year combinations</textarea> <button class="run-btn" id="run3" onclick="runQuery('editor3','output3')" disabled>&#x25B6; Run</button> <div id="output3" class="output-area"></div> <div class="hint-box"><strong>Hint:</strong> <code>SELECT DISTINCT major, year FROM students ORDER BY major, year;</code> &mdash; DISTINCT applies to the combination of both columns.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project</span> <h3>Mini Project &mdash; Student Directory</h3> <p>You&rsquo;re building a student directory. Write 4 queries:</p> <ol> <li><strong>Full directory A&ndash;Z</strong> &mdash; all students sorted by name ascending</li> <li><strong>Dean&rsquo;s list</strong>&mdash; top 3 students by GPA (use LIMIT 3)</li> <li><strong>Freshmen roster</strong> &mdash; only year = 1 students, sorted by name</li> <li><strong>Unique majors offered</strong> &mdash; use DISTINCT, show distinct major names ordered alphabetically</li></ol> <textarea class="code-editor" id="editor4" style="min-height:240px;">-- Query 1: Full directory A-Z
 
 
 -- Query 2: Dean's list (top 3 by GPA)
@@ -211,55 +89,13 @@ SELECT DISTINCT city FROM students ORDER BY city;
 -- Query 3: Freshmen roster
 
 
--- Query 4: Unique majors offered
-</textarea>
-      <button class="run-btn" id="run4" onclick="runQuery('editor4','output4')" disabled>&#x25B6; Run</button>
-      <div id="output4" class="output-area"></div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 3 Complete!</h2>
-      <p>You can now sort results, limit output, and eliminate duplicates. These three tools are essential in every analyst&rsquo;s toolkit. Next up: aggregate functions &mdash; where we turn rows into insights.</p>
-      <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Aggregate Functions &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
-      <a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">SQL Practice Labs &mdash; Lab 3: ORDER BY, LIMIT &amp; DISTINCT</p>
-  </footer>
-
-  <script>
-    let db = null;
+-- Query 4: Unique majors offered</textarea> <button class="run-btn" id="run4" onclick="runQuery('editor4','output4')" disabled>&#x25B6; Run</button> <div id="output4" class="output-area"></div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 3 Complete!</h2> <p>You can now sort results, limit output, and eliminate duplicates. These three tools are essential in every analyst&rsquo;s toolkit. Next up: aggregate functions &mdash; where we turn rows into insights.</p> <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Aggregate Functions &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: WHERE</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span><a href="../lab-04/index.html" class="nav-next">Lab 4: Aggregates &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">SQL Practice Labs &mdash; Lab 3: ORDER BY, LIMIT &amp; DISTINCT</p></footer><script> let db = null;
     let sqlReady = false;
 
     async function initSQL() {
       const statusEl = document.getElementById('sql-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading SQL engine...';
+      if(statusEl) statusEl.textContent = ' Loading SQL engine...';
       const SQL = await initSqlJs({
         locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
       });
@@ -267,7 +103,7 @@ SELECT DISTINCT city FROM students ORDER BY city;
       loadSchema();
       sqlReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ Database ready! Tables loaded. Click ▶ Run to execute your query.';
+        statusEl.textContent = ' Database ready! Tables loaded. Click ▶ Run to execute your query.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#1565C0';
         statusEl.style.color = '#1565C0';
@@ -301,7 +137,7 @@ SELECT DISTINCT city FROM students ORDER BY city;
       try {
         const results = db.exec(sql);
         if (!results.length) {
-          outputEl.innerHTML = '<div class="sql-success">✓ Query executed successfully.</div>';
+          outputEl.innerHTML = '<div class="sql-success"> Query executed successfully.</div>';
           return;
         }
         results.forEach(result => {
@@ -329,14 +165,11 @@ SELECT DISTINCT city FROM students ORDER BY city;
           outputEl.appendChild(count);
         });
       } catch(e) {
-        outputEl.innerHTML = `<div class="sql-error">❌ ${e.message}</div>`;
+        outputEl.innerHTML = `<div class="sql-error"> ${e.message}</div>`;
       }
     }
 
-    initSQL();
-  </script>
-<script>
-// Progress tracking via localStorage
+    initSQL();</script> <script> // Progress tracking via localStorage
 const LAB_ID = 'sql-lab-03';
 
 function isComplete() {
@@ -358,7 +191,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -370,9 +203,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

@@ -160,41 +160,22 @@ By the end of this module, you will be able to:
 
 ### Embedded Tools
 ```html
-<!-- Desmos Calculator -->
-<iframe src="https://www.desmos.com/calculator/..."
-        width="100%" height="400px"></iframe>
-
-<!-- GeoGebra Applet -->
-<iframe src="https://www.geogebra.org/material/iframe/id/..."
-        width="100%" height="600px"></iframe>
-
-<!-- YouTube Video -->
-<iframe src="https://www.youtube.com/embed/VIDEO_ID"
-        width="100%" height="400px"></iframe>
-```
+<!-- Desmos Calculator --> <iframe src="https://www.desmos.com/calculator/..."
+        width="100%" height="400px"></iframe> <!-- GeoGebra Applet --> <iframe src="https://www.geogebra.org/material/iframe/id/..."
+        width="100%" height="600px"></iframe> <!-- YouTube Video --> <iframe src="https://www.youtube.com/embed/VIDEO_ID"
+        width="100%" height="400px"></iframe> ```
 
 ### Self-Check Questions
 ```javascript
 // Simple JavaScript quiz
-<div class="self-check">
-  <p><strong>Quick Check:</strong> What type of data is "shoe size"?</p>
-  <button onclick="checkAnswer('discrete')">Discrete</button>
-  <button onclick="checkAnswer('continuous')">Continuous</button>
-  <button onclick="checkAnswer('categorical')">Categorical</button>
-  <div id="feedback"></div>
-</div>
-
-<script>
-function checkAnswer(answer) {
+<div class="self-check"> <p><strong>Quick Check:</strong> What type of data is "shoe size"?</p> <button onclick="checkAnswer('discrete')">Discrete</button> <button onclick="checkAnswer('continuous')">Continuous</button> <button onclick="checkAnswer('categorical')">Categorical</button> <div id="feedback"></div></div> <script> function checkAnswer(answer) {
   const feedback = document.getElementById('feedback');
   if (answer === 'discrete') {
-    feedback.innerHTML = '✅ Correct! Shoe sizes are discrete (countable values).';
+    feedback.innerHTML = ' Correct! Shoe sizes are discrete (countable values).';
   } else {
-    feedback.innerHTML = '❌ Try again. Think about whether shoe sizes are countable or measurable.';
+    feedback.innerHTML = ' Try again. Think about whether shoe sizes are countable or measurable.';
   }
-}
-</script>
-```
+}</script> ```
 
 ---
 
@@ -319,13 +300,13 @@ All modules must meet:
 
 ## Next Steps
 
-1. ✅ Module structure template (this document)
-2. ⏳ Build Module 1 complete content
-3. ⏳ Create assessment questions
-4. ⏳ Curate/create video lessons
-5. ⏳ Add interactive examples
-6. ⏳ Test with pilot users
-7. ⏳ Iterate based on feedback
+1.  Module structure template (this document)
+2.  Build Module 1 complete content
+3.  Create assessment questions
+4.  Curate/create video lessons
+5.  Add interactive examples
+6.  Test with pilot users
+7.  Iterate based on feedback
 
 ---
 

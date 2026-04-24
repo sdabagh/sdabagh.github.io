@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 6: String Methods — Python Practice Labs. Deep dive into string operations, slicing, f-strings, Caesar cipher, and text analysis.">
-  <title>Lab 6: String Methods - Python Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 6: String Methods — Python Practice Labs. Deep dive into string operations, slicing, f-strings, Caesar cipher, and text analysis."> <title>Lab 6: String Methods - Python Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
@@ -41,10 +31,7 @@
     .lab-header{background:linear-gradient(135deg,#1a237e 0%,#1565C0 60%,#2E7D32 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-<style>
-@media print {
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -65,59 +52,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 6 of 10</div>
-      <h1>String Methods</h1>
-      <p>Python&rsquo;s most underrated superpower</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Lists &amp; Dicts</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span>
-      <a href="../lab-07/index.html" class="nav-next">Lab 7: Data &rarr;</a>
-    </div>
-
-    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python... (first load takes ~10 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>Strings are <strong>immutable</strong> sequences &mdash; methods return new strings, they never modify in place.</p>
-      <ul>
-        <li><strong>Cleaning:</strong> <code>.strip()</code>, <code>.lstrip()</code>, <code>.rstrip()</code>, <code>.lower()</code>, <code>.upper()</code>, <code>.title()</code></li>
-        <li><strong>Searching:</strong> <code>.find()</code>, <code>.count()</code>, <code>.startswith()</code>, <code>.endswith()</code>, <code>in</code></li>
-        <li><strong>Transforming:</strong> <code>.replace(old, new)</code>, <code>.split(sep)</code>, <code>sep.join(list)</code></li>
-        <li><strong>Slicing:</strong> <code>s[start:stop:step]</code> &mdash; <code>s[::-1]</code> reverses a string</li>
-        <li><strong>f-strings:</strong> <code>f"Name: {name!r}, Score: {score:.2f}"</code></li>
-      </ul>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>Real-world string cleaning &mdash; standardizing messy name data:</p>
-      <div class="worked-code">raw_data = [
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 6 of 10</div> <h1>String Methods</h1> <p>Python&rsquo;s most underrated superpower</p></div> <div class="lab-nav"> <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Lists &amp; Dicts</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span> <a href="../lab-07/index.html" class="nav-next">Lab 7: Data &rarr;</a></div> <div id="pyodide-status" class="pyodide-status"> Loading Python... (first load takes ~10 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>Strings are <strong>immutable</strong>sequences &mdash; methods return new strings, they never modify in place.</p> <ul> <li><strong>Cleaning:</strong><code>.strip()</code>, <code>.lstrip()</code>, <code>.rstrip()</code>, <code>.lower()</code>, <code>.upper()</code>, <code>.title()</code></li> <li><strong>Searching:</strong> <code>.find()</code>, <code>.count()</code>, <code>.startswith()</code>, <code>.endswith()</code>, <code>in</code></li> <li><strong>Transforming:</strong> <code>.replace(old, new)</code>, <code>.split(sep)</code>, <code>sep.join(list)</code></li> <li><strong>Slicing:</strong> <code>s[start:stop:step]</code> &mdash; <code>s[::-1]</code> reverses a string</li> <li><strong>f-strings:</strong> <code>f"Name: {name!r}, Score: {score:.2f}"</code></li></ul></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>Real-world string cleaning &mdash; standardizing messy name data:</p> <div class="worked-code">raw_data = [
     "  john smith  ",
     "SARAH LEE",
     "mike_brown@email.COM",
@@ -136,16 +71,7 @@ def clean_name(raw):
     return name.title()
 
 for person in raw_data:
-    print(f"'{person}' → '{clean_name(person)}'")</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Text Analyzer</h3>
-      <p>Complete the text analyzer by filling in the blanks. Each blank uses a string method or variable you already have.</p>
-      <textarea class="code-editor" id="editor1">
-text = "Python is amazing. Python is powerful. Data science with Python is the future!"
+    print(f"'{person}' → '{clean_name(person)}'")</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Text Analyzer</h3> <p>Complete the text analyzer by filling in the blanks. Each blank uses a string method or variable you already have.</p> <textarea class="code-editor" id="editor1"> text = "Python is amazing. Python is powerful. Data science with Python is the future!"
 
 # 1. Count words
 words = text.___()         # split on whitespace
@@ -165,49 +91,14 @@ most_common = max(word_freq, key=lambda w: word_freq[w])
 print(f"Most common: '{most_common}' ({word_freq[most_common]} times)")
 
 # 4. Does it mention Python?
-print(f"Mentions Python: {'Python' ___ text}")</textarea>
-      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Use <code>.split()</code> (no arguments) to split on any whitespace. Use the <code>in</code> keyword to check if "Python" appears in text.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Phone Number Formatter</h3>
-      <p>Write a function <code>format_phone(raw)</code> that takes messy phone numbers and returns them all in the format <code>213-555-0123</code>. Test all 4 formats:</p>
-      <ul>
-        <li><code>'(213) 555-0123'</code></li>
-        <li><code>'2135550123'</code></li>
-        <li><code>'213.555.0123'</code></li>
-        <li><code>'+1-213-555-0123'</code></li>
-      </ul>
-      <textarea class="code-editor" id="editor2">
-def format_phone(raw):
+print(f"Mentions Python: {'Python' ___ text}")</textarea> <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Use <code>.split()</code> (no arguments) to split on any whitespace. Use the <code>in</code> keyword to check if "Python" appears in text.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Phone Number Formatter</h3> <p>Write a function <code>format_phone(raw)</code> that takes messy phone numbers and returns them all in the format <code>213-555-0123</code>. Test all 4 formats:</p> <ul> <li><code>'(213) 555-0123'</code></li> <li><code>'2135550123'</code></li> <li><code>'213.555.0123'</code></li> <li><code>'+1-213-555-0123'</code></li></ul> <textarea class="code-editor" id="editor2"> def format_phone(raw):
     # Your code here: strip all non-digit characters, then reformat
     pass
 
 # Test all 4 formats:
 numbers = ['(213) 555-0123', '2135550123', '213.555.0123', '+1-213-555-0123']
 for num in numbers:
-    print(f"'{num}' → '{format_phone(num)}'")</textarea>
-      <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> First extract only digits: <code>digits = ''.join(c for c in raw if c.isdigit())</code>. Then take the last 10 digits and slice them into 3 parts: <code>digits[-10:-7] + '-' + digits[-7:-4] + '-' + digits[-4:]</code></div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Caesar Cipher</h3>
-      <p>Write two functions:</p>
-      <ul>
-        <li><code>encrypt(text, shift)</code> &mdash; shifts each letter forward by <code>shift</code> positions in the alphabet (wraps around). Non-letters stay unchanged. Preserve case.</li>
-        <li><code>decrypt(text, shift)</code> &mdash; reverses the encryption</li>
-      </ul>
-      <p>Test: Encrypt <code>'Hello World'</code> with shift=3, then decrypt it back to verify.</p>
-      <textarea class="code-editor" id="editor3">
-def encrypt(text, shift):
+    print(f"'{num}' → '{format_phone(num)}'")</textarea> <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> First extract only digits: <code>digits = ''.join(c for c in raw if c.isdigit())</code>. Then take the last 10 digits and slice them into 3 parts: <code>digits[-10:-7] + '-' + digits[-7:-4] + '-' + digits[-4:]</code></div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Caesar Cipher</h3> <p>Write two functions:</p><ul> <li><code>encrypt(text, shift)</code> &mdash; shifts each letter forward by <code>shift</code> positions in the alphabet (wraps around). Non-letters stay unchanged. Preserve case.</li> <li><code>decrypt(text, shift)</code> &mdash; reverses the encryption</li></ul> <p>Test: Encrypt <code>'Hello World'</code> with shift=3, then decrypt it back to verify.</p> <textarea class="code-editor" id="editor3"> def encrypt(text, shift):
     result = ""
     for char in text:
         if char.isalpha():
@@ -229,86 +120,21 @@ decrypted = decrypt(encrypted, 3)
 print(f"Original:  {message}")
 print(f"Encrypted: {encrypted}")
 print(f"Decrypted: {decrypted}")
-print(f"Round-trip successful: {message == decrypted}")</textarea>
-      <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> The starter code is mostly complete &mdash; run it and study how it works. Then try different shift values and messages. Can you encrypt "Python" with shift=13 (ROT13)?</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
-      <h3>Mini Project &mdash; Complete Text Analyzer</h3>
-      <p>Build a full text analyzer. Given the paragraph below, calculate and print all 7 metrics:</p>
-      <ol>
-        <li>Total character count (with spaces) and without spaces</li>
-        <li>Word count</li>
-        <li>Sentence count</li>
-        <li>Average word length (in characters)</li>
-        <li>The 5 most frequent words (excluding stop words: the, a, an, is, are, and, of, to, that, from, in)</li>
-        <li>Percentage of words that are unique</li>
-        <li>The longest word in the text</li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:220px;">
-text = """Data science is an interdisciplinary field that uses scientific methods,
+print(f"Round-trip successful: {message == decrypted}")</textarea> <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> The starter code is mostly complete &mdash; run it and study how it works. Then try different shift values and messages. Can you encrypt "Python" with shift=13 (ROT13)?</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project</span> <h3>Mini Project &mdash; Complete Text Analyzer</h3> <p>Build a full text analyzer. Given the paragraph below, calculate and print all 7 metrics:</p> <ol> <li>Total character count (with spaces) and without spaces</li> <li>Word count</li> <li>Sentence count</li> <li>Average word length (in characters)</li> <li>The 5 most frequent words (excluding stop words: the, a, an, is, are, and, of, to, that, from, in)</li> <li>Percentage of words that are unique</li> <li>The longest word in the text</li></ol> <textarea class="code-editor" id="editor4" style="min-height:220px;"> text = """Data science is an interdisciplinary field that uses scientific methods,
 processes, algorithms and systems to extract knowledge and insights from noisy,
 structured and unstructured data, and apply knowledge and actionable insights
 from data across a broad range of application domains."""
 
 # Your full analysis here
-stop_words = {'the', 'a', 'an', 'is', 'are', 'and', 'of', 'to', 'that', 'from', 'in'}
-</textarea>
-      <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Strip punctuation from words with <code>word.strip('.,!?;:')</code> before counting. For the top 5, sort the frequency dict by value: <code>sorted(freq.items(), key=lambda x: x[1], reverse=True)[:5]</code>.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 6 Complete!</h2>
-      <p>You&rsquo;ve mastered string cleaning, splitting, joining, slicing, and built a Caesar cipher and full text analyzer. String skills are essential for working with any real-world data.</p>
-      <p style="margin-bottom:0"><a href="../lab-07/index.html">Continue to Lab 7: Working with Data &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Lists &amp; Dicts</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span>
-      <a href="../lab-07/index.html" class="nav-next">Lab 7: Data &rarr;</a>
-    </div>
-
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">Python Practice Labs &mdash; Lab 6: String Methods</p>
-  </footer>
-
-  <script>
-    let pyodide = null;
+stop_words = {'the', 'a', 'an', 'is', 'are', 'and', 'of', 'to', 'that', 'from', 'in'}</textarea> <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Strip punctuation from words with <code>word.strip('.,!?;:')</code> before counting. For the top 5, sort the frequency dict by value: <code>sorted(freq.items(), key=lambda x: x[1], reverse=True)[:5]</code>.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 6 Complete!</h2> <p>You&rsquo;ve mastered string cleaning, splitting, joining, slicing, and built a Caesar cipher and full text analyzer. String skills are essential for working with any real-world data.</p> <p style="margin-bottom:0"><a href="../lab-07/index.html">Continue to Lab 7: Working with Data &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Lists &amp; Dicts</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span> <a href="../lab-07/index.html" class="nav-next">Lab 7: Data &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">Python Practice Labs &mdash; Lab 6: String Methods</p></footer> <script> let pyodide = null;
 
     async function initPyodide() {
       const statusEl = document.getElementById('pyodide-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading Python... (first load takes ~10 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading Python... (first load takes ~10 seconds)';
       pyodide = await loadPyodide();
       if(statusEl) {
-        statusEl.textContent = '✅ Python ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' Python ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -328,14 +154,11 @@ stop_words = {'the', 'a', 'an', 'is', 'are', 'and', 'of', 'to', 'that', 'from', 
         const out = pyodide.runPython('sys.stdout.getvalue()');
         const err = pyodide.runPython('sys.stderr.getvalue()');
         if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
-        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
-      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || ' Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = ' ' + e.message; outputEl.classList.add('error'); }
     }
 
-    initPyodide();
-  </script>
-<script>
-// Progress tracking via localStorage
+    initPyodide();</script> <script> // Progress tracking via localStorage
 const LAB_ID = 'python-lab-06';
 
 function isComplete() {
@@ -357,7 +180,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -369,9 +192,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

@@ -93,9 +93,7 @@ function createHouseholdDistribution(containerId) {
     const y = height - padding.bottom - barHeight;
 
     // Bar
-    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" opacity="0.8" stroke="#2C5F7C" stroke-width="2">
-      <title>${item.label}: ${(item.prob * 100).toFixed(1)}%</title>
-    </rect>`;
+    svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" opacity="0.8" stroke="#2C5F7C" stroke-width="2"> <title>${item.label}: ${(item.prob * 100).toFixed(1)}%</title></rect>`;
 
     // Value label on top of bar
     svg += `<text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle" font-size="11" font-weight="600" fill="#2C5F7C">${(item.prob * 100).toFixed(0)}%</text>`;
@@ -110,7 +108,7 @@ function createHouseholdDistribution(containerId) {
   svg += `<text x="${expectedValueX}" y="${padding.top - 5}" text-anchor="middle" font-size="12" font-weight="600" fill="#D97D54">E(X) = ${expectedValue.toFixed(2)}</text>`;
 
   // Legend
-  svg += `<text x="${padding.left}" y="${height - 15}" font-size="11" fill="#666" font-style="italic">💡 Dashed line shows expected value (average household size)</text>`;
+  svg += `<text x="${padding.left}" y="${height - 15}" font-size="11" fill="#666" font-style="italic"> Dashed line shows expected value (average household size)</text>`;
 
   svg += `</svg>`;
   container.innerHTML = svg;
@@ -125,37 +123,7 @@ function createExpectedValueVisualizer(containerId) {
 
   // Create HTML structure with sliders
   container.innerHTML = `
-    <div style="background: white; padding: 20px; border-radius: 8px;">
-      <h3 style="margin-top: 0; color: #2C5F7C;">Expected Value Visualizer</h3>
-      <p style="color: #666; margin-bottom: 20px;">Adjust the probabilities and watch how the expected value changes</p>
-
-      <div style="margin-bottom: 30px;">
-        <div style="margin-bottom: 15px;">
-          <label style="font-weight: 600; color: #333;">Value X = 1: <span id="x1val">0.2</span> probability</label><br>
-          <input type="range" id="x1slider" min="0" max="100" value="20" style="width: 100%; max-width: 300px;">
-        </div>
-
-        <div style="margin-bottom: 15px;">
-          <label style="font-weight: 600; color: #333;">Value X = 2: <span id="x2val">0.3</span> probability</label><br>
-          <input type="range" id="x2slider" min="0" max="100" value="30" style="width: 100%; max-width: 300px;">
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="font-weight: 600; color: #333;">Value X = 3: <span id="x3val">0.5</span> probability</label><br>
-          <input type="range" id="x3slider" min="0" max="100" value="50" style="width: 100%; max-width: 300px;">
-        </div>
-
-        <div style="background: #f0f8ff; padding: 15px; border-radius: 4px; border-left: 4px solid #3A7CA5;">
-          <p style="margin: 0; font-size: 14px; color: #666;">
-            <strong>Total Probability:</strong> <span id="totalprob">1.00</span>
-            <br><strong>Expected Value E(X):</strong> <span id="evresult" style="font-size: 18px; color: #2C5F7C; font-weight: 700;">2.30</span>
-          </p>
-        </div>
-      </div>
-
-      <div id="evChart" style="margin-top: 20px;"></div>
-    </div>
-  `;
+    <div style="background: white; padding: 20px; border-radius: 8px;"> <h3 style="margin-top: 0; color: #2C5F7C;">Expected Value Visualizer</h3> <p style="color: #666; margin-bottom: 20px;">Adjust the probabilities and watch how the expected value changes</p> <div style="margin-bottom: 30px;"> <div style="margin-bottom: 15px;"> <label style="font-weight: 600; color: #333;">Value X = 1: <span id="x1val">0.2</span> probability</label><br> <input type="range" id="x1slider" min="0" max="100" value="20" style="width: 100%; max-width: 300px;"></div> <div style="margin-bottom: 15px;"> <label style="font-weight: 600; color: #333;">Value X = 2: <span id="x2val">0.3</span> probability</label><br> <input type="range" id="x2slider" min="0" max="100" value="30" style="width: 100%; max-width: 300px;"></div> <div style="margin-bottom: 20px;"> <label style="font-weight: 600; color: #333;">Value X = 3: <span id="x3val">0.5</span> probability</label><br> <input type="range" id="x3slider" min="0" max="100" value="50" style="width: 100%; max-width: 300px;"></div> <div style="background: #f0f8ff; padding: 15px; border-radius: 4px; border-left: 4px solid #3A7CA5;"> <p style="margin: 0; font-size: 14px; color: #666;"> <strong>Total Probability:</strong> <span id="totalprob">1.00</span> <br><strong>Expected Value E(X):</strong> <span id="evresult" style="font-size: 18px; color: #2C5F7C; font-weight: 700;">2.30</span></p></div></div> <div id="evChart" style="margin-top: 20px;"></div></div> `;
 
   function updateExpectedValueChart() {
     const p1 = parseFloat(document.getElementById('x1slider').value) / 100;
@@ -216,9 +184,7 @@ function createExpectedValueVisualizer(containerId) {
       const xPos = padding.left + index * (chartWidth / 3) + (chartWidth / (3 * 2)) - barWidth / 2;
       const y = height - padding.bottom - barHeight;
 
-      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${item.color}" opacity="0.8" stroke="#333" stroke-width="2">
-        <title>X = ${item.x}: P = ${item.prob.toFixed(3)}</title>
-      </rect>`;
+      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${item.color}" opacity="0.8" stroke="#333" stroke-width="2"> <title>X = ${item.x}: P = ${item.prob.toFixed(3)}</title></rect>`;
 
       svg += `<text x="${xPos + barWidth/2}" y="${y - 5}" text-anchor="middle" font-size="10" font-weight="600" fill="#333">${(item.prob * 100).toFixed(0)}%</text>`;
       svg += `<text x="${xPos + barWidth/2}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="11" font-weight="600" fill="#333">X=${item.x}</text>`;
@@ -249,36 +215,9 @@ function createBinomialSimulator(containerId) {
   const container = document.getElementById(containerId);
 
   container.innerHTML = `
-    <div style="background: white; padding: 20px; border-radius: 8px;">
-      <h3 style="margin-top: 0; color: #2C5F7C;">Binomial Distribution Simulator</h3>
-      <p style="color: #666; margin-bottom: 20px;">Adjust n and p to see how the binomial distribution changes</p>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-        <div>
-          <label style="font-weight: 600; color: #333;">Number of Trials (n):</label><br>
-          <input type="range" id="nslider" min="5" max="100" value="20" style="width: 100%; max-width: 250px;">
-          <div style="font-size: 14px; color: #666; margin-top: 5px;">n = <span id="nval">20</span></div>
-        </div>
-
-        <div>
-          <label style="font-weight: 600; color: #333;">Probability of Success (p):</label><br>
-          <input type="range" id="pslider" min="0" max="100" value="50" style="width: 100%; max-width: 250px;">
-          <div style="font-size: 14px; color: #666; margin-top: 5px;">p = <span id="pval">0.50</span></div>
-        </div>
-      </div>
-
-      <div style="background: #fff9e6; padding: 15px; border-radius: 4px; border-left: 4px solid #FFA500; margin-bottom: 20px;">
-        <p style="margin: 5px 0; font-size: 14px;">
-          <strong>E(X):</strong> <span id="binev" style="font-weight: 700;">10.00</span> |
+    <div style="background: white; padding: 20px; border-radius: 8px;"> <h3 style="margin-top: 0; color: #2C5F7C;">Binomial Distribution Simulator</h3> <p style="color: #666; margin-bottom: 20px;">Adjust n and p to see how the binomial distribution changes</p> <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;"> <div> <label style="font-weight: 600; color: #333;">Number of Trials (n):</label><br> <input type="range" id="nslider" min="5" max="100" value="20" style="width: 100%; max-width: 250px;"> <div style="font-size: 14px; color: #666; margin-top: 5px;">n = <span id="nval">20</span></div></div> <div> <label style="font-weight: 600; color: #333;">Probability of Success (p):</label><br> <input type="range" id="pslider" min="0" max="100" value="50" style="width: 100%; max-width: 250px;"> <div style="font-size: 14px; color: #666; margin-top: 5px;">p = <span id="pval">0.50</span></div></div></div> <div style="background: #fff9e6; padding: 15px; border-radius: 4px; border-left: 4px solid #FFA500; margin-bottom: 20px;"> <p style="margin: 5px 0; font-size: 14px;"> <strong>E(X):</strong> <span id="binev" style="font-weight: 700;">10.00</span> |
           <strong>Var(X):</strong> <span id="binvar" style="font-weight: 700;">5.00</span> |
-          <strong>SD(X):</strong> <span id="binsd" style="font-weight: 700;">2.24</span>
-        </p>
-        <p style="margin: 5px 0; font-size: 13px; color: #666;" id="normcheck"></p>
-      </div>
-
-      <div id="binomialChart" style="margin-top: 20px;"></div>
-    </div>
-  `;
+          <strong>SD(X):</strong> <span id="binsd" style="font-weight: 700;">2.24</span></p> <p style="margin: 5px 0; font-size: 13px; color: #666;" id="normcheck"></p></div> <div id="binomialChart" style="margin-top: 20px;"></div></div> `;
 
   function updateBinomialChart() {
     const n = parseInt(document.getElementById('nslider').value);
@@ -301,8 +240,8 @@ function createBinomialSimulator(containerId) {
     const nqCheck = n * (1 - p);
     const normalOK = npCheck >= 10 && nqCheck >= 10;
     const normCheckText = normalOK
-      ? `✓ Normal approximation OK (np=${npCheck.toFixed(0)} ≥ 10, n(1-p)=${nqCheck.toFixed(0)} ≥ 10)`
-      : `✗ Normal approximation NOT suitable (np=${npCheck.toFixed(0)}, n(1-p)=${nqCheck.toFixed(0)})`;
+      ? ` Normal approximation OK (np=${npCheck.toFixed(0)} ≥ 10, n(1-p)=${nqCheck.toFixed(0)} ≥ 10)`
+      : ` Normal approximation NOT suitable (np=${npCheck.toFixed(0)}, n(1-p)=${nqCheck.toFixed(0)})`;
     document.getElementById('normcheck').textContent = normCheckText;
 
     // Calculate distribution
@@ -349,9 +288,7 @@ function createBinomialSimulator(containerId) {
       if (Math.abs(zscore) > 2) barColor = '#DC3545';
       else if (Math.abs(zscore) > 1) barColor = '#FFA500';
 
-      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${barColor}" opacity="0.8" stroke="#333" stroke-width="0.5">
-        <title>X=${item.value}: P=${item.probability.toFixed(4)}</title>
-      </rect>`;
+      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${barColor}" opacity="0.8" stroke="#333" stroke-width="0.5"> <title>X=${item.value}: P=${item.probability.toFixed(4)}</title></rect>`;
     });
 
     // Expected value line
@@ -377,26 +314,7 @@ function createBinomialNormalComparison(containerId) {
   const container = document.getElementById(containerId);
 
   container.innerHTML = `
-    <div style="background: white; padding: 20px; border-radius: 8px;">
-      <h3 style="margin-top: 0; color: #2C5F7C;">Binomial vs Normal Distribution</h3>
-      <p style="color: #666; margin-bottom: 20px;">Watch how the binomial approaches normal as n increases (p = 0.5)</p>
-
-      <div style="margin-bottom: 20px;">
-        <label style="font-weight: 600; color: #333;">Number of Trials (n):</label><br>
-        <input type="range" id="ncompslider" min="10" max="200" value="20" step="10" style="width: 100%; max-width: 300px;">
-        <div style="font-size: 14px; color: #666; margin-top: 5px;">n = <span id="ncompval">20</span></div>
-      </div>
-
-      <div style="background: #f0f8ff; padding: 15px; border-radius: 4px; border-left: 4px solid #3A7CA5; margin-bottom: 20px;">
-        <p style="margin: 5px 0; font-size: 13px;">
-          <strong>Blue bars:</strong> Binomial distribution | <strong>Red curve:</strong> Normal approximation
-        </p>
-        <p style="margin: 5px 0; font-size: 13px;" id="normgoodness"></p>
-      </div>
-
-      <div id="comparisonChart" style="margin-top: 20px;"></div>
-    </div>
-  `;
+    <div style="background: white; padding: 20px; border-radius: 8px;"> <h3 style="margin-top: 0; color: #2C5F7C;">Binomial vs Normal Distribution</h3> <p style="color: #666; margin-bottom: 20px;">Watch how the binomial approaches normal as n increases (p = 0.5)</p> <div style="margin-bottom: 20px;"> <label style="font-weight: 600; color: #333;">Number of Trials (n):</label><br><input type="range" id="ncompslider" min="10" max="200" value="20" step="10" style="width: 100%; max-width: 300px;"> <div style="font-size: 14px; color: #666; margin-top: 5px;">n = <span id="ncompval">20</span></div></div> <div style="background: #f0f8ff; padding: 15px; border-radius: 4px; border-left: 4px solid #3A7CA5; margin-bottom: 20px;"> <p style="margin: 5px 0; font-size: 13px;"> <strong>Blue bars:</strong> Binomial distribution | <strong>Red curve:</strong> Normal approximation</p> <p style="margin: 5px 0; font-size: 13px;" id="normgoodness"></p></div> <div id="comparisonChart" style="margin-top: 20px;"></div></div> `;
 
   // Normal density function (simplified)
   function normalDensity(x, mean, sd) {
@@ -418,7 +336,7 @@ function createBinomialNormalComparison(containerId) {
     // Check normal approximation
     const npCheck = n * p;
     const normGoodness = npCheck >= 10
-      ? `✓ Good fit (np=${npCheck.toFixed(0)} ≥ 10)`
+      ? ` Good fit (np=${npCheck.toFixed(0)} ≥ 10)`
       : `△ Moderate fit (np=${npCheck.toFixed(0)})`;
     document.getElementById('normgoodness').textContent = normGoodness;
 
@@ -457,9 +375,7 @@ function createBinomialNormalComparison(containerId) {
       const xPos = padding.left + (item.value / n) * chartWidth - barWidth / 2;
       const y = height - padding.bottom - barHeight;
 
-      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" opacity="0.7" stroke="#2C5F7C" stroke-width="0.5">
-        <title>X=${item.value}: P=${item.probability.toFixed(4)}</title>
-      </rect>`;
+      svg += `<rect x="${xPos}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#3A7CA5" opacity="0.7" stroke="#2C5F7C" stroke-width="0.5"> <title>X=${item.value}: P=${item.probability.toFixed(4)}</title></rect>`;
     });
 
     // Draw normal approximation curve

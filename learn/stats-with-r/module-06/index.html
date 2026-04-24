@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Module 6: Correlation & Simple Linear Regression — Statistics with R. Use cor() and lm() to study relationships between variables in R.">
-  <title>Module 6: Correlation &amp; Simple Regression - Statistics with R</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Module 6: Correlation & Simple Linear Regression — Statistics with R. Use cor() and lm() to study relationships between variables in R."> <title>Module 6: Correlation &amp; Simple Regression - Statistics with R</title> <link rel="stylesheet" href="../../../style.css"> <style> .module-header{background:linear-gradient(135deg,#00695C 0%,#004D40 60%,#00251a 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .module-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .module-header .module-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
     .module-header p{opacity:0.92;font-size:1rem;margin:0}
@@ -46,20 +37,17 @@
     .before-start h2{margin-top:0;color:#2E7D32;font-size:1.1rem}
     .hint-box{background:#FFF8E1;border-left:4px solid #F9A825;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-top:0.75rem;font-size:0.9rem}
     .warning-box{background:#FFEBEE;border-left:4px solid #C62828;padding:1.25rem 1.5rem;border-radius:0 12px 12px 0;margin-bottom:2rem}
-    .warning-box h3{margin-top:0;color:#C62828;font-size:1rem}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .warning-box h3{margin-top:0;color:#C62828;font-size:1rem}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
 
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -88,7 +76,7 @@
           .filter(o => o.type === 'stdout' || o.type === 'stderr')
           .map(o => o.data)
           .join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -100,7 +88,7 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally {
         shelter.purge();
@@ -108,10 +96,7 @@
     }
 
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -132,76 +117,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a>
-
-    <div class="module-header">
-      <div class="module-label">Module 6 of 8 &mdash; Statistics with R</div>
-      <h1>Correlation &amp; Simple Linear Regression</h1>
-      <p>Relationships between variables</p>
-    </div>
-
-    <div class="module-nav">
-      <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Hypothesis Testing</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span>
-      <a href="../module-07/index.html" class="nav-next">Module 7: Multiple Regression &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- BEFORE YOU START -->
-    <div class="before-start">
-      <h2>&#x1F4CC; Before You Start</h2>
-      <p><strong>What you need:</strong> Modules 1&ndash;5 completed, or familiarity with descriptive stats and basic hypothesis testing.</p>
-      <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How to measure the strength and direction of linear relationships with correlation. How to fit a simple linear regression model with <code>lm()</code>. How to interpret slope, intercept, and R&sup2;. The critical warning: always visualize your data (Anscombe&rsquo;s Quartet).</p>
-    </div>
-
-    <!-- THE CONCEPT -->
-    <div class="concept-box">
-      <h2>&#x1F4D6; The Concept: Correlation and Simple Linear Regression</h2>
-      <p><strong>Correlation (r)</strong> measures the strength and direction of a <em>linear</em> relationship between two variables.</p>
-      <ul>
-        <li>r = +1: perfect positive linear relationship</li>
-        <li>r = &minus;1: perfect negative linear relationship</li>
-        <li>r = 0: no linear relationship (but could have a nonlinear one!)</li>
-        <li>|r| &gt; 0.7 is often called "strong"; |r| &lt; 0.3 is "weak"</li>
-      </ul>
-      <p><strong>Simple linear regression</strong> goes further: it gives an equation to predict y from x. The slope tells you how much y changes per unit change in x. R&sup2; tells you what fraction of the variability in y is explained by x.</p>
-      <p style="margin-bottom:0"><strong>Critical warning:</strong> Correlation and regression measure <em>linear</em> relationships only. Two variables can have r = 0 but a strong nonlinear relationship. Always plot your data first!</p>
-    </div>
-
-    <!-- THE FORMULA -->
-    <div class="formula-box">
-      <h2>&#x1F522; The Formulas</h2>
-      <div class="formula">y&#770; = &beta;&sub0; + &beta;&sub1;x</div>
-      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0 0.75rem">&beta;&sub0; = intercept (y when x=0) &nbsp;|&nbsp; &beta;&sub1; = slope (change in y per unit x)</p>
-      <div class="formula">R&sup2; = 1 &minus; (SS<sub>res</sub> / SS<sub>tot</sub>)</div>
-      <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0">R&sup2; = proportion of variance in y explained by x &nbsp;|&nbsp; Range: 0 to 1</p>
-    </div>
-
-    <!-- IN R -->
-    <div class="r-example">
-      <h2>&#x1F4BB; In R &mdash; Worked Example (read-only)</h2>
-      <p>Study hours vs. exam scores. We compute correlation, fit a regression, interpret the output, and visualize the relationship.</p>
-      <div class="worked-code">library(ggplot2)
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to Statistics with R</a> <div class="module-header"> <div class="module-label">Module 6 of 8 &mdash; Statistics with R</div> <h1>Correlation &amp; Simple Linear Regression</h1> <p>Relationships between variables</p></div> <div class="module-nav"> <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Hypothesis Testing</a> <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span> <a href="../module-07/index.html" class="nav-next">Module 7: Multiple Regression &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- BEFORE YOU START --> <div class="before-start"> <h2> Before You Start</h2> <p><strong>What you need:</strong> Modules 1&ndash;5 completed, or familiarity with descriptive stats and basic hypothesis testing.</p> <p style="margin-bottom:0"><strong>What you&rsquo;ll learn:</strong> How to measure the strength and direction of linear relationships with correlation. How to fit a simple linear regression model with <code>lm()</code>. How to interpret slope, intercept, and R&sup2;. The critical warning: always visualize your data (Anscombe&rsquo;s Quartet).</p></div> <!-- THE CONCEPT --> <div class="concept-box"> <h2> The Concept: Correlation and Simple Linear Regression</h2> <p><strong>Correlation (r)</strong> measures the strength and direction of a <em>linear</em> relationship between two variables.</p> <ul> <li>r = +1: perfect positive linear relationship</li> <li>r = &minus;1: perfect negative linear relationship</li> <li>r = 0: no linear relationship (but could have a nonlinear one!)</li> <li>|r| &gt; 0.7 is often called "strong"; |r| &lt; 0.3 is "weak"</li></ul> <p><strong>Simple linear regression</strong> goes further: it gives an equation to predict y from x. The slope tells you how much y changes per unit change in x. R&sup2; tells you what fraction of the variability in y is explained by x.</p> <p style="margin-bottom:0"><strong>Critical warning:</strong> Correlation and regression measure <em>linear</em> relationships only. Two variables can have r = 0 but a strong nonlinear relationship. Always plot your data first!</p></div> <!-- THE FORMULA --> <div class="formula-box"> <h2> The Formulas</h2> <div class="formula">y&#770; = &beta;&sub0; + &beta;&sub1;x</div> <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0 0.75rem">&beta;&sub0; = intercept (y when x=0) &nbsp;|&nbsp; &beta;&sub1; = slope (change in y per unit x)</p> <div class="formula">R&sup2; = 1 &minus; (SS<sub>res</sub> / SS<sub>tot</sub>)</div> <p style="color:#6A1B9A;font-size:0.9rem;margin:0.25rem 0">R&sup2; = proportion of variance in y explained by x &nbsp;|&nbsp; Range: 0 to 1</p></div> <!-- IN R --> <div class="r-example"> <h2> In R &mdash; Worked Example (read-only)</h2> <p>Study hours vs. exam scores. We compute correlation, fit a regression, interpret the output, and visualize the relationship.</p> <div class="worked-code">library(ggplot2)
 set.seed(42)
 study_hours &lt;- runif(50, 1, 8)
 exam_score  &lt;- 50 + 5*study_hours + rnorm(50, 0, 8)
@@ -226,17 +142,7 @@ ggplot(df, aes(x=study_hours, y=exam_score)) +
   geom_smooth(method="lm", color="#C62828", se=TRUE) +
   labs(title=paste0("Study Hours vs Exam Score (r = ", round(r,3), ")"),
        x="Study Hours per Week", y="Exam Score") +
-  theme_minimal()</div>
-    </div>
-
-    <!-- YOUR TURN -->
-    <h2 style="color:#00695C;">&#x1F590;&#xFE0F; Your Turn</h2>
-
-    <!-- Exercise 1 -->
-    <div class="exercise-block">
-      <h3>Exercise 1 &mdash; Salary vs. Experience</h3>
-      <p>Generate data with a known relationship between years_experience and salary. Fit a regression model and interpret every output value &mdash; slope, intercept, R&sup2;, and the correlation.</p>
-      <textarea class="code-editor" id="editor1">set.seed(77)
+  theme_minimal()</div></div> <!-- YOUR TURN --> <h2 style="color:#00695C;"> Your Turn</h2> <!-- Exercise 1 --> <div class="exercise-block"><h3>Exercise 1 &mdash; Salary vs. Experience</h3> <p>Generate data with a known relationship between years_experience and salary. Fit a regression model and interpret every output value &mdash; slope, intercept, R&sup2;, and the correlation.</p> <textarea class="code-editor" id="editor1">set.seed(77)
 years_exp <- runif(60, 0, 20)
 salary    <- 40000 + 3500 * years_exp + rnorm(60, 0, 8000)
 df <- data.frame(years_exp, salary)
@@ -266,17 +172,7 @@ cat("The remaining", round((1-r2)*100, 1), "% is due to other factors.\n\n")
 
 # Prediction: salary for 10 years experience
 pred_10 <- b0 + b1 * 10
-cat("Predicted salary at 10 years:", format(round(pred_10, 0), big.mark=","), "\n")</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>What to notice:</strong> The estimated slope (~3500) matches what we programmed in. The intercept (~40000) also roughly matches. R&sup2; tells you the explanatory power of experience alone.</div>
-    </div>
-
-    <!-- Exercise 2 -->
-    <div class="exercise-block">
-      <h3>Exercise 2 &mdash; Four Correlations, Four Patterns</h3>
-      <p>Create four scatter plots with correlations of approximately r = 0.9, r = 0.5, r = 0, and r = &minus;0.7. See visually what each correlation value looks like.</p>
-      <textarea class="code-editor" id="editor2" style="min-height:200px">set.seed(42)
+cat("Predicted salary at 10 years:", format(round(pred_10, 0), big.mark=","), "\n")</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>What to notice:</strong> The estimated slope (~3500) matches what we programmed in. The intercept (~40000) also roughly matches. R&sup2; tells you the explanatory power of experience alone.</div></div> <!-- Exercise 2 --> <div class="exercise-block"> <h3>Exercise 2 &mdash; Four Correlations, Four Patterns</h3><p>Create four scatter plots with correlations of approximately r = 0.9, r = 0.5, r = 0, and r = &minus;0.7. See visually what each correlation value looks like.</p> <textarea class="code-editor" id="editor2" style="min-height:200px">set.seed(42)
 n <- 100
 
 # Helper to generate data with approximate correlation r
@@ -313,17 +209,7 @@ plot(d_neg$x, d_neg$y,
      xlab = "x", ylab = "y", col = "#7B1FA2", pch = 19, cex = 0.7)
 abline(lm(d_neg$y ~ d_neg$x), col = "#C62828", lwd = 2)
 
-par(mfrow = c(1, 1))</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div id="plot2" class="plot-output"></div>
-    </div>
-
-    <!-- Exercise 3 -->
-    <div class="exercise-block">
-      <h3>Exercise 3 &mdash; Anscombe&rsquo;s Quartet: Always Visualize!</h3>
-      <p>Anscombe&rsquo;s Quartet is a famous dataset of 4 datasets that have <em>nearly identical</em> statistics (mean, variance, correlation, regression line) but look completely different when plotted. This is why visualization always comes first.</p>
-      <textarea class="code-editor" id="editor3" style="min-height:240px">data(anscombe)  # Built-in dataset in R
+par(mfrow = c(1, 1))</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div id="plot2" class="plot-output"></div></div> <!-- Exercise 3 --> <div class="exercise-block"> <h3>Exercise 3 &mdash; Anscombe&rsquo;s Quartet: Always Visualize!</h3><p>Anscombe&rsquo;s Quartet is a famous dataset of 4 datasets that have <em>nearly identical</em> statistics (mean, variance, correlation, regression line) but look completely different when plotted. This is why visualization always comes first.</p> <textarea class="code-editor" id="editor3" style="min-height:240px">data(anscombe)  # Built-in dataset in R
 
 cat("=== Anscombe's Quartet: Statistics ===\n\n")
 
@@ -362,62 +248,4 @@ for (i in 1:4) {
   abline(lm(y ~ x), col = "black", lwd = 2)
 }
 
-par(mfrow = c(1, 1))</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div id="plot3" class="plot-output"></div>
-      <div class="hint-box">&#x1F4A1; <strong>The lesson:</strong> Dataset 1 is a clean linear relationship. Dataset 2 is curved. Dataset 3 has an outlier. Dataset 4 has all points at one x-value except one. Same statistics &mdash; completely different patterns. <strong>Always plot your data!</strong></div>
-    </div>
-
-    <!-- WARNING -->
-    <div class="warning-box">
-      <h3>&#x26A0;&#xFE0F; Correlation &ne; Causation</h3>
-      <p style="margin:0">A strong correlation between x and y does not mean x causes y. Both could be caused by a third variable (a confounder), or the relationship could be coincidental. Regression gives you a predictive equation &mdash; not proof of cause and effect. Causation requires experimental design, not just correlation.</p>
-    </div>
-
-    <!-- BRAIN BREAK -->
-    <div class="brain-break">
-      <h2>&#x1F9E0; Brain Break</h2>
-      <p style="margin-bottom:0.5rem">Anscombe&rsquo;s Quartet teaches the single most important data analysis lesson: statistics alone are not enough. <em>See</em> your data.</p>
-      <p style="font-size:1.05rem;margin:0"><strong>Quick check:</strong> If R&sup2; = 0.65, that means 65% of the variation in y is explained by x. The other 35% is due to other variables or random noise. A high R&sup2; does NOT mean the relationship is causal.</p>
-    </div>
-
-    <!-- KEY TAKEAWAY -->
-    <div class="key-takeaway">
-      <h2>&#x2705; Key Takeaway</h2>
-      <p style="margin:0;font-size:1.05rem">Correlation measures linear relationship strength (-1 to +1). Regression gives a predictive equation: y = &beta;&sub0; + &beta;&sub1;x. R&sup2; measures explanatory power. <strong>Always visualize your data first</strong> &mdash; Anscombe&rsquo;s Quartet proves that identical statistics can hide completely different patterns.</p>
-    </div>
-
-    <!-- MODULE COMPLETE -->
-    <div class="module-complete">
-      <h2>&#x1F3C6; Module 6 Complete!</h2>
-      <p>You can now measure and model linear relationships in R. Next: we extend regression to multiple predictor variables, which lets us control for confounders.</p>
-      <p style="margin-bottom:0"><a href="../module-07/index.html">Continue to Module 7: Multiple Regression &rarr;</a></p>
-    </div>
-
-    <div class="module-nav" style="margin-top:2rem">
-      <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Hypothesis Testing</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span>
-      <a href="../module-07/index.html" class="nav-next">Module 7: Multiple Regression &rarr;</a>
-    </div>
-
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">Statistics with R &mdash; Module 6: Correlation &amp; Simple Regression</p>
-  </footer>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+par(mfrow = c(1, 1))</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div id="plot3" class="plot-output"></div> <div class="hint-box"> <strong>The lesson:</strong> Dataset 1 is a clean linear relationship. Dataset 2 is curved. Dataset 3 has an outlier. Dataset 4 has all points at one x-value except one. Same statistics &mdash; completely different patterns. <strong>Always plot your data!</strong></div></div> <!-- WARNING --> <div class="warning-box"> <h3> Correlation &ne; Causation</h3> <p style="margin:0">A strong correlation between x and y does not mean x causes y. Both could be caused by a third variable (a confounder), or the relationship could be coincidental. Regression gives you a predictive equation &mdash; not proof of cause and effect. Causation requires experimental design, not just correlation.</p></div> <!-- BRAIN BREAK --> <div class="brain-break"> <h2> Brain Break</h2><p style="margin-bottom:0.5rem">Anscombe&rsquo;s Quartet teaches the single most important data analysis lesson: statistics alone are not enough. <em>See</em> your data.</p> <p style="font-size:1.05rem;margin:0"><strong>Quick check:</strong> If R&sup2; = 0.65, that means 65% of the variation in y is explained by x. The other 35% is due to other variables or random noise. A high R&sup2; does NOT mean the relationship is causal.</p></div> <!-- KEY TAKEAWAY --> <div class="key-takeaway"> <h2> Key Takeaway</h2> <p style="margin:0;font-size:1.05rem">Correlation measures linear relationship strength (-1 to +1). Regression gives a predictive equation: y = &beta;&sub0; + &beta;&sub1;x. R&sup2; measures explanatory power. <strong>Always visualize your data first</strong> &mdash; Anscombe&rsquo;s Quartet proves that identical statistics can hide completely different patterns.</p></div> <!-- MODULE COMPLETE --> <div class="module-complete"> <h2> Module 6 Complete!</h2> <p>You can now measure and model linear relationships in R. Next: we extend regression to multiple predictor variables, which lets us control for confounders.</p> <p style="margin-bottom:0"><a href="../module-07/index.html">Continue to Module 7: Multiple Regression &rarr;</a></p></div> <div class="module-nav" style="margin-top:2rem"> <a href="../module-05/index.html" class="nav-prev">&larr; Module 5: Hypothesis Testing</a> <span style="font-weight:600;color:var(--text-secondary)">Module 6 of 8</span> <a href="../module-07/index.html" class="nav-next">Module 7: Multiple Regression &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a><a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">Statistics with R &mdash; Module 6: Correlation &amp; Simple Regression</p></footer> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

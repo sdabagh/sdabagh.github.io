@@ -183,51 +183,7 @@ function drawContingencyTable(containerId) {
     if (!container) return;
 
     const html = `
-        <div style="padding: 1.5rem; background: #F8F9FA; border-radius: 8px;">
-            <h4 style="margin-top: 0; color: #2C5F7C;">2×2 Contingency Table Calculator</h4>
-            <p style="font-size: 0.9rem; color: #5A5A5A;">Enter observed frequencies to calculate expected values and χ²</p>
-
-            <table style="width: 100%; max-width: 500px; margin: 1rem auto; border-collapse: collapse;">
-                <tr>
-                    <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;"></th>
-                    <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Column 1</th>
-                    <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Column 2</th>
-                    <th style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; font-weight: bold;">Row Total</th>
-                </tr>
-                <tr>
-                    <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Row 1</th>
-                    <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;">
-                        <input type="number" id="cell11" value="30" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()">
-                    </td>
-                    <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;">
-                        <input type="number" id="cell12" value="20" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()">
-                    </td>
-                    <td id="row1total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">50</td>
-                </tr>
-                <tr>
-                    <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Row 2</th>
-                    <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;">
-                        <input type="number" id="cell21" value="10" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()">
-                    </td>
-                    <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;">
-                        <input type="number" id="cell22" value="40" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()">
-                    </td>
-                    <td id="row2total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">50</td>
-                </tr>
-                <tr>
-                    <th style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; font-weight: bold;">Col Total</th>
-                    <td id="col1total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">40</td>
-                    <td id="col2total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">60</td>
-                    <td id="grandtotal" style="background: #D0D0D0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">100</td>
-                </tr>
-            </table>
-
-            <div id="resultsDisplay" style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 6px; border: 2px solid #2C5F7C;">
-                <h4 style="margin-top: 0; color: #2C5F7C;">Results</h4>
-                <div id="resultsContent"></div>
-            </div>
-        </div>
-    `;
+        <div style="padding: 1.5rem; background: #F8F9FA; border-radius: 8px;"> <h4 style="margin-top: 0; color: #2C5F7C;">2×2 Contingency Table Calculator</h4> <p style="font-size: 0.9rem; color: #5A5A5A;">Enter observed frequencies to calculate expected values and χ²</p> <table style="width: 100%; max-width: 500px; margin: 1rem auto; border-collapse: collapse;"> <tr> <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;"></th> <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Column 1</th> <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Column 2</th> <th style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; font-weight: bold;">Row Total</th></tr> <tr> <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Row 1</th> <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;"> <input type="number" id="cell11" value="30" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()"></td> <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;"> <input type="number" id="cell12" value="20" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()"></td> <td id="row1total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">50</td></tr> <tr> <th style="background: #2C5F7C; color: white; padding: 0.5rem; border: 1px solid #DDD;">Row 2</th> <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;"> <input type="number" id="cell21" value="10" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()"></td> <td style="padding: 0.5rem; border: 1px solid #DDD; text-align: center;"> <input type="number" id="cell22" value="40" min="0" style="width: 60px; padding: 0.25rem; text-align: center;" onchange="calculateContingency()"></td> <td id="row2total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">50</td></tr> <tr> <th style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; font-weight: bold;">Col Total</th> <td id="col1total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">40</td> <td id="col2total" style="background: #E0E0E0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">60</td> <td id="grandtotal" style="background: #D0D0D0; padding: 0.5rem; border: 1px solid #DDD; text-align: center; font-weight: bold;">100</td></tr></table> <div id="resultsDisplay" style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 6px; border: 2px solid #2C5F7C;"> <h4 style="margin-top: 0; color: #2C5F7C;">Results</h4> <div id="resultsContent"></div></div></div> `;
 
     container.innerHTML = html;
 
@@ -279,28 +235,8 @@ function calculateContingency() {
     const resultsContent = document.getElementById('resultsContent');
     if (resultsContent) {
         resultsContent.innerHTML = `
-            <div style="margin-bottom: 1rem;">
-                <strong>Expected Frequencies:</strong>
-                <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
-                    <li>E(1,1) = (${row1} × ${col1}) / ${grand} = ${e11.toFixed(2)}</li>
-                    <li>E(1,2) = (${row1} × ${col2}) / ${grand} = ${e12.toFixed(2)}</li>
-                    <li>E(2,1) = (${row2} × ${col1}) / ${grand} = ${e21.toFixed(2)}</li>
-                    <li>E(2,2) = (${row2} × ${col2}) / ${grand} = ${e22.toFixed(2)}</li>
-                </ul>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Chi-Square Calculation:</strong>
-                <p style="margin: 0.5rem 0; font-size: 0.9rem;">χ² = ${chiSq11.toFixed(3)} + ${chiSq12.toFixed(3)} + ${chiSq21.toFixed(3)} + ${chiSq22.toFixed(3)}</p>
-                <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>χ² = ${totalChiSq.toFixed(3)}</strong></p>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Degrees of Freedom:</strong> df = (2-1)(2-1) = ${df}
-            </div>
-            <div style="padding: 0.75rem; background: ${conditionMet ? '#E8F5E9' : '#FFE4E1'}; border-radius: 4px; border-left: 4px solid ${conditionMet ? '#28A745' : '#DC3545'};">
-                <strong>Condition Check:</strong> All expected frequencies ≥ 5?
-                <p style="margin: 0.25rem 0; font-size: 0.9rem;">${conditionMet ? '✓ YES - Test is valid' : '✗ NO - Smallest E = ' + minExpected.toFixed(2) + ' (condition violated)'}</p>
-            </div>
-        `;
+            <div style="margin-bottom: 1rem;"> <strong>Expected Frequencies:</strong> <ul style="margin: 0.5rem 0; font-size: 0.9rem;"> <li>E(1,1) = (${row1} × ${col1}) / ${grand} = ${e11.toFixed(2)}</li> <li>E(1,2) = (${row1} × ${col2}) / ${grand} = ${e12.toFixed(2)}</li> <li>E(2,1) = (${row2} × ${col1}) / ${grand} = ${e21.toFixed(2)}</li> <li>E(2,2) = (${row2} × ${col2}) / ${grand} = ${e22.toFixed(2)}</li></ul></div> <div style="margin-bottom: 1rem;"> <strong>Chi-Square Calculation:</strong> <p style="margin: 0.5rem 0; font-size: 0.9rem;">χ² = ${chiSq11.toFixed(3)} + ${chiSq12.toFixed(3)} + ${chiSq21.toFixed(3)} + ${chiSq22.toFixed(3)}</p> <p style="margin: 0.5rem 0; font-size: 1.1rem;"><strong>χ² = ${totalChiSq.toFixed(3)}</strong></p></div> <div style="margin-bottom: 1rem;"> <strong>Degrees of Freedom:</strong> df = (2-1)(2-1) = ${df}</div> <div style="padding: 0.75rem; background: ${conditionMet ? '#E8F5E9' : '#FFE4E1'}; border-radius: 4px; border-left: 4px solid ${conditionMet ? '#28A745' : '#DC3545'};"> <strong>Condition Check:</strong> All expected frequencies ≥ 5?
+                <p style="margin: 0.25rem 0; font-size: 0.9rem;">${conditionMet ? ' YES - Test is valid' : ' NO - Smallest E = ' + minExpected.toFixed(2) + ' (condition violated)'}</p></div> `;
     }
 }
 
@@ -313,47 +249,7 @@ function drawDecisionTree(containerId) {
     if (!container) return;
 
     const html = `
-        <div style="padding: 1.5rem; background: #F8F9FA; border-radius: 8px;">
-            <h4 style="margin-top: 0; color: #2C5F7C;">Interactive Decision Tree</h4>
-            <p style="font-size: 0.9rem; color: #5A5A5A;">Answer the questions to find the right chi-square test</p>
-
-            <div id="question1" style="margin: 1.5rem 0;">
-                <p style="font-weight: bold; color: #2C5F7C;">1. Do you have categorical data (counts/frequencies)?</p>
-                <button onclick="decisionAnswer('q1', 'yes')" style="margin: 0.5rem 0.5rem 0.5rem 0; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Yes</button>
-                <button onclick="decisionAnswer('q1', 'no')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #DC3545; color: white; border: none; border-radius: 4px; cursor: pointer;">No</button>
-            </div>
-
-            <div id="question2" style="margin: 1.5rem 0; display: none;">
-                <p style="font-weight: bold; color: #2C5F7C;">2. How many categorical variables?</p>
-                <button onclick="decisionAnswer('q2', 'one')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">One Variable</button>
-                <button onclick="decisionAnswer('q2', 'two')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Two Variables</button>
-            </div>
-
-            <div id="question3" style="margin: 1.5rem 0; display: none;">
-                <p style="font-weight: bold; color: #2C5F7C;">3. How many samples?</p>
-                <button onclick="decisionAnswer('q3', 'one')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">One Sample</button>
-                <button onclick="decisionAnswer('q3', 'multiple')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Multiple Samples</button>
-            </div>
-
-            <div id="decisionResult" style="margin: 2rem 0; padding: 1.5rem; background: white; border-radius: 6px; border-left: 4px solid #28A745; display: none;">
-                <h4 style="margin-top: 0; color: #28A745;">Recommended Test:</h4>
-                <p id="testName" style="font-size: 1.2rem; font-weight: bold; color: #2C5F7C;"></p>
-                <p id="testDescription" style="margin: 0.5rem 0; color: #5A5A5A;"></p>
-                <button onclick="resetDecisionTree()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #6C757D; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Over</button>
-            </div>
-
-            <div id="notChiSquare" style="margin: 2rem 0; padding: 1.5rem; background: #FFE4E1; border-radius: 6px; border-left: 4px solid #DC3545; display: none;">
-                <h4 style="margin-top: 0; color: #DC3545;">Not a Chi-Square Test</h4>
-                <p>You have quantitative data, not categorical. Consider using:</p>
-                <ul>
-                    <li><strong>t-test</strong> - comparing means of two groups</li>
-                    <li><strong>ANOVA</strong> - comparing means of 3+ groups</li>
-                    <li><strong>Regression</strong> - modeling relationships between variables</li>
-                </ul>
-                <button onclick="resetDecisionTree()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #6C757D; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Over</button>
-            </div>
-        </div>
-    `;
+        <div style="padding: 1.5rem; background: #F8F9FA; border-radius: 8px;"> <h4 style="margin-top: 0; color: #2C5F7C;">Interactive Decision Tree</h4> <p style="font-size: 0.9rem; color: #5A5A5A;">Answer the questions to find the right chi-square test</p> <div id="question1" style="margin: 1.5rem 0;"> <p style="font-weight: bold; color: #2C5F7C;">1. Do you have categorical data (counts/frequencies)?</p> <button onclick="decisionAnswer('q1', 'yes')" style="margin: 0.5rem 0.5rem 0.5rem 0; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Yes</button> <button onclick="decisionAnswer('q1', 'no')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #DC3545; color: white; border: none; border-radius: 4px; cursor: pointer;">No</button></div> <div id="question2" style="margin: 1.5rem 0; display: none;"> <p style="font-weight: bold; color: #2C5F7C;">2. How many categorical variables?</p> <button onclick="decisionAnswer('q2', 'one')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">One Variable</button> <button onclick="decisionAnswer('q2', 'two')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Two Variables</button></div> <div id="question3" style="margin: 1.5rem 0; display: none;"> <p style="font-weight: bold; color: #2C5F7C;">3. How many samples?</p> <button onclick="decisionAnswer('q3', 'one')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">One Sample</button> <button onclick="decisionAnswer('q3', 'multiple')" style="margin: 0.5rem; padding: 0.5rem 1.5rem; background: #2C5F7C; color: white; border: none; border-radius: 4px; cursor: pointer;">Multiple Samples</button></div> <div id="decisionResult" style="margin: 2rem 0; padding: 1.5rem; background: white; border-radius: 6px; border-left: 4px solid #28A745; display: none;"> <h4 style="margin-top: 0; color: #28A745;">Recommended Test:</h4> <p id="testName" style="font-size: 1.2rem; font-weight: bold; color: #2C5F7C;"></p> <p id="testDescription" style="margin: 0.5rem 0; color: #5A5A5A;"></p> <button onclick="resetDecisionTree()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #6C757D; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Over</button></div> <div id="notChiSquare" style="margin: 2rem 0; padding: 1.5rem; background: #FFE4E1; border-radius: 6px; border-left: 4px solid #DC3545; display: none;"> <h4 style="margin-top: 0; color: #DC3545;">Not a Chi-Square Test</h4> <p>You have quantitative data, not categorical. Consider using:</p> <ul> <li><strong>t-test</strong> - comparing means of two groups</li> <li><strong>ANOVA</strong> - comparing means of 3+ groups</li> <li><strong>Regression</strong> - modeling relationships between variables</li></ul> <button onclick="resetDecisionTree()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #6C757D; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Over</button></div></div> `;
 
     container.innerHTML = html;
 }

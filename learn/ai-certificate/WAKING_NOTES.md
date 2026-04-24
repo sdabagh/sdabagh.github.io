@@ -112,15 +112,15 @@ Then open:
 
 ## What I verified (QC)
 
-- ✅ Landing page renders all 28 day cards across 6 week sections
-- ✅ Audience callout, hero stats, and welcome reminder display correctly
-- ✅ Day 1 page renders the 4-section template with exercise + tip + bookmark
-- ✅ "Mark Day N as complete" button toggles and writes to localStorage
-- ✅ Day 28 cert page shows the **locked** view when progress < 28
-- ✅ Day 28 cert page shows the **unlocked** view when all 28 are complete
-- ✅ "Generate Certificate (PDF)" produces a valid PDF (verified with jsPDF sanity test)
-- ✅ Mobile layout checks out (hero stacks, cards wrap, nav collapses)
-- ✅ Test localStorage was cleared before I handed it back — you'll open a fresh state
+-  Landing page renders all 28 day cards across 6 week sections
+-  Audience callout, hero stats, and welcome reminder display correctly
+-  Day 1 page renders the 4-section template with exercise + tip + bookmark
+-  "Mark Day N as complete" button toggles and writes to localStorage
+-  Day 28 cert page shows the **locked** view when progress < 28
+-  Day 28 cert page shows the **unlocked** view when all 28 are complete
+-  "Generate Certificate (PDF)" produces a valid PDF (verified with jsPDF sanity test)
+-  Mobile layout checks out (hero stacks, cards wrap, nav collapses)
+-  Test localStorage was cleared before I handed it back — you'll open a fresh state
 
 ---
 

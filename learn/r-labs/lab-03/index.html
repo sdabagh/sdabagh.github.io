@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 3: dplyr Data Wrangling — R Practice Labs. Master the grammar of data manipulation with filter, select, mutate, arrange, and summarize.">
-  <title>Lab 3: dplyr Data Wrangling - R Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 3: dplyr Data Wrangling — R Practice Labs. Master the grammar of data manipulation with filter, select, mutate, arrange, and summarize."> <title>Lab 3: dplyr Data Wrangling - R Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
@@ -40,19 +31,16 @@
     .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -74,7 +62,7 @@
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
         const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -86,15 +74,12 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally { shelter.purge(); }
     }
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -115,60 +100,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 3 of 10</div>
-      <h1>dplyr: Data Wrangling</h1>
-      <p>The grammar of data manipulation</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
-      <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>dplyr provides <strong>5 main verbs</strong> that cover nearly all data manipulation needs:</p>
-      <ul>
-        <li><strong>filter()</strong> &mdash; keep rows matching a condition</li>
-        <li><strong>select()</strong> &mdash; choose specific columns</li>
-        <li><strong>mutate()</strong> &mdash; add or transform columns</li>
-        <li><strong>arrange()</strong> &mdash; sort rows (use <code>desc()</code> to reverse)</li>
-        <li><strong>summarize() + group_by()</strong> &mdash; aggregate by group</li>
-      </ul>
-      <p style="margin-bottom:0">The <strong>pipe</strong> <code>|&gt;</code> chains operations: output of the left becomes input on the right. No need to install in WebR &mdash; just <code>library(dplyr)</code>. Use <code>n()</code> inside summarize to count rows per group.</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>Study this complete dplyr pipeline before starting the exercises:</p>
-      <div class="worked-code">library(dplyr)
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 3 of 10</div> <h1>dplyr: Data Wrangling</h1> <p>The grammar of data manipulation</p></div> <div class="lab-nav"> <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span> <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>dplyr provides <strong>5 main verbs</strong> that cover nearly all data manipulation needs:</p> <ul> <li><strong>filter()</strong> &mdash; keep rows matching a condition</li> <li><strong>select()</strong> &mdash; choose specific columns</li> <li><strong>mutate()</strong> &mdash; add or transform columns</li> <li><strong>arrange()</strong> &mdash; sort rows (use <code>desc()</code> to reverse)</li> <li><strong>summarize() + group_by()</strong> &mdash; aggregate by group</li></ul> <p style="margin-bottom:0">The <strong>pipe</strong> <code>|&gt;</code> chains operations: output of the left becomes input on the right. No need to install in WebR &mdash; just <code>library(dplyr)</code>. Use <code>n()</code>inside summarize to count rows per group.</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>Study this complete dplyr pipeline before starting the exercises:</p> <div class="worked-code">library(dplyr)
 sales &lt;- data.frame(
   rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   region = c("West","East","West","West","South","East","West","South"),
@@ -184,15 +116,7 @@ print(result)
 west &lt;- sales |&gt; filter(region == "West") |&gt;
   mutate(quota_met = revenue &gt; 15000) |&gt;
   select(rep, month, revenue, quota_met)
-print(west)</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Student Wrangling</h3>
-      <p>The blanks have been filled in for you &mdash; run the code and study the output, then experiment by changing the filter threshold or sort order.</p>
-      <textarea class="code-editor" id="editor1">library(dplyr)
+print(west)</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Student Wrangling</h3> <p>The blanks have been filled in for you &mdash; run the code and study the output, then experiment by changing the filter threshold or sort order.</p> <textarea class="code-editor" id="editor1">library(dplyr)
 students &lt;- data.frame(
   name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -212,23 +136,7 @@ print(by_major)
 # Add rank column
 ranked &lt;- students |&gt; mutate(rank = rank(-gpa)) |&gt;
   select(name, gpa, rank) |&gt; arrange(rank)
-print(ranked)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>filter(gpa &gt; 3.5)</code> keeps rows where GPA exceeds 3.5. <code>group_by(major)</code> splits the data before <code>summarize()</code> computes per-group stats. <code>rank(-gpa)</code> ranks from highest to lowest.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Advanced Student Summaries</h3>
-      <p>Using the same <code>students</code> data frame, write three separate pipelines:</p>
-      <ol>
-        <li>Find the top student per major using <code>group_by(major) |&gt; slice_max(gpa, n=1)</code></li>
-        <li>Count students per year+major combination using <code>group_by(year, major) |&gt; summarize(count = n())</code></li>
-        <li>Create a summary by major showing count, average GPA, and max GPA, arranged by avg_gpa descending</li>
-      </ol>
-      <textarea class="code-editor" id="editor2">library(dplyr)
+print(ranked)</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>filter(gpa &gt; 3.5)</code>keeps rows where GPA exceeds 3.5. <code>group_by(major)</code> splits the data before <code>summarize()</code>computes per-group stats. <code>rank(-gpa)</code> ranks from highest to lowest.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Advanced Student Summaries</h3> <p>Using the same <code>students</code> data frame, write three separate pipelines:</p> <ol> <li>Find the top student per major using <code>group_by(major) |&gt; slice_max(gpa, n=1)</code></li> <li>Count students per year+major combination using <code>group_by(year, major) |&gt; summarize(count = n())</code></li> <li>Create a summary by major showing count, average GPA, and max GPA, arranged by avg_gpa descending</li></ol> <textarea class="code-editor" id="editor2">library(dplyr)
 students &lt;- data.frame(
   name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -240,19 +148,7 @@ students &lt;- data.frame(
 
 # 2. Count by year + major combo
 
-# 3. Summary by major (count, avg_gpa, max_gpa) arranged by avg_gpa desc
-</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>slice_max(gpa, n=1)</code> picks the row with the highest GPA per group. Chain multiple group_by columns for crossed summaries. Use <code>summarize(count=n(), avg=mean(gpa), top=max(gpa))</code> followed by <code>arrange(desc(avg))</code>.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Performance Classification Pipeline</h3>
-      <p>Build a single pipeline on <code>students</code> that: (1) filters to year &ge; 2, (2) adds a <code>performance</code> column using <code>case_when()</code> &mdash; &ldquo;Excellent&rdquo; if gpa &ge; 3.7, &ldquo;Good&rdquo; if gpa &ge; 3.3, &ldquo;Fair&rdquo; otherwise, (3) groups by major and performance, (4) counts, (5) arranges by major then count descending.</p>
-      <textarea class="code-editor" id="editor3">library(dplyr)
+# 3. Summary by major (count, avg_gpa, max_gpa) arranged by avg_gpa desc</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>slice_max(gpa, n=1)</code> picks the row with the highest GPA per group. Chain multiple group_by columns for crossed summaries. Use <code>summarize(count=n(), avg=mean(gpa), top=max(gpa))</code> followed by <code>arrange(desc(avg))</code>.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Performance Classification Pipeline</h3> <p>Build a single pipeline on <code>students</code> that: (1) filters to year &ge; 2, (2) adds a <code>performance</code> column using <code>case_when()</code> &mdash; &ldquo;Excellent&rdquo; if gpa &ge; 3.7, &ldquo;Good&rdquo; if gpa &ge; 3.3, &ldquo;Fair&rdquo; otherwise, (3) groups by major and performance, (4) counts, (5) arranges by major then count descending.</p> <textarea class="code-editor" id="editor3">library(dplyr)
 students &lt;- data.frame(
   name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -270,18 +166,7 @@ result &lt;- students |&gt;
   group_by(major, performance) |&gt;
   summarize(count = n(), .groups = "drop") |&gt;
   arrange(major, desc(count))
-print(result)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>case_when()</code> works like nested if/else &mdash; each condition uses <code>~</code> to separate the test from the result. <code>TRUE ~ "Fair"</code> is the catch-all default. Add <code>.groups = "drop"</code> after summarize to avoid a warning.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Sales Analysis</span>
-      <h3>Full Sales Pipeline Analysis</h3>
-      <p>Using the <code>sales</code> data frame below, use dplyr pipelines to answer all 5 questions. Use <code>|&gt;</code> throughout.</p>
-      <textarea class="code-editor" id="editor4" style="min-height:320px;">library(dplyr)
+print(result)</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>case_when()</code> works like nested if/else &mdash; each condition uses <code>~</code> to separate the test from the result. <code>TRUE ~ "Fair"</code> is the catch-all default. Add <code>.groups = "drop"</code> after summarize to avoid a warning.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project &mdash; Sales Analysis</span> <h3>Full Sales Pipeline Analysis</h3> <p>Using the <code>sales</code> data frame below, use dplyr pipelines to answer all 5 questions. Use <code>|&gt;</code> throughout.</p> <textarea class="code-editor" id="editor4" style="min-height:320px;">library(dplyr)
 sales &lt;- data.frame(
   rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   region = c("West","East","West","West","South","East","West","South"),
@@ -298,50 +183,8 @@ sales &lt;- data.frame(
 
 # Q4: Which reps exceeded a $15,000 quota in ANY month? (distinct reps)
 
-# Q5: Top performer — their name, total, and % above team average
-</textarea>
-      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Q4: <code>filter(revenue &gt; 15000) |&gt; distinct(rep)</code>. Q5: compute team average with <code>mean(revenue)</code> then calculate percentage above. Use <code>pull()</code> to extract a single value from a pipeline result.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 3 Complete!</h2>
-      <p>You&rsquo;ve mastered dplyr &mdash; the most widely used R package for data wrangling. The five verbs plus pipes let you express complex transformations in clean, readable code.</p>
-      <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Functions &amp; Control Flow &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span>
-      <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 3: dplyr Data Wrangling</p>
-  </footer>
-<script>
-// Progress tracking via localStorage
+# Q5: Top performer — their name, total, and % above team average</textarea> <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Q4: <code>filter(revenue &gt; 15000) |&gt; distinct(rep)</code>. Q5: compute team average with <code>mean(revenue)</code> then calculate percentage above. Use <code>pull()</code> to extract a single value from a pipeline result.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 3 Complete!</h2> <p>You&rsquo;ve mastered dplyr &mdash; the most widely used R package for data wrangling. The five verbs plus pipes let you express complex transformations in clean, readable code.</p> <p style="margin-bottom:0"><a href="../lab-04/index.html">Continue to Lab 4: Functions &amp; Control Flow &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-02/index.html" class="nav-prev">&larr; Lab 2: Data Frames</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 3 of 10</span> <a href="../lab-04/index.html" class="nav-next">Lab 4: Functions &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">R Practice Labs &mdash; Lab 3: dplyr Data Wrangling</p></footer> <script> // Progress tracking via localStorage
 const LAB_ID = 'r-lab-03';
 
 function isComplete() {
@@ -363,7 +206,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -375,9 +218,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

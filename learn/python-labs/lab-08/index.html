@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 8: pandas Basics — Python Practice Labs. Create DataFrames, filter rows, groupby, and answer business questions with pandas.">
-  <title>Lab 8: pandas Basics - Python Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 8: pandas Basics — Python Practice Labs. Create DataFrames, filter rows, groupby, and answer business questions with pandas."> <title>Lab 8: pandas Basics - Python Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
@@ -42,10 +32,7 @@
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
     .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-    .loading-note{background:#E8F5E9;border:2px solid #2E7D32;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.9rem;color:#1B5E20}
-  </style>
-<style>
-@media print {
+    .loading-note{background:#E8F5E9;border:2px solid #2E7D32;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.9rem;color:#1B5E20}</style> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -66,63 +53,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 8 of 10</div>
-      <h1>pandas Basics</h1>
-      <p>The data analyst&rsquo;s most essential library</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Data</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
-      <a href="../lab-09/index.html" class="nav-next">Lab 9: Visualization &rarr;</a>
-    </div>
-
-    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python + pandas... (this may take 15&ndash;20 seconds)</div>
-
-    <div class="loading-note">&#x1F4E6; <strong>This lab loads pandas and numpy</strong> &mdash; allow extra time on first load. You&rsquo;ll see the green &ldquo;Python ready!&rdquo; message when it&rsquo;s done.</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>pandas is the go-to Python library for data analysis. Key concepts:</p>
-      <ul>
-        <li><strong>DataFrame</strong> &mdash; a 2D table (like a spreadsheet). Rows = observations, Columns = variables.</li>
-        <li><strong>Series</strong> &mdash; a single column (1D labeled array).</li>
-        <li><strong>Selecting columns:</strong> <code>df['Name']</code> or <code>df[['Name', 'Age']]</code></li>
-        <li><strong>Filtering rows:</strong> <code>df[df['Score'] &gt; 90]</code> or combined: <code>df[(cond1) &amp; (cond2)]</code></li>
-        <li><strong>Groupby:</strong> <code>df.groupby('Category')['Value'].mean()</code></li>
-        <li><strong>Stats:</strong> <code>df['col'].describe()</code>, <code>.mean()</code>, <code>.sum()</code>, <code>.value_counts()</code></li>
-        <li><strong>Sorting:</strong> <code>df.sort_values('col', ascending=False)</code></li>
-      </ul>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>Creating and exploring a DataFrame:</p>
-      <div class="worked-code">import pandas as pd
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 8 of 10</div> <h1>pandas Basics</h1> <p>The data analyst&rsquo;s most essential library</p></div> <div class="lab-nav"> <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Data</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span> <a href="../lab-09/index.html" class="nav-next">Lab 9: Visualization &rarr;</a></div> <div id="pyodide-status" class="pyodide-status"> Loading Python + pandas... (this may take 15&ndash;20 seconds)</div> <div class="loading-note"> <strong>This lab loads pandas and numpy</strong> &mdash; allow extra time on first load. You&rsquo;ll see the green &ldquo;Python ready!&rdquo; message when it&rsquo;s done.</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>pandas is the go-to Python library for data analysis. Key concepts:</p> <ul> <li><strong>DataFrame</strong> &mdash; a 2D table (like a spreadsheet). Rows = observations, Columns = variables.</li> <li><strong>Series</strong> &mdash; a single column (1D labeled array).</li> <li><strong>Selecting columns:</strong><code>df['Name']</code> or <code>df[['Name', 'Age']]</code></li> <li><strong>Filtering rows:</strong> <code>df[df['Score'] &gt; 90]</code> or combined: <code>df[(cond1) &amp; (cond2)]</code></li> <li><strong>Groupby:</strong> <code>df.groupby('Category')['Value'].mean()</code></li> <li><strong>Stats:</strong> <code>df['col'].describe()</code>, <code>.mean()</code>, <code>.sum()</code>, <code>.value_counts()</code></li><li><strong>Sorting:</strong> <code>df.sort_values('col', ascending=False)</code></li></ul></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>Creating and exploring a DataFrame:</p> <div class="worked-code">import pandas as pd
 import numpy as np
 
 data = {
@@ -137,16 +68,7 @@ print("\nShape:", df.shape)
 print("\nBasic stats:")
 print(df['Salary'].describe())
 print("\nAvg salary by dept:")
-print(df.groupby('Department')['Salary'].mean())</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Student DataFrame Explorer</h3>
-      <p>Complete the pandas operations by filling in the column name strings in the blanks.</p>
-      <textarea class="code-editor" id="editor1">
-import pandas as pd
+print(df.groupby('Department')['Salary'].mean())</div></div> <!-- EXERCISE 1 --><div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Student DataFrame Explorer</h3> <p>Complete the pandas operations by filling in the column name strings in the blanks.</p> <textarea class="code-editor" id="editor1"> import pandas as pd
 
 students = pd.DataFrame({
     'Name':        ['Alex','Beth','Carlos','Diana','Ethan','Fiona','George','Hana'],
@@ -166,25 +88,7 @@ print(students.groupby(___)[___].mean())
 
 # 3. Scholarship students with GPA > 3.5
 elite = students[(students['Scholarship'] == True) & (students[___] > 3.5)]
-print("\nElite scholars:\n", elite[['Name', 'GPA']])</textarea>
-      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> The blanks are column name strings: <code>'Major'</code>, <code>'Major'</code>, <code>'GPA'</code>, <code>'GPA'</code>. In pandas, column names are always quoted strings.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; DataFrame Analysis</h3>
-      <p>Using the same students DataFrame, write pandas code to:</p>
-      <ol>
-        <li>Find the student with the highest GPA (use <code>.idxmax()</code> or <code>.sort_values()</code>)</li>
-        <li>Count students per year (use <code>.value_counts()</code>)</li>
-        <li>Find the average GPA of scholarship vs non-scholarship students (use <code>.groupby()</code>)</li>
-        <li>Sort by GPA descending and show the top 3 students</li>
-      </ol>
-      <textarea class="code-editor" id="editor2">
-import pandas as pd
+print("\nElite scholars:\n", elite[['Name', 'GPA']])</textarea> <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> The blanks are column name strings: <code>'Major'</code>, <code>'Major'</code>, <code>'GPA'</code>, <code>'GPA'</code>. In pandas, column names are always quoted strings.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; DataFrame Analysis</h3> <p>Using the same students DataFrame, write pandas code to:</p> <ol> <li>Find the student with the highest GPA (use <code>.idxmax()</code> or <code>.sort_values()</code>)</li> <li>Count students per year (use <code>.value_counts()</code>)</li> <li>Find the average GPA of scholarship vs non-scholarship students (use <code>.groupby()</code>)</li> <li>Sort by GPA descending and show the top 3 students</li></ol> <textarea class="code-editor" id="editor2">import pandas as pd
 
 students = pd.DataFrame({
     'Name':        ['Alex','Beth','Carlos','Diana','Ethan','Fiona','George','Hana'],
@@ -194,27 +98,7 @@ students = pd.DataFrame({
     'Scholarship': [True, False, True, False, False, True, False, True]
 })
 
-# Your 4 analyses here
-</textarea>
-      <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Highest GPA: <code>students.loc[students['GPA'].idxmax()]</code>. Year counts: <code>students['Year'].value_counts()</code>. Top 3: <code>students.sort_values('GPA', ascending=False).head(3)</code>.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; GPA Categories with pd.cut()</h3>
-      <p>Create a new column <code>'GPA_Category'</code> using <code>pd.cut()</code> that labels each student&rsquo;s GPA:</p>
-      <ul>
-        <li>Excellent: GPA &ge; 3.7</li>
-        <li>Good: GPA &ge; 3.3</li>
-        <li>Satisfactory: GPA &ge; 3.0</li>
-        <li>Needs Improvement: GPA &lt; 3.0</li>
-      </ul>
-      <p>Then count how many students fall into each category.</p>
-      <textarea class="code-editor" id="editor3">
-import pandas as pd
+# Your 4 analyses here</textarea> <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Highest GPA: <code>students.loc[students['GPA'].idxmax()]</code>. Year counts: <code>students['Year'].value_counts()</code>. Top 3: <code>students.sort_values('GPA', ascending=False).head(3)</code>.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; GPA Categories with pd.cut()</h3> <p>Create a new column <code>'GPA_Category'</code> using <code>pd.cut()</code> that labels each student&rsquo;s GPA:</p> <ul> <li>Excellent: GPA &ge; 3.7</li> <li>Good: GPA &ge; 3.3</li> <li>Satisfactory: GPA &ge; 3.0</li><li>Needs Improvement: GPA &lt; 3.0</li></ul> <p>Then count how many students fall into each category.</p> <textarea class="code-editor" id="editor3"> import pandas as pd
 
 students = pd.DataFrame({
     'Name': ['Alex','Beth','Carlos','Diana','Ethan','Fiona','George','Hana'],
@@ -233,26 +117,7 @@ students['GPA_Category'] = pd.cut(
 
 print(students[['Name', 'GPA', 'GPA_Category']])
 print("\nCategory counts:")
-print(students['GPA_Category'].value_counts())</textarea>
-      <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> bins is the list <code>[0, 3.0, 3.3, 3.7, 4.01]</code> (slightly above 4 to include 4.0). labels is the list of 4 category strings in matching order.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
-      <h3>Mini Project &mdash; Sales Dataset Explorer</h3>
-      <p>Analyze the sales DataFrame below. Answer all 5 business questions using pandas and print a formatted report:</p>
-      <ol>
-        <li>Total revenue and total quota across all rows</li>
-        <li>Top salesperson by total revenue</li>
-        <li>Best month by total revenue</li>
-        <li>Revenue by region (sorted highest to lowest)</li>
-        <li>Percentage of rows where rep exceeded their quota (Revenue &gt; Quota)</li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:220px;">
-import pandas as pd
+print(students['GPA_Category'].value_counts())</textarea> <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> bins is the list <code>[0, 3.0, 3.3, 3.7, 4.01]</code> (slightly above 4 to include 4.0). labels is the list of 4 category strings in matching order.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project</span> <h3>Mini Project &mdash; Sales Dataset Explorer</h3> <p>Analyze the sales DataFrame below. Answer all 5 business questions using pandas and print a formatted report:</p> <ol> <li>Total revenue and total quota across all rows</li> <li>Top salesperson by total revenue</li> <li>Best month by total revenue</li> <li>Revenue by region (sorted highest to lowest)</li> <li>Percentage of rows where rep exceeded their quota (Revenue &gt; Quota)</li></ol> <textarea class="code-editor" id="editor4" style="min-height:220px;"> import pandas as pd
 
 sales = pd.DataFrame({
     'Rep':     ['Alice','Bob','Carol','Alice','David','Bob','Carol','David','Eve','Eve'],
@@ -262,60 +127,16 @@ sales = pd.DataFrame({
     'Quota':   [15000,15000,20000,15000,15000,15000,20000,15000,12000,12000]
 })
 
-# Answer all 5 business questions here
-</textarea>
-      <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Q1: <code>sales['Revenue'].sum()</code>. Q2: <code>sales.groupby('Rep')['Revenue'].sum().idxmax()</code>. Q5: <code>sales['Hit_Quota'] = sales['Revenue'] &gt; sales['Quota']</code> then <code>.mean() * 100</code>.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 8 Complete!</h2>
-      <p>You&rsquo;ve created DataFrames, filtered rows, grouped data, and answered real business questions with pandas. This is the core skill of a data analyst.</p>
-      <p style="margin-bottom:0"><a href="../lab-09/index.html">Continue to Lab 9: Data Visualization &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Data</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
-      <a href="../lab-09/index.html" class="nav-next">Lab 9: Visualization &rarr;</a>
-    </div>
-
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">Python Practice Labs &mdash; Lab 8: pandas Basics</p>
-  </footer>
-
-  <script>
-    let pyodide = null;
+# Answer all 5 business questions here</textarea> <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div><div class="hint-box"> <strong>Hint:</strong> Q1: <code>sales['Revenue'].sum()</code>. Q2: <code>sales.groupby('Rep')['Revenue'].sum().idxmax()</code>. Q5: <code>sales['Hit_Quota'] = sales['Revenue'] &gt; sales['Quota']</code> then <code>.mean() * 100</code>.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2>Lab 8 Complete!</h2> <p>You&rsquo;ve created DataFrames, filtered rows, grouped data, and answered real business questions with pandas. This is the core skill of a data analyst.</p> <p style="margin-bottom:0"><a href="../lab-09/index.html">Continue to Lab 9: Data Visualization &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Data</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span> <a href="../lab-09/index.html" class="nav-next">Lab 9: Visualization &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">Python Practice Labs &mdash; Lab 8: pandas Basics</p></footer> <script> let pyodide = null;
 
     async function initPyodide() {
       const statusEl = document.getElementById('pyodide-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading Python + pandas... (this may take 15–20 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading Python + pandas... (this may take 15–20 seconds)';
       pyodide = await loadPyodide();
       await pyodide.loadPackage(['pandas', 'numpy']);
       if(statusEl) {
-        statusEl.textContent = '✅ Python ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' Python ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -335,14 +156,11 @@ sales = pd.DataFrame({
         const out = pyodide.runPython('sys.stdout.getvalue()');
         const err = pyodide.runPython('sys.stderr.getvalue()');
         if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
-        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
-      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || ' Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = ' ' + e.message; outputEl.classList.add('error'); }
     }
 
-    initPyodide();
-  </script>
-<script>
-// Progress tracking via localStorage
+    initPyodide();</script> <script> // Progress tracking via localStorage
 const LAB_ID = 'python-lab-08';
 
 function isComplete() {
@@ -364,7 +182,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -376,9 +194,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

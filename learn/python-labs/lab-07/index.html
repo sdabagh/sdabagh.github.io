@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 7: Working with Data — Python Practice Labs. Structure and process real-world data using lists of dicts, without pandas.">
-  <title>Lab 7: Working with Data - Python Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 7: Working with Data — Python Practice Labs. Structure and process real-world data using lists of dicts, without pandas."> <title>Lab 7: Working with Data - Python Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#1565C0;color:#1565C0;text-decoration:none}
@@ -41,10 +31,7 @@
     .lab-header{background:linear-gradient(135deg,#1a237e 0%,#1565C0 60%,#2E7D32 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-<style>
-@media print {
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -65,61 +52,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 7 of 10</div>
-      <h1>Working with Data</h1>
-      <p>Structuring and processing real-world data</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: Strings</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span>
-      <a href="../lab-08/index.html" class="nav-next">Lab 8: pandas &rarr;</a>
-    </div>
-
-    <div id="pyodide-status" class="pyodide-status">&#x23F3; Loading Python... (first load takes ~10 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>Real data usually comes as a <strong>list of dictionaries</strong> &mdash; one dict per record:</p>
-      <code style="display:block;background:#e0e0e0;padding:0.5rem;border-radius:4px;margin:0.5rem 0;">[{"name": "Alice", "score": 92}, {"name": "Bob", "score": 78}, ...]</code>
-      <ul>
-        <li><strong>Filtering:</strong> <code>[r for r in records if r["field"] == value]</code></li>
-        <li><strong>Sorting:</strong> <code>sorted(records, key=lambda r: r["field"], reverse=True)</code></li>
-        <li><strong>Aggregating:</strong> <code>sum(r["salary"] for r in records)</code></li>
-        <li><strong>Grouping:</strong> loop and build a dict of lists</li>
-        <li><strong>Finding max/min record:</strong> <code>max(records, key=lambda r: r["value"])</code></li>
-      </ul>
-      <p style="margin-bottom:0">This is the foundation of data analysis &mdash; and exactly what pandas does under the hood.</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>Analyzing an employee dataset &mdash; grouping and summarizing:</p>
-      <div class="worked-code">from collections import defaultdict
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to Python Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 7 of 10</div> <h1>Working with Data</h1> <p>Structuring and processing real-world data</p></div> <div class="lab-nav"> <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: Strings</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span> <a href="../lab-08/index.html" class="nav-next">Lab 8: pandas &rarr;</a></div> <div id="pyodide-status" class="pyodide-status"> Loading Python... (first load takes ~10 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>Real data usually comes as a <strong>list of dictionaries</strong> &mdash; one dict per record:</p> <code style="display:block;background:#e0e0e0;padding:0.5rem;border-radius:4px;margin:0.5rem 0;">[{"name": "Alice", "score": 92}, {"name": "Bob", "score": 78}, ...]</code> <ul> <li><strong>Filtering:</strong> <code>[r for r in records if r["field"] == value]</code></li> <li><strong>Sorting:</strong> <code>sorted(records, key=lambda r: r["field"], reverse=True)</code></li> <li><strong>Aggregating:</strong> <code>sum(r["salary"] for r in records)</code></li> <li><strong>Grouping:</strong>loop and build a dict of lists</li> <li><strong>Finding max/min record:</strong> <code>max(records, key=lambda r: r["value"])</code></li></ul> <p style="margin-bottom:0">This is the foundation of data analysis &mdash; and exactly what pandas does under the hood.</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>Analyzing an employee dataset &mdash; grouping and summarizing:</p> <div class="worked-code">from collections import defaultdict
 
 employees = [
     {"name": "Alice Chen",   "dept": "Engineering", "salary": 95000, "years": 5},
@@ -141,16 +74,7 @@ for dept, emps in by_dept.items():
 
 # Top earner
 top = max(employees, key=lambda e: e["salary"])
-print(f"\nTop earner: {top['name']} (${top['salary']:,})")</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Data Filter and Sorter</h3>
-      <p>Complete the data operations by filling in the blanks. Each blank is a dict key name (as a string).</p>
-      <textarea class="code-editor" id="editor1">
-students = [
+print(f"\nTop earner: {top['name']} (${top['salary']:,})")</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Data Filter and Sorter</h3> <p>Complete the data operations by filling in the blanks. Each blank is a dict key name (as a string).</p> <textarea class="code-editor" id="editor1"> students = [
     {"name": "Alex",   "gpa": 3.8, "major": "CS",      "year": 3},
     {"name": "Beth",   "gpa": 3.2, "major": "Math",     "year": 2},
     {"name": "Carlos", "gpa": 3.9, "major": "CS",       "year": 4},
@@ -171,24 +95,7 @@ for i, s in enumerate(ranked, 1):
 
 # 3. Average GPA
 avg_gpa = sum(s[___] for s in students) / len(students)
-print(f"\nClass average GPA: {avg_gpa:.2f}")</textarea>
-      <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> The blanks are dict key names: <code>"major"</code>, <code>"gpa"</code>, <code>"gpa"</code>. Use the exact spelling from the data.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Multi-Field Analysis</h3>
-      <p>Using the <code>students</code> list from Exercise 1, write code to find:</p>
-      <ol>
-        <li>The highest GPA in each major</li>
-        <li>How many students are in each year (1, 2, 3, 4)</li>
-        <li>The honor roll students (GPA &ge; 3.7) &mdash; print their names</li>
-      </ol>
-      <textarea class="code-editor" id="editor2">
-students = [
+print(f"\nClass average GPA: {avg_gpa:.2f}")</textarea> <button class="run-btn" id="run1" onclick="runCode('editor1','output1')" disabled>&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> The blanks are dict key names: <code>"major"</code>, <code>"gpa"</code>, <code>"gpa"</code>. Use the exact spelling from the data.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Multi-Field Analysis</h3> <p>Using the <code>students</code> list from Exercise 1, write code to find:</p> <ol> <li>The highest GPA in each major</li> <li>How many students are in each year (1, 2, 3, 4)</li> <li>The honor roll students (GPA &ge; 3.7) &mdash; print their names</li></ol> <textarea class="code-editor" id="editor2"> students = [
     {"name": "Alex",   "gpa": 3.8, "major": "CS",      "year": 3},
     {"name": "Beth",   "gpa": 3.2, "major": "Math",     "year": 2},
     {"name": "Carlos", "gpa": 3.9, "major": "CS",       "year": 4},
@@ -197,20 +104,7 @@ students = [
     {"name": "Fiona",  "gpa": 3.7, "major": "Math",     "year": 3},
 ]
 
-# Your analysis here
-</textarea>
-      <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> For highest GPA per major, group students by major first, then use <code>max()</code> on each group. For year counts, build a dict like <code>year_counts = {}</code> and use <code>.get(year, 0) + 1</code>.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Generic Pivot Function</h3>
-      <p>Write a function <code>pivot_by_field(records, field)</code> that groups any list of dicts by any given field. It should return a dict of lists. Test it on the students list by grouping by both <code>"major"</code> and <code>"year"</code>.</p>
-      <textarea class="code-editor" id="editor3">
-def pivot_by_field(records, field):
+# Your analysis here</textarea> <button class="run-btn" id="run2" onclick="runCode('editor2','output2')" disabled>&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> For highest GPA per major, group students by major first, then use <code>max()</code> on each group. For year counts, build a dict like <code>year_counts = {}</code> and use <code>.get(year, 0) + 1</code>.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Generic Pivot Function</h3> <p>Write a function <code>pivot_by_field(records, field)</code> that groups any list of dicts by any given field. It should return a dict of lists. Test it on the students list by grouping by both <code>"major"</code> and <code>"year"</code>.</p> <textarea class="code-editor" id="editor3"> def pivot_by_field(records, field):
     # Your function here
     pass
 
@@ -235,26 +129,7 @@ print()
 by_year = pivot_by_field(students, "year")
 for year, group in sorted(by_year.items()):
     names = [s["name"] for s in group]
-    print(f"Year {year}: {names}")</textarea>
-      <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Start with <code>result = {}</code>. Loop through records. Use <code>result.setdefault(record[field], []).append(record)</code> to build the groups without checking if the key exists yet.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project</span>
-      <h3>Mini Project &mdash; Sales Report Processor</h3>
-      <p>Analyze the sales data below. Write a complete analysis that answers all 5 questions and prints a formatted report:</p>
-      <ol>
-        <li>Total revenue across all records</li>
-        <li>Revenue by region</li>
-        <li>Top 3 performing sales reps (total revenue each)</li>
-        <li>Month with highest total sales</li>
-        <li>Reps who exceeded quota (quota = $15,000 total)</li>
-      </ol>
-      <textarea class="code-editor" id="editor4" style="min-height:260px;">
-sales_data = [
+    print(f"Year {year}: {names}")</textarea> <button class="run-btn" id="run3" onclick="runCode('editor3','output3')" disabled>&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Start with <code>result = {}</code>. Loop through records. Use <code>result.setdefault(record[field], []).append(record)</code> to build the groups without checking if the key exists yet.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project</span> <h3>Mini Project &mdash; Sales Report Processor</h3> <p>Analyze the sales data below. Write a complete analysis that answers all 5 questions and prints a formatted report:</p> <ol> <li>Total revenue across all records</li> <li>Revenue by region</li> <li>Top 3 performing sales reps (total revenue each)</li> <li>Month with highest total sales</li> <li>Reps who exceeded quota (quota = $15,000 total)</li></ol> <textarea class="code-editor" id="editor4" style="min-height:260px;"> sales_data = [
     {"rep": "Alice", "region": "West",  "month": "Jan", "revenue": 18500},
     {"rep": "Bob",   "region": "East",  "month": "Jan", "revenue": 12300},
     {"rep": "Carol", "region": "West",  "month": "Feb", "revenue": 22100},
@@ -265,59 +140,15 @@ sales_data = [
     {"rep": "David", "region": "South", "month": "Feb", "revenue": 13200},
 ]
 
-# Your full analysis and report here
-</textarea>
-      <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> Build separate dicts for rep_revenue, region_revenue, and month_revenue as you loop. Sort rep_revenue by value and take the top 3 with <code>sorted(..., key=lambda x: x[1], reverse=True)[:3]</code>.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 7 Complete!</h2>
-      <p>You can now structure, filter, sort, group, and aggregate real-world data &mdash; all without any external libraries. This is exactly what pandas automates. Now you&rsquo;re ready for it.</p>
-      <p style="margin-bottom:0"><a href="../lab-08/index.html">Continue to Lab 8: pandas Basics &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: Strings</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span>
-      <a href="../lab-08/index.html" class="nav-next">Lab 8: pandas &rarr;</a>
-    </div>
-
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">Python Practice Labs &mdash; Lab 7: Working with Data</p>
-  </footer>
-
-  <script>
-    let pyodide = null;
+# Your full analysis and report here</textarea> <button class="run-btn" id="run4" onclick="runCode('editor4','output4')" disabled>&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> Build separate dicts for rep_revenue, region_revenue, and month_revenue as you loop. Sort rep_revenue by value and take the top 3 with <code>sorted(..., key=lambda x: x[1], reverse=True)[:3]</code>.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 7 Complete!</h2> <p>You can now structure, filter, sort, group, and aggregate real-world data &mdash; all without any external libraries. This is exactly what pandas automates. Now you&rsquo;re ready for it.</p> <p style="margin-bottom:0"><a href="../lab-08/index.html">Continue to Lab 8: pandas Basics &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-06/index.html" class="nav-prev">&larr; Lab 6: Strings</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 7 of 10</span> <a href="../lab-08/index.html" class="nav-next">Lab 8: pandas &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">Python Practice Labs &mdash; Lab 7: Working with Data</p></footer> <script> let pyodide = null;
 
     async function initPyodide() {
       const statusEl = document.getElementById('pyodide-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading Python... (first load takes ~10 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading Python... (first load takes ~10 seconds)';
       pyodide = await loadPyodide();
       if(statusEl) {
-        statusEl.textContent = '✅ Python ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' Python ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -337,14 +168,11 @@ sales_data = [
         const out = pyodide.runPython('sys.stdout.getvalue()');
         const err = pyodide.runPython('sys.stderr.getvalue()');
         if (err) { outputEl.textContent = err; outputEl.classList.add('error'); }
-        else { outputEl.textContent = out || '✓ Code ran successfully (no output)'; }
-      } catch(e) { outputEl.textContent = '❌ ' + e.message; outputEl.classList.add('error'); }
+        else { outputEl.textContent = out || ' Code ran successfully (no output)'; }
+      } catch(e) { outputEl.textContent = ' ' + e.message; outputEl.classList.add('error'); }
     }
 
-    initPyodide();
-  </script>
-<script>
-// Progress tracking via localStorage
+    initPyodide();</script> <script> // Progress tracking via localStorage
 const LAB_ID = 'python-lab-07';
 
 function isComplete() {
@@ -366,7 +194,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -378,9 +206,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

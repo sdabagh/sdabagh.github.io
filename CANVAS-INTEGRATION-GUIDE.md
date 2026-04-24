@@ -6,7 +6,7 @@ This guide explains multiple ways to integrate your AI tutor into Canvas LMS for
 
 ---
 
-## Quick Start (5 Minutes) ⚡
+## Quick Start (5 Minutes) 
 
 The **fastest** way to get your tutor in Canvas:
 
@@ -36,16 +36,13 @@ The **fastest** way to get your tutor in Canvas:
 3. Add this code:
 
 ```html
-<h2>Need Help? Ask the AI Tutor</h2>
-
-<iframe
+<h2>Need Help? Ask the AI Tutor</h2> <iframe
     src="https://sdabagh.github.io/ai-tutor/chat-interface.html"
     width="100%"
     height="700px"
     style="border: 2px solid #2C5F7C; border-radius: 8px;"
     title="AI Statistics Tutor"
-></iframe>
-```
+></iframe> ```
 
 4. Switch back to **Rich Content Editor**
 5. Save and publish
@@ -79,10 +76,7 @@ The **fastest** way to get your tutor in Canvas:
 
 ```html
 <div style="background: #F0F7FB; border-left: 4px solid #2C5F7C;
-            padding: 15px; margin: 20px 0; border-radius: 4px;">
-    <h3 style="margin-top: 0;">💡 Stuck? Get AI Help</h3>
-    <p>Open the AI tutor for personalized guidance on this topic.</p>
-    <a
+            padding: 15px; margin: 20px 0; border-radius: 4px;"> <h3 style="margin-top: 0;"> Stuck? Get AI Help</h3> <p>Open the AI tutor for personalized guidance on this topic.</p> <a
         href="https://sdabagh.github.io/ai-tutor/chat-interface.html"
         target="_blank"
         onclick="window.open(this.href, 'AI Tutor',
@@ -91,11 +85,7 @@ The **fastest** way to get your tutor in Canvas:
         style="display: inline-block; background: #2C5F7C; color: white;
                padding: 12px 24px; text-decoration: none; border-radius: 6px;
                font-weight: 600; cursor: pointer;"
-    >
-        Open AI Tutor
-    </a>
-</div>
-```
+    > Open AI Tutor</a></div> ```
 
 **Pros:**
 - Minimal space usage
@@ -123,8 +113,8 @@ The **fastest** way to get your tutor in Canvas:
 #### Step 1: Verify files are deployed
 
 Make sure these files exist in your repository:
-- `/ai-tutor/chat-interface.html` ✅ (exists)
-- `/ai-tutor/canvas-launch.html` ✅ (just created)
+- `/ai-tutor/chat-interface.html`  (exists)
+- `/ai-tutor/canvas-launch.html`  (just created)
 
 Push changes to GitHub:
 
@@ -150,7 +140,7 @@ git push -u origin claude/embed-tutor-canvas-8iJtf
    - **Privacy:** Public (no student data needed)
    - **Custom Fields:** (leave blank)
    - **Description:** AI-powered statistics tutor with adaptive scaffolding
-   - Check: ☑ "Course Navigation"
+   - Check:  "Course Navigation"
 7. Click **Submit**
 
 #### Step 3: Enable in Course Navigation
@@ -182,51 +172,23 @@ git push -u origin claude/embed-tutor-canvas-8iJtf
 Add to your **Syllabus** page:
 
 ```html
-<h3>📚 Getting Help</h3>
-
-<p>This course includes an AI-powered statistics tutor with adaptive support:</p>
-
-<ul>
-    <li><strong>Available 24/7</strong> - Get help whenever you need it</li>
-    <li><strong>Adaptive scaffolding</strong> - Adjusts to your learning needs</li>
-    <li><strong>Three support levels</strong> - From hints to worked examples</li>
-</ul>
-
-<p>
-    <a href="https://sdabagh.github.io/ai-tutor/chat-interface.html"
+<h3> Getting Help</h3> <p>This course includes an AI-powered statistics tutor with adaptive support:</p> <ul> <li><strong>Available 24/7</strong> - Get help whenever you need it</li> <li><strong>Adaptive scaffolding</strong> - Adjusts to your learning needs</li> <li><strong>Three support levels</strong> - From hints to worked examples</li></ul> <p> <a href="https://sdabagh.github.io/ai-tutor/chat-interface.html"
        target="_blank"
        style="display: inline-block; background: #2C5F7C; color: white;
               padding: 12px 24px; text-decoration: none; border-radius: 6px;
-              font-weight: 600; margin: 10px 0;">
-        Launch AI Tutor
-    </a>
-</p>
-
-<p><em><strong>Research Note:</strong> This tutor is part of my dissertation research.
+              font-weight: 600; margin: 10px 0;"> Launch AI Tutor</a></p> <p><em><strong>Research Note:</strong> This tutor is part of my dissertation research.
 Conversations are logged anonymously. Learn more:
-<a href="https://sdabagh.github.io/participate.html" target="_blank">
-    Research Participation Info
-</a></em></p>
-```
+<a href="https://sdabagh.github.io/participate.html" target="_blank"> Research Participation Info</a></em></p> ```
 
 Add to **Home Page** (Course Front Page):
 
 ```html
 <div style="background: linear-gradient(135deg, #2C5F7C 0%, #3A7CA5 100%);
-            color: white; padding: 25px; border-radius: 10px; margin: 20px 0;">
-    <h2 style="margin-top: 0; color: white;">🤖 NEW: AI Statistics Tutor</h2>
-    <p style="font-size: 16px; margin-bottom: 15px;">
-        Get personalized help with adaptive AI support. Available 24/7 for all course topics.
-    </p>
-    <a href="https://sdabagh.github.io/ai-tutor/chat-interface.html"
+            color: white; padding: 25px; border-radius: 10px; margin: 20px 0;"> <h2 style="margin-top: 0; color: white;"> NEW: AI Statistics Tutor</h2> <p style="font-size: 16px; margin-bottom: 15px;"> Get personalized help with adaptive AI support. Available 24/7 for all course topics.</p> <a href="https://sdabagh.github.io/ai-tutor/chat-interface.html"
        target="_blank"
        style="display: inline-block; background: white; color: #2C5F7C;
               padding: 12px 24px; text-decoration: none; border-radius: 6px;
-              font-weight: 600;">
-        Try the AI Tutor →
-    </a>
-</div>
-```
+              font-weight: 600;"> Try the AI Tutor →</a></div> ```
 
 ---
 
@@ -236,15 +198,15 @@ Here's what I recommend for maximum student usage:
 
 ### Week 0 (Before Classes Start):
 
-1. ✅ Add External Tool to course navigation (Option 3)
-2. ✅ Add announcement about AI tutor on Home Page (Option 4)
-3. ✅ Mention in syllabus with research consent info (Option 4)
+1.  Add External Tool to course navigation (Option 3)
+2.  Add announcement about AI tutor on Home Page (Option 4)
+3.  Mention in syllabus with research consent info (Option 4)
 
 ### Throughout Semester:
 
-4. ✅ Add popup buttons before difficult practice problems (Option 2)
-5. ✅ Embed full tutor in "Module Help" pages (Option 1)
-6. ✅ Include in assignment instructions for complex topics (Option 2)
+4.  Add popup buttons before difficult practice problems (Option 2)
+5.  Embed full tutor in "Module Help" pages (Option 1)
+6.  Include in assignment instructions for complex topics (Option 2)
 
 ### Implementation Checklist:
 
@@ -272,23 +234,23 @@ Hi everyone,
 I'm excited to introduce a NEW resource for this course: an AI-powered
 statistics tutor with adaptive cognitive scaffolding!
 
-🤖 What is it?
+ What is it?
 An intelligent tutoring system that adjusts its support based on YOUR needs:
   • Level 1: Hints to guide your thinking
   • Level 2: Step-by-step guided questions
   • Level 3: Worked examples and detailed explanations
 
-📍 Where to find it:
+ Where to find it:
   • Click "AI Statistics Tutor" in the left sidebar
   • Look for blue "Get AI Help" buttons throughout the course
   • Direct link: https://sdabagh.github.io/ai-tutor/chat-interface.html
 
-🎯 When to use it:
+ When to use it:
   • Stuck on a homework problem? Get a hint!
   • Confused about a concept? Ask for step-by-step help!
   • Need to see an example? Request a worked demonstration!
 
-📊 Research Note:
+ Research Note:
 This tutor is part of my dissertation research on AI in education. Your
 conversations are logged anonymously to help us understand how AI can best
 support statistics learning. Participation is voluntary - you can use the
@@ -485,7 +447,7 @@ If you have issues during setup:
 5. Test on multiple devices
 6. Prepare Week 1 announcement
 
-**You're ready for Winter 2026!** 🎉
+**You're ready for Winter 2026!** 
 
 ---
 

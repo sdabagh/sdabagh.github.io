@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 8: Tidyr and Data Reshaping — R Practice Labs. Tidy data is happy data — pivot_longer, pivot_wider, separate, and unite.">
-  <title>Lab 8: Tidyr &amp; Data Reshaping - R Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 8: Tidyr and Data Reshaping — R Practice Labs. Tidy data is happy data — pivot_longer, pivot_wider, separate, and unite."> <title>Lab 8: Tidyr &amp; Data Reshaping - R Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
@@ -40,19 +31,16 @@
     .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -74,7 +62,7 @@
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
         const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -86,15 +74,12 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally { shelter.purge(); }
     }
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -115,59 +100,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 8 of 10</div>
-      <h1>Tidyr &amp; Data Reshaping</h1>
-      <p>Tidy data is happy data</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
-      <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p><strong>Tidy data</strong> has one rule: each variable is a column, each observation is a row. Real-world data is often &ldquo;wide&rdquo; (one row per subject, one column per time point), but tidy &ldquo;long&rdquo; format is needed for ggplot2 and dplyr.</p>
-      <ul>
-        <li><strong>pivot_longer()</strong> &mdash; wide &rarr; long: stack multiple columns into key-value pairs</li>
-        <li><strong>pivot_wider()</strong> &mdash; long &rarr; wide: spread a key-value pair into columns</li>
-        <li><strong>separate()</strong> &mdash; split one column into two (e.g. &ldquo;2024-01&rdquo; &rarr; year, month)</li>
-        <li><strong>unite()</strong> &mdash; combine two columns into one</li>
-      </ul>
-      <p style="margin-bottom:0">Use <code>library(tidyr)</code> together with <code>library(dplyr)</code>. Both load without installation in WebR.</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>Pivoting exam scores from wide format to long, then summarizing per student:</p>
-      <div class="worked-code">library(tidyr); library(dplyr)
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 8 of 10</div> <h1>Tidyr &amp; Data Reshaping</h1> <p>Tidy data is happy data</p></div> <div class="lab-nav"> <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span> <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p><strong>Tidy data</strong> has one rule: each variable is a column, each observation is a row. Real-world data is often &ldquo;wide&rdquo; (one row per subject, one column per time point), but tidy &ldquo;long&rdquo; format is needed for ggplot2 and dplyr.</p> <ul> <li><strong>pivot_longer()</strong> &mdash; wide &rarr; long: stack multiple columns into key-value pairs</li> <li><strong>pivot_wider()</strong>&mdash; long &rarr; wide: spread a key-value pair into columns</li> <li><strong>separate()</strong> &mdash; split one column into two (e.g. &ldquo;2024-01&rdquo; &rarr; year, month)</li> <li><strong>unite()</strong> &mdash; combine two columns into one</li></ul> <p style="margin-bottom:0">Use <code>library(tidyr)</code> together with <code>library(dplyr)</code>. Both load without installation in WebR.</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>Pivoting exam scores from wide format to long, then summarizing per student:</p> <div class="worked-code">library(tidyr); library(dplyr)
 wide &lt;- data.frame(
   student = c("Alice","Bob","Carol"),
   exam_1  = c(88, 75, 92),
@@ -184,15 +117,7 @@ long &lt;- wide |&gt; pivot_longer(
 cat("\nLong format:\n"); print(long)
 
 long |&gt; group_by(student) |&gt;
-  summarize(avg = mean(score), best = max(score)) |&gt; print()</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Monthly Sales Pivot</h3>
-      <p>Pivot the wide monthly sales table to long format so each row represents one rep&ndash;month combination.</p>
-      <textarea class="code-editor" id="editor1">library(tidyr); library(dplyr)
+  summarize(avg = mean(score), best = max(score)) |&gt; print()</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Monthly Sales Pivot</h3> <p>Pivot the wide monthly sales table to long format so each row represents one rep&ndash;month combination.</p> <textarea class="code-editor" id="editor1">library(tidyr); library(dplyr)
 monthly_sales &lt;- data.frame(
   rep = c("Alice","Bob","Carol","David"),
   Jan = c(18500, 12300, 22100, 15600),
@@ -212,18 +137,7 @@ cat("\nLong:\n"); print(long_sales)
 cat("\nTotal by rep:\n")
 long_sales |&gt; group_by(rep) |&gt;
   summarize(total = sum(revenue), avg = round(mean(revenue), 0)) |&gt;
-  arrange(desc(total)) |&gt; print()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>pivot_longer(cols = c(Jan, Feb, Mar), ...)</code> stacks the three month columns. Alternatively use <code>cols = -rep</code> to pivot all columns except <code>rep</code>. The <code>names_to</code> argument names the new key column.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; City Population Growth</h3>
-      <p>Start with a wide city population table (2020&ndash;2023). Pivot to long, calculate year-over-year growth rates, and find the fastest-growing city each year.</p>
-      <textarea class="code-editor" id="editor2">library(tidyr); library(dplyr)
+  arrange(desc(total)) |&gt; print()</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>pivot_longer(cols = c(Jan, Feb, Mar), ...)</code> stacks the three month columns. Alternatively use <code>cols = -rep</code> to pivot all columns except <code>rep</code>. The <code>names_to</code> argument names the new key column.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; City Population Growth</h3><p>Start with a wide city population table (2020&ndash;2023). Pivot to long, calculate year-over-year growth rates, and find the fastest-growing city each year.</p> <textarea class="code-editor" id="editor2">library(tidyr); library(dplyr)
 cities &lt;- data.frame(
   city     = c("Springfield","Riverside","Lakewood","Hillcrest"),
   pop_2020 = c(142000, 98000, 215000, 67000),
@@ -254,18 +168,7 @@ cat("\nGrowth rates:\n"); print(growth)
 # 3. Fastest growing city each year
 cat("\nFastest growing city per year:\n")
 growth |&gt; group_by(year) |&gt; slice_max(growth_pct, n=1) |&gt;
-  select(year, city, growth_pct) |&gt; print()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>lag(population)</code> gets the previous row&rsquo;s value within each city group &mdash; perfect for year-over-year growth. <code>sub("pop_", "", year)</code> strips the prefix to get just the year number.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; separate() and unite()</h3>
-      <p>Use <code>separate()</code> to split full_name into first and last columns, and split date_range into start and end dates. Then use <code>unite()</code> to create a <code>name_id</code> column by combining last name and ID.</p>
-      <textarea class="code-editor" id="editor3">library(tidyr); library(dplyr)
+  select(year, city, growth_pct) |&gt; print()</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>lag(population)</code> gets the previous row&rsquo;s value within each city group &mdash; perfect for year-over-year growth. <code>sub("pop_", "", year)</code> strips the prefix to get just the year number.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; separate() and unite()</h3> <p>Use <code>separate()</code> to split full_name into first and last columns, and split date_range into start and end dates. Then use <code>unite()</code> to create a <code>name_id</code> column by combining last name and ID.</p><textarea class="code-editor" id="editor3">library(tidyr); library(dplyr)
 records &lt;- data.frame(
   id         = 1:5,
   full_name  = c("Smith, John","Lee, Sarah","Brown, Carlos","Kim, Diana","Wang, Ethan"),
@@ -287,18 +190,7 @@ cat("After separating:\n"); print(split2)
 # Unite last name and id into name_id (e.g. "Smith_1")
 final &lt;- split2 |&gt;
   unite("name_id", last, id, sep = "_")
-cat("\nAfter uniting name_id:\n"); print(final)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>separate(col, into=c("a","b"), sep="pattern")</code> splits on a regex pattern. <code>unite("new_col", col1, col2, sep="_")</code> combines two columns with a separator. Both functions modify the data frame in a pipeline.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Gradebook Transformation</span>
-      <h3>Wide &rarr; Long &rarr; Letter Grades &rarr; Wide Again</h3>
-      <p>Transform a wide gradebook through a complete pipeline: pivot to long, add letter grade column, then pivot back wide with letter grades, and generate a summary table.</p>
-      <textarea class="code-editor" id="editor4" style="min-height:300px;">library(tidyr); library(dplyr)
+cat("\nAfter uniting name_id:\n"); print(final)</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>separate(col, into=c("a","b"), sep="pattern")</code> splits on a regex pattern. <code>unite("new_col", col1, col2, sep="_")</code> combines two columns with a separator. Both functions modify the data frame in a pipeline.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project &mdash; Gradebook Transformation</span> <h3>Wide &rarr; Long &rarr; Letter Grades &rarr; Wide Again</h3> <p>Transform a wide gradebook through a complete pipeline: pivot to long, add letter grade column, then pivot back wide with letter grades, and generate a summary table.</p> <textarea class="code-editor" id="editor4" style="min-height:300px;">library(tidyr); library(dplyr)
 gradebook &lt;- data.frame(
   student = c("Alice","Bob","Carol","Diana","Ethan","Fiona"),
   hw1     = c(92, 78, 88, 95, 71, 85),
@@ -343,49 +235,8 @@ long_gb |&gt; group_by(student) |&gt;
               mean(score) &gt;= 80 ~ "B",
               mean(score) &gt;= 70 ~ "C",
               TRUE ~ "C-")) |&gt;
-  arrange(desc(avg_score)) |&gt; print()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> When pivoting back wide, use <code>pivot_wider(names_from = assignment, values_from = grade)</code>. The <code>names_from</code> column provides the new column names and <code>values_from</code> provides the cell values.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 8 Complete!</h2>
-      <p>You can now reshape any dataset between wide and long formats, split and combine columns, and build complete data pipelines. Tidy data enables all the visualization and analysis techniques from earlier labs.</p>
-      <p style="margin-bottom:0"><a href="../lab-09/index.html">Continue to Lab 9: Professional Output &amp; Reporting &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span>
-      <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 8: Tidyr &amp; Data Reshaping</p>
-  </footer>
-<script>
-// Progress tracking via localStorage
+  arrange(desc(avg_score)) |&gt; print()</textarea> <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> When pivoting back wide, use <code>pivot_wider(names_from = assignment, values_from = grade)</code>. The <code>names_from</code> column provides the new column names and <code>values_from</code> provides the cell values.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 8 Complete!</h2> <p>You can now reshape any dataset between wide and long formats, split and combine columns, and build complete data pipelines. Tidy data enables all the visualization and analysis techniques from earlier labs.</p> <p style="margin-bottom:0"><a href="../lab-09/index.html">Continue to Lab 9: Professional Output &amp; Reporting &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-07/index.html" class="nav-prev">&larr; Lab 7: Statistics</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 8 of 10</span> <a href="../lab-09/index.html" class="nav-next">Lab 9: Reporting &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">R Practice Labs &mdash; Lab 8: Tidyr &amp; Data Reshaping</p></footer> <script> // Progress tracking via localStorage
 const LAB_ID = 'r-lab-08';
 
 function isComplete() {
@@ -407,7 +258,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -419,9 +270,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

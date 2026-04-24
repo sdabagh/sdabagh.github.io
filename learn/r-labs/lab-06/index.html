@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 6: ggplot2 Data Visualization — R Practice Labs. Create beautiful charts using the grammar of graphics.">
-  <title>Lab 6: ggplot2 Visualization - R Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 6: ggplot2 Data Visualization — R Practice Labs. Create beautiful charts using the grammar of graphics."> <title>Lab 6: ggplot2 Visualization - R Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
@@ -41,19 +32,16 @@
     .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -75,7 +63,7 @@
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
         const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -87,15 +75,12 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally { shelter.purge(); }
     }
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -116,62 +101,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 6 of 10</div>
-      <h1>ggplot2: Data Visualization</h1>
-      <p>The grammar of graphics &mdash; R&rsquo;s most beautiful tool</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Strings</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span>
-      <a href="../lab-07/index.html" class="nav-next">Lab 7: Statistics &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>ggplot2 builds charts in <strong>layers</strong>. Each layer adds to the previous one using <code>+</code>:</p>
-      <ul>
-        <li><strong>ggplot(data, aes(...))</strong> &mdash; declare data and aesthetic mappings (x, y, color, fill, size, shape)</li>
-        <li><strong>geom_bar / geom_col</strong> &mdash; bar charts (<code>geom_bar</code> counts rows, <code>geom_col</code> uses a y value)</li>
-        <li><strong>geom_line / geom_point</strong> &mdash; line and scatter plots</li>
-        <li><strong>geom_histogram / geom_boxplot</strong> &mdash; distributions</li>
-        <li><strong>labs()</strong> &mdash; title, x, y labels</li>
-        <li><strong>theme_minimal() / theme_classic()</strong> &mdash; clean built-in themes</li>
-        <li><strong>facet_wrap(~var)</strong> &mdash; separate panels per group</li>
-      </ul>
-      <p style="margin-bottom:0">Charts render <strong>directly on the page</strong> when you click Run &mdash; look for the image below the output box!</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>A polished horizontal bar chart with labels and a custom theme:</p>
-      <div class="worked-code">library(ggplot2)
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 6 of 10</div> <h1>ggplot2: Data Visualization</h1> <p>The grammar of graphics &mdash; R&rsquo;s most beautiful tool</p></div> <div class="lab-nav"> <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Strings</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span> <a href="../lab-07/index.html" class="nav-next">Lab 7: Statistics &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>ggplot2 builds charts in <strong>layers</strong>. Each layer adds to the previous one using <code>+</code>:</p> <ul> <li><strong>ggplot(data, aes(...))</strong> &mdash; declare data and aesthetic mappings (x, y, color, fill, size, shape)</li> <li><strong>geom_bar / geom_col</strong> &mdash; bar charts (<code>geom_bar</code> counts rows, <code>geom_col</code> uses a y value)</li> <li><strong>geom_line / geom_point</strong> &mdash; line and scatter plots</li> <li><strong>geom_histogram / geom_boxplot</strong> &mdash; distributions</li> <li><strong>labs()</strong> &mdash; title, x, y labels</li> <li><strong>theme_minimal() / theme_classic()</strong> &mdash; clean built-in themes</li> <li><strong>facet_wrap(~var)</strong> &mdash; separate panels per group</li></ul> <p style="margin-bottom:0">Charts render <strong>directly on the page</strong> when you click Run &mdash; look for the image below the output box!</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>A polished horizontal bar chart with labels and a custom theme:</p> <div class="worked-code">library(ggplot2)
 sales &lt;- data.frame(
   category = c("Electronics","Clothing","Food","Sports","Books"),
   revenue  = c(45000, 32000, 28000, 19000, 12000)
@@ -184,15 +114,7 @@ ggplot(sales, aes(x = reorder(category, revenue), y = revenue, fill = category))
   scale_fill_brewer(palette = "Set2") +
   labs(title = "Revenue by Category", x = NULL, y = "Revenue ($)") +
   theme_minimal() +
-  expand_limits(y = 55000)</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Scatter Plot: GPA by Year</h3>
-      <p>Run this scatter plot that shows GPA vs. year, colored by major. The code is complete &mdash; run it, then try adjusting the point size or color palette.</p>
-      <textarea class="code-editor" id="editor1">library(ggplot2)
+  expand_limits(y = 55000)</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Scatter Plot: GPA by Year</h3> <p>Run this scatter plot that shows GPA vs. year, colored by major. The code is complete &mdash; run it, then try adjusting the point size or color palette.</p> <textarea class="code-editor" id="editor1">library(ggplot2)
 students &lt;- data.frame(
   name  = c("Alex","Beth","Carlos","Diana","Ethan","Fiona","George","Hana"),
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -205,19 +127,7 @@ ggplot(students, aes(x = year, y = gpa, color = major)) +
   scale_y_continuous(limits = c(2.5, 4.2)) +
   scale_color_manual(values = c("CS"="#C62828","Math"="#1565C0","English"="#2E7D32")) +
   labs(title = "Student GPA by Year", x = "Year", y = "GPA", color = "Major") +
-  theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1','plot1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div id="plot1" class="plot-output"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>aes(color = major)</code> maps the major variable to point color. <code>geom_text(aes(label = name))</code> adds student name labels. <code>vjust = -1</code> positions labels above the points.</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Grouped Bar Chart</h3>
-      <p>Create a grouped bar chart comparing average GPA by major AND year using the students data. Use <code>stat="identity"</code> after computing averages with dplyr, and <code>position="dodge"</code> to place bars side-by-side.</p>
-      <textarea class="code-editor" id="editor2">library(ggplot2)
+  theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1','plot1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div id="plot1" class="plot-output"></div> <div class="hint-box"> <strong>Hint:</strong> <code>aes(color = major)</code> maps the major variable to point color. <code>geom_text(aes(label = name))</code> adds student name labels. <code>vjust = -1</code> positions labels above the points.</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Grouped Bar Chart</h3> <p>Create a grouped bar chart comparing average GPA by major AND year using the students data. Use <code>stat="identity"</code> after computing averages with dplyr, and <code>position="dodge"</code> to place bars side-by-side.</p> <textarea class="code-editor" id="editor2">library(ggplot2)
 library(dplyr)
 students &lt;- data.frame(
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -236,19 +146,7 @@ ggplot(avg_data, aes(x = major, y = avg_gpa, fill = factor(year))) +
   labs(title = "Average GPA by Major and Year",
        x = "Major", y = "Average GPA", fill = "Year") +
   scale_fill_brewer(palette = "RdYlBu") +
-  theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div id="plot2" class="plot-output"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>factor(year)</code> tells ggplot to treat year as a discrete category rather than a continuous number, which gives each year its own bar color. <code>position="dodge"</code> places bars side by side instead of stacked.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Faceted Distribution</h3>
-      <p>Create a 2-panel figure using <code>facet_wrap(~major)</code> showing the GPA distribution (histogram or density) per major, with a vertical dashed line marking the mean GPA for each panel.</p>
-      <textarea class="code-editor" id="editor3">library(ggplot2)
+  theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2','plot2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div id="plot2" class="plot-output"></div> <div class="hint-box"> <strong>Hint:</strong> <code>factor(year)</code> tells ggplot to treat year as a discrete category rather than a continuous number, which gives each year its own bar color. <code>position="dodge"</code> places bars side by side instead of stacked.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Faceted Distribution</h3> <p>Create a 2-panel figure using <code>facet_wrap(~major)</code> showing the GPA distribution (histogram or density) per major, with a vertical dashed line marking the mean GPA for each panel.</p> <textarea class="code-editor" id="editor3">library(ggplot2)
 library(dplyr)
 students &lt;- data.frame(
   major = c("CS","Math","CS","English","CS","Math","English","CS"),
@@ -268,21 +166,7 @@ ggplot(students, aes(x = gpa, fill = major)) +
        subtitle = "Dashed line = group mean",
        x = "GPA", y = "Count") +
   theme_minimal() +
-  theme(legend.position = "none")</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div id="plot3" class="plot-output"></div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> When using <code>geom_vline(data = means, ...)</code>, ggplot will correctly draw one line per panel. <code>facet_wrap(~major)</code> splits the plot into separate panels, one per major value.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Sales Dashboard (4 Charts)</span>
-      <h3>Build 4 Separate ggplot2 Charts</h3>
-      <p>Create all four charts one at a time (run each button separately). Each chart should have a title, clean theme, and proper axis labels.</p>
-
-      <h4 style="color:#C62828;margin-top:1.5rem">Chart 1: Bar Chart &mdash; Total Revenue by Rep</h4>
-      <textarea class="code-editor" id="editor_p1" style="min-height:140px;">library(ggplot2); library(dplyr)
+  theme(legend.position = "none")</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3','plot3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div id="plot3" class="plot-output"></div> <div class="hint-box"> <strong>Hint:</strong> When using <code>geom_vline(data = means, ...)</code>, ggplot will correctly draw one line per panel. <code>facet_wrap(~major)</code> splits the plot into separate panels, one per major value.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project &mdash; Sales Dashboard (4 Charts)</span> <h3>Build 4 Separate ggplot2 Charts</h3> <p>Create all four charts one at a time (run each button separately). Each chart should have a title, clean theme, and proper axis labels.</p> <h4 style="color:#C62828;margin-top:1.5rem">Chart 1: Bar Chart &mdash; Total Revenue by Rep</h4> <textarea class="code-editor" id="editor_p1" style="min-height:140px;">library(ggplot2); library(dplyr)
 sales &lt;- data.frame(
   rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   region = c("West","East","West","West","South","East","West","South"),
@@ -293,13 +177,7 @@ totals &lt;- sales |&gt; group_by(rep) |&gt; summarize(total = sum(revenue), .gr
 ggplot(totals, aes(x = reorder(rep, -total), y = total, fill = rep)) +
   geom_col(show.legend=FALSE) +
   labs(title="Total Revenue by Rep", x="Rep", y="Revenue ($)") +
-  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor_p1','output_p1','plot_p1')">&#x25B6; Run Chart 1</button>
-      <div id="output_p1" class="code-output">Output will appear here...</div>
-      <div id="plot_p1" class="plot-output"></div>
-
-      <h4 style="color:#C62828;margin-top:1.5rem">Chart 2: Line Chart &mdash; Revenue by Month per Rep</h4>
-      <textarea class="code-editor" id="editor_p2" style="min-height:140px;">library(ggplot2)
+  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor_p1','output_p1','plot_p1')">&#x25B6; Run Chart 1</button> <div id="output_p1" class="code-output">Output will appear here...</div> <div id="plot_p1" class="plot-output"></div> <h4 style="color:#C62828;margin-top:1.5rem">Chart 2: Line Chart &mdash; Revenue by Month per Rep</h4> <textarea class="code-editor" id="editor_p2" style="min-height:140px;">library(ggplot2)
 sales &lt;- data.frame(
   rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   month  = c("Jan","Jan","Jan","Feb","Jan","Feb","Feb","Feb"),
@@ -308,13 +186,7 @@ sales &lt;- data.frame(
 ggplot(sales, aes(x = month, y = revenue, color = rep, group = rep)) +
   geom_line(linewidth = 1.2) + geom_point(size = 3) +
   labs(title="Revenue by Month per Rep", x="Month", y="Revenue ($)", color="Rep") +
-  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor_p2','output_p2','plot_p2')">&#x25B6; Run Chart 2</button>
-      <div id="output_p2" class="code-output">Output will appear here...</div>
-      <div id="plot_p2" class="plot-output"></div>
-
-      <h4 style="color:#C62828;margin-top:1.5rem">Chart 3: Boxplot &mdash; Revenue Distribution by Region</h4>
-      <textarea class="code-editor" id="editor_p3" style="min-height:130px;">library(ggplot2)
+  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor_p2','output_p2','plot_p2')">&#x25B6; Run Chart 2</button> <div id="output_p2" class="code-output">Output will appear here...</div> <div id="plot_p2" class="plot-output"></div> <h4 style="color:#C62828;margin-top:1.5rem">Chart 3: Boxplot &mdash; Revenue Distribution by Region</h4> <textarea class="code-editor" id="editor_p3" style="min-height:130px;">library(ggplot2)
 sales &lt;- data.frame(
   region = c("West","East","West","West","South","East","West","South"),
   revenue= c(18500,12300,22100,19800,15600,16900,25400,13200)
@@ -323,13 +195,7 @@ ggplot(sales, aes(x = region, y = revenue, fill = region)) +
   geom_boxplot(show.legend=FALSE, alpha=0.7) +
   geom_jitter(width=0.15, size=2, alpha=0.6) +
   labs(title="Revenue Distribution by Region", x="Region", y="Revenue ($)") +
-  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor_p3','output_p3','plot_p3')">&#x25B6; Run Chart 3</button>
-      <div id="output_p3" class="code-output">Output will appear here...</div>
-      <div id="plot_p3" class="plot-output"></div>
-
-      <h4 style="color:#C62828;margin-top:1.5rem">Chart 4: Scatter Plot &mdash; Revenue colored by Region</h4>
-      <textarea class="code-editor" id="editor_p4" style="min-height:140px;">library(ggplot2)
+  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor_p3','output_p3','plot_p3')">&#x25B6; Run Chart 3</button> <div id="output_p3" class="code-output">Output will appear here...</div> <div id="plot_p3" class="plot-output"></div> <h4 style="color:#C62828;margin-top:1.5rem">Chart 4: Scatter Plot &mdash; Revenue colored by Region</h4> <textarea class="code-editor" id="editor_p4" style="min-height:140px;">library(ggplot2)
 sales &lt;- data.frame(
   rep    = c("Alice","Bob","Carol","Alice","David","Bob","Carol","David"),
   region = c("West","East","West","West","South","East","West","South"),
@@ -343,49 +209,8 @@ ggplot(sales, aes(x = month_n, y = revenue, color = region, label = rep)) +
   scale_x_continuous(breaks=c(1,2), labels=c("Jan","Feb")) +
   labs(title="Revenue by Month (colored by Region)",
        x="Month", y="Revenue ($)", color="Region") +
-  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea>
-      <button class="run-btn" disabled onclick="runR('editor_p4','output_p4','plot_p4')">&#x25B6; Run Chart 4</button>
-      <div id="output_p4" class="code-output">Output will appear here...</div>
-      <div id="plot_p4" class="plot-output"></div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 6 Complete!</h2>
-      <p>You&rsquo;ve created bar charts, scatter plots, line charts, boxplots, and faceted figures &mdash; the core of professional data visualization in R. ggplot2&rsquo;s layered grammar makes complex charts surprisingly simple to build.</p>
-      <p style="margin-bottom:0"><a href="../lab-07/index.html">Continue to Lab 7: Statistical Analysis &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Strings</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span>
-      <a href="../lab-07/index.html" class="nav-next">Lab 7: Statistics &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 6: ggplot2 Data Visualization</p>
-  </footer>
-<script>
-// Progress tracking via localStorage
+  scale_y_continuous(labels=scales::comma) + theme_minimal()</textarea> <button class="run-btn" disabled onclick="runR('editor_p4','output_p4','plot_p4')">&#x25B6; Run Chart 4</button> <div id="output_p4" class="code-output">Output will appear here...</div> <div id="plot_p4" class="plot-output"></div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 6 Complete!</h2> <p>You&rsquo;ve created bar charts, scatter plots, line charts, boxplots, and faceted figures &mdash; the core of professional data visualization in R. ggplot2&rsquo;s layered grammar makes complex charts surprisingly simple to build.</p> <p style="margin-bottom:0"><a href="../lab-07/index.html">Continue to Lab 7: Statistical Analysis &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-05/index.html" class="nav-prev">&larr; Lab 5: Strings</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 6 of 10</span> <a href="../lab-07/index.html" class="nav-next">Lab 7: Statistics &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a> <a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">R Practice Labs &mdash; Lab 6: ggplot2 Data Visualization</p></footer> <script> // Progress tracking via localStorage
 const LAB_ID = 'r-lab-06';
 
 function isComplete() {
@@ -407,7 +232,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -419,9 +244,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>

@@ -478,7 +478,7 @@ function createResidualPlotsViz(containerId) {
         'font-weight': 'bold',
         fill: '#28a745'
     });
-    goodTitle.textContent = '✓ Good: Random Scatter';
+    goodTitle.textContent = ' Good: Random Scatter';
     goodSVG.appendChild(goodTitle);
 
     // Bad residual plot
@@ -490,7 +490,7 @@ function createResidualPlotsViz(containerId) {
         'font-weight': 'bold',
         fill: '#dc3545'
     });
-    badTitle.textContent = '✗ Bad: Curved Pattern';
+    badTitle.textContent = ' Bad: Curved Pattern';
     badSVG.appendChild(badTitle);
 
     const plotWidth = smallWidth - margin.left - margin.right;

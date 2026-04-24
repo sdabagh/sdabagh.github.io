@@ -15,11 +15,11 @@ This Chrome extension helps you grade MAT300 (Intermediate Algebra) discussion p
 
 | Category | Max Points | AI-Graded? |
 |----------|------------|------------|
-| 1. Comprehensive Initial Post | 45 pts | ✅ Yes |
-| 2. Comprehensive Peer Responses | 35 pts | ✅ Yes |
-| 3. Clarity and Mechanics | 10 pts | ✅ Yes |
-| 4. Participation Guidelines | 5 pts | ⚠️ Manual (requires timestamps) |
-| 5. Timeliness | 5 pts | ⚠️ Manual (requires timestamps) |
+| 1. Comprehensive Initial Post | 45 pts |  Yes |
+| 2. Comprehensive Peer Responses | 35 pts |  Yes |
+| 3. Clarity and Mechanics | 10 pts |  Yes |
+| 4. Participation Guidelines | 5 pts |  Manual (requires timestamps) |
+| 5. Timeliness | 5 pts |  Manual (requires timestamps) |
 | **Total** | **100 pts** | **90 pts AI + 10 pts manual** |
 
 **Note**: The AI can grade content quality (90 pts) but cannot assess participation patterns or timeliness without access to post timestamps. You'll need to manually verify these two categories.
@@ -40,7 +40,7 @@ The extension needs a Cloudflare Worker to securely call the Claude API.
 6. Click "Save and Deploy"
 7. Copy your worker URL (e.g., `https://mat300-grader.your-name.workers.dev`)
 
-📖 **Detailed instructions**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
+ **Detailed instructions**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ### 2. Install the Chrome Extension
 
@@ -76,14 +76,14 @@ The extension needs a Cloudflare Worker to securely call the Claude API.
 1. **Navigate** to Canvas SpeedGrader for a discussion assignment
    - The URL should contain `instructure.com` and `speed_grader`
 
-2. **Click** the extension icon (📊 in toolbar)
+2. **Click** the extension icon ( in toolbar)
 
 3. **Extract** the discussion:
-   - Click "📥 Extract Discussion"
+   - Click " Extract Discussion"
    - Review the student's content
 
 4. **Grade** with AI:
-   - Click "🤖 Grade with AI"
+   - Click " Grade with AI"
    - Wait 5-10 seconds for Claude to analyze
 
 5. **Review** the AI's grading:
@@ -97,7 +97,7 @@ The extension needs a Cloudflare Worker to securely call the Claude API.
    - Update scores to 5 pts if criteria met
 
 7. **Apply** to Canvas:
-   - Click "✅ Apply to Canvas"
+   - Click " Apply to Canvas"
    - The total score and feedback will be inserted into SpeedGrader
    - Click "Submit" in Canvas to save the grade
 
@@ -136,13 +136,13 @@ cloudflare-worker-grader.js  # Cloudflare Worker code (deploy this!)
 
 ## Security & Privacy
 
-✅ **Secure**:
+ **Secure**:
 - API key stored locally in Chrome (never sent to servers)
 - Worker code is open source and auditable
 - All communication over HTTPS
 - No student data is stored or logged
 
-⚠️ **Best Practices**:
+ **Best Practices**:
 - Set API spending limits in Anthropic console
 - Don't share your API key
 - Regularly rotate your API key
@@ -203,13 +203,13 @@ To use a different Claude model:
 
 ## Limitations
 
-❌ **What the AI CANNOT do**:
+ **What the AI CANNOT do**:
 - Determine if posts were made on different days (no timestamp access)
 - Verify if student replied to instructor feedback
 - Check if first post was by Wednesday
 - Access any Canvas data beyond the visible discussion text
 
-✅ **What the AI CAN do**:
+ **What the AI CAN do**:
 - Assess quality and depth of initial post
 - Evaluate peer response substance and engagement
 - Check grammar, mechanics, and clarity

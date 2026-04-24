@@ -25,11 +25,7 @@ Standalone chat interface that can be used independently or embedded in module p
 
 **Usage:**
 ```html
-<!-- Standalone -->
-<iframe src="/ai-tutor/chat-interface.html"></iframe>
-
-<!-- Or open directly -->
-window.open('/ai-tutor/chat-interface.html', 'AI Tutor');
+<!-- Standalone --> <iframe src="/ai-tutor/chat-interface.html"></iframe> <!-- Or open directly --> window.open('/ai-tutor/chat-interface.html', 'AI Tutor');
 ```
 
 ### 2. **chat-styles.css** (836 lines)
@@ -155,14 +151,7 @@ engine.trackOutcome(successful);
 Add to any module lesson or practice page:
 
 ```html
-<!-- In module lesson HTML -->
-<button id="open-tutor-btn">Ask AI Tutor</button>
-
-<script src="/ai-tutor/system-prompts.js"></script>
-<script src="/ai-tutor/scaffolding-logic.js"></script>
-<script src="/ai-tutor/chat-interface.js"></script>
-<script>
-// Set context for current module
+<!-- In module lesson HTML --> <button id="open-tutor-btn">Ask AI Tutor</button> <script src="/ai-tutor/system-prompts.js"></script> <script src="/ai-tutor/scaffolding-logic.js"></script> <script src="/ai-tutor/chat-interface.js"></script> <script> // Set context for current module
 window.AITutor.setContext({
     module: 'module-07',
     lesson: 'lesson-02',
@@ -173,9 +162,7 @@ window.AITutor.setContext({
 // Open chat interface
 document.getElementById('open-tutor-btn').addEventListener('click', () => {
     window.open('/ai-tutor/chat-interface.html', 'AI Tutor', 'width=400,height=600');
-});
-</script>
-```
+});</script> ```
 
 ### Setting Up Production API
 
@@ -328,11 +315,11 @@ this.config = {
 
 ## Browser Compatibility
 
-- Chrome 90+ ✅
-- Firefox 88+ ✅
-- Safari 14+ ✅
-- Edge 90+ ✅
-- Mobile browsers ✅
+- Chrome 90+ 
+- Firefox 88+ 
+- Safari 14+ 
+- Edge 90+ 
+- Mobile browsers 
 
 ---
 

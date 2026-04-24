@@ -1,4 +1,4 @@
-# 📊 FREE STATISTICS COURSE + HELP ADVANCE EDUCATION RESEARCH
+#  FREE STATISTICS COURSE + HELP ADVANCE EDUCATION RESEARCH
 
 ---
 
@@ -8,57 +8,57 @@
 
 ---
 
-## 🎓 WHAT YOU GET
+##  WHAT YOU GET
 
-### ✅ Complete Introductory Statistics Course
+###  Complete Introductory Statistics Course
 - **12 comprehensive modules** covering all essential statistics topics
 - Topics include: data analysis, probability, distributions, hypothesis testing, regression, and more
 - Equivalent to a full college-level statistics course
 
-### ✅ Interactive Learning Experience
+###  Interactive Learning Experience
 - Engaging video lessons and real-world examples
 - Interactive practice problems with instant feedback
 - Quizzes to check your understanding
 - Comprehensive study guides and quick reference materials
 
-### ✅ AI Tutor Available 24/7
+###  AI Tutor Available 24/7
 - Get personalized help whenever you need it
 - Ask questions and receive adaptive support
 - Hints, guided questions, or step-by-step explanations
 - Learn at the level that's right for you
 
-### ✅ Self-Paced Learning
+###  Self-Paced Learning
 - **No deadlines or due dates!**
 - Complete on your own schedule
 - Pause and resume anytime
 - 100% online - learn anywhere, anytime
 
-### ✅ Certificate of Completion
+###  Certificate of Completion
 - Earn a certificate when you finish the course
 - Demonstrate your statistics knowledge
 - Add to your resume or academic portfolio
 
-### ✅ Help Improve Education for Future Students
+###  Help Improve Education for Future Students
 - Contribute to cutting-edge research on AI in education
 - Your participation helps develop better learning tools
 - Support educational equity and access
 
 ---
 
-## 👥 WHO CAN PARTICIPATE?
+##  WHO CAN PARTICIPATE?
 
 **You are eligible if you:**
 
-- ✓ Are **18 years or older**
-- ✓ Are a **community college student** or recent graduate
-- ✓ Want to **learn statistics** (no prior experience needed!)
-- ✓ Have **internet access** and a computer or tablet
+-  Are **18 years or older**
+-  Are a **community college student** or recent graduate
+-  Want to **learn statistics** (no prior experience needed!)
+-  Have **internet access** and a computer or tablet
 
 **No statistics background required!** This course starts with the basics and builds your skills step-by-step.
 
 ---
 
-## ⏱️ TIME COMMITMENT
+##  TIME COMMITMENT
 
 - **Self-Paced**: 4-10 hours per week (you decide!)
 - **Duration**: Complete at your own pace (8-16 weeks typical, but go faster or slower as needed)
@@ -67,7 +67,7 @@
 
 ---
 
-## 🔬 RESEARCH COMPONENT (OPTIONAL)
+##  RESEARCH COMPONENT (OPTIONAL)
 
 This free statistics course is part of a UCLA dissertation study investigating how AI tutoring can improve statistics education.
 
@@ -90,7 +90,7 @@ This free statistics course is part of a UCLA dissertation study investigating h
 
 ---
 
-## 🎯 WHAT YOU'LL LEARN
+##  WHAT YOU'LL LEARN
 
 ### Course Topics Include:
 
@@ -111,7 +111,7 @@ This free statistics course is part of a UCLA dissertation study investigating h
 
 ---
 
-## 💡 WHY THIS MATTERS
+##  WHY THIS MATTERS
 
 Statistics skills are valuable in almost every career:
 - **Business & Marketing**: Analyze sales data, customer trends
@@ -125,12 +125,12 @@ Learning statistics opens doors to many opportunities!
 
 ---
 
-## 🚀 HOW TO GET STARTED
+##  HOW TO GET STARTED
 
 ### Interested in Participating?
 
 **1. Visit the Study Website**
-🌐 **https://sdabagh.github.io/participate.html**
+ **https://sdabagh.github.io/participate.html**
 
 **2. Read the Informed Consent**
 Learn about the study, your rights, and what participation involves
@@ -143,15 +143,15 @@ Access all 12 modules and the AI tutor right away
 
 ### Questions?
 
-📧 **Email**: dabagh_safaa@smc.edu
-📱 **Visit**: https://sdabagh.github.io/research.html
+ **Email**: dabagh_safaa@smc.edu
+ **Visit**: https://sdabagh.github.io/research.html
 
 **Principal Investigator**: Safaa Dabagh
 PhD Candidate, UCLA Department of Statistics
 
 ---
 
-## 🔒 IRB APPROVED
+##  IRB APPROVED
 
 This study has been reviewed and approved by the **UCLA Institutional Review Board (IRB)**.
 
@@ -176,7 +176,7 @@ This study has been reviewed and approved by the **UCLA Institutional Review Boa
 
 ---
 
-## 📋 QUICK FACTS
+##  QUICK FACTS
 
 | Feature | Details |
 |---------|---------|
@@ -191,7 +191,7 @@ This study has been reviewed and approved by the **UCLA Institutional Review Boa
 
 ---
 
-## 🌟 DON'T MISS THIS OPPORTUNITY!
+##  DON'T MISS THIS OPPORTUNITY!
 
 Free, high-quality statistics education + contribute to important research on AI in education!
 

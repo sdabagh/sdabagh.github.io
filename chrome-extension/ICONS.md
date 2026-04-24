@@ -1,4 +1,4 @@
-# 🎨 Extension Icons
+#  Extension Icons
 
 The Chrome extension requires three icon sizes. You can create these or use placeholders.
 
@@ -19,7 +19,7 @@ chrome-extension/
 ### Option 1: Use Favicon Generator
 
 1. Go to [favicon.io](https://favicon.io/favicon-generator/)
-2. Enter text: "📊" or "MAT"
+2. Enter text: "" or "MAT"
 3. Choose colors:
    - Background: `#2C5F7C` (MAT300 blue)
    - Text: `#FFFFFF` (white)
@@ -43,7 +43,7 @@ If you have one image:
 1. Open a blank page in your browser
 2. Paste this in console:
    ```javascript
-   document.body.innerHTML = '<div style="font-size:128px">📊</div>';
+   document.body.innerHTML = '<div style="font-size:128px"></div>';
    ```
 3. Screenshot the emoji
 4. Resize to different sizes using online tool
@@ -53,7 +53,7 @@ If you have one image:
 **Theme**: Statistics & AI
 - Color: `#2C5F7C` (MAT300 blue)
 - Accent: `#D97D54` (terracotta)
-- Icons: 📊 📈 🤖 🎓 ✓
+- Icons:     
 
 **Simple Ideas**:
 - Bar chart icon

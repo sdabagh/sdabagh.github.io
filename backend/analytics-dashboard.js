@@ -475,32 +475,12 @@ class AnalyticsDashboard {
 
         if (!students || students.length === 0) {
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <p>No student data available</p>
-                    </td>
-                </tr>
-            `;
+                <tr> <td colspan="8" class="empty-state"> <div class="empty-state-icon"></div> <p>No student data available</p></td></tr> `;
             return;
         }
 
         tbody.innerHTML = students.map(student => `
-            <tr onclick="dashboard.showStudentDetails('${student.userId}')">
-                <td>${student.userId.substring(0, 8)}...</td>
-                <td>${student.email || 'Anonymous'}</td>
-                <td><span class="badge badge-${student.studyGroup}">${student.studyGroup}</span></td>
-                <td>${student.modulesCompleted} / ${student.totalModules}</td>
-                <td>${student.learningGain >= 0 ? '+' : ''}${student.learningGain}%</td>
-                <td>${this.formatDate(student.lastActive)}</td>
-                <td><span class="badge badge-${student.status}">${student.status}</span></td>
-                <td>
-                    <button class="btn btn-secondary" onclick="event.stopPropagation(); dashboard.exportStudentData('${student.userId}')">
-                        Export
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+            <tr onclick="dashboard.showStudentDetails('${student.userId}')"> <td>${student.userId.substring(0, 8)}...</td> <td>${student.email || 'Anonymous'}</td> <td><span class="badge badge-${student.studyGroup}">${student.studyGroup}</span></td> <td>${student.modulesCompleted} / ${student.totalModules}</td> <td>${student.learningGain >= 0 ? '+' : ''}${student.learningGain}%</td> <td>${this.formatDate(student.lastActive)}</td> <td><span class="badge badge-${student.status}">${student.status}</span></td> <td> <button class="btn btn-secondary" onclick="event.stopPropagation(); dashboard.exportStudentData('${student.userId}')"> Export</button></td></tr> `).join('');
     }
 
     /**
@@ -518,83 +498,9 @@ class AnalyticsDashboard {
             // Populate modal
             const modalBody = document.getElementById('studentModalBody');
             modalBody.innerHTML = `
-                <div class="student-detail-grid">
-                    <div class="detail-card">
-                        <div class="detail-label">Student ID</div>
-                        <div class="detail-value">${student.userId.substring(0, 12)}...</div>
-                    </div>
-                    <div class="detail-card">
-                        <div class="detail-label">Study Group</div>
-                        <div class="detail-value">
-                            <span class="badge badge-${student.studyGroup}">${student.studyGroup}</span>
-                        </div>
-                    </div>
-                    <div class="detail-card">
-                        <div class="detail-label">Total Interactions</div>
-                        <div class="detail-value">${student.totalInteractions}</div>
-                    </div>
-                    <div class="detail-card">
-                        <div class="detail-label">Learning Gain</div>
-                        <div class="detail-value">${student.learningGain >= 0 ? '+' : ''}${student.learningGain}%</div>
-                    </div>
-                </div>
-
-                <h4 style="margin: 2rem 0 1rem 0;">Module Progress</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Module</th>
-                                <th>Status</th>
-                                <th>Pre Score</th>
-                                <th>Post Score</th>
-                                <th>Gain</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${student.moduleProgress.map(m => `
-                                <tr>
-                                    <td>${m.moduleName}</td>
-                                    <td><span class="badge badge-${m.status}">${m.status}</span></td>
-                                    <td>${m.preScore}%</td>
-                                    <td>${m.postScore}%</td>
-                                    <td>${m.gain >= 0 ? '+' : ''}${m.gain}%</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 style="margin: 2rem 0 1rem 0;">Recent Interactions</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Scaffolding Level</th>
-                                <th>Topic</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${student.recentInteractions.slice(0, 10).map(i => `
-                                <tr>
-                                    <td>${this.formatDateTime(i.timestamp)}</td>
-                                    <td>${i.type}</td>
-                                    <td>Level ${i.scaffoldingLevel}</td>
-                                    <td>${i.topic}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="margin-top: 2rem; text-align: center;">
-                    <button class="btn btn-primary" onclick="dashboard.exportStudentData('${userId}')">
-                        📊 Export Complete Student Data
-                    </button>
-                </div>
-            `;
+                <div class="student-detail-grid"> <div class="detail-card"> <div class="detail-label">Student ID</div> <div class="detail-value">${student.userId.substring(0, 12)}...</div></div> <div class="detail-card"> <div class="detail-label">Study Group</div> <div class="detail-value"> <span class="badge badge-${student.studyGroup}">${student.studyGroup}</span></div></div> <div class="detail-card"> <div class="detail-label">Total Interactions</div> <div class="detail-value">${student.totalInteractions}</div></div> <div class="detail-card"> <div class="detail-label">Learning Gain</div> <div class="detail-value">${student.learningGain >= 0 ? '+' : ''}${student.learningGain}%</div></div></div> <h4 style="margin: 2rem 0 1rem 0;">Module Progress</h4> <div class="table-container"> <table> <thead> <tr> <th>Module</th> <th>Status</th> <th>Pre Score</th> <th>Post Score</th> <th>Gain</th></tr></thead> <tbody> ${student.moduleProgress.map(m => `
+                                <tr> <td>${m.moduleName}</td> <td><span class="badge badge-${m.status}">${m.status}</span></td> <td>${m.preScore}%</td> <td>${m.postScore}%</td> <td>${m.gain >= 0 ? '+' : ''}${m.gain}%</td></tr> `).join('')}</tbody></table></div> <h4 style="margin: 2rem 0 1rem 0;">Recent Interactions</h4> <div class="table-container"> <table> <thead> <tr> <th>Date</th> <th>Type</th> <th>Scaffolding Level</th> <th>Topic</th></tr></thead> <tbody> ${student.recentInteractions.slice(0, 10).map(i => `
+                                <tr> <td>${this.formatDateTime(i.timestamp)}</td> <td>${i.type}</td> <td>Level ${i.scaffoldingLevel}</td> <td>${i.topic}</td></tr> `).join('')}</tbody></table></div> <div style="margin-top: 2rem; text-align: center;"> <button class="btn btn-primary" onclick="dashboard.exportStudentData('${userId}')"> Export Complete Student Data</button></div> `;
 
             // Show modal
             document.getElementById('studentModal').classList.add('active');
@@ -740,8 +646,7 @@ class AnalyticsDashboard {
         let filteredStudents = this.data.students;
 
         if (searchTerm) {
-            filteredStudents = filteredStudents.filter(s =>
-                s.userId.toLowerCase().includes(searchTerm) ||
+            filteredStudents = filteredStudents.filter(s => s.userId.toLowerCase().includes(searchTerm) ||
                 (s.email && s.email.toLowerCase().includes(searchTerm))
             );
         }
@@ -867,7 +772,7 @@ class AnalyticsDashboard {
      * Update theme toggle icon
      */
     updateThemeIcon(theme) {
-        const icon = theme === 'dark' ? '☀️' : '🌙';
+        const icon = theme === 'dark' ? '' : '';
         document.getElementById('themeToggle').textContent = icon;
     }
 

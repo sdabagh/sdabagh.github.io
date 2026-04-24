@@ -2,7 +2,7 @@
 // Runs on Canvas SpeedGrader pages (top frame AND iframes via all_frames)
 
 const EXTENSION_VERSION = '1.2.0';
-console.log('🤖 Canvas Grading Assistant v' + EXTENSION_VERSION + ' loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
+console.log(' Canvas Grading Assistant v' + EXTENSION_VERSION + ' loaded (frame:', window === window.top ? 'top' : 'iframe', ')');
 
 // Add visual indicator and extract button only in top frame
 if (window === window.top) {
@@ -29,10 +29,7 @@ function addExtensionIndicator() {
       z-index: 10000;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       font-family: 'Segoe UI', sans-serif;
-    ">
-      📊 Grading Assistant Active
-    </div>
-  `;
+    "> Grading Assistant Active</div> `;
 
   document.body.appendChild(indicator);
 
@@ -283,7 +280,7 @@ function addExtractButton() {
 
     const button = document.createElement('button');
     button.id = 'grading-assistant-extract-btn';
-    button.innerHTML = '🤖 Extract & Grade';
+    button.innerHTML = ' Extract & Grade';
     button.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -314,7 +311,7 @@ function addExtractButton() {
 
     button.onclick = () => {
       // Extract data and show in console
-      button.innerHTML = '⏳ Extracting...';
+      button.innerHTML = ' Extracting...';
       button.disabled = true;
 
       const data = extractDiscussionData();
@@ -325,7 +322,7 @@ function addExtractButton() {
       const studentName = data.studentName || 'Unknown';
       alert(`Extracted:\n\nStudent: ${studentName}\nPosts found: ${postCount}\n\nCheck console for full data`);
 
-      button.innerHTML = '🤖 Extract & Grade';
+      button.innerHTML = ' Extract & Grade';
       button.disabled = false;
     };
 

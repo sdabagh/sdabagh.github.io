@@ -430,15 +430,15 @@ Student types question
 
 ## 8. Next Steps for Implementation
 
-1. ✅ Design scaffolding framework (this document)
-2. ⏳ Write complete Claude API prompts
-3. ⏳ Build chat interface (HTML/CSS/JS)
-4. ⏳ Implement context tracking logic
-5. ⏳ Set up Firebase backend
-6. ⏳ Create logging system
-7. ⏳ Test with example conversations
-8. ⏳ Pilot with small group
-9. ⏳ Iterate based on feedback
+1.  Design scaffolding framework (this document)
+2.  Write complete Claude API prompts
+3.  Build chat interface (HTML/CSS/JS)
+4.  Implement context tracking logic
+5.  Set up Firebase backend
+6.  Create logging system
+7.  Test with example conversations
+8.  Pilot with small group
+9.  Iterate based on feedback
 
 ---
 

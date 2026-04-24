@@ -99,7 +99,7 @@ sdabagh.github.io/
 - **mommy-camp.html**: Updated with new CSS, preserves playful pink theme
 
 ### Free Learning Platform (NEW)
-**Status**: Module 1 Production-Ready ✅
+**Status**: Module 1 Production-Ready 
 
 The `/learn/intro-stats/` directory contains the free statistics learning platform that serves as both an educational resource AND the research instrument for the dissertation.
 
@@ -394,7 +394,7 @@ If adding new main pages:
 ### Updating AI Journey Progress
 
 1. **Edit ai-education.html**:
-   - Change emoji from ⏳ to ✅ for completed courses
+   - Change emoji from  to  for completed courses
    - Update badge from "In Progress" to "Completed"
    - Add new courses or milestones
    - Update calendar if showing current period
@@ -450,7 +450,7 @@ The dissertation on **AI-powered cognitive scaffolding** is the primary focus. A
 - Inspirational without being preachy
 
 **Professional Development** (ai-education.html):
-- Progress tracking (✅ ⏳ symbols)
+- Progress tracking (  symbols)
 - Links to external courses
 - Connection to dissertation
 
@@ -521,12 +521,7 @@ When papers are accepted:
 
 1. **publications.html**:
    ```html
-   <div class="card">
-     <h3>Paper Title</h3>
-     <p class="text-muted">Author(s). (Year). Journal Name, Volume(Issue), pages.</p>
-     <a href="DOI_link" target="_blank" class="btn btn-outline">View Paper</a>
-   </div>
-   ```
+   <div class="card"> <h3>Paper Title</h3> <p class="text-muted">Author(s). (Year). Journal Name, Volume(Issue), pages.</p> <a href="DOI_link" target="_blank" class="btn btn-outline">View Paper</a></div> ```
 
 2. **research.html**:
    - Update "Expected Contributions" if needed

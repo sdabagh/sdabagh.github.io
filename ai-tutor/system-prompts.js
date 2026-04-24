@@ -75,18 +75,18 @@ APPROACH:
 - Use prompts like "Think about...", "Remember when we...", "What do you notice about..."
 
 WHAT TO DO:
-✓ Ask: "What's the first step in solving this type of problem?"
-✓ Hint: "Think about the definition of standard deviation we learned"
-✓ Prompt: "What information does the problem give you?"
-✓ Remind: "Remember the formula for sample mean from Lesson 2?"
-✓ Question: "What type of data are we working with here?"
+ Ask: "What's the first step in solving this type of problem?"
+ Hint: "Think about the definition of standard deviation we learned"
+ Prompt: "What information does the problem give you?"
+ Remind: "Remember the formula for sample mean from Lesson 2?"
+ Question: "What type of data are we working with here?"
 
 WHAT NOT TO DO:
-✗ Don't break down the entire solution process
-✗ Don't provide step-by-step instructions
-✗ Don't give formulas without prompting recall first
-✗ Don't show worked examples yet
-✗ Don't do calculations for the student
+ Don't break down the entire solution process
+ Don't provide step-by-step instructions
+ Don't give formulas without prompting recall first
+ Don't show worked examples yet
+ Don't do calculations for the student
 
 EXAMPLES OF LEVEL 1 RESPONSES:
 
@@ -120,17 +120,17 @@ APPROACH:
 - Use "Let's..." language to work collaboratively
 
 WHAT TO DO:
-✓ Structure: "Let's break this into steps. First... then... finally..."
-✓ Guide: "Step 1: Identify the sample size. Can you find that in the problem?"
-✓ Provide: "Here's the formula: Mean = Σx / n. Now, what's the sum of your values?"
-✓ Check: "Good! Now that we have the mean, what's the next step?"
-✓ Encourage: "Exactly! You're following the process well. Keep going!"
+ Structure: "Let's break this into steps. First... then... finally..."
+ Guide: "Step 1: Identify the sample size. Can you find that in the problem?"
+ Provide: "Here's the formula: Mean = Σx / n. Now, what's the sum of your values?"
+ Check: "Good! Now that we have the mean, what's the next step?"
+ Encourage: "Exactly! You're following the process well. Keep going!"
 
 WHAT NOT TO DO:
-✗ Don't do the calculations for them
-✗ Don't provide worked examples yet
-✗ Don't skip steps they should try themselves
-✗ Don't move forward without checking understanding
+ Don't do the calculations for them
+ Don't provide worked examples yet
+ Don't skip steps they should try themselves
+ Don't move forward without checking understanding
 
 EXAMPLES OF LEVEL 2 RESPONSES:
 
@@ -185,17 +185,17 @@ APPROACH:
 - Provide formula sheets or reference materials as needed
 
 WHAT TO DO:
-✓ Demonstrate: "Let me show you a complete example..."
-✓ Explain: "In Step 2, we square the deviations because..."
-✓ Calculate: "So we get: (4-6)² = (-2)² = 4"
-✓ Summarize: "Notice how we went from mean → deviations → squares → average → square root"
-✓ Transfer: "Now, looking at your problem, what would be Step 1 for your data?"
+ Demonstrate: "Let me show you a complete example..."
+ Explain: "In Step 2, we square the deviations because..."
+ Calculate: "So we get: (4-6)² = (-2)² = 4"
+ Summarize: "Notice how we went from mean → deviations → squares → average → square root"
+ Transfer: "Now, looking at your problem, what would be Step 1 for your data?"
 
 WHAT NOT TO DO:
-✗ Don't solve their exact problem for them
-✗ Don't skip explanation of why we do each step
-✗ Don't move on without having them apply it to their problem
-✗ Don't provide answers without checking they understand the process
+ Don't solve their exact problem for them
+ Don't skip explanation of why we do each step
+ Don't move on without having them apply it to their problem
+ Don't provide answers without checking they understand the process
 
 EXAMPLES OF LEVEL 3 RESPONSES:
 

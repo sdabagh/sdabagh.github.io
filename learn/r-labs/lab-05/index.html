@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 5: String Manipulation — R Practice Labs. Clean and transform text in R using base R and stringr.">
-  <title>Lab 5: String Manipulation - R Practice Labs</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <style>
-    .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta name="description" content="Lab 5: String Manipulation — R Practice Labs. Clean and transform text in R using base R and stringr."> <title>Lab 5: String Manipulation - R Practice Labs</title> <link rel="stylesheet" href="../../../style.css"> <style> .lab-nav{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;padding:1rem;border-radius:8px;margin-bottom:2rem;flex-wrap:wrap;gap:0.5rem}
     .lab-nav a{text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:0.9rem;transition:var(--transition)}
     .nav-prev{background:white;border:2px solid var(--border-color);color:var(--text-primary)}
     .nav-prev:hover{border-color:#C62828;color:#C62828;text-decoration:none}
@@ -40,19 +31,16 @@
     .lab-header{background:linear-gradient(135deg,#7B1FA2 0%,#C62828 60%,#B71C1C 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-lg);text-align:center}
     .lab-header h1{color:white;font-size:1.8rem;margin-bottom:0.25rem}
     .lab-header .lab-label{font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
-    .lab-header p{opacity:0.92;font-size:1rem;margin:0}
-  </style>
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+    .lab-header p{opacity:0.92;font-size:1rem;margin:0}</style> <script type="module"> import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
     const webR = new WebR();
     let webRReady = false;
     async function initWebR() {
       const statusEl = document.getElementById('webr-status');
-      if(statusEl) statusEl.textContent = '⏳ Loading R... (first load takes ~15 seconds)';
+      if(statusEl) statusEl.textContent = ' Loading R... (first load takes ~15 seconds)';
       await webR.init();
       webRReady = true;
       if(statusEl) {
-        statusEl.textContent = '✅ R is ready! Click any ▶ Run button to start.';
+        statusEl.textContent = ' R is ready! Click any ▶ Run button to start.';
         statusEl.style.background = '#e8f5e9';
         statusEl.style.borderColor = '#2E7D32';
         statusEl.style.color = '#2E7D32';
@@ -74,7 +62,7 @@
           captureGraphics: plotEl ? { width: 600, height: 400 } : false
         });
         const text = result.output.filter(o => o.type === 'stdout' || o.type === 'stderr').map(o => o.data).join('\n');
-        outputEl.textContent = text || '✓ Code ran successfully (no output)';
+        outputEl.textContent = text || ' Code ran successfully (no output)';
         if(plotEl && result.images && result.images.length > 0) {
           result.images.forEach(img => {
             const blob = new Blob([img], { type: 'image/png' });
@@ -86,15 +74,12 @@
           });
         }
       } catch(e) {
-        outputEl.textContent = '❌ ' + e.message;
+        outputEl.textContent = ' ' + e.message;
         outputEl.classList.add('error');
       } finally { shelter.purge(); }
     }
     window.runR = runR;
-    initWebR();
-  </script>
-<style>
-@media print {
+    initWebR();</script> <style> @media print {
   header, footer, nav, .lab-nav, .module-nav,
   .run-btn, .complete-btn, #complete-btn,
   .webr-status, #status, #webr-status,
@@ -115,57 +100,7 @@
   .exercise-block, .worked-example { page-break-inside: avoid; }
   .print-header { display: block !important; }
 }
-.print-header { display: none; }
-</style>
-</head>
-<body>
-  <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="../../../index.html">Home</a>
-      <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div>
-      <a href="../../../support.html">Support</a>
-    </nav>
-  </header>
-
-  <main class="container">
-<div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;">&#128196; Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;">&#128424; Print / Save as PDF</button></div>
-
-    <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a>
-
-    <div class="lab-header">
-      <div class="lab-label">Lab 5 of 10</div>
-      <h1>String Manipulation</h1>
-      <p>Cleaning and transforming text in R</p>
-    </div>
-
-    <div class="lab-nav">
-      <a href="../lab-04/index.html" class="nav-prev">&larr; Lab 4: Functions</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 5 of 10</span>
-      <a href="../lab-06/index.html" class="nav-next">Lab 6: ggplot2 &rarr;</a>
-    </div>
-
-    <div id="webr-status" class="webr-status">&#x23F3; Loading R... (first load takes ~15 seconds)</div>
-
-    <!-- CONCEPT RECAP -->
-    <div class="concept-recap">
-      <h2>&#x1F4D6; Concept Recap</h2>
-      <p>R has two worlds of string tools &mdash; base R and the stringr package (part of the tidyverse):</p>
-      <ul>
-        <li><strong>Base R:</strong> <code>paste()</code>, <code>paste0()</code>, <code>nchar()</code>, <code>toupper()</code>, <code>tolower()</code>, <code>trimws()</code>, <code>substr()</code>, <code>gsub()</code>, <code>grepl()</code>, <code>strsplit()</code></li>
-        <li><strong>stringr:</strong> <code>str_trim()</code>, <code>str_detect()</code>, <code>str_replace()</code>, <code>str_replace_all()</code>, <code>str_split()</code>, <code>str_extract()</code>, <code>str_length()</code>, <code>str_count()</code>, <code>str_to_title()</code>, <code>str_remove()</code></li>
-      </ul>
-      <p style="margin-bottom:0">stringr functions are consistent: they always take the string as the first argument and use the same pattern syntax. Use <code>library(stringr)</code> &mdash; no install needed in WebR.</p>
-    </div>
-
-    <!-- WORKED EXAMPLE -->
-    <div class="worked-example">
-      <h2>&#x1F440; Worked Example</h2>
-      <p>A name-cleaning function handling multiple messy formats:</p>
-      <div class="worked-code">library(stringr)
+.print-header { display: none; }</style></head> <body> <header> <div class="site-title">Learn Without Walls</div> <nav> <a href="../../../index.html">Home</a> <div class="nav-dropdown"><a href="../../../about.html">About</a><div class="dropdown-menu"><a href="../../../about.html">About Me</a><a href="../../../research.html">Research</a></div></div> <div class="nav-dropdown"><a href="../../../free-courses.html">Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../../free-courses.html#finance">Financial Literacy</a><a href="../../../free-courses.html#math">Math Courses</a><a href="../../../free-courses.html#python">Programming</a><a href="../../../free-courses.html#ai">AI &amp; Technology</a></div></div> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../books.html">Resources</a><div class="dropdown-menu"><a href="../../../books.html">Books</a><a href="../../../publications.html">Publications</a><a href="../../../instructor/index.html">Instructor Resources</a></div></div> <a href="../../../support.html">Support</a></nav></header> <main class="container"> <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div> <a href="../index.html" class="back-link">&larr; Back to R Practice Labs</a> <div class="lab-header"> <div class="lab-label">Lab 5 of 10</div> <h1>String Manipulation</h1> <p>Cleaning and transforming text in R</p></div> <div class="lab-nav"> <a href="../lab-04/index.html" class="nav-prev">&larr; Lab 4: Functions</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 5 of 10</span> <a href="../lab-06/index.html" class="nav-next">Lab 6: ggplot2 &rarr;</a></div> <div id="webr-status" class="webr-status"> Loading R... (first load takes ~15 seconds)</div> <!-- CONCEPT RECAP --> <div class="concept-recap"> <h2> Concept Recap</h2> <p>R has two worlds of string tools &mdash; base R and the stringr package (part of the tidyverse):</p> <ul> <li><strong>Base R:</strong> <code>paste()</code>, <code>paste0()</code>, <code>nchar()</code>, <code>toupper()</code>, <code>tolower()</code>, <code>trimws()</code>, <code>substr()</code>, <code>gsub()</code>, <code>grepl()</code>, <code>strsplit()</code></li><li><strong>stringr:</strong> <code>str_trim()</code>, <code>str_detect()</code>, <code>str_replace()</code>, <code>str_replace_all()</code>, <code>str_split()</code>, <code>str_extract()</code>, <code>str_length()</code>, <code>str_count()</code>, <code>str_to_title()</code>, <code>str_remove()</code></li></ul> <p style="margin-bottom:0">stringr functions are consistent: they always take the string as the first argument and use the same pattern syntax. Use <code>library(stringr)</code> &mdash; no install needed in WebR.</p></div> <!-- WORKED EXAMPLE --> <div class="worked-example"> <h2> Worked Example</h2> <p>A name-cleaning function handling multiple messy formats:</p> <div class="worked-code">library(stringr)
 raw_names &lt;- c("  john SMITH  ", "Sarah_Lee", "DR. Chen, Wei", "mike.brown@email.com")
 
 clean_name &lt;- function(raw) {
@@ -181,15 +116,7 @@ clean_name &lt;- function(raw) {
 }
 
 cleaned &lt;- sapply(raw_names, clean_name)
-print(cleaned)</div>
-    </div>
-
-    <!-- EXERCISE 1 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-guided">&#x270F;&#xFE0F; Guided</span>
-      <h3>Exercise 1 &mdash; Text Analyzer</h3>
-      <p>Run this text analysis code and study what each stringr function returns. Experiment by changing <code>my_text</code>.</p>
-      <textarea class="code-editor" id="editor1">library(stringr)
+print(cleaned)</div></div> <!-- EXERCISE 1 --> <div class="exercise-block"> <span class="exercise-tag tag-guided"> Guided</span> <h3>Exercise 1 &mdash; Text Analyzer</h3> <p>Run this text analysis code and study what each stringr function returns. Experiment by changing <code>my_text</code>.</p> <textarea class="code-editor" id="editor1">library(stringr)
 my_text &lt;- "The quick brown fox jumps over the lazy dog. The dog barked loudly."
 
 cat("Characters:", str_length(my_text), "\n")
@@ -207,18 +134,7 @@ cat("\nReplaced:", str_replace_all(my_text, "dog", "cat"), "\n")
 
 # Extract all words longer than 4 chars
 long_words &lt;- str_extract_all(my_text, "\\b\\w{5,}\\b")[[1]]
-cat("\nLong words:", paste(long_words, collapse=", "), "\n")</textarea>
-      <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button>
-      <div id="output1" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>\\b</code> in a regex pattern means &ldquo;word boundary&rdquo;. <code>\\w+</code> matches one or more word characters. <code>\\w{5,}</code> matches 5 or more word characters (words with at least 5 letters).</div>
-    </div>
-
-    <!-- EXERCISE 2 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-independent">&#x1F4AA; Independent</span>
-      <h3>Exercise 2 &mdash; Phone Number Formatter</h3>
-      <p>Write a <code>format_phone(raw)</code> function that takes messy phone number strings and returns them in standard <code>213-555-0123</code> format. Test on all 4 formats below.</p>
-      <textarea class="code-editor" id="editor2">library(stringr)
+cat("\nLong words:", paste(long_words, collapse=", "), "\n")</textarea> <button class="run-btn" disabled onclick="runR('editor1','output1')">&#x25B6; Run</button> <div id="output1" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>\\b</code> in a regex pattern means &ldquo;word boundary&rdquo;. <code>\\w+</code> matches one or more word characters. <code>\\w{5,}</code> matches 5 or more word characters (words with at least 5 letters).</div></div> <!-- EXERCISE 2 --> <div class="exercise-block"> <span class="exercise-tag tag-independent"> Independent</span> <h3>Exercise 2 &mdash; Phone Number Formatter</h3><p>Write a <code>format_phone(raw)</code> function that takes messy phone number strings and returns them in standard <code>213-555-0123</code> format. Test on all 4 formats below.</p> <textarea class="code-editor" id="editor2">library(stringr)
 
 format_phone &lt;- function(raw) {
   # Step 1: remove all non-digit characters
@@ -237,18 +153,7 @@ messy_phones &lt;- c("(213) 555-0123", "213.555.0123", "12135550123", "213 555 0
 cleaned &lt;- sapply(messy_phones, format_phone)
 for (i in seq_along(messy_phones)) {
   cat(sprintf("%-20s -&gt; %s\n", messy_phones[i], cleaned[i]))
-}</textarea>
-      <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button>
-      <div id="output2" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>str_replace_all(x, "[^0-9]", "")</code> removes everything that is NOT a digit. <code>substr(digits, 1, 3)</code> extracts the area code. <code>nchar()</code> gives the string length.</div>
-    </div>
-
-    <!-- EXERCISE 3 -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-challenge">&#x1F525; Challenge</span>
-      <h3>Exercise 3 &mdash; Email List Parser</h3>
-      <p>Write <code>parse_email_list(emails)</code> that takes a character vector of <code>"Name &lt;email@domain.com&gt;"</code> strings and returns a data frame with columns: <code>display_name</code>, <code>username</code>, <code>domain</code>.</p>
-      <textarea class="code-editor" id="editor3">library(stringr)
+}</textarea> <button class="run-btn" disabled onclick="runR('editor2','output2')">&#x25B6; Run</button> <div id="output2" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>str_replace_all(x, "[^0-9]", "")</code> removes everything that is NOT a digit. <code>substr(digits, 1, 3)</code> extracts the area code. <code>nchar()</code> gives the string length.</div></div> <!-- EXERCISE 3 --> <div class="exercise-block"> <span class="exercise-tag tag-challenge"> Challenge</span> <h3>Exercise 3 &mdash; Email List Parser</h3> <p>Write <code>parse_email_list(emails)</code> that takes a character vector of <code>"Name &lt;email@domain.com&gt;"</code> strings and returns a data frame with columns: <code>display_name</code>, <code>username</code>, <code>domain</code>.</p> <textarea class="code-editor" id="editor3">library(stringr)
 
 parse_email_list &lt;- function(emails) {
   # Extract display name (everything before ' &lt;')
@@ -269,18 +174,7 @@ email_list &lt;- c(
 )
 
 result &lt;- parse_email_list(email_list)
-print(result)</textarea>
-      <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button>
-      <div id="output3" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>(?&lt;=&lt;)[^&gt;]+</code> is a lookbehind regex: match characters after <code>&lt;</code> but before <code>&gt;</code>. <code>str_extract()</code> returns <code>NA</code> if no match is found, which is helpful for error detection.</div>
-    </div>
-
-    <!-- MINI PROJECT -->
-    <div class="exercise-block">
-      <span class="exercise-tag tag-project">&#x1F3C6; Mini Project &mdash; Text Analysis</span>
-      <h3>Full Paragraph Analysis</h3>
-      <p>Perform a complete text analysis of the paragraph below. Compute all 6 metrics and print a formatted report.</p>
-      <textarea class="code-editor" id="editor4" style="min-height:280px;">library(stringr)
+print(result)</textarea> <button class="run-btn" disabled onclick="runR('editor3','output3')">&#x25B6; Run</button> <div id="output3" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>(?&lt;=&lt;)[^&gt;]+</code> is a lookbehind regex: match characters after <code>&lt;</code> but before <code>&gt;</code>. <code>str_extract()</code> returns <code>NA</code> if no match is found, which is helpful for error detection.</div></div> <!-- MINI PROJECT --> <div class="exercise-block"> <span class="exercise-tag tag-project"> Mini Project &mdash; Text Analysis</span> <h3>Full Paragraph Analysis</h3> <p>Perform a complete text analysis of the paragraph below. Compute all 6 metrics and print a formatted report.</p> <textarea class="code-editor" id="editor4" style="min-height:280px;">library(stringr)
 text &lt;- "Data science combines statistics, programming, and domain expertise to extract meaningful insights from data. Effective data scientists must communicate their findings clearly to both technical and non-technical audiences. The field has grown enormously in recent years, driven by the explosion of available data and advances in computing power."
 
 # 1. Total word count
@@ -307,49 +201,8 @@ cat("% words &gt; 6 chars:", long_pct, "%\n")
 
 # 6. Capitalized words (original text, starts with uppercase)
 orig_words &lt;- str_extract_all(text, "\\b[A-Z][a-z]+\\b")[[1]]
-cat("Capitalized words:", paste(orig_words, collapse=", "), "\n")</textarea>
-      <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button>
-      <div id="output4" class="code-output">Output will appear here...</div>
-      <div class="hint-box">&#x1F4A1; <strong>Hint:</strong> <code>table(words)</code> counts word frequencies. <code>sort(..., decreasing=TRUE)[1:5]</code> gets the top 5. <code>nchar()</code> works on vectors &mdash; <code>mean(nchar(words) &gt; 6)</code> gives the proportion of long words.</div>
-    </div>
-
-    <!-- LAB COMPLETE -->
-    <div class="lab-complete">
-      <h2>&#x2705; Lab 5 Complete!</h2>
-      <p>You can now clean messy text, extract patterns with regex, and transform strings for real-world data cleaning tasks. String manipulation is essential for working with survey data, web scraping, and log files.</p>
-      <p style="margin-bottom:0"><a href="../lab-06/index.html">Continue to Lab 6: ggplot2 Visualization &rarr;</a></p>
-        <div style="margin-top:1.5rem">
-        <button id="complete-btn" onclick="markComplete()" 
-            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
-            Mark Complete
-        </button>
-        <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span>
-    </div>
-    </div>
-
-    <div class="lab-nav" style="margin-top:2rem">
-      <a href="../lab-04/index.html" class="nav-prev">&larr; Lab 4: Functions</a>
-      <span style="font-weight:600;color:var(--text-secondary)">Lab 5 of 10</span>
-      <a href="../lab-06/index.html" class="nav-next">Lab 6: ggplot2 &rarr;</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-links">
-      <a href="../../../index.html">Home</a>
-      <a href="../../../about.html">About</a>
-      
-      <a href="../../../young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div>
-      <a href="../../../research.html">Research</a>
-      <a href="../../../books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">R Practice Labs &mdash; Lab 5: String Manipulation</p>
-  </footer>
-<script>
-// Progress tracking via localStorage
+cat("Capitalized words:", paste(orig_words, collapse=", "), "\n")</textarea> <button class="run-btn" disabled onclick="runR('editor4','output4')">&#x25B6; Run</button> <div id="output4" class="code-output">Output will appear here...</div> <div class="hint-box"> <strong>Hint:</strong> <code>table(words)</code> counts word frequencies. <code>sort(..., decreasing=TRUE)[1:5]</code> gets the top 5. <code>nchar()</code> works on vectors &mdash; <code>mean(nchar(words) &gt; 6)</code> gives the proportion of long words.</div></div> <!-- LAB COMPLETE --> <div class="lab-complete"> <h2> Lab 5 Complete!</h2> <p>You can now clean messy text, extract patterns with regex, and transform strings for real-world data cleaning tasks. String manipulation is essential for working with survey data, web scraping, and log files.</p> <p style="margin-bottom:0"><a href="../lab-06/index.html">Continue to Lab 6: ggplot2 Visualization &rarr;</a></p> <div style="margin-top:1.5rem"> <button id="complete-btn" onclick="markComplete()" 
+            style="background:#1565C0;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s"> Mark Complete</button> <span id="complete-status" style="margin-left:1rem;color:rgba(255,255,255,0.8);font-size:0.9rem"></span></div></div> <div class="lab-nav" style="margin-top:2rem"> <a href="../lab-04/index.html" class="nav-prev">&larr; Lab 4: Functions</a> <span style="font-weight:600;color:var(--text-secondary)">Lab 5 of 10</span><a href="../lab-06/index.html" class="nav-next">Lab 6: ggplot2 &rarr;</a></div></main> <footer> <div class="footer-links"> <a href="../../../index.html">Home</a> <a href="../../../about.html">About</a> <a href="../../../young-learners.html">Young Learners</a> <div class="nav-dropdown"><a href="../../../free-courses.html">Free Courses</a><div class="dropdown-menu"><a href="../../../free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="../../financial-literacy/hub.html">Financial Literacy</a><a href="../../trigonometry/index.html">Math Courses</a><a href="../../intro-python/index.html">Programming</a><a href="../../ai-course/index.html">AI &amp; Technology</a></div></div> <a href="../../../research.html">Research</a> <a href="../../../books.html">Books</a><a href="mailto:dabagh_safaa@smc.edu">Contact</a></div> <p>&copy; 2026 Learn Without Walls. All rights reserved.</p> <p class="text-muted">R Practice Labs &mdash; Lab 5: String Manipulation</p></footer> <script> // Progress tracking via localStorage
 const LAB_ID = 'r-lab-05';
 
 function isComplete() {
@@ -371,7 +224,7 @@ function updateCompleteBtn() {
     const status = document.getElementById('complete-status');
     if (!btn) return;
     if (isComplete()) {
-        btn.textContent = '✓ Completed!';
+        btn.textContent = ' Completed!';
         btn.style.background = '#2E7D32';
         btn.onclick = markIncomplete;
         if (status) status.textContent = 'Click to mark incomplete';
@@ -383,9 +236,4 @@ function updateCompleteBtn() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateCompleteBtn);
-</script>
-  <script src="../../../accessibility.js"></script>
-<script src="../../../mobile-nav.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', updateCompleteBtn);</script> <script src="../../../accessibility.js"></script> <script src="../../../mobile-nav.js"></script></body></html>
