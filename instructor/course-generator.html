@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Course Generator (Preview) — Learn Without Walls</title>
+  <meta name="description" content="Build a structured YAML specification for your course, ready to feed into the AI Course Creator CLI. Phase 1 — Phase 2 (one-click generation) coming soon.">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    :root {
+      --step-active: var(--primary-color);
+      --step-done: #2E7D32;
+      --step-pending: #BDBDBD;
+    }
+
+    .cg-hero {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      color: white;
+      padding: 3rem 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .cg-hero h1 { color: white; margin-bottom: 0.5rem; font-size: 2.25rem; }
+    .cg-hero p { font-size: 1.1rem; opacity: 0.95; max-width: 720px; margin: 0.5rem auto; }
+    .cg-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .cg-preview-note {
+      background: #FFF8E1;
+      border-left: 4px solid #F57F17;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .cg-preview-note strong { color: #BF360C; }
+
+    .cg-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .cg-step-pill {
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--step-pending);
+      border-radius: 8px;
+      color: var(--step-pending);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .cg-step-pill[data-active="true"]  { border-color: var(--step-active); color: var(--step-active); background: #EAF3F8; }
+    .cg-step-pill[data-done="true"]    { border-color: var(--step-done); color: var(--step-done); background: #E8F5E9; }
+
+    .cg-step { display: none; }
+    .cg-step.cg-step-active { display: block; }
+
+    .cg-card {
+      background: white;
+      border: 2px solid #E0E0E0;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .cg-card h2 { margin-top: 0; color: var(--primary-color); }
+    .cg-card p.help { color: #555; font-size: 0.95rem; }
+
+    .cg-field {
+      display: block;
+      margin-bottom: 1.25rem;
+    }
+    .cg-field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--primary-dark);
+    }
+    .cg-field input[type="text"],
+    .cg-field input[type="email"],
+    .cg-field input[type="date"],
+    .cg-field textarea,
+    .cg-field select {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border: 2px solid #CFCFCF;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .cg-field input:focus,
+    .cg-field textarea:focus,
+    .cg-field select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(44, 95, 124, 0.15);
+    }
+    .cg-field textarea { min-height: 140px; resize: vertical; font-family: 'SF Mono', Monaco, monospace; font-size: 0.95rem; }
+    .cg-field .hint { display: block; color: #666; font-size: 0.85rem; margin-top: 0.25rem; }
+
+    .cg-checkrow {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+    }
+    .cg-checkrow input[type="checkbox"] { width: 18px; height: 18px; margin-top: 4px; }
+    .cg-checkrow label { font-weight: 500; }
+
+    .cg-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .cg-actions button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid var(--primary-color);
+      transition: all 0.2s ease;
+    }
+    .cg-actions .cg-prev { background: white; color: var(--primary-color); }
+    .cg-actions .cg-next { background: var(--primary-color); color: white; }
+    .cg-actions button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .cg-actions button[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .cg-yaml-output {
+      background: #1E2A33;
+      color: #E8F4F9;
+      padding: 1.25rem;
+      border-radius: 8px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      max-height: 480px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .cg-download-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .cg-download-row .btn { font-size: 1rem; }
+
+    .cg-cli-snippet {
+      background: #F1F4F6;
+      border-left: 4px solid var(--primary-color);
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+    .cg-cli-snippet code {
+      display: block;
+      background: white;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.9rem;
+      border: 1px solid #DDD;
+    }
+
+    .cg-week-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 110px auto;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .cg-week-row input[type="number"] { width: 100%; padding: 0.45rem; border: 2px solid #CFCFCF; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box; }
+    .cg-week-row input[type="text"]   { padding: 0.45rem 0.6rem; }
+    .cg-week-row .cg-remove {
+      background: none; border: 1px solid #C62828; color: #C62828; padding: 0.4rem 0.7rem;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    .cg-week-row .cg-remove:hover { background: #FFEBEE; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="site-title">Learn Without Walls</div>
+    <nav>
+      <a href="/index.html">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/free-courses.html">Courses</a>
+      <a href="/young-learners.html">Young Learners</a>
+      <a href="/books.html">Books</a>
+      <a href="/instructor/index.html">Instructor Resources</a>
+      <a href="/support.html">Support</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="cg-hero">
+      <span class="cg-badge">Phase 1 · Preview</span>
+      <h1>AI Course Generator</h1>
+      <p>Build a structured specification for your course in 3 steps. Today, this page produces a YAML file you can feed into the AI Course Creator CLI. Phase 2 will generate the materials right here in your browser.</p>
+    </section>
+
+    <div class="cg-preview-note">
+      <strong>Preview release.</strong> This page builds a YAML spec — the same format the open-source <a href="https://github.com/sdabagh/sdabagh.github.io" rel="noopener">AI Course Creator</a> CLI uses to generate announcements, weekly summaries, and exam reminders. The one-click "Generate Now" backend is coming in Phase 2. Until then: download the YAML, drop it into the CLI, and you're off.
+    </div>
+
+    <div class="cg-progress" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+      <div class="cg-step-pill" data-pill="1" data-active="true">1. Course info</div>
+      <div class="cg-step-pill" data-pill="2">2. Schedule &amp; weeks</div>
+      <div class="cg-step-pill" data-pill="3">3. Tone &amp; review</div>
+    </div>
+
+    <form id="cgForm" autocomplete="off">
+
+      <!-- STEP 1 -->
+      <section class="cg-step cg-step-active cg-card" data-step="1" aria-labelledby="step1-h">
+        <h2 id="step1-h">Course information</h2>
+        <p class="help">Basics about the course. Everything here is required.</p>
+
+        <div class="cg-field">
+          <label for="courseCode">Course code</label>
+          <input type="text" id="courseCode" required placeholder="MATH205">
+        </div>
+        <div class="cg-field">
+          <label for="courseTitle">Course title</label>
+          <input type="text" id="courseTitle" required placeholder="Applied Statistics">
+        </div>
+        <div class="cg-field">
+          <label for="courseTerm">Term</label>
+          <input type="text" id="courseTerm" required placeholder="Spring2026">
+        </div>
+        <div class="cg-field">
+          <label for="instructorName">Instructor name</label>
+          <input type="text" id="instructorName" required placeholder="Your name">
+        </div>
+        <div class="cg-field">
+          <label for="instructorEmail">Instructor email</label>
+          <input type="email" id="instructorEmail" required placeholder="you@university.edu">
+        </div>
+        <div class="cg-field">
+          <label for="instructorOffice">Office (optional)</label>
+          <input type="text" id="instructorOffice" placeholder="UNH 2753">
+        </div>
+        <div class="cg-field">
+          <label for="instructorHours">Office hours (optional)</label>
+          <input type="text" id="instructorHours" placeholder="Tuesday/Thursday 12:45–1:30 PM">
+        </div>
+
+        <div class="cg-actions">
+          <span></span>
+          <button type="button" class="cg-next" data-go="2">Next: schedule &amp; weeks →</button>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="cg-step cg-card" data-step="2" aria-labelledby="step2-h">
+        <h2 id="step2-h">Schedule &amp; weeks</h2>
+        <p class="help">When the course meets, and what each week covers. Add as many weeks as your term has.</p>
+
+        <div class="cg-field">
+          <label for="startDate">Start date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="cg-field">
+          <label for="endDate">End date</label>
+          <input type="date" id="endDate">
+        </div>
+        <div class="cg-field">
+          <label for="meetingDays">Meeting days (comma-separated)</label>
+          <input type="text" id="meetingDays" placeholder="Tuesday, Thursday">
+          <span class="hint">Example: <code>Monday, Wednesday, Friday</code> or <code>Tuesday, Thursday</code></span>
+        </div>
+        <div class="cg-field">
+          <label for="meetingTime">Meeting time</label>
+          <input type="text" id="meetingTime" placeholder="1:45–3:25 PM">
+        </div>
+        <div class="cg-field">
+          <label for="location">Location</label>
+          <input type="text" id="location" placeholder="UNH 2725">
+        </div>
+        <div class="cg-field">
+          <label for="lms">LMS (optional)</label>
+          <input type="text" id="lms" placeholder="Brightspace, Canvas, etc.">
+        </div>
+
+        <h3 style="margin-top:2rem;color:var(--primary-color);">Weekly topics</h3>
+        <p class="help">One row per week. Mark a week as a break (e.g., Spring Break) by checking the box on the right.</p>
+        <div id="weeksContainer"></div>
+        <button type="button" id="addWeek" class="btn btn-outline" style="margin-top:0.5rem;">+ Add another week</button>
+
+        <div class="cg-actions">
+          <button type="button" class="cg-prev" data-go="1">← Back</button>
+          <button type="button" class="cg-next" data-go="3">Next: tone &amp; review →</button>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="cg-step cg-card" data-step="3" aria-labelledby="step3-h">
+        <h2 id="step3-h">Tone &amp; review</h2>
+        <p class="help">How you want the generated materials to sound, and what accessibility defaults to apply.</p>
+
+        <div class="cg-field">
+          <label for="voice">Voice (a few words)</label>
+          <input type="text" id="voice" value="warm, direct, encouraging">
+        </div>
+        <div class="cg-field">
+          <label for="audience">Audience</label>
+          <input type="text" id="audience" value="undergraduates, mixed math comfort">
+        </div>
+
+        <div class="cg-field">
+          <label>Accessibility defaults</label>
+          <div class="cg-checkrow"><input type="checkbox" id="ndFriendly" checked><label for="ndFriendly">Neurodivergent-friendly formatting (short paragraphs, plain language)</label></div>
+          <div class="cg-checkrow"><input type="checkbox" id="screenReader" checked><label for="screenReader">Screen reader compatible (no color-only meaning)</label></div>
+          <div class="cg-checkrow"><input type="checkbox" id="colorblind" checked><label for="colorblind">Color-blind safe palettes in any visualizations</label></div>
+        </div>
+
+        <h3 style="margin-top:2rem;color:var(--primary-color);">Your YAML</h3>
+        <p class="help">This is what gets fed into the CLI. Download it, or copy-paste.</p>
+        <pre id="yamlOutput" class="cg-yaml-output" aria-label="Generated YAML preview"></pre>
+
+        <div class="cg-download-row">
+          <button type="button" class="btn btn-primary" id="downloadYaml">⬇ Download YAML</button>
+          <button type="button" class="btn btn-outline" id="copyYaml">📋 Copy to clipboard</button>
+        </div>
+
+        <div class="cg-cli-snippet">
+          <strong>Next step — generate the materials:</strong>
+          Save the YAML as <code style="display:inline;background:none;padding:0;border:none;">input/&lt;your-course&gt;.yaml</code> in the CLI repo, then run:
+          <code>npm run announcement -- --course input/&lt;your-course&gt;.yaml --all-weeks</code>
+          <code>npm run weekly-summary -- --course input/&lt;your-course&gt;.yaml --all-weeks</code>
+          <code>npm run exam-reminder -- --course input/&lt;your-course&gt;.yaml --all</code>
+        </div>
+
+        <div class="cg-actions">
+          <button type="button" class="cg-prev" data-go="2">← Back</button>
+          <span></span>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/index.html">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/young-learners.html">Young Learners</a>
+      <a href="/free-courses.html">Free Courses</a>
+      <a href="/research.html">Research</a>
+      <a href="/books.html">Books</a>
+      <a href="/instructor/index.html">Instructor Resources</a>
+      <a href="mailto:safaa.dabagh@lmu.edu">Contact</a>
+    </div>
+    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+    <p class="text-muted">Safaa Dabagh &mdash; Founder, Learn Without Walls</p>
+  </footer>
+
+  <script>
+    // ============================================================================
+    // AI Course Generator — Phase 1 client-side YAML builder
+    // No backend, no network calls. Everything stays in the browser.
+    // ============================================================================
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
+
+    // ---- Step navigation ----
+    function goTo(step) {
+      $$('.cg-step').forEach((el) => el.classList.toggle('cg-step-active', el.dataset.step === String(step)));
+      $$('.cg-step-pill').forEach((el) => {
+        const n = Number(el.dataset.pill);
+        el.dataset.active = String(n === step);
+        el.dataset.done = String(n < step);
+      });
+      $('.cg-progress').setAttribute('aria-valuenow', String(step));
+      if (step === 3) rebuildYaml();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    $$('.cg-next, .cg-prev').forEach((b) => b.addEventListener('click', () => goTo(Number(b.dataset.go))));
+
+    // ---- Weeks builder ----
+    const weeksContainer = $('#weeksContainer');
+    function makeWeekRow(num = '', topic = '', chapter = '', noClass = false) {
+      const row = document.createElement('div');
+      row.className = 'cg-week-row';
+      row.innerHTML = `
+        <input type="number" min="1" placeholder="Week #" value="${num}" data-field="number">
+        <input type="text" placeholder="Topic (e.g., Hypothesis Testing)" value="${topic.replace(/"/g, '&quot;')}" data-field="topic">
+        <input type="text" placeholder="Ch. 6" value="${chapter}" data-field="chapters">
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;">
+          <input type="checkbox" ${noClass ? 'checked' : ''} data-field="no_class"> Break week
+        </label>
+        <button type="button" class="cg-remove" aria-label="Remove this week">Remove</button>
+      `;
+      row.querySelector('.cg-remove').addEventListener('click', () => row.remove());
+      return row;
+    }
+    // Seed with one row
+    weeksContainer.appendChild(makeWeekRow(1, '', ''));
+    $('#addWeek').addEventListener('click', () => weeksContainer.appendChild(makeWeekRow()));
+
+    // ---- YAML builder ----
+    function yamlEscape(s) {
+      if (s == null) return '';
+      const str = String(s);
+      // Quote if contains characters YAML would mis-parse
+      if (/[:#&*?!|>'"%@`{}\[\],]/.test(str) || /^\s|\s$/.test(str)) {
+        return `"${str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+      }
+      return str;
+    }
+    function indent(text, level) {
+      const pad = '  '.repeat(level);
+      return text.split('\n').map((l) => l ? pad + l : l).join('\n');
+    }
+
+    function collectWeeks() {
+      const out = [];
+      $$('#weeksContainer .cg-week-row').forEach((row) => {
+        const number = Number(row.querySelector('[data-field="number"]').value) || null;
+        const topic = row.querySelector('[data-field="topic"]').value.trim();
+        const chapter = row.querySelector('[data-field="chapters"]').value.trim();
+        const noClass = row.querySelector('[data-field="no_class"]').checked;
+        if (!number) return;
+        out.push({ number, topic, chapter, no_class: noClass });
+      });
+      return out;
+    }
+
+    function buildYaml() {
+      const v = (id) => $('#' + id).value.trim();
+      const lines = [];
+      lines.push(`# Generated by learnwithoutwalls.com/instructor/course-generator.html`);
+      lines.push(`# Feed this into the AI Course Creator CLI.`);
+      lines.push('');
+
+      lines.push('course:');
+      lines.push(`  code: ${yamlEscape(v('courseCode'))}`);
+      lines.push(`  title: ${yamlEscape(v('courseTitle'))}`);
+      lines.push(`  term: ${yamlEscape(v('courseTerm'))}`);
+      lines.push('');
+
+      lines.push('instructor:');
+      lines.push(`  name: ${yamlEscape(v('instructorName'))}`);
+      lines.push(`  email: ${yamlEscape(v('instructorEmail'))}`);
+      if (v('instructorOffice')) lines.push(`  office: ${yamlEscape(v('instructorOffice'))}`);
+      if (v('instructorHours')) lines.push(`  office_hours: ${yamlEscape(v('instructorHours'))}`);
+      lines.push('');
+
+      lines.push('schedule:');
+      if (v('startDate')) lines.push(`  start_date: ${v('startDate')}`);
+      if (v('endDate'))   lines.push(`  end_date: ${v('endDate')}`);
+      const days = v('meetingDays').split(',').map((s) => s.trim()).filter(Boolean);
+      if (days.length) lines.push(`  meeting_days: [${days.join(', ')}]`);
+      if (v('meetingTime')) lines.push(`  meeting_time: ${yamlEscape(v('meetingTime'))}`);
+      if (v('location'))    lines.push(`  location: ${yamlEscape(v('location'))}`);
+      if (v('lms'))         lines.push(`  lms: ${yamlEscape(v('lms'))}`);
+      lines.push('');
+
+      lines.push('tone:');
+      lines.push(`  voice: ${yamlEscape(v('voice'))}`);
+      lines.push(`  audience: ${yamlEscape(v('audience'))}`);
+      const acc = [];
+      if ($('#ndFriendly').checked) acc.push('neurodivergent-friendly formatting');
+      if ($('#screenReader').checked) acc.push('screen-reader compatible');
+      if ($('#colorblind').checked) acc.push('color-blind safe palettes');
+      if (acc.length) lines.push(`  accessibility_notes: ${yamlEscape(acc.join('; '))}`);
+      lines.push('');
+
+      const weeks = collectWeeks();
+      if (weeks.length) {
+        lines.push('weeks:');
+        for (const w of weeks) {
+          lines.push(`  - number: ${w.number}`);
+          if (w.topic) lines.push(`    topic: ${yamlEscape(w.topic)}`);
+          if (w.chapter) lines.push(`    chapters: [${w.chapter.replace(/^Ch\.?\s*/i, '').split(',').map(s => s.trim()).filter(Boolean).join(', ')}]`);
+          if (w.no_class) lines.push(`    no_class: true`);
+        }
+      }
+
+      return lines.join('\n') + '\n';
+    }
+
+    function rebuildYaml() {
+      $('#yamlOutput').textContent = buildYaml();
+    }
+
+    // ---- Download / Copy ----
+    function safeFilename() {
+      const code = $('#courseCode').value.trim() || 'course';
+      const term = $('#courseTerm').value.trim() || 'term';
+      return `${code}-${term}.yaml`.toLowerCase().replace(/[^a-z0-9.-]+/g, '-');
+    }
+    $('#downloadYaml').addEventListener('click', () => {
+      const blob = new Blob([buildYaml()], { type: 'text/yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = safeFilename();
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+    $('#copyYaml').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(buildYaml());
+        const btn = $('#copyYaml');
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch (e) {
+        alert('Could not copy automatically — please select the text above and copy manually.');
+      }
+    });
+  </script>
+</body>
+</html>
