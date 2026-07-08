@@ -1,406 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="You're Smarter Than You Think: Statistics — a free, open-source Introduction to Statistics textbook by Safaa Dabagh, designed for neurodivergent learners. Outcome-aligned, software-free (jamovi), CC BY 4.0.">
-    <title>Free Statistics Textbook – Safaa Dabagh</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .textbook-hero {
-            background: linear-gradient(135deg, #1A3A4D 0%, #2C5F7C 60%, #3A7CA5 100%);
-            color: white;
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-xl) var(--spacing-lg);
-            margin-bottom: var(--spacing-xl);
-            display: grid;
-            grid-template-columns: 1fr 200px;
-            gap: var(--spacing-xl);
-            align-items: center;
-            box-shadow: var(--shadow-lg);
-        }
-        .textbook-hero h1 { color: white; font-size: 2.4rem; margin-bottom: 0.5rem; }
-        .textbook-hero .subtitle { font-size: 1.1rem; opacity: 0.85; margin-bottom: 1.5rem; }
-        .textbook-hero p { opacity: 0.9; }
-        .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
-        .badge-light {
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.35);
-            color: white;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .book-visual {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            text-align: center;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-        }
-        .book-visual .big-icon { font-size: 5rem; margin-bottom: 0.5rem; }
-        .book-visual h3 { color: var(--primary-dark); font-size: 1rem; margin: 0.3rem 0; }
-        .book-visual p { color: var(--text-secondary); font-size: 0.8rem; margin: 0; }
-        .btn-white { background: white; color: var(--primary-dark); font-weight: 700; }
-        .btn-white:hover { background: #f0f0f0; text-decoration: none; transform: translateY(-2px); color: var(--primary-dark); }
-        .btn-white-outline { background: transparent; border: 2px solid rgba(255,255,255,0.7); color: white; }
-        .btn-white-outline:hover { background: rgba(255,255,255,0.15); text-decoration: none; color: white; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="description" content="You're Smarter Than You Think: Statistics, a free, open-source Introduction to Statistics textbook by Safaa Dabagh, designed for neurodivergent learners. Outcome-aligned, software-free (jamovi), CC BY 4.0.">
+ <title>Free Statistics Textbook, Safaa Dabagh</title>
+ <link rel="stylesheet" href="style.css">
+ <style>
+ .textbook-hero {
+ background: linear-gradient(135deg, #1A3A4D 0%, #2C5F7C 60%, #3A7CA5 100%);
+ color: white;
+ border-radius: var(--radius-lg);
+ padding: var(--spacing-xl) var(--spacing-lg);
+ margin-bottom: var(--spacing-xl);
+ display: grid;
+ grid-template-columns: 1fr 200px;
+ gap: var(--spacing-xl);
+ align-items: center;
+ box-shadow: var(--shadow-lg);
+ }
+ .textbook-hero h1 { color: white; font-size: 2.4rem; margin-bottom: 0.5rem; }
+ .textbook-hero .subtitle { font-size: 1.1rem; opacity: 0.85; margin-bottom: 1.5rem; }
+ .textbook-hero p { opacity: 0.9; }
+ .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+ .badge-light {
+ background: rgba(255,255,255,0.18);
+ border: 1px solid rgba(255,255,255,0.35);
+ color: white;
+ padding: 0.2rem 0.8rem;
+ border-radius: 20px;
+ font-size: 0.8rem;
+ font-weight: 600;
+ }
+ .book-visual {
+ background: white;
+ border-radius: var(--radius-lg);
+ padding: var(--spacing-lg);
+ text-align: center;
+ box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+ }
+ .book-visual .big-icon { font-size: 5rem; margin-bottom: 0.5rem; }
+ .book-visual h3 { color: var(--primary-dark); font-size: 1rem; margin: 0.3rem 0; }
+ .book-visual p { color: var(--text-secondary); font-size: 0.8rem; margin: 0; }
+ .btn-white { background: white; color: var(--primary-dark); font-weight: 700; }
+ .btn-white:hover { background: #f0f0f0; text-decoration: none; transform: translateY(-2px); color: var(--primary-dark); }
+ .btn-white-outline { background: transparent; border: 2px solid rgba(255,255,255,0.7); color: white; }
+ .btn-white-outline:hover { background: rgba(255,255,255,0.15); text-decoration: none; color: white; }
 
-        .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-md); margin: var(--spacing-lg) 0; }
-        .toc-item { background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); border-left: 4px solid var(--primary-color); transition: var(--transition); }
-        .toc-item:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-        .toc-item.review { border-left-color: var(--accent-color); }
-        .toc-item h4 { margin: 0 0 0.3rem 0; font-size: 1rem; color: var(--primary-dark); }
-        .toc-item p { margin: 0; font-size: 0.875rem; color: var(--text-secondary); }
-        .chapter-num { font-size: 0.75rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; }
+ .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-md); margin: var(--spacing-lg) 0; }
+ .toc-item { background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); border-left: 4px solid var(--primary-color); transition: var(--transition); }
+ .toc-item:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+ .toc-item.review { border-left-color: var(--accent-color); }
+ .toc-item h4 { margin: 0 0 0.3rem 0; font-size: 1rem; color: var(--primary-dark); }
+ .toc-item p { margin: 0; font-size: 0.875rem; color: var(--text-secondary); }
+ .chapter-num { font-size: 0.75rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-md); margin: var(--spacing-lg) 0; }
-        .feature-item { text-align: center; padding: var(--spacing-md); }
-        .feature-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .feature-item h4 { margin: 0.5rem 0 0.3rem; color: var(--primary-dark); }
-        .feature-item p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+ .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-md); margin: var(--spacing-lg) 0; }
+ .feature-item { text-align: center; padding: var(--spacing-md); }
+ .feature-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+ .feature-item h4 { margin: 0.5rem 0 0.3rem; color: var(--primary-dark); }
+ .feature-item p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
 
-        .license-box { background: var(--background-alt); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-lg) 0; display: flex; align-items: center; gap: var(--spacing-md); }
-        .license-icon { font-size: 2.5rem; flex-shrink: 0; }
-        .license-box p { margin: 0; font-size: 0.95rem; }
+ .license-box { background: var(--background-alt); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-lg) 0; display: flex; align-items: center; gap: var(--spacing-md); }
+ .license-icon { font-size: 2.5rem; flex-shrink: 0; }
+ .license-box p { margin: 0; font-size: 0.95rem; }
 
-        .download-box { background: linear-gradient(135deg, #f0f7fa 0%, #e7f3f8 100%); border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin: var(--spacing-xl) 0; }
-        .download-box h2 { border: none; display: block; margin-top: 0; }
+ .download-box { background: linear-gradient(135deg, #f0f7fa 0%, #e7f3f8 100%); border: 2px solid var(--primary-light); border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: center; margin: var(--spacing-xl) 0; }
+ .download-box h2 { border: none; display: block; margin-top: 0; }
 
-        @media (max-width: 680px) {
-            .textbook-hero { grid-template-columns: 1fr; }
-            .book-visual { display: none; }
-        }
-    </style>
+ @media (max-width: 680px) {
+ .textbook-hero { grid-template-columns: 1fr; }
+ .book-visual { display: none; }
+ }
+ </style>
 </head>
 <body>
 
 <header>
-    <div class="site-title">Learn Without Walls</div>
-    <nav>
-      <a href="index.html">Home</a>
-      <div class="nav-dropdown"><a href="about.html">About</a><div class="dropdown-menu"><a href="about.html">About Me</a><a href="publications.html">Research</a></div></div>
-      <div class="nav-dropdown"><a href="free-courses.html">Courses</a><div class="dropdown-menu"><a href="free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="free-courses.html#finance">Financial Literacy</a><a href="free-courses.html#math">Math Courses</a><a href="free-courses.html#python">Programming</a><a href="free-courses.html#ai">AI &amp; Technology</a></div></div>
-      <a href="young-learners.html">Young Learners</a>
-      <div class="nav-dropdown"><a href="books.html">Resources</a><div class="dropdown-menu"><a href="books.html">Books</a><a href="publications.html">Publications</a><a href="instructor/index.html">Instructor Resources</a></div></div>
-      <a href="support.html">Support</a>
-    </nav>
+ <div class="site-title">Learn Without Walls</div>
+ <nav>
+ <a href="index.html">Home</a>
+ <div class="nav-dropdown"><a href="about.html">About</a><div class="dropdown-menu"><a href="about.html">About Me</a><a href="publications.html">Research</a></div></div>
+ <div class="nav-dropdown"><a href="free-courses.html">Courses</a><div class="dropdown-menu"><a href="free-courses.html">All Courses</a><div class="dropdown-divider"></div><a href="free-courses.html#finance">Financial Literacy</a><a href="free-courses.html#math">Math Courses</a><a href="free-courses.html#python">Programming</a><a href="free-courses.html#ai">AI &amp; Technology</a></div></div>
+ <a href="young-learners.html">Young Learners</a>
+ <div class="nav-dropdown"><a href="books.html">Resources</a><div class="dropdown-menu"><a href="books.html">Books</a><a href="publications.html">Publications</a><a href="instructor/index.html">Instructor Resources</a></div></div>
+ <a href="support.html">Support</a>
+ </nav>
 </header>
 
 <main class="container">
 
-    <a href="books.html" class="back-link">← Back to Books</a>
+ <a href="books.html" class="back-link">← Back to Books</a>
 
-    <!-- ── HERO ── -->
-    <div class="textbook-hero">
-        <div>
-            <div class="badge-row">
-                <span class="badge-light">📊 Open Educational Resource</span>
-                <span class="badge-light">CC BY 4.0</span>
-                <span class="badge-light">255 pages</span>
-                <span class="badge-light">13 Chapters</span>
-                <span class="badge-light">4 Technology Companions</span>
-                <span class="badge-light">Free Forever</span>
-            </div>
-            <h1>You're Smarter<br>Than You Think</h1>
-            <p class="subtitle">Introduction to Statistics · Community College Edition</p>
-            <p>
-                A complete, neurodivergent-friendly Introduction to Statistics textbook, built around the
-                learning outcomes shared by community college statistics courses, and free for every student
-                anywhere in the world. It comes with four <strong>free</strong> step-by-step Technology Companions
-                (R, jamovi, StatCrunch, TI-84), and no paid subscriptions are ever required.
-            </p>
-            <div class="cta-group" style="margin-top: 1.5rem; margin-bottom: 0;">
-                <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-white" download>
-                    📥 Download Free PDF
-                </a>
-                <a href="mailto:dabagh_safaa@smc.edu?subject=Statistics Textbook Adoption Inquiry" class="btn btn-white-outline">
-                    Adopt for Your Course
-                </a>
-            </div>
-        </div>
-        <div class="book-visual">
-            <div class="big-icon">📊</div>
-            <h3>You're Smarter<br>Than You Think: Statistics</h3>
-            <p style="margin-top:0.5rem;">Safaa Dabagh</p>
-            <p>For Neurodivergent Learners</p>
-            <p style="margin-top:0.3rem; color:#888;">2026 · CC BY 4.0</p>
-        </div>
-    </div>
+ <!-- ── HERO ── -->
+ <div class="textbook-hero">
+ <div>
+ <div class="badge-row">
+ <span class="badge-light"> Open Educational Resource</span>
+ <span class="badge-light">CC BY 4.0</span>
+ <span class="badge-light">255 pages</span>
+ <span class="badge-light">13 Chapters</span>
+ <span class="badge-light">4 Technology Companions</span>
+ <span class="badge-light">Free Forever</span>
+ </div>
+ <h1>You're Smarter<br>Than You Think</h1>
+ <p class="subtitle">Introduction to Statistics · Community College Edition</p>
+ <p>
+ A complete, neurodivergent-friendly Introduction to Statistics textbook, built around the
+ learning outcomes shared by community college statistics courses, and free for every student
+ anywhere in the world. It comes with four <strong>free</strong> step-by-step Technology Companions
+ (R, jamovi, StatCrunch, TI-84), and no paid subscriptions are ever required.
+ </p>
+ <div class="cta-group" style="margin-top: 1.5rem; margin-bottom: 0;">
+ <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-white" download>
+ Download Free PDF
+ </a>
+ <a href="mailto:dabagh_safaa@smc.edu?subject=Statistics Textbook Adoption Inquiry" class="btn btn-white-outline">
+ Adopt for Your Course
+ </a>
+ </div>
+ </div>
+ <div class="book-visual">
+ <h3>You're Smarter<br>Than You Think: Statistics</h3>
+ <p style="margin-top:0.5rem;">Safaa Dabagh</p>
+ <p>For Neurodivergent Learners</p>
+ <p style="margin-top:0.3rem; color:#888;">2026 · CC BY 4.0</p>
+ </div>
+ </div>
 
-    <!-- ── WHAT MAKES IT DIFFERENT ── -->
-    <section>
-        <h2>Designed Differently — On Purpose</h2>
-        <p>
-            Most statistics textbooks open with definitions and formulas. This one assumes you're human.
-            Every section starts with a story — a real-life moment that <em>is</em> the statistical idea,
-            before we ever name it — and every chapter opens by warming up the exact arithmetic you'll need.
-        </p>
+ <!-- ── WHAT MAKES IT DIFFERENT ── -->
+ <section>
+ <h2>Designed Differently, On Purpose</h2>
+ <p>
+ Most statistics textbooks open with definitions and formulas. This one assumes you're human.
+ Every section starts with a story, a real-life moment that <em>is</em> the statistical idea,
+ before we ever name it, and every chapter opens by warming up the exact arithmetic you'll need.
+ </p>
 
-        <div class="feature-grid">
-            <div class="feature-item">
-                <div class="feature-icon">📖</div>
-                <h4>Story First</h4>
-                <p>Every section begins with a real-world moment. Concepts arrive through context, not jargon.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🔁</div>
-                <h4>Consistent 6-Step Rhythm</h4>
-                <p>Read This First → Let's Talk → Now We Name It → Watch It Work → Your Turn → Check Your Voice. Your brain always knows what's coming.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🧮</div>
-                <h4>Math Skills Warm-Up</h4>
-                <p>Each chapter opens with the exact arithmetic it needs — refreshed, with practice — so a fraction never derails a big idea.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">💻</div>
-                <h4>Free Technology Companions</h4>
-                <p>Four free step-by-step guides (R, jamovi, StatCrunch, TI-84) do every chapter's work in whatever tool your class uses. No paid subscriptions, ever.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🗣️</div>
-                <h4>Check Your Voice</h4>
-                <p>Every section includes a moment to notice — and talk back to — the inner critic.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✍️</div>
-                <h4>Room to Work</h4>
-                <p>Printable work space follows every practice set — solve right on the page.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✅</div>
-                <h4>Answer Keys &amp; Formula Sheets</h4>
-                <p>Every problem has a worked solution, and each Part closes with a one-page formula sheet.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🎯</div>
-                <h4>Outcome-Aligned</h4>
-                <p>Organized around the Student Learning Outcomes shared by community college statistics courses — describe, estimate, test.</p>
-            </div>
-        </div>
-    </section>
+ <div class="feature-grid">
+ <div class="feature-item">
+ <h4>Story First</h4>
+ <p>Every section begins with a real-world moment. Concepts arrive through context, not jargon.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Consistent 6-Step Rhythm</h4>
+ <p>Read This First → Let's Talk → Now We Name It → Watch It Work → Your Turn → Check Your Voice. Your brain always knows what's coming.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Math Skills Warm-Up</h4>
+ <p>Each chapter opens with the exact arithmetic it needs, refreshed, with practice, so a fraction never derails a big idea.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Free Technology Companions</h4>
+ <p>Four free step-by-step guides (R, jamovi, StatCrunch, TI-84) do every chapter's work in whatever tool your class uses. No paid subscriptions, ever.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Check Your Voice</h4>
+ <p>Every section includes a moment to notice, and talk back to, the inner critic.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Room to Work</h4>
+ <p>Printable work space follows every practice set, solve right on the page.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Answer Keys &amp; Formula Sheets</h4>
+ <p>Every problem has a worked solution, and each Part closes with a one-page formula sheet.</p>
+ </div>
+ <div class="feature-item">
+ <h4>Outcome-Aligned</h4>
+ <p>Organized around the Student Learning Outcomes shared by community college statistics courses, describe, estimate, test.</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- ── TABLE OF CONTENTS ── -->
-    <section>
-        <h2>What's Inside</h2>
-        <p>Six Parts, thirteen chapters, six Part checkpoints, six formula sheets, a cumulative final-exam prep, and graphs throughout.</p>
+ <!-- ── TABLE OF CONTENTS ── -->
+ <section>
+ <h2>What's Inside</h2>
+ <p>Six Parts, thirteen chapters, six Part checkpoints, six formula sheets, a cumulative final-exam prep, and graphs throughout.</p>
 
-        <div class="toc-grid">
-            <div class="toc-item">
-                <div class="chapter-num">Part I · Chapter 1</div>
-                <h4>What's the Story in the Data?</h4>
-                <p>Statistics, data, variables, population vs. sample</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 2</div>
-                <h4>Where Did This Data Come From?</h4>
-                <p>Sampling, bias, observational vs. experiment, confounding</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Part II · Chapter 3</div>
-                <h4>Show Me a Picture</h4>
-                <p>Bar charts, histograms, shape, center &amp; spread at a glance</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 4</div>
-                <h4>The Typical &amp; The Spread</h4>
-                <p>Mean, median, standard deviation, z-scores &amp; boxplots</p>
-            </div>
-            <div class="toc-item review">
-                <div class="chapter-num" style="color:var(--accent-color);">Checkpoint · SLO 1</div>
-                <h4>Describing Data — Study Guide &amp; Formula Sheet</h4>
-                <p>Mixed practice across Chapters 1–4 with full answers</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Part III · Chapter 5</div>
-                <h4>What Are the Chances?</h4>
-                <p>Probability rules, conditional probability, two-way tables</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 6</div>
-                <h4>Predictable Randomness</h4>
-                <p>Distributions, the binomial, and the normal bell curve</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 7</div>
-                <h4>From Sample to Truth</h4>
-                <p>Sampling distributions &amp; the Central Limit Theorem</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Part IV · Chapter 8</div>
-                <h4>How Sure Are We?</h4>
-                <p>Confidence intervals for a mean, proportion &amp; variation</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Part V · Chapter 9</div>
-                <h4>Testing What We Believe</h4>
-                <p>Hypothesis testing for one parameter (p-value approach)</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 10</div>
-                <h4>Comparing Two Groups</h4>
-                <p>Two-sample &amp; paired tests; two proportions</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 11</div>
-                <h4>When Three or More Groups Disagree</h4>
-                <p>One-way ANOVA &amp; post-hoc (Tukey) tests</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Part VI · Chapter 12</div>
-                <h4>Counts, Categories &amp; Surprises</h4>
-                <p>Chi-square: goodness-of-fit, independence &amp; homogeneity</p>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Chapter 13</div>
-                <h4>Drawing the Line</h4>
-                <p>Simple linear regression &amp; correlation, with inference</p>
-            </div>
-            <div class="toc-item review">
-                <div class="chapter-num" style="color:var(--accent-color);">Final Exam Prep</div>
-                <h4>Cumulative Practice &amp; A Final Note</h4>
-                <p>Choose-the-right-tool review across all 13 chapters</p>
-            </div>
-        </div>
-    </section>
+ <div class="toc-grid">
+ <div class="toc-item">
+ <div class="chapter-num">Part I · Chapter 1</div>
+ <h4>What's the Story in the Data?</h4>
+ <p>Statistics, data, variables, population vs. sample</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 2</div>
+ <h4>Where Did This Data Come From?</h4>
+ <p>Sampling, bias, observational vs. experiment, confounding</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Part II · Chapter 3</div>
+ <h4>Show Me a Picture</h4>
+ <p>Bar charts, histograms, shape, center &amp; spread at a glance</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 4</div>
+ <h4>The Typical &amp; The Spread</h4>
+ <p>Mean, median, standard deviation, z-scores &amp; boxplots</p>
+ </div>
+ <div class="toc-item review">
+ <div class="chapter-num" style="color:var(--accent-color);">Checkpoint · SLO 1</div>
+ <h4>Describing Data, Study Guide &amp; Formula Sheet</h4>
+ <p>Mixed practice across Chapters 1 to 4 with full answers</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Part III · Chapter 5</div>
+ <h4>What Are the Chances?</h4>
+ <p>Probability rules, conditional probability, two-way tables</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 6</div>
+ <h4>Predictable Randomness</h4>
+ <p>Distributions, the binomial, and the normal bell curve</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 7</div>
+ <h4>From Sample to Truth</h4>
+ <p>Sampling distributions &amp; the Central Limit Theorem</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Part IV · Chapter 8</div>
+ <h4>How Sure Are We?</h4>
+ <p>Confidence intervals for a mean, proportion &amp; variation</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Part V · Chapter 9</div>
+ <h4>Testing What We Believe</h4>
+ <p>Hypothesis testing for one parameter (p-value approach)</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 10</div>
+ <h4>Comparing Two Groups</h4>
+ <p>Two-sample &amp; paired tests; two proportions</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 11</div>
+ <h4>When Three or More Groups Disagree</h4>
+ <p>One-way ANOVA &amp; post-hoc (Tukey) tests</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Part VI · Chapter 12</div>
+ <h4>Counts, Categories &amp; Surprises</h4>
+ <p>Chi-square: goodness-of-fit, independence &amp; homogeneity</p>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Chapter 13</div>
+ <h4>Drawing the Line</h4>
+ <p>Simple linear regression &amp; correlation, with inference</p>
+ </div>
+ <div class="toc-item review">
+ <div class="chapter-num" style="color:var(--accent-color);">Final Exam Prep</div>
+ <h4>Cumulative Practice &amp; A Final Note</h4>
+ <p>Choose-the-right-tool review across all 13 chapters</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- ── TECHNOLOGY COMPANIONS ── -->
-    <section>
-        <h2>Technology Companions</h2>
-        <p>
-            Four free companion booklets take the book's work into whatever software your class uses. Each one is
-            keyed chapter by chapter to the main book, written in the same friendly voice, and every example ships
-            with a ready-made dataset so you can follow along. Pick the tool your course uses, or try them all.
-        </p>
+ <!-- ── TECHNOLOGY COMPANIONS ── -->
+ <section>
+ <h2>Technology Companions</h2>
+ <p>
+ Four free companion booklets take the book's work into whatever software your class uses. Each one is
+ keyed chapter by chapter to the main book, written in the same friendly voice, and every example ships
+ with a ready-made dataset so you can follow along. Pick the tool your course uses, or try them all.
+ </p>
 
-        <div class="toc-grid">
-            <div class="toc-item">
-                <div class="chapter-num">Companion · 33 pages</div>
-                <h4>💻 R &amp; RStudio</h4>
-                <p>Real, runnable code for all 13 chapters, with the output explained plainly and a one-page cheat sheet.</p>
-                <a href="textbook/companions/R_RStudio_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">📥 Download PDF</a>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Companion · 30 pages</div>
-                <h4>🟢 jamovi</h4>
-                <p>Point-and-click, free, no coding. The book's default tool, walked through screen by screen.</p>
-                <a href="textbook/companions/jamovi_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">📥 Download PDF</a>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Companion · 25 pages</div>
-                <h4>📈 StatCrunch</h4>
-                <p>Every analysis by its exact Stat and Graph menu path, for courses that use StatCrunch.</p>
-                <a href="textbook/companions/StatCrunch_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">📥 Download PDF</a>
-            </div>
-            <div class="toc-item">
-                <div class="chapter-num">Companion · 35 pages</div>
-                <h4>🔢 TI-84</h4>
-                <p>Keystroke by keystroke on the graphing calculator, from 1-Var Stats to LinRegTTest.</p>
-                <a href="textbook/companions/TI84_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">📥 Download PDF</a>
-            </div>
-        </div>
+ <div class="toc-grid">
+ <div class="toc-item">
+ <div class="chapter-num">Companion · 33 pages</div>
+ <h4>R &amp; RStudio</h4>
+ <p>Real, runnable code for all 13 chapters, with the output explained plainly and a one-page cheat sheet.</p>
+ <a href="textbook/companions/R_RStudio_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">Download PDF</a>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Companion · 30 pages</div>
+ <h4>jamovi</h4>
+ <p>Point-and-click, free, no coding. The book's default tool, walked through screen by screen.</p>
+ <a href="textbook/companions/jamovi_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">Download PDF</a>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Companion · 25 pages</div>
+ <h4>StatCrunch</h4>
+ <p>Every analysis by its exact Stat and Graph menu path, for courses that use StatCrunch.</p>
+ <a href="textbook/companions/StatCrunch_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">Download PDF</a>
+ </div>
+ <div class="toc-item">
+ <div class="chapter-num">Companion · 35 pages</div>
+ <h4>TI-84</h4>
+ <p>Keystroke by keystroke on the graphing calculator, from 1-Var Stats to LinRegTTest.</p>
+ <a href="textbook/companions/TI84_Companion.pdf" class="btn btn-primary" download style="margin-top:0.7rem; display:inline-block;">Download PDF</a>
+ </div>
+ </div>
 
-        <div class="license-box">
-            <div class="license-icon">📂</div>
-            <div>
-                <p>
-                    <strong>The datasets, all nine.</strong> Every example's data as plain CSV files that open in R,
-                    jamovi, StatCrunch, Excel, and Google Sheets. One set of data, every tool.
-                    <a href="textbook/companions/companion_datasets.zip" download>Download the dataset bundle (ZIP)</a>.
-                </p>
-            </div>
-        </div>
-    </section>
+ <div class="license-box">
+ <div>
+ <p>
+ <strong>The datasets, all nine.</strong> Every example's data as plain CSV files that open in R,
+ jamovi, StatCrunch, Excel, and Google Sheets. One set of data, every tool.
+ <a href="textbook/companions/companion_datasets.zip" download>Download the dataset bundle (ZIP)</a>.
+ </p>
+ </div>
+ </div>
+ </section>
 
-    <!-- ── LICENSE ── -->
-    <section>
-        <h2>License &amp; Usage</h2>
-        <div class="license-box">
-            <div class="license-icon">🔓</div>
-            <div>
-                <p>
-                    <strong>This textbook is free — and it stays free.</strong> Licensed under
-                    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons CC BY 4.0</a>.
-                    Download it, print it, share it with your students, and adapt it for your course —
-                    just credit the original author.
-                </p>
-            </div>
-        </div>
-        <div class="course-grid">
-            <div class="card" style="text-align:center;">
-                <h4>Download &amp; Print</h4>
-                <p>Print as many copies as you need for your students. No fees, no restrictions.</p>
-            </div>
-            <div class="card" style="text-align:center;">
-                <h4>Share Freely</h4>
-                <p>Post the PDF link, email it to colleagues, share it across departments.</p>
-            </div>
-            <div class="card" style="text-align:center;">
-                <h4>Adapt for Your Course</h4>
-                <p>Remix sections, swap in your own class data, translate it — with attribution.</p>
-            </div>
-        </div>
-    </section>
+ <!-- ── LICENSE ── -->
+ <section>
+ <h2>License &amp; Usage</h2>
+ <div class="license-box">
+ <div>
+ <p>
+ <strong>This textbook is free, and it stays free.</strong> Licensed under
+ <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons CC BY 4.0</a>.
+ Download it, print it, share it with your students, and adapt it for your course, just credit the original author.
+ </p>
+ </div>
+ </div>
+ <div class="course-grid">
+ <div class="card" style="text-align:center;">
+ <h4>Download &amp; Print</h4>
+ <p>Print as many copies as you need for your students. No fees, no restrictions.</p>
+ </div>
+ <div class="card" style="text-align:center;">
+ <h4>Share Freely</h4>
+ <p>Post the PDF link, email it to colleagues, share it across departments.</p>
+ </div>
+ <div class="card" style="text-align:center;">
+ <h4>Adapt for Your Course</h4>
+ <p>Remix sections, swap in your own class data, translate it, with attribution.</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- ── FOR INSTRUCTORS ── -->
-    <section>
-        <h2>For Instructors</h2>
-        <div class="highlight-box">
-            <h3 style="margin-top:0;">Interested in adopting this textbook?</h3>
-            <p>
-                If you teach Introduction to Statistics at a community college and would like to use this book,
-                I'd love to connect. It is software-agnostic (jamovi by default), uses generic data you can swap
-                for your own class data, and is organized around the standard statistics learning outcomes — so it
-                drops into most intro courses regardless of term length.
-            </p>
-            <div class="cta-group">
-                <a href="mailto:dabagh_safaa@smc.edu?subject=Statistics Textbook Adoption Inquiry" class="btn btn-primary">
-                    Get in Touch
-                </a>
-                <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-outline" download>
-                    📥 Download the Book First
-                </a>
-            </div>
-        </div>
-    </section>
+ <!-- ── FOR INSTRUCTORS ── -->
+ <section>
+ <h2>For Instructors</h2>
+ <div class="highlight-box">
+ <h3 style="margin-top:0;">Interested in adopting this textbook?</h3>
+ <p>
+ If you teach Introduction to Statistics at a community college and would like to use this book,
+ I'd love to connect. It is software-agnostic (jamovi by default), uses generic data you can swap
+ for your own class data, and is organized around the standard statistics learning outcomes, so it
+ drops into most intro courses regardless of term length.
+ </p>
+ <div class="cta-group">
+ <a href="mailto:dabagh_safaa@smc.edu?subject=Statistics Textbook Adoption Inquiry" class="btn btn-primary">
+ Get in Touch
+ </a>
+ <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-outline" download>
+ Download the Book First
+ </a>
+ </div>
+ </div>
+ </section>
 
-    <!-- ── BIG DOWNLOAD CTA ── -->
-    <div class="download-box">
-        <div style="font-size:4rem; margin-bottom:1rem;">📊</div>
-        <h2>Ready to download?</h2>
-        <p style="font-size:1.1rem; color:var(--text-secondary); max-width:500px; margin:0 auto 1.5rem;">
-            It's free. It always will be. No sign-up, no email required.
-        </p>
-        <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-primary" download
-           style="font-size:1.1rem; padding:1rem 2.5rem;">
-            📥 Download Free PDF (255 pages)
-        </a>
-        <p class="text-muted" style="margin-top:1rem; font-size:0.85rem;">
-            Safaa Dabagh · For Neurodivergent Learners · 2026 · CC BY 4.0
-        </p>
-    </div>
+ <!-- ── BIG DOWNLOAD CTA ── -->
+ <div class="download-box">
+ <h2>Ready to download?</h2>
+ <p style="font-size:1.1rem; color:var(--text-secondary); max-width:500px; margin:0 auto 1.5rem;">
+ It's free. It always will be. No sign-up, no email required.
+ </p>
+ <a href="textbook/YoureSmarter_Statistics_SMC_WLAC.pdf" class="btn btn-primary" download
+ style="font-size:1.1rem; padding:1rem 2.5rem;">
+ Download Free PDF (255 pages)
+ </a>
+ <p class="text-muted" style="margin-top:1rem; font-size:0.85rem;">
+ Safaa Dabagh · For Neurodivergent Learners · 2026 · CC BY 4.0
+ </p>
+ </div>
 
 </main>
 
 <footer>
-    <div class="footer-links">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="young-learners.html">Young Learners</a>
-      <a href="publications.html">Research</a>
-      <a href="books.html">Books</a>
-      <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
-    </div>
-    <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
-    <p class="text-muted">
-        Santa Monica College &nbsp;·&nbsp; West Los Angeles College &nbsp;·&nbsp;
-        Founder, Learn Without Walls
-    </p>
+ <div class="footer-links">
+ <a href="index.html">Home</a>
+ <a href="about.html">About</a>
+ <a href="young-learners.html">Young Learners</a>
+ <a href="publications.html">Research</a>
+ <a href="books.html">Books</a>
+ <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+ </div>
+ <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
+ <p class="text-muted">
+ Santa Monica College &nbsp;·&nbsp; West Los Angeles College &nbsp;·&nbsp;
+ Founder, Learn Without Walls
+ </p>
 </footer>
 
-  <script src="accessibility.js"></script>
+ <script src="accessibility.js"></script>
 <script src="mobile-nav.js"></script>
 </body>
 </html>

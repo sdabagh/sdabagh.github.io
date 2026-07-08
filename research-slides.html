@@ -1,631 +1,631 @@
 <style>
-  :root{
-    --ink:#12302A; --ink-2:#1C3F38; --ink-3:#0C2420;
-    --paper:#EEECE3; --paper-2:#E6E3D8;
-    --text:#15211E; --text-inv:#ECEADF;
-    --muted:#5E6C66; --muted-inv:#93A69E;
-    --accent:#C6892A; --accent-ink:#E0A63E; --accent-paper:#9A6712;
-    --line:rgba(18,48,42,.14); --line-inv:rgba(236,234,223,.16);
-    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
-    --sans:"Avenir Next",Avenir,"Segoe UI","Helvetica Neue",system-ui,sans-serif;
-    --mono:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:
-      radial-gradient(120% 90% at 50% -10%, #14352E 0%, var(--ink) 45%, var(--ink-3) 100%);
-      color:var(--text-inv);font-family:var(--sans);min-height:100vh;
-      -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+ :root{
+ --ink:#12302A; --ink-2:#1C3F38; --ink-3:#0C2420;
+ --paper:#EEECE3; --paper-2:#E6E3D8;
+ --text:#15211E; --text-inv:#ECEADF;
+ --muted:#5E6C66; --muted-inv:#93A69E;
+ --accent:#C6892A; --accent-ink:#E0A63E; --accent-paper:#9A6712;
+ --line:rgba(18,48,42,.14); --line-inv:rgba(236,234,223,.16);
+ --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+ --sans:"Avenir Next",Avenir,"Segoe UI","Helvetica Neue",system-ui,sans-serif;
+ --mono:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+ }
+ *{box-sizing:border-box}
+ body{margin:0;background:
+ radial-gradient(120% 90% at 50% -10%, #14352E 0%, var(--ink) 45%, var(--ink-3) 100%);
+ color:var(--text-inv);font-family:var(--sans);min-height:100vh;
+ -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 
-  .deck{display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:100vh;gap:clamp(8px,1.6vh,16px);padding:clamp(10px,2.4vh,26px)}
+ .deck{display:flex;flex-direction:column;align-items:center;justify-content:center;
+ min-height:100vh;gap:clamp(8px,1.6vh,16px);padding:clamp(10px,2.4vh,26px)}
 
-  .stage{position:relative;width:min(94vw, calc((100vh - 150px) * (16/9)));
-    aspect-ratio:16/9;container-type:size;border-radius:8px;overflow:hidden;
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7), 0 0 0 1px var(--line-inv);
-    background:var(--paper)}
+ .stage{position:relative;width:min(94vw, calc((100vh - 150px) * (16/9)));
+ aspect-ratio:16/9;container-type:size;border-radius:8px;overflow:hidden;
+ box-shadow:0 30px 80px -30px rgba(0,0,0,.7), 0 0 0 1px var(--line-inv);
+ background:var(--paper)}
 
-  .slide{position:absolute;inset:0;opacity:0;visibility:hidden;
-    transform:translateY(10px);transition:opacity .5s ease, transform .5s ease;
-    padding:6.2cqh 6.4cqw;display:flex;flex-direction:column}
-  .slide.active{opacity:1;visibility:visible;transform:none}
+ .slide{position:absolute;inset:0;opacity:0;visibility:hidden;
+ transform:translateY(10px);transition:opacity .5s ease, transform .5s ease;
+ padding:6.2cqh 6.4cqw;display:flex;flex-direction:column}
+ .slide.active{opacity:1;visibility:visible;transform:none}
 
-  /* ---- framing slides (dark ink ground) ---- */
-  .slide.dark{background:
-      radial-gradient(130% 120% at 12% 8%, var(--ink-2) 0%, var(--ink) 52%, var(--ink-3) 100%);
-      color:var(--text-inv)}
-  .slide.dark .eyebrow{color:var(--accent-ink)}
-  .slide.dark .rule{background:var(--line-inv)}
+ /* ---- framing slides (dark ink ground) ---- */
+ .slide.dark{background:
+ radial-gradient(130% 120% at 12% 8%, var(--ink-2) 0%, var(--ink) 52%, var(--ink-3) 100%);
+ color:var(--text-inv)}
+ .slide.dark .eyebrow{color:var(--accent-ink)}
+ .slide.dark .rule{background:var(--line-inv)}
 
-  /* ---- paper slides (stone ground) ---- */
-  .slide.paper{background:
-      linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);color:var(--text)}
+ /* ---- paper slides (stone ground) ---- */
+ .slide.paper{background:
+ linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);color:var(--text)}
 
-  .eyebrow{font-family:var(--mono);font-size:1.55cqi;letter-spacing:.34em;
-    text-transform:uppercase;color:var(--accent-paper);font-weight:600}
+ .eyebrow{font-family:var(--mono);font-size:1.55cqi;letter-spacing:.34em;
+ text-transform:uppercase;color:var(--accent-paper);font-weight:600}
 
-  h1{font-family:var(--serif);font-weight:600;margin:0;line-height:1.02;
-    letter-spacing:-.01em;text-wrap:balance}
-  h2{font-family:var(--serif);font-weight:600;margin:0;line-height:1.05;
-    letter-spacing:-.005em;text-wrap:balance}
-  p{margin:0}
+ h1{font-family:var(--serif);font-weight:600;margin:0;line-height:1.02;
+ letter-spacing:-.01em;text-wrap:balance}
+ h2{font-family:var(--serif);font-weight:600;margin:0;line-height:1.05;
+ letter-spacing:-.005em;text-wrap:balance}
+ p{margin:0}
 
-  /* ===== TITLE SLIDE ===== */
-  .title-wrap{margin:auto 0;display:flex;flex-direction:column;gap:3.4cqh}
-  .title-wrap h1{font-size:8.4cqi;max-width:16ch}
-  .title-lead{font-size:2.5cqi;line-height:1.4;color:var(--muted-inv);max-width:42ch;font-weight:400}
-  .title-meta{display:flex;align-items:baseline;gap:2.4cqw;flex-wrap:wrap;
-    padding-top:2.6cqh;border-top:1px solid var(--line-inv);font-size:1.9cqi}
-  .title-meta .name{font-family:var(--serif);font-size:2.7cqi;color:var(--text-inv);font-weight:600}
-  .title-meta .sep{color:var(--accent-ink)}
-  .title-meta .muted{color:var(--muted-inv)}
-  .paper-count{display:flex;gap:1.1cqw;margin-top:.4cqh}
-  .paper-count span{font-family:var(--mono);font-size:1.4cqi;letter-spacing:.12em;
-    text-transform:uppercase;color:var(--muted-inv);padding:.7cqh 1.2cqw;
-    border:1px solid var(--line-inv);border-radius:100px}
+ /* ===== TITLE SLIDE ===== */
+ .title-wrap{margin:auto 0;display:flex;flex-direction:column;gap:3.4cqh}
+ .title-wrap h1{font-size:8.4cqi;max-width:16ch}
+ .title-lead{font-size:2.5cqi;line-height:1.4;color:var(--muted-inv);max-width:42ch;font-weight:400}
+ .title-meta{display:flex;align-items:baseline;gap:2.4cqw;flex-wrap:wrap;
+ padding-top:2.6cqh;border-top:1px solid var(--line-inv);font-size:1.9cqi}
+ .title-meta .name{font-family:var(--serif);font-size:2.7cqi;color:var(--text-inv);font-weight:600}
+ .title-meta .sep{color:var(--accent-ink)}
+ .title-meta .muted{color:var(--muted-inv)}
+ .paper-count{display:flex;gap:1.1cqw;margin-top:.4cqh}
+ .paper-count span{font-family:var(--mono);font-size:1.4cqi;letter-spacing:.12em;
+ text-transform:uppercase;color:var(--muted-inv);padding:.7cqh 1.2cqw;
+ border:1px solid var(--line-inv);border-radius:100px}
 
-  /* ===== THROUGH-LINE SLIDE ===== */
-  .head-row{display:flex;flex-direction:column;gap:1.5cqh;margin-bottom:3.4cqh}
-  .head-row h2{font-size:5.4cqi;max-width:20ch}
-  .thesis{font-size:2.35cqi;line-height:1.45;color:var(--muted-inv);max-width:52ch;font-weight:400}
-  .thesis em{color:var(--text-inv);font-style:italic}
-  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:2.6cqw;margin-top:auto}
-  .pillar{border-top:2px solid var(--accent-ink);padding-top:2cqh;display:flex;
-    flex-direction:column;gap:1.3cqh}
-  .pillar .pk{font-family:var(--mono);font-size:1.45cqi;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--accent-ink)}
-  .pillar h3{font-family:var(--serif);font-weight:600;font-size:2.5cqi;margin:0;line-height:1.1}
-  .pillar p{font-size:1.7cqi;line-height:1.42;color:var(--muted-inv)}
-  .pillar .tags{display:flex;flex-wrap:wrap;gap:.7cqw;margin-top:auto}
-  .pillar .tags span{font-size:1.35cqi;color:var(--text-inv);opacity:.8;
-    border:1px solid var(--line-inv);border-radius:4px;padding:.5cqh .9cqw}
+ /* ===== THROUGH-LINE SLIDE ===== */
+ .head-row{display:flex;flex-direction:column;gap:1.5cqh;margin-bottom:3.4cqh}
+ .head-row h2{font-size:5.4cqi;max-width:20ch}
+ .thesis{font-size:2.35cqi;line-height:1.45;color:var(--muted-inv);max-width:52ch;font-weight:400}
+ .thesis em{color:var(--text-inv);font-style:italic}
+ .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:2.6cqw;margin-top:auto}
+ .pillar{border-top:2px solid var(--accent-ink);padding-top:2cqh;display:flex;
+ flex-direction:column;gap:1.3cqh}
+ .pillar .pk{font-family:var(--mono);font-size:1.45cqi;letter-spacing:.2em;
+ text-transform:uppercase;color:var(--accent-ink)}
+ .pillar h3{font-family:var(--serif);font-weight:600;font-size:2.5cqi;margin:0;line-height:1.1}
+ .pillar p{font-size:1.7cqi;line-height:1.42;color:var(--muted-inv)}
+ .pillar .tags{display:flex;flex-wrap:wrap;gap:.7cqw;margin-top:auto}
+ .pillar .tags span{font-size:1.35cqi;color:var(--text-inv);opacity:.8;
+ border:1px solid var(--line-inv);border-radius:4px;padding:.5cqh .9cqw}
 
-  /* ===== PAPER SLIDES ===== */
-  .paper .top{display:flex;align-items:flex-start;justify-content:space-between;gap:3cqw}
-  .numeral{font-family:var(--serif);font-size:3.1cqi;font-weight:700;color:var(--pc);
-    line-height:.9;font-style:italic}
-  .topic{display:flex;flex-direction:column;gap:.6cqh}
-  .topic .eyebrow{color:var(--pc)}
-  .topic .venue{font-size:1.55cqi;color:var(--muted)}
-  .badge{font-family:var(--mono);font-size:1.35cqi;letter-spacing:.12em;text-transform:uppercase;
-    font-weight:600;padding:.85cqh 1.4cqw;border-radius:100px;white-space:nowrap;
-    color:var(--pc);background:color-mix(in srgb, var(--pc) 12%, transparent);
-    border:1px solid color-mix(in srgb, var(--pc) 34%, transparent)}
-  .paper h2{font-size:4.1cqi;max-width:26ch;margin-top:2.6cqh}
-  .question{font-size:2.15cqi;line-height:1.4;color:var(--text);max-width:50ch;
-    margin-top:1.7cqh;font-family:var(--serif);font-style:italic}
+ /* ===== PAPER SLIDES ===== */
+ .paper .top{display:flex;align-items:flex-start;justify-content:space-between;gap:3cqw}
+ .numeral{font-family:var(--serif);font-size:3.1cqi;font-weight:700;color:var(--pc);
+ line-height:.9;font-style:italic}
+ .topic{display:flex;flex-direction:column;gap:.6cqh}
+ .topic .eyebrow{color:var(--pc)}
+ .topic .venue{font-size:1.55cqi;color:var(--muted)}
+ .badge{font-family:var(--mono);font-size:1.35cqi;letter-spacing:.12em;text-transform:uppercase;
+ font-weight:600;padding:.85cqh 1.4cqw;border-radius:100px;white-space:nowrap;
+ color:var(--pc);background:color-mix(in srgb, var(--pc) 12%, transparent);
+ border:1px solid color-mix(in srgb, var(--pc) 34%, transparent)}
+ .paper h2{font-size:4.1cqi;max-width:26ch;margin-top:2.6cqh}
+ .question{font-size:2.15cqi;line-height:1.4;color:var(--text);max-width:50ch;
+ margin-top:1.7cqh;font-family:var(--serif);font-style:italic}
 
-  .stat-band{display:flex;gap:4cqw;align-items:flex-end;margin:auto 0;padding:1.2cqh 0}
-  .stat{display:flex;flex-direction:column;gap:.7cqh}
-  .stat .fig{font-family:var(--serif);font-weight:700;font-size:9.4cqi;line-height:.82;
-    color:var(--pc);letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;
-    align-items:baseline;gap:.15em}
-  .stat .fig .unit{font-size:.42em;font-weight:600;color:var(--pc);opacity:.85}
-  .stat .fig .arrow{font-size:.6em;color:var(--muted);font-weight:400;margin:0 .06em}
-  .stat .cap{font-size:1.6cqi;line-height:1.35;color:var(--muted);max-width:26ch}
-  .stat-divide{width:1px;align-self:stretch;background:var(--line);margin:1cqh 0}
+ .stat-band{display:flex;gap:4cqw;align-items:flex-end;margin:auto 0;padding:1.2cqh 0}
+ .stat{display:flex;flex-direction:column;gap:.7cqh}
+ .stat .fig{font-family:var(--serif);font-weight:700;font-size:9.4cqi;line-height:.82;
+ color:var(--pc);letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;
+ align-items:baseline;gap:.15em}
+ .stat .fig .unit{font-size:.42em;font-weight:600;color:var(--pc);opacity:.85}
+ .stat .fig .arrow{font-size:.6em;color:var(--muted);font-weight:400;margin:0 .06em}
+ .stat .cap{font-size:1.6cqi;line-height:1.35;color:var(--muted);max-width:26ch}
+ .stat-divide{width:1px;align-self:stretch;background:var(--line);margin:1cqh 0}
 
-  .foot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3cqw;
-    padding-top:2.2cqh;border-top:1px solid var(--line);margin-top:auto}
-  .foot .col{display:flex;flex-direction:column;gap:.8cqh}
-  .foot .fl{font-family:var(--mono);font-size:1.3cqi;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--pc);font-weight:600}
-  .foot .ft{font-size:1.62cqi;line-height:1.4;color:var(--text)}
-  .foot .ft b{font-weight:700}
-  .scoped{margin-top:1.7cqh;font-size:1.45cqi;line-height:1.4;color:var(--muted);
-    font-style:italic;display:flex;gap:.8cqw;align-items:baseline}
-  .scoped .lab{font-family:var(--mono);font-style:normal;font-size:1.25cqi;letter-spacing:.16em;
-    text-transform:uppercase;color:var(--pc);flex:none}
+ .foot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3cqw;
+ padding-top:2.2cqh;border-top:1px solid var(--line);margin-top:auto}
+ .foot .col{display:flex;flex-direction:column;gap:.8cqh}
+ .foot .fl{font-family:var(--mono);font-size:1.3cqi;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--pc);font-weight:600}
+ .foot .ft{font-size:1.62cqi;line-height:1.4;color:var(--text)}
+ .foot .ft b{font-weight:700}
+ .scoped{margin-top:1.7cqh;font-size:1.45cqi;line-height:1.4;color:var(--muted);
+ font-style:italic;display:flex;gap:.8cqw;align-items:baseline}
+ .scoped .lab{font-family:var(--mono);font-style:normal;font-size:1.25cqi;letter-spacing:.16em;
+ text-transform:uppercase;color:var(--pc);flex:none}
 
-  /* per-paper hues (overview + detail slides) */
-  .paper.t1{--pc:#2F6A5C} .paper.t2{--pc:#9A6712} .paper.t3{--pc:#9E4A34}
-  .paper.t5{--pc:#3F5E86}
-  .paper.t4{--pc:#575277}
+ /* per-paper hues (overview + detail slides) */
+ .paper.t1{--pc:#2F6A5C} .paper.t2{--pc:#9A6712} .paper.t3{--pc:#9E4A34}
+ .paper.t5{--pc:#3F5E86}
+ .paper.t4{--pc:#575277}
 
-  /* detail slides */
-  .dgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:2cqh 3.2cqw;margin-top:2.6cqh}
-  .dcell{display:flex;flex-direction:column;gap:.9cqh;min-width:0}
-  .dcell .dl{font-family:var(--mono);font-size:1.3cqi;letter-spacing:.2em;text-transform:uppercase;color:var(--pc);font-weight:600}
-  .dcell p{font-size:1.55cqi;line-height:1.4;margin:0;color:var(--text)}
-  .dcell ul{margin:0;padding-left:1.15em;display:flex;flex-direction:column;gap:.5cqh}
-  .dcell li{font-size:1.5cqi;line-height:1.34}
-  .dcell li b{font-variant-numeric:tabular-nums}
+ /* detail slides */
+ .dgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:2cqh 3.2cqw;margin-top:2.6cqh}
+ .dcell{display:flex;flex-direction:column;gap:.9cqh;min-width:0}
+ .dcell .dl{font-family:var(--mono);font-size:1.3cqi;letter-spacing:.2em;text-transform:uppercase;color:var(--pc);font-weight:600}
+ .dcell p{font-size:1.55cqi;line-height:1.4;margin:0;color:var(--text)}
+ .dcell ul{margin:0;padding-left:1.15em;display:flex;flex-direction:column;gap:.5cqh}
+ .dcell li{font-size:1.5cqi;line-height:1.34}
+ .dcell li b{font-variant-numeric:tabular-nums}
 
-  /* ===== CLOSING ===== */
-  .close-wrap{margin:auto 0;display:flex;flex-direction:column;gap:3cqh}
-  .close-wrap h2{font-size:5.6cqi;max-width:18ch}
-  .close-lead{font-size:2.3cqi;line-height:1.46;color:var(--muted-inv);max-width:50ch;font-weight:400}
-  .close-lead em{color:var(--text-inv);font-style:italic}
-  .signature{font-family:var(--serif);font-style:italic;font-size:2.7cqi;line-height:1.3;
-    color:var(--accent-ink);max-width:40ch;padding-left:2cqw;border-left:2px solid var(--accent-ink)}
-  .close-meta{display:flex;gap:2.2cqw;flex-wrap:wrap;padding-top:2.4cqh;
-    border-top:1px solid var(--line-inv);font-size:1.75cqi;color:var(--muted-inv)}
-  .close-meta a{color:var(--text-inv);text-decoration:none;border-bottom:1px solid var(--accent-ink)}
+ /* ===== CLOSING ===== */
+ .close-wrap{margin:auto 0;display:flex;flex-direction:column;gap:3cqh}
+ .close-wrap h2{font-size:5.6cqi;max-width:18ch}
+ .close-lead{font-size:2.3cqi;line-height:1.46;color:var(--muted-inv);max-width:50ch;font-weight:400}
+ .close-lead em{color:var(--text-inv);font-style:italic}
+ .signature{font-family:var(--serif);font-style:italic;font-size:2.7cqi;line-height:1.3;
+ color:var(--accent-ink);max-width:40ch;padding-left:2cqw;border-left:2px solid var(--accent-ink)}
+ .close-meta{display:flex;gap:2.2cqw;flex-wrap:wrap;padding-top:2.4cqh;
+ border-top:1px solid var(--line-inv);font-size:1.75cqi;color:var(--muted-inv)}
+ .close-meta a{color:var(--text-inv);text-decoration:none;border-bottom:1px solid var(--accent-ink)}
 
-  /* ===== deck chrome ===== */
-  .controls{display:flex;align-items:center;gap:16px;color:var(--muted-inv);
-    font-family:var(--mono);font-size:12px;letter-spacing:.08em}
-  .navbtn{background:rgba(236,234,223,.05);border:1px solid var(--line-inv);color:var(--text-inv);
-    width:40px;height:40px;border-radius:100px;cursor:pointer;font-size:16px;display:grid;
-    place-items:center;transition:background .2s,border-color .2s,transform .15s}
-  .navbtn:hover{background:rgba(224,166,62,.14);border-color:var(--accent-ink)}
-  .navbtn:active{transform:scale(.93)}
-  .navbtn:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
-  .dots{display:flex;gap:9px}
-  .dot{width:9px;height:9px;border-radius:100px;border:1px solid var(--line-inv);
-    background:transparent;cursor:pointer;padding:0;transition:background .2s,transform .2s,border-color .2s}
-  .dot:hover{border-color:var(--accent-ink)}
-  .dot.on{background:var(--accent-ink);border-color:var(--accent-ink);transform:scale(1.15)}
-  .dot:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
-  .counter{min-width:58px;text-align:center;color:var(--text-inv)}
-  .counter .tot{color:var(--muted-inv)}
-  .notesbtn{margin-left:6px;background:transparent;border:1px solid var(--line-inv);
-    color:var(--muted-inv);border-radius:100px;padding:9px 15px;cursor:pointer;
-    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-    transition:color .2s,border-color .2s,background .2s}
-  .notesbtn:hover{color:var(--text-inv);border-color:var(--accent-ink)}
-  .notesbtn.on{color:var(--ink);background:var(--accent-ink);border-color:var(--accent-ink)}
-  .notesbtn:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+ /* ===== deck chrome ===== */
+ .controls{display:flex;align-items:center;gap:16px;color:var(--muted-inv);
+ font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+ .navbtn{background:rgba(236,234,223,.05);border:1px solid var(--line-inv);color:var(--text-inv);
+ width:40px;height:40px;border-radius:100px;cursor:pointer;font-size:16px;display:grid;
+ place-items:center;transition:background .2s,border-color .2s,transform .15s}
+ .navbtn:hover{background:rgba(224,166,62,.14);border-color:var(--accent-ink)}
+ .navbtn:active{transform:scale(.93)}
+ .navbtn:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+ .dots{display:flex;gap:9px}
+ .dot{width:9px;height:9px;border-radius:100px;border:1px solid var(--line-inv);
+ background:transparent;cursor:pointer;padding:0;transition:background .2s,transform .2s,border-color .2s}
+ .dot:hover{border-color:var(--accent-ink)}
+ .dot.on{background:var(--accent-ink);border-color:var(--accent-ink);transform:scale(1.15)}
+ .dot:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+ .counter{min-width:58px;text-align:center;color:var(--text-inv)}
+ .counter .tot{color:var(--muted-inv)}
+ .notesbtn{margin-left:6px;background:transparent;border:1px solid var(--line-inv);
+ color:var(--muted-inv);border-radius:100px;padding:9px 15px;cursor:pointer;
+ font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+ transition:color .2s,border-color .2s,background .2s}
+ .notesbtn:hover{color:var(--text-inv);border-color:var(--accent-ink)}
+ .notesbtn.on{color:var(--ink);background:var(--accent-ink);border-color:var(--accent-ink)}
+ .notesbtn:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
 
-  .notes{width:min(94vw, calc((100vh - 150px) * (16/9)));max-height:0;overflow:hidden;
-    transition:max-height .35s ease;background:rgba(12,36,32,.6);border-radius:8px}
-  .notes.open{max-height:26vh;border:1px solid var(--line-inv)}
-  .notes-inner{padding:16px 22px}
-  .notes-inner .nh{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--accent-ink);margin-bottom:10px}
-  .notes-inner ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
-  .notes-inner li{font-size:14px;line-height:1.5;color:var(--text-inv)}
-  .notes-inner li::marker{color:var(--accent-ink)}
+ .notes{width:min(94vw, calc((100vh - 150px) * (16/9)));max-height:0;overflow:hidden;
+ transition:max-height .35s ease;background:rgba(12,36,32,.6);border-radius:8px}
+ .notes.open{max-height:26vh;border:1px solid var(--line-inv)}
+ .notes-inner{padding:16px 22px}
+ .notes-inner .nh{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+ color:var(--accent-ink);margin-bottom:10px}
+ .notes-inner ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
+ .notes-inner li{font-size:14px;line-height:1.5;color:var(--text-inv)}
+ .notes-inner li::marker{color:var(--accent-ink)}
 
-  .hint{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted-inv);opacity:.65}
-  .hint b{color:var(--text-inv);font-weight:400}
+ .hint{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted-inv);opacity:.65}
+ .hint b{color:var(--text-inv);font-weight:400}
 
-  @media (prefers-reduced-motion: reduce){
-    .slide{transition:opacity .01s}
-    .notes{transition:none}
-    *{scroll-behavior:auto}
-  }
+ @media (prefers-reduced-motion: reduce){
+ .slide{transition:opacity .01s}
+ .notes{transition:none}
+ *{scroll-behavior:auto}
+ }
 </style>
 
 <div class="deck">
-  <div class="stage" id="stage">
+ <div class="stage" id="stage">
 
-    <!-- 1 · TITLE -->
-    <section class="slide dark active">
-      <div class="title-wrap">
-        <div class="eyebrow">Research Portfolio</div>
-        <h1>AI, Equity, and the Statistics Classroom</h1>
-        <p class="title-lead">Four studies on how instruction, technology, and policy shape
-          <em>who succeeds</em> in college mathematics, and a discipline of saying plainly
-          where each claim stops.</p>
-        <div class="title-meta">
-          <span class="name">Safaa Dabagh</span>
-          <span class="sep">/</span>
-          <span class="muted">MA in Statistics &middot; Mathematics &amp; Statistics Instructor</span>
-        </div>
-        <div class="paper-count">
-          <span>2 under review</span>
-          <span>2 preprints</span>
-        </div>
-      </div>
-    </section>
+ <!-- 1 · TITLE -->
+ <section class="slide dark active">
+ <div class="title-wrap">
+ <div class="eyebrow">Research Portfolio</div>
+ <h1>AI, Equity, and the Statistics Classroom</h1>
+ <p class="title-lead">Four studies on how instruction, technology, and policy shape
+ <em>who succeeds</em> in college mathematics, and a discipline of saying plainly
+ where each claim stops.</p>
+ <div class="title-meta">
+ <span class="name">Safaa Dabagh</span>
+ <span class="sep">/</span>
+ <span class="muted">MA in Statistics &middot; Mathematics &amp; Statistics Instructor</span>
+ </div>
+ <div class="paper-count">
+ <span>2 under review</span>
+ <span>2 preprints</span>
+ </div>
+ </div>
+ </section>
 
-    <!-- 2 · THROUGH-LINE -->
-    <section class="slide dark">
-      <div class="head-row">
-        <div class="eyebrow">The Through-Line</div>
-        <h2>One question, studied from four angles</h2>
-        <p class="thesis">I study how <em>instructional design, technology, and policy</em> move
-          student outcomes, especially for the students community colleges serve,
-          using methods matched to the data and <em>every claim scoped to what its design can support.</em></p>
-      </div>
-      <div class="pillars">
-        <div class="pillar">
-          <span class="pk">Pillar 01</span>
-          <h3>AI as an instructor&rsquo;s tool</h3>
-          <p>Not a student shortcut, a way to raise the design of teaching and assessment.</p>
-          <div class="tags"><span>Bloom&rsquo;s analysis</span><span>Distributional effects</span></div>
-        </div>
-        <div class="pillar">
-          <span class="pk">Pillar 02</span>
-          <h3>Equity &amp; outcomes</h3>
-          <p>Who moves, and where in the distribution, not just the average.</p>
-          <div class="tags"><span>Placement reform</span><span>The floor effect</span></div>
-        </div>
-        <div class="pillar">
-          <span class="pk">Pillar 03</span>
-          <h3>Methodological range</h3>
-          <p>Count models, panels, regularization, and honest ecological limits.</p>
-          <div class="tags"><span>Negative-binomial panel</span></div>
-        </div>
-      </div>
-    </section>
+ <!-- 2 · THROUGH-LINE -->
+ <section class="slide dark">
+ <div class="head-row">
+ <div class="eyebrow">The Through-Line</div>
+ <h2>One question, studied from four angles</h2>
+ <p class="thesis">I study how <em>instructional design, technology, and policy</em> move
+ student outcomes, especially for the students community colleges serve,
+ using methods matched to the data and <em>every claim scoped to what its design can support.</em></p>
+ </div>
+ <div class="pillars">
+ <div class="pillar">
+ <span class="pk">Pillar 01</span>
+ <h3>AI as an instructor&rsquo;s tool</h3>
+ <p>Not a student shortcut, a way to raise the design of teaching and assessment.</p>
+ <div class="tags"><span>Bloom&rsquo;s analysis</span><span>Distributional effects</span></div>
+ </div>
+ <div class="pillar">
+ <span class="pk">Pillar 02</span>
+ <h3>Equity &amp; outcomes</h3>
+ <p>Who moves, and where in the distribution, not just the average.</p>
+ <div class="tags"><span>Placement reform</span><span>The floor effect</span></div>
+ </div>
+ <div class="pillar">
+ <span class="pk">Pillar 03</span>
+ <h3>Methodological range</h3>
+ <p>Count models, panels, regularization, and honest ecological limits.</p>
+ <div class="tags"><span>Negative-binomial panel</span></div>
+ </div>
+ </div>
+ </section>
 
-    <!-- 3 · PAPER I -->
-    <section class="slide paper t1">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">I</span>
-          <div class="topic">
-            <span class="eyebrow">Placement &amp; Equity</span>
-            <span class="venue">Community College Review (SAGE)</span>
-          </div>
-        </div>
-        <span class="badge">Under Review</span>
-      </div>
-      <h2>Rising Success, Persistent Gaps</h2>
-      <p class="question">When California placed students directly into transfer-level statistics,
-        did outcomes rise or fall, and did they improve equitably across groups?</p>
-      <div class="stat-band">
-        <div class="stat">
-          <span class="fig">42<span class="arrow">&rarr;</span>69<span class="unit">%</span></span>
-          <span class="cap">Course success across the reform era, 2018&ndash;2025 (&rho;&nbsp;=&nbsp;0.61)</span>
-        </div>
-        <div class="stat-divide"></div>
-        <div class="stat">
-          <span class="fig">24<span class="unit">pt</span></span>
-          <span class="cap">White&ndash;Latinx success gap that held steady throughout</span>
-        </div>
-      </div>
-      <div class="foot">
-        <div class="col"><span class="fl">Method</span><p class="ft">867 enrollments, 17 semesters, one instructor held constant; logistic trend with semester-clustered SEs.</p></div>
-        <div class="col"><span class="fl">Key finding</span><p class="ft">Success rose for <b>every</b> racial/ethnic group, but broadened access alone did not close the gap.</p></div>
-        <div class="col"><span class="fl">Why it matters</span><p class="ft">Direct, student-level evidence in a policy debate usually fought with aggregate numbers.</p></div>
-      </div>
-      <p class="scoped"><span class="lab">Scoped as</span> Correlational, a single-instructor design cannot separate the reform from the instructor&rsquo;s own growth over the same years.</p>
-    </section>
+ <!-- 3 · PAPER I -->
+ <section class="slide paper t1">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">I</span>
+ <div class="topic">
+ <span class="eyebrow">Placement &amp; Equity</span>
+ <span class="venue">Community College Review (SAGE)</span>
+ </div>
+ </div>
+ <span class="badge">Under Review</span>
+ </div>
+ <h2>Rising Success, Persistent Gaps</h2>
+ <p class="question">When California placed students directly into transfer-level statistics,
+ did outcomes rise or fall, and did they improve equitably across groups?</p>
+ <div class="stat-band">
+ <div class="stat">
+ <span class="fig">42<span class="arrow">&rarr;</span>69<span class="unit">%</span></span>
+ <span class="cap">Course success across the reform era, 2018 to 2025 (&rho;&nbsp;=&nbsp;0.61)</span>
+ </div>
+ <div class="stat-divide"></div>
+ <div class="stat">
+ <span class="fig">24<span class="unit">pt</span></span>
+ <span class="cap">White and Latinx success gap that held steady throughout</span>
+ </div>
+ </div>
+ <div class="foot">
+ <div class="col"><span class="fl">Method</span><p class="ft">867 enrollments, 17 semesters, one instructor held constant; logistic trend with semester-clustered SEs.</p></div>
+ <div class="col"><span class="fl">Key finding</span><p class="ft">Success rose for <b>every</b> racial/ethnic group, but broadened access alone did not close the gap.</p></div>
+ <div class="col"><span class="fl">Why it matters</span><p class="ft">Direct, student-level evidence in a policy debate usually fought with aggregate numbers.</p></div>
+ </div>
+ <p class="scoped"><span class="lab">Scoped as</span> Correlational, a single-instructor design cannot separate the reform from the instructor&rsquo;s own growth over the same years.</p>
+ </section>
 
-    <!-- 3b · PAPER I DETAIL -->
-    <section class="slide paper t1">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">I</span>
-          <div class="topic"><span class="eyebrow">Placement &amp; Equity &middot; In detail</span>
-            <span class="venue">Rising Success, Persistent Gaps</span></div>
-        </div>
-        <span class="badge">Under Review</span>
-      </div>
-      <div class="dgrid">
-        <div class="dcell"><span class="dl">Key results</span><ul>
-          <li>Success <b>42% &rarr; 69%</b> across eras (pre 42 &rarr; AB705 49 &rarr; post 59 &rarr; AB1705 69)</li>
-          <li>Odds of passing <b>+10%/semester</b> (OR 1.10, CI [1.07, 1.13]); Spearman <b>&rho;&nbsp;=&nbsp;0.61</b></li>
-          <li>Every group rose: White 69&rarr;84, Latinx 44&rarr;61, Black 27&rarr;62, Asian 61&rarr;73%</li>
-          <li>White&ndash;Latinx gap held <b>~24 pts</b></li>
-        </ul></div>
-        <div class="dcell"><span class="dl">Design &amp; data</span><ul>
-          <li>867 enrollments, 852 students, 17 semesters, one instructor</li>
-          <li>Enrollment-level logistic regression, semester-clustered SEs; rank trend</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">What it shows</span><p>Direct placement was associated with <em>rising, not eroding,</em> success, but access alone did not close racial gaps.</p></div>
-        <div class="dcell"><span class="dl">Limitation</span><p>Single-instructor design, correlational; it cannot separate the reforms from the instructor's own growth.</p></div>
-      </div>
-    </section>
+ <!-- 3b · PAPER I DETAIL -->
+ <section class="slide paper t1">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">I</span>
+ <div class="topic"><span class="eyebrow">Placement &amp; Equity &middot; In detail</span>
+ <span class="venue">Rising Success, Persistent Gaps</span></div>
+ </div>
+ <span class="badge">Under Review</span>
+ </div>
+ <div class="dgrid">
+ <div class="dcell"><span class="dl">Key results</span><ul>
+ <li>Success <b>42% &rarr; 69%</b> across eras (pre 42 &rarr; AB705 49 &rarr; post 59 &rarr; AB1705 69)</li>
+ <li>Odds of passing <b>+10%/semester</b> (OR 1.10, CI [1.07, 1.13]); Spearman <b>&rho;&nbsp;=&nbsp;0.61</b></li>
+ <li>Every group rose: White 69&rarr;84, Latinx 44&rarr;61, Black 27&rarr;62, Asian 61&rarr;73%</li>
+ <li>White and Latinx gap held <b>~24 pts</b></li>
+ </ul></div>
+ <div class="dcell"><span class="dl">Design &amp; data</span><ul>
+ <li>867 enrollments, 852 students, 17 semesters, one instructor</li>
+ <li>Enrollment-level logistic regression, semester-clustered SEs; rank trend</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">What it shows</span><p>Direct placement was associated with <em>rising, not eroding,</em> success, but access alone did not close racial gaps.</p></div>
+ <div class="dcell"><span class="dl">Limitation</span><p>Single-instructor design, correlational; it cannot separate the reforms from the instructor's own growth.</p></div>
+ </div>
+ </section>
 
-    <!-- 4 · PAPER II -->
-    <section class="slide paper t2">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">II</span>
-          <div class="topic">
-            <span class="eyebrow">AI in Teaching</span>
-            <span class="venue">Teaching Statistics</span>
-          </div>
-        </div>
-        <span class="badge">Revise &amp; Resubmit</span>
-      </div>
-      <h2>AI-Assisted Assessment Design</h2>
-      <p class="question">Does designing exams with AI change the <em>cognitive demand</em> of what
-        we ask students, and if so, in which direction?</p>
-      <div class="stat-band">
-        <div class="stat">
-          <span class="fig">18<span class="arrow">&rarr;</span>48<span class="unit">%</span></span>
-          <span class="cap">Higher-order (Analyse-level) items on the statistics final, with no drop in student performance</span>
-        </div>
-        <div class="stat-divide"></div>
-        <div class="stat">
-          <span class="fig">+30<span class="unit">pt</span></span>
-          <span class="cap">Shift toward reasoning over procedure, on a matched pre-AI vs. AI-assisted exam</span>
-        </div>
-      </div>
-      <div class="foot">
-        <div class="col"><span class="fl">Method</span><p class="ft">Bloom&rsquo;s revised taxonomy; matched finals coded item-by-item across two courses, same instructor.</p></div>
-        <div class="col"><span class="fl">Key finding</span><p class="ft">AI raised reasoning demand in statistics and added scaffolding in algebra (mean <b>61.8&rarr;78.7%</b>).</p></div>
-        <div class="col"><span class="fl">The framing</span><p class="ft">AI as <b>amplification</b>, acting on design intentions time had made impractical, not replacing judgment.</p></div>
-      </div>
-      <p class="scoped"><span class="lab">Replicable</span> The paired-Bloom&rsquo;s method transfers directly to other courses, instructors, and institutions.</p>
-    </section>
+ <!-- 4 · PAPER II -->
+ <section class="slide paper t2">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">II</span>
+ <div class="topic">
+ <span class="eyebrow">AI in Teaching</span>
+ <span class="venue">Teaching Statistics</span>
+ </div>
+ </div>
+ <span class="badge">Revise &amp; Resubmit</span>
+ </div>
+ <h2>AI-Assisted Assessment Design</h2>
+ <p class="question">Does designing exams with AI change the <em>cognitive demand</em> of what
+ we ask students, and if so, in which direction?</p>
+ <div class="stat-band">
+ <div class="stat">
+ <span class="fig">18<span class="arrow">&rarr;</span>48<span class="unit">%</span></span>
+ <span class="cap">Higher-order (Analyse-level) items on the statistics final, with no drop in student performance</span>
+ </div>
+ <div class="stat-divide"></div>
+ <div class="stat">
+ <span class="fig">+30<span class="unit">pt</span></span>
+ <span class="cap">Shift toward reasoning over procedure, on a matched pre-AI vs. AI-assisted exam</span>
+ </div>
+ </div>
+ <div class="foot">
+ <div class="col"><span class="fl">Method</span><p class="ft">Bloom&rsquo;s revised taxonomy; matched finals coded item-by-item across two courses, same instructor.</p></div>
+ <div class="col"><span class="fl">Key finding</span><p class="ft">AI raised reasoning demand in statistics and added scaffolding in algebra (mean <b>61.8&rarr;78.7%</b>).</p></div>
+ <div class="col"><span class="fl">The framing</span><p class="ft">AI as <b>amplification</b>, acting on design intentions time had made impractical, not replacing judgment.</p></div>
+ </div>
+ <p class="scoped"><span class="lab">Replicable</span> The paired-Bloom&rsquo;s method transfers directly to other courses, instructors, and institutions.</p>
+ </section>
 
-    <!-- 4b · PAPER II DETAIL -->
-    <section class="slide paper t2">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">II</span>
-          <div class="topic"><span class="eyebrow">AI in Teaching &middot; In detail</span>
-            <span class="venue">AI-Assisted Assessment Design</span></div>
-        </div>
-        <span class="badge">Revise &amp; Resubmit</span>
-      </div>
-      <div class="dgrid">
-        <div class="dcell"><span class="dl">Key results</span><ul>
-          <li>Statistics: Analyse items <b>18% &rarr; 48%</b> (+30 pts); Apply <b>47% &rarr; 28%</b> (&minus;19)</li>
-          <li>Performance <b>did not decline</b> on the harder exam</li>
-          <li>Three Universal-Design features appeared <b>only</b> in the AI version</li>
-          <li>Algebra: profile stable (85% Apply); mean final <b>61.8% &rarr; 78.7%</b></li>
-        </ul></div>
-        <div class="dcell"><span class="dl">Design &amp; data</span><ul>
-          <li>Bloom's revised taxonomy; matched pre-AI vs. AI-assisted finals, coded item by item</li>
-          <li>Two courses, same instructor (34 vs. 25, and 20 vs. 20 items)</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">What it shows</span><p>AI as an <em>amplification</em> mechanism, it lets instructors act on design intentions time had made impractical, not a replacement for judgment.</p></div>
-        <div class="dcell"><span class="dl">Method contribution</span><p>The paired-Bloom's design is replicable across courses, instructors, and institutions.</p></div>
-      </div>
-    </section>
+ <!-- 4b · PAPER II DETAIL -->
+ <section class="slide paper t2">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">II</span>
+ <div class="topic"><span class="eyebrow">AI in Teaching &middot; In detail</span>
+ <span class="venue">AI-Assisted Assessment Design</span></div>
+ </div>
+ <span class="badge">Revise &amp; Resubmit</span>
+ </div>
+ <div class="dgrid">
+ <div class="dcell"><span class="dl">Key results</span><ul>
+ <li>Statistics: Analyse items <b>18% &rarr; 48%</b> (+30 pts); Apply <b>47% &rarr; 28%</b> (&minus;19)</li>
+ <li>Performance <b>did not decline</b> on the harder exam</li>
+ <li>Three Universal-Design features appeared <b>only</b> in the AI version</li>
+ <li>Algebra: profile stable (85% Apply); mean final <b>61.8% &rarr; 78.7%</b></li>
+ </ul></div>
+ <div class="dcell"><span class="dl">Design &amp; data</span><ul>
+ <li>Bloom's revised taxonomy; matched pre-AI vs. AI-assisted finals, coded item by item</li>
+ <li>Two courses, same instructor (34 vs. 25, and 20 vs. 20 items)</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">What it shows</span><p>AI as an <em>amplification</em> mechanism, it lets instructors act on design intentions time had made impractical, not a replacement for judgment.</p></div>
+ <div class="dcell"><span class="dl">Method contribution</span><p>The paired-Bloom's design is replicable across courses, instructors, and institutions.</p></div>
+ </div>
+ </section>
 
-    <!-- 5 · PAPER III -->
-    <section class="slide paper t3">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">III</span>
-          <div class="topic">
-            <span class="eyebrow">Distributional Effects</span>
-            <span class="venue">EdArXiv preprint</span>
-          </div>
-        </div>
-        <span class="badge">Preprint</span>
-      </div>
-      <h2>Raising the Floor, Holding the Bar</h2>
-      <p class="question">When an instructor redesigns a course with AI, <em>who</em> moves,
-        and <em>where</em> in the grade distribution does the change happen?</p>
-      <div class="stat-band">
-        <div class="stat">
-          <span class="fig">+36<span class="unit">pt</span></span>
-          <span class="cap">Gain at the 10th percentile in algebra, a floor effect, with the top decile unchanged</span>
-        </div>
-        <div class="stat-divide"></div>
-        <div class="stat">
-          <span class="fig">31<span class="arrow">&rarr;</span>5<span class="unit">%</span></span>
-          <span class="cap">Share of failing scores (&lt;50%), after AI-assisted redesign</span>
-        </div>
-      </div>
-      <div class="foot">
-        <div class="col"><span class="fl">Method</span><p class="ft">Official gradebooks (N&nbsp;=&nbsp;106); quantile decomposition; Holm family-wise error control across ten comparisons.</p></div>
-        <div class="col"><span class="fl">Key finding</span><p class="ft"><b>Alignment decides value:</b> AI-designed quizzes aligned to the exam stayed predictive; item-bank quizzes lost it.</p></div>
-        <div class="col"><span class="fl">Why it matters</span><p class="ft">Means hide the students open-access colleges most need to see. Companion to Paper II.</p></div>
-      </div>
-      <p class="scoped"><span class="lab">Discipline</span> Effects reported distributionally and per-course before pooling, a reporting standard this literature still lacks.</p>
-    </section>
+ <!-- 5 · PAPER III -->
+ <section class="slide paper t3">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">III</span>
+ <div class="topic">
+ <span class="eyebrow">Distributional Effects</span>
+ <span class="venue">EdArXiv preprint</span>
+ </div>
+ </div>
+ <span class="badge">Preprint</span>
+ </div>
+ <h2>Raising the Floor, Holding the Bar</h2>
+ <p class="question">When an instructor redesigns a course with AI, <em>who</em> moves,
+ and <em>where</em> in the grade distribution does the change happen?</p>
+ <div class="stat-band">
+ <div class="stat">
+ <span class="fig">+36<span class="unit">pt</span></span>
+ <span class="cap">Gain at the 10th percentile in algebra, a floor effect, with the top decile unchanged</span>
+ </div>
+ <div class="stat-divide"></div>
+ <div class="stat">
+ <span class="fig">31<span class="arrow">&rarr;</span>5<span class="unit">%</span></span>
+ <span class="cap">Share of failing scores (&lt;50%), after AI-assisted redesign</span>
+ </div>
+ </div>
+ <div class="foot">
+ <div class="col"><span class="fl">Method</span><p class="ft">Official gradebooks (N&nbsp;=&nbsp;106); quantile decomposition; Holm family-wise error control across ten comparisons.</p></div>
+ <div class="col"><span class="fl">Key finding</span><p class="ft"><b>Alignment decides value:</b> AI-designed quizzes aligned to the exam stayed predictive; item-bank quizzes lost it.</p></div>
+ <div class="col"><span class="fl">Why it matters</span><p class="ft">Means hide the students open-access colleges most need to see. Companion to Paper II.</p></div>
+ </div>
+ <p class="scoped"><span class="lab">Discipline</span> Effects reported distributionally and per-course before pooling, a reporting standard this literature still lacks.</p>
+ </section>
 
-    <!-- 5b · PAPER III DETAIL -->
-    <section class="slide paper t3">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">III</span>
-          <div class="topic"><span class="eyebrow">Distributional Effects &middot; In detail</span>
-            <span class="venue">Raising the Floor, Holding the Bar</span></div>
-        </div>
-        <span class="badge">Preprint</span>
-      </div>
-      <div class="dgrid">
-        <div class="dcell"><span class="dl">Key results</span><ul>
-          <li>Algebra final <b>+16.9 pts</b> (p&nbsp;=&nbsp;.004, Hedges g&nbsp;=&nbsp;0.75), a floor effect</li>
-          <li>10th percentile <b>22 &rarr; 58</b> (+36); share below 50% <b>31% &rarr; 5%</b>; 90th ~unchanged</li>
-          <li>Statistics: performance maintained on a harder instrument</li>
-          <li>Alignment decides value: AI-aligned quizzes stayed predictive; item-bank quizzes lost it</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">Design &amp; data</span><ul>
-          <li>Official gradebooks, N&nbsp;=&nbsp;106; four sections, two courses</li>
-          <li>Quantile decomposition; Holm across ten comparisons; bootstrap; ANCOVA</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">What it shows</span><p>Means hide who moved; AI-assisted design lifted the lowest performers most, and alignment governs whether formative work stays diagnostic.</p></div>
-        <div class="dcell"><span class="dl">Limitation</span><p>Small cells; unproctored scores inflated toward the ceiling. Reported per course before pooling.</p></div>
-      </div>
-    </section>
+ <!-- 5b · PAPER III DETAIL -->
+ <section class="slide paper t3">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">III</span>
+ <div class="topic"><span class="eyebrow">Distributional Effects &middot; In detail</span>
+ <span class="venue">Raising the Floor, Holding the Bar</span></div>
+ </div>
+ <span class="badge">Preprint</span>
+ </div>
+ <div class="dgrid">
+ <div class="dcell"><span class="dl">Key results</span><ul>
+ <li>Algebra final <b>+16.9 pts</b> (p&nbsp;=&nbsp;.004, Hedges g&nbsp;=&nbsp;0.75), a floor effect</li>
+ <li>10th percentile <b>22 &rarr; 58</b> (+36); share below 50% <b>31% &rarr; 5%</b>; 90th ~unchanged</li>
+ <li>Statistics: performance maintained on a harder instrument</li>
+ <li>Alignment decides value: AI-aligned quizzes stayed predictive; item-bank quizzes lost it</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">Design &amp; data</span><ul>
+ <li>Official gradebooks, N&nbsp;=&nbsp;106; four sections, two courses</li>
+ <li>Quantile decomposition; Holm across ten comparisons; bootstrap; ANCOVA</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">What it shows</span><p>Means hide who moved; AI-assisted design lifted the lowest performers most, and alignment governs whether formative work stays diagnostic.</p></div>
+ <div class="dcell"><span class="dl">Limitation</span><p>Small cells; unproctored scores inflated toward the ceiling. Reported per course before pooling.</p></div>
+ </div>
+ </section>
 
-    <!-- 6 · PAPER IV -->
-    <section class="slide paper t4">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">IV</span>
-          <div class="topic">
-            <span class="eyebrow">Methodological Range</span>
-            <span class="venue">Research Square preprint</span>
-          </div>
-        </div>
-        <span class="badge">Preprint</span>
-      </div>
-      <h2>Disadvantage, Not Policy or Illness</h2>
-      <p class="question">Which state characteristics track mass-shooting rates,
-        gun policy, mental illness, or socioeconomic conditions?</p>
-      <div class="stat-band">
-        <div class="stat">
-          <span class="fig">1.45<span class="unit">IRR</span></span>
-          <span class="cap">Incidence per SD of poverty, the one predictor stable across every specification</span>
-        </div>
-        <div class="stat-divide"></div>
-        <div class="stat">
-          <span class="fig">1.04<span class="unit">IRR</span></span>
-          <span class="cap">Serious mental illness, no association (gun-law strength likewise, 1.11); LASSO kept only disadvantage</span>
-        </div>
-      </div>
-      <div class="foot">
-        <div class="col"><span class="fl">Method</span><p class="ft">50-state panel, 3,783 incidents; negative-binomial with CR2 cluster-robust SEs; LASSO + tree checks.</p></div>
-        <div class="col"><span class="fl">Key finding</span><p class="ft">The post-2020 surge was broad and sustained; its geography tracks <b>disadvantage</b>, not policy or illness.</p></div>
-        <div class="col"><span class="fl">Why it&rsquo;s here</span><p class="ft">Shows range, count models, panel inference, regularization, triangulation.</p></div>
-      </div>
-      <p class="scoped"><span class="lab">Scoped as</span> Ecological and observational, no causal or individual claims; sensitive to the &ldquo;mass shooting&rdquo; definition.</p>
-    </section>
+ <!-- 6 · PAPER IV -->
+ <section class="slide paper t4">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">IV</span>
+ <div class="topic">
+ <span class="eyebrow">Methodological Range</span>
+ <span class="venue">Research Square preprint</span>
+ </div>
+ </div>
+ <span class="badge">Preprint</span>
+ </div>
+ <h2>Disadvantage, Not Policy or Illness</h2>
+ <p class="question">Which state characteristics track mass-shooting rates,
+ gun policy, mental illness, or socioeconomic conditions?</p>
+ <div class="stat-band">
+ <div class="stat">
+ <span class="fig">1.45<span class="unit">IRR</span></span>
+ <span class="cap">Incidence per SD of poverty, the one predictor stable across every specification</span>
+ </div>
+ <div class="stat-divide"></div>
+ <div class="stat">
+ <span class="fig">1.04<span class="unit">IRR</span></span>
+ <span class="cap">Serious mental illness, no association (gun-law strength likewise, 1.11); LASSO kept only disadvantage</span>
+ </div>
+ </div>
+ <div class="foot">
+ <div class="col"><span class="fl">Method</span><p class="ft">50-state panel, 3,783 incidents; negative-binomial with CR2 cluster-robust SEs; LASSO + tree checks.</p></div>
+ <div class="col"><span class="fl">Key finding</span><p class="ft">The post-2020 surge was broad and sustained; its geography tracks <b>disadvantage</b>, not policy or illness.</p></div>
+ <div class="col"><span class="fl">Why it&rsquo;s here</span><p class="ft">Shows range, count models, panel inference, regularization, triangulation.</p></div>
+ </div>
+ <p class="scoped"><span class="lab">Scoped as</span> Ecological and observational, no causal or individual claims; sensitive to the &ldquo;mass shooting&rdquo; definition.</p>
+ </section>
 
-    <!-- 6b · PAPER IV DETAIL -->
-    <section class="slide paper t4">
-      <div class="top">
-        <div style="display:flex;gap:1.8cqw;align-items:flex-start">
-          <span class="numeral">IV</span>
-          <div class="topic"><span class="eyebrow">Methodological Range &middot; In detail</span>
-            <span class="venue">Disadvantage &amp; Mass-Shooting Rates</span></div>
-        </div>
-        <span class="badge">Preprint</span>
-      </div>
-      <div class="dgrid">
-        <div class="dcell"><span class="dl">Key results</span><ul>
-          <li>2021 peak <b>IRR 2.02</b> [1.68&ndash;2.43]; elevated through 2024 (1.55)</li>
-          <li>Poverty <b>IRR 1.45</b> [1.18&ndash;1.79], p&nbsp;=&nbsp;.006; inequality 1.44 (r&nbsp;=&nbsp;0.50)</li>
-          <li>Gun-law 1.11, ownership 1.07, mental illness 1.04, <b>none associated</b></li>
-          <li>LASSO retained <b>only</b> the socioeconomic measures</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">Design &amp; data</span><ul>
-          <li>50-state panel, 350 state-years, 3,783 incidents (GVA, 2018&ndash;2024)</li>
-          <li>Negative-binomial + population offset + year FE + CR2 SEs; LASSO &amp; tree checks</li>
-        </ul></div>
-        <div class="dcell"><span class="dl">What it shows</span><p>The post-2020 surge was broad and sustained, and its geography tracks socioeconomic <em>disadvantage</em>, not gun policy or mental illness.</p></div>
-        <div class="dcell"><span class="dl">Limitation</span><p>Ecological and observational, no causal or individual claims, and sensitive to the &ldquo;mass shooting&rdquo; definition.</p></div>
-      </div>
-    </section>
+ <!-- 6b · PAPER IV DETAIL -->
+ <section class="slide paper t4">
+ <div class="top">
+ <div style="display:flex;gap:1.8cqw;align-items:flex-start">
+ <span class="numeral">IV</span>
+ <div class="topic"><span class="eyebrow">Methodological Range &middot; In detail</span>
+ <span class="venue">Disadvantage &amp; Mass-Shooting Rates</span></div>
+ </div>
+ <span class="badge">Preprint</span>
+ </div>
+ <div class="dgrid">
+ <div class="dcell"><span class="dl">Key results</span><ul>
+ <li>2021 peak <b>IRR 2.02</b> [1.68 to 2.43]; elevated through 2024 (1.55)</li>
+ <li>Poverty <b>IRR 1.45</b> [1.18 to 1.79], p&nbsp;=&nbsp;.006; inequality 1.44 (r&nbsp;=&nbsp;0.50)</li>
+ <li>Gun-law 1.11, ownership 1.07, mental illness 1.04, <b>none associated</b></li>
+ <li>LASSO retained <b>only</b> the socioeconomic measures</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">Design &amp; data</span><ul>
+ <li>50-state panel, 350 state-years, 3,783 incidents (GVA, 2018 to 2024)</li>
+ <li>Negative-binomial + population offset + year FE + CR2 SEs; LASSO &amp; tree checks</li>
+ </ul></div>
+ <div class="dcell"><span class="dl">What it shows</span><p>The post-2020 surge was broad and sustained, and its geography tracks socioeconomic <em>disadvantage</em>, not gun policy or mental illness.</p></div>
+ <div class="dcell"><span class="dl">Limitation</span><p>Ecological and observational, no causal or individual claims, and sensitive to the &ldquo;mass shooting&rdquo; definition.</p></div>
+ </div>
+ </section>
 
-    <!-- 8 · CLOSING -->
-    <section class="slide dark">
-      <div class="close-wrap">
-        <div class="eyebrow">Where This Points</div>
-        <h2>A research program, not four separate papers</h2>
-        <p class="close-lead">Together they make the case: an emerging scholar of <em>AI and equity in
-          postsecondary education</em>, grounded in rigorous quantitative method, and already
-          moving toward doctoral work on AI-powered cognitive scaffolding in statistics education,
-          with data in hand.</p>
-        <p class="signature">&ldquo;I report what the design supports, and I say plainly where it stops.&rdquo;</p>
-        <div class="close-meta">
-          <span>learnwithoutwalls.com</span>
-          <span><a href="mailto:dabagh_safaa@smc.edu">dabagh_safaa@smc.edu</a></span>
-          <span>Safaa Dabagh &middot; 2026</span>
-        </div>
-      </div>
-    </section>
+ <!-- 8 · CLOSING -->
+ <section class="slide dark">
+ <div class="close-wrap">
+ <div class="eyebrow">Where This Points</div>
+ <h2>A research program, not four separate papers</h2>
+ <p class="close-lead">Together they make the case: an emerging scholar of <em>AI and equity in
+ postsecondary education</em>, grounded in rigorous quantitative method, and already
+ moving toward doctoral work on AI-powered cognitive scaffolding in statistics education,
+ with data in hand.</p>
+ <p class="signature">&ldquo;I report what the design supports, and I say plainly where it stops.&rdquo;</p>
+ <div class="close-meta">
+ <span>learnwithoutwalls.com</span>
+ <span><a href="mailto:dabagh_safaa@smc.edu">dabagh_safaa@smc.edu</a></span>
+ <span>Safaa Dabagh &middot; 2026</span>
+ </div>
+ </div>
+ </section>
 
-  </div>
+ </div>
 
-  <div class="controls">
-    <button class="navbtn" id="prev" aria-label="Previous slide">&#8249;</button>
-    <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
-    <button class="navbtn" id="next" aria-label="Next slide">&#8250;</button>
-    <span class="counter"><span id="cur">1</span><span class="tot"> / 11</span></span>
-    <button class="notesbtn" id="notesToggle" aria-pressed="false">Notes</button>
-  </div>
+ <div class="controls">
+ <button class="navbtn" id="prev" aria-label="Previous slide">&#8249;</button>
+ <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
+ <button class="navbtn" id="next" aria-label="Next slide">&#8250;</button>
+ <span class="counter"><span id="cur">1</span><span class="tot"> / 11</span></span>
+ <button class="notesbtn" id="notesToggle" aria-pressed="false">Notes</button>
+ </div>
 
-  <div class="notes" id="notes"><div class="notes-inner">
-    <div class="nh" id="notesHead">Speaker notes</div>
-    <ul id="notesList"></ul>
-  </div></div>
+ <div class="notes" id="notes"><div class="notes-inner">
+ <div class="nh" id="notesHead">Speaker notes</div>
+ <ul id="notesList"></ul>
+ </div></div>
 
-  <p class="hint"><b>&larr; &rarr;</b> navigate &nbsp;&middot;&nbsp; <b>N</b> notes &nbsp;&middot;&nbsp; click a dot to jump</p>
+ <p class="hint"><b>&larr; &rarr;</b> navigate &nbsp;&middot;&nbsp; <b>N</b> notes &nbsp;&middot;&nbsp; click a dot to jump</p>
 </div>
 
 <script>
 (function(){
-  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
-  var dotsWrap = document.getElementById('dots');
-  var cur = document.getElementById('cur');
-  var notes = document.getElementById('notes');
-  var notesList = document.getElementById('notesList');
-  var notesHead = document.getElementById('notesHead');
-  var notesToggle = document.getElementById('notesToggle');
-  var i = 0, notesOpen = false;
+ var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+ var dotsWrap = document.getElementById('dots');
+ var cur = document.getElementById('cur');
+ var notes = document.getElementById('notes');
+ var notesList = document.getElementById('notesList');
+ var notesHead = document.getElementById('notesHead');
+ var notesToggle = document.getElementById('notesToggle');
+ var i = 0, notesOpen = false;
 
-  var D = String.fromCharCode(8212), AR = String.fromCharCode(8594);  // em-dash & arrow, ASCII source, no mojibake
-  var NOTES = [
-    {h:'Opening', n:[
-      'Lead with the through-line, not the papers: I study who succeeds in college math and statistics, and why.',
-      'Name the discipline early '+D+' I scope every claim to what its design can actually support. That habit is the point.',
-      'Frame the set as one program with four entry points, not a list.']},
-    {h:'The through-line', n:[
-      'Three pillars: AI as an instructor tool, equity in outcomes, and methodological range.',
-      'Note the papers overlap '+D+' Raising the Floor sits in both AI and equity. That is the coherence, not a gap.',
-      'If asked "what ties this together?", this slide is the answer.']},
-    {h:'Paper I '+D+' Rising Success', n:[
-      'The hook: a live policy fight (an 800-signature UC petition) meets student-level data, not aggregates.',
-      'Two honest halves: outcomes rose for everyone, and the racial gap still held. Resist a tidy story.',
-      'Volunteer the limitation before they ask '+D+' single instructor means correlational. That candor is a strength.']},
-    {h:'Paper I '+D+' detail', n:[
-      'The depth slide: walk the era progression (42%'+AR+'69%) and the per-group rises, then land the persistent ~24-pt gap.',
-      'Volunteer the correlational limitation here, unprompted '+D+' single instructor.']},
-    {h:'Paper II '+D+' Bloom\'s', n:[
-      'Key move: AI changed what we ASK students, not just how fast we write it '+D+' reasoning items 18%'+AR+'48%.',
-      'The word to land is amplification '+D+' AI acts on intentions time made impractical; it does not replace judgment.',
-      'Performance did not drop when demand rose '+D+' pre-empt the "harder exam, worse scores?" question.']},
-    {h:'Paper II '+D+' detail', n:[
-      'Lead with the 18%'+AR+'48% Analyse shift and "performance did not decline" '+D+' harder exam, same results.',
-      'The replicable paired-Bloom\'s method is the transferable contribution.']},
-    {h:'Paper III '+D+' Raising the Floor', n:[
-      'The methodological point: means hide who moved. Quantile decomposition surfaces a floor effect.',
-      'Bottom decile +36, failing share 31%'+AR+'5%, top unchanged '+D+' that is equity you can see in the distribution.',
-      'Second finding '+D+' alignment moderates whether formative assessment keeps its diagnostic value. This is the subtle, original bit.']},
-    {h:'Paper III '+D+' detail', n:[
-      'The floor effect in numbers: bottom decile +36, failing share 31%'+AR+'5%, top decile flat.',
-      'Second point: alignment decides whether formative work stays diagnostic '+D+' the subtle finding.']},
-    {h:'Paper IV '+D+' Mass shootings', n:[
-      'Why include it: to show statistical range '+D+' count models, panels, CR2 SEs, LASSO + trees as triangulation.',
-      'The result is a null-that-matters: gun policy and mental illness show no association; disadvantage does.',
-      'Close on the caveat '+D+' ecological, no causal claims, definition-sensitive. Rigor, not advocacy.']},
-    {h:'Paper IV '+D+' detail', n:[
-      'Contrast poverty (1.45, significant) against gun-law and mental illness (~1.0, null); LASSO kept only disadvantage.',
-      'Close on the ecological caveat '+D+' rigor, not advocacy.']},
-    {h:'Closing', n:[
-      'Restate the identity in one breath: AI + equity in postsecondary education, on a rigorous quantitative footing.',
-      'Point forward '+D+' doctoral work on AI cognitive scaffolding, data already collected. You are not starting cold.',
-      'End on the signature line; let it be the last thing they hear.']}
-  ];
+ var D = String.fromCharCode(8212), AR = String.fromCharCode(8594); // em-dash & arrow, ASCII source, no mojibake
+ var NOTES = [
+ {h:'Opening', n:[
+ 'Lead with the through-line, not the papers: I study who succeeds in college math and statistics, and why.',
+ 'Name the discipline early '+D+' I scope every claim to what its design can actually support. That habit is the point.',
+ 'Frame the set as one program with four entry points, not a list.']},
+ {h:'The through-line', n:[
+ 'Three pillars: AI as an instructor tool, equity in outcomes, and methodological range.',
+ 'Note the papers overlap '+D+' Raising the Floor sits in both AI and equity. That is the coherence, not a gap.',
+ 'If asked "what ties this together?", this slide is the answer.']},
+ {h:'Paper I '+D+' Rising Success', n:[
+ 'The hook: a live policy fight (an 800-signature UC petition) meets student-level data, not aggregates.',
+ 'Two honest halves: outcomes rose for everyone, and the racial gap still held. Resist a tidy story.',
+ 'Volunteer the limitation before they ask '+D+' single instructor means correlational. That candor is a strength.']},
+ {h:'Paper I '+D+' detail', n:[
+ 'The depth slide: walk the era progression (42%'+AR+'69%) and the per-group rises, then land the persistent ~24-pt gap.',
+ 'Volunteer the correlational limitation here, unprompted '+D+' single instructor.']},
+ {h:'Paper II '+D+' Bloom\'s', n:[
+ 'Key move: AI changed what we ASK students, not just how fast we write it '+D+' reasoning items 18%'+AR+'48%.',
+ 'The word to land is amplification '+D+' AI acts on intentions time made impractical; it does not replace judgment.',
+ 'Performance did not drop when demand rose '+D+' pre-empt the "harder exam, worse scores?" question.']},
+ {h:'Paper II '+D+' detail', n:[
+ 'Lead with the 18%'+AR+'48% Analyse shift and "performance did not decline" '+D+' harder exam, same results.',
+ 'The replicable paired-Bloom\'s method is the transferable contribution.']},
+ {h:'Paper III '+D+' Raising the Floor', n:[
+ 'The methodological point: means hide who moved. Quantile decomposition surfaces a floor effect.',
+ 'Bottom decile +36, failing share 31%'+AR+'5%, top unchanged '+D+' that is equity you can see in the distribution.',
+ 'Second finding '+D+' alignment moderates whether formative assessment keeps its diagnostic value. This is the subtle, original bit.']},
+ {h:'Paper III '+D+' detail', n:[
+ 'The floor effect in numbers: bottom decile +36, failing share 31%'+AR+'5%, top decile flat.',
+ 'Second point: alignment decides whether formative work stays diagnostic '+D+' the subtle finding.']},
+ {h:'Paper IV '+D+' Mass shootings', n:[
+ 'Why include it: to show statistical range '+D+' count models, panels, CR2 SEs, LASSO + trees as triangulation.',
+ 'The result is a null-that-matters: gun policy and mental illness show no association; disadvantage does.',
+ 'Close on the caveat '+D+' ecological, no causal claims, definition-sensitive. Rigor, not advocacy.']},
+ {h:'Paper IV '+D+' detail', n:[
+ 'Contrast poverty (1.45, significant) against gun-law and mental illness (~1.0, null); LASSO kept only disadvantage.',
+ 'Close on the ecological caveat '+D+' rigor, not advocacy.']},
+ {h:'Closing', n:[
+ 'Restate the identity in one breath: AI + equity in postsecondary education, on a rigorous quantitative footing.',
+ 'Point forward '+D+' doctoral work on AI cognitive scaffolding, data already collected. You are not starting cold.',
+ 'End on the signature line; let it be the last thing they hear.']}
+ ];
 
-  slides.forEach(function(_, idx){
-    var d = document.createElement('button');
-    d.className = 'dot' + (idx===0?' on':'');
-    d.setAttribute('role','tab');
-    d.setAttribute('aria-label','Go to slide ' + (idx+1));
-    d.addEventListener('click', function(){ go(idx); });
-    dotsWrap.appendChild(d);
-  });
-  var dots = Array.prototype.slice.call(dotsWrap.children);
+ slides.forEach(function(_, idx){
+ var d = document.createElement('button');
+ d.className = 'dot' + (idx===0?' on':'');
+ d.setAttribute('role','tab');
+ d.setAttribute('aria-label','Go to slide ' + (idx+1));
+ d.addEventListener('click', function(){ go(idx); });
+ dotsWrap.appendChild(d);
+ });
+ var dots = Array.prototype.slice.call(dotsWrap.children);
 
-  function renderNotes(){
-    var data = NOTES[i] || {h:'',n:[]};
-    notesHead.textContent = 'Speaker notes ' + D + ' ' + data.h;
-    notesList.innerHTML = '';
-    data.n.forEach(function(t){
-      var li = document.createElement('li'); li.textContent = t; notesList.appendChild(li);
-    });
-  }
-  function go(n){
-    i = (n + slides.length) % slides.length;
-    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
-    dots.forEach(function(d,idx){ d.classList.toggle('on', idx===i); });
-    cur.textContent = i+1;
-    renderNotes();
-  }
-  function next(){ go(i+1); }
-  function prev(){ go(i-1); }
+ function renderNotes(){
+ var data = NOTES[i] || {h:'',n:[]};
+ notesHead.textContent = 'Speaker notes ' + D + ' ' + data.h;
+ notesList.innerHTML = '';
+ data.n.forEach(function(t){
+ var li = document.createElement('li'); li.textContent = t; notesList.appendChild(li);
+ });
+ }
+ function go(n){
+ i = (n + slides.length) % slides.length;
+ slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+ dots.forEach(function(d,idx){ d.classList.toggle('on', idx===i); });
+ cur.textContent = i+1;
+ renderNotes();
+ }
+ function next(){ go(i+1); }
+ function prev(){ go(i-1); }
 
-  document.getElementById('next').addEventListener('click', next);
-  document.getElementById('prev').addEventListener('click', prev);
-  notesToggle.addEventListener('click', toggleNotes);
-  function toggleNotes(){
-    notesOpen = !notesOpen;
-    notes.classList.toggle('open', notesOpen);
-    notesToggle.classList.toggle('on', notesOpen);
-    notesToggle.setAttribute('aria-pressed', String(notesOpen));
-  }
+ document.getElementById('next').addEventListener('click', next);
+ document.getElementById('prev').addEventListener('click', prev);
+ notesToggle.addEventListener('click', toggleNotes);
+ function toggleNotes(){
+ notesOpen = !notesOpen;
+ notes.classList.toggle('open', notesOpen);
+ notesToggle.classList.toggle('on', notesOpen);
+ notesToggle.setAttribute('aria-pressed', String(notesOpen));
+ }
 
-  document.addEventListener('keydown', function(e){
-    if(e.key==='ArrowRight' || e.key==='PageDown'){ next(); e.preventDefault(); }
-    else if(e.key==='ArrowLeft' || e.key==='PageUp'){ prev(); e.preventDefault(); }
-    else if(e.key===' '){ next(); e.preventDefault(); }
-    else if(e.key==='n' || e.key==='N'){ toggleNotes(); }
-    else if(e.key==='Home'){ go(0); }
-    else if(e.key==='End'){ go(slides.length-1); }
-  });
+ document.addEventListener('keydown', function(e){
+ if(e.key==='ArrowRight' || e.key==='PageDown'){ next(); e.preventDefault(); }
+ else if(e.key==='ArrowLeft' || e.key==='PageUp'){ prev(); e.preventDefault(); }
+ else if(e.key===' '){ next(); e.preventDefault(); }
+ else if(e.key==='n' || e.key==='N'){ toggleNotes(); }
+ else if(e.key==='Home'){ go(0); }
+ else if(e.key==='End'){ go(slides.length-1); }
+ });
 
-  var sx=0;
-  var stage = document.getElementById('stage');
-  stage.addEventListener('touchstart', function(e){ sx = e.changedTouches[0].clientX; }, {passive:true});
-  stage.addEventListener('touchend', function(e){
-    var dx = e.changedTouches[0].clientX - sx;
-    if(Math.abs(dx) > 45){ dx < 0 ? next() : prev(); }
-  }, {passive:true});
+ var sx=0;
+ var stage = document.getElementById('stage');
+ stage.addEventListener('touchstart', function(e){ sx = e.changedTouches[0].clientX; }, {passive:true});
+ stage.addEventListener('touchend', function(e){
+ var dx = e.changedTouches[0].clientX - sx;
+ if(Math.abs(dx) > 45){ dx < 0 ? next() : prev(); }
+ }, {passive:true});
 
-  renderNotes();
+ renderNotes();
 })();
 </script>
