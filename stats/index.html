@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stats Without Walls</title>
+<meta name="description" content="A free, browser-based statistics tool for introductory statistics: load a CSV, summarize, graph, and run confidence intervals and tests. No install, no account.">
+<style>
+:root{--navy:#1A3A4D;--teal:#2C5F7C;--sky:#3A7CA5;--terra:#D97D54;--ink:#2D2D2D;--muted:#5A5A5A;--line:#E1E4E8;--alt:#F8F9FA;--green:#2E7D5B;--rose:#B5476B;
+  --font:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;--mono:Consolas,Monaco,'Courier New',monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);color:var(--ink);background:#fff;font-size:14px}
+header{background:var(--navy);color:#fff;padding:8px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.2px}
+header h1 span{color:#E89B7B;font-weight:400}
+header .sub{font-size:12px;opacity:.8}
+header a{color:#fff;opacity:.85;font-size:12px;margin-left:auto}
+nav.menu{background:var(--teal);display:flex;flex-wrap:wrap;padding:0 8px}
+nav.menu .dd{position:relative}
+nav.menu button.top{background:none;border:0;color:#fff;padding:10px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+nav.menu button.top:hover,nav.menu .dd.open button.top{background:var(--sky)}
+nav.menu .items{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.15);min-width:240px;z-index:50}
+nav.menu .dd.open .items{display:block}
+nav.menu .items button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
+nav.menu .items button:hover{background:var(--alt)}
+nav.menu .items .sep{border-top:1px solid var(--line);margin:4px 0}
+main{display:grid;grid-template-columns:minmax(320px,42%) 1fr;height:calc(100vh - 82px)}
+@media (max-width:900px){main{grid-template-columns:1fr;height:auto}#datapane{max-height:45vh}}
+#datapane{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+#datapane .bar{padding:6px 10px;background:var(--alt);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+#datapane .bar b{color:var(--ink)}
+#grid{overflow:auto;flex:1}
+table.grid{border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
+table.grid th{position:sticky;top:0;background:var(--teal);color:#fff;padding:5px 8px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap}
+table.grid th small{display:block;font-weight:400;opacity:.8;font-size:10px}
+table.grid td{border:1px solid var(--line);padding:3px 8px;white-space:nowrap;min-width:60px}
+table.grid td.rn{background:var(--alt);color:var(--muted);text-align:right;font-family:var(--font)}
+table.grid td[contenteditable]:focus{outline:2px solid var(--sky);background:#fffbe6}
+#out{overflow:auto;padding:14px 18px;background:#fff;min-height:0}
+.card{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:6px;padding:12px 16px;margin-bottom:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card h2{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.card .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+.card table.res{border-collapse:collapse;font-size:13px;margin:6px 0 8px}
+.card table.res th{background:var(--alt);text-align:left;padding:4px 10px;border-bottom:2px solid var(--line);font-weight:600}
+.card table.res td{padding:4px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.card .num{text-align:right}
+.card .say{background:#EEF5F8;border-left:3px solid var(--sky);padding:8px 12px;margin:8px 0;font-size:13.5px}
+.card .warn{background:#FBEEF2;border-left:3px solid var(--rose);padding:8px 12px;margin:8px 0;font-size:13px}
+.card .ok{background:#EAF5EF;border-left:3px solid var(--green);padding:8px 12px;margin:8px 0;font-size:13px}
+.card .tools{float:right;font-size:12px}
+.card .tools button{background:none;border:1px solid var(--line);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:inherit;color:var(--muted);margin-left:4px}
+.card .plot{width:100%;height:320px}
+.card .formula{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:4px 0}
+/* dialog */
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-start;justify-content:center;padding-top:60px;z-index:100}
+#dlg.open{display:flex}
+#dlg .box{background:#fff;border-radius:8px;width:min(560px,94vw);max-height:85vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#dlg .box h3{margin:0;padding:12px 18px;background:var(--navy);color:#fff;font-size:15px;border-radius:8px 8px 0 0}
+#dlg form{padding:14px 18px}
+#dlg label{display:block;margin:8px 0 3px;font-size:13px;color:var(--muted)}
+#dlg input[type=text],#dlg input[type=number],#dlg select,#dlg textarea{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:14px}
+#dlg select[multiple]{height:120px}
+#dlg .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#dlg .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+#dlg .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+#dlg button{padding:7px 16px;border-radius:4px;border:1px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-size:14px}
+#dlg button.go{background:var(--terra);color:#fff;border-color:var(--terra)}
+#dlg .hint{font-size:12px;color:var(--muted);margin-top:2px}
+#dlg fieldset{border:1px solid var(--line);border-radius:4px;padding:6px 12px 10px;margin:8px 0}
+#dlg legend{font-size:12px;color:var(--muted);padding:0 4px}
+.welcome{color:var(--muted);font-size:14px;line-height:1.6;max-width:640px}
+.welcome b{color:var(--navy)}
+.welcome ol{padding-left:20px}
+@media print{header,nav.menu,#datapane,.card .tools{display:none}main{display:block;height:auto}#out{overflow:visible}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Stats Without Walls <span>free statistics for the intro classroom</span></h1>
+  <div class="sub">Load a file, summarize, graph, infer. Nothing leaves your browser.</div>
+  <a href="../index.html">learnwithoutwalls.com</a>
+</header>
+<nav class="menu" id="menu"></nav>
+<main>
+  <section id="datapane">
+    <div class="bar"><b id="dsname">No data loaded</b><span id="dsinfo"></span><span style="margin-left:auto">Click a cell to edit. Column type is shown under each name.</span></div>
+    <div id="grid"><div class="welcome" style="padding:18px">
+      <b>Start here.</b>
+      <ol>
+        <li><b>Data</b>: open a CSV from your computer, paste from a spreadsheet, or pick a sample dataset.</li>
+        <li><b>Summary</b> and <b>Graph</b>: pick a column, read the numbers, see the picture.</li>
+        <li><b>Inference</b>: intervals and tests. Every result gives the statistic, the p-value, and the sentence to write.</li>
+        <li><b>Calculators</b>: binomial, normal, and t, with the picture shaded.</li>
+      </ol>
+      Means always use t with degrees of freedom (the population standard deviation is never given). Decisions use the p-value approach. There is no inference about a variance in this course, so there is none here.
+    </div></div>
+  </section>
+  <section id="out"></section>
+</main>
+<div id="dlg"><div class="box"><h3 id="dlgTitle"></h3><form id="dlgForm"></form></div></div>
+<input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display:none">
+<script src="vendor/jstat.min.js"></script>
+<script src="vendor/plotly-cartesian.min.js"></script>
+<script src="stats.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
