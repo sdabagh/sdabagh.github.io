@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stats Without Walls</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1A3A4D">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="A free, browser-based statistics tool for introductory statistics: load a CSV, summarize, graph, and run confidence intervals and tests. No install, no account.">
 <style>
 :root{--navy:#1A3A4D;--teal:#2C5F7C;--sky:#3A7CA5;--terra:#D97D54;--ink:#2D2D2D;--muted:#5A5A5A;--line:#E1E4E8;--alt:#F8F9FA;--green:#2E7D5B;--rose:#B5476B;
@@ -29,15 +33,22 @@ main{display:grid;grid-template-columns:minmax(320px,42%) 1fr;height:calc(100vh 
 #datapane{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 #datapane .bar{padding:6px 10px;background:var(--alt);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 #datapane .bar b{color:var(--ink)}
+#filterBox{width:220px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:12px}
+table.grid tr.off td{color:#b0b0b0;background:#fafafa}
+.card .cap{font-weight:600;font-size:13px;color:var(--navy);margin:8px 0 2px}
+.card .note{font-size:12px;color:var(--muted);margin:2px 0 8px}
+.card details summary{cursor:pointer;color:var(--muted);font-size:13px}
+#dlg label.chk{display:block;margin:4px 0;font-size:13.5px;color:var(--ink)}
+#dlg .fld{min-width:0}
 #grid{overflow:auto;flex:1}
 table.grid{border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
-table.grid th{position:sticky;top:0;background:var(--teal);color:#fff;padding:5px 8px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap}
+table.grid th{position:sticky;top:0;background:var(--teal);color:#fff;padding:5px 8px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap;cursor:pointer}
 table.grid th small{display:block;font-weight:400;opacity:.8;font-size:10px}
 table.grid td{border:1px solid var(--line);padding:3px 8px;white-space:nowrap;min-width:60px}
 table.grid td.rn{background:var(--alt);color:var(--muted);text-align:right;font-family:var(--font)}
 table.grid td[contenteditable]:focus{outline:2px solid var(--sky);background:#fffbe6}
 #out{overflow:auto;padding:14px 18px;background:#fff;min-height:0}
-.card{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:6px;padding:12px 16px;margin-bottom:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:6px;padding:12px 16px;margin-bottom:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto}
 .card h2{margin:0 0 6px;font-size:16px;color:var(--navy)}
 .card .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
 .card table.res{border-collapse:collapse;font-size:13px;margin:6px 0 8px}
@@ -83,16 +94,17 @@ table.grid td[contenteditable]:focus{outline:2px solid var(--sky);background:#ff
 <nav class="menu" id="menu"></nav>
 <main>
   <section id="datapane">
-    <div class="bar"><b id="dsname">No data loaded</b><span id="dsinfo"></span><span style="margin-left:auto">Click a cell to edit. Column type is shown under each name.</span></div>
+    <div class="bar"><b id="dsname">No data loaded</b><span id="dsinfo"></span><span style="margin-left:auto">Filter:</span><input id="filterBox" type="text" placeholder='e.g. Year == "Freshman"' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= AND OR. Blank = all rows."></div>
     <div id="grid"><div class="welcome" style="padding:18px">
       <b>Start here.</b>
       <ol>
         <li><b>Data</b>: open a CSV from your computer, paste from a spreadsheet, or pick a sample dataset.</li>
-        <li><b>Summary</b> and <b>Graph</b>: pick a column, read the numbers, see the picture.</li>
-        <li><b>Inference</b>: intervals and tests. Every result gives the statistic, the p-value, and the sentence to write.</li>
-        <li><b>Calculators</b>: binomial, normal, and t, with the picture shaded.</li>
+        <li><b>Exploration</b>: Descriptives, with the plots, exactly as in jamovi.</li>
+        <li><b>T-Tests, ANOVA, Regression, Frequencies</b>: the same menus and options as jamovi, so the course instructions work as written. Every result adds the formula, the decision, the sentence to write, and a condition check.</li>
+        <li><b>distrACTION</b>: binomial, normal, t, chi-square and F, built in, nothing to install.</li>
+        <li><b>Learn</b>: a sampling distribution simulator for the Central Limit Theorem.</li>
       </ol>
-      Means always use t with degrees of freedom (the population standard deviation is never given). Decisions use the p-value approach. There is no inference about a variance in this course, so there is none here.
+      Means always use t with degrees of freedom (the population standard deviation is never given). Decisions use the p-value approach. There is no inference about a variance in this course, so there is none here. Your data stays on this computer, and the page keeps working with no internet once it has loaded. To install it like an app: in Chrome or Edge use the install icon in the address bar; in Safari on a Mac use File, then Add to Dock.
     </div></div>
   </section>
   <section id="out"></section>

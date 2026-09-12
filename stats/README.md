@@ -2,6 +2,8 @@
 
 Free, browser-only statistics for the intro classroom. Open `stats/index.html` on the site; no install, no account, no data leaves the browser.
 
+Menus, option names and result tables follow jamovi (Exploration, T-Tests, ANOVA, Regression, Frequencies, distrACTION), so the course's jamovi instructions transfer as written. On top of that, StatCrunch-style conveniences: Filters, Compute, Transform, sort by clicking a header, summary-statistic input on every test, a two-proportion z test, chi-square and F calculators, a sampling distribution simulator, session save and load, and offline use as an installable app (PWA).
+
 What it does: load a CSV (or paste, or a sample dataset), edit cells in place; descriptives, frequency and two-way tables; bar, pie, histogram, dotplot, boxplot, scatterplot; one mean (t), one proportion (z with exact binomial), two means (Welch), paired, two proportions, one-way ANOVA with Tukey, chi-square goodness of fit and independence, correlation and regression with residual plot; binomial, normal, t, and sample-size calculators. Every inference card gives the formula, the statistic, the p-value, a decision at alpha, a written conclusion, and a condition check.
 
 House rules baked in: means use t with df (sigma is never given); p-value approach; no inference about a variance; z procedures for proportions require the success-failure check.

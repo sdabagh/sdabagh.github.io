@@ -139,3 +139,28 @@
 
   global.SW = S;
 })(window);
+/* ---- additions: QQ, simulation, expression evaluation ---- */
+(function (S) {
+  S.qq = (a) => { const x = [...S.num(a)].sort((p, q) => p - q), n = x.length; return x.map((v, i) => ({ theo: S.qnorm((i + 0.5) / n), obs: v })); };
+  S.qchisq = (p, df) => jStat.chisquare.inv(p, df);
+  S.qf = (p, d1, d2) => jStat.centralF.inv(p, d1, d2);
+  S.rnorm = (m, s) => jStat.normal.sample(m, s);
+  S.rexp = (rate) => jStat.exponential.sample(rate);
+  // draw `reps` samples of size n from pop (array) with replacement, return statistics
+  S.simulate = (pop, n, reps, stat) => { const out = new Array(reps); for (let r = 0; r < reps; r++) { const s = new Array(n); for (let i = 0; i < n; i++) s[i] = pop[Math.floor(Math.random() * pop.length)]; out[r] = stat(s); } return out; };
+  // formula over columns: identifiers are column names (non-word chars become _); mean(X), sd(X), median(X), min(X), max(X), sum(X), n(X) are precomputed
+  S.compileFormula = (formula, cols, colGetter) => {
+    const ident = (c) => c.replace(/[^A-Za-z0-9_]/g, "_").replace(/^(\d)/, "_$1");
+    let f = formula;
+    f = f.replace(/\b(mean|sd|median|min|max|sum|n)\(\s*([A-Za-z0-9_.\- ]+?)\s*\)/g, (m, fn, name) => {
+      const c = cols.find((k) => k === name.trim() || ident(k) === name.trim()); if (!c) return m;
+      const x = S.num(colGetter(c));
+      const v = { mean: S.mean(x), sd: S.sd(x), median: S.median(x), min: Math.min(...x), max: Math.max(...x), sum: x.reduce((a, b) => a + b, 0), n: x.length }[fn];
+      return "(" + v + ")";
+    });
+    const names = cols.map(ident);
+    const body = "const {log, sqrt, abs, exp, round, floor, ceil, pow, min, max} = Math; const ln = Math.log; const log10 = Math.log10; return (" + f.replace(/\bAND\b/g, "&&").replace(/\bOR\b/g, "||").replace(/(?<![<>=!])=(?!=)/g, "==") + ");";
+    const fn = new Function(...names, body);
+    return (row) => fn(...row.map((v) => (v !== "" && Number.isFinite(Number(v)) ? Number(v) : v)));
+  };
+})(window.SW);

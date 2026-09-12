@@ -1,12 +1,12 @@
-/* Stats Without Walls: user interface. Depends on stats.js (window.SW), jStat, Plotly. */
+/* Stats Without Walls: interface. Menus, option names and result tables follow jamovi so the course's
+   jamovi instructions transfer as written. Engine in stats.js (window.SW); jStat and Plotly vendored. */
 (function () {
   const $ = (s) => document.querySelector(s);
-  const D = { name: "", cols: [], rows: [], types: {} };
+  const D = { name: "", cols: [], rows: [], types: {}, filter: "", sortCol: null, sortDir: 1 };
   const fmt = (x, d = 4) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const ALT = { two: "not equal to", less: "less than", greater: "greater than" };
 
-  // ---------------- data ----------------
+  // ================= data =================
   function parseCSV(text) {
     const rows = []; let row = [], field = "", q = false;
     for (let i = 0; i < text.length; i++) {
@@ -26,394 +26,534 @@
       const vals = D.rows.map((r) => r[j]).filter((v) => v !== "" && v != null);
       const nums = vals.filter((v) => Number.isFinite(Number(v)));
       const distinct = new Set(vals).size;
-      D.types[c] = vals.length && nums.length === vals.length && !(distinct <= 3 && /id|code/i.test(c)) ? "num" : "cat";
+      if (!vals.length) D.types[c] = "nominal";
+      else if (nums.length === vals.length) D.types[c] = distinct <= 6 && vals.every((v) => Number.isInteger(Number(v))) ? "ordinal" : "continuous";
+      else D.types[c] = distinct === vals.length && vals.length > 12 ? "id" : "nominal";
     });
   }
   function loadTable(name, rows) {
     D.name = name; D.cols = rows[0].map((h, i) => (h.trim() || "col" + (i + 1)));
-    D.rows = rows.slice(1).map((r) => D.cols.map((_, j) => (r[j] == null ? "" : r[j].trim())));
-    inferTypes(); renderGrid();
+    D.rows = rows.slice(1).map((r) => D.cols.map((_, j) => (r[j] == null ? "" : String(r[j]).trim())));
+    D.filter = ""; D.sortCol = null; inferTypes(); renderGrid(); persist();
   }
-  function col(name) { const j = D.cols.indexOf(name); return D.rows.map((r) => r[j]); }
-  function numCols() { return D.cols.filter((c) => D.types[c] === "num"); }
-  function catCols() { return D.cols.filter((c) => { const k = new Set(col(c).filter((v) => v !== "")).size; return (D.types[c] === "cat" && k < D.rows.length) || (D.types[c] === "num" && k <= 6); }); }
+  function persist() { try { localStorage.setItem("sww_data", JSON.stringify({ name: D.name, cols: D.cols, rows: D.rows, filter: D.filter })); } catch (e) { } }
+  function restore() { try { const s = JSON.parse(localStorage.getItem("sww_data") || "null"); if (s && s.rows && s.rows.length) { D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; inferTypes(); renderGrid(); } } catch (e) { } }
+  // active rows: those passing the filter
+  function activeIdx() {
+    if (!D.filter.trim()) return D.rows.map((_, i) => i);
+    let f; try { f = SW.compileFormula(D.filter, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); } catch (e) { throw new Error("Filter could not be read: " + e.message); }
+    const out = []; D.rows.forEach((r, i) => { try { if (f(r)) out.push(i); } catch (e) { } }); return out;
+  }
+  function col(name) { const j = D.cols.indexOf(name); if (j < 0) throw new Error("Column not found: " + name); const idx = activeIdx(); return idx.map((i) => D.rows[i][j]); }
+  const isNum = (c) => D.types[c] === "continuous" || D.types[c] === "ordinal";
+  function numCols() { return D.cols.filter(isNum); }
+  function catCols() { return D.cols.filter((c) => D.types[c] === "nominal" || D.types[c] === "ordinal"); }
   function renderGrid() {
     $("#dsname").textContent = D.name || "No data loaded";
-    $("#dsinfo").textContent = D.rows.length ? `${D.rows.length} rows, ${D.cols.length} columns` : "";
+    const act = D.filter.trim() ? (() => { try { return activeIdx().length; } catch (e) { return "?"; } })() : D.rows.length;
+    $("#dsinfo").textContent = D.rows.length ? `${D.rows.length} rows, ${D.cols.length} columns${D.filter.trim() ? `, filter keeps ${act}` : ""}` : "";
+    $("#filterBox").value = D.filter;
     const g = $("#grid"); if (!D.rows.length) return;
-    let h = '<table class="grid"><thead><tr><th></th>' + D.cols.map((c) => `<th>${esc(c)}<small>${D.types[c] === "num" ? "numeric" : "categorical"}</small></th>`).join("") + "</tr></thead><tbody>";
-    D.rows.forEach((r, i) => { h += `<tr><td class="rn">${i + 1}</td>` + r.map((v, j) => `<td contenteditable data-i="${i}" data-j="${j}">${esc(v)}</td>`).join("") + "</tr>"; });
+    const icon = { continuous: "ruler, continuous", ordinal: "ordinal", nominal: "nominal", id: "ID" };
+    let h = '<table class="grid"><thead><tr><th></th>' + D.cols.map((c) => `<th data-col="${esc(c)}" title="click to sort">${esc(c)}<small>${icon[D.types[c]]}</small></th>`).join("") + "</tr></thead><tbody>";
+    let keep = null; try { keep = new Set(activeIdx()); } catch (e) { }
+    D.rows.forEach((r, i) => { h += `<tr class="${keep && !keep.has(i) ? "off" : ""}"><td class="rn">${i + 1}</td>` + r.map((v, j) => `<td contenteditable data-i="${i}" data-j="${j}">${esc(v)}</td>`).join("") + "</tr>"; });
     g.innerHTML = h + "</tbody></table>";
-    g.querySelectorAll("td[contenteditable]").forEach((td) => td.addEventListener("blur", () => { D.rows[+td.dataset.i][+td.dataset.j] = td.textContent.trim(); inferTypes(); }));
+    g.querySelectorAll("td[contenteditable]").forEach((td) => td.addEventListener("blur", () => { D.rows[+td.dataset.i][+td.dataset.j] = td.textContent.trim(); inferTypes(); persist(); }));
+    g.querySelectorAll("th[data-col]").forEach((th) => (th.onclick = () => sortBy(th.dataset.col)));
   }
-  function addColumn(name, values) { D.cols.push(name); D.rows.forEach((r, i) => r.push(values[i] === "" ? "" : fmt(values[i], 4))); inferTypes(); renderGrid(); }
-  function downloadCSV() {
-    const q = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v);
-    const txt = [D.cols.map(q).join(",")].concat(D.rows.map((r) => r.map(q).join(","))).join("\n");
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv" })); a.download = (D.name || "data") + ".csv"; a.click();
+  function sortBy(c) {
+    const j = D.cols.indexOf(c); D.sortDir = D.sortCol === c ? -D.sortDir : 1; D.sortCol = c;
+    const numeric = isNum(c);
+    D.rows.sort((a, b) => { const x = a[j], y = b[j]; if (x === "") return 1; if (y === "") return -1; return (numeric ? Number(x) - Number(y) : String(x).localeCompare(String(y))) * D.sortDir; });
+    renderGrid(); persist();
   }
+  function addColumn(name, values) { if (D.cols.includes(name)) throw new Error("A column named " + name + " already exists."); D.cols.push(name); D.rows.forEach((r, i) => r.push(values[i] == null || values[i] === "" || Number.isNaN(values[i]) ? "" : typeof values[i] === "number" ? fmt(values[i], 4) : String(values[i]))); inferTypes(); renderGrid(); persist(); }
+  function downloadText(txt, filename, type = "text/plain") { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type })); a.download = filename; a.click(); }
+  function downloadCSV() { const q = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v); downloadText([D.cols.map(q).join(",")].concat(D.rows.map((r) => r.map(q).join(","))).join("\n"), (D.name || "data") + ".csv", "text/csv"); }
   const SAMPLES = [
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"]];
 
-  // ---------------- output ----------------
+  // ================= output =================
   let cardN = 0;
   function card(title, meta, html) {
-    const id = "card" + ++cardN;
-    const div = document.createElement("div"); div.className = "card"; div.id = id;
+    const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     div.innerHTML = `<div class="tools"><button data-act="copy">copy text</button><button data-act="close">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
     div.querySelector('[data-act="close"]').onclick = () => div.remove();
     div.querySelector('[data-act="copy"]').onclick = () => navigator.clipboard.writeText(div.innerText);
     const out = $("#out"); out.prepend(div); out.scrollTop = 0; return div;
   }
-  function table(headers, rows) {
-    return `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
+  function table(headers, rows, caption) {
+    return (caption ? `<div class="cap">${esc(caption)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
       rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : esc(v)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
   }
-  function plotDiv(div, traces, layout) {
-    const p = document.createElement("div"); p.className = "plot"; div.appendChild(p);
+  function plotDiv(div, traces, layout, h = 320) {
+    const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; div.appendChild(p);
     Plotly.newPlot(p, traces, Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout), { displaylogo: false, responsive: true });
   }
-  const decision = (p, alpha) => (p <= alpha ? `p-value ${SW.fmtP(p)} is at or below alpha ${alpha}: reject H0.` : `p-value ${SW.fmtP(p)} is above alpha ${alpha}: fail to reject H0.`);
-  const altSym = (alt) => (alt === "two" ? "not equal to" : alt === "less" ? "less than" : "greater than");
+  const decision = (p, alpha) => (p <= alpha ? `p = ${SW.fmtP(p)} is at or below alpha = ${alpha}: reject H0.` : `p = ${SW.fmtP(p)} is above alpha = ${alpha}: fail to reject H0.`);
+  const altWord = (alt) => (alt === "two" ? "not equal to" : alt === "less" ? "less than" : "greater than");
+  const say = (t) => `<div class="say">${t}</div>`, warn = (t) => `<div class="warn">${t}</div>`, ok = (t) => `<div class="ok">${t}</div>`, formula = (t) => `<div class="formula">${esc(t)}</div>`;
+  const cond = (pass, yes, no) => (pass ? ok(yes) : warn(no));
 
-  // ---------------- dialog ----------------
-  function dialog(title, fields, onGo) {
+  // ================= dialog =================
+  function dialog(title, fields, onGo, goLabel = "Run") {
     const f = $("#dlgForm"); $("#dlgTitle").textContent = title; f.innerHTML = "";
     const groups = {}; let html = "";
-    fields.forEach((fd) => {
+    fields.filter(Boolean).forEach((fd) => {
       const id = "f_" + fd.name; let ctl = "";
-      if (fd.type === "select" || fd.type === "multi") {
-        ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => `<option value="${esc(Array.isArray(o) ? o[0] : o)}" ${fd.value === (Array.isArray(o) ? o[0] : o) ? "selected" : ""}>${esc(Array.isArray(o) ? o[1] : o)}</option>`).join("")}</select>`;
-      } else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${esc(fd.placeholder || "")}"></textarea>`;
-      else if (fd.type === "check") ctl = `<label style="display:inline"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
+      if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return `<option value="${esc(v)}" ${String(fd.value) === String(v) ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
+      else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${esc(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
+      else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
       else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null ? "" : esc(fd.value)}" step="any" placeholder="${esc(fd.placeholder || "")}">`;
       const lab = fd.type === "check" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
-      const block = `<div>${lab}${ctl}${fd.hint ? `<div class="hint">${esc(fd.hint)}</div>` : ""}</div>`;
+      const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${esc(fd.hint)}</div>` : ""}</div>`;
       if (fd.group) { groups[fd.group] = (groups[fd.group] || "") + block; html += `<!--G:${fd.group}-->`; } else html += block;
     });
-    // assemble grouped fieldsets in first-seen order
     const seen = new Set();
-    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const cls = (groups[g].match(/<div>/g) || []).length >= 3 ? "row3" : "row"; return `<fieldset><legend>${esc(g)}</legend><div class="${cls}">${groups[g]}</div></fieldset>`; });
-    f.innerHTML = html + `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">Compute</button></div>`;
+    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld"/g) || []).length; return `<fieldset><legend>${esc(g)}</legend><div class="${n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
+    f.innerHTML = html + `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">${esc(goLabel)}</button></div>`;
     $("#dlgCancel").onclick = () => $("#dlg").classList.remove("open");
     f.onsubmit = (e) => {
       e.preventDefault(); const v = {};
-      fields.forEach((fd) => { const el = f.elements[fd.name]; if (!el) return; if (fd.type === "multi") v[fd.name] = [...el.selectedOptions].map((o) => o.value); else if (fd.type === "check") v[fd.name] = el.checked; else if (fd.type === "number") v[fd.name] = el.value === "" ? NaN : Number(el.value); else v[fd.name] = el.value; });
+      fields.filter(Boolean).forEach((fd) => { const el = f.elements[fd.name]; if (!el) return; if (fd.type === "multi") v[fd.name] = [...el.selectedOptions].map((o) => o.value); else if (fd.type === "check") v[fd.name] = el.checked; else if (fd.type === "number") v[fd.name] = el.value === "" ? NaN : Number(el.value); else v[fd.name] = el.value; });
       try { onGo(v); $("#dlg").classList.remove("open"); } catch (err) { alert(err.message || err); }
     };
     $("#dlg").classList.add("open");
   }
-  const needData = () => { if (!D.rows.length) throw new Error("Load a dataset first (Data menu)."); };
-  const selNum = (name, label) => ({ name, label, type: "select", options: numCols() });
-  const selCat = (name, label) => ({ name, label, type: "select", options: catCols() });
-  const selAny = (name, label, extra) => ({ name, label, type: "select", options: (extra ? [extra] : []).concat(D.cols) });
-  const altField = { name: "alt", label: "Alternative hypothesis", type: "select", options: [["two", "not equal to (two-sided)"], ["less", "less than"], ["greater", "greater than"]] };
-  const confField = { name: "conf", label: "Confidence level", type: "select", options: [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], value: "0.95" };
-  const alphaField = { name: "alpha", label: "Alpha", type: "select", options: [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], value: "0.05" };
+  const needData = () => { if (!D.rows.length) throw new Error("Open a data file first (Data menu)."); };
+  const sel = (name, label, options, value) => ({ name, label, type: "select", options, value });
+  const selNum = (name, label) => sel(name, label, numCols());
+  const selCat = (name, label) => sel(name, label, catCols());
+  const selAny = (name, label, none = true) => sel(name, label, (none ? [["", "(none)"]] : []).concat(D.cols));
+  const hypField = (what) => sel("alt", "Hypothesis", [["two", what + " is not equal to Test value"], ["greater", what + " is greater than Test value"], ["less", what + " is less than Test value"]], "two");
+  const confField = { name: "conf", label: "Confidence interval", type: "select", options: [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], value: "0.95" };
+  const alphaField = { name: "alpha", label: "Alpha (decision level)", type: "select", options: [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], value: "0.05" };
+  const src = (extra) => `${D.name}${D.filter.trim() ? " [filter: " + D.filter + "]" : ""}${extra ? ", " + extra : ""}`;
 
-  // ---------------- analyses: summary ----------------
+  // ================= Exploration: Descriptives =================
   function descriptives() {
     needData();
-    dialog("Descriptives", [{ name: "vars", label: "Numeric variables (hold Cmd or Ctrl for several)", type: "multi", options: numCols() }, selAny("by", "Split by (optional)", ["", "none"])], (v) => {
+    dialog("Exploration: Descriptives", [
+      { name: "vars", label: "Variables (hold Cmd or Ctrl to pick several)", type: "multi", options: D.cols.filter((c) => D.types[c] !== "id") },
+      selAny("by", "Split by"),
+      { name: "freq", label: "Frequency tables (for nominal and ordinal variables)", type: "check", value: true, group: "Tables" },
+      ...[["n", "N", true], ["missing", "Missing", false], ["mean", "Mean", true], ["median", "Median", true], ["mode", "Mode", false], ["sum", "Sum", false], ["sd", "Std. deviation", true], ["variance", "Variance", false], ["range", "Range", false], ["min", "Minimum", true], ["max", "Maximum", true], ["se", "Std. error of mean", false], ["iqr", "IQR", false], ["q", "Quartiles (25th, 50th, 75th)", false], ["fence", "Fences (1.5 IQR)", false]].map(([k, l, v]) => ({ name: k, label: l, type: "check", value: v, group: "Statistics" })),
+      ...[["hist", "Histogram"], ["dens", "Density"], ["box", "Box plot"], ["dot", "Dot plot"], ["qq", "Q-Q plot"], ["bar", "Bar plot"]].map(([k, l]) => ({ name: k, label: l, type: "check", value: false, group: "Plots" })),
+      { name: "lines", label: "Mark mean (solid) and median (dashed) on histograms", type: "check", value: true, group: "Plots" }], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
-      const groups = v.by ? [...new Set(col(v.by))] : [null];
-      const hdr = ["Statistic"].concat(v.vars.flatMap((x) => groups.map((g) => g == null ? x : `${x} (${g})`)));
-      const stats = [["n", "n"], ["Mean", "mean"], ["Median", "median"], ["Mode", "mode"], ["Std. deviation", "sd"], ["Variance", "variance"], ["Std. error of mean", "se"], ["Minimum", "min"], ["Q1 (25th)", "q1"], ["Q3 (75th)", "q3"], ["Maximum", "max"], ["IQR", "iqr"], ["Range", "range"], ["Lower fence", "lowerFence"], ["Upper fence", "upperFence"]];
-      const cells = v.vars.flatMap((x) => groups.map((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); return SW.describe(vals) || {}; }));
-      const rows = stats.map(([lab, k]) => [lab].concat(cells.map((d) => (d[k] == null ? "" : d[k]))));
-      const c = card("Descriptives", `${D.name}${v.by ? ", split by " + v.by : ""}`, table(hdr, rows) +
-        `<div class="say">Read shape from the mean against the median: mean above median points to a right tail, below to a left tail. Report a pair: mean with s when symmetric, median with IQR when skewed or with outliers. Fences are Q1 minus 1.5 IQR and Q3 plus 1.5 IQR.</div>`);
-      if (groups.length === 1 && v.vars.length === 1) plotDiv(c, [{ x: SW.num(col(v.vars[0])), type: "histogram", marker: { color: "#3A7CA5" } }], { title: v.vars[0], xaxis: { title: v.vars[0] }, yaxis: { title: "Count" } });
-    });
-  }
-  function frequency() {
-    needData();
-    dialog("Frequency table", [selCat("x", "Categorical variable"), { name: "plot", label: "Bar chart", type: "check", value: true }], (v) => {
-      const c = SW.counts(col(v.x)); const keys = Object.keys(c).sort((a, b) => c[b] - c[a]); const n = keys.reduce((s, k) => s + c[k], 0);
-      const rows = keys.map((k) => [k, c[k], c[k] / n, (100 * c[k]) / n]); rows.push(["Total", n, 1, 100]);
-      const cd = card("Frequency table: " + v.x, D.name, table(["Level", "Count", "Proportion", "Percent"], rows) + `<div class="say">Each proportion is p hat, the count divided by n. They add to 1. Bars have gaps because the categories are separate things; order is your choice.</div>`);
-      if (v.plot) plotDiv(cd, [{ x: keys, y: keys.map((k) => c[k]), type: "bar", marker: { color: "#3A7CA5" } }], { title: v.x, yaxis: { title: "Count" } });
-    });
-  }
-  function twoWay() {
-    needData();
-    dialog("Two-way table", [selCat("r", "Row variable"), selCat("c", "Column variable"), { name: "pct", label: "Percentages", type: "select", options: [["none", "counts only"], ["row", "row percent"], ["col", "column percent"], ["tot", "total percent"]] }, { name: "exp", label: "Show expected counts (for chi-square)", type: "check", value: false }, { name: "test", label: "Run the chi-square test of independence", type: "check", value: false }, alphaField], (v) => {
-      const t = SW.twoWay(col(v.r), col(v.c));
-      const cell = (i, j) => { const o = t.O[i][j]; let s = String(o); if (v.pct === "row") s += ` (${fmt((100 * o) / t.rt[i], 1)}%)`; if (v.pct === "col") s += ` (${fmt((100 * o) / t.ct[j], 1)}%)`; if (v.pct === "tot") s += ` (${fmt((100 * o) / t.n, 1)}%)`; if (v.exp) s += ` [E ${fmt(t.E[i][j], 2)}]`; return s; };
-      const rows = t.rows.map((r, i) => [r].concat(t.cols.map((_, j) => cell(i, j)), [t.rt[i]])); rows.push(["Total"].concat(t.ct, [t.n]));
-      let html = table([v.r + " \\ " + v.c].concat(t.cols, ["Total"]), rows);
-      html += `<div class="say">A row percent is a conditional probability, conditioned on the row. A total percent is the "and" probability. Independence would make every row show the same percentages.</div>`;
-      if (v.test) {
-        html += table(["Chi-square", "df", "p-value", "n", "Smallest expected"], [[t.chi, t.df, SW.fmtP(t.p), t.n, t.minE]]);
-        html += `<div class="formula">chi-square = sum of (O minus E)^2 / E, with E = row total times column total / n, df = (rows minus 1)(columns minus 1)</div>`;
-        html += `<div class="${t.minE >= 5 ? "ok" : "warn"}">${t.minE >= 5 ? "Every expected count is at least 5: the chi-square approximation is fine." : "An expected count is below 5: the test is not trustworthy. Combine categories or collect more data."}</div>`;
-        html += `<div class="say">H0: ${v.r} and ${v.c} are independent. Ha: they are related. ${decision(t.p, +v.alpha)} ${t.p <= +v.alpha ? "There is evidence of a relationship between " + v.r + " and " + v.c + "." : "There is not enough evidence of a relationship between " + v.r + " and " + v.c + "."}</div>`;
+      const groups = v.by ? [...new Set(col(v.by).filter((g) => g !== ""))] : [null];
+      const numV = v.vars.filter(isNum), catV = v.vars.filter((c) => !isNum(c));
+      const cd = card("Descriptives", src(v.by ? "split by " + v.by : ""), "");
+      if (numV.length) {
+        const statList = [["n", "N", "n"], ["missing", "Missing", "missing"], ["mean", "Mean", "mean"], ["median", "Median", "median"], ["mode", "Mode", "mode"], ["sum", "Sum", "sum"], ["sd", "Standard deviation", "sd"], ["variance", "Variance", "variance"], ["range", "Range", "range"], ["min", "Minimum", "min"], ["max", "Maximum", "max"], ["se", "Std. error mean", "se"], ["iqr", "IQR", "iqr"], ["q", "25th percentile", "q1"], ["q", "50th percentile", "median"], ["q", "75th percentile", "q3"], ["fence", "Lower fence", "lowerFence"], ["fence", "Upper fence", "upperFence"]].filter(([k]) => v[k]);
+        const hdr = ["Statistic"].concat(numV.flatMap((x) => groups.map((g) => (g == null ? x : `${x} (${g})`))));
+        const cells = numV.flatMap((x) => groups.map((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const d = SW.describe(vals) || {}; d.missing = vals.filter((q) => q === "").length; d.sum = (d.mean || 0) * (d.n || 0); return d; }));
+        const rows = statList.map(([k, lab, key]) => [lab].concat(cells.map((d) => (d[key] == null ? "" : d[key]))));
+        cd.insertAdjacentHTML("beforeend", table(hdr, rows, "Descriptives") + say("Shape from two numbers: mean above median points to a right tail, mean below median to a left tail. Report a pair: mean with standard deviation when symmetric, median with IQR when skewed or with outliers."));
       }
-      card("Two-way table: " + v.r + " by " + v.c, D.name, html);
+      if (v.freq && catV.length) catV.forEach((x) => { groups.forEach((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const c = SW.counts(vals), keys = Object.keys(c).sort(), n = keys.reduce((s, k) => s + c[k], 0); let cum = 0; cd.insertAdjacentHTML("beforeend", table(["Levels", "Counts", "% of Total", "Cumulative %"], keys.map((k) => { cum += c[k]; return [k, c[k], (100 * c[k]) / n, (100 * cum) / n]; }), `Frequencies of ${x}${g == null ? "" : " (" + g + ")"}`)); }); });
+      // plots
+      numV.forEach((x) => {
+        const d = SW.describe(col(x)) || {};
+        if (v.hist || v.dens) { const traces = groups.map((g) => { const vals = SW.num(g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g)); return { x: vals, type: "histogram", name: g == null ? x : String(g), opacity: groups.length > 1 ? 0.6 : 1, histnorm: v.dens ? "probability density" : "", marker: { color: groups.length > 1 ? undefined : "#3A7CA5", line: { color: "#fff", width: 1 } } }; });
+          const shapes = v.lines && groups.length === 1 ? [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }] : [];
+          plotDiv(cd, traces, { barmode: "overlay", title: `Histogram of ${x}`, xaxis: { title: x }, yaxis: { title: v.dens ? "density" : "Count" }, shapes }); }
+        if (v.box) plotDiv(cd, groups.map((g) => ({ y: SW.num(g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g)), type: "box", name: g == null ? x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { title: `Box plot of ${x}`, yaxis: { title: x }, showlegend: false });
+        if (v.dot) { const xs = SW.num(col(x)).sort((a, b) => a - b), bw = (d.range || 1) / 40 || 1, bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b]; }); plotDiv(cd, [{ x: xs, y: ys, mode: "markers", type: "scatter", marker: { size: 9, color: "#3A7CA5" } }], { title: `Dot plot of ${x}`, yaxis: { visible: false }, xaxis: { title: x } }); }
+        if (v.qq) { const q = SW.qq(col(x)), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: `Q-Q plot of ${x} (points on the line means roughly normal)`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: x } }); }
+      });
+      if (v.bar) catV.forEach((x) => { const c = SW.counts(col(x)), keys = Object.keys(c); plotDiv(cd, [{ x: keys, y: keys.map((k) => c[k]), type: "bar", marker: { color: "#3A7CA5" } }], { title: `Bar plot of ${x}`, yaxis: { title: "Count" } }); });
     });
   }
-
-  // ---------------- graphs ----------------
-  function graph(kind) {
+  function scatterUI() {
     needData();
-    if (kind === "bar" || kind === "pie") dialog(kind === "bar" ? "Bar chart" : "Pie chart", [selCat("x", "Categorical variable"), { name: "rel", label: "Relative frequency (percent)", type: "check", value: false }], (v) => {
-      const c = SW.counts(col(v.x)), keys = Object.keys(c).sort((a, b) => c[b] - c[a]), n = keys.reduce((s, k) => s + c[k], 0);
-      const cd = card((kind === "bar" ? "Bar chart: " : "Pie chart: ") + v.x, D.name, `<div class="say">${kind === "bar" ? "Bars are separated because the categories are separate things. Sorted tallest first unless the categories have their own order." : "A pie is only for parts of one whole, and similar slices are hard to compare. A bar chart is almost always the safer choice."}</div>`);
-      if (kind === "bar") plotDiv(cd, [{ x: keys, y: keys.map((k) => (v.rel ? (100 * c[k]) / n : c[k])), type: "bar", marker: { color: "#3A7CA5" } }], { yaxis: { title: v.rel ? "Percent" : "Count", rangemode: "tozero" } });
-      else plotDiv(cd, [{ labels: keys, values: keys.map((k) => c[k]), type: "pie", textinfo: "label+percent" }], {});
-    });
-    if (kind === "hist") dialog("Histogram", [selNum("x", "Numeric variable"), { name: "bins", label: "Number of bins (blank lets Plotly choose)", type: "number", value: "" }, selAny("by", "Split by (optional)", ["", "none"]), { name: "lines", label: "Mark the mean (solid) and median (dashed)", type: "check", value: true }], (v) => {
-      const x = SW.num(col(v.x)), d = SW.describe(x);
-      const cd = card("Histogram: " + v.x, `${D.name}. n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}, s = ${fmt(d.sd)}`, `<div class="say">Bars touch because the number line has no gaps. Bin width is a decision: too few bins hide structure, too many turn noise into peaks. Try two or three widths before believing a feature.</div>`);
-      const traces = []; const groups = v.by ? [...new Set(col(v.by))] : [null];
-      groups.forEach((g) => { const vals = g == null ? x : SW.num(col(v.x).filter((_, i) => col(v.by)[i] === g)); const tr = { x: vals, type: "histogram", name: g == null ? v.x : String(g), opacity: groups.length > 1 ? 0.6 : 1, marker: { color: g == null ? "#3A7CA5" : undefined, line: { color: "#fff", width: 1 } } }; if (v.bins) tr.nbinsx = v.bins; traces.push(tr); });
-      const shapes = v.lines && groups.length === 1 ? [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }] : [];
-      plotDiv(cd, traces, { barmode: "overlay", xaxis: { title: v.x }, yaxis: { title: "Count" }, shapes });
-    });
-    if (kind === "box") dialog("Boxplot", [selNum("x", "Numeric variable"), selAny("by", "Split by (optional)", ["", "none"])], (v) => {
-      const cd = card("Boxplot: " + v.x + (v.by ? " by " + v.by : ""), D.name, `<div class="say">Box from Q1 to Q3, line at the median, whiskers to the last values inside the fences, dots beyond. Dots are worth a look, not wrong.</div>`);
-      const groups = v.by ? [...new Set(col(v.by))] : [null];
-      plotDiv(cd, groups.map((g) => ({ y: g == null ? SW.num(col(v.x)) : SW.num(col(v.x).filter((_, i) => col(v.by)[i] === g)), type: "box", name: g == null ? v.x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
-    });
-    if (kind === "dot") dialog("Dotplot", [selNum("x", "Numeric variable")], (v) => {
-      const x = SW.num(col(v.x)).sort((a, b) => a - b), d = SW.describe(x), bw = d.range / 40 || 1;
-      const bins = {}, ys = x.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b]; });
-      const cd = card("Dotplot: " + v.x, `${D.name}. n = ${d.n}, mean ${fmt(d.mean)} (solid), median ${fmt(d.median)} (dashed)`, `<div class="say">One dot per observation, nothing hidden. The picture behind every summary number.</div>`);
-      plotDiv(cd, [{ x, y: ys, mode: "markers", type: "scatter", marker: { size: 9, color: "#3A7CA5" } }], { yaxis: { visible: false }, xaxis: { title: v.x }, shapes: [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }] });
-    });
-    if (kind === "scatter") dialog("Scatterplot", [selNum("x", "Explanatory (x)"), selNum("y", "Response (y)"), { name: "line", label: "Add the least-squares line", type: "check", value: true }], (v) => {
+    dialog("Exploration: Scatterplot", [selNum("x", "X axis"), selNum("y", "Y axis"), selAny("by", "Group (colour)"), sel("line", "Regression line", [["none", "None"], ["linear", "Linear"]], "linear")], (v) => {
       const r = SW.regress(col(v.x), col(v.y));
-      const cd = card(`Scatterplot: ${v.y} against ${v.x}`, `${D.name}. n = ${r.n}, r = ${fmt(r.r)}${v.line ? `, line: ${v.y} = ${fmt(r.b0)} + ${fmt(r.b1)} ${v.x}` : ""}`, `<div class="say">Describe direction, form, strength, and outliers. Correlation measures linear association only, and it is not causation.</div>`);
-      const traces = [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }];
-      if (v.line) { const xs = [Math.min(...r.x), Math.max(...r.x)]; traces.push({ x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }); }
+      const cd = card("Scatterplot", src(`${v.y} against ${v.x}, r = ${fmt(r.r)}`), say("Describe direction, form, strength, and outliers. Correlation measures linear association only; it is not causation."));
+      const groups = v.by ? [...new Set(col(v.by))] : [null];
+      const traces = groups.map((g) => { const keep = (i) => g == null || col(v.by)[i] === g; return { x: col(v.x).filter((_, i) => keep(i)), y: col(v.y).filter((_, i) => keep(i)), mode: "markers", type: "scatter", name: g == null ? "data" : String(g) }; });
+      if (v.line === "linear") { const xs = [Math.min(...r.x), Math.max(...r.x)]; traces.push({ x: xs, y: xs.map(r.predict), mode: "lines", name: `y = ${fmt(r.b0, 3)} + ${fmt(r.b1, 4)} x`, line: { color: "#C0392B" } }); }
       plotDiv(cd, traces, { xaxis: { title: v.x }, yaxis: { title: v.y } });
     });
   }
 
-  // ---------------- inference ----------------
-  function oneMeanUI() {
+  // ================= T-Tests =================
+  function tOneSample() {
     const hasData = D.rows.length > 0;
-    dialog("One mean: t interval and t test", [
-      { name: "mode", label: "Input", type: "select", options: (hasData ? [["data", "from a column"]] : []).concat([["summary", "from summary statistics"]]) },
-      hasData ? selNum("x", "Numeric variable") : null,
-      { name: "xbar", label: "Sample mean x bar", type: "number", group: "Summary statistics" }, { name: "s", label: "Sample sd s", type: "number", group: "Summary statistics" }, { name: "n", label: "n", type: "number", group: "Summary statistics" },
-      { name: "mu0", label: "Null value mu0 (leave blank for interval only)", type: "number", value: "" }, altField, confField, alphaField].filter(Boolean), (v) => {
-      let xbar = v.xbar, s = v.s, n = v.n, src = "summary statistics";
-      if (v.mode === "data") { const d = SW.describe(col(v.x)); xbar = d.mean; s = d.sd; n = d.n; src = `${v.x} in ${D.name}`; }
-      const r = SW.oneMean({ xbar, s, n, mu0: Number.isFinite(v.mu0) ? v.mu0 : 0, alt: v.alt, conf: +v.conf });
-      let html = table(["n", "x bar", "s", "SE = s / sqrt(n)", "df", "t*", "Margin", `${Math.round(r.conf * 100)}% lower`, "upper"], [[n, xbar, s, r.se, r.df, r.tstar, r.me, r.lower, r.upper]]);
-      html += `<div class="formula">x bar plus or minus t* times s / sqrt(n), df = n minus 1. Sigma is not given, so t, not z.</div>`;
-      html += `<div class="say">We are ${Math.round(r.conf * 100)} percent confident that the population mean is between ${fmt(r.lower)} and ${fmt(r.upper)}.</div>`;
-      if (Number.isFinite(v.mu0)) {
-        html += table(["H0", "Ha", "t", "df", "p-value", "Cohen's d"], [[`mu = ${v.mu0}`, `mu ${altSym(v.alt)} ${v.mu0}`, r.t, r.df, SW.fmtP(r.p), r.d]]);
-        html += `<div class="formula">t = (x bar minus mu0) / (s / sqrt(n))</div>`;
-        html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean is ${altSym(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean is ${altSym(v.alt)} ${v.mu0}.`} The sample mean is ${fmt(xbar)}, a gap of ${fmt(xbar - v.mu0)} (${fmt(Math.abs(r.d), 2)} standard deviations).</div>`;
-      }
-      html += `<div class="${n >= 30 ? "ok" : "warn"}">${n >= 30 ? "n is at least 30: the t procedure is fine whatever the population shape." : "n is under 30: this needs a roughly normal population (check the histogram). Say that the assumptions are met."}</div>`;
-      const cd = card("One mean (t)", src, html);
-      if (Number.isFinite(v.mu0)) tPlot(cd, r.t, r.df, v.alt);
+    dialog("T-Tests: One Sample T-Test", [
+      hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
+      hasData ? selNum("x", "Dependent variable") : null,
+      { name: "xbar", label: "Mean", type: "number", group: "Summary statistics" }, { name: "s", label: "Std. deviation", type: "number", group: "Summary statistics" }, { name: "n", label: "N", type: "number", group: "Summary statistics" },
+      { name: "mu0", label: "Test value", type: "number", value: 0 }, hypField("Mean"),
+      { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size (Cohen's d)", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" },
+      confField, alphaField], (v) => {
+      let xbar = v.xbar, s = v.s, n = v.n, label = "value", from = "summary statistics";
+      if (v.mode === "data") { const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; s = d.sd; n = d.n; label = v.x; from = src(); }
+      const r = SW.oneMean({ xbar, s, n, mu0: v.mu0, alt: v.alt, conf: +v.conf });
+      const hdr = ["", "", "Statistic", "df", "p"], row = [label, "Student's t", r.t, r.df, SW.fmtP(r.p)];
+      if (v.meanDiff) { hdr.push("Mean difference"); row.push(xbar - v.mu0); }
+      if (v.ci) { hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper"); row.push(r.lower - v.mu0, r.upper - v.mu0); }
+      if (v.es) { hdr.push("Cohen's d"); row.push(r.d); }
+      let html = table(hdr, [row], "One Sample T-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. Confidence interval is for the mean difference; the interval for the mean itself is ${fmt(r.lower)} to ${fmt(r.upper)}.</div>`;
+      if (v.desc) html += table(["", "N", "Mean", "Median", "SD", "SE"], [[label, n, xbar, v.mode === "data" ? SW.describe(col(v.x)).median : "", s, r.se]], "Descriptives");
+      html += formula(`t = (x bar minus test value) / (s / sqrt(n)), df = n minus 1. Sigma is not given, so t, never z.`);
+      html += say(`H0: mu = ${v.mu0}. Ha: mu ${altWord(v.alt)} ${v.mu0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean of ${label} is ${altWord(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean of ${label} is ${altWord(v.alt)} ${v.mu0}.`} The sample mean is ${fmt(xbar)}, ${fmt(Math.abs(r.d), 2)} standard deviations from ${v.mu0}.`);
+      html += cond(n >= 30, "N is at least 30: the t procedure is fine whatever the population shape.", "N is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
+      const cd = card("One Sample T-Test", from, html); tPlot(cd, r.t, r.df, v.alt);
     });
   }
-  function onePropUI() {
+  function tIndependent() {
     const hasData = D.rows.length > 0;
-    dialog("One proportion: z interval and z test", [
-      { name: "mode", label: "Input", type: "select", options: (hasData ? [["data", "from a column"]] : []).concat([["summary", "from counts"]]) },
-      hasData ? selCat("x", "Categorical variable") : null, hasData ? { name: "succ", label: "Success level (type it exactly as in the data)", type: "text" } : null,
-      { name: "xs", label: "Successes x", type: "number", group: "Counts" }, { name: "n", label: "n", type: "number", group: "Counts" },
-      { name: "p0", label: "Null value p0 (blank for interval only)", type: "number", value: "" }, altField, confField, alphaField].filter(Boolean), (v) => {
-      let x = v.xs, n = v.n, src = "counts";
-      if (v.mode === "data") { const vals = col(v.x).filter((q) => q !== ""); n = vals.length; x = vals.filter((q) => q === v.succ).length; src = `${v.x} = ${v.succ} in ${D.name}`; if (!x) throw new Error("No rows match that success level. Check spelling and case."); }
-      const r = SW.oneProp({ x, n, p0: Number.isFinite(v.p0) ? v.p0 : 0.5, alt: v.alt, conf: +v.conf });
-      let html = table(["x", "n", "p hat", "SE = sqrt(p hat (1 minus p hat) / n)", "z*", "Margin", `${Math.round(r.conf * 100)}% lower`, "upper"], [[x, n, r.phat, r.se, r.zstar, r.me, r.lower, r.upper]]);
-      html += `<div class="${r.condCI ? "ok" : "warn"}">Success-failure check: ${x} successes and ${n - x} failures. ${r.condCI ? "Both at least 10, the interval is allowed." : "Fewer than 10 of one kind: this course does not build a z interval here. Report the count and the proportion descriptively."}</div>`;
-      html += `<div class="say">We are ${Math.round(r.conf * 100)} percent confident that the population proportion is between ${fmt(r.lower)} and ${fmt(r.upper)}.</div>`;
-      if (Number.isFinite(v.p0)) {
-        html += table(["H0", "Ha", "SE0 = sqrt(p0 (1 minus p0) / n)", "z", "p-value (z)", "p-value (exact binomial, what jamovi shows)"], [[`p = ${v.p0}`, `p ${altSym(v.alt)} ${v.p0}`, r.se0, r.z, SW.fmtP(r.p), SW.fmtP(r.exact)]]);
-        html += `<div class="${r.condTest ? "ok" : "warn"}">Test condition: n p0 = ${fmt(n * v.p0, 1)} and n (1 minus p0) = ${fmt(n * (1 - v.p0), 1)}. ${r.condTest ? "Both at least 10." : "Below 10: use the exact binomial p-value."}</div>`;
-        html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population proportion is ${altSym(v.alt)} ${v.p0}.` : `There is not enough evidence that the population proportion is ${altSym(v.alt)} ${v.p0}.`}</div>`;
-      }
-      const cd = card("One proportion (z)", src, html);
-      if (Number.isFinite(v.p0)) zPlot(cd, r.z, v.alt);
-    });
-  }
-  function twoMeansUI() {
-    const hasData = D.rows.length > 0;
-    dialog("Two independent means: Welch t", [
-      { name: "mode", label: "Input", type: "select", options: (hasData ? [["data", "from a numeric column split by a group"], ["cols", "from two numeric columns"]] : []).concat([["summary", "from summary statistics"]]) },
-      hasData ? selNum("x", "Numeric variable") : null, hasData ? selCat("g", "Grouping variable (two levels used)") : null, hasData ? selNum("x2", "Second column (for the two-columns option)") : null,
-      { name: "m1", label: "Mean 1", type: "number", group: "Group 1" }, { name: "s1", label: "s 1", type: "number", group: "Group 1" }, { name: "n1", label: "n 1", type: "number", group: "Group 1" },
-      { name: "m2", label: "Mean 2", type: "number", group: "Group 2" }, { name: "s2", label: "s 2", type: "number", group: "Group 2" }, { name: "n2", label: "n 2", type: "number", group: "Group 2" },
-      altField, confField, alphaField].filter(Boolean), (v) => {
-      let a, b, names = ["group 1", "group 2"], src = "summary statistics";
-      if (v.mode === "data") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; the two-means test needs exactly two. Use a filter, or ANOVA for three or more.`); names = lv; a = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[0])); b = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[1])); src = `${v.x} by ${v.g} in ${D.name}`; }
-      else if (v.mode === "cols") { a = SW.describe(col(v.x)); b = SW.describe(col(v.x2)); names = [v.x, v.x2]; src = D.name; }
+    dialog("T-Tests: Independent Samples T-Test", [
+      hasData ? sel("mode", "Data", [["data", "dependent variable and grouping variable"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
+      hasData ? selNum("x", "Dependent variable") : null, hasData ? selCat("g", "Grouping variable (two levels)") : null,
+      { name: "m1", label: "Mean 1", type: "number", group: "Group 1" }, { name: "s1", label: "SD 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" },
+      { name: "m2", label: "Mean 2", type: "number", group: "Group 2" }, { name: "s2", label: "SD 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
+      { name: "welch", label: "Welch's (unequal variances, the default in this course)", type: "check", value: true, group: "Tests" },
+      sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"),
+      { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
+      confField, alphaField], (v) => {
+      let a, b, names = ["Group 1", "Group 2"], from = "summary statistics", ga = [], gb = [];
+      if (v.mode === "data") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; the independent samples t-test needs exactly two. Add a filter, or use One-Way ANOVA.`); names = lv; ga = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]); gb = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); a = SW.describe(ga); b = SW.describe(gb); from = src(`${v.x} by ${v.g}`); }
       else { a = { mean: v.m1, sd: v.s1, n: v.n1 }; b = { mean: v.m2, sd: v.s2, n: v.n2 }; }
       const r = SW.twoMeans({ m1: a.mean, s1: a.sd, n1: a.n, m2: b.mean, s2: b.sd, n2: b.n, alt: v.alt, conf: +v.conf });
-      let html = table(["Group", "n", "Mean", "s", "SE"], [[names[0], a.n, a.mean, a.sd, a.sd / Math.sqrt(a.n)], [names[1], b.n, b.mean, b.sd, b.sd / Math.sqrt(b.n)]]);
-      html += table(["Difference (1 minus 2)", "SE = sqrt(s1^2/n1 + s2^2/n2)", "df (Welch)", "t", "p-value", `${Math.round(r.conf * 100)}% lower`, "upper", "Cohen's d"], [[r.diff, r.se, r.df, r.t, SW.fmtP(r.p), r.lower, r.upper, r.d]]);
-      html += `<div class="formula">H0: mu1 = mu2. Ha: mu1 ${altSym(v.alt)} mu2. t = (x bar 1 minus x bar 2) / SE. Welch df from the two standard errors, a decimal.</div>`;
-      html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${names[0]} is ${altSym(v.alt)} the mean of ${names[1]}.` : `There is not enough evidence of a difference between the mean of ${names[0]} and the mean of ${names[1]}.`} We are ${Math.round(r.conf * 100)} percent confident the difference in population means is between ${fmt(r.lower)} and ${fmt(r.upper)}.</div>`;
-      html += `<div class="${a.n >= 30 && b.n >= 30 ? "ok" : "warn"}">${a.n >= 30 && b.n >= 30 ? "Both groups have n at least 30." : "A group has n under 30: needs roughly normal populations; check the boxplots and say the assumptions are met."} Groups must be independent (different people in each).</div>`;
-      const cd = card("Two independent means (Welch t)", src, html); tPlot(cd, r.t, r.df, v.alt);
+      const hdr = ["", "", "Statistic", "df", "p"], row = [v.mode === "data" ? v.x : "value", "Welch's t", r.t, r.df, SW.fmtP(r.p)];
+      if (v.meanDiff) { hdr.push("Mean difference", "SE difference"); row.push(r.diff, r.se); }
+      if (v.ci) { hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper"); row.push(r.lower, r.upper); }
+      if (v.es) { hdr.push("Cohen's d"); row.push(r.d); }
+      let html = table(hdr, [row], "Independent Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>${esc(names[0])}</sub> ${altWord(v.alt)} mu<sub>${esc(names[1])}</sub>. Welch's df comes from the two standard errors, so it is a decimal.</div>`;
+      if (v.desc) html += table(["", "Group", "N", "Mean", "SD", "SE"], [[v.mode === "data" ? v.x : "", names[0], a.n, a.mean, a.sd, a.sd / Math.sqrt(a.n)], ["", names[1], b.n, b.mean, b.sd, b.sd / Math.sqrt(b.n)]], "Group Descriptives");
+      html += formula(`t = (x bar 1 minus x bar 2) / sqrt(s1^2 / n1 + s2^2 / n2)`);
+      html += say(`H0: the two population means are equal. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${names[0]} is ${altWord(v.alt)} the mean of ${names[1]}.` : `There is not enough evidence of a difference between the means of ${names[0]} and ${names[1]}.`} We are ${Math.round(r.conf * 100)} percent confident the difference in population means is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
+      html += cond(a.n >= 30 && b.n >= 30, "Both groups have N at least 30.", "A group has N under 30: needs roughly normal populations (check box plots); state that the assumptions are met.") + say("Independent samples: different individuals in each group. If the same individuals were measured twice, use the Paired Samples T-Test.");
+      const cd = card("Independent Samples T-Test", from, html);
+      if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false });
+      tPlot(cd, r.t, r.df, v.alt);
     });
   }
-  function pairedUI() {
+  function tPaired() {
     needData();
-    dialog("Paired means: t on the differences", [selNum("a", "First measurement (column)"), selNum("b", "Second measurement (column)"), { name: "order", label: "Difference", type: "select", options: [["ab", "first minus second"], ["ba", "second minus first"]] }, altField, confField, alphaField], (v) => {
-      const r = v.order === "ab" ? SW.paired(col(v.a), col(v.b), v) : SW.paired(col(v.b), col(v.a), v);
-      const lab = v.order === "ab" ? `${v.a} minus ${v.b}` : `${v.b} minus ${v.a}`;
-      let html = table(["Pairs n", "Mean difference d bar", "s of differences", "SE = s_d / sqrt(n)", "df", "t", "p-value", `${Math.round(r.conf * 100)}% lower`, "upper"], [[r.n, r.dbar, r.sd, r.se, r.df, r.t, SW.fmtP(r.p), r.lower, r.upper]]);
-      html += `<div class="formula">Compute d = ${lab} for every pair, then a one-sample t on d: H0: mu_d = 0, Ha: mu_d ${altSym(v.alt)} 0.</div>`;
-      html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean difference (${lab}) is ${altSym(v.alt)} 0.` : `There is not enough evidence that the mean difference (${lab}) differs from 0.`} We are ${Math.round(r.conf * 100)} percent confident the mean difference is between ${fmt(r.lower)} and ${fmt(r.upper)}.</div>`;
-      html += `<div class="say">Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.</div>`;
-      const cd = card("Paired means (t)", `${lab} in ${D.name}`, html);
-      plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: "difference: " + lab }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
+    dialog("T-Tests: Paired Samples T-Test", [selNum("a", "Paired variable 1"), selNum("b", "Paired variable 2"), sel("alt", "Hypothesis", [["two", "Measure 1 not equal to Measure 2"], ["greater", "Measure 1 greater than Measure 2"], ["less", "Measure 1 less than Measure 2"]], "two"),
+      { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Histogram of differences", type: "check", value: true, group: "Additional statistics" },
+      confField, alphaField], (v) => {
+      const r = SW.paired(col(v.a), col(v.b), { alt: v.alt, conf: +v.conf });
+      const hdr = ["", "", "", "Statistic", "df", "p"], row = [v.a, v.b, "Student's t", r.t, r.df, SW.fmtP(r.p)];
+      if (v.meanDiff) { hdr.push("Mean difference", "SE difference"); row.push(r.dbar, r.se); }
+      if (v.ci) { hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper"); row.push(r.lower, r.upper); }
+      if (v.es) { hdr.push("Cohen's d"); row.push(r.d); }
+      let html = table(hdr, [row], "Paired Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>Measure 1 minus Measure 2</sub> ${altWord(v.alt)} 0. Difference = ${esc(v.a)} minus ${esc(v.b)}.</div>`;
+      if (v.desc) { const da = SW.describe(col(v.a)), db = SW.describe(col(v.b)); html += table(["", "N", "Mean", "Median", "SD", "SE"], [[v.a, da.n, da.mean, da.median, da.sd, da.se], [v.b, db.n, db.mean, db.median, db.sd, db.se]], "Descriptives"); }
+      html += formula(`d = ${v.a} minus ${v.b} for each pair; t = d bar / (s_d / sqrt(n)), df = n minus 1`);
+      html += say(`H0: the mean difference is 0. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${v.a} is ${altWord(v.alt)} the mean of ${v.b} for the same individuals.` : `There is not enough evidence of a difference between ${v.a} and ${v.b}.`} Mean difference ${fmt(r.dbar)}, ${Math.round(r.conf * 100)} percent interval ${fmt(r.lower)} to ${fmt(r.upper)}.`) + say("Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.");
+      const cd = card("Paired Samples T-Test", src(), html);
+      if (v.plot) plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: `difference: ${v.a} minus ${v.b}` }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
+      tPlot(cd, r.t, r.df, v.alt);
+    });
+  }
+
+  // ================= ANOVA =================
+  function anovaUI() {
+    needData();
+    dialog("ANOVA: One-Way ANOVA", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable"),
+      { name: "fisher", label: "Assume equal (Fisher's)", type: "check", value: true, group: "Variances" }, { name: "welch", label: "Don't assume equal (Welch's)", type: "check", value: false, group: "Variances" },
+      { name: "desc", label: "Descriptives table", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
+      { name: "tukey", label: "Post-Hoc Tests: Tukey", type: "check", value: true, group: "Post-Hoc" }, { name: "homo", label: "Homogeneity test (largest SD over smallest)", type: "check", value: true, group: "Assumption Checks" }, alphaField], (v) => {
+      const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); });
+      const r = SW.anova(groups);
+      let html = "";
+      if (v.fisher) html += table(["", "", "F", "df1", "df2", "p"], [[v.x, "Fisher's", r.F, r.df1, r.df2, SW.fmtP(r.p)]], "One-Way ANOVA");
+      if (v.welch) { const w = welchAnova(r); html += table(["", "", "F", "df1", "df2", "p"], [[v.x, "Welch's", w.F, w.df1, w.df2, SW.fmtP(w.p)]], "One-Way ANOVA (Welch's)"); }
+      html += table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p"], [[v.g, r.ssb, r.df1, r.msb, r.F, SW.fmtP(r.p)], ["Residuals", r.ssw, r.df2, r.msw, "", ""]], `ANOVA - ${v.x}`);
+      if (v.desc) html += table(["", v.g, "N", "Mean", "SD", "SE"], r.groups.map((q, i) => [i ? "" : v.x, q.name, q.n, q.mean, q.sd, q.sd / Math.sqrt(q.n)]), "Group Descriptives");
+      html += formula(`H0: all group means equal. F = MS between / MS within, df = (k minus 1, N minus k). R squared = SS between / SS total = ${fmt(r.r2)}.`);
+      html += say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `At least one group mean of ${v.x} differs across ${v.g}; the F test does not say which. Read the post-hoc table.` : `There is not enough evidence that the mean of ${v.x} differs across ${v.g}.`}`);
+      if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
+      if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
+      const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
+      if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
+    });
+  }
+  function welchAnova(r) {
+    const w = r.groups.map((g) => g.n / (g.sd * g.sd)), W = w.reduce((s, x) => s + x, 0);
+    const gm = r.groups.reduce((s, g, i) => s + w[i] * g.mean, 0) / W, k = r.k;
+    const num = r.groups.reduce((s, g, i) => s + w[i] * (g.mean - gm) ** 2, 0) / (k - 1);
+    const lam = r.groups.reduce((s, g, i) => s + (1 - w[i] / W) ** 2 / (g.n - 1), 0);
+    const F = num / (1 + (2 * (k - 2) * lam) / (k * k - 1)), df2 = (k * k - 1) / (3 * lam);
+    return { F, df1: k - 1, df2, p: 1 - SW.pf(F, k - 1, df2) };
+  }
+
+  // ================= Regression =================
+  function corrUI() {
+    needData();
+    dialog("Regression: Correlation Matrix", [{ name: "vars", label: "Variables (two or more)", type: "multi", options: numCols() }, { name: "pear", label: "Pearson", type: "check", value: true, group: "Correlation Coefficients" }, { name: "sig", label: "Report significance", type: "check", value: true, group: "Additional Options" }, { name: "plot", label: "Scatter plots (pairs)", type: "check", value: true, group: "Plot" }], (v) => {
+      if (v.vars.length < 2) throw new Error("Pick at least two variables.");
+      const rows = [];
+      v.vars.forEach((a) => { const row = [a]; v.vars.forEach((b) => { if (a === b) { row.push("1"); return; } const r = SW.regress(col(a), col(b)); row.push(fmt(r.r) + (v.sig ? ` (p = ${SW.fmtP(r.pr)})` : "")); }); rows.push(row); });
+      const cd = card("Correlation Matrix", src(), table([""].concat(v.vars), rows, "Correlation Matrix (Pearson's r)") + formula("Test of each r: H0 rho = 0, t = r sqrt(n minus 2) / sqrt(1 minus r^2), df = n minus 2") + say("r measures linear association, from minus 1 to 1, and is pulled by outliers. Look at the scatterplot before believing any r. Correlation is not causation."));
+      if (v.plot) for (let i = 0; i < v.vars.length; i++) for (let j = i + 1; j < v.vars.length; j++) { const r = SW.regress(col(v.vars[i]), col(v.vars[j])); plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: `${v.vars[j]} against ${v.vars[i]}, r = ${fmt(r.r, 3)}`, xaxis: { title: v.vars[i] }, yaxis: { title: v.vars[j] } }, 280); }
+    });
+  }
+  function linRegUI() {
+    needData();
+    dialog("Regression: Linear Regression", [selNum("y", "Dependent variable"), selNum("x", "Covariate (explanatory)"), { name: "ci", label: "Confidence interval for coefficients", type: "check", value: true, group: "Model Coefficients" }, { name: "r2", label: "R and R squared (Model Fit)", type: "check", value: true, group: "Model Fit" }, { name: "resid", label: "Residual plots", type: "check", value: true, group: "Assumption Checks" }, { name: "qq", label: "Q-Q plot of residuals", type: "check", value: false, group: "Assumption Checks" }, { name: "pred", label: "Predict at x = (optional)", type: "number", value: "" }, confField, alphaField], (v) => {
+      const r = SW.regress(col(v.x), col(v.y), +v.conf);
+      let html = "";
+      if (v.r2) html += table(["Model", "R", "R squared"], [["1", Math.abs(r.r), r.r2]], "Model Fit Measures");
+      const hdr = ["Predictor", "Estimate", "SE", "t", "p"]; if (v.ci) hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper");
+      const b0row = ["Intercept", r.b0, r.seb0, r.b0 / r.seb0, SW.fmtP(2 * (1 - SW.pt(Math.abs(r.b0 / r.seb0), r.df)))], b1row = [v.x, r.b1, r.seb1, r.t, SW.fmtP(r.p)];
+      if (v.ci) { b0row.push(r.b0 - r.tstar * r.seb0, r.b0 + r.tstar * r.seb0); b1row.push(r.b1lower, r.b1upper); }
+      html += table(hdr, [b0row, b1row], `Model Coefficients - ${v.y}`);
+      html += formula(`${v.y} hat = ${fmt(r.b0)} + ${fmt(r.b1)} ${v.x}. b1 = r s_y / s_x, b0 = y bar minus b1 x bar. Slope test: H0 beta1 = 0, t = b1 / SE, df = n minus 2 = ${r.df}.`);
+      html += say(`Slope: each one-unit increase in ${v.x} predicts a change of ${fmt(r.b1)} in ${v.y}. ${fmt(100 * r.r2, 1)} percent of the variation in ${v.y} is explained by the line. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a linear relationship between ${v.x} and ${v.y}.` : `There is not enough evidence of a linear relationship between ${v.x} and ${v.y}.`} Correlation is not causation.`);
+      if (Number.isFinite(v.pred)) { const inR = v.pred >= Math.min(...r.x) && v.pred <= Math.max(...r.x); html += (inR ? say : warn)(`Predicted ${v.y} at ${v.x} = ${v.pred}: ${fmt(r.predict(v.pred))}.${inR ? "" : " That x is outside the data range: extrapolation, do not trust it."}`); }
+      const cd = card("Linear Regression", src(`${v.y} on ${v.x}`), html);
+      const xs = [Math.min(...r.x), Math.max(...r.x)];
+      plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }], { xaxis: { title: v.x }, yaxis: { title: v.y } });
+      if (v.resid) plotDiv(cd, [{ x: r.fitted, y: r.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 280);
+      if (v.qq) { const q = SW.qq(r.resid), sd = SW.sd(r.resid); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }, { x: [-2.5, 2.5], y: [-2.5 * sd, 2.5 * sd], mode: "lines", line: { color: "#C0392B" } }], { title: "Q-Q plot of residuals", xaxis: { title: "theoretical quantiles" }, yaxis: { title: "residual" } }, 280); }
+    });
+  }
+
+  // ================= Frequencies =================
+  function binomialTest() {
+    const hasData = D.rows.length > 0;
+    dialog("Frequencies: 2 Outcomes, Binomial test", [
+      hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
+      hasData ? selCat("x", "Variable") : null, hasData ? { name: "succ", label: "Level to test (leave blank for every level)", type: "text" } : null,
+      { name: "xs", label: "Count of successes", type: "number", group: "Counts" }, { name: "n", label: "N", type: "number", group: "Counts" },
+      { name: "p0", label: "Test value", type: "number", value: 0.5 }, hypField("Proportion"), { name: "ci", label: "Confidence intervals", type: "check", value: true }, { name: "z", label: "Also show the z test (the course's by-hand method)", type: "check", value: true }, confField, alphaField], (v) => {
+      let levels = [], from = "counts";
+      if (v.mode === "data") { const vals = col(v.x).filter((q) => q !== ""); const c = SW.counts(vals); const keys = v.succ.trim() ? [v.succ.trim()] : Object.keys(c).sort(); if (v.succ.trim() && !c[v.succ.trim()]) throw new Error(`No rows have ${v.x} = ${v.succ}. Check spelling and case.`); levels = keys.map((k) => ({ level: k, x: c[k] || 0, n: vals.length })); from = src(v.x); }
+      else levels = [{ level: "success", x: v.xs, n: v.n }];
+      const rows = [], zrows = []; let last;
+      levels.forEach((L, i) => { const r = SW.oneProp({ x: L.x, n: L.n, p0: v.p0, alt: v.alt, conf: +v.conf }); last = r; const row = [i ? "" : v.mode === "data" ? v.x : "", L.level, L.x, L.n, r.phat, SW.fmtP(r.exact)]; if (v.ci) row.push(r.lower, r.upper); rows.push(row); zrows.push([L.level, r.se0, r.z, SW.fmtP(r.p), r.condTest ? "yes" : "no", r.condCI ? "yes" : "no"]); });
+      const hdr = ["", "Level", "Count", "Total", "Proportion", "p"]; if (v.ci) hdr.push(`${Math.round(+v.conf * 100)}% CI lower`, "upper");
+      let html = table(hdr, rows, "Binomial Test") + `<div class="note">Note. H<sub>a</sub> is proportion ${altWord(v.alt)} ${v.p0}. p is the exact binomial p-value, as jamovi reports it.</div>`;
+      if (v.z) html += table(["Level", "SE0 = sqrt(p0(1 minus p0)/n)", "z", "p (z test)", "n p0 and n(1 minus p0) at least 10", "successes and failures at least 10"], zrows, "z test for a proportion (by hand method)") + formula("z = (p hat minus p0) / sqrt(p0 (1 minus p0) / n); interval p hat plus or minus z* sqrt(p hat (1 minus p hat) / n)");
+      const r = last, L = levels[levels.length - 1];
+      html += say(`H0: p = ${v.p0}. ${decision(v.z ? r.p : r.exact, +v.alpha)} ${(v.z ? r.p : r.exact) <= +v.alpha ? `There is evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.` : `There is not enough evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.`}${v.ci ? ` We are ${Math.round(+v.conf * 100)} percent confident the population proportion is between ${fmt(r.lower)} and ${fmt(r.upper)}.` : ""}`);
+      html += cond(r.condCI, `Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`, `Success-failure check fails (${L.x} and ${L.n - L.x}): this course does not build a z interval here. Report the proportion descriptively.`);
+      const cd = card("Binomial Test (2 Outcomes)", from, html); zPlot(cd, r.z, v.alt);
+    });
+  }
+  function gofUI() {
+    const hasData = D.rows.length > 0;
+    dialog("Frequencies: N Outcomes, Chi-square Goodness of fit", [
+      hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
+      hasData ? selCat("x", "Variable") : null,
+      { name: "counts", label: "Counts, one per line as  level: count", type: "textarea", rows: 5, placeholder: "Freshman: 11\nSophomore: 15\nJunior: 9\nSenior: 5", group: "Counts (for the counts option)" },
+      { name: "props", label: "Expected proportions, comma separated in the level order shown (blank = equal)", type: "text", placeholder: "0.30, 0.25, 0.15, 0.30", hint: "Levels are sorted alphabetically, the same order jamovi shows them." },
+      { name: "exp", label: "Expected counts", type: "check", value: true }, alphaField], (v) => {
+      let obs = {}, from = "counts";
+      if (v.mode === "data") { const c = SW.counts(col(v.x)); Object.keys(c).sort().forEach((k) => (obs[k] = c[k])); from = src(v.x); }
+      else v.counts.split("\n").map((l) => l.split(":")).filter((p) => p.length === 2).forEach(([k, n]) => (obs[k.trim()] = Number(n)));
+      const keys = Object.keys(obs); if (keys.length < 2) throw new Error("Need at least two levels.");
+      let props = null; if (v.props.trim()) { const ps = v.props.split(/[,\s]+/).filter(Boolean).map(Number); if (ps.length !== keys.length) throw new Error(`Levels in order: ${keys.join(", ")}. You gave ${ps.length} proportions for ${keys.length} levels.`); props = Object.fromEntries(keys.map((k, i) => [k, ps[i]])); }
+      const r = SW.gof(obs, props);
+      let html = table(["Level", "Count", "Expected", "Proportion", "(O minus E)^2 / E"], r.rows.map((q) => [q.cat, q.o, v.exp ? q.e : "", q.o / r.n, q.contrib]), "Proportions") + table(["chi-square", "df", "p"], [[r.chi, r.df, SW.fmtP(r.p)]], "Chi-square Goodness of Fit");
+      html += formula(`chi-square = sum of (O minus E)^2 / E, E = n times expected proportion, df = levels minus 1`);
+      html += cond(r.minE >= 5, "Every expected count is at least 5.", `Smallest expected count is ${fmt(r.minE, 2)}, below 5: the test is not trustworthy.`);
+      html += say(`H0: the population follows the stated proportions${props ? "" : " (all equal)"}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the distribution differs from the stated one.` : `There is not enough evidence that the distribution departs from the stated one; that is not proof that it matches.`}`);
+      const cd = card("Chi-square Goodness of Fit (N Outcomes)", from, html);
+      plotDiv(cd, [{ x: keys, y: r.rows.map((q) => q.o), type: "bar", name: "Observed", marker: { color: "#3A7CA5" } }, { x: keys, y: r.rows.map((q) => q.e), type: "bar", name: "Expected", marker: { color: "#D97D54" } }], { barmode: "group", yaxis: { title: "Count" } });
+    });
+  }
+  function contTables() {
+    const hasData = D.rows.length > 0;
+    dialog("Frequencies: Contingency Tables, Independent Samples (chi-square test of association)", [
+      hasData ? sel("mode", "Data", [["data", "from two columns"], ["summary", "from a table of counts"]], "data") : sel("mode", "Data", [["summary", "from a table of counts"]]),
+      hasData ? selCat("r", "Rows") : null, hasData ? selCat("c", "Columns") : null,
+      { name: "tbl", label: "Table of counts: first row = column names, first column = row names", type: "textarea", rows: 5, placeholder: "employment, Pet No, Pet Yes\nFull-time, 4, 6\nNot employed, 3, 6\nPart-time, 10, 11", group: "Counts (for the table option)" },
+      { name: "chi", label: "chi-square", type: "check", value: true, group: "Tests" }, { name: "obs", label: "Observed counts", type: "check", value: true, group: "Cells" }, { name: "exp", label: "Expected counts", type: "check", value: false, group: "Cells" },
+      { name: "pcRow", label: "Row percentages", type: "check", value: false, group: "Percentages" }, { name: "pcCol", label: "Column percentages", type: "check", value: false, group: "Percentages" }, { name: "pcTot", label: "Total percentages", type: "check", value: false, group: "Percentages" }, alphaField], (v) => {
+      let t, from = "counts", rn = "rows", cn = "columns";
+      if (v.mode === "data") { t = SW.twoWay(col(v.r), col(v.c)); rn = v.r; cn = v.c; from = src(`${v.r} by ${v.c}`); }
+      else { const rows = parseCSV(v.tbl); if (rows.length < 3) throw new Error("Need a header row and at least two rows of counts."); cn = rows[0][0] || "columns"; const rv = [], cv = []; rows.slice(1).forEach((r) => rows[0].slice(1).forEach((c, j) => { const n = Number(r[j + 1]); for (let k = 0; k < n; k++) { rv.push(r[0]); cv.push(c); } })); t = SW.twoWay(rv, cv); }
+      const cell = (i, j) => { const o = t.O[i][j]; const parts = []; if (v.obs) parts.push(String(o)); if (v.exp) parts.push(`E ${fmt(t.E[i][j], 2)}`); if (v.pcRow) parts.push(`${fmt((100 * o) / t.rt[i], 1)}% row`); if (v.pcCol) parts.push(`${fmt((100 * o) / t.ct[j], 1)}% col`); if (v.pcTot) parts.push(`${fmt((100 * o) / t.n, 1)}% total`); return parts.join(" | "); };
+      const rows = t.rows.map((r, i) => [r].concat(t.cols.map((_, j) => cell(i, j)), [t.rt[i]])); rows.push(["Total"].concat(t.ct, [t.n]));
+      let html = table([rn + " \\ " + cn].concat(t.cols, ["Total"]), rows, "Contingency Tables");
+      html += say("A row percentage is a conditional probability given the row; a total percentage is the 'and' probability. Under independence every row shows the same percentages.");
+      if (v.chi) {
+        html += table(["", "Value", "df", "p"], [["chi-square", t.chi, t.df, SW.fmtP(t.p)], ["N", t.n, "", ""]], "chi-square Tests");
+        html += formula(`chi-square = sum of (O minus E)^2 / E, E = row total times column total / N, df = (rows minus 1)(columns minus 1) = ${t.df}`);
+        html += cond(t.minE >= 5, "Every expected count is at least 5.", `Smallest expected count is ${fmt(t.minE, 2)}, below 5: the test is not trustworthy. Combine categories or collect more data.`);
+        html += say(`H0: ${rn} and ${cn} are independent. ${decision(t.p, +v.alpha)} ${t.p <= +v.alpha ? `There is evidence of an association between ${rn} and ${cn}.` : `There is not enough evidence of an association between ${rn} and ${cn}.`}`);
+      }
+      card("Contingency Tables (Independent Samples)", from, html);
     });
   }
   function twoPropsUI() {
     const hasData = D.rows.length > 0;
-    dialog("Two proportions: z test and interval", [
-      { name: "mode", label: "Input", type: "select", options: (hasData ? [["data", "from a categorical column split by a group"]] : []).concat([["summary", "from counts"]]) },
-      hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text" } : null, hasData ? selCat("g", "Grouping variable (two levels used)") : null,
-      { name: "x1", label: "Successes 1", type: "number", group: "Group 1" }, { name: "n1", label: "n 1", type: "number", group: "Group 1" },
-      { name: "x2", label: "Successes 2", type: "number", group: "Group 2" }, { name: "n2", label: "n 2", type: "number", group: "Group 2" },
-      altField, confField, alphaField].filter(Boolean), (v) => {
-      let x1 = v.x1, n1 = v.n1, x2 = v.x2, n2 = v.n2, names = ["group 1", "group 2"], src = "counts";
-      if (v.mode === "data") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs exactly two.`); names = lv; const gv = col(v.g), xv = col(v.x); const inG = (l) => xv.filter((_, i) => gv[i] === l && xv[i] !== ""); n1 = inG(lv[0]).length; x1 = inG(lv[0]).filter((q) => q === v.succ).length; n2 = inG(lv[1]).length; x2 = inG(lv[1]).filter((q) => q === v.succ).length; src = `${v.x} = ${v.succ} by ${v.g} in ${D.name}`; }
+    dialog("Frequencies: Two proportions, z test (course method)", [
+      hasData ? sel("mode", "Data", [["data", "outcome column split by a group"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
+      hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text" } : null, hasData ? selCat("g", "Grouping variable (two levels)") : null,
+      { name: "x1", label: "Successes 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" }, { name: "x2", label: "Successes 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
+      sel("alt", "Hypothesis", [["two", "p1 not equal to p2"], ["greater", "p1 greater than p2"], ["less", "p1 less than p2"]], "two"), confField, alphaField], (v) => {
+      let x1 = v.x1, n1 = v.n1, x2 = v.x2, n2 = v.n2, names = ["Group 1", "Group 2"], from = "counts";
+      if (v.mode === "data") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs exactly two (add a filter).`); names = lv; const gv = col(v.g), xv = col(v.x); const inG = (l) => xv.filter((_, i) => gv[i] === l && xv[i] !== ""); n1 = inG(lv[0]).length; x1 = inG(lv[0]).filter((q) => q === v.succ).length; n2 = inG(lv[1]).length; x2 = inG(lv[1]).filter((q) => q === v.succ).length; from = src(`${v.x} = ${v.succ} by ${v.g}`); }
       const r = SW.twoProps({ x1, n1, x2, n2, alt: v.alt, conf: +v.conf });
-      let html = table(["Group", "x", "n", "p hat"], [[names[0], x1, n1, r.p1], [names[1], x2, n2, r.p2]]);
-      html += table(["Difference (1 minus 2)", "Pooled p hat", "SE0 (pooled)", "z", "p-value", "SE (unpooled)", `${Math.round(r.conf * 100)}% lower`, "upper"], [[r.diff, r.pooled, r.se0, r.z, SW.fmtP(r.p), r.se, r.lower, r.upper]]);
-      html += `<div class="formula">H0: p1 = p2 (pooled SE for the test). Ha: p1 ${altSym(v.alt)} p2. The interval uses the unpooled SE.</div>`;
-      html += `<div class="${r.cond ? "ok" : "warn"}">Success-failure check: ${x1}/${n1 - x1} and ${x2}/${n2 - x2}. ${r.cond ? "All four counts at least 10." : "A count is below 10: this course does not run the z procedure here. Report the two proportions descriptively and say the sample is too small."}</div>`;
-      html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the proportion in ${names[0]} is ${altSym(v.alt)} the proportion in ${names[1]}.` : `There is not enough evidence of a difference between the two population proportions.`} We are ${Math.round(r.conf * 100)} percent confident the difference is between ${fmt(r.lower)} and ${fmt(r.upper)}.</div>`;
-      const cd = card("Two proportions (z)", src, html); zPlot(cd, r.z, v.alt);
-    });
-  }
-  function anovaUI() {
-    needData();
-    dialog("One-way ANOVA", [selNum("x", "Numeric response"), selCat("g", "Grouping variable (3 or more levels)"), { name: "tukey", label: "Tukey pairwise comparisons after the F test", type: "check", value: true }, alphaField], (v) => {
-      const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); });
-      const r = SW.anova(groups);
-      let html = table(["Group", "n", "Mean", "s", "SE"], r.groups.map((q) => [q.name, q.n, q.mean, q.sd, q.sd / Math.sqrt(q.n)]));
-      html += table(["Source", "SS", "df", "MS", "F", "p-value"], [["Between groups", r.ssb, r.df1, r.msb, r.F, SW.fmtP(r.p)], ["Within groups", r.ssw, r.df2, r.msw, "", ""], ["Total", r.sst, r.df1 + r.df2, "", "", ""]]);
-      html += `<div class="formula">H0: all group means are equal. Ha: at least one differs. F = MS between / MS within, df = (k minus 1, N minus k). R squared = SS between / SS total = ${fmt(r.r2)}.</div>`;
-      html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `At least one group mean of ${v.x} differs by ${v.g}; the F test does not say which.` : `There is not enough evidence that the mean of ${v.x} differs across ${v.g}.`}</div>`;
-      html += `<div class="${r.sdRatio <= 2 ? "ok" : "warn"}">Largest s over smallest s = ${fmt(r.sdRatio, 2)}. ${r.sdRatio <= 2 ? "Under 2: the equal-spread condition holds." : "Above 2: the equal-spread condition fails; read the result with caution."} Groups must be independent and roughly normal (or large).</div>`;
-      if (v.tukey) html += `<h3 style="font-size:14px;margin:8px 0 2px">Tukey HSD (adjusted for all ${r.tukey.length} pairs)</h3>` + table(["Pair", "Difference", "SE", "q", "adjusted p-value", `differs at ${v.alpha}?`], r.tukey.map((t) => [`${t.a} vs ${t.b}`, t.diff, t.se, t.q, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a", Number.isFinite(t.p) ? (t.p <= +v.alpha ? "yes" : "no") : ""]));
-      const cd = card("One-way ANOVA: " + v.x + " by " + v.g, D.name, html);
-      plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", name: q.name, boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
-    });
-  }
-  function gofUI() {
-    needData();
-    dialog("Chi-square goodness of fit", [selCat("x", "Categorical variable"), { name: "props", label: "Expected proportions, one per level in the order shown after you compute (blank = equal)", type: "text", placeholder: "e.g. 0.30, 0.30, 0.25, 0.15", hint: "Levels are listed alphabetically, the same order jamovi uses." }, alphaField], (v) => {
-      const c = SW.counts(col(v.x)); const keys = Object.keys(c).sort(); const obs = Object.fromEntries(keys.map((k) => [k, c[k]]));
-      let props = null; if (v.props.trim()) { const ps = v.props.split(/[,\s]+/).filter(Boolean).map(Number); if (ps.length !== keys.length) throw new Error(`Levels in order: ${keys.join(", ")}. You gave ${ps.length} proportions for ${keys.length} levels.`); props = Object.fromEntries(keys.map((k, i) => [k, ps[i]])); }
-      const r = SW.gof(obs, props);
-      let html = table(["Level", "Observed", "Expected", "(O minus E)^2 / E", "Std. residual"], r.rows.map((q) => [q.cat, q.o, q.e, q.contrib, q.resid]));
-      html += table(["Chi-square", "df", "p-value", "n", "Smallest expected"], [[r.chi, r.df, SW.fmtP(r.p), r.n, r.minE]]);
-      html += `<div class="formula">H0: the population follows the stated proportions${props ? "" : " (all equal)"}. E = n times p, df = number of levels minus 1.</div>`;
-      html += `<div class="${r.minE >= 5 ? "ok" : "warn"}">${r.minE >= 5 ? "Every expected count is at least 5." : "An expected count is below 5: the test is not trustworthy."}</div>`;
-      html += `<div class="say">${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that ${v.x} does not follow the stated distribution.` : `There is not enough evidence that ${v.x} departs from the stated distribution; this does not prove it follows it.`}</div>`;
-      const cd = card("Goodness of fit: " + v.x, D.name, html);
-      plotDiv(cd, [{ x: keys, y: r.rows.map((q) => q.o), type: "bar", name: "Observed", marker: { color: "#3A7CA5" } }, { x: keys, y: r.rows.map((q) => q.e), type: "bar", name: "Expected", marker: { color: "#D97D54" } }], { barmode: "group", yaxis: { title: "Count" } });
-    });
-  }
-  function regressUI() {
-    needData();
-    dialog("Correlation and regression", [selNum("x", "Explanatory (x)"), selNum("y", "Response (y)"), { name: "pred", label: "Predict y at x = (optional)", type: "number", value: "" }, confField, alphaField], (v) => {
-      const r = SW.regress(col(v.x), col(v.y), +v.conf);
-      let html = table(["n", "r", "r squared", "Line", "Residual s", "df"], [[r.n, r.r, r.r2, `${v.y} hat = ${fmt(r.b0)} + ${fmt(r.b1)} ${v.x}`, r.se_res, r.df]]);
-      html += table(["Coefficient", "Estimate", "SE", "t", "p-value", `${Math.round(r.conf * 100)}% lower`, "upper"], [["Intercept b0", r.b0, r.seb0, r.b0 / r.seb0, SW.fmtP(2 * (1 - SW.pt(Math.abs(r.b0 / r.seb0), r.df))), r.b0 - r.tstar * r.seb0, r.b0 + r.tstar * r.seb0], [`Slope b1 (${v.x})`, r.b1, r.seb1, r.t, SW.fmtP(r.p), r.b1lower, r.b1upper]]);
-      html += `<div class="formula">b1 = r s_y / s_x, b0 = y bar minus b1 x bar. Slope test: H0: beta1 = 0, t = b1 / SE(b1), df = n minus 2. The correlation test gives the same p-value: t = ${fmt(r.tr)}, p = ${SW.fmtP(r.pr)}.</div>`;
-      html += `<div class="say">Slope: each one-unit increase in ${v.x} predicts a change of ${fmt(r.b1)} in ${v.y}. ${fmt(100 * r.r2, 1)} percent of the variation in ${v.y} is explained by the line. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a linear relationship between ${v.x} and ${v.y}.` : `There is not enough evidence of a linear relationship between ${v.x} and ${v.y}.`} Correlation is not causation.</div>`;
-      if (Number.isFinite(v.pred)) { const inR = v.pred >= Math.min(...r.x) && v.pred <= Math.max(...r.x); html += `<div class="${inR ? "say" : "warn"}">Predicted ${v.y} at ${v.x} = ${v.pred}: ${fmt(r.predict(v.pred))}.${inR ? "" : " That x is outside the data range: extrapolation, do not trust it."}</div>`; }
-      const cd = card(`Regression: ${v.y} on ${v.x}`, D.name, html);
-      const xs = [Math.min(...r.x), Math.max(...r.x)];
-      plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }], { xaxis: { title: v.x }, yaxis: { title: v.y } });
-      plotDiv(cd, [{ x: r.fitted, y: r.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] });
+      let html = table(["Group", "Successes", "N", "Proportion"], [[names[0], x1, n1, r.p1], [names[1], x2, n2, r.p2]], "Proportions");
+      html += table(["Difference", "Pooled p hat", "SE0 (pooled)", "z", "p", "SE (unpooled)", `${Math.round(r.conf * 100)}% CI lower`, "upper"], [[r.diff, r.pooled, r.se0, r.z, SW.fmtP(r.p), r.se, r.lower, r.upper]], "Two proportions z test");
+      html += formula("z = (p1 hat minus p2 hat) / sqrt(pooled p (1 minus pooled p)(1/n1 + 1/n2)); interval uses the unpooled SE. In jamovi this is Contingency Tables on a 2 by 2 table, where chi-square = z squared.");
+      html += cond(r.cond, `Success-failure check: ${x1}/${n1 - x1} and ${x2}/${n2 - x2}, all at least 10.`, `A count is below 10 (${x1}/${n1 - x1} and ${x2}/${n2 - x2}): this course does not run the z procedure here. Report the two proportions and say the sample is too small.`);
+      html += say(`H0: p1 = p2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the proportion in ${names[0]} is ${altWord(v.alt)} the proportion in ${names[1]}.` : `There is not enough evidence of a difference between the two population proportions.`} We are ${Math.round(r.conf * 100)} percent confident the difference is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
+      const cd = card("Two proportions (z)", from, html); zPlot(cd, r.z, v.alt);
     });
   }
 
-  // ---------------- test-statistic pictures ----------------
+  // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
     const traces = [{ x: xs, y: ys, type: "scatter", mode: "lines", line: { color: "#1A3A4D" }, showlegend: false }];
     if (alt === "less") traces.push(shade(-Infinity, stat)); else if (alt === "greater") traces.push(shade(stat, Infinity)); else { traces.push(shade(-Infinity, -Math.abs(stat))); traces.push(shade(Math.abs(stat), Infinity)); }
-    plotDiv(cd, traces, { title, xaxis: { title: "test statistic" }, yaxis: { visible: false }, shapes: [{ type: "line", x0: stat, x1: stat, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", dash: "dash" } }] });
+    plotDiv(cd, traces, { title, xaxis: { title: "test statistic" }, yaxis: { visible: false }, shapes: [{ type: "line", x0: stat, x1: stat, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", dash: "dash" } }] }, 240);
   }
   function tPlot(cd, t, df, alt) { const lim = Math.max(4, Math.abs(t) + 1), xs = []; for (let x = -lim; x <= lim; x += lim / 150) xs.push(x); curvePlot(cd, xs, xs.map((x) => jStat.studentt.pdf(x, df)), t, alt, `t distribution, df = ${fmt(df, 2)}; shaded area is the p-value`); }
   function zPlot(cd, z, alt) { const lim = Math.max(4, Math.abs(z) + 1), xs = []; for (let x = -lim; x <= lim; x += lim / 150) xs.push(x); curvePlot(cd, xs, xs.map((x) => jStat.normal.pdf(x, 0, 1)), z, alt, "standard normal; shaded area is the p-value"); }
 
-  // ---------------- calculators ----------------
+  // ================= distrACTION =================
   function binomCalc() {
-    dialog("Binomial calculator", [{ name: "n", label: "Number of trials n", type: "number", value: 10 }, { name: "p", label: "Probability of success p", type: "number", value: 0.5 }, { name: "kind", label: "Probability", type: "select", options: [["eq", "P(X = k)"], ["le", "P(X at most k)"], ["ge", "P(X at least k)"], ["between", "P(a at most X at most b)"]] }, { name: "k", label: "k (or a)", type: "number", value: 5 }, { name: "b", label: "b (for between)", type: "number", value: "" }], (v) => {
+    dialog("distrACTION: Binomial Distribution", [{ name: "n", label: "Number of trials", type: "number", value: 10, group: "Parameters" }, { name: "p", label: "Probability of success", type: "number", value: 0.5, group: "Parameters" },
+      sel("kind", "Compute probability", [["eq", "P(X = x1)"], ["le", "P(X at most x1)"], ["ge", "P(X at least x1)"], ["between", "P(x1 at most X at most x2)"]], "eq"), { name: "k", label: "x1", type: "number", value: 5 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
       const { n, p } = v; let prob, label;
       if (v.kind === "eq") { prob = SW.dbinom(v.k, n, p); label = `P(X = ${v.k})`; } else if (v.kind === "le") { prob = SW.pbinom(v.k, n, p); label = `P(X <= ${v.k})`; } else if (v.kind === "ge") { prob = 1 - SW.pbinom(v.k - 1, n, p); label = `P(X >= ${v.k})`; } else { prob = SW.pbinom(v.b, n, p) - SW.pbinom(v.k - 1, n, p); label = `P(${v.k} <= X <= ${v.b})`; }
       const t = SW.binomTable(n, p);
-      let html = table(["n", "p", "Mean np", "SD sqrt(np(1 minus p))", label], [[n, p, n * p, Math.sqrt(n * p * (1 - p)), prob]]);
-      html += `<div class="formula">P(X = k) = C(n, k) p^k (1 minus p)^(n minus k). Conditions: binary outcome, independent trials, fixed n, same p.</div>`;
-      html += `<details><summary style="cursor:pointer;color:#5A5A5A;font-size:13px">Full table</summary>${table(["k", "P(X = k)", "P(X <= k)"], t.map((q) => [q.k, q.p, q.cum]))}</details>`;
-      const cd = card("Binomial", `n = ${n}, p = ${p}`, html);
+      let html = table(["Mean", "Variance", "SD"], [[n * p, n * p * (1 - p), Math.sqrt(n * p * (1 - p))]], "Parameters") + table(["Probability", "Value"], [[label, prob]], "Probability");
+      html += formula("P(X = k) = C(n, k) p^k (1 minus p)^(n minus k); mean np, SD sqrt(np(1 minus p)). Conditions: binary, independent, fixed n, same p.");
+      html += `<details><summary>Full table</summary>${table(["k", "P(X = k)", "P(X <= k)"], t.map((q) => [q.k, q.p, q.cum]))}</details>`;
+      const cd = card("Binomial Distribution", `n = ${n}, p = ${p}`, html);
       const inRange = (k) => (v.kind === "eq" ? k === v.k : v.kind === "le" ? k <= v.k : v.kind === "ge" ? k >= v.k : k >= v.k && k <= v.b);
-      plotDiv(cd, [{ x: t.map((q) => q.k), y: t.map((q) => q.p), type: "bar", marker: { color: t.map((q) => (inRange(q.k) ? "#C0392B" : "#3A7CA5")) } }], { xaxis: { title: "k", dtick: 1 }, yaxis: { title: "probability" } });
+      plotDiv(cd, [{ x: t.map((q) => q.k), y: t.map((q) => q.p), type: "bar", marker: { color: t.map((q) => (inRange(q.k) ? "#C0392B" : "#3A7CA5")) } }], { xaxis: { title: "x", dtick: 1 }, yaxis: { title: "probability" } });
     });
   }
   function normalCalc() {
-    dialog("Normal calculator", [{ name: "mu", label: "Mean", type: "number", value: 0 }, { name: "sd", label: "Standard deviation", type: "number", value: 1 }, { name: "kind", label: "Find", type: "select", options: [["below", "P(X below x)"], ["above", "P(X above x)"], ["between", "P(a below X below b)"], ["q", "the value x with a given percentile"]] }, { name: "a", label: "x (or a, or percentile as a proportion)", type: "number", value: 1 }, { name: "b", label: "b (for between)", type: "number", value: "" }], (v) => {
+    dialog("distrACTION: Normal Distribution", [{ name: "mu", label: "Mean", type: "number", value: 0, group: "Parameters" }, { name: "sd", label: "SD", type: "number", value: 1, group: "Parameters" },
+      sel("kind", "Compute", [["below", "probability: P(X at most x1)"], ["above", "probability: P(X at least x1)"], ["between", "probability: P(x1 at most X at most x2)"], ["q", "quantile: the x with cumulative probability p"]], "below"), { name: "a", label: "x1 (or p for a quantile)", type: "number", value: 1 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
       const z = (x) => (x - v.mu) / v.sd; let res, label, lo = -Infinity, hi = Infinity;
-      if (v.kind === "below") { res = SW.pnorm(z(v.a)); label = `P(X < ${v.a})`; hi = v.a; } else if (v.kind === "above") { res = 1 - SW.pnorm(z(v.a)); label = `P(X > ${v.a})`; lo = v.a; } else if (v.kind === "between") { res = SW.pnorm(z(v.b)) - SW.pnorm(z(v.a)); label = `P(${v.a} < X < ${v.b})`; lo = v.a; hi = v.b; } else { res = v.mu + SW.qnorm(v.a) * v.sd; label = `x at the ${fmt(100 * v.a, 1)}th percentile`; hi = res; }
-      let html = table(["Mean", "SD", v.kind === "q" ? "z*" : "z", label], [[v.mu, v.sd, v.kind === "q" ? SW.qnorm(v.a) : z(v.a), res]]);
-      html += `<div class="formula">z = (x minus mu) / sigma. Empirical rule: 68 percent within 1 SD, 95 within 2, 99.7 within 3.</div>`;
-      const cd = card("Normal", `mean ${v.mu}, sd ${v.sd}`, html);
+      if (v.kind === "below") { res = SW.pnorm(z(v.a)); label = `P(X <= ${v.a})`; hi = v.a; } else if (v.kind === "above") { res = 1 - SW.pnorm(z(v.a)); label = `P(X >= ${v.a})`; lo = v.a; } else if (v.kind === "between") { res = SW.pnorm(z(v.b)) - SW.pnorm(z(v.a)); label = `P(${v.a} <= X <= ${v.b})`; lo = v.a; hi = v.b; } else { res = v.mu + SW.qnorm(v.a) * v.sd; label = `x at cumulative probability ${v.a}`; hi = res; }
+      let html = table(["Mean", "SD", v.kind === "q" ? "z*" : "z", label], [[v.mu, v.sd, v.kind === "q" ? SW.qnorm(v.a) : z(v.a), res]], v.kind === "q" ? "Quantile" : "Probability");
+      html += formula("z = (x minus mu) / sigma. Empirical rule: 68 percent within 1 SD, 95 within 2, 99.7 within 3.");
+      const cd = card("Normal Distribution", `mean ${v.mu}, SD ${v.sd}`, html);
       const xs = []; for (let x = v.mu - 4 * v.sd; x <= v.mu + 4 * v.sd; x += (8 * v.sd) / 200) xs.push(x);
       const ys = xs.map((x) => jStat.normal.pdf(x, v.mu, v.sd));
       plotDiv(cd, [{ x: xs, y: ys, type: "scatter", mode: "lines", line: { color: "#1A3A4D" }, showlegend: false }, { x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false }], { xaxis: { title: "x" }, yaxis: { visible: false } });
     });
   }
   function tCalc() {
-    dialog("t distribution", [{ name: "df", label: "Degrees of freedom", type: "number", value: 20 }, { name: "kind", label: "Find", type: "select", options: [["tstar", "t* for a confidence level"], ["p", "p-value for a t statistic"]] }, { name: "conf", label: "Confidence level (as a proportion)", type: "number", value: 0.95 }, { name: "t", label: "t statistic", type: "number", value: 2 }, altField], (v) => {
+    dialog("distrACTION: T-Distribution", [{ name: "df", label: "df", type: "number", value: 20 }, sel("kind", "Compute", [["tstar", "quantile t* for a confidence level"], ["p", "p-value for a t statistic"]], "tstar"), { name: "conf", label: "Confidence level (proportion)", type: "number", value: 0.95 }, { name: "t", label: "t statistic", type: "number", value: 2 }, sel("alt", "Tail", [["two", "two-sided"], ["greater", "upper tail"], ["less", "lower tail"]], "two")], (v) => {
       let html;
-      if (v.kind === "tstar") { const ts = SW.qt(1 - (1 - v.conf) / 2, v.df); html = table(["df", "Confidence", "t*"], [[v.df, v.conf, ts]]) + `<div class="say">Use t* in x bar plus or minus t* s / sqrt(n). For comparison z* would be ${fmt(SW.qnorm(1 - (1 - v.conf) / 2))}.</div>`; }
-      else { const p = SW.pvalue(v.t, v.alt, (x) => SW.pt(x, v.df)); html = table(["df", "t", "Alternative", "p-value"], [[v.df, v.t, altSym(v.alt), SW.fmtP(p)]]); }
-      const cd = card("t distribution", `df = ${v.df}`, html);
-      if (v.kind === "p") tPlot(cd, v.t, v.df, v.alt);
+      if (v.kind === "tstar") { const ts = SW.qt(1 - (1 - v.conf) / 2, v.df); html = table(["df", "Confidence", "t*"], [[v.df, v.conf, ts]], "Quantile") + say(`Use t* in x bar plus or minus t* s / sqrt(n). For comparison z* would be ${fmt(SW.qnorm(1 - (1 - v.conf) / 2))}; t* is larger because s replaces sigma.`); }
+      else { const p = SW.pvalue(v.t, v.alt, (x) => SW.pt(x, v.df)); html = table(["df", "t", "Tail", "p"], [[v.df, v.t, v.alt, SW.fmtP(p)]], "Probability"); }
+      const cd = card("T-Distribution", `df = ${v.df}`, html); if (v.kind === "p") tPlot(cd, v.t, v.df, v.alt);
+    });
+  }
+  function chiFCalc() {
+    dialog("distrACTION: Chi-square and F Distributions", [sel("dist", "Distribution", [["chi", "Chi-square"], ["F", "F"]], "chi"), { name: "df1", label: "df (or df1 for F)", type: "number", value: 3 }, { name: "df2", label: "df2 (F only)", type: "number", value: 36 }, sel("kind", "Compute", [["p", "p-value (upper tail) for a statistic"], ["q", "critical value for alpha"]], "p"), { name: "x", label: "Statistic (or alpha)", type: "number", value: 5.2 }], (v) => {
+      let html; const chi = v.dist === "chi";
+      if (v.kind === "p") { const p = chi ? 1 - SW.pchisq(v.x, v.df1) : 1 - SW.pf(v.x, v.df1, v.df2); html = table([chi ? "chi-square" : "F", chi ? "df" : "df1, df2", "p (upper tail)"], [[v.x, chi ? v.df1 : `${v.df1}, ${v.df2}`, SW.fmtP(p)]], "Probability"); }
+      else { const q = chi ? SW.qchisq(1 - v.x, v.df1) : SW.qf(1 - v.x, v.df1, v.df2); html = table(["alpha", chi ? "df" : "df1, df2", "critical value"], [[v.x, chi ? v.df1 : `${v.df1}, ${v.df2}`, q]], "Quantile") + say("This course decides with the p-value; the critical value is here only for checking a table."); }
+      const cd = card(chi ? "Chi-square Distribution" : "F Distribution", "", html);
+      const xs = [], lim = chi ? Math.max(v.x * 1.5, v.df1 * 3, 5) : Math.max(v.x * 1.5, 5); for (let x = 0.01; x <= lim; x += lim / 200) xs.push(x);
+      const ys = xs.map((x) => (chi ? jStat.chisquare.pdf(x, v.df1) : jStat.centralF.pdf(x, v.df1, v.df2)));
+      if (v.kind === "p") plotDiv(cd, [{ x: xs, y: ys, type: "scatter", mode: "lines", line: { color: "#1A3A4D" }, showlegend: false }, { x: xs.filter((x) => x >= v.x), y: ys.filter((_, i) => xs[i] >= v.x), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false }], { xaxis: { title: "statistic" }, yaxis: { visible: false } }, 240);
     });
   }
   function sampleSizeCalc() {
-    dialog("Sample size for a margin of error", [{ name: "kind", label: "For a", type: "select", options: [["prop", "proportion"], ["mean", "mean"]] }, { name: "me", label: "Desired margin of error", type: "number", value: 0.05 }, { name: "p", label: "Guess for p (use 0.5 if unknown)", type: "number", value: 0.5 }, { name: "s", label: "Guess for s (for a mean)", type: "number", value: "" }, confField], (v) => {
+    dialog("Sample size for a margin of error", [sel("kind", "For a", [["prop", "proportion"], ["mean", "mean"]], "prop"), { name: "me", label: "Desired margin of error", type: "number", value: 0.05 }, { name: "p", label: "Guess for p (0.5 if unknown)", type: "number", value: 0.5 }, { name: "s", label: "Guess for s (for a mean)", type: "number", value: "" }, confField], (v) => {
       const n = v.kind === "prop" ? SW.sampleSizeProp(v.me, v.p, +v.conf) : SW.sampleSizeMean(v.me, v.s, +v.conf);
-      card("Sample size", `${v.kind === "prop" ? "proportion" : "mean"}, margin ${v.me}, ${Math.round(+v.conf * 100)} percent`, table(["Needed n"], [[n]]) + `<div class="formula">${v.kind === "prop" ? "n = (z* / m)^2 p (1 minus p), rounded up." : "n = (z* s / m)^2, rounded up (z* as a planning value)."} Halving the margin needs four times the sample.</div>`);
+      card("Sample size", `${v.kind === "prop" ? "proportion" : "mean"}, margin ${v.me}, ${Math.round(+v.conf * 100)} percent`, table(["Needed N"], [[n]]) + formula(v.kind === "prop" ? "N = (z* / m)^2 p (1 minus p), rounded up" : "N = (z* s / m)^2, rounded up (z* as a planning value)") + say("Halving the margin needs four times the sample."));
     });
   }
-  function zscoreColumn() {
-    needData();
-    dialog("Add a z-score column", [selNum("x", "Numeric variable")], (v) => { addColumn("z_" + v.x, SW.zscores(col(v.x))); card("New column", `z_${v.x} added to the data`, `<div class="formula">z = (x minus x bar) / s. Sign says which side of the mean; size says how many standard deviations away.</div>`); });
+
+  // ================= Learn: sampling distribution simulator =================
+  function samplingSim() {
+    const hasData = D.rows.length > 0;
+    dialog("Learn: Sampling distribution simulator", [
+      sel("pop", "Population", (hasData ? [["col", "a column in the data (treated as the population)"]] : []).concat([["normal", "normal, mean 50, SD 10"], ["skew", "right-skewed (exponential, mean 8)"], ["uniform", "uniform 0 to 100"], ["prop", "yes or no, with a given p"]]), hasData ? "col" : "skew"),
+      hasData ? selAny("x", "Column (numeric for means, categorical for proportions)", false) : null, hasData ? { name: "succ", label: "Success level (for a proportion)", type: "text" } : null,
+      { name: "p", label: "p for the yes or no population", type: "number", value: 0.3 },
+      { name: "n", label: "Sample size n", type: "number", value: 30 }, { name: "reps", label: "Number of samples", type: "number", value: 2000 }, sel("stat", "Statistic", [["mean", "sample mean"], ["prop", "sample proportion"], ["median", "sample median"]], "mean")], (v) => {
+      let pop, popLabel;
+      if (v.pop === "col") { if (v.stat === "prop") { const vals = col(v.x).filter((q) => q !== ""); pop = vals.map((q) => (q === v.succ ? 1 : 0)); popLabel = `${v.x} = ${v.succ} (p = ${fmt(SW.mean(pop), 3)})`; } else { pop = SW.num(col(v.x)); popLabel = v.x; } }
+      else if (v.pop === "normal") { pop = Array.from({ length: 20000 }, () => SW.rnorm(50, 10)); popLabel = "normal(50, 10)"; }
+      else if (v.pop === "skew") { pop = Array.from({ length: 20000 }, () => SW.rexp(1 / 8)); popLabel = "right-skewed, mean 8"; }
+      else if (v.pop === "uniform") { pop = Array.from({ length: 20000 }, () => Math.random() * 100); popLabel = "uniform(0, 100)"; }
+      else { pop = Array.from({ length: 20000 }, () => (Math.random() < v.p ? 1 : 0)); popLabel = `yes or no, p = ${v.p}`; }
+      const statFn = v.stat === "median" ? SW.median : SW.mean;
+      const stats = SW.simulate(pop, v.n, Math.min(v.reps, 20000), statFn);
+      const pm = SW.mean(pop), ps = Math.sqrt(pop.reduce((s, x) => s + (x - pm) ** 2, 0) / pop.length), sm = SW.mean(stats), ss = SW.sd(stats);
+      const theory = v.stat === "prop" ? Math.sqrt((pm * (1 - pm)) / v.n) : ps / Math.sqrt(v.n);
+      let html = table(["", "Mean", "SD"], [["Population", pm, ps], [`${stats.length} sample ${v.stat}s (n = ${v.n})`, sm, ss], ["Theory for the sampling distribution", pm, theory]], "Population against sampling distribution");
+      html += formula(v.stat === "prop" ? "SD of p hat = sqrt(p (1 minus p) / n)" : "SD of x bar = sigma / sqrt(n); the standard error");
+      html += say(`The sampling distribution is centred at the population value and is narrower by a factor of sqrt(n) = ${fmt(Math.sqrt(v.n), 2)}. ${v.n >= 30 ? "With n at least 30 it looks roughly normal even when the population does not (the Central Limit Theorem)." : "With n under 30 the shape still shows some of the population's skew."} Standard deviation describes individuals; standard error describes the statistic.`);
+      const cd = card("Sampling distribution simulator", popLabel, html);
+      if (v.stat !== "prop") plotDiv(cd, [{ x: pop.slice(0, 5000), type: "histogram", name: "population", marker: { color: "#3A7CA5" } }], { title: "Population", xaxis: { title: "value" }, yaxis: { title: "Count" } }, 240);
+      plotDiv(cd, [{ x: stats, type: "histogram", name: "sample statistics", marker: { color: "#D97D54", line: { color: "#fff", width: 1 } } }], { title: `Sampling distribution of the ${v.stat}, n = ${v.n}`, xaxis: { title: v.stat }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: pm, x1: pm, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash" } }] }, 260);
+    });
   }
 
-  // ---------------- data menu ----------------
+  // ================= Data menu =================
   function openFile() { $("#fileInput").click(); }
-  $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; f.text().then((t) => { loadTable(f.name.replace(/\.[^.]+$/, ""), parseCSV(t)); }); e.target.value = ""; });
-  function pasteData() {
-    dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows); });
+  $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; f.text().then((t) => loadTable(f.name.replace(/\.[^.]+$/, ""), parseCSV(t))); e.target.value = ""; });
+  function pasteData() { dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows); }, "Load"); }
+  function sampleData() { dialog("Sample datasets", [sel("f", "Dataset", SAMPLES)], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t))).catch(() => alert("Could not load the sample file.")), "Open"); }
+  function newBlank() { dialog("New data table", [{ name: "cols", label: "Column names, comma separated", type: "text", value: "x, y" }, { name: "n", label: "Rows", type: "number", value: 20 }], (v) => { const cols = v.cols.split(",").map((s) => s.trim()).filter(Boolean); loadTable("new", [cols].concat(Array.from({ length: v.n }, () => cols.map(() => "")))); }, "Create"); }
+  function computeUI() {
+    needData();
+    dialog("Data: Compute a new variable", [{ name: "nm", label: "New variable name", type: "text", value: "new_var" }, { name: "f", label: "Formula", type: "text", placeholder: "Hours_Study * 7", hint: "Use column names as written. Functions: log, sqrt, abs, exp, round, pow; and mean(X), sd(X), median(X), min(X), max(X), sum(X), n(X) for whole columns. Example z-score: (GPA - mean(GPA)) / sd(GPA)" }], (v) => {
+      const f = SW.compileFormula(v.f, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)]));
+      addColumn(v.nm.trim().replace(/\s+/g, "_"), D.rows.map((r) => { try { const y = f(r); return typeof y === "number" ? y : y == null ? "" : String(y); } catch (e) { return ""; } }));
+      card("Computed variable", `${v.nm} = ${v.f}`, say("The new column is in the data table. Edit or delete it from the Data menu."));
+    }, "Compute");
   }
-  function sampleData() {
-    dialog("Sample datasets", [{ name: "f", label: "Dataset", type: "select", options: SAMPLES }], (v) => { fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t))).catch(() => alert("Could not load the sample file.")); });
+  function transformUI() {
+    needData();
+    dialog("Data: Transform (recode) a variable", [sel("x", "Source variable", D.cols), { name: "nm", label: "New variable name", type: "text", value: "recoded" }, { name: "rules", label: "Rules, one per line:  old value = new value  (numeric ranges: 0 to 29 = short)", type: "textarea", rows: 6, placeholder: "Full-time = Employed\nPart-time = Employed\nNot employed = Not employed" }, { name: "else", label: "Everything else becomes (blank keeps the original)", type: "text", value: "" }], (v) => {
+      const rules = v.rules.split("\n").map((l) => l.split("=")).filter((p) => p.length === 2).map(([a, b]) => { const m = a.trim().match(/^(-?[\d.]+)\s+to\s+(-?[\d.]+)$/); return m ? { lo: +m[1], hi: +m[2], to: b.trim() } : { eq: a.trim(), to: b.trim() }; });
+      const vals = D.rows.map((r) => r[D.cols.indexOf(v.x)]).map((q) => { for (const ru of rules) { if (ru.eq != null && q === ru.eq) return ru.to; if (ru.lo != null && q !== "" && Number(q) >= ru.lo && Number(q) <= ru.hi) return ru.to; } return v.else.trim() ? v.else.trim() : q; });
+      addColumn(v.nm.trim().replace(/\s+/g, "_"), vals);
+      card("Transformed variable", `${v.nm} from ${v.x}`, table(["Level", "Count"], Object.entries(SW.counts(vals)).map(([k, n]) => [k, n])));
+    }, "Transform");
   }
-  function newBlank() {
-    dialog("New blank table", [{ name: "cols", label: "Column names, comma separated", type: "text", value: "x, y" }, { name: "n", label: "Rows", type: "number", value: 20 }], (v) => { const cols = v.cols.split(",").map((s) => s.trim()).filter(Boolean); loadTable("new", [cols].concat(Array.from({ length: v.n }, () => cols.map(() => "")))); });
+  function zscoreColumn() { needData(); dialog("Data: Add a z-score column", [selNum("x", "Variable")], (v) => { addColumn("z_" + v.x, SW.zscores(col(v.x).length === D.rows.length ? D.rows.map((r) => r[D.cols.indexOf(v.x)]) : D.rows.map((r) => r[D.cols.indexOf(v.x)]))); card("New column", `z_${v.x} added`, formula("z = (x minus x bar) / s")); }, "Add"); }
+  function columnUI() {
+    needData();
+    dialog("Data: Rename or delete a column", [sel("x", "Column", D.cols), sel("act", "Action", [["rename", "rename"], ["delete", "delete"]], "rename"), { name: "nm", label: "New name (for rename)", type: "text" }], (v) => {
+      const j = D.cols.indexOf(v.x);
+      if (v.act === "delete") { D.cols.splice(j, 1); D.rows.forEach((r) => r.splice(j, 1)); } else { if (!v.nm.trim()) throw new Error("Give a new name."); D.cols[j] = v.nm.trim(); }
+      inferTypes(); renderGrid(); persist();
+    }, "Apply");
   }
+  function typeUI() {
+    needData();
+    dialog("Data: Set a variable's type", [sel("x", "Column", D.cols), sel("t", "Type", [["continuous", "Continuous (ruler)"], ["ordinal", "Ordinal"], ["nominal", "Nominal (three circles)"], ["id", "ID"]], "nominal")], (v) => { D.types[v.x] = v.t; renderGrid(); }, "Set");
+  }
+  function filterUI() {
+    needData();
+    dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" AND Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= AND OR. Blank removes the filter. Every analysis uses only the kept rows." }], (v) => { D.filter = v.f.trim(); if (D.filter) activeIdx(); renderGrid(); persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
+  }
+  function saveSession() { const payload = { name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, results: $("#out").innerHTML, saved: new Date().toISOString() }; downloadText(JSON.stringify(payload), (D.name || "session") + ".sww.json", "application/json"); }
+  function loadSession() {
+    const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
+    inp.onchange = () => { inp.files[0].text().then((t) => { const s = JSON.parse(t); D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; inferTypes(); renderGrid(); persist(); $("#out").innerHTML = s.results || ""; $("#out").querySelectorAll(".plot").forEach((p) => p.remove()); $("#out").querySelectorAll('[data-act="close"]').forEach((b) => (b.onclick = () => b.closest(".card").remove())); }); };
+    inp.click();
+  }
+  function exportResults() { const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Results</title><style>${[...document.styleSheets[0].cssRules].map((r) => r.cssText).join("\n")}</style></head><body><div id="out">${$("#out").innerHTML}</div></body></html>`; downloadText(html, "results.html", "text/html"); }
 
-  // ---------------- menu ----------------
+  // ================= menu =================
   const MENU = [
-    ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New blank table", newBlank], null, ["Add z-score column", zscoreColumn], ["Download data as CSV", downloadCSV]]],
-    ["Summary", [["Descriptives", descriptives], ["Frequency table", frequency], ["Two-way table (with chi-square)", twoWay]]],
-    ["Graph", [["Bar chart", () => graph("bar")], ["Pie chart", () => graph("pie")], null, ["Histogram", () => graph("hist")], ["Dotplot", () => graph("dot")], ["Boxplot", () => graph("box")], null, ["Scatterplot", () => graph("scatter")]]],
-    ["Inference", [["One mean: t", oneMeanUI], ["One proportion: z", onePropUI], null, ["Two independent means: Welch t", twoMeansUI], ["Paired means: t", pairedUI], ["Two proportions: z", twoPropsUI], null, ["One-way ANOVA with Tukey", anovaUI], ["Chi-square goodness of fit", gofUI], ["Chi-square test of independence", twoWay], null, ["Correlation and regression", regressUI]]],
-    ["Calculators", [["Binomial", binomCalc], ["Normal", normalCalc], ["t distribution", tCalc], ["Sample size", sampleSizeCalc]]],
-    ["Output", [["Print or save as PDF", () => window.print()], ["Clear all results", () => ($("#out").innerHTML = "")]]],
+    ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
+    ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
+    ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample]]],
+    ["ANOVA", [["One-Way ANOVA", anovaUI]]],
+    ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
+    ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
+    ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
+    ["Learn", [["Sampling distribution simulator", samplingSim]]],
+    ["Results", [["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear all results", () => ($("#out").innerHTML = "")]]],
   ];
   const nav = $("#menu");
   MENU.forEach(([name, items]) => {
@@ -426,4 +566,7 @@
   });
   document.addEventListener("click", () => nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")));
   $("#dlg").addEventListener("click", (e) => { if (e.target.id === "dlg") $("#dlg").classList.remove("open"); });
+  $("#filterBox").addEventListener("change", () => { D.filter = $("#filterBox").value.trim(); try { activeIdx(); } catch (e) { alert(e.message); D.filter = ""; } renderGrid(); persist(); });
+  restore();
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => { });
 })();
