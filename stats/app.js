@@ -180,6 +180,89 @@
     });
   }
 
+
+  // ================= Graph (StatCrunch-style) =================
+  function groupsOf(v) { return v.by ? [...new Set(col(v.by).filter((g) => g !== ""))] : [null]; }
+  function subset(x, v, g) { return g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); }
+  function meanMedianShapes(d) { return [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }]; }
+  function gBar() {
+    needData();
+    dialog("Graph: Bar Plot", [selCat("x", "Categorical variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency (counts)"], ["rel", "Relative frequency (percent)"]], "count"), sel("order", "Order", [["count", "tallest first"], ["alpha", "alphabetical"], ["data", "order of first appearance"]], "count"), { name: "horiz", label: "Horizontal bars", type: "check", value: false }], (v) => {
+      const groups = groupsOf(v); const c0 = SW.counts(col(v.x)); let keys = Object.keys(c0);
+      if (v.order === "count") keys.sort((a, b) => c0[b] - c0[a]); else if (v.order === "alpha") keys.sort();
+      const traces = groups.map((g) => { const c = SW.counts(subset(v.x, v, g)), n = Object.values(c).reduce((s, q) => s + q, 0); const y = keys.map((k) => (v.type === "rel" ? (100 * (c[k] || 0)) / n : c[k] || 0)); return v.horiz ? { y: keys, x: y, type: "bar", orientation: "h", name: g == null ? v.x : String(g) } : { x: keys, y, type: "bar", name: g == null ? v.x : String(g), marker: g == null ? { color: "#3A7CA5" } : {} }; });
+      const cd = card("Bar Plot: " + v.x + (v.by ? " by " + v.by : ""), src(), say("Bars are separated because the categories are separate things. Ordering is a choice: tallest first tells the eye what the story is. Relative frequency lets you compare groups of different sizes."));
+      plotDiv(cd, traces, { barmode: "group", [v.horiz ? "xaxis" : "yaxis"]: { title: v.type === "rel" ? "Percent" : "Count", rangemode: "tozero" }, showlegend: groups.length > 1 });
+    });
+  }
+  function gPie() {
+    needData();
+    dialog("Graph: Pie Chart", [selCat("x", "Categorical variable"), { name: "labels", label: "Show percent and count", type: "check", value: true }], (v) => {
+      const c = SW.counts(col(v.x)), keys = Object.keys(c).sort((a, b) => c[b] - c[a]);
+      const cd = card("Pie Chart: " + v.x, src(), say("A pie is only for parts of one whole, and similar slices are hard to compare by eye. A bar chart is almost always the safer choice."));
+      plotDiv(cd, [{ labels: keys, values: keys.map((k) => c[k]), type: "pie", textinfo: v.labels ? "label+percent+value" : "label", sort: false }], {});
+    });
+  }
+  function gHist() {
+    needData();
+    dialog("Graph: Histogram", [selNum("x", "Numeric variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency"], ["rel", "Relative frequency"], ["dens", "Density"]], "count"), { name: "bw", label: "Bin width (blank = automatic)", type: "number", value: "" }, { name: "start", label: "Start bins at (blank = automatic)", type: "number", value: "" }, { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }], (v) => {
+      const groups = groupsOf(v); const d = SW.describe(col(v.x)) || {};
+      const traces = groups.map((g) => { const tr = { x: SW.num(subset(v.x, v, g)), type: "histogram", name: g == null ? v.x : String(g), opacity: groups.length > 1 ? 0.6 : 1, histnorm: v.type === "rel" ? "percent" : v.type === "dens" ? "probability density" : "", marker: { color: groups.length > 1 ? undefined : "#3A7CA5", line: { color: "#fff", width: 1 } } }; if (Number.isFinite(v.bw) && v.bw > 0) tr.xbins = { size: v.bw, start: Number.isFinite(v.start) ? v.start : undefined }; return tr; });
+      const cd = card("Histogram: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}, s = ${fmt(d.sd)}`), say("Bars touch because the number line has no gaps. Bin width is a decision: too few bins hide structure, too many turn noise into peaks. Try two or three widths before believing a feature."));
+      plotDiv(cd, traces, { barmode: "overlay", xaxis: { title: v.x }, yaxis: { title: v.type === "rel" ? "Percent" : v.type === "dens" ? "Density" : "Count" }, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [], showlegend: groups.length > 1 });
+    });
+  }
+  function gDot() {
+    needData();
+    dialog("Graph: Dotplot", [selNum("x", "Numeric variable"), selAny("by", "Group by"), { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }], (v) => {
+      const groups = groupsOf(v); const d = SW.describe(col(v.x)) || {}; const bw = (d.range || 1) / 45 || 1;
+      const traces = groups.map((g, gi) => { const xs = SW.num(subset(v.x, v, g)).sort((a, b) => a - b), bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b] + gi * 0; }); return { x: xs, y: ys, mode: "markers", type: "scatter", name: g == null ? v.x : String(g), marker: { size: 9 }, xaxis: "x", yaxis: groups.length > 1 ? "y" + (gi + 1) : "y" }; });
+      const layout = { xaxis: { title: v.x }, showlegend: false, grid: groups.length > 1 ? { rows: groups.length, columns: 1, pattern: "coupled" } : undefined, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [] };
+      groups.forEach((g, gi) => { layout["yaxis" + (gi ? gi + 1 : "")] = { visible: false, title: g == null ? "" : String(g) }; });
+      const cd = card("Dotplot: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}`), say("One dot per observation, nothing hidden. The picture behind every summary number."));
+      plotDiv(cd, traces, layout, groups.length > 1 ? 120 * groups.length + 80 : 300);
+    });
+  }
+  function gBox() {
+    needData();
+    dialog("Graph: Boxplot", [{ name: "vars", label: "Numeric variables (several draw side by side)", type: "multi", options: numCols() }, selAny("by", "Group by"), { name: "pts", label: "Show all points", type: "check", value: false }, { name: "horiz", label: "Horizontal", type: "check", value: false }], (v) => {
+      if (!v.vars.length) throw new Error("Pick at least one variable.");
+      const groups = groupsOf(v); const traces = [];
+      v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, marker: { color: "#3A7CA5" } }, v.horiz ? { x: vals } : { y: vals })); }));
+      const fences = v.vars.map((x) => { const d = SW.describe(col(x)); return `${x}: Q1 ${fmt(d.q1)}, median ${fmt(d.median)}, Q3 ${fmt(d.q3)}, fences ${fmt(d.lowerFence)} and ${fmt(d.upperFence)}`; }).join("; ");
+      const cd = card("Boxplot: " + v.vars.join(", ") + (v.by ? " by " + v.by : ""), src(fences), say("Box from Q1 to Q3, line at the median, whiskers to the last values inside the fences, dots beyond. Dots are worth a look, not wrong. Shape decides the summary: symmetric, mean with s; skewed or with dots, median with IQR."));
+      plotDiv(cd, traces, { [v.horiz ? "xaxis" : "yaxis"]: { title: v.vars.length === 1 ? v.vars[0] : "" }, showlegend: false });
+    });
+  }
+  function gScatter() {
+    needData();
+    dialog("Graph: Scatter Plot", [selNum("x", "X variable"), selNum("y", "Y variable"), selAny("by", "Color by"), { name: "line", label: "Least-squares line", type: "check", value: true }, { name: "label", label: "Label points with (optional column)", type: "select", options: [["", "(none)"]].concat(D.cols) }], (v) => {
+      const r = SW.regress(col(v.x), col(v.y)); const groups = groupsOf(v);
+      const traces = groups.map((g) => { const keep = (i) => g == null || col(v.by)[i] === g; const tr = { x: col(v.x).filter((_, i) => keep(i)), y: col(v.y).filter((_, i) => keep(i)), mode: v.label ? "markers+text" : "markers", type: "scatter", name: g == null ? "data" : String(g), textposition: "top center", textfont: { size: 9 } }; if (v.label) tr.text = col(v.label).filter((_, i) => keep(i)); if (g == null) tr.marker = { color: "#3A7CA5" }; return tr; });
+      if (v.line) { const xs = [Math.min(...r.x), Math.max(...r.x)]; traces.push({ x: xs, y: xs.map(r.predict), mode: "lines", name: `y = ${fmt(r.b0, 3)} + ${fmt(r.b1, 4)} x`, line: { color: "#C0392B" } }); }
+      const cd = card(`Scatter Plot: ${v.y} against ${v.x}`, src(`n = ${r.n}, r = ${fmt(r.r)}, r squared = ${fmt(r.r2)}`), say("Describe direction, form, strength, and outliers, in that order. r measures linear association only. Correlation is not causation."));
+      plotDiv(cd, traces, { xaxis: { title: v.x }, yaxis: { title: v.y }, showlegend: groups.length > 1 || v.line });
+    });
+  }
+  function gQQ() {
+    needData();
+    dialog("Graph: QQ Plot (normality check)", [selNum("x", "Numeric variable"), selAny("by", "Group by")], (v) => {
+      const groups = groupsOf(v); const cd = card("QQ Plot: " + v.x, src(), say("Points along the line: roughly normal. A curve at one end: skew. Points peeling off at both ends: heavy tails or outliers. Use this to justify a t procedure when n is under 30."));
+      groups.forEach((g) => { const vals = subset(v.x, v, g), d = SW.describe(vals), q = SW.qq(vals), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: g == null ? v.x : `${v.x} (${g})`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: v.x }, showlegend: false }, 280); });
+    });
+  }
+  function gStem() {
+    needData();
+    dialog("Graph: Stem and Leaf", [selNum("x", "Numeric variable"), sel("unit", "Leaf unit", [["auto", "automatic"], ["0.01", "0.01"], ["0.1", "0.1"], ["1", "1"], ["10", "10"]], "auto")], (v) => {
+      const x = SW.num(col(v.x)).sort((a, b) => a - b); const d = SW.describe(x);
+      let unit = v.unit === "auto" ? Math.pow(10, Math.floor(Math.log10(Math.max(d.range, 1e-9) / 15))) : Number(v.unit);
+      const stems = {}; x.forEach((val) => { const q = Math.round(val / unit); const s = Math.floor(q / 10), l = Math.abs(q - s * 10); (stems[s] = stems[s] || []).push(l); });
+      const keys = Object.keys(stems).map(Number).sort((a, b) => a - b); const lo = keys[0], hi = keys[keys.length - 1]; let txt = "";
+      for (let s = lo; s <= hi; s++) txt += String(s).padStart(5) + " | " + (stems[s] || []).sort((a, b) => a - b).join(" ") + "\n";
+      const cd = card("Stem and Leaf: " + v.x, src(`leaf unit = ${unit}; ${v.x} = (stem times 10 + leaf) times ${unit}`), `<pre style="font-family:var(--mono);font-size:13px;line-height:1.35;margin:6px 0">${esc(txt)}</pre>` + say("A histogram that keeps every value. Read the shape sideways: a long tail of stems with few leaves is the skew."));
+    });
+  }
+
   // ================= T-Tests =================
   function tOneSample() {
     const hasData = D.rows.length > 0;
@@ -582,6 +665,7 @@
   const MENU = [
     ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
+    ["Graph", [["Bar Plot", gBar], ["Pie Chart", gPie], null, ["Histogram", gHist], ["Dotplot", gDot], ["Boxplot", gBox], ["Stem and Leaf", gStem], null, ["Scatter Plot", gScatter], ["QQ Plot", gQQ]]],
     ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
