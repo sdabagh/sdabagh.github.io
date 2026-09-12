@@ -55,8 +55,10 @@
   S.oneProp = ({ x, n, p0 = 0.5, alt = "two", conf = 0.95 }) => {
     const phat = x / n, se0 = Math.sqrt((p0 * (1 - p0)) / n), z = (phat - p0) / se0, p = S.pvalue(z, alt, S.pnorm);
     const zstar = S.qnorm(1 - (1 - conf) / 2), se = Math.sqrt((phat * (1 - phat)) / n), me = zstar * se;
-    let exact; if (alt === "less") exact = S.pbinom(x, n, p0); else if (alt === "greater") exact = 1 - S.pbinom(x - 1, n, p0);
-    else { const lo = S.pbinom(x, n, p0), hi = 1 - S.pbinom(x - 1, n, p0); exact = Math.min(1, 2 * Math.min(lo, hi)); }
+    const upper = (k) => { let s = 0; for (let i = k; i <= n; i++) s += S.dbinom(i, n, p0); return Math.min(1, s); };
+    const lower = (k) => { let s = 0; for (let i = 0; i <= k; i++) s += S.dbinom(i, n, p0); return Math.min(1, s); };
+    let exact; if (alt === "less") exact = lower(x); else if (alt === "greater") exact = upper(x);
+    else { exact = Math.min(1, 2 * Math.min(lower(x), upper(x))); }
     return { x, n, phat, p0, se0, z, p, exact, zstar, se, me, lower: phat - me, upper: phat + me, alt, conf,
       condTest: n * p0 >= 10 && n * (1 - p0) >= 10, condCI: x >= 10 && n - x >= 10 };
   };
@@ -163,4 +165,38 @@
     const fn = new Function(...names, body);
     return (row) => fn(...row.map((v) => (v !== "" && Number.isFinite(Number(v)) ? Number(v) : v)));
   };
+})(window.SW);
+/* ---- additions: 2x2 measures, Fisher exact, rank-based methods ---- */
+(function (S) {
+  const lchoose = (n, k) => jStat.gammaln(n + 1) - jStat.gammaln(k + 1) - jStat.gammaln(n - k + 1);
+  const dhyper = (x, m, n, k) => Math.exp(lchoose(m, x) + lchoose(n, k - x) - lchoose(m + n, k));
+  S.fisher2x2 = (a, b, c, d) => { // table [[a,b],[c,d]]; two-sided p = sum of probabilities <= observed
+    const m = a + b, n = c + d, k = a + c, lo = Math.max(0, k - n), hi = Math.min(k, m), pobs = dhyper(a, m, n, k);
+    let p = 0; for (let x = lo; x <= hi; x++) { const px = dhyper(x, m, n, k); if (px <= pobs * (1 + 1e-7)) p += px; }
+    return Math.min(1, p);
+  };
+  S.measures2x2 = (a, b, c, d, conf = 0.95) => { // rows = groups, col 1 = event
+    const z = S.qnorm(1 - (1 - conf) / 2), p1 = a / (a + b), p2 = c / (c + d), rr = p1 / p2, or = (a * d) / (b * c);
+    const seLogRR = Math.sqrt(1 / a - 1 / (a + b) + 1 / c - 1 / (c + d)), seLogOR = Math.sqrt(1 / a + 1 / b + 1 / c + 1 / d);
+    return { p1, p2, rr, rrLower: Math.exp(Math.log(rr) - z * seLogRR), rrUpper: Math.exp(Math.log(rr) + z * seLogRR), or, orLower: Math.exp(Math.log(or) - z * seLogOR), orUpper: Math.exp(Math.log(or) + z * seLogOR) };
+  };
+  S.ranks = (x) => { const idx = x.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]); const r = new Array(x.length); let i = 0; while (i < idx.length) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; const avg = (i + j + 2) / 2; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1; } return r; };
+  S.spearman = (xa, ya) => { const x = [], y = []; for (let i = 0; i < xa.length; i++) { const a = Number(xa[i]), b = Number(ya[i]); if (xa[i] !== "" && ya[i] !== "" && Number.isFinite(a) && Number.isFinite(b)) { x.push(a); y.push(b); } } const r = S.regress(S.ranks(x), S.ranks(y)); return { rs: r.r, n: r.n, t: r.tr, p: r.pr }; };
+  S.mannWhitney = (xa, ya, alt = "two") => {
+    const x = S.num(xa), y = S.num(ya), n1 = x.length, n2 = y.length, all = x.concat(y), r = S.ranks(all);
+    const R1 = r.slice(0, n1).reduce((s, v) => s + v, 0), U1 = R1 - (n1 * (n1 + 1)) / 2, U2 = n1 * n2 - U1, N = n1 + n2;
+    const counts = {}; all.forEach((v) => (counts[v] = (counts[v] || 0) + 1)); const tie = Object.values(counts).reduce((s, t) => s + (t ** 3 - t), 0);
+    const mu = (n1 * n2) / 2, sd = Math.sqrt(((n1 * n2) / 12) * (N + 1 - tie / (N * (N - 1))));
+    const z = (U1 - mu) / sd, p = S.pvalue(z, alt, S.pnorm);
+    return { n1, n2, U: Math.min(U1, U2), U1, U2, z, p, med1: S.median(x), med2: S.median(y) };
+  };
+  S.wilcoxonSigned = (a, b, alt = "two") => { // paired: a minus b (b may be a constant array)
+    const d = []; for (let i = 0; i < a.length; i++) { const x = Number(a[i]), y = Number(b[i]); if (a[i] !== "" && b[i] !== "" && Number.isFinite(x) && Number.isFinite(y) && x !== y) d.push(x - y); }
+    const n = d.length, r = S.ranks(d.map(Math.abs)); let Wp = 0; d.forEach((v, i) => { if (v > 0) Wp += r[i]; });
+    const counts = {}; d.map(Math.abs).forEach((v) => (counts[v] = (counts[v] || 0) + 1)); const tie = Object.values(counts).reduce((s, t) => s + (t ** 3 - t), 0);
+    const mu = (n * (n + 1)) / 4, sd = Math.sqrt((n * (n + 1) * (2 * n + 1)) / 24 - tie / 48), z = (Wp - mu) / sd;
+    return { n, Wplus: Wp, z, p: S.pvalue(z, alt, S.pnorm), medianDiff: S.median(d) };
+  };
+  S.signTest = (a, b, alt = "two") => { let pos = 0, neg = 0; for (let i = 0; i < a.length; i++) { const x = Number(a[i]), y = Number(b[i]); if (a[i] === "" || b[i] === "" || !Number.isFinite(x) || !Number.isFinite(y) || x === y) continue; if (x > y) pos++; else neg++; } const n = pos + neg; const r = S.oneProp({ x: pos, n, p0: 0.5, alt }); return { pos, neg, n, p: r.exact }; };
+  S.kruskal = (groups) => { const names = Object.keys(groups), xs = names.map((g) => S.num(groups[g])), all = xs.flat(), r = S.ranks(all), N = all.length; let H = 0, k = 0; xs.forEach((x) => { const Ri = r.slice(k, k + x.length).reduce((s, v) => s + v, 0); k += x.length; H += (Ri * Ri) / x.length; }); H = (12 / (N * (N + 1))) * H - 3 * (N + 1); const counts = {}; all.forEach((v) => (counts[v] = (counts[v] || 0) + 1)); const tie = 1 - Object.values(counts).reduce((s, t) => s + (t ** 3 - t), 0) / (N ** 3 - N); H /= tie; const df = names.length - 1; return { H, df, p: 1 - S.pchisq(H, df), groups: names.map((g, i) => ({ name: g, n: xs[i].length, median: S.median(xs[i]) })) }; };
 })(window.SW);
