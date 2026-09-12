@@ -78,12 +78,15 @@
 
   // ================= output =================
   let cardN = 0;
+  let TARGET = "#out";
+  function showTab(name) { document.querySelectorAll(".tabs .tab").forEach((b) => b.classList.toggle("active", b.dataset.tab === name)); $("#out").classList.toggle("active", name === "analyses"); $("#outG").classList.toggle("active", name === "graphs"); document.querySelectorAll("#outG .plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { } }); }
+  function counts() { $("#cntA").textContent = $("#out").children.length || ""; $("#cntG").textContent = $("#outG").children.length || ""; }
   function card(title, meta, html) {
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     div.innerHTML = `<div class="tools"><button data-act="copy">copy text</button><button data-act="close">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
-    div.querySelector('[data-act="close"]').onclick = () => div.remove();
+    div.querySelector('[data-act="close"]').onclick = () => { div.remove(); counts(); };
     div.querySelector('[data-act="copy"]').onclick = () => navigator.clipboard.writeText(div.innerText);
-    const out = $("#out"); out.prepend(div); out.scrollTop = 0; return div;
+    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); return div;
   }
   function table(headers, rows, caption) {
     return (caption ? `<div class="cap">${esc(caption)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
@@ -100,7 +103,7 @@
 
   // ================= dialog =================
   function dialog(title, fields, onGo, goLabel = "Run") {
-    const f = $("#dlgForm"); $("#dlgTitle").textContent = title; f.innerHTML = "";
+    const f = $("#dlgForm"); $("#dlgTitle").textContent = title; f.innerHTML = ""; f.dataset.target = TARGET;
     const groups = {}; let html = "";
     fields.filter(Boolean).forEach((fd) => {
       const id = "f_" + fd.name; let ctl = "";
@@ -119,7 +122,8 @@
     f.onsubmit = (e) => {
       e.preventDefault(); const v = {};
       fields.filter(Boolean).forEach((fd) => { const el = f.elements[fd.name]; if (!el) return; if (fd.type === "multi") v[fd.name] = [...el.selectedOptions].map((o) => o.value); else if (fd.type === "check") v[fd.name] = el.checked; else if (fd.type === "number") v[fd.name] = el.value === "" ? NaN : Number(el.value); else v[fd.name] = el.value; });
-      try { onGo(v); $("#dlg").classList.remove("open"); } catch (err) { alert(err.message || err); }
+      const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt;
+      try { onGo(v); $("#dlg").classList.remove("open"); } catch (err) { alert(err.message || err); } finally { TARGET = prev; }
     };
     $("#dlg").classList.add("open");
   }
@@ -182,6 +186,7 @@
 
 
   // ================= Graph (StatCrunch-style) =================
+  const toGraphs = (fn) => () => { TARGET = "#outG"; try { fn(); } finally { setTimeout(() => (TARGET = "#out"), 0); } };
   function groupsOf(v) { return v.by ? [...new Set(col(v.by).filter((g) => g !== ""))] : [null]; }
   function subset(x, v, g) { return g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); }
   function meanMedianShapes(d) { return [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }]; }
@@ -653,19 +658,19 @@
     needData();
     dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" AND Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= AND OR. Blank removes the filter. Every analysis uses only the kept rows." }], (v) => { D.filter = v.f.trim(); if (D.filter) activeIdx(); renderGrid(); persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
   }
-  function saveSession() { const payload = { name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, results: $("#out").innerHTML, saved: new Date().toISOString() }; downloadText(JSON.stringify(payload), (D.name || "session") + ".sww.json", "application/json"); }
+  function saveSession() { const payload = { name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, results: $("#out").innerHTML, graphs: $("#outG").innerHTML, saved: new Date().toISOString() }; downloadText(JSON.stringify(payload), (D.name || "session") + ".sww.json", "application/json"); }
   function loadSession() {
     const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
-    inp.onchange = () => { inp.files[0].text().then((t) => { const s = JSON.parse(t); D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; inferTypes(); renderGrid(); persist(); $("#out").innerHTML = s.results || ""; $("#out").querySelectorAll(".plot").forEach((p) => p.remove()); $("#out").querySelectorAll('[data-act="close"]').forEach((b) => (b.onclick = () => b.closest(".card").remove())); }); };
+    inp.onchange = () => { inp.files[0].text().then((t) => { const s = JSON.parse(t); D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; inferTypes(); renderGrid(); persist(); $("#out").innerHTML = s.results || ""; $("#outG").innerHTML = s.graphs || ""; document.querySelectorAll("#out .plot, #outG .plot").forEach((p) => p.remove()); document.querySelectorAll('#out [data-act="close"], #outG [data-act="close"]').forEach((b) => (b.onclick = () => { b.closest(".card").remove(); counts(); })); counts(); }); };
     inp.click();
   }
-  function exportResults() { const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Results</title><style>${[...document.styleSheets[0].cssRules].map((r) => r.cssText).join("\n")}</style></head><body><div id="out">${$("#out").innerHTML}</div></body></html>`; downloadText(html, "results.html", "text/html"); }
+  function exportResults() { const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Results</title><style>${[...document.styleSheets[0].cssRules].map((r) => r.cssText).join("\n")}</style></head><body><h1>Analyses</h1><div id="out">${$("#out").innerHTML}</div><h1>Graphs</h1><div id="outG">${$("#outG").innerHTML}</div></body></html>`; downloadText(html, "results.html", "text/html"); }
 
   // ================= menu =================
   const MENU = [
     ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
-    ["Graph", [["Bar Plot", gBar], ["Pie Chart", gPie], null, ["Histogram", gHist], ["Dotplot", gDot], ["Boxplot", gBox], ["Stem and Leaf", gStem], null, ["Scatter Plot", gScatter], ["QQ Plot", gQQ]]],
+    ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
     ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
@@ -673,7 +678,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim]]],
-    ["Results", [["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear all results", () => ($("#out").innerHTML = "")]]],
+    ["Results", [["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");
   MENU.forEach(([name, items]) => {
@@ -687,6 +692,7 @@
   document.addEventListener("click", () => nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")));
   $("#dlg").addEventListener("click", (e) => { if (e.target.id === "dlg") $("#dlg").classList.remove("open"); });
   $("#filterBox").addEventListener("change", () => { D.filter = $("#filterBox").value.trim(); try { activeIdx(); } catch (e) { alert(e.message); D.filter = ""; } renderGrid(); persist(); });
+  document.querySelectorAll(".tabs .tab").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
   restore();
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => { });
 })();
