@@ -259,7 +259,9 @@
     const acc = S.mean(fitted.map((f, i) => ((f >= 0.5 ? 1 : 0) === y[i] ? 1 : 0)));
     return { names: ["Intercept"].concat(names), b, se, z, p: pv, or: b.map(Math.exp), orLower: b.map((v, i) => Math.exp(v - zstar * se[i])), orUpper: b.map((v, i) => Math.exp(v + zstar * se[i])), ll, ll0, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), mcfadden: 1 - ll / ll0, aic: -2 * ll + 2 * p, n, accuracy: acc, fitted, conf };
   };
-  S.dummies = (vals) => { const lv = [...new Set(vals.filter((v) => v !== ""))].sort(); return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };
+  S.dummies = (vals, ref) => { // reference = the most frequent level unless given; a rare reference makes every coefficient unstable
+    const c = S.counts(vals); let lv = Object.keys(c).sort(); const r = ref && lv.includes(ref) ? ref : lv.reduce((a, b) => (c[b] > c[a] ? b : a), lv[0]); lv = [r].concat(lv.filter((l) => l !== r));
+    return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };
   S.anova2 = (y, A, B, interaction = true) => { // type II sums of squares via model comparison
     const dA = S.dummies(A), dB = S.dummies(B);
     const inter = A.map((_, i) => dA.rows[i].flatMap((a) => dB.rows[i].map((b) => a * b)));
@@ -317,5 +319,78 @@
     const msSubj = (group ? out.rows[1].ms : ssSubj / (n - 1)), msErr = out.rows[out.rows.length - 1].ms;
     out.varSubject = Math.max(0, (msSubj - msErr) / k); out.varResid = msErr; out.icc = out.varSubject / (out.varSubject + out.varResid);
     return out;
+  };
+})(window.SW);
+/* ---- Advanced: counts and categories. Poisson and negative binomial, multinomial and ordinal logistic, McNemar, Cochran-Armitage ---- */
+(function (S) {
+  const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+  const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  const inv = (M) => { const n = M.length, A = M.map((r, i) => r.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; if (Math.abs(A[p][c]) < 1e-12) throw new Error("Singular matrix: a predictor is redundant or a category is empty."); [A[c], A[p]] = [A[p], A[c]]; const d = A[c][c]; for (let j = 0; j < 2 * n; j++) A[c][j] /= d; for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; } } return A.map((r) => r.slice(n)); };
+  const lgam = (x) => jStat.gammaln(x);
+  // generic Newton maximizer with numeric gradient and Hessian (small dimension)
+  const maximize = (f, x0, iters = 60) => {
+    let x = x0.slice(); const h = 1e-4;
+    const grad = (x) => x.map((_, i) => { const a = x.slice(), b = x.slice(); a[i] += h; b[i] -= h; return (f(a) - f(b)) / (2 * h); });
+    const hess = (x) => { const g0 = grad(x); return x.map((_, i) => { const a = x.slice(); a[i] += h; const gi = grad(a); return gi.map((v, j) => (v - g0[j]) / h); }); };
+    let fx = f(x);
+    for (let it = 0; it < iters; it++) {
+      const g = grad(x), H = hess(x); const Hs = H.map((r, i) => r.map((v, j) => (v + H[j][i]) / 2));
+      let step; try { step = mul(inv(Hs), g.map((v) => [v])).map((r) => r[0]); } catch (e) { step = g.map((v) => -v * 1e-3); }
+      let t = 1, xn, fn; for (let k = 0; k < 30; k++) { xn = x.map((v, i) => v - t * step[i]); fn = f(xn); if (Number.isFinite(fn) && fn >= fx - 1e-12) break; t /= 2; }
+      if (!Number.isFinite(fn)) break; const done = Math.abs(fn - fx) < 1e-9 && Math.max(...step.map(Math.abs)) * t < 1e-7; x = xn; fx = fn; if (done) break;
+    }
+    let cov; try { const H = hess(x); cov = inv(H.map((r) => r.map((v) => -v))); } catch (e) { cov = x.map(() => x.map(() => NaN)); }
+    return { x, ll: fx, se: cov.map((r, i) => Math.sqrt(Math.max(r[i], 0))) };
+  };
+  S.poisson = (X, y, names, conf = 0.95) => { // IRLS, log link
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length; let b = new Array(p).fill(0); b[0] = Math.log(Math.max(S.mean(y), 1e-6)); let cov;
+    for (let it = 0; it < 50; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * mu[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = y.reduce((s, yi, i) => s + yi * Math.log(mu[i]) - mu[i] - lgam(yi + 1), 0);
+    const dev = 2 * y.reduce((s, yi, i) => s + (yi > 0 ? yi * Math.log(yi / mu[i]) : 0) - (yi - mu[i]), 0), pearson = y.reduce((s, yi, i) => s + (yi - mu[i]) ** 2 / mu[i], 0), df = n - p;
+    const ybar = S.mean(y), ll0 = y.reduce((s, yi) => s + yi * Math.log(ybar) - ybar - lgam(yi + 1), 0);
+    const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll, ll0, dev, pearson, df, dispersion: pearson / df, aic: -2 * ll + 2 * p, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), n, fitted: mu, conf };
+  };
+  S.negbin = (X, y, names, conf = 0.95) => { // NB2: alternate IRLS for beta given theta with ML for theta
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;
+    const pois = S.poisson(X, y, names, conf); let b = pois.b.slice(), theta = Math.max(0.1, 1 / Math.max(pois.dispersion - 1, 0.05) * 1), cov;
+    const llTheta = (th, mu) => y.reduce((s, yi, i) => s + lgam(yi + th) - lgam(th) - lgam(yi + 1) + th * Math.log(th / (th + mu[i])) + yi * Math.log(mu[i] / (th + mu[i])), 0);
+    for (let outer = 0; outer < 30; outer++) {
+      for (let it = 0; it < 30; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), w = mu.map((m) => m / (1 + m / theta)), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * w[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+      const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0)));
+      const r = maximize((v) => llTheta(Math.exp(v[0]), mu), [Math.log(theta)], 40); const thn = Math.exp(r.x[0]); const done = Math.abs(thn - theta) < 1e-6 * theta; theta = thn; if (done) break;
+    }
+    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = llTheta(theta, mu);
+    const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
+    const lrt = 2 * (ll - pois.ll);
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf };
+  };
+  S.multinom = (X, yLab, names, conf = 0.95) => { // baseline = first level (sorted)
+    const levels = [...new Set(yLab)].sort(), K = levels.length, y = yLab.map((v) => levels.indexOf(v)), Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;
+    const ll = (v) => { let s = 0; for (let i = 0; i < y.length; i++) { const etas = [0]; for (let k = 1; k < K; k++) etas.push(Xd[i].reduce((a, x, j) => a + x * v[(k - 1) * p + j], 0)); const mx = Math.max(...etas), lse = mx + Math.log(etas.reduce((a, e) => a + Math.exp(e - mx), 0)); s += etas[y[i]] - lse; } return s; };
+    const r = maximize(ll, new Array((K - 1) * p).fill(0)); const zs = S.qnorm(1 - (1 - conf) / 2);
+    const base = levels.map((l) => y.filter((v) => v === levels.indexOf(l)).length / y.length), ll0 = y.reduce((s, v) => s + Math.log(base[v]), 0);
+    const eq = []; for (let k = 1; k < K; k++) { const b = r.x.slice((k - 1) * p, k * p), se = r.se.slice((k - 1) * p, k * p); eq.push({ level: levels[k], b, se, z: b.map((v, i) => v / se[i]), p: b.map((v, i) => 2 * (1 - S.pnorm(Math.abs(v / se[i])))), rrr: b.map(Math.exp), lower: b.map((v, i) => Math.exp(v - zs * se[i])), upper: b.map((v, i) => Math.exp(v + zs * se[i])) }); }
+    return { levels, baseline: levels[0], names: ["Intercept"].concat(names), eq, ll: r.ll, ll0, chi: 2 * (r.ll - ll0), dfChi: (K - 1) * (p - 1), pChi: 1 - S.pchisq(2 * (r.ll - ll0), (K - 1) * (p - 1)), aic: -2 * r.ll + 2 * (K - 1) * p, mcfadden: 1 - r.ll / ll0, n: y.length, conf };
+  };
+  S.ordinal = (X, yLab, order, names, conf = 0.95) => { // proportional odds (logit), cutpoints increasing
+    const levels = order, K = levels.length, y = yLab.map((v) => levels.indexOf(v)), p = X[0].length;
+    const F = (z) => 1 / (1 + Math.exp(-z));
+    const unpack = (v) => { const b = v.slice(0, p); const cuts = [v[p]]; for (let k = 1; k < K - 1; k++) cuts.push(cuts[k - 1] + Math.exp(v[p + k])); return { b, cuts }; };
+    const ll = (v) => { const { b, cuts } = unpack(v); let s = 0; for (let i = 0; i < y.length; i++) { const eta = X[i].reduce((a, x, j) => a + x * b[j], 0); const hi = y[i] < K - 1 ? F(cuts[y[i]] - eta) : 1, lo = y[i] > 0 ? F(cuts[y[i] - 1] - eta) : 0; s += Math.log(Math.max(hi - lo, 1e-12)); } return s; };
+    const cum = []; let c = 0; for (let k = 0; k < K - 1; k++) { c += y.filter((v) => v === k).length / y.length; cum.push(Math.log(c / (1 - c))); }
+    const x0 = new Array(p).fill(0).concat([cum[0]], cum.slice(1).map((v, k) => Math.log(Math.max(v - cum[k], 1e-3))));
+    const r = maximize(ll, x0); const { b, cuts } = unpack(r.x); const zs = S.qnorm(1 - (1 - conf) / 2);
+    // SE of cutpoints via delta: run maximize on the unconstrained cut parametrization for SE of b only (reported), cut SEs approximate
+    const se = r.se.slice(0, p);
+    const base = y.map((v) => y.filter((q) => q === v).length / y.length), ll0 = base.reduce((s, q) => s + Math.log(q), 0);
+    return { levels, names, b, se, z: b.map((v, i) => v / se[i]), p: b.map((v, i) => 2 * (1 - S.pnorm(Math.abs(v / se[i])))), or: b.map(Math.exp), lower: b.map((v, i) => Math.exp(v - zs * se[i])), upper: b.map((v, i) => Math.exp(v + zs * se[i])), cuts, ll: r.ll, ll0, chi: 2 * (r.ll - ll0), dfChi: p, pChi: 1 - S.pchisq(2 * (r.ll - ll0), p), aic: -2 * r.ll + 2 * (p + K - 1), n: y.length, conf };
+  };
+  S.mcnemar = (b, c) => { const chi = ((Math.abs(b - c) - 1) ** 2) / (b + c), n = b + c; const k = Math.min(b, c); let exact = 0; for (let i = 0; i <= k; i++) exact += S.dbinom(i, n, 0.5); exact = Math.min(1, 2 * exact); return { b, c, chi, p: 1 - S.pchisq(chi, 1), exact, chiNoCC: (b - c) ** 2 / (b + c) }; };
+  S.trendTest = (successes, totals, scores) => { // Cochran-Armitage via prop.trend.test logic
+    const k = successes.length, sc = scores || successes.map((_, i) => i + 1), N = totals.reduce((s, v) => s + v, 0), R = successes.reduce((s, v) => s + v, 0), pbar = R / N;
+    const xbar = sc.reduce((s, x, i) => s + x * totals[i], 0) / N;
+    const num = sc.reduce((s, x, i) => s + (x - xbar) * (successes[i] - totals[i] * pbar), 0), den = Math.sqrt(pbar * (1 - pbar) * sc.reduce((s, x, i) => s + totals[i] * (x - xbar) ** 2, 0));
+    const z = num / den; return { z, chi: z * z, p: 1 - S.pchisq(z * z, 1), props: successes.map((v, i) => v / totals[i]) };
   };
 })(window.SW);

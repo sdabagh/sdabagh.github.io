@@ -539,11 +539,24 @@
 
   // ================= Advanced =================
   function designMatrix(numVars, catVars) {
-    const names = [], parts = [];
+    const names = [], parts = [], notes = [];
     numVars.forEach((v) => { names.push(v); parts.push(col(v).map((x) => [x])); });
-    catVars.forEach((v) => { const d = SW.dummies(col(v)); d.cols.forEach((l) => names.push(`${v} = ${l} (vs ${d.levels[0]})`)); parts.push(d.rows); });
+    catVars.forEach((v) => {
+      const raw = col(v), c = SW.counts(raw), rare = Object.keys(c).filter((l) => c[l] < 3);
+      const vals = raw.map((x) => (rare.includes(x) ? "" : x));
+      if (rare.length) notes.push(`${v}: level${rare.length > 1 ? "s" : ""} ${rare.join(", ")} (fewer than 3 rows) set to missing; a category that small cannot be estimated.`);
+      const d = SW.dummies(vals); d.cols.forEach((l) => names.push(`${v} = ${l} (vs ${d.levels[0]})`));
+      parts.push(d.rows.map((r, i) => (vals[i] === "" ? r.map(() => "") : r)));
+    });
     const rows = D.rows.length ? activeIdx().map((_, i) => parts.flatMap((p) => p[i])) : [];
-    return { names, rows };
+    return { names, rows, notes };
+  }
+  const dmNotes = (dm) => (dm.notes || []).map((n) => warn(n)).join("");
+  function pruneEmpty(X, names, keep) { // dummy columns with fewer than 3 rows in the kept data: drop the column and those rows
+    const sums = names.map((_, j) => X.reduce((s, r) => s + (Number(r[j]) === 1 && names[j].includes(" = ") ? 1 : 0), 0));
+    const dropCol = names.map((nm, j) => nm.includes(" = ") && sums[j] < 3);
+    const rowOK = X.map((r) => !r.some((v, j) => dropCol[j] && Number(v) === 1));
+    return { X: X.filter((_, i) => rowOK[i]).map((r) => r.filter((_, j) => !dropCol[j])), names: names.filter((_, j) => !dropCol[j]), keep: keep.filter((_, i) => rowOK[i]), dropped: names.filter((_, j) => dropCol[j]) };
   }
   function keepComplete(X, y, extra = []) { const keep = []; for (let i = 0; i < y.length; i++) { const ok = y[i] !== "" && Number.isFinite(Number(y[i])) && X[i].every((v) => v !== "" && Number.isFinite(Number(v))) && extra.every((e) => e[i] !== ""); if (ok) keep.push(i); } return keep; }
   function multRegUI() {
@@ -557,8 +570,8 @@
       const dm = designMatrix(v.xs, v.cs), yv = col(v.y);
       (v.sq || []).forEach((s) => { const c = col(s); dm.names.push(`${s} squared`); dm.rows.forEach((r, i) => r.push(c[i] === "" ? "" : Number(c[i]) ** 2)); });
       if (v.ix && v.ix.trim()) { const [a, b] = v.ix.split("*").map((s) => s.trim()); if (!numCols().includes(a) || !numCols().includes(b)) throw new Error("Interaction must be two numeric column names joined by *."); const ca = col(a), cb = col(b); dm.names.push(`${a} x ${b}`); dm.rows.forEach((r, i) => r.push(ca[i] === "" || cb[i] === "" ? "" : Number(ca[i]) * Number(cb[i]))); if (!v.xs.includes(a) || !v.xs.includes(b)) html0 = warn("An interaction is usually entered with both main effects also in the model."); }
-      const keep = keepComplete(dm.rows, yv);
-      const X = keep.map((i) => dm.rows[i].map(Number)), y = keep.map((i) => Number(yv[i]));
+      let keep = keepComplete(dm.rows, yv);
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => Number(yv[i])); dm.names = pr.names; html0 += dmNotes(dm); if (pr.dropped.length) html0 += warn(`Dropped ${pr.dropped.join(", ")} and its rows: fewer than 3 usable rows in that category, which cannot be estimated.`);
       if (X.length <= dm.names.length + 1) throw new Error("Not enough complete rows for this many predictors.");
       const m = SW.ols(X, y, dm.names, +v.conf);
       let html = table(["Model", "R", "R squared", "Adjusted R squared", "F", "df1", "df2", "p"], [["1", Math.sqrt(m.r2), m.r2, m.adj, m.F, m.dfF[0], m.dfF[1], SW.fmtP(m.pF)]], "Model Fit Measures");
@@ -590,10 +603,10 @@
     dialog("Advanced: Logistic Regression (binary outcome)", [selCat("y", "Outcome variable (two levels)"), { name: "succ", label: "Level to model as 1 (exactly as in the data)", type: "text" }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, confField, alphaField], (v) => {
       if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
       const yv = col(v.y), lv = [...new Set(yv.filter((q) => q !== ""))]; if (!lv.includes(v.succ.trim())) throw new Error(`Levels of ${v.y}: ${lv.join(", ")}. Type one of them.`);
-      const dm = designMatrix(v.xs, v.cs), keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
-      const X = keep.map((i) => dm.rows[i].map(Number)), y = keep.map((i) => (yv[i] === v.succ.trim() ? 1 : 0));
+      const dm = designMatrix(v.xs, v.cs); let keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => (yv[i] === v.succ.trim() ? 1 : 0)); dm.names = pr.names;
       const m = SW.logistic(X, y, dm.names, +v.conf);
-      let html = table(["Model", "Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "Correctly classified"], [["1", -2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), fmt(100 * m.accuracy, 1) + " percent"]], "Model Fit Measures");
+      let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${pr.dropped.join(", ")} and its rows: fewer than 3 usable rows in that category.`) : "") + table(["Model", "Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "Correctly classified"], [["1", -2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), fmt(100 * m.accuracy, 1) + " percent"]], "Model Fit Measures");
       html += table(["Predictor", "Estimate (log odds)", "SE", "z", "p", "Odds ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.or[i], m.orLower[i], m.orUpper[i]]), `Model Coefficients - ${v.y} = ${v.succ}`);
       html += formula(`log(odds of ${v.succ}) = b0 + b1 x1 + ... Each odds ratio is exp(b): the factor by which the odds of ${v.succ} multiply per unit of that predictor, others fixed. An odds ratio interval that includes 1 means no clear effect. n = ${m.n}, ${y.reduce((s, q) => s + q, 0)} are ${v.succ}.`);
       html += say(`${decision(m.pChi, +v.alpha)} ${m.pChi <= +v.alpha ? "The predictors together improve on guessing the base rate." : "The predictors together do not improve on guessing the base rate."}`);
@@ -641,6 +654,90 @@
       const traces = G ? r.groups.map((g, j) => ({ x: v.cols, y: r.cellMean[j], mode: "lines+markers", name: `${v.g} = ${g}` })) : [{ x: v.cols, y: r.condMean, mode: "lines+markers", name: "mean", line: { color: "#3A7CA5" } }];
       plotDiv(cd, traces, { title: "Mean by condition" + (G ? " (parallel lines = no interaction)" : ""), yaxis: { title: "mean" } }, 280);
       plotDiv(cd, keep.map((i, s) => ({ x: v.cols, y: Y[s], mode: "lines", line: { width: 1, color: G ? (r.groups.indexOf(G[s]) ? "#D97D54" : "#3A7CA5") : "#3A7CA5" }, opacity: 0.35, showlegend: false, hoverinfo: "y" })), { title: "Every subject's own line (spaghetti plot)", yaxis: { title: "value" } }, 280);
+    });
+  }
+
+
+  function countRegUI() {
+    needData();
+    dialog("Advanced: Count Regression (Poisson and Negative Binomial)", [selNum("y", "Count outcome (non-negative whole numbers)"), { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, sel("fam", "Model", [["auto", "Poisson, then negative binomial if overdispersed (recommended)"], ["poisson", "Poisson only"], ["nb", "Negative binomial only"]], "auto"), confField, alphaField], (v) => {
+      if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
+      const dm = designMatrix(v.xs, v.cs), yv = col(v.y); let keep = keepComplete(dm.rows, yv);
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => Number(yv[i])); dm.names = pr.names;
+      if (y.some((q) => q < 0 || !Number.isInteger(q))) throw new Error("The outcome must be counts: 0, 1, 2, ...");
+      const po = SW.poisson(X, y, dm.names, +v.conf); let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${pr.dropped.join(", ")} and its rows: fewer than 3 usable rows in that category.`) : "");
+      const coefTable = (m, label) => table(["Predictor", "Estimate (log rate)", "SE", "z", "p", "Rate ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.irr[i], m.irrLower[i], m.irrUpper[i]]), label);
+      const useNB = v.fam === "nb" || (v.fam === "auto" && po.dispersion > 1.5);
+      if (v.fam !== "nb") {
+        html += table(["Deviance", "df", "Pearson dispersion", "AIC", "chi-square (vs intercept only)", "df", "p"], [[po.dev, po.df, po.dispersion, po.aic, po.chi, po.dfChi, SW.fmtP(po.pChi)]], "Poisson model fit") + coefTable(po, `Poisson coefficients - ${v.y}`);
+        html += cond(po.dispersion <= 1.5, `Dispersion ${fmt(po.dispersion, 2)} is near 1: the Poisson assumption (variance equals mean) is reasonable.`, `Dispersion ${fmt(po.dispersion, 2)} is well above 1: the counts vary more than a Poisson allows (overdispersion). Poisson standard errors are too small and its p-values too optimistic. Use the negative binomial below.`);
+      }
+      if (useNB) { const nb = SW.negbin(X, y, dm.names, +v.conf); html += table(["theta (dispersion parameter)", "Log-likelihood", "AIC", "Poisson AIC", "LR test NB vs Poisson", "p"], [[nb.theta, nb.ll, nb.aic, nb.poissonAic, nb.lrtVsPoisson, SW.fmtP(nb.pLrt)]], "Negative binomial model fit") + coefTable(nb, `Negative binomial coefficients - ${v.y}`) + say(`Negative binomial adds a dispersion parameter theta; smaller theta means more extra variation. ${nb.pLrt <= +v.alpha ? "The likelihood-ratio test prefers the negative binomial over Poisson." : "The two models fit about equally; Poisson is the simpler choice."}`); }
+      html += formula(`log(expected ${v.y}) = b0 + b1 x1 + ... A rate ratio exp(b) is the multiplicative change in the expected count per unit of the predictor, others fixed. n = ${po.n}.`);
+      html += say(`${decision(po.pChi, +v.alpha)} ${po.pChi <= +v.alpha ? "The predictors together explain variation in the count." : "No evidence the predictors explain the count."}`);
+      const cd = card(useNB ? "Count Regression (Poisson and Negative Binomial)" : "Poisson Regression", src(v.y), html);
+      plotDiv(cd, [{ x: y, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } }, name: "observed" }], { title: `Distribution of ${v.y} (mean ${fmt(SW.mean(y), 2)}, variance ${fmt(SW.sd(y) ** 2, 2)})`, xaxis: { title: v.y }, yaxis: { title: "Count" } }, 240);
+    });
+  }
+  function multinomUI() {
+    needData();
+    dialog("Advanced: Multinomial Logistic Regression (3 or more unordered outcome levels)", [selCat("y", "Outcome variable"), { name: "base", label: "Baseline level (blank = first alphabetically)", type: "text" }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, confField, alphaField], (v) => {
+      if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
+      const dm = designMatrix(v.xs, v.cs), yv = col(v.y); let keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, yl = keep.map((i) => yv[i]); dm.names = pr.names;
+      const lv = [...new Set(yl)].sort(); if (lv.length < 3) throw new Error(`${v.y} has ${lv.length} levels; use Logistic Regression for two.`);
+      const base = v.base.trim() || lv[0]; if (!lv.includes(base)) throw new Error(`Levels: ${lv.join(", ")}.`);
+      const m = SW.multinom(X, yl.map((l) => (l === base ? " " + l : l)), dm.names, +v.conf); m.eq.forEach((e) => (e.level = e.level.trim()));
+      let html = dmNotes(dm) + table(["Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "n"], [[-2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), m.n]], "Model fit");
+      m.eq.forEach((e) => { html += table(["Predictor", "Estimate (log relative risk)", "SE", "z", "p", "Relative risk ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, e.b[i], e.se[i], e.z[i], SW.fmtP(e.p[i]), e.rrr[i], e.lower[i], e.upper[i]]), `${e.level} versus ${base}`); });
+      html += formula(`One equation per level against the baseline ${base}. A relative risk ratio exp(b) is the factor by which the odds of that level (relative to ${base}) multiply per unit of the predictor.`);
+      html += say(`${decision(m.pChi, +v.alpha)} ${m.pChi <= +v.alpha ? "The predictors help distinguish the outcome levels." : "No evidence the predictors distinguish the outcome levels."} Levels of ${v.y}: ${lv.join(", ")}.`);
+      card("Multinomial Logistic Regression", src(v.y), html);
+    });
+  }
+  function ordinalUI() {
+    needData();
+    dialog("Advanced: Ordinal Logistic Regression (proportional odds)", [selCat("y", "Ordered outcome variable"), { name: "order", label: "Levels from lowest to highest, comma separated (exactly as in the data)", type: "text", placeholder: "F, D, C, B, A" }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, confField, alphaField], (v) => {
+      if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
+      const order = v.order.split(",").map((s) => s.trim()).filter(Boolean); const yv = col(v.y), lv = [...new Set(yv.filter((q) => q !== ""))];
+      if (order.length < 3 || order.some((l) => !lv.includes(l)) || lv.some((l) => !order.includes(l))) throw new Error(`Type every level of ${v.y} in order. Levels present: ${lv.join(", ")}.`);
+      const dm = designMatrix(v.xs, v.cs); let keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; dm.names = pr.names;
+      const m = SW.ordinal(pr.X, keep.map((i) => yv[i]), order, dm.names, +v.conf);
+      let html = dmNotes(dm) + table(["Deviance", "AIC", "chi-square (vs intercept only)", "df", "p", "n"], [[-2 * m.ll, m.aic, m.chi, m.dfChi, SW.fmtP(m.pChi), m.n]], "Model fit");
+      html += table(["Predictor", "Estimate", "SE", "z", "p", "Odds ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.or[i], m.lower[i], m.upper[i]]), `Coefficients - ${v.y}`);
+      html += table(["Threshold", "Estimate"], m.cuts.map((c, i) => [`${order[i]} | ${order[i + 1]}`, c]), "Thresholds (cutpoints on the latent scale)");
+      html += formula(`logit P(${v.y} at or below level k) = threshold_k minus (b1 x1 + ...). One slope per predictor for every cut (proportional odds). Odds ratio exp(b) above 1 means higher predictor values push the outcome toward ${order[order.length - 1]}.`);
+      html += say(`${decision(m.pChi, +v.alpha)} ${m.pChi <= +v.alpha ? "The predictors are related to the ordered outcome." : "No evidence the predictors relate to the ordered outcome."} The proportional odds assumption (same slope at every cut) is assumed here, not tested; compare with the multinomial model if in doubt.`);
+      card("Ordinal Logistic Regression", src(v.y), html);
+    });
+  }
+  function mcnemarUI() {
+    const hasData = D.rows.length > 0;
+    dialog("Advanced: McNemar test (paired yes or no)", [hasData ? sel("mode", "Data", [["data", "two paired categorical columns"], ["summary", "from the two discordant counts"]], "data") : sel("mode", "Data", [["summary", "from the two discordant counts"]]), hasData ? selCat("a", "Before (or measure 1)") : null, hasData ? selCat("b", "After (or measure 2)") : null, hasData ? { name: "succ", label: "Level that counts as yes", type: "text" } : null, { name: "bc", label: "Yes before, No after", type: "number", group: "Discordant counts" }, { name: "cb", label: "No before, Yes after", type: "number", group: "Discordant counts" }, alphaField], (v) => {
+      let b = v.bc, c = v.cb, from = "counts", tab = null;
+      if (v.mode === "data") { const A = col(v.a), B = col(v.b), s = v.succ.trim(); let yy = 0, yn = 0, ny = 0, nn = 0; for (let i = 0; i < A.length; i++) { if (A[i] === "" || B[i] === "") continue; const a1 = A[i] === s, b1 = B[i] === s; if (a1 && b1) yy++; else if (a1) yn++; else if (b1) ny++; else nn++; } b = yn; c = ny; tab = [[yy, yn], [ny, nn]]; from = src(`${v.a} to ${v.b}, yes = ${s}`); if (yy + yn + ny + nn === 0) throw new Error("No matching rows; check the yes level."); }
+      const r = SW.mcnemar(b, c);
+      let html = tab ? table(["Before \\ After", "Yes", "No"], [["Yes", tab[0][0], tab[0][1]], ["No", tab[1][0], tab[1][1]]], "Paired table") : "";
+      html += table(["Changed yes to no", "Changed no to yes", "chi-square (continuity corrected)", "p", "Exact binomial p"], [[b, c, r.chi, SW.fmtP(r.p), SW.fmtP(r.exact)]], "McNemar test");
+      html += formula("Only the discordant pairs matter: H0 says changes in each direction are equally likely. chi-square = (|b minus c| minus 1)^2 / (b + c) on 1 df; the exact version is a binomial test of b against b + c at p = 0.5.");
+      const pUse = b + c < 25 ? r.exact : r.p;
+      html += say(`${decision(pUse, +v.alpha)} ${pUse <= +v.alpha ? "The proportion saying yes changed between the two measurements." : "No evidence that the proportion saying yes changed."}${b + c < 25 ? " (Fewer than 25 discordant pairs, so the exact p is used.)" : ""}`);
+      card("McNemar test", from, html);
+    });
+  }
+  function trendUI() {
+    const hasData = D.rows.length > 0;
+    dialog("Advanced: Cochran-Armitage trend test (proportion across ordered groups)", [hasData ? sel("mode", "Data", [["data", "outcome column by an ordered group column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]), hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Level that counts as success", type: "text" } : null, hasData ? selCat("g", "Ordered group variable") : null, hasData ? { name: "order", label: "Group levels in order, comma separated (blank = alphabetical)", type: "text" } : null, { name: "s", label: "Successes per group, comma separated", type: "text", group: "Counts" }, { name: "n", label: "Totals per group, comma separated", type: "text", group: "Counts" }, alphaField], (v) => {
+      let succ, tot, labels, from = "counts";
+      if (v.mode === "data") { const xv = col(v.x), gv = col(v.g); labels = v.order.trim() ? v.order.split(",").map((s) => s.trim()) : [...new Set(gv.filter((q) => q !== ""))].sort(); succ = labels.map((l) => xv.filter((q, i) => gv[i] === l && q === v.succ.trim()).length); tot = labels.map((l) => xv.filter((q, i) => gv[i] === l && q !== "").length); from = src(`${v.x} = ${v.succ} across ${v.g}`); }
+      else { succ = v.s.split(",").map(Number); tot = v.n.split(",").map(Number); labels = succ.map((_, i) => "group " + (i + 1)); }
+      if (succ.length < 3) throw new Error("Need at least three ordered groups.");
+      const r = SW.trendTest(succ, tot);
+      let html = table(["Group", "Successes", "Total", "Proportion"], labels.map((l, i) => [l, succ[i], tot[i], r.props[i]]), "Proportions by ordered group") + table(["z", "chi-square", "df", "p"], [[r.z, r.chi, 1, SW.fmtP(r.p)]], "Cochran-Armitage trend test (scores 1, 2, 3, ...)");
+      html += formula("Tests whether the proportion rises or falls steadily across the ordered groups, which is more powerful than the general chi-square when a trend is the question.") + say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a ${r.z > 0 ? "rising" : "falling"} trend in the proportion across the groups.` : "No evidence of a linear trend across the groups."}`);
+      const cd = card("Cochran-Armitage trend test", from, html);
+      plotDiv(cd, [{ x: labels, y: r.props, mode: "lines+markers", line: { color: "#3A7CA5" } }], { yaxis: { title: "proportion", rangemode: "tozero" } }, 240);
     });
   }
 
@@ -795,7 +892,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");
