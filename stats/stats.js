@@ -537,3 +537,40 @@
     const ss = loadings[0].map((_, k) => loadings.reduce((s, r) => s + r[k] ** 2, 0)), tot = ss.reduce((s, v) => s + v, 0);
     const e0 = S.eigenSym(R); return { names, loadings, communality: loadings.map((r) => r.reduce((s, v) => s + v * v, 0)), uniqueness: loadings.map((r) => 1 - r.reduce((s, v) => s + v * v, 0)), ss, prop: ss.map((v) => v / p), cum: ss.map((_, k) => ss.slice(0, k + 1).reduce((s, v) => s + v, 0) / p), eigen: e0.values, m, rotated: rotate && m > 1 }; };
 })(window.SW);
+/* ---- Advanced: survival. Kaplan-Meier, log-rank, Cox proportional hazards ---- */
+(function (S) {
+  const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+  const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  const inv = (M) => { const n = M.length, A = M.map((r, i) => r.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; if (Math.abs(A[p][c]) < 1e-12) throw new Error("Singular matrix"); [A[c], A[p]] = [A[p], A[c]]; const d = A[c][c]; for (let j = 0; j < 2 * n; j++) A[c][j] /= d; for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; } } return A.map((r) => r.slice(n)); };
+  S.kaplanMeier = (time, event, conf = 0.95) => { // event: 1 = observed, 0 = censored
+    const idx = time.map((_, i) => i).sort((a, b) => time[a] - time[b]), times = [...new Set(idx.filter((i) => event[i]).map((i) => time[i]))].sort((a, b) => a - b);
+    let surv = 1, varSum = 0; const z = S.qnorm(1 - (1 - conf) / 2), rows = [{ time: 0, atRisk: time.length, events: 0, censored: 0, surv: 1, lower: 1, upper: 1 }];
+    for (const t of times) { const atRisk = time.filter((v) => v >= t).length, d = time.filter((v, i) => v === t && event[i]).length, c = time.filter((v, i) => v === t && !event[i]).length; surv *= 1 - d / atRisk; if (atRisk > d) varSum += d / (atRisk * (atRisk - d)); const se = surv * Math.sqrt(varSum); // log-log interval
+      let lo = surv, hi = surv; if (surv > 0 && surv < 1) { const ll = Math.log(-Math.log(surv)), sll = Math.sqrt(varSum) / Math.abs(Math.log(surv)); lo = Math.exp(-Math.exp(ll + z * sll)); hi = Math.exp(-Math.exp(ll - z * sll)); }
+      rows.push({ time: t, atRisk, events: d, censored: c, surv, se, lower: lo, upper: hi }); }
+    const med = rows.find((r) => r.surv <= 0.5); const censTimes = time.filter((v, i) => !event[i]);
+    return { rows, median: med ? med.time : null, n: time.length, events: event.reduce((s, v) => s + v, 0), censTimes, maxTime: Math.max(...time) };
+  };
+  S.logRank = (time, event, group) => { const lv = [...new Set(group)], k = lv.length, times = [...new Set(time.filter((_, i) => event[i]))].sort((a, b) => a - b);
+    const O = new Array(k).fill(0), E = new Array(k).fill(0), V = Array.from({ length: k }, () => new Array(k).fill(0));
+    for (const t of times) { const at = lv.map((g) => time.filter((v, i) => v >= t && group[i] === g).length), d = lv.map((g) => time.filter((v, i) => v === t && event[i] && group[i] === g).length), N = at.reduce((s, v) => s + v, 0), D = d.reduce((s, v) => s + v, 0); if (N === 0) continue;
+      lv.forEach((_, j) => { O[j] += d[j]; E[j] += (D * at[j]) / N; lv.forEach((_, l) => { if (N > 1) V[j][l] += (D * (N - D) / (N - 1)) * ((j === l ? at[j] / N : 0) - (at[j] * at[l]) / (N * N)); }); }); }
+    const OmE = O.slice(0, k - 1).map((o, j) => o - E[j]), Vs = V.slice(0, k - 1).map((r) => r.slice(0, k - 1)); const chi = k > 1 ? mul(mul([OmE], inv(Vs)), OmE.map((v) => [v]))[0][0] : 0;
+    return { groups: lv, observed: O, expected: E, chi, df: k - 1, p: 1 - S.pchisq(chi, k - 1), medians: lv.map((g) => S.kaplanMeier(time.filter((_, i) => group[i] === g), event.filter((_, i) => group[i] === g)).median) };
+  };
+  S.cox = (time, event, X, names, conf = 0.95) => { // Efron ties, Newton-Raphson
+    const n = time.length, p = X[0].length; let b = new Array(p).fill(0); const order = time.map((_, i) => i).sort((a, b2) => time[a] - time[b2]);
+    const uniq = [...new Set(time.filter((_, i) => event[i]))].sort((a, b2) => a - b2);
+    const llgh = (beta) => { const eta = X.map((r) => r.reduce((s, v, k) => s + v * beta[k], 0)), w = eta.map(Math.exp); let ll = 0; const g = new Array(p).fill(0), H = Array.from({ length: p }, () => new Array(p).fill(0));
+      for (const t of uniq) { const risk = order.filter((i) => time[i] >= t), tied = risk.filter((i) => time[i] === t && event[i]), d = tied.length;
+        const sw = risk.reduce((s, i) => s + w[i], 0), swx = new Array(p).fill(0), swxx = Array.from({ length: p }, () => new Array(p).fill(0)); risk.forEach((i) => { for (let a = 0; a < p; a++) { swx[a] += w[i] * X[i][a]; for (let c = 0; c < p; c++) swxx[a][c] += w[i] * X[i][a] * X[i][c]; } });
+        const tw = tied.reduce((s, i) => s + w[i], 0), twx = new Array(p).fill(0), twxx = Array.from({ length: p }, () => new Array(p).fill(0)); tied.forEach((i) => { for (let a = 0; a < p; a++) { twx[a] += w[i] * X[i][a]; for (let c = 0; c < p; c++) twxx[a][c] += w[i] * X[i][a] * X[i][c]; } });
+        tied.forEach((i) => { ll += eta[i]; for (let a = 0; a < p; a++) g[a] += X[i][a]; });
+        for (let l = 0; l < d; l++) { const f = l / d, den = sw - f * tw; ll -= Math.log(den); const m = swx.map((v, a) => (v - f * twx[a]) / den); for (let a = 0; a < p; a++) { g[a] -= m[a]; for (let c = 0; c < p; c++) H[a][c] -= (swxx[a][c] - f * twxx[a][c]) / den - m[a] * m[c]; } } }
+      return { ll, g, H }; };
+    let cur = llgh(b);
+    for (let it = 0; it < 50; it++) { const step = mul(inv(cur.H.map((r) => r.map((v) => -v))), cur.g.map((v) => [v])).map((r) => r[0]); let t = 1, nb, nx; for (let k = 0; k < 20; k++) { nb = b.map((v, i) => v + t * step[i]); nx = llgh(nb); if (nx.ll >= cur.ll - 1e-10) break; t /= 2; } const done = Math.abs(nx.ll - cur.ll) < 1e-9; b = nb; cur = nx; if (done) break; }
+    const cov = inv(cur.H.map((r) => r.map((v) => -v))), se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2), ll0 = llgh(new Array(p).fill(0)).ll;
+    return { names, b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), hr: b.map(Math.exp), hrLower: b.map((v, i) => Math.exp(v - zs * se[i])), hrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll: cur.ll, ll0, lrt: 2 * (cur.ll - ll0), dfLrt: p, pLrt: 1 - S.pchisq(2 * (cur.ll - ll0), p), n, events: event.reduce((s, v) => s + v, 0), conf };
+  };
+})(window.SW);
