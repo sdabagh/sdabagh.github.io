@@ -39,3 +39,6 @@ Teaching dataset for repeated measures: mile time in seconds at weeks 1, 4, 8, 1
 
 ## mauna_loa_co2_monthly.csv (monthly, January 2000 onward, added 2026-09-14)
 NOAA Global Monitoring Laboratory, Mauna Loa monthly mean CO2 in parts per million (gml.noaa.gov/ccgg/trends). Columns: year, month, date (YYYY-MM), co2_ppm. Real data, public domain; cite NOAA GML. Teaching use: time plot, moving average, seasonal decomposition (period 12), autocorrelation, trend.
+
+## big5_items_500.csv (500 respondents, 50 items, added 2026-09-14)
+Same Open-Source Psychometrics source as big5_personality_1200, but the raw item responses (1 to 5) for the 50 IPIP items: E1 to E10 extraversion, N1 to N10 neuroticism, A1 to A10 agreeableness, C1 to C10 conscientiousness, O1 to O10 openness. Reverse-keyed items (E2, E4, E6, E8, E10, N2, N4, A1, A3, A5, A7, C2, C4, C6, C8, O2, O4, O6) are NOT flipped, so reliability and factor analysis show negative loadings where expected. Item wording in the codebook at openpsychometrics.org. Teaching use: Cronbach's alpha per scale, PCA and factor analysis recovering the five factors, k-means on trait scores.

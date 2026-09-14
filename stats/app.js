@@ -77,7 +77,7 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -852,6 +852,80 @@
     });
   }
 
+
+  function numMatrix(vars) { const cols = vars.map((v) => col(v)); const keep = cols[0].map((_, i) => i).filter((i) => cols.every((c) => c[i] !== "" && Number.isFinite(Number(c[i])))); return { cols: cols.map((c) => keep.map((i) => Number(c[i]))), keep }; }
+  function pcaUI() {
+    needData();
+    dialog("Advanced: Principal Component Analysis", [{ name: "vars", label: "Variables (3 or more numeric)", type: "multi", options: numCols() }, { name: "m", label: "Components to show loadings for (blank = eigenvalues above 1)", type: "number", value: "" }, { name: "rot", label: "Varimax rotation of the shown components", type: "check", value: false }, selAny("by", "Colour the score plot by (optional)")], (v) => {
+      if (v.vars.length < 3) throw new Error("Pick at least three variables.");
+      const { cols, keep } = numMatrix(v.vars); const r = SW.pca(cols, v.vars); const p = v.vars.length;
+      const m = Number.isFinite(v.m) && v.m >= 1 ? Math.min(p, Math.round(v.m)) : Math.max(1, r.values.filter((e) => e > 1).length);
+      let L = r.loadings.map((row) => row.slice(0, m)); let rotNote = ""; if (v.rot && m > 1) { L = SW.varimax(L).loadings; rotNote = " (varimax rotated)"; }
+      let html = table(["Component"].concat(r.values.slice(0, Math.min(p, 10)).map((_, k) => "PC" + (k + 1))), [["Eigenvalue"].concat(r.values.slice(0, 10)), ["Proportion of variance"].concat(r.prop.slice(0, 10)), ["Cumulative"].concat(r.cum.slice(0, 10))], "Eigenvalues (on the correlation matrix, variables standardized)");
+      html += table(["Variable"].concat(Array.from({ length: m }, (_, k) => "PC" + (k + 1)), ["Communality"]), v.vars.map((nm, i) => [nm].concat(L[i], [L[i].reduce((s, q) => s + q * q, 0)])), `Loadings${rotNote}: correlation of each variable with each component`);
+      html += formula(`Components are new axes through the standardized data, each capturing the most remaining variance, uncorrelated with the others. Kaiser's rule keeps eigenvalues above 1 (${r.values.filter((e) => e > 1).length} here); the scree plot's elbow is the other guide. n = ${keep.length} complete rows.`);
+      html += say(`The first ${m} component${m > 1 ? "s" : ""} carry ${fmt(100 * r.cum[m - 1], 1)} percent of the variation in ${p} variables. Name each component from the variables that load above about 0.4 on it${v.rot ? "; rotation makes each variable load mainly on one component" : ""}.`);
+      const cd = card("Principal Component Analysis", src(v.vars.length + " variables"), html);
+      plotDiv(cd, [{ x: r.values.map((_, k) => k + 1), y: r.values, mode: "lines+markers", line: { color: "#3A7CA5" } }], { title: "Scree plot", xaxis: { title: "component", dtick: 1 }, yaxis: { title: "eigenvalue" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 1, y1: 1, line: { dash: "dash", color: "#C0392B" } }] }, 260);
+      if (m >= 2) {
+        const groups = v.by ? [...new Set(keep.map((i) => col(v.by)[i]))] : [null]; const sc = r.scores;
+        const traces = groups.map((g) => { const idx = keep.map((_, s) => s).filter((s) => g == null || col(v.by)[keep[s]] === g); return { x: idx.map((s) => sc[s][0]), y: idx.map((s) => sc[s][1]), mode: "markers", type: "scatter", name: g == null ? "scores" : String(g), marker: { size: 5, opacity: 0.7 } }; });
+        const scale = Math.max(...sc.map((s) => Math.abs(s[0]))) * 0.8; v.vars.forEach((nm, i) => { traces.push({ x: [0, r.loadings[i][0] * scale], y: [0, r.loadings[i][1] * scale], mode: "lines+text", text: ["", nm], textposition: "top center", line: { color: "#C0392B", width: 1.5 }, showlegend: false, hoverinfo: "text" }); });
+        plotDiv(cd, traces, { title: "Biplot: scores on PC1 and PC2 with variable arrows", xaxis: { title: `PC1 (${fmt(100 * r.prop[0], 1)}%)` }, yaxis: { title: `PC2 (${fmt(100 * r.prop[1], 1)}%)` } }, 360);
+      }
+    });
+  }
+  function efaUI() {
+    needData();
+    dialog("Advanced: Exploratory Factor Analysis (principal axis, varimax)", [{ name: "vars", label: "Items (3 or more numeric)", type: "multi", options: numCols() }, { name: "m", label: "Number of factors", type: "number", value: 2 }, { name: "rot", label: "Varimax rotation", type: "check", value: true }, { name: "cut", label: "Hide loadings below (absolute)", type: "number", value: 0.3 }], (v) => {
+      if (v.vars.length < 3) throw new Error("Pick at least three items.");
+      const { cols, keep } = numMatrix(v.vars); const m = Math.max(1, Math.min(Math.round(v.m), Math.floor(v.vars.length / 2))); const r = SW.efa(cols, v.vars, m, v.rot);
+      let html = table(["Factor"].concat(r.ss.map((_, k) => "F" + (k + 1))), [["Sum of squared loadings"].concat(r.ss), ["Proportion of variance"].concat(r.prop), ["Cumulative"].concat(r.cum)], `Variance explained${r.rotated ? " (after varimax)" : ""}`);
+      html += table(["Item"].concat(r.ss.map((_, k) => "F" + (k + 1)), ["Communality", "Uniqueness"]), v.vars.map((nm, i) => [nm].concat(r.loadings[i].map((l) => (Math.abs(l) < v.cut ? "" : fmt(l))), [r.communality[i], r.uniqueness[i]])), `Factor loadings (blank = below ${v.cut})`);
+      html += table(["Eigenvalue of the correlation matrix"].concat(r.eigen.slice(0, Math.min(10, r.eigen.length)).map((_, k) => String(k + 1))), [["value"].concat(r.eigen.slice(0, 10))], "Eigenvalues, for choosing the number of factors");
+      html += formula("Principal axis factoring: only the shared variance (communality) of each item is analysed, unlike PCA which uses all of it. Communality = share of an item's variance the factors explain; uniqueness = the rest. Varimax rotates the factors so each item loads mainly on one.");
+      const weak = v.vars.filter((_, i) => r.communality[i] < 0.2);
+      html += say(`${m} factor${m > 1 ? "s" : ""} explain ${fmt(100 * r.cum[m - 1], 1)} percent of the item variance. Name each factor from the items loading above ${v.cut} on it; a negative loading means the item is reverse-keyed.${weak.length ? ` Items with communality under 0.2 (${weak.join(", ")}) belong to none of the factors and may not fit the scale.` : ""} Use the scree plot: factors beyond the elbow (eigenvalue near 1 or below) add little.`);
+      const cd = card("Exploratory Factor Analysis", src(`${v.vars.length} items, ${m} factors`), html);
+      plotDiv(cd, [{ x: r.eigen.map((_, k) => k + 1), y: r.eigen, mode: "lines+markers", line: { color: "#3A7CA5" } }], { title: "Scree plot", xaxis: { title: "factor", dtick: 1 }, yaxis: { title: "eigenvalue" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 1, y1: 1, line: { dash: "dash", color: "#C0392B" } }] }, 240);
+      plotDiv(cd, [{ z: r.loadings, x: r.ss.map((_, k) => "F" + (k + 1)), y: v.vars, type: "heatmap", colorscale: [[0, "#B5476B"], [0.5, "#ffffff"], [1, "#2C5F7C"]], zmin: -1, zmax: 1, colorbar: { title: "loading" } }], { title: "Loading pattern", yaxis: { autorange: "reversed" } }, Math.max(260, 16 * v.vars.length + 60));
+    });
+  }
+  function alphaUI() {
+    needData();
+    dialog("Advanced: Reliability (Cronbach's alpha)", [{ name: "vars", label: "Items of one scale (3 or more numeric)", type: "multi", options: numCols() }, { name: "rev", label: "Reverse-keyed items, comma separated (flipped as max + min minus x)", type: "text", placeholder: "E2, E4, E6" }], (v) => {
+      if (v.vars.length < 3) throw new Error("Pick at least three items.");
+      let { cols } = numMatrix(v.vars); const rev = v.rev.split(",").map((s) => s.trim()).filter(Boolean); const bad = rev.filter((s) => !v.vars.includes(s)); if (bad.length) throw new Error(`Not among the items: ${bad.join(", ")}`);
+      const allv = cols.flat(), lo = Math.min(...allv), hi = Math.max(...allv);
+      cols = cols.map((c, j) => (rev.includes(v.vars[j]) ? c.map((x) => hi + lo - x) : c));
+      const r = SW.alpha(cols);
+      let html = table(["Cronbach's alpha", "Standardized alpha", "Items", "n", "Mean inter-item correlation"], [[r.alpha, r.standardized, r.k, r.n, r.meanR]], "Scale reliability");
+      html += table(["Item", "Mean", "SD", "Item-rest correlation", "Alpha if item dropped"], v.vars.map((nm, i) => [nm + (rev.includes(nm) ? " (reversed)" : ""), r.items[i].mean, r.items[i].sd, r.items[i].itemTotal, r.items[i].alphaIfDropped]), "Item statistics");
+      html += formula("alpha = (k / (k minus 1)) (1 minus sum of item variances / variance of the total). It measures internal consistency: how much the items agree with each other. Rough guide: 0.7 acceptable, 0.8 good, 0.9 and above excellent; above 0.95 suggests redundant items.");
+      const drops = v.vars.filter((_, i) => r.items[i].alphaIfDropped > r.alpha + 0.01), neg = v.vars.filter((_, i) => r.items[i].itemTotal < 0);
+      html += cond(r.alpha >= 0.7, `Alpha ${fmt(r.alpha, 3)}: the items hang together well enough to be summed into one score.`, `Alpha ${fmt(r.alpha, 3)}: below 0.7, the items do not agree enough to be one scale.`) + (neg.length ? warn(`Negative item-rest correlation for ${neg.join(", ")}: these items are probably reverse-keyed. Add them to the reverse list and run again.`) : "") + (drops.length ? say(`Dropping ${drops.join(" or ")} would raise alpha; consider whether those items belong.`) : "");
+      card("Reliability (Cronbach's alpha)", src(`${v.vars.length} items`), html);
+    });
+  }
+  function kmeansUI() {
+    needData();
+    dialog("Advanced: k-means Clustering", [{ name: "vars", label: "Variables (2 or more numeric; standardized before clustering)", type: "multi", options: numCols() }, { name: "k", label: "Number of clusters k", type: "number", value: 3 }, { name: "std", label: "Standardize variables (recommended)", type: "check", value: true }, { name: "seed", label: "Random seed", type: "number", value: 1 }, { name: "elbow", label: "Elbow plot for k = 1 to 8", type: "check", value: true }, { name: "add", label: "Add the cluster labels to the data as a new column", type: "check", value: false }], (v) => {
+      if (v.vars.length < 2) throw new Error("Pick at least two variables.");
+      const { cols, keep } = numMatrix(v.vars); const z = v.std ? cols.map((c) => { const m = SW.mean(c), s = SW.sd(c); return c.map((x) => (x - m) / s); }) : cols; const rows = z[0].map((_, i) => z.map((c) => c[i]));
+      const k = Math.max(2, Math.min(12, Math.round(v.k))); const r = SW.kmeans(rows, k, v.seed, 10);
+      const centersRaw = r.centers.map((c) => c.map((val, j) => (v.std ? val * SW.sd(cols[j]) + SW.mean(cols[j]) : val)));
+      let html = table(["Cluster", "Size"].concat(v.vars), r.centers.map((_, j) => ["C" + (j + 1), r.sizes[j]].concat(centersRaw[j])), "Cluster centres (original units)");
+      html += table(["Total sum of squares", "Within-cluster sum of squares", "Between", "Between / Total"], [[r.tss, r.wss, r.tss - r.wss, (r.tss - r.wss) / r.tss]], "Fit");
+      html += formula("k-means places k centres and assigns each row to the nearest one, then moves each centre to the mean of its rows, repeating until nothing changes. k-means++ starting points, best of 10 starts. Standardizing stops a variable with big units from dominating the distance.");
+      html += say(`${fmt(100 * (r.tss - r.wss) / r.tss, 1)} percent of the variation is between clusters. Describe each cluster by its centre; a cluster is a convenient grouping, not a discovered kind, unless the elbow plot shows a clear bend at this k.`);
+      const cd = card("k-means Clustering", src(`${v.vars.length} variables, k = ${k}`), html);
+      if (v.elbow) { const ks = [1, 2, 3, 4, 5, 6, 7, 8], w = ks.map((kk) => (kk === 1 ? r.tss : SW.kmeans(rows, kk, v.seed, 5).wss)); plotDiv(cd, [{ x: ks, y: w, mode: "lines+markers", line: { color: "#3A7CA5" } }], { title: "Elbow plot: within-cluster sum of squares by k", xaxis: { title: "k", dtick: 1 }, yaxis: { title: "within SS" } }, 240); }
+      const pc = SW.pca(cols, v.vars); const traces = r.centers.map((_, j) => { const idx = r.labels.map((l, i) => (l === j ? i : -1)).filter((i) => i >= 0); return { x: idx.map((i) => pc.scores[i][0]), y: idx.map((i) => (v.vars.length > 2 ? pc.scores[i][1] : rows[i][1])), mode: "markers", type: "scatter", name: `C${j + 1} (n = ${r.sizes[j]})`, marker: { size: 6 } }; });
+      plotDiv(cd, traces, { title: v.vars.length > 2 ? "Clusters on the first two principal components" : `Clusters: ${v.vars[1]} against ${v.vars[0]} (standardized)`, xaxis: { title: v.vars.length > 2 ? "PC1" : v.vars[0] }, yaxis: { title: v.vars.length > 2 ? "PC2" : v.vars[1] } }, 340);
+      if (v.add) { const labels = D.rows.map(() => ""); keep.forEach((i, s) => (labels[activeIdx()[i]] = "C" + (r.labels[s] + 1))); addColumn("cluster_k" + k, labels); }
+    });
+  }
+
   // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
@@ -1003,7 +1077,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: what a p-value is", permUI]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");

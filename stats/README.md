@@ -1,6 +1,6 @@
 # Stats Without Walls
 
-Free, browser-only statistics for the intro classroom. Open `stats/index.html` on the site; no install, no account, no data leaves the browser.
+Free statistical tool for all levels, browser-only. Open `stats/index.html` on the site; no install, no account, no data leaves the browser.
 
 Menus, option names and result tables follow jamovi (Exploration, T-Tests, ANOVA, Regression, Frequencies, distrACTION), so the course's jamovi instructions transfer as written. On top of that, StatCrunch-style conveniences: Filters, Compute, Transform, sort by clicking a header, summary-statistic input on every test, a two-proportion z test, chi-square and F calculators, a sampling distribution simulator, session save and load, and offline use as an installable app (PWA).
 

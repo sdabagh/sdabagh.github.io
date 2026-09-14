@@ -481,3 +481,59 @@
     const r = fit(alpha, beta); return { alpha, beta, fitted: r.f, level: r.level, trend: r.trend, rmse: Math.sqrt(r.sse / (x.length - 1)) };
   };
 })(window.SW);
+/* ---- Advanced: multivariate. PCA, k-means, Cronbach's alpha, exploratory factor analysis ---- */
+(function (S) {
+  const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+  const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  S.corrMatrix = (cols) => { const m = cols.map(S.mean), s = cols.map(S.sd), n = cols[0].length; return cols.map((a, i) => cols.map((b, j) => { let t = 0; for (let k = 0; k < n; k++) t += (a[k] - m[i]) * (b[k] - m[j]); return t / ((n - 1) * s[i] * s[j]); })); };
+  S.eigenSym = (A) => { // Jacobi rotation, returns eigenvalues descending and eigenvectors as columns
+    const n = A.length, a = A.map((r) => r.slice()), V = a.map((_, i) => a.map((_, j) => (i === j ? 1 : 0)));
+    for (let sweep = 0; sweep < 100; sweep++) { let off = 0; for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p][q] ** 2; if (off < 1e-20) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) { if (Math.abs(a[p][q]) < 1e-14) continue; const th = (a[q][q] - a[p][p]) / (2 * a[p][q]), t = Math.sign(th || 1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) { const akp = a[k][p], akq = a[k][q]; a[k][p] = c * akp - s * akq; a[k][q] = s * akp + c * akq; }
+        for (let k = 0; k < n; k++) { const apk = a[p][k], aqk = a[q][k]; a[p][k] = c * apk - s * aqk; a[q][k] = s * apk + c * aqk; }
+        for (let k = 0; k < n; k++) { const vkp = V[k][p], vkq = V[k][q]; V[k][p] = c * vkp - s * vkq; V[k][q] = s * vkp + c * vkq; } } }
+    const idx = a.map((_, i) => i).sort((i, j) => a[j][j] - a[i][i]);
+    return { values: idx.map((i) => a[i][i]), vectors: V.map((r) => idx.map((i) => r[i])) };
+  };
+  S.pca = (cols, names) => { const R = S.corrMatrix(cols), e = S.eigenSym(R), p = cols.length, tot = e.values.reduce((s, v) => s + v, 0);
+    const z = cols.map((c) => { const m = S.mean(c), s = S.sd(c); return c.map((v) => (v - m) / s); });
+    const scores = z[0].map((_, i) => e.values.map((_, k) => cols.reduce((s, _, j) => s + z[j][i] * e.vectors[j][k], 0)));
+    const loadings = e.vectors.map((r) => r.map((v, k) => v * Math.sqrt(Math.max(e.values[k], 0))));
+    return { names, values: e.values, prop: e.values.map((v) => v / tot), cum: e.values.map((_, k) => e.values.slice(0, k + 1).reduce((s, v) => s + v, 0) / tot), vectors: e.vectors, loadings, scores, R }; };
+  S.varimax = (L, iters = 100) => { // L: p x m loadings
+    const p = L.length, m = L[0].length; let A = L.map((r) => r.slice()), R = Array.from({ length: m }, (_, i) => Array.from({ length: m }, (_, j) => (i === j ? 1 : 0)));
+    if (m < 2) return { loadings: A, rotation: R };
+    const h = A.map((r) => Math.sqrt(r.reduce((s, v) => s + v * v, 0)) || 1); A = A.map((r, i) => r.map((v) => v / h[i]));
+    let d = 0;
+    const X0 = L.map((r, i) => r.map((v) => v / h[i]));
+    for (let it = 0; it < iters; it++) { const dOld = d; const cs = A[0].map((_, k) => A.reduce((s, r) => s + r[k] * r[k], 0)); const B = A.map((r) => r.map((v, k) => v ** 3 - (v * cs[k]) / p)); const M = mul(T(X0), B); // m x m
+      // SVD of M via eigen of M'M
+      const MtM = mul(T(M), M), e = S.eigenSym(MtM), Vm = e.vectors, sv = e.values.map((v) => Math.sqrt(Math.max(v, 1e-16)));
+      const U = mul(M, Vm).map((r) => r.map((v, k) => v / sv[k])); const Tm = mul(U, T(Vm)); d = sv.reduce((s, v) => s + v, 0);
+      A = mul(X0, Tm); R = Tm; if (Math.abs(d - dOld) < 1e-9 * d) break; }
+    return { loadings: A.map((r, i) => r.map((v) => v * h[i])), rotation: R };
+  };
+  S.alpha = (cols) => { const k = cols.length, n = cols[0].length, R = S.corrMatrix(cols); const itemVar = cols.map((c) => S.sd(c) ** 2), total = cols[0].map((_, i) => cols.reduce((s, c) => s + c[i], 0)), totVar = S.sd(total) ** 2;
+    const a = (k / (k - 1)) * (1 - itemVar.reduce((s, v) => s + v, 0) / totVar);
+    const rbar = R.flat().filter((_, i) => i % (k + 1) !== 0).reduce((s, v) => s + v, 0) / (k * (k - 1)), std = (k * rbar) / (1 + (k - 1) * rbar);
+    const items = cols.map((c, j) => { const rest = cols[0].map((_, i) => total[i] - c[i]); const r = S.regress(c, rest).r; const others = cols.filter((_, q) => q !== j); const kk = others.length; const oVar = others.map((o) => S.sd(o) ** 2).reduce((s, v) => s + v, 0), oTot = S.sd(cols[0].map((_, i) => others.reduce((s, o) => s + o[i], 0))) ** 2; return { itemTotal: r, alphaIfDropped: (kk / (kk - 1)) * (1 - oVar / oTot), mean: S.mean(c), sd: S.sd(c) }; });
+    return { alpha: a, standardized: std, k, n, meanR: rbar, items }; };
+  S.kmeans = (rows, k, seed = 1, starts = 10) => { const r = S.rng(seed), n = rows.length, d = rows[0].length; const dist = (a, b) => a.reduce((s, v, j) => s + (v - b[j]) ** 2, 0); let best = null;
+    for (let st = 0; st < starts; st++) { // k-means++
+      const C = [rows[Math.floor(r() * n)].slice()]; while (C.length < k) { const D = rows.map((x) => Math.min(...C.map((c) => dist(x, c)))); const tot = D.reduce((s, v) => s + v, 0); let u = r() * tot, i = 0; while (u > D[i] && i < n - 1) { u -= D[i]; i++; } C.push(rows[i].slice()); }
+      let lab = new Array(n).fill(-1);
+      for (let it = 0; it < 100; it++) { const nl = rows.map((x) => { let bi = 0, bd = Infinity; C.forEach((c, j) => { const dd = dist(x, c); if (dd < bd) { bd = dd; bi = j; } }); return bi; }); if (nl.every((v, i) => v === lab[i])) break; lab = nl; for (let j = 0; j < k; j++) { const mem = rows.filter((_, i) => lab[i] === j); if (mem.length) C[j] = Array.from({ length: d }, (_, q) => S.mean(mem.map((x) => x[q]))); } }
+      const wss = rows.reduce((s, x, i) => s + dist(x, C[lab[i]]), 0); if (!best || wss < best.wss) best = { centers: C.map((c) => c.slice()), labels: lab.slice(), wss }; }
+    const gm = Array.from({ length: d }, (_, q) => S.mean(rows.map((x) => x[q]))), tss = rows.reduce((s, x) => s + dist(x, gm), 0);
+    return Object.assign(best, { tss, sizes: Array.from({ length: k }, (_, j) => best.labels.filter((l) => l === j).length), k }); };
+  S.efa = (cols, names, m, rotate = true) => { // principal axis factoring with iterated communalities
+    const R = S.corrMatrix(cols), p = cols.length; let h2 = R.map((r, i) => { const others = r.filter((_, j) => j !== i); return Math.max(...others.map(Math.abs)) ** 2; }); let L;
+    for (let it = 0; it < 100; it++) { const Rr = R.map((r, i) => r.map((v, j) => (i === j ? h2[i] : v))); const e = S.eigenSym(Rr); L = e.vectors.map((r) => r.slice(0, m).map((v, k) => v * Math.sqrt(Math.max(e.values[k], 0)))); const h2n = L.map((r) => r.reduce((s, v) => s + v * v, 0)); const done = Math.max(...h2n.map((v, i) => Math.abs(v - h2[i]))) < 1e-6; h2 = h2n; if (done) break; }
+    const rot = rotate && m > 1 ? S.varimax(L).loadings : L;
+    // sort factors by explained variance after rotation, flip sign so the largest loading is positive
+    const ssl = rot[0].map((_, k) => rot.reduce((s, r) => s + r[k] ** 2, 0)); const order = ssl.map((_, k) => k).sort((a, b) => ssl[b] - ssl[a]);
+    const loadings = rot.map((r) => order.map((k) => r[k])); order.forEach((_, k) => { const col = loadings.map((r) => r[k]); const big = col.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a), 0); if (big < 0) loadings.forEach((r) => (r[k] = -r[k])); });
+    const ss = loadings[0].map((_, k) => loadings.reduce((s, r) => s + r[k] ** 2, 0)), tot = ss.reduce((s, v) => s + v, 0);
+    const e0 = S.eigenSym(R); return { names, loadings, communality: loadings.map((r) => r.reduce((s, v) => s + v * v, 0)), uniqueness: loadings.map((r) => 1 - r.reduce((s, v) => s + v * v, 0)), ss, prop: ss.map((v) => v / p), cum: ss.map((_, k) => ss.slice(0, k + 1).reduce((s, v) => s + v, 0) / p), eigen: e0.values, m, rotated: rotate && m > 1 }; };
+})(window.SW);
