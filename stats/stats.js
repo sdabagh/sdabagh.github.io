@@ -574,3 +574,23 @@
     return { names, b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), hr: b.map(Math.exp), hrLower: b.map((v, i) => Math.exp(v - zs * se[i])), hrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll: cur.ll, ll0, lrt: 2 * (cur.ll - ll0), dfLrt: p, pLrt: 1 - S.pchisq(2 * (cur.ll - ll0), p), n, events: event.reduce((s, v) => s + v, 0), conf };
   };
 })(window.SW);
+/* ---- Bayesian starter: beta-binomial and normal-normal conjugate updates ---- */
+(function (S) {
+  const J = window.jStat;
+  S.betaBinom = (a, b, x, n, conf = 0.95, p0 = null) => { const A = a + x, B = b + n - x, q = (1 - conf) / 2;
+    const post = { a: A, b: B, mean: A / (A + B), mode: A > 1 && B > 1 ? (A - 1) / (A + B - 2) : null, sd: Math.sqrt((A * B) / ((A + B) ** 2 * (A + B + 1))), lower: J.beta.inv(q, A, B), upper: J.beta.inv(1 - q, A, B), median: J.beta.inv(0.5, A, B) };
+    const prior = { a, b, mean: a / (a + b), sd: Math.sqrt((a * b) / ((a + b) ** 2 * (a + b + 1))), lower: J.beta.inv(q, a, b), upper: J.beta.inv(1 - q, a, b) };
+    const grid = Array.from({ length: 401 }, (_, i) => i / 400), dprior = grid.map((p) => J.beta.pdf(p, a, b)), dpost = grid.map((p) => J.beta.pdf(p, A, B));
+    const lik = grid.map((p) => Math.pow(p, x) * Math.pow(1 - p, n - x)), lmax = Math.max(...lik), dlik = lik.map((v) => (v / lmax) * Math.max(...dpost.filter(Number.isFinite)));
+    const out = { prior, post, grid, dprior, dlik, dpost, x, n, phat: x / n };
+    if (p0 != null) { out.p0 = p0; out.postAbove = 1 - J.beta.cdf(p0, A, B); out.priorAbove = 1 - J.beta.cdf(p0, a, b); }
+    return out;
+  };
+  S.normalNormal = (m0, s0, xbar, sigma, n, conf = 0.95, mu0 = null) => { const prec0 = 1 / (s0 * s0), precD = n / (sigma * sigma), precP = prec0 + precD, sP = Math.sqrt(1 / precP), mP = (prec0 * m0 + precD * xbar) / precP, z = S.qnorm(1 - (1 - conf) / 2), se = sigma / Math.sqrt(n);
+    const lo = Math.min(m0 - 4 * s0, xbar - 4 * se), hi = Math.max(m0 + 4 * s0, xbar + 4 * se), grid = Array.from({ length: 401 }, (_, i) => lo + ((hi - lo) * i) / 400);
+    const dn = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+    const out = { prior: { mean: m0, sd: s0, lower: m0 - z * s0, upper: m0 + z * s0 }, post: { mean: mP, sd: sP, lower: mP - z * sP, upper: mP + z * sP, weightData: precD / precP }, grid, dprior: grid.map((x) => dn(x, m0, s0)), dlik: grid.map((x) => dn(x, xbar, se)), dpost: grid.map((x) => dn(x, mP, sP)), xbar, se, n, sigma };
+    if (mu0 != null) { out.mu0 = mu0; out.postAbove = 1 - S.pnorm((mu0 - mP) / sP); out.priorAbove = 1 - S.pnorm((mu0 - m0) / s0); }
+    return out;
+  };
+})(window.SW);
