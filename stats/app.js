@@ -77,7 +77,7 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -618,6 +618,32 @@
     });
   }
 
+
+  function rmAnovaUI() {
+    needData();
+    dialog("Advanced: Repeated Measures ANOVA (wide data: one column per condition)", [{ name: "cols", label: "Repeated measures columns, in order (2 or more)", type: "multi", options: numCols() }, selAny("g", "Between-subjects factor (optional)"), { name: "post", label: "Pairwise paired t-tests with Holm correction", type: "check", value: true }, alphaField], (v) => {
+      if (v.cols.length < 2) throw new Error("Pick at least two columns.");
+      const cols = v.cols.map((c) => col(c)), gcol = v.g ? col(v.g) : null;
+      const keep = cols[0].map((_, i) => i).filter((i) => cols.every((c) => c[i] !== "" && Number.isFinite(Number(c[i]))) && (!gcol || gcol[i] !== ""));
+      const Y = keep.map((i) => cols.map((c) => Number(c[i]))), G = gcol ? keep.map((i) => gcol[i]) : null;
+      const r = SW.rmAnova(Y, G);
+      let html = table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p", "p (Greenhouse-Geisser)", "p (Huynh-Feldt)"], r.rows.map((q) => [q.source, q.ss, q.df, q.ms, q.F == null ? "" : q.F, q.p == null ? "" : SW.fmtP(q.p), q.pGG == null ? "" : SW.fmtP(q.pGG), q.pHF == null ? "" : SW.fmtP(q.pHF)]), G ? "Mixed ANOVA: within-subjects factor by between-subjects factor" : "Within-Subjects Effects");
+      html += table(["Mauchly's W", "p", "Greenhouse-Geisser epsilon", "Huynh-Feldt epsilon"], [[r.W, r.k > 2 ? SW.fmtP(r.pW) : "n/a (2 levels)", r.gg, r.hf]], "Sphericity");
+      html += cond(r.k <= 2 || r.pW > 0.05, r.k <= 2 ? "With two conditions sphericity is automatic." : "Mauchly's test does not reject: sphericity holds, read the uncorrected p.", `Mauchly's test rejects (p = ${SW.fmtP(r.pW)}): the differences between conditions do not all have the same variance. Report the Greenhouse-Geisser p (epsilon ${fmt(r.gg, 3)} scales the df down).`);
+      html += table(["Condition", "Mean", "n"], v.cols.map((c, j) => [c, r.condMean[j], r.n]), "Condition means");
+      if (G) html += table([v.g].concat(v.cols, ["n"]), r.groups.map((g, j) => [g].concat(r.cellMean[j], [r.ng[j]])), "Cell means");
+      html += formula(`Each subject is measured under every condition, so subject-to-subject variation (SS subjects = ${fmt(r.ssSubj)}) is removed from the error before testing the condition effect. That is why repeated measures has far more power than treating the columns as independent groups.`);
+      const condRow = r.rows.find((q) => q.source.startsWith("Condition")), pUse = r.k > 2 && r.pW <= 0.05 ? condRow.pGG : condRow.p;
+      html += say(`Condition effect: ${decision(pUse, +v.alpha)} ${pUse <= +v.alpha ? "The mean differs across conditions." : "There is not enough evidence that the mean changes across conditions."}` + (G ? ` Group: ${decision(r.rows[0].p, +v.alpha)} Interaction: ${decision(r.rows[3].p, +v.alpha)}${r.rows[3].p <= +v.alpha ? " The change across conditions differs by group; read the cell means, not the main effects." : ""}` : ""));
+      html += table(["Subject variance", "Residual variance", "ICC (share of variance between subjects)"], [[r.varSubject, r.varResid, r.icc]], "Random-intercept view (variance components, REML-equivalent for balanced data)") + say(`ICC ${fmt(r.icc, 3)}: ${fmt(100 * r.icc, 0)} percent of the variation is stable differences between subjects. That is the correlation between any two measurements on the same subject, and the reason pairing pays.`);
+      if (v.post) html += table(["Comparison", "Mean difference", "t", "df", "p", "p (Holm)", `differs at ${v.alpha}?`], r.pairs.map((q) => [`${v.cols[q.a]} vs ${v.cols[q.b]}`, q.diff, q.t, q.df, SW.fmtP(q.p), SW.fmtP(q.pHolm), q.pHolm <= +v.alpha ? "yes" : "no"]), "Post hoc: paired comparisons (Holm adjusted)");
+      const cd = card(G ? "Mixed ANOVA" : "Repeated Measures ANOVA", src(v.cols.join(", ") + (G ? " by " + v.g : "")), html);
+      const traces = G ? r.groups.map((g, j) => ({ x: v.cols, y: r.cellMean[j], mode: "lines+markers", name: `${v.g} = ${g}` })) : [{ x: v.cols, y: r.condMean, mode: "lines+markers", name: "mean", line: { color: "#3A7CA5" } }];
+      plotDiv(cd, traces, { title: "Mean by condition" + (G ? " (parallel lines = no interaction)" : ""), yaxis: { title: "mean" } }, 280);
+      plotDiv(cd, keep.map((i, s) => ({ x: v.cols, y: Y[s], mode: "lines", line: { width: 1, color: G ? (r.groups.indexOf(G[s]) ? "#D97D54" : "#3A7CA5") : "#3A7CA5" }, opacity: 0.35, showlegend: false, hoverinfo: "y" })), { title: "Every subject's own line (spaghetti plot)", yaxis: { title: "value" } }, 280);
+    });
+  }
+
   // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
@@ -769,7 +795,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");

@@ -274,3 +274,48 @@
     return { rows, levelsA: dA.levels, levelsB: dB.levels, cells: Object.entries(cells).map(([k, v]) => ({ cell: k, n: v.length, mean: S.mean(v), sd: v.length > 1 ? S.sd(v) : NaN })) };
   };
 })(window.SW);
+/* ---- Advanced: repeated measures (one within factor, optional between factor), sphericity, mixed random-intercept model ---- */
+(function (S) {
+  const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+  const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  const det = (M) => { const n = M.length, A = M.map((r) => r.slice()); let d = 1; for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; if (Math.abs(A[p][c]) < 1e-14) return 0; if (p !== c) { [A[c], A[p]] = [A[p], A[c]]; d = -d; } d *= A[c][c]; for (let r = c + 1; r < n; r++) { const f = A[r][c] / A[c][c]; for (let j = c; j < n; j++) A[r][j] -= f * A[c][j]; } } return d; };
+  const trace = (M) => M.reduce((s, r, i) => s + r[i], 0);
+  // Y: n subjects x k conditions (numbers). group: optional array of n labels (between factor)
+  S.rmAnova = (Y, group) => {
+    const n = Y.length, k = Y[0].length, grand = S.mean(Y.flat());
+    const subjMean = Y.map((r) => S.mean(r)), condMean = T(Y).map((c) => S.mean(c));
+    const ssTot = Y.flat().reduce((s, v) => s + (v - grand) ** 2, 0), ssSubj = k * subjMean.reduce((s, m) => s + (m - grand) ** 2, 0), ssCond = n * condMean.reduce((s, m) => s + (m - grand) ** 2, 0);
+    // sphericity: Mauchly's W on orthonormal contrasts of the within-subject covariance
+    const Cm = T(Y).map((a) => T(Y).map((b) => { const ma = S.mean(a), mb = S.mean(b); return a.reduce((s, v, i) => s + (v - ma) * (b[i] - mb), 0) / (n - 1); }));
+    // Helmert-style orthonormal contrasts (k-1 x k)
+    const C = []; for (let i = 1; i < k; i++) { const row = new Array(k).fill(0); for (let j = 0; j < i; j++) row[j] = 1 / i; row[i] = -1; const nrm = Math.sqrt(row.reduce((s, v) => s + v * v, 0)); C.push(row.map((v) => v / nrm)); }
+    const Sc = mul(mul(C, Cm), T(C)), m = k - 1, W = det(Sc) / Math.pow(trace(Sc) / m, m);
+    const eig = trace(Sc), eig2 = trace(mul(Sc, Sc)), gg = (eig * eig) / (m * eig2); // Greenhouse-Geisser epsilon
+    const d = n - (group ? [...new Set(group)].length : 1); const chi = -(d - (2 * m * m + m + 2) / (6 * m)) * Math.log(Math.max(W, 1e-300)), dfW = (m * (m + 1)) / 2 - 1, pW = m > 1 ? 1 - S.pchisq(chi, dfW) : 1;
+    const hf = Math.min(1, (n * m * gg - 2) / (m * (n - 1 - m * gg))), out = { n, k, ssTot, ssSubj, ssCond, condMean, W, pW, gg, hf, rows: [] };
+    if (!group) {
+      const ssErr = ssTot - ssSubj - ssCond, df1 = m, df2 = m * (n - 1), F = (ssCond / df1) / (ssErr / df2);
+      out.rows = [{ source: "Condition (within)", ss: ssCond, df: df1, ms: ssCond / df1, F, p: 1 - S.pf(F, df1, df2), pGG: 1 - S.pf(F, df1 * gg, df2 * gg), pHF: 1 - S.pf(F, df1 * hf, df2 * hf) }, { source: "Error (within)", ss: ssErr, df: df2, ms: ssErr / df2 }, { source: "Subjects", ss: ssSubj, df: n - 1, ms: ssSubj / (n - 1) }];
+    } else {
+      const g = [...new Set(group)], a = g.length, ng = g.map((l) => group.filter((x) => x === l).length);
+      const gMean = g.map((l) => S.mean(Y.filter((_, i) => group[i] === l).flat()));
+      const ssB = g.reduce((s, l, j) => s + ng[j] * k * (gMean[j] - grand) ** 2, 0), ssSubjW = ssSubj - ssB;
+      const cellMean = g.map((l) => T(Y.filter((_, i) => group[i] === l)).map((c) => S.mean(c)));
+      const ssInt = g.reduce((s, l, j) => s + ng[j] * cellMean[j].reduce((s2, cm, c) => s2 + (cm - gMean[j] - condMean[c] + grand) ** 2, 0), 0);
+      const ssErr = ssTot - ssSubj - ssCond - ssInt, dfB = a - 1, dfSW = n - a, dfC = m, dfI = m * (a - 1), dfE = m * (n - a);
+      const FB = (ssB / dfB) / (ssSubjW / dfSW), FC = (ssCond / dfC) / (ssErr / dfE), FI = (ssInt / dfI) / (ssErr / dfE);
+      out.rows = [{ source: "Group (between)", ss: ssB, df: dfB, ms: ssB / dfB, F: FB, p: 1 - S.pf(FB, dfB, dfSW) }, { source: "Error (between subjects)", ss: ssSubjW, df: dfSW, ms: ssSubjW / dfSW },
+        { source: "Condition (within)", ss: ssCond, df: dfC, ms: ssCond / dfC, F: FC, p: 1 - S.pf(FC, dfC, dfE), pGG: 1 - S.pf(FC, dfC * gg, dfE * gg), pHF: 1 - S.pf(FC, dfC * hf, dfE * hf) },
+        { source: "Group x Condition", ss: ssInt, df: dfI, ms: ssInt / dfI, F: FI, p: 1 - S.pf(FI, dfI, dfE), pGG: 1 - S.pf(FI, dfI * gg, dfE * gg), pHF: 1 - S.pf(FI, dfI * hf, dfE * hf) }, { source: "Error (within)", ss: ssErr, df: dfE, ms: ssErr / dfE }];
+      out.groups = g; out.cellMean = cellMean; out.ng = ng;
+    }
+    // pairwise paired t with Holm
+    const pairs = []; for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) { const r = S.paired(Y.map((row) => row[i]), Y.map((row) => row[j])); pairs.push({ a: i, b: j, diff: r.dbar, t: r.t, df: r.df, p: r.p }); }
+    const order = pairs.map((q, i) => i).sort((x, y) => pairs[x].p - pairs[y].p); let prev = 0; order.forEach((idx, rank) => { const adj = Math.min(1, Math.max(prev, pairs[idx].p * (pairs.length - rank))); pairs[idx].pHolm = adj; prev = adj; });
+    out.pairs = pairs;
+    // variance components (compound symmetry): subject variance and residual variance
+    const msSubj = (group ? out.rows[1].ms : ssSubj / (n - 1)), msErr = out.rows[out.rows.length - 1].ms;
+    out.varSubject = Math.max(0, (msSubj - msErr) / k); out.varResid = msErr; out.icc = out.varSubject / (out.varSubject + out.varResid);
+    return out;
+  };
+})(window.SW);

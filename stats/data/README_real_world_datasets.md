@@ -33,3 +33,6 @@ Class questions: do traits differ by gender (two means, Welch); is neuroticism r
 
 ## Cannabis and the developing brain: what is and is not here
 The brain-imaging studies (the ABCD Study, 11,875 children, abcdstudy.org) are not openly downloadable; access needs a signed data use agreement with NIH. The YRBS file above covers the behavioral side (use, age of first use, sleep, grades, mood) in real teenagers. For the brain findings, cite the papers: Paul et al. 2021 JAMA Psychiatry (655 of 11,489 children prenatally exposed; associations with psychopathology and gray matter) and the ABCD cortical-thickness work; summary numbers from those papers can be used as given values in class problems.
+
+## cadet_mile_times.csv (36 cadets, simulated, added 2026-09-14)
+Teaching dataset for repeated measures: mile time in seconds at weeks 1, 4, 8, 12 for a Control and a Training group. Generated with a cadet-level random effect (ICC about 0.76) and a group-by-time interaction, so it shows sphericity failing, the Greenhouse-Geisser correction, and why pairing pays. Not real academy data.
