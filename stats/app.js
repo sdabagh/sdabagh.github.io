@@ -741,6 +741,35 @@
     });
   }
 
+
+  function powerUI() {
+    dialog("Advanced: Power and Sample Size", [
+      sel("test", "Test", [["t1", "One-sample or paired t (effect d = mean difference / SD)"], ["t2", "Two independent means, t (d = difference / SD, n per group)"], ["prop1", "One proportion (p0 against p1)"], ["prop2", "Two proportions (n per group)"], ["anova", "One-way ANOVA (Cohen's f, n per group)"], ["corr", "Correlation (r)"], ["chisq", "Chi-square (Cohen's w, df)"]], "t2"),
+      sel("mode", "Find", [["power", "power, given the sample size"], ["n", "sample size, for a target power"]], "n"),
+      { name: "d", label: "Effect size: d, f, w, or r (Cohen: d 0.2 small, 0.5 medium, 0.8 large; f 0.1, 0.25, 0.4; w 0.1, 0.3, 0.5; r 0.1, 0.3, 0.5)", type: "number", value: 0.5, group: "Effect" },
+      { name: "p0", label: "p0 or p1 (proportions)", type: "number", value: 0.5, group: "Effect" }, { name: "p1", label: "p1 or p2 (proportions)", type: "number", value: 0.65, group: "Effect" },
+      { name: "k", label: "Groups (ANOVA) or df (chi-square)", type: "number", value: 3, group: "Effect" },
+      { name: "n", label: "Sample size n (per group where relevant)", type: "number", value: 30, group: "Design" }, { name: "pow", label: "Target power", type: "number", value: 0.8, group: "Design" }, alphaField,
+      sel("alt", "Alternative", [["two", "two-sided"], ["one", "one-sided"]], "two")], (v) => {
+      const a = +v.alpha, alt = v.alt === "two" ? "two" : "greater";
+      const P = S => S; const fn = {
+        t1: (n) => SW.power.t1(v.d, n, a, alt), t2: (n) => SW.power.t2(v.d, n, a, alt), prop1: (n) => SW.power.prop1(v.p0, v.p1, n, a, alt), prop2: (n) => SW.power.prop2(v.p0, v.p1, n, a, alt),
+        anova: (n) => SW.power.anova(v.d, v.k, n, a), corr: (n) => SW.power.corr(v.d, n, a, alt), chisq: (n) => SW.power.chisq(v.d, v.k, n, a) }[v.test];
+      const effLabel = { t1: `d = ${v.d}`, t2: `d = ${v.d}`, prop1: `p0 = ${v.p0}, p1 = ${v.p1}`, prop2: `p1 = ${v.p0}, p2 = ${v.p1}`, anova: `f = ${v.d}, ${v.k} groups`, corr: `r = ${v.d}`, chisq: `w = ${v.d}, df = ${v.k}` }[v.test];
+      const perGroup = ["t2", "prop2", "anova"].includes(v.test);
+      let html, nUse;
+      if (v.mode === "n") { nUse = SW.solveN(fn, v.pow, v.test === "corr" ? 5 : 3); html = table(["Test", "Effect", "Alpha", "Target power", perGroup ? "n per group" : "n", "Power at that n"], [[v.test, effLabel, a, v.pow, Number.isFinite(nUse) ? nUse : "over 100,000", Number.isFinite(nUse) ? fn(nUse) : ""]], "Sample size"); }
+      else { nUse = Math.round(v.n); html = table(["Test", "Effect", "Alpha", perGroup ? "n per group" : "n", "Power"], [[v.test, effLabel, a, nUse, fn(nUse)]], "Power"); }
+      html += formula("Power = P(reject H0 | the effect is real) = 1 minus beta. Computed from the noncentral t, F, or chi-square distribution (normal approximation for proportions and correlation), the same as R's power.t.test family.");
+      html += say(`${v.mode === "n" ? `You need ${Number.isFinite(nUse) ? nUse : "more than 100,000"}${perGroup ? " per group" : ""} for ${Math.round(100 * v.pow)} percent power to detect ${effLabel} at alpha ${a}.` : `With ${nUse}${perGroup ? " per group" : ""}, the chance of detecting ${effLabel} is ${fmt(100 * fn(nUse), 1)} percent.`} Power below 80 percent means a real effect of this size will often be missed; a non-significant result then says little. Effect sizes should come from prior studies or the smallest difference that matters, not from the data you are about to collect.`);
+      const cd = card("Power and Sample Size", effLabel, html);
+      const maxN = Math.max(10, Math.min(2000, Number.isFinite(nUse) ? Math.ceil(nUse * 2.2) : 500)), xs = [], ys = []; for (let n = 3; n <= maxN; n += Math.max(1, Math.floor(maxN / 120))) { xs.push(n); ys.push(fn(n)); }
+      plotDiv(cd, [{ x: xs, y: ys, mode: "lines", line: { color: "#3A7CA5", width: 2 }, name: "power" }], { title: `Power curve, ${effLabel}, alpha ${a}`, xaxis: { title: perGroup ? "n per group" : "n" }, yaxis: { title: "power", range: [0, 1.02] }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: v.mode === "n" ? v.pow : 0.8, y1: v.mode === "n" ? v.pow : 0.8, line: { color: "#C0392B", dash: "dash" } }].concat(Number.isFinite(nUse) ? [{ type: "line", x0: nUse, x1: nUse, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dot" } }] : []) }, 280);
+      // effect-size sensitivity: power at this n across effect sizes
+      if (["t1", "t2", "anova", "corr", "chisq"].includes(v.test) && Number.isFinite(nUse)) { const es = [], pw = []; const top = v.test === "corr" ? 0.9 : v.test === "anova" ? 0.6 : v.test === "chisq" ? 0.7 : 1.5; for (let e = 0.02; e <= top; e += top / 60) { es.push(e); pw.push({ t1: SW.power.t1(e, nUse, a, alt), t2: SW.power.t2(e, nUse, a, alt), anova: SW.power.anova(e, v.k, nUse, a), corr: SW.power.corr(e, nUse, a, alt), chisq: SW.power.chisq(e, v.k, nUse, a) }[v.test]); } plotDiv(cd, [{ x: es, y: pw, mode: "lines", line: { color: "#D97D54", width: 2 } }], { title: `Power against effect size at n = ${nUse}${perGroup ? " per group" : ""}`, xaxis: { title: "effect size" }, yaxis: { title: "power", range: [0, 1.02] }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0.8, y1: 0.8, line: { color: "#C0392B", dash: "dash" } }] }, 260); }
+    });
+  }
+
   // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
@@ -889,10 +918,10 @@
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
-    ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
+    ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");

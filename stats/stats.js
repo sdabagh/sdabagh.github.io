@@ -394,3 +394,32 @@
     const z = num / den; return { z, chi: z * z, p: 1 - S.pchisq(z * z, 1), props: successes.map((v, i) => v / totals[i]) };
   };
 })(window.SW);
+/* ---- Advanced: power and sample size ---- */
+(function (S) {
+  const J = jStat;
+  const pois = (lam, j) => Math.exp(-lam + j * Math.log(lam) - J.gammaln(j + 1));
+  S.pncChisq = (x, df, lam) => { if (lam < 1e-10) return S.pchisq(x, df); let s = 0; for (let j = 0; j < 400; j++) { const w = pois(lam / 2, j); if (w < 1e-14 && j > lam) break; s += w * S.pchisq(x, df + 2 * j); } return Math.min(1, s); };
+  S.pncF = (f, d1, d2, lam) => { if (lam < 1e-10) return S.pf(f, d1, d2); const x = (d1 * f) / (d1 * f + d2); let s = 0; for (let j = 0; j < 400; j++) { const w = pois(lam / 2, j); if (w < 1e-14 && j > lam) break; s += w * J.ibeta(x, d1 / 2 + j, d2 / 2); } return Math.min(1, s); };
+  S.pncT = (t, df, ncp) => { // noncentral t cdf by numeric integration over the chi distribution (robust for any df)
+    if (Math.abs(ncp) < 1e-10) return S.pt(t, df);
+    // P(T <= t) = E_V[ Phi( t sqrt(V/df) - ncp ) ], V ~ chi2(df); integrate on V with Gauss-Legendre over [0, df + 12 sqrt(2 df)]
+    const hi = df + 12 * Math.sqrt(2 * df) + 40, N = 2000, h = hi / N; let s = 0;
+    for (let i = 0; i <= N; i++) { const v = i * h; const w = (i === 0 || i === N) ? 1 : (i % 2 ? 4 : 2); const dens = v > 0 ? Math.exp(((df / 2) - 1) * Math.log(v) - v / 2 - (df / 2) * Math.log(2) - J.gammaln(df / 2)) : (df === 2 ? 0.5 : 0); s += w * dens * S.pnorm(t * Math.sqrt(v / df) - ncp); }
+    return Math.min(1, Math.max(0, (s * h) / 3));
+  };
+  const tcrit = (alpha, df, alt) => S.qt(alt === "two" ? 1 - alpha / 2 : 1 - alpha, df);
+  // power functions: each takes effect + n (+ alpha, alt) and returns power in [0,1]
+  S.power = {
+    t1: (d, n, alpha = 0.05, alt = "two") => { const df = n - 1, ncp = d * Math.sqrt(n), c = tcrit(alpha, df, alt); return alt === "two" ? 1 - S.pncT(c, df, ncp) + S.pncT(-c, df, ncp) : 1 - S.pncT(c, df, Math.abs(ncp)); },
+    t2: (d, n, alpha = 0.05, alt = "two") => { const df = 2 * n - 2, ncp = d * Math.sqrt(n / 2), c = tcrit(alpha, df, alt); return alt === "two" ? 1 - S.pncT(c, df, ncp) + S.pncT(-c, df, ncp) : 1 - S.pncT(c, df, Math.abs(ncp)); },
+    paired: (d, n, alpha = 0.05, alt = "two") => S.power.t1(d, n, alpha, alt),
+    prop1: (p0, p1, n, alpha = 0.05, alt = "two") => { const se0 = Math.sqrt(p0 * (1 - p0) / n), se1 = Math.sqrt(p1 * (1 - p1) / n), z = S.qnorm(alt === "two" ? 1 - alpha / 2 : 1 - alpha); const d = p1 - p0; if (alt === "two") return 1 - S.pnorm((z * se0 - d) / se1) + S.pnorm((-z * se0 - d) / se1); return 1 - S.pnorm((z * se0 - Math.abs(d)) / se1); },
+    prop2: (p1, p2, n, alpha = 0.05, alt = "two") => { const pbar = (p1 + p2) / 2, se0 = Math.sqrt(2 * pbar * (1 - pbar) / n), se1 = Math.sqrt((p1 * (1 - p1) + p2 * (1 - p2)) / n), z = S.qnorm(alt === "two" ? 1 - alpha / 2 : 1 - alpha), d = p1 - p2; if (alt === "two") return 1 - S.pnorm((z * se0 - d) / se1) + S.pnorm((-z * se0 - d) / se1); return 1 - S.pnorm((z * se0 - Math.abs(d)) / se1); },
+    anova: (f, k, n, alpha = 0.05) => { const d1 = k - 1, d2 = k * (n - 1), lam = f * f * k * n, c = S.qf(1 - alpha, d1, d2); return 1 - S.pncF(c, d1, d2, lam); },
+    corr: (r, n, alpha = 0.05, alt = "two") => { const z = Math.atanh(r) * Math.sqrt(n - 3), c = S.qnorm(alt === "two" ? 1 - alpha / 2 : 1 - alpha); return alt === "two" ? 1 - S.pnorm(c - z) + S.pnorm(-c - z) : 1 - S.pnorm(c - Math.abs(z)); },
+    chisq: (w, df, n, alpha = 0.05) => { const lam = w * w * n, c = S.qchisq(1 - alpha, df); return 1 - S.pncChisq(c, df, lam); },
+  };
+  S.solveN = (fn, target, lo = 2, hi = 100000) => { // smallest n with power >= target
+    if (fn(hi) < target) return Infinity; while (hi - lo > 1) { const mid = Math.floor((lo + hi) / 2); if (fn(mid) >= target) hi = mid; else lo = mid; } return fn(lo) >= target ? lo : hi;
+  };
+})(window.SW);
