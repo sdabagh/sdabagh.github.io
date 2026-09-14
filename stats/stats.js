@@ -227,7 +227,22 @@
     const r2 = 1 - ssres / sstot, adj = 1 - (1 - r2) * (n - 1) / df, F = ((sstot - ssres) / (p - 1)) / mse, pF = 1 - S.pf(F, p - 1, df);
     // VIF: regress each predictor on the others
     const vif = names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { const m = S.ols(Xj, yj, names.filter((_, k) => k !== j)); return 1 / (1 - m.r2); } catch (e) { return NaN; } });
-    return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), vif, conf };
+    // diagnostics: leverage h_ii, standardized residuals, Cook's distance
+    const hat = Xd.map((r) => r.reduce((s, v, i) => s + v * r.reduce((s2, w, j) => s2 + w * XtXi[j][i], 0), 0));
+    const rstd = resid.map((e, i) => e / Math.sqrt(mse * (1 - hat[i]))), cook = rstd.map((r, i) => (r * r * hat[i]) / (p * (1 - hat[i])));
+    const aic = n * Math.log(ssres / n) + 2 * (p + 1) + n * (Math.log(2 * Math.PI) + 1), bic = n * Math.log(ssres / n) + (p + 1) * Math.log(n) + n * (Math.log(2 * Math.PI) + 1);
+    return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), vif, conf, hat, rstd, cook, ssres, aic, bic, k: p };
+  };
+  S.nestedF = (reduced, full) => { const df1 = full.k - reduced.k, df2 = full.df, F = ((reduced.ssres - full.ssres) / df1) / (full.ssres / df2); return { F, df1, df2, p: 1 - S.pf(F, df1, df2) }; };
+  S.backward = (X, y, names, alpha = 0.05) => { // teaching demo of backward elimination by p-value
+    let keep = names.map((_, i) => i); const steps = [];
+    while (keep.length) {
+      const m = S.ols(X.map((r) => keep.map((i) => r[i])), y, keep.map((i) => names[i]));
+      const ps = m.p.slice(1); const worst = ps.indexOf(Math.max(...ps));
+      steps.push({ predictors: keep.map((i) => names[i]), adj: m.adj, aic: m.aic, worst: names[keep[worst]], worstP: ps[worst] });
+      if (ps[worst] <= alpha) break; keep.splice(worst, 1);
+    }
+    return steps;
   };
   S.logistic = (X, y, names, conf = 0.95) => { // y in {0,1}; IRLS
     const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length; let b = new Array(p).fill(0); let ll = 0, XtWXi;
