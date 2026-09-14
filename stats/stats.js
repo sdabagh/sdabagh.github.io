@@ -9,6 +9,7 @@
   S.num = (a) => a.map(Number).filter((x) => Number.isFinite(x));
   S.mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
   S.sd = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
+  S.sdPop = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); };
   S.median = (a) => { const b = [...a].sort((x, y) => x - y), n = b.length; return n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2; };
   S.quantile = (a, p) => { // type 7, same as R and jamovi
     const b = [...a].sort((x, y) => x - y), n = b.length, h = (n - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
@@ -45,7 +46,7 @@
   S.describe = (a) => {
     const x = S.num(a); if (x.length < 2) return null;
     const q1 = S.quantile(x, 0.25), q3 = S.quantile(x, 0.75);
-    return { n: x.length, mean: S.mean(x), median: S.median(x), mode: S.mode(x), sd: S.sd(x), variance: S.sd(x) ** 2,
+    return { n: x.length, mean: S.mean(x), median: S.median(x), mode: S.mode(x), sd: S.sd(x), variance: S.sd(x) ** 2, sdPop: S.sdPop(x), variancePop: S.sdPop(x) ** 2,
       se: S.sd(x) / Math.sqrt(x.length), min: Math.min(...x), q1, q3, max: Math.max(...x), iqr: q3 - q1, range: Math.max(...x) - Math.min(...x),
       lowerFence: q1 - 1.5 * (q3 - q1), upperFence: q3 + 1.5 * (q3 - q1) };
   };
