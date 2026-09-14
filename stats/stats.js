@@ -6,7 +6,7 @@
   const S = {};
 
   // ---------- helpers ----------
-  S.num = (a) => a.map(Number).filter((x) => Number.isFinite(x));
+  S.num = (a) => a.filter((v) => v !== "" && v != null && !(typeof v === "string" && v.trim() === "")).map(Number).filter((x) => Number.isFinite(x));
   S.mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
   S.sd = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
   S.sdPop = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); };
@@ -43,10 +43,16 @@
   };
 
   // ---------- descriptives ----------
-  S.describe = (a) => {
+  S.quantileHalves = (a, p) => { // textbook method: median of the lower half and of the upper half (median excluded when n is odd)
+    const b = [...a].sort((x, y) => x - y), n = b.length, h = Math.floor(n / 2);
+    return p === 0.25 ? S.median(b.slice(0, h)) : S.median(b.slice(n - h));
+  };
+  S.skewness = (a) => { const n = a.length, m = S.mean(a), s = S.sd(a); if (n < 3 || s === 0) return { skew: NaN, se: NaN }; const g = (n / ((n - 1) * (n - 2))) * a.reduce((t, x) => t + ((x - m) / s) ** 3, 0); return { skew: g, se: Math.sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))) }; };
+  S.describe = (a, qmethod = "type7") => {
     const x = S.num(a); if (x.length < 2) return null;
-    const q1 = S.quantile(x, 0.25), q3 = S.quantile(x, 0.75);
-    return { n: x.length, mean: S.mean(x), median: S.median(x), mode: S.mode(x), sd: S.sd(x), variance: S.sd(x) ** 2, sdPop: S.sdPop(x), variancePop: S.sdPop(x) ** 2,
+    const qf = qmethod === "halves" ? S.quantileHalves : S.quantile;
+    const q1 = qf(x, 0.25), q3 = qf(x, 0.75), sk = S.skewness(x);
+    return { n: x.length, mean: S.mean(x), median: S.median(x), mode: S.mode(x), sd: S.sd(x), variance: S.sd(x) ** 2, sdPop: S.sdPop(x), variancePop: S.sdPop(x) ** 2, skew: sk.skew, skewSE: sk.se, missing: a.length - x.length,
       se: S.sd(x) / Math.sqrt(x.length), min: Math.min(...x), q1, q3, max: Math.max(...x), iqr: q3 - q1, range: Math.max(...x) - Math.min(...x),
       lowerFence: q1 - 1.5 * (q3 - q1), upperFence: q3 + 1.5 * (q3 - q1) };
   };
