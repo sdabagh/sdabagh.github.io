@@ -452,3 +452,32 @@
     return { observed, dist, p: (count + 1) / (reps + 1), reps, alt };
   };
 })(window.SW);
+/* ---- Advanced: time series basics ---- */
+(function (S) {
+  S.acf = (x, maxLag) => { const n = x.length, m = S.mean(x), c0 = x.reduce((s, v) => s + (v - m) ** 2, 0) / n; const out = [1]; for (let k = 1; k <= maxLag; k++) { let s = 0; for (let t = k; t < n; t++) s += (x[t] - m) * (x[t - k] - m); out.push(s / n / c0); } return out; };
+  S.pacf = (x, maxLag) => { // Durbin-Levinson
+    const r = S.acf(x, maxLag), phi = [], out = []; let prev = [];
+    for (let k = 1; k <= maxLag; k++) { let num = r[k], den = 1; for (let j = 1; j < k; j++) { num -= prev[j - 1] * r[k - j]; den -= prev[j - 1] * r[j]; } const pk = num / den; const cur = []; for (let j = 1; j < k; j++) cur.push(prev[j - 1] - pk * prev[k - j - 1]); cur.push(pk); out.push(pk); prev = cur; }
+    return out;
+  };
+  S.movingAverage = (x, w) => { const h = Math.floor(w / 2); return x.map((_, i) => { if (i - h < 0 || i + h >= x.length) return null; if (w % 2 === 1) { let s = 0; for (let j = i - h; j <= i + h; j++) s += x[j]; return s / w; } let s = 0.5 * x[i - h] + 0.5 * x[i + h]; for (let j = i - h + 1; j <= i + h - 1; j++) s += x[j]; return s / w; }); };
+  S.decompose = (x, period, type = "additive") => { // classical decomposition, as R's decompose()
+    const trend = S.movingAverage(x, period), detr = x.map((v, i) => (trend[i] == null ? null : type === "additive" ? v - trend[i] : v / trend[i]));
+    const idx = []; for (let s = 0; s < period; s++) { const vals = []; for (let i = s; i < x.length; i += period) if (detr[i] != null) vals.push(detr[i]); idx.push(S.mean(vals)); }
+    const adj = type === "additive" ? S.mean(idx) : S.mean(idx); const seasonal = idx.map((v) => (type === "additive" ? v - adj : v / adj));
+    const seas = x.map((_, i) => seasonal[i % period]), remainder = x.map((v, i) => (trend[i] == null ? null : type === "additive" ? v - trend[i] - seas[i] : v / (trend[i] * seas[i])));
+    return { trend, seasonal: seas, indices: seasonal, remainder };
+  };
+  S.durbinWatson = (resid) => { let num = 0, den = 0; for (let i = 0; i < resid.length; i++) { den += resid[i] ** 2; if (i) num += (resid[i] - resid[i - 1]) ** 2; } return num / den; };
+  S.diff = (x, lag = 1) => x.slice(lag).map((v, i) => v - x[i]);
+  S.ses = (x, alpha) => { // simple exponential smoothing with one-step forecasts; alpha chosen by grid if not given
+    const fit = (a) => { let l = x[0]; const f = [x[0]]; let sse = 0; for (let t = 1; t < x.length; t++) { f.push(l); sse += (x[t] - l) ** 2; l = a * x[t] + (1 - a) * l; } return { f, sse, level: l }; };
+    if (alpha == null) { let best = 0.1, bs = Infinity; for (let a = 0.02; a <= 0.98; a += 0.02) { const s = fit(a).sse; if (s < bs) { bs = s; best = a; } } alpha = best; }
+    const r = fit(alpha); return { alpha, fitted: r.f, level: r.level, rmse: Math.sqrt(r.sse / (x.length - 1)) };
+  };
+  S.holt = (x, alpha, beta) => { // Holt linear trend, grid-fit
+    const fit = (a, b) => { let l = x[0], tr = x[1] - x[0]; const f = [x[0]]; let sse = 0; for (let t = 1; t < x.length; t++) { const fc = l + tr; f.push(fc); sse += (x[t] - fc) ** 2; const ln = a * x[t] + (1 - a) * (l + tr); tr = b * (ln - l) + (1 - b) * tr; l = ln; } return { f, sse, level: l, trend: tr }; };
+    if (alpha == null) { let best = [0.2, 0.1], bs = Infinity; for (let a = 0.05; a <= 0.95; a += 0.05) for (let b = 0.02; b <= 0.6; b += 0.04) { const s = fit(a, b).sse; if (s < bs) { bs = s; best = [a, b]; } } [alpha, beta] = best; }
+    const r = fit(alpha, beta); return { alpha, beta, fitted: r.f, level: r.level, trend: r.trend, rmse: Math.sqrt(r.sse / (x.length - 1)) };
+  };
+})(window.SW);

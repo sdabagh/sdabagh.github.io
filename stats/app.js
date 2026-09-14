@@ -77,7 +77,7 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -808,6 +808,50 @@
     });
   }
 
+
+  function tsUI() {
+    needData();
+    dialog("Advanced: Time Series", [selNum("y", "Series (numeric, in time order as the rows are sorted)"), selAny("t", "Time label column (optional, for the axis)"), { name: "period", label: "Seasonal period (12 monthly, 4 quarterly, 7 daily; blank = none)", type: "number", value: 12 }, { name: "ma", label: "Moving average window", type: "number", value: 12 }, { name: "lags", label: "Lags for ACF and PACF", type: "number", value: 24 },
+      sel("dtype", "Decomposition", [["additive", "additive (seasonal swing constant)"], ["multiplicative", "multiplicative (seasonal swing grows with the level)"]], "additive"),
+      { name: "acf", label: "Autocorrelation (ACF and PACF)", type: "check", value: true, group: "Show" }, { name: "dec", label: "Decomposition (trend, seasonal, remainder)", type: "check", value: true, group: "Show" }, { name: "lag", label: "Lag-1 plot", type: "check", value: true, group: "Show" }, { name: "trend", label: "Linear trend and Durbin-Watson", type: "check", value: true, group: "Show" }, { name: "smooth", label: "Exponential smoothing forecast (Holt)", type: "check", value: true, group: "Show" }, { name: "h", label: "Forecast steps ahead", type: "number", value: 12, group: "Show" }], (v) => {
+      const raw = col(v.y), keep = raw.map((_, i) => i).filter((i) => raw[i] !== "" && Number.isFinite(Number(raw[i]))), x = keep.map((i) => Number(raw[i])), n = x.length;
+      const tl = v.t ? keep.map((i) => col(v.t)[i]) : keep.map((i) => String(i + 1));
+      if (n < 10) throw new Error("Need at least 10 observations.");
+      const period = Number.isFinite(v.period) && v.period >= 2 && n >= 2 * v.period ? Math.round(v.period) : null;
+      const cd = card("Time Series", src(`${v.y}, ${n} observations${period ? ", period " + period : ""}`), "");
+      const ma = S => S; const win = Math.max(2, Math.round(v.ma)), m = SW.movingAverage(x, win);
+      plotDiv(cd, [{ x: tl, y: x, mode: "lines", name: v.y, line: { color: "#3A7CA5" } }, { x: tl, y: m, mode: "lines", name: `${win}-point moving average`, line: { color: "#C0392B", width: 2 } }], { title: "Time plot", yaxis: { title: v.y } }, 300);
+      cd.insertAdjacentHTML("beforeend", say("Read the time plot first: level, trend, seasonality (a repeating shape), and anything odd. The moving average smooths out the seasonal swing when its window equals the period."));
+      if (v.acf) {
+        const L = Math.min(Math.round(v.lags), Math.floor(n / 2)), a = SW.acf(x, L), p = SW.pacf(x, L), band = 1.96 / Math.sqrt(n);
+        cd.insertAdjacentHTML("beforeend", table(["Lag"].concat(Array.from({ length: Math.min(L, 12) }, (_, i) => String(i + 1))), [["ACF"].concat(a.slice(1, 13)), ["PACF"].concat(p.slice(0, 12))], "Autocorrelation") + formula(`ACF at lag k is the correlation between the series and itself k steps earlier. Bars outside plus or minus ${fmt(band, 3)} (1.96 / sqrt(n)) are distinguishable from zero. Slowly decaying ACF = trend; spikes at the period = seasonality; PACF cutting off after lag p suggests an AR(p) structure.`));
+        plotDiv(cd, [{ x: Array.from({ length: L }, (_, i) => i + 1), y: a.slice(1), type: "bar", name: "ACF", marker: { color: "#3A7CA5" } }], { title: "ACF", xaxis: { title: "lag" }, yaxis: { range: [-1, 1] }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: band, y1: band, line: { dash: "dash", color: "#C0392B" } }, { type: "line", x0: 0, x1: 1, xref: "paper", y0: -band, y1: -band, line: { dash: "dash", color: "#C0392B" } }] }, 240);
+        plotDiv(cd, [{ x: Array.from({ length: L }, (_, i) => i + 1), y: p, type: "bar", name: "PACF", marker: { color: "#D97D54" } }], { title: "PACF", xaxis: { title: "lag" }, yaxis: { range: [-1, 1] }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: band, y1: band, line: { dash: "dash", color: "#C0392B" } }, { type: "line", x0: 0, x1: 1, xref: "paper", y0: -band, y1: -band, line: { dash: "dash", color: "#C0392B" } }] }, 240);
+      }
+      if (v.lag) plotDiv(cd, [{ x: x.slice(0, -1), y: x.slice(1), mode: "markers", type: "scatter", marker: { color: "#3A7CA5", size: 5 } }], { title: `Lag-1 plot (r = ${fmt(SW.acf(x, 1)[1], 3)}): each value against the previous one`, xaxis: { title: "value at t minus 1" }, yaxis: { title: "value at t" } }, 280);
+      if (v.dec && period) {
+        const d = SW.decompose(x, period, v.dtype);
+        cd.insertAdjacentHTML("beforeend", table(["Season"].concat(d.indices.map((_, i) => String(i + 1))), [[v.dtype === "additive" ? "Effect (added)" : "Factor (multiplied)"].concat(d.indices)], `Seasonal indices, period ${period}`) + formula(v.dtype === "additive" ? "series = trend + seasonal + remainder. Trend is a centred moving average over one period; the seasonal effect for each season is the average of (series minus trend) at that season, centred on zero." : "series = trend x seasonal x remainder. Seasonal factors average to 1."));
+        plotDiv(cd, [{ x: tl, y: d.trend, mode: "lines", name: "trend", line: { color: "#C0392B" } }], { title: "Trend", yaxis: { title: v.y } }, 200);
+        plotDiv(cd, [{ x: tl, y: d.seasonal, mode: "lines", name: "seasonal", line: { color: "#2E7D5B" } }], { title: "Seasonal", yaxis: { title: v.dtype === "additive" ? "effect" : "factor" } }, 200);
+        plotDiv(cd, [{ x: tl, y: d.remainder, mode: "markers", name: "remainder", marker: { color: "#5A5A5A", size: 4 } }], { title: "Remainder (what trend and season do not explain)", yaxis: { title: "remainder" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: v.dtype === "additive" ? 0 : 1, y1: v.dtype === "additive" ? 0 : 1, line: { dash: "dash", color: "#1A3A4D" } }] }, 200);
+      } else if (v.dec) cd.insertAdjacentHTML("beforeend", warn("No decomposition: give a seasonal period and at least two full periods of data."));
+      if (v.trend) {
+        const r = SW.regress(x.map((_, i) => i + 1), x), dw = SW.durbinWatson(r.resid);
+        cd.insertAdjacentHTML("beforeend", table(["Slope per step", "SE", "p", "R squared", "Durbin-Watson"], [[r.b1, r.seb1, SW.fmtP(r.p), r.r2, dw]], "Linear trend") + formula("Durbin-Watson near 2 means independent residuals; near 0 means strong positive autocorrelation, so the regression p-value and SE are not trustworthy (each observation is not new information). Use differences, or a model with the autocorrelation in it.") + cond(dw > 1.5 && dw < 2.5, `DW = ${fmt(dw, 2)}: residuals look independent; the trend test can be read as usual.`, `DW = ${fmt(dw, 2)}: residuals are autocorrelated. Report the slope as a description; do not trust its p-value.`));
+        const dx = SW.diff(x); plotDiv(cd, [{ x: tl.slice(1), y: dx, mode: "lines", line: { color: "#3A7CA5" } }], { title: `First differences (mean ${fmt(SW.mean(dx), 3)}, SD ${fmt(SW.sd(dx), 3)}): the series with the trend removed`, yaxis: { title: "change" } }, 220);
+      }
+      if (v.smooth) {
+        const hh = Math.max(1, Math.round(v.h)), flab = Array.from({ length: hh }, (_, k) => "+" + (k + 1));
+        let d = null, base = x; if (period) { d = SW.decompose(x, period, v.dtype); base = x.map((val, i) => (v.dtype === "additive" ? val - d.seasonal[i] : val / d.seasonal[i])); }
+        const ho = SW.holt(base); const fc = Array.from({ length: hh }, (_, k) => ho.level + (k + 1) * ho.trend);
+        let fcS = null; if (period) { fcS = fc.map((f, k) => (v.dtype === "additive" ? f + d.indices[(n + k) % period] : f * d.indices[(n + k) % period])); ho.fitted = ho.fitted.map((f, i) => (v.dtype === "additive" ? f + d.seasonal[i] : f * d.seasonal[i])); }
+        cd.insertAdjacentHTML("beforeend", table(["alpha (level)", "beta (trend)", "RMSE of one-step forecasts", "Last level", "Trend per step", `Forecast +${hh}`], [[ho.alpha, ho.beta, ho.rmse, ho.level, ho.trend, fcS ? fcS[hh - 1] : fc[hh - 1]]], "Holt exponential smoothing" + (fcS ? " on the deseasonalized series, seasonal pattern added back" : "")) + formula("Holt's method updates a level and a trend after every observation, weighting recent values more (alpha, beta chosen to minimise one-step forecast error). Forecasts extend the last level and trend; the seasonal indices are added back when a period is given. A forecast is a projection of the pattern, not a prediction of surprises."));
+        plotDiv(cd, [{ x: tl, y: x, mode: "lines", name: "observed", line: { color: "#3A7CA5" } }, { x: tl, y: ho.fitted, mode: "lines", name: "one-step fitted", line: { color: "#5A5A5A", dash: "dot" } }, { x: flab, y: fcS || fc, mode: "lines+markers", name: "forecast", line: { color: "#C0392B", width: 2 } }], { title: `Forecast ${hh} steps ahead`, yaxis: { title: v.y } }, 300);
+      }
+    });
+  }
+
   // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
@@ -959,7 +1003,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: what a p-value is", permUI]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");

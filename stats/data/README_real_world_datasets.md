@@ -36,3 +36,6 @@ The brain-imaging studies (the ABCD Study, 11,875 children, abcdstudy.org) are n
 
 ## cadet_mile_times.csv (36 cadets, simulated, added 2026-09-14)
 Teaching dataset for repeated measures: mile time in seconds at weeks 1, 4, 8, 12 for a Control and a Training group. Generated with a cadet-level random effect (ICC about 0.76) and a group-by-time interaction, so it shows sphericity failing, the Greenhouse-Geisser correction, and why pairing pays. Not real academy data.
+
+## mauna_loa_co2_monthly.csv (monthly, January 2000 onward, added 2026-09-14)
+NOAA Global Monitoring Laboratory, Mauna Loa monthly mean CO2 in parts per million (gml.noaa.gov/ccgg/trends). Columns: year, month, date (YYYY-MM), co2_ppm. Real data, public domain; cite NOAA GML. Teaching use: time plot, moving average, seasonal decomposition (period 12), autocorrelation, trend.
