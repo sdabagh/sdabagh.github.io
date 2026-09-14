@@ -213,3 +213,49 @@
   S.signTest = (a, b, alt = "two") => { let pos = 0, neg = 0; for (let i = 0; i < a.length; i++) { const x = Number(a[i]), y = Number(b[i]); if (a[i] === "" || b[i] === "" || !Number.isFinite(x) || !Number.isFinite(y) || x === y) continue; if (x > y) pos++; else neg++; } const n = pos + neg; const r = S.oneProp({ x: pos, n, p0: 0.5, alt }); return { pos, neg, n, p: r.exact }; };
   S.kruskal = (groups) => { const names = Object.keys(groups), xs = names.map((g) => S.num(groups[g])), all = xs.flat(), r = S.ranks(all), N = all.length; let H = 0, k = 0; xs.forEach((x) => { const Ri = r.slice(k, k + x.length).reduce((s, v) => s + v, 0); k += x.length; H += (Ri * Ri) / x.length; }); H = (12 / (N * (N + 1))) * H - 3 * (N + 1); const counts = {}; all.forEach((v) => (counts[v] = (counts[v] || 0) + 1)); const tie = 1 - Object.values(counts).reduce((s, t) => s + (t ** 3 - t), 0) / (N ** 3 - N); H /= tie; const df = names.length - 1; return { H, df, p: 1 - S.pchisq(H, df), groups: names.map((g, i) => ({ name: g, n: xs[i].length, median: S.median(xs[i]) })) }; };
 })(window.SW);
+/* ---- Advanced: linear algebra, multiple regression, logistic regression, two-way ANOVA ---- */
+(function (S) {
+  const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+  const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  const inv = (M) => { const n = M.length, A = M.map((r, i) => r.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; if (Math.abs(A[p][c]) < 1e-12) throw new Error("A predictor is a perfect combination of the others (singular matrix). Remove one."); [A[c], A[p]] = [A[p], A[c]]; const d = A[c][c]; for (let j = 0; j < 2 * n; j++) A[c][j] /= d; for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; } } return A.map((r) => r.slice(n)); };
+  S.ols = (X, y, names, conf = 0.95) => { // X: rows of predictors (no intercept column), y: numbers
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, Xt = T(Xd);
+    const XtX = mul(Xt, Xd), XtXi = inv(XtX), b = mul(XtXi, mul(Xt, y.map((v) => [v]))).map((r) => r[0]);
+    const fitted = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), resid = y.map((v, i) => v - fitted[i]);
+    const ybar = S.mean(y), ssres = resid.reduce((s, e) => s + e * e, 0), sstot = y.reduce((s, v) => s + (v - ybar) ** 2, 0), df = n - p, mse = ssres / df;
+    const se = XtXi.map((r, i) => Math.sqrt(mse * r[i])), t = b.map((v, i) => v / se[i]), pv = t.map((v) => 2 * (1 - S.pt(Math.abs(v), df))), tstar = S.qt(1 - (1 - conf) / 2, df);
+    const r2 = 1 - ssres / sstot, adj = 1 - (1 - r2) * (n - 1) / df, F = ((sstot - ssres) / (p - 1)) / mse, pF = 1 - S.pf(F, p - 1, df);
+    // VIF: regress each predictor on the others
+    const vif = names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { const m = S.ols(Xj, yj, names.filter((_, k) => k !== j)); return 1 / (1 - m.r2); } catch (e) { return NaN; } });
+    return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), vif, conf };
+  };
+  S.logistic = (X, y, names, conf = 0.95) => { // y in {0,1}; IRLS
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length; let b = new Array(p).fill(0); let ll = 0, XtWXi;
+    for (let it = 0; it < 50; it++) {
+      const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map((e) => 1 / (1 + Math.exp(-e))), w = mu.map((m) => m * (1 - m));
+      const z = eta.map((e, i) => e + (y[i] - mu[i]) / Math.max(w[i], 1e-10));
+      const XtW = T(Xd).map((col) => col.map((v, i) => v * w[i])); XtWXi = inv(mul(XtW, Xd));
+      const bn = mul(XtWXi, mul(XtW, z.map((v) => [v]))).map((r) => r[0]);
+      const ll2 = y.reduce((s, yi, i) => s + (yi ? Math.log(Math.max(mu[i], 1e-12)) : Math.log(Math.max(1 - mu[i], 1e-12))), 0);
+      const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-8; b = bn; ll = ll2; if (done) break;
+    }
+    const se = XtWXi.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), pv = z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), zstar = S.qnorm(1 - (1 - conf) / 2);
+    const p1 = S.mean(y), ll0 = n * (p1 * Math.log(p1) + (1 - p1) * Math.log(1 - p1)), fitted = Xd.map((r) => 1 / (1 + Math.exp(-r.reduce((s, v, k) => s + v * b[k], 0))));
+    const acc = S.mean(fitted.map((f, i) => ((f >= 0.5 ? 1 : 0) === y[i] ? 1 : 0)));
+    return { names: ["Intercept"].concat(names), b, se, z, p: pv, or: b.map(Math.exp), orLower: b.map((v, i) => Math.exp(v - zstar * se[i])), orUpper: b.map((v, i) => Math.exp(v + zstar * se[i])), ll, ll0, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), mcfadden: 1 - ll / ll0, aic: -2 * ll + 2 * p, n, accuracy: acc, fitted, conf };
+  };
+  S.dummies = (vals) => { const lv = [...new Set(vals.filter((v) => v !== ""))].sort(); return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };
+  S.anova2 = (y, A, B, interaction = true) => { // type II sums of squares via model comparison
+    const dA = S.dummies(A), dB = S.dummies(B);
+    const inter = A.map((_, i) => dA.rows[i].flatMap((a) => dB.rows[i].map((b) => a * b)));
+    const fit = (parts) => { const X = y.map((_, i) => parts.flatMap((p) => p[i])); const m = S.ols(X, y, X[0].map((_, j) => "x" + j)); return { ss: m.resid.reduce((s, e) => s + e * e, 0), df: m.df }; };
+    const full = fit(interaction ? [dA.rows, dB.rows, inter] : [dA.rows, dB.rows]), AB = fit([dA.rows, dB.rows]), onlyA = fit([dA.rows]), onlyB = fit([dB.rows]);
+    const mse = full.ss / full.df, rows = [];
+    const add = (name, ssdiff, df) => rows.push({ source: name, ss: ssdiff, df, ms: ssdiff / df, F: (ssdiff / df) / mse, p: 1 - S.pf((ssdiff / df) / mse, df, full.df) });
+    add("A", onlyB.ss - AB.ss, dA.cols.length); add("B", onlyA.ss - AB.ss, dB.cols.length);
+    if (interaction) add("A x B", AB.ss - full.ss, dA.cols.length * dB.cols.length);
+    rows.push({ source: "Residuals", ss: full.ss, df: full.df, ms: mse });
+    const cells = {}; y.forEach((v, i) => { const k = A[i] + " | " + B[i]; (cells[k] = cells[k] || []).push(v); });
+    return { rows, levelsA: dA.levels, levelsB: dB.levels, cells: Object.entries(cells).map(([k, v]) => ({ cell: k, n: v.length, mean: S.mean(v), sd: v.length > 1 ? S.sd(v) : NaN })) };
+  };
+})(window.SW);

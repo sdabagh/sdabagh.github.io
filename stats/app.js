@@ -536,6 +536,68 @@
     });
   }
 
+
+  // ================= Advanced =================
+  function designMatrix(numVars, catVars) {
+    const names = [], parts = [];
+    numVars.forEach((v) => { names.push(v); parts.push(col(v).map((x) => [x])); });
+    catVars.forEach((v) => { const d = SW.dummies(col(v)); d.cols.forEach((l) => names.push(`${v} = ${l} (vs ${d.levels[0]})`)); parts.push(d.rows); });
+    const rows = D.rows.length ? activeIdx().map((_, i) => parts.flatMap((p) => p[i])) : [];
+    return { names, rows };
+  }
+  function keepComplete(X, y, extra = []) { const keep = []; for (let i = 0; i < y.length; i++) { const ok = y[i] !== "" && Number.isFinite(Number(y[i])) && X[i].every((v) => v !== "" && Number.isFinite(Number(v))) && extra.every((e) => e[i] !== ""); if (ok) keep.push(i); } return keep; }
+  function multRegUI() {
+    needData();
+    dialog("Advanced: Multiple Linear Regression", [selNum("y", "Dependent variable"), { name: "xs", label: "Numeric predictors (Cmd or Ctrl for several)", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors (dummy coded, first level is the reference)", type: "multi", options: catCols() }, { name: "resid", label: "Residual plot", type: "check", value: true, group: "Checks" }, { name: "vif", label: "VIF (collinearity)", type: "check", value: true, group: "Checks" }, confField, alphaField], (v) => {
+      if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
+      const dm = designMatrix(v.xs, v.cs), yv = col(v.y), keep = keepComplete(dm.rows, yv);
+      const X = keep.map((i) => dm.rows[i].map(Number)), y = keep.map((i) => Number(yv[i]));
+      if (X.length <= dm.names.length + 1) throw new Error("Not enough complete rows for this many predictors.");
+      const m = SW.ols(X, y, dm.names, +v.conf);
+      let html = table(["Model", "R", "R squared", "Adjusted R squared", "F", "df1", "df2", "p"], [["1", Math.sqrt(m.r2), m.r2, m.adj, m.F, m.dfF[0], m.dfF[1], SW.fmtP(m.pF)]], "Model Fit Measures");
+      const hdr = ["Predictor", "Estimate", "SE", "t", "p", `${Math.round(m.conf * 100)}% CI lower`, "upper"]; if (v.vif) hdr.push("VIF");
+      html += table(hdr, m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.t[i], SW.fmtP(m.p[i]), m.lower[i], m.upper[i]].concat(v.vif ? [i ? m.vif[i - 1] : ""] : [])), `Model Coefficients - ${v.y}`);
+      html += formula(`${v.y} hat = ${m.b.map((b, i) => (i ? `${b >= 0 ? "+ " : "- "}${fmt(Math.abs(b))} (${m.names[i]})` : fmt(b))).join(" ")}. Each slope is the change in ${v.y} per unit of that predictor holding the others fixed. df = n minus (predictors + 1) = ${m.df}; n = ${m.n} complete rows${m.n < yv.length ? ` (${yv.length - m.n} dropped for blanks)` : ""}.`);
+      html += say(`Overall: ${decision(m.pF, +v.alpha)} ${m.pF <= +v.alpha ? "At least one predictor is linearly related to " + v.y + "." : "No evidence that the predictors together explain " + v.y + "."} Adjusted R squared ${fmt(m.adj)} is the share of variation explained after charging for the number of predictors; compare models on that, not on R squared.`);
+      if (v.vif && m.vif.some((q) => q > 5)) html += warn("A VIF above 5 means that predictor is largely explained by the others; its slope and SE are unstable. Consider dropping one of the overlapping predictors."); else if (v.vif) html += ok("All VIF below 5: predictors are not badly collinear.");
+      html += cond(m.n >= 10 * (m.names.length - 1) + 10, `n = ${m.n} for ${m.names.length - 1} predictors: at least 10 rows per predictor.`, `n = ${m.n} for ${m.names.length - 1} predictors: fewer than 10 rows per predictor, so the model is fragile.`);
+      const cd = card("Multiple Linear Regression", src(v.y + " on " + dm.names.length + " predictors"), html);
+      if (v.resid) plotDiv(cd, [{ x: m.fitted, y: m.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 280);
+    });
+  }
+  function logitUI() {
+    needData();
+    dialog("Advanced: Logistic Regression (binary outcome)", [selCat("y", "Outcome variable (two levels)"), { name: "succ", label: "Level to model as 1 (exactly as in the data)", type: "text" }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, confField, alphaField], (v) => {
+      if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
+      const yv = col(v.y), lv = [...new Set(yv.filter((q) => q !== ""))]; if (!lv.includes(v.succ.trim())) throw new Error(`Levels of ${v.y}: ${lv.join(", ")}. Type one of them.`);
+      const dm = designMatrix(v.xs, v.cs), keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
+      const X = keep.map((i) => dm.rows[i].map(Number)), y = keep.map((i) => (yv[i] === v.succ.trim() ? 1 : 0));
+      const m = SW.logistic(X, y, dm.names, +v.conf);
+      let html = table(["Model", "Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "Correctly classified"], [["1", -2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), fmt(100 * m.accuracy, 1) + " percent"]], "Model Fit Measures");
+      html += table(["Predictor", "Estimate (log odds)", "SE", "z", "p", "Odds ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.or[i], m.orLower[i], m.orUpper[i]]), `Model Coefficients - ${v.y} = ${v.succ}`);
+      html += formula(`log(odds of ${v.succ}) = b0 + b1 x1 + ... Each odds ratio is exp(b): the factor by which the odds of ${v.succ} multiply per unit of that predictor, others fixed. An odds ratio interval that includes 1 means no clear effect. n = ${m.n}, ${y.reduce((s, q) => s + q, 0)} are ${v.succ}.`);
+      html += say(`${decision(m.pChi, +v.alpha)} ${m.pChi <= +v.alpha ? "The predictors together improve on guessing the base rate." : "The predictors together do not improve on guessing the base rate."}`);
+      const cd = card("Logistic Regression", src(`${v.y} = ${v.succ}`), html);
+      plotDiv(cd, [{ x: m.fitted.filter((_, i) => y[i] === 0), type: "histogram", name: `actual ${lv.find((l) => l !== v.succ.trim()) || "other"}`, opacity: 0.6, marker: { color: "#3A7CA5" } }, { x: m.fitted.filter((_, i) => y[i] === 1), type: "histogram", name: `actual ${v.succ}`, opacity: 0.6, marker: { color: "#D97D54" } }], { barmode: "overlay", title: "Predicted probability by actual outcome (good separation = little overlap)", xaxis: { title: `predicted P(${v.succ})`, range: [0, 1] }, yaxis: { title: "Count" } }, 260);
+    });
+  }
+  function anova2UI() {
+    needData();
+    dialog("Advanced: Two-Way ANOVA", [selNum("y", "Dependent variable"), selCat("a", "Factor A"), selCat("b", "Factor B"), { name: "inter", label: "Include the A x B interaction", type: "check", value: true }, alphaField], (v) => {
+      const yv = col(v.y), A = col(v.a), B = col(v.b), keep = keepComplete(yv.map((q) => [q]), yv, [A, B]);
+      const r = SW.anova2(keep.map((i) => Number(yv[i])), keep.map((i) => A[i]), keep.map((i) => B[i]), v.inter);
+      let html = table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p"], r.rows.map((q) => [q.source === "A" ? v.a : q.source === "B" ? v.b : q.source === "A x B" ? `${v.a} x ${v.b}` : q.source, q.ss, q.df, q.ms, q.F == null ? "" : q.F, q.p == null ? "" : SW.fmtP(q.p)]), `ANOVA - ${v.y} (Type II sums of squares, as jamovi and R's car::Anova)`);
+      html += table([`${v.a} | ${v.b}`, "N", "Mean", "SD"], r.cells.map((c) => [c.cell, c.n, c.mean, c.sd]), "Cell Descriptives");
+      const inter = r.rows.find((q) => q.source === "A x B");
+      html += formula("Type II: each main effect is tested after the other main effect; the interaction is tested after both. Unbalanced cells are handled correctly.");
+      html += say(inter && inter.p <= +v.alpha ? `Interaction ${pWord(inter.p)}: the effect of ${v.a} depends on the level of ${v.b}. Read the cell means, not the main effects.` : `${inter ? "No evidence of interaction (" + pWord(inter.p) + "), so the main effects can be read on their own. " : ""}${v.a}: ${decision(r.rows[0].p, +v.alpha)} ${v.b}: ${decision(r.rows[1].p, +v.alpha)}`);
+      html += smallGroups(r.cells.map((c) => [c.n, c.cell]));
+      const cd = card("Two-Way ANOVA", src(`${v.y} by ${v.a} and ${v.b}`), html);
+      const la = r.levelsA, lb = r.levelsB;
+      plotDiv(cd, lb.map((b) => ({ x: la, y: la.map((a) => { const c = r.cells.find((q) => q.cell === a + " | " + b); return c ? c.mean : null; }), mode: "lines+markers", name: `${v.b} = ${b}` })), { title: "Cell means (parallel lines = no interaction)", xaxis: { title: v.a }, yaxis: { title: `mean ${v.y}` } }, 280);
+    });
+  }
+
   // ================= pictures of test statistics =================
   function curvePlot(cd, xs, ys, stat, alt, title) {
     const shade = (lo, hi) => ({ x: xs.filter((x) => x >= lo && x <= hi), y: ys.filter((_, i) => xs[i] >= lo && xs[i] <= hi), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false });
@@ -687,6 +749,7 @@
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size", sampleSizeCalc]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Sampling distribution simulator", samplingSim]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (jamovi's default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");
