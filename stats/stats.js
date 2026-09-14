@@ -48,7 +48,7 @@
     return p === 0.25 ? S.median(b.slice(0, h)) : S.median(b.slice(n - h));
   };
   S.skewness = (a) => { const n = a.length, m = S.mean(a), s = S.sd(a); if (n < 3 || s === 0) return { skew: NaN, se: NaN }; const g = (n / ((n - 1) * (n - 2))) * a.reduce((t, x) => t + ((x - m) / s) ** 3, 0); return { skew: g, se: Math.sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))) }; };
-  S.describe = (a, qmethod = "type7") => {
+  S.describe = (a, qmethod = "halves") => { // default: textbook rule, median excluded from the halves
     const x = S.num(a); if (x.length < 2) return null;
     const qf = qmethod === "halves" ? S.quantileHalves : S.quantile;
     const q1 = qf(x, 0.25), q3 = qf(x, 0.75), sk = S.skewness(x);
