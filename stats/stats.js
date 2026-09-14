@@ -14,7 +14,13 @@
     const b = [...a].sort((x, y) => x - y), n = b.length, h = (n - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
     return b[lo] + (h - lo) * (b[hi] - b[lo]);
   };
-  S.mode = (a) => { const c = {}; a.forEach((x) => (c[x] = (c[x] || 0) + 1)); let best = null, bc = 0; for (const k in c) if (c[k] > bc) { bc = c[k]; best = k; } return isNaN(best) ? best : Number(best); };
+  S.modes = (a) => { // every value that ties for most frequent, sorted; [] when every value appears once
+    const c = {}; a.forEach((x) => { if (x !== "" && x != null) c[x] = (c[x] || 0) + 1; });
+    const best = Math.max(0, ...Object.values(c)); if (best <= 1) return { modes: [], count: best };
+    const m = Object.keys(c).filter((k) => c[k] === best).map((k) => (isNaN(k) ? k : Number(k))).sort((p, q) => (typeof p === "number" && typeof q === "number" ? p - q : String(p).localeCompare(String(q))));
+    return { modes: m, count: best };
+  };
+  S.mode = (a) => { const r = S.modes(a); return r.modes.length === 0 ? "none (no repeats)" : r.modes.length === 1 ? r.modes[0] : r.modes.join(" and ") + " (tie, " + r.count + " each)"; };
   S.round = (x, d = 4) => (Number.isFinite(x) ? Number(x.toFixed(d)) : x);
   S.fmtP = (p) => (p < 0.0001 ? "< 0.0001" : p.toFixed(4));
   S.counts = (a) => { const c = {}; a.forEach((x) => { if (x !== "" && x != null) c[x] = (c[x] || 0) + 1; }); return c; };
