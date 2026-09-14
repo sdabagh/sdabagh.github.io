@@ -423,3 +423,32 @@
     if (fn(hi) < target) return Infinity; while (hi - lo > 1) { const mid = Math.floor((lo + hi) / 2); if (fn(mid) >= target) hi = mid; else lo = mid; } return fn(lo) >= target ? lo : hi;
   };
 })(window.SW);
+/* ---- Advanced: resampling. Bootstrap intervals and permutation tests ---- */
+(function (S) {
+  S.rng = (seed) => { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }; // xorshift32, reproducible
+  const resample = (x, r) => { const out = new Array(x.length); for (let i = 0; i < x.length; i++) out[i] = x[Math.floor(r() * x.length)]; return out; };
+  const shuffle = (x, r) => { const a = x.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  S.bootstrap = ({ x, y, stat, reps = 2000, conf = 0.95, seed = 1, paired = false }) => {
+    // stat(xsample, ysample) -> number. If y is given and not paired, x and y are resampled independently; if paired, rows are resampled together.
+    const r = S.rng(seed), vals = new Array(reps), observed = stat(x, y);
+    for (let b = 0; b < reps; b++) {
+      if (y == null) vals[b] = stat(resample(x, r));
+      else if (paired) { const idx = x.map((_, i) => Math.floor(r() * x.length)); vals[b] = stat(idx.map((i) => x[i]), idx.map((i) => y[i])); }
+      else vals[b] = stat(resample(x, r), resample(y, r));
+    }
+    const sorted = vals.filter(Number.isFinite).sort((a, b) => a - b), n = sorted.length, a = (1 - conf) / 2;
+    const q = (p) => sorted[Math.min(n - 1, Math.max(0, Math.floor(p * n)))];
+    const se = S.sd(sorted), bias = S.mean(sorted) - observed;
+    return { observed, reps, dist: vals, lower: q(a), upper: q(1 - a), basicLower: 2 * observed - q(1 - a), basicUpper: 2 * observed - q(a), se, bias, conf };
+  };
+  S.permutation = ({ x, y, stat, reps = 2000, seed = 1, kind = "twoGroup", alt = "two" }) => {
+    // twoGroup: x = values, y = group labels (two levels); stat(valuesA, valuesB). paired: x, y equal length; stat(diffs). corr: x, y numeric; stat(x, y).
+    const r = S.rng(seed); let observed, gen;
+    if (kind === "twoGroup") { const lv = [...new Set(y)], A = x.filter((_, i) => y[i] === lv[0]), B = x.filter((_, i) => y[i] === lv[1]); observed = stat(A, B); gen = () => { const s = shuffle(x, r); return stat(s.slice(0, A.length), s.slice(A.length)); }; }
+    else if (kind === "paired") { const d = x.map((v, i) => v - y[i]); observed = stat(d); gen = () => stat(d.map((v) => (r() < 0.5 ? v : -v))); }
+    else { observed = stat(x, y); gen = () => stat(x, shuffle(y, r)); }
+    const dist = new Array(reps); for (let b = 0; b < reps; b++) dist[b] = gen();
+    let count; if (alt === "greater") count = dist.filter((v) => v >= observed).length; else if (alt === "less") count = dist.filter((v) => v <= observed).length; else count = dist.filter((v) => Math.abs(v) >= Math.abs(observed) - 1e-12).length;
+    return { observed, dist, p: (count + 1) / (reps + 1), reps, alt };
+  };
+})(window.SW);
