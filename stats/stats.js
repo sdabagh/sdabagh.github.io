@@ -594,3 +594,25 @@
     return out;
   };
 })(window.SW);
+/* ---- Honest histogram bins: equal widths, nice edges, shared across groups ---- */
+(function (S) {
+  S.niceStep = (raw) => { if (!(raw > 0)) return 1; const mag = Math.pow(10, Math.floor(Math.log10(raw))); return [1, 2, 2.5, 5, 10].map((m) => m * mag).find((c) => c >= raw); };
+  S.histBins = (x, bw = null, start = null) => { const v = S.num(x); if (!v.length) return null; const lo = Math.min(...v), hi = Math.max(...v), n = v.length;
+    const k = Math.max(5, Math.min(20, Math.ceil(Math.log2(n) + 1))); // Sturges, kept between 5 and 20 classes
+    const w = bw > 0 ? bw : S.niceStep((hi - lo) / k || 1); const s = Number.isFinite(start) ? start : Math.floor(lo / w) * w;
+    const edges = [s]; while (edges[edges.length - 1] <= hi) edges.push(+(edges[edges.length - 1] + w).toFixed(10)); if (edges.length < 2) edges.push(s + w);
+    const counts = new Array(edges.length - 1).fill(0);
+    v.forEach((val) => { let j = Math.floor((val - s) / w); if (j >= counts.length) j = counts.length - 1; if (j < 0) j = 0; counts[j]++; }); // each class includes its left edge; the last class also includes the maximum
+    return { edges, width: w, start: s, counts, n, mids: counts.map((_, j) => (edges[j] + edges[j + 1]) / 2), labels: counts.map((_, j) => `${edges[j]} to under ${edges[j + 1]}`) };
+  };
+  S.countsWith = (edges, x) => { const v = S.num(x), w = edges[1] - edges[0], s = edges[0], counts = new Array(edges.length - 1).fill(0); v.forEach((val) => { let j = Math.floor((val - s) / w); if (j >= counts.length) j = counts.length - 1; if (j < 0) j = 0; counts[j]++; }); return counts; };
+})(window.SW);
+/* ---- Natural order for ordered categories (so bar charts never sort a scale by height) ---- */
+(function (S) {
+  const SCALES = [["freshman", "sophomore", "junior", "senior", "graduate"], ["strongly disagree", "disagree", "neutral", "agree", "strongly agree"], ["strongly disagree", "disagree", "neither", "agree", "strongly agree"], ["very dissatisfied", "dissatisfied", "neutral", "satisfied", "very satisfied"], ["very unlikely", "unlikely", "neutral", "likely", "very likely"], ["never", "rarely", "sometimes", "often", "always"], ["never", "rarely", "sometimes", "often", "very often"], ["none", "some", "a lot"], ["low", "medium", "high"], ["low", "moderate", "high"], ["small", "medium", "large"], ["poor", "fair", "good", "very good", "excellent"], ["poor", "fair", "good", "excellent"], ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"], ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"], ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], ["morning", "afternoon", "evening", "night"], ["under 18", "18 to 24", "25 to 34", "35 to 44", "45 to 54", "55 to 64", "65 and over"]];
+  S.naturalOrder = (keys) => { if (keys.every((k) => Number.isFinite(Number(k)))) return keys.slice().sort((a, b) => Number(a) - Number(b));
+    const low = keys.map((k) => String(k).trim().toLowerCase());
+    for (const sc of SCALES) if (low.every((k) => sc.includes(k)) && new Set(low).size >= 2) return keys.slice().sort((a, b) => sc.indexOf(String(a).trim().toLowerCase()) - sc.indexOf(String(b).trim().toLowerCase()));
+    const lead = keys.map((k) => { const m = String(k).match(/^\s*(\d+(\.\d+)?)/); return m ? Number(m[1]) : null; }); if (lead.every((v) => v != null)) return keys.slice().sort((a, b) => lead[keys.indexOf(a)] - lead[keys.indexOf(b)]); // "1 = never", "2 = rarely"
+    return null; };
+})(window.SW);
