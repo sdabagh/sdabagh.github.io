@@ -1055,6 +1055,8 @@
     dialog("distrACTION: Binomial Distribution", [{ name: "n", label: "Number of trials", type: "number", value: 10, group: "Parameters" }, { name: "p", label: "Probability of success", type: "number", value: 0.5, group: "Parameters" },
       sel("kind", "Compute probability", [["eq", "P(X = x1)"], ["le", "P(X at most x1)"], ["ge", "P(X at least x1)"], ["between", "P(x1 at most X at most x2)"]], "eq"), { name: "k", label: "x1", type: "number", value: 5 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
       const { n, p } = v; let prob, label;
+      if (!(p >= 0 && p <= 1)) throw new Error("Probability of success must be between 0 and 1: type a decimal such as 0.575, not a percent.");
+      if (!(n >= 1) || n !== Math.floor(n)) throw new Error("Number of trials must be a whole number, 1 or more.");
       if (v.kind === "eq") { prob = SW.dbinom(v.k, n, p); label = `P(X = ${v.k})`; } else if (v.kind === "le") { prob = SW.pbinom(v.k, n, p); label = `P(X <= ${v.k})`; } else if (v.kind === "ge") { prob = 1 - SW.pbinom(v.k - 1, n, p); label = `P(X >= ${v.k})`; } else { prob = SW.pbinom(v.b, n, p) - SW.pbinom(v.k - 1, n, p); label = `P(${v.k} <= X <= ${v.b})`; }
       const t = SW.binomTable(n, p);
       let html = table(["Mean", "Variance", "SD"], [[n * p, n * p * (1 - p), Math.sqrt(n * p * (1 - p))]], "Parameters") + table(["Probability", "Value"], [[label, prob]], "Probability");
@@ -1068,6 +1070,9 @@
   function normalCalc() {
     dialog("distrACTION: Normal Distribution", [{ name: "mu", label: "Mean", type: "number", value: 0, group: "Parameters" }, { name: "sd", label: "SD", type: "number", value: 1, group: "Parameters" },
       sel("kind", "Compute", [["below", "probability: P(X at most x1)"], ["above", "probability: P(X at least x1)"], ["between", "probability: P(x1 at most X at most x2)"], ["q", "quantile: the x with cumulative probability p"]], "below"), { name: "a", label: "x1 (or p for a quantile)", type: "number", value: 1 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
+      if (!(v.sd > 0)) throw new Error("SD must be a positive number.");
+      if (v.kind === "q" && !(v.a > 0 && v.a < 1)) throw new Error("For a quantile, x1 holds the cumulative probability p: type a decimal between 0 and 1 such as 0.90.");
+      if (v.kind === "between" && !(v.b >= v.a)) throw new Error("x2 must be at least x1.");
       const z = (x) => (x - v.mu) / v.sd; let res, label, lo = -Infinity, hi = Infinity;
       if (v.kind === "below") { res = SW.pnorm(z(v.a)); label = `P(X <= ${v.a})`; hi = v.a; } else if (v.kind === "above") { res = 1 - SW.pnorm(z(v.a)); label = `P(X >= ${v.a})`; lo = v.a; } else if (v.kind === "between") { res = SW.pnorm(z(v.b)) - SW.pnorm(z(v.a)); label = `P(${v.a} <= X <= ${v.b})`; lo = v.a; hi = v.b; } else { res = v.mu + SW.qnorm(v.a) * v.sd; label = `x at cumulative probability ${v.a}`; hi = res; }
       let html = table(["Mean", "SD", v.kind === "q" ? "z*" : "z", label], [[v.mu, v.sd, v.kind === "q" ? SW.qnorm(v.a) : z(v.a), res]], v.kind === "q" ? "Quantile" : "Probability");
