@@ -228,7 +228,9 @@
     const se = XtXi.map((r, i) => Math.sqrt(mse * r[i])), t = b.map((v, i) => v / se[i]), pv = t.map((v) => 2 * (1 - S.pt(Math.abs(v), df))), tstar = S.qt(1 - (1 - conf) / 2, df);
     const r2 = 1 - ssres / sstot, adj = 1 - (1 - r2) * (n - 1) / df, F = ((sstot - ssres) / (p - 1)) / mse, pF = 1 - S.pf(F, p - 1, df);
     // VIF: regress each predictor on the others
-    const vif = names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { const m = S.ols(Xj, yj, names.filter((_, k) => k !== j)); return 1 / (1 - m.r2); } catch (e) { return NaN; } });
+    // VIF: regress each predictor on the others with a plain least-squares fit (no recursion into S.ols, which would explode with many predictors)
+    const r2of = (Xa, ya) => { const Xa1 = Xa.map((r) => [1].concat(r)); const bb = mul(inv(mul(T(Xa1), Xa1)), mul(T(Xa1), ya.map((v) => [v]))).map((r) => r[0]); const fit = Xa1.map((r) => r.reduce((s2, v, k) => s2 + v * bb[k], 0)); const yb = S.mean(ya); const ssr = ya.reduce((s2, v, i) => s2 + (v - fit[i]) ** 2, 0), sst = ya.reduce((s2, v) => s2 + (v - yb) ** 2, 0); return 1 - ssr / sst; };
+    const vif = names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { return 1 / (1 - r2of(Xj, yj)); } catch (e) { return NaN; } });
     // diagnostics: leverage h_ii, standardized residuals, Cook's distance
     const hat = Xd.map((r) => r.reduce((s, v, i) => s + v * r.reduce((s2, w, j) => s2 + w * XtXi[j][i], 0), 0));
     const rstd = resid.map((e, i) => e / Math.sqrt(mse * (1 - hat[i]))), cook = rstd.map((r, i) => (r * r * hat[i]) / (p * (1 - hat[i])));

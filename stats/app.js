@@ -157,6 +157,8 @@
   const sel = (name, label, options, value) => ({ name, label, type: "select", options, value });
   const selNum = (name, label) => sel(name, label, numCols());
   const selCat = (name, label) => sel(name, label, catCols());
+  const lvField = { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" };
+  const pickTwo = (g, lvText) => { let lv = [...new Set(col(g).filter((q) => q !== ""))]; if (lvText && lvText.trim()) { const pick = lvText.split(",").map((t) => t.trim()); const bad = pick.filter((t) => !lv.includes(t)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${g}: ${lv.join(", ")}. Name exactly two of them.`); return pick; } if (lv.length > 2) return lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${g} has ${lv.length} level.`); return lv; };
   const selAny = (name, label, none = true) => sel(name, label, (none ? [["", "(none)"]] : []).concat(D.cols));
   const hypField = (what) => sel("alt", "Hypothesis", [["two", what + " is not equal to Test value"], ["greater", what + " is greater than Test value"], ["less", what + " is less than Test value"]], "two");
   const confField = { name: "conf", label: "Confidence interval", type: "select", options: [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], value: "0.95" };
@@ -374,7 +376,9 @@
     dialog("T-Tests: Paired Samples T-Test", [selNum("a", "Paired variable 1"), selNum("b", "Paired variable 2"), sel("alt", "Hypothesis", [["two", "Measure 1 not equal to Measure 2"], ["greater", "Measure 1 greater than Measure 2"], ["less", "Measure 1 less than Measure 2"]], "two"),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Histogram of differences", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
+      if (v.a === v.b) throw new Error("Pick two different variables: the two measurements on the same people.");
       const r = SW.paired(col(v.a), col(v.b), { alt: v.alt, conf: +v.conf });
+      if (!r || !(r.n > 1)) throw new Error(`Need at least 2 rows where both ${v.a} and ${v.b} are numbers.`);
       const hdr = ["", "", "", "Statistic", "df", "p"], row = [v.a, v.b, "Student's t", r.t, r.df, SW.fmtP(r.p)];
       if (v.meanDiff) { hdr.push("Mean difference", "SE difference"); row.push(r.dbar, r.se); }
       if (v.ci) { hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper"); row.push(r.lower, r.upper); }
@@ -531,11 +535,11 @@
     const hasData = D.rows.length > 0;
     dialog("Frequencies: Two proportions, z test (course method)", [
       hasData ? sel("mode", "Data", [["data", "outcome column split by a group"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
-      hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text" } : null, hasData ? selCat("g", "Grouping variable (two levels)") : null,
+      hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text" } : null, hasData ? selCat("g", "Grouping variable (two levels)") : null, hasData ? lvField : null,
       { name: "x1", label: "Successes 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" }, { name: "x2", label: "Successes 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
       sel("alt", "Hypothesis", [["two", "p1 not equal to p2"], ["greater", "p1 greater than p2"], ["less", "p1 less than p2"]], "two"), confField, alphaField], (v) => {
       let x1 = v.x1, n1 = v.n1, x2 = v.x2, n2 = v.n2, names = ["Group 1", "Group 2"], from = "counts";
-      if (v.mode === "data") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs exactly two (add a filter).`); names = lv; const gv = col(v.g), xv = col(v.x); const inG = (l) => xv.filter((_, i) => gv[i] === l && xv[i] !== ""); n1 = inG(lv[0]).length; x1 = inG(lv[0]).filter((q) => q === v.succ).length; n2 = inG(lv[1]).length; x2 = inG(lv[1]).filter((q) => q === v.succ).length; from = src(`${v.x} = ${v.succ} by ${v.g}`); }
+      if (v.mode === "data") { const lv = pickTwo(v.g, v.lv); names = lv; const gv = col(v.g), xv = col(v.x); const inG = (l) => xv.filter((_, i) => gv[i] === l && xv[i] !== ""); n1 = inG(lv[0]).length; x1 = inG(lv[0]).filter((q) => q === v.succ).length; n2 = inG(lv[1]).length; x2 = inG(lv[1]).filter((q) => q === v.succ).length; from = src(`${v.x} = ${v.succ} by ${v.g}`); }
       const r = SW.twoProps({ x1, n1, x2, n2, alt: v.alt, conf: +v.conf });
       let html = table(["Group", "Successes", "N", "Proportion"], [[names[0], x1, n1, r.p1], [names[1], x2, n2, r.p2]], "Proportions");
       html += table(["Difference", "Pooled p hat", "SE0 (pooled)", "z", "p", "SE (unpooled)", `${Math.round(r.conf * 100)}% CI lower`, "upper"], [[r.diff, r.pooled, r.se0, r.z, SW.fmtP(r.p), r.se, r.lower, r.upper]], "Two proportions z test");
@@ -550,8 +554,8 @@
   // ================= Nonparametric =================
   function mannWhitneyUI() {
     needData();
-    dialog("Nonparametric: Mann-Whitney U (two independent groups)", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable (two levels)"), sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"), alphaField], (v) => {
-      const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs exactly two.`);
+    dialog("Nonparametric: Mann-Whitney U (two independent groups)", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable (two levels)"), lvField, sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"), alphaField], (v) => {
+      const lv = pickTwo(v.g, v.lv);
       const a = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]), b = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); const r = SW.mannWhitney(a, b, v.alt);
       const html = table(["", "", "Statistic", "z", "p"], [[v.x, "Mann-Whitney U", r.U, r.z, SW.fmtP(r.p)]], "Independent Samples T-Test (nonparametric)") + table(["Group", "N", "Median"], [[lv[0], r.n1, r.med1], [lv[1], r.n2, r.med2]], "Group Descriptives") + formula("Ranks all values together and compares the rank sums; no normality assumption. Normal approximation with tie correction, as in jamovi and R.") + say(`H0: the two distributions are the same. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that ${v.x} tends to be ${altWord(v.alt) === "not equal to" ? "different" : altWord(v.alt)} in ${lv[0]} compared with ${lv[1]}.` : `There is not enough evidence of a difference in ${v.x} between ${lv[0]} and ${lv[1]}.`} Use this when the groups are small and clearly skewed, or when the data are ranks.`);
       const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); plotDiv(cd, [{ y: SW.num(a), type: "box", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
@@ -814,10 +818,10 @@
   function bootUI() {
     needData();
     dialog("Advanced: Bootstrap confidence interval", [sel("stat", "Statistic", [["mean", "mean of one variable"], ["median", "median of one variable"], ["sd", "standard deviation of one variable"], ["prop", "proportion of one level"], ["diffmean", "difference in means between two groups"], ["diffmed", "difference in medians between two groups"], ["corr", "correlation between two variables"], ["slope", "regression slope of y on x"]], "mean"),
-      selNum("x", "Numeric variable (or x)"), selNum("y2", "Second numeric variable (y, for correlation or slope)"), selCat("g", "Grouping variable (two levels, for differences) or the categorical variable (for a proportion)"), { name: "succ", label: "Level for the proportion", type: "text" },
+      selNum("x", "Numeric variable (or x)"), selNum("y2", "Second numeric variable (y, for correlation or slope)"), selCat("g", "Grouping variable (two levels, for differences) or the categorical variable (for a proportion)"), lvField, { name: "succ", label: "Level for the proportion", type: "text" },
       { name: "reps", label: "Resamples", type: "number", value: 2000 }, { name: "seed", label: "Random seed (same seed, same answer)", type: "number", value: 1 }, confField], (v) => {
       let x, y = null, paired = false, stat, label;
-      const lv2 = () => { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs two.`); return lv; };
+      const lv2 = () => pickTwo(v.g, v.lv);
       if (["mean", "median", "sd"].includes(v.stat)) { x = SW.num(col(v.x)); stat = { mean: SW.mean, median: SW.median, sd: SW.sd }[v.stat]; label = `${v.stat} of ${v.x}`; }
       else if (v.stat === "prop") { x = col(v.g).filter((q) => q !== "").map((q) => (q === v.succ.trim() ? 1 : 0)); if (!x.some((q) => q)) throw new Error("No rows match that level."); stat = SW.mean; label = `proportion of ${v.g} = ${v.succ}`; }
       else if (v.stat === "diffmean" || v.stat === "diffmed") { const lv = lv2(); x = SW.num(col(v.x).filter((_, i) => col(v.g)[i] === lv[0])); y = SW.num(col(v.x).filter((_, i) => col(v.g)[i] === lv[1])); const f = v.stat === "diffmean" ? SW.mean : SW.median; stat = (a, b) => f(a) - f(b); label = `${v.stat === "diffmean" ? "mean" : "median"} ${v.x}: ${lv[0]} minus ${lv[1]}`; }
@@ -833,10 +837,10 @@
   function permUI() {
     needData();
     dialog("Advanced: Permutation (randomization) test", [sel("kind", "Design", [["twoGroup", "two independent groups: difference in means"], ["twoMed", "two independent groups: difference in medians"], ["paired", "paired: mean of differences"], ["corr", "two numeric variables: correlation"]], "twoGroup"),
-      selNum("x", "Numeric variable (or measure 1, or x)"), selNum("y2", "Second numeric variable (measure 2, or y)"), selCat("g", "Grouping variable (two levels)"),
+      selNum("x", "Numeric variable (or measure 1, or x)"), selNum("y2", "Second numeric variable (measure 2, or y)"), selCat("g", "Grouping variable (two levels)"), lvField,
       sel("alt", "Alternative", [["two", "two-sided"], ["greater", "observed statistic greater than 0"], ["less", "observed statistic less than 0"]], "two"), { name: "reps", label: "Shuffles", type: "number", value: 2000 }, { name: "seed", label: "Random seed", type: "number", value: 1 }, alphaField], (v) => {
       let r, label, kind = v.kind;
-      if (kind === "twoGroup" || kind === "twoMed") { const lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} levels; needs two.`); const keep = col(v.x).map((_, i) => i).filter((i) => col(v.x)[i] !== "" && col(v.g)[i] !== ""); const f = kind === "twoGroup" ? SW.mean : SW.median; r = SW.permutation({ x: keep.map((i) => Number(col(v.x)[i])), y: keep.map((i) => col(v.g)[i]), stat: (A, B) => f(A) - f(B), reps: Math.min(20000, Math.max(200, v.reps)), seed: v.seed, kind: "twoGroup", alt: v.alt }); label = `${kind === "twoGroup" ? "mean" : "median"} ${v.x}: ${lv[0]} minus ${lv[1]}`; }
+      if (kind === "twoGroup" || kind === "twoMed") { const lv = pickTwo(v.g, v.lv); const keep = col(v.x).map((_, i) => i).filter((i) => col(v.x)[i] !== "" && lv.includes(col(v.g)[i])); const f = kind === "twoGroup" ? SW.mean : SW.median; r = SW.permutation({ x: keep.map((i) => Number(col(v.x)[i])), y: keep.map((i) => col(v.g)[i]), stat: (A, B) => f(A) - f(B), reps: Math.min(20000, Math.max(200, v.reps)), seed: v.seed, kind: "twoGroup", alt: v.alt }); label = `${kind === "twoGroup" ? "mean" : "median"} ${v.x}: ${lv[0]} minus ${lv[1]}`; }
       else if (kind === "paired") { const xa = col(v.x), ya = col(v.y2); const keep = xa.map((_, i) => i).filter((i) => xa[i] !== "" && ya[i] !== ""); r = SW.permutation({ x: keep.map((i) => Number(xa[i])), y: keep.map((i) => Number(ya[i])), stat: SW.mean, reps: Math.min(20000, Math.max(200, v.reps)), seed: v.seed, kind: "paired", alt: v.alt }); label = `mean of ${v.x} minus ${v.y2}`; }
       else { const xa = col(v.x), ya = col(v.y2); const keep = xa.map((_, i) => i).filter((i) => xa[i] !== "" && ya[i] !== ""); r = SW.permutation({ x: keep.map((i) => Number(xa[i])), y: keep.map((i) => Number(ya[i])), stat: (a, b) => SW.regress(a, b).r, reps: Math.min(20000, Math.max(200, v.reps)), seed: v.seed, kind: "corr", alt: v.alt }); label = `correlation of ${v.x} and ${v.y2}`; }
       let html = table(["Statistic", "Observed", "Shuffles", "Shuffles at least as extreme", "p-value"], [[label, r.observed, r.reps, Math.round(r.p * (r.reps + 1) - 1), SW.fmtP(r.p)]], "Permutation test");
