@@ -76,9 +76,11 @@
       condTest: n * p0 >= 10 && n * (1 - p0) >= 10, condCI: x >= 10 && n - x >= 10 };
   };
   // ---------- two means (Welch) ----------
-  S.twoMeans = ({ m1, s1, n1, m2, s2, n2, alt = "two", conf = 0.95 }) => {
-    const v1 = (s1 * s1) / n1, v2 = (s2 * s2) / n2, se = Math.sqrt(v1 + v2);
-    const df = (v1 + v2) ** 2 / ((v1 * v1) / (n1 - 1) + (v2 * v2) / (n2 - 1));
+  S.twoMeans = ({ m1, s1, n1, m2, s2, n2, alt = "two", conf = 0.95, pooled = false }) => {
+    const v1 = (s1 * s1) / n1, v2 = (s2 * s2) / n2;
+    const sp2 = ((n1 - 1) * s1 * s1 + (n2 - 1) * s2 * s2) / (n1 + n2 - 2);
+    const se = pooled ? Math.sqrt(sp2 * (1 / n1 + 1 / n2)) : Math.sqrt(v1 + v2);
+    const df = pooled ? n1 + n2 - 2 : (v1 + v2) ** 2 / ((v1 * v1) / (n1 - 1) + (v2 * v2) / (n2 - 1));
     const t = (m1 - m2) / se, p = S.pvalue(t, alt, (v) => S.pt(v, df)), tstar = S.qt(1 - (1 - conf) / 2, df), me = tstar * se;
     const sp = Math.sqrt(((n1 - 1) * s1 * s1 + (n2 - 1) * s2 * s2) / (n1 + n2 - 2));
     return { m1, s1, n1, m2, s2, n2, diff: m1 - m2, se, df, t, p, tstar, me, lower: m1 - m2 - me, upper: m1 - m2 + me, alt, conf, d: (m1 - m2) / sp };

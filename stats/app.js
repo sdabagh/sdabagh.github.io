@@ -3,6 +3,7 @@
 (function () {
   const $ = (s) => document.querySelector(s);
   const D = { name: "", cols: [], rows: [], types: {}, manual: {}, filter: "", sortCol: null, sortDir: 1 };
+  let CUR_FN = null, PREFILL = null, REPLACE = null, PENDING = null; // edit support: which menu function made a card, its values, and the card being replaced
   let DEC = 4; try { DEC = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { }
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -99,10 +100,16 @@
   function counts() { $("#cntA").textContent = $("#out").children.length || ""; $("#cntG").textContent = $("#outG").children.length || ""; }
   function card(title, meta, html) {
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
-    div.innerHTML = `<div class="tools"><button data-act="copy">copy text</button><button data-act="close">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
+    div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? '<button data-act="edit" title="Reopen this analysis with the same choices, change anything, run again">edit</button>' : ""}<button data-act="copy">copy text</button><button data-act="close">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
     div.querySelector('[data-act="close"]').onclick = () => { div.remove(); counts(); };
     div.querySelector('[data-act="copy"]').onclick = () => navigator.clipboard.writeText(div.innerText);
+    if (PENDING && PENDING.fn) { div._redo = { fn: PENDING.fn, values: Object.assign({}, PENDING.values), target: TARGET }; div.querySelector('[data-act="edit"]').onclick = () => editCard(div); }
+    if (REPLACE && REPLACE.isConnected) { REPLACE._last = div; showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); return div; }
     const out = $(TARGET); out.prepend(div); out.scrollTop = 0; showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); return div;
+  }
+  function editCard(div) { // StatCrunch-style edit: same dialog, previous choices filled in, result replaces this card
+    const r = div._redo; if (!r) return; CUR_FN = r.fn; PREFILL = r.values; REPLACE = div; const prev = TARGET; TARGET = r.target || "#out";
+    try { r.fn(); } catch (err) { alert(err.message || err); } finally { TARGET = prev; }
   }
   function table(headers, rows, caption) {
     return (caption ? `<div class="cap">${esc(caption)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
@@ -110,7 +117,7 @@
   }
   function plotDiv(div, traces, layout, h = 320) {
     const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; div.appendChild(p);
-    Plotly.newPlot(p, traces, Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout), { displaylogo: false, responsive: true });
+    Plotly.newPlot(p, traces, Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout), { displaylogo: false, responsive: true, editable: true, edits: { titleText: true, axisTitleText: true, legendText: true, annotationText: true, annotationPosition: false, shapePosition: false, legendPosition: true, colorbarTitleText: false } });
   }
   const pWord = (p) => (p < 0.0001 ? "p < 0.0001" : `p = ${p.toFixed(4)}`);
   const decision = (p, alpha) => (p <= alpha ? `${pWord(p)} is at or below alpha = ${alpha}: reject H0.` : `${pWord(p)} is above alpha = ${alpha}: fail to reject H0.`) + (p < 0.0001 ? " Write p < 0.001 in a report; a p-value is never exactly 0." : "");
@@ -123,9 +130,10 @@
   function dialog(title, fields, onGo, goLabel = "Run") {
     const f = $("#dlgForm"); $("#dlgTitle").textContent = title; f.innerHTML = ""; f.dataset.target = TARGET;
     const groups = {}; let html = "";
+    if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) fd = Object.assign(fd, { value: PREFILL[fd.name] }); });
     fields.filter(Boolean).forEach((fd) => {
       const id = "f_" + fd.name; let ctl = "";
-      if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return `<option value="${esc(v)}" ${String(fd.value) === String(v) ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
+      if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${esc(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
       else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${esc(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
       else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
       else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null ? "" : esc(fd.value)}" step="any" placeholder="${esc(fd.placeholder || "")}">`;
@@ -140,8 +148,8 @@
     f.onsubmit = (e) => {
       e.preventDefault(); const v = {};
       fields.filter(Boolean).forEach((fd) => { const el = f.elements[fd.name]; if (!el) return; if (fd.type === "multi") v[fd.name] = [...el.selectedOptions].map((o) => o.value); else if (fd.type === "check") v[fd.name] = el.checked; else if (fd.type === "number") v[fd.name] = el.value === "" ? NaN : Number(el.value); else v[fd.name] = el.value; });
-      const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt;
-      try { onGo(v); $("#dlg").classList.remove("open"); } catch (err) { alert(err.message || err); } finally { TARGET = prev; }
+      const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt; PENDING = { fn: CUR_FN, values: v, title };
+      try { onGo(v); $("#dlg").classList.remove("open"); if (REPLACE && REPLACE.isConnected && REPLACE._last) { REPLACE.replaceWith(REPLACE._last); } } catch (err) { alert(err.message || err); } finally { TARGET = prev; PENDING = null; REPLACE = null; PREFILL = null; }
     };
     $("#dlg").classList.add("open");
   }
@@ -207,24 +215,27 @@
 
   // ================= Graph (StatCrunch-style) =================
   const toGraphs = (fn) => () => { TARGET = "#outG"; try { fn(); } finally { setTimeout(() => (TARGET = "#out"), 0); } };
+  const appearanceFields = () => [{ name: "gtitle", label: "Graph title (optional)", type: "text", group: "Appearance" }, { name: "xlab", label: "X axis label (optional)", type: "text", group: "Appearance" }, { name: "ylab", label: "Y axis label (optional)", type: "text", group: "Appearance" }, { name: "gcolor", label: "Color", type: "color", value: "#3A7CA5", group: "Appearance" }];
+  const C = (v) => (v && v.gcolor) || "#3A7CA5";
+  function applyAppearance(layout, v) { if (v.gtitle) layout.title = v.gtitle; if (v.xlab) { layout.xaxis = Object.assign(layout.xaxis || {}, { title: v.xlab }); } if (v.ylab) { layout.yaxis = Object.assign(layout.yaxis || {}, { title: v.ylab }); } return layout; }
   function groupsOf(v) { return v.by ? [...new Set(col(v.by).filter((g) => g !== ""))] : [null]; }
   function subset(x, v, g) { return g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); }
   function meanMedianShapes(d) { return [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }]; }
   const honest = (items) => `<div class="formula">${esc("Honest-graph rules applied: " + items.join(" "))}</div>`;
   function gBar() {
     needData();
-    dialog("Graph: Bar Plot", [selCat("x", "Categorical variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency (counts)"], ["rel", "Percent (relative frequency times 100)"]], "count"), sel("order", "Order", [["auto", "automatic (tallest first; ordinal scales keep their natural order)"], ["count", "tallest first"], ["alpha", "alphabetical"], ["data", "order of first appearance"]], "auto"), { name: "labels", label: "Show the count (or percent) above each bar", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "horiz", label: "Horizontal bars", type: "check", value: false }], (v) => {
+    dialog("Graph: Bar Plot", [selCat("x", "Categorical variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency (counts)"], ["rel", "Percent (relative frequency times 100)"]], "count"), sel("order", "Order", [["auto", "automatic (tallest first; ordinal scales keep their natural order)"], ["count", "tallest first"], ["alpha", "alphabetical"], ["data", "order of first appearance"]], "auto"), { name: "labels", label: "Show the count (or percent) above each bar", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "horiz", label: "Horizontal bars", type: "check", value: false }, ...appearanceFields()], (v) => {
       const groups = groupsOf(v); const c0 = SW.counts(col(v.x)); let keys = Object.keys(c0); const nat = SW.naturalOrder(keys), ordinal = D.types[v.x] === "ordinal" || !!nat;
       let order = v.order; if (order === "auto") order = ordinal ? "natural" : "count";
       if (order === "count") keys.sort((a, b) => c0[b] - c0[a]); else if (order === "alpha") keys.sort(); else if (order === "natural" && nat) keys = nat;
       const nAll = Object.values(c0).reduce((s, q) => s + q, 0);
-      const traces = groups.map((g) => { const c = SW.counts(subset(v.x, v, g)), n = Object.values(c).reduce((s, q) => s + q, 0); const y = keys.map((k) => (v.type === "rel" ? (100 * (c[k] || 0)) / n : c[k] || 0)); const text = v.labels ? y.map((q) => (v.type === "rel" ? fmt(q, 1) + "%" : String(q))) : undefined; const base = { type: "bar", name: g == null ? v.x : String(g), text, textposition: "outside", cliponaxis: false, marker: g == null ? { color: "#3A7CA5" } : {} }; return v.horiz ? Object.assign(base, { y: keys, x: y, orientation: "h" }) : Object.assign(base, { x: keys, y }); });
+      const traces = groups.map((g) => { const c = SW.counts(subset(v.x, v, g)), n = Object.values(c).reduce((s, q) => s + q, 0); const y = keys.map((k) => (v.type === "rel" ? (100 * (c[k] || 0)) / n : c[k] || 0)); const text = v.labels ? y.map((q) => (v.type === "rel" ? fmt(q, 1) + "%" : String(q))) : undefined; const base = { type: "bar", name: g == null ? v.x : String(g), text, textposition: "outside", cliponaxis: false, marker: g == null ? { color: C(v) } : {} }; return v.horiz ? Object.assign(base, { y: keys, x: y, orientation: "h" }) : Object.assign(base, { x: keys, y }); });
       const ymax = Math.max(...traces.flatMap((t) => (v.horiz ? t.x : t.y)));
       let html = say("Bars are separated because the categories are separate things. " + (order === "natural" ? "This variable is an ordered scale, so the bars keep their natural order; sorting an ordered scale by height would hide its shape." : "Tallest first tells the eye what the story is.") + " Relative frequency lets you compare groups of different sizes.");
       if (v.tbl) { const rows = keys.map((k) => [k, c0[k], fmt(c0[k] / nAll, 3), fmt((100 * c0[k]) / nAll, 1) + "%"]); rows.push(["Total", nAll, "1.000", "100%"]); html += table([v.x, "Frequency", "Relative frequency", "Percent"], rows, "Frequency table" + (groups.length > 1 ? " (all groups together)" : "")); }
       const cd = card("Bar Plot: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${nAll}`), html);
       const axis = { title: v.type === "rel" ? (groups.length > 1 ? "Percent within group" : "Percent") : "Count", range: [0, ymax * 1.18], fixedrange: true };
-      plotDiv(cd, traces, { barmode: "group", [v.horiz ? "xaxis" : "yaxis"]: axis, [v.horiz ? "yaxis" : "xaxis"]: { type: "category", title: v.x }, showlegend: groups.length > 1 });
+      plotDiv(cd, traces, applyAppearance({ barmode: "group", [v.horiz ? "xaxis" : "yaxis"]: axis, [v.horiz ? "yaxis" : "xaxis"]: { type: "category", title: v.x }, showlegend: groups.length > 1 }, v));
       cd.insertAdjacentHTML("beforeend", honest(["The count axis starts at zero and cannot be zoomed, so a small difference cannot be stretched into a big one.", "All bars have the same width; only height carries information.", v.type === "rel" && groups.length > 1 ? "Percents are within each group, so groups of different sizes compare fairly." : "", "No 3D, no pictures for bars."].filter(Boolean)));
     });
   }
@@ -239,49 +250,49 @@
   }
   function gHist() {
     needData();
-    dialog("Graph: Histogram", [selNum("x", "Numeric variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency"], ["rel", "Percent (relative frequency times 100)"], ["dens", "Density"]], "count"), { name: "bw", label: "Bin width (blank = automatic)", type: "number", value: "" }, { name: "start", label: "Start bins at (blank = automatic)", type: "number", value: "" }, { name: "labels", label: "Show the frequency above each bin", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }], (v) => {
+    dialog("Graph: Histogram", [selNum("x", "Numeric variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency"], ["rel", "Percent (relative frequency times 100)"], ["dens", "Density"]], "count"), { name: "bw", label: "Bin width (blank = automatic)", type: "number", value: "" }, { name: "start", label: "Start bins at (blank = automatic)", type: "number", value: "" }, { name: "labels", label: "Show the frequency above each bin", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }, ...appearanceFields()], (v) => {
       const groups = groupsOf(v); const d = SW.describe(col(v.x)) || {};
       const B = SW.histBins(col(v.x), Number.isFinite(v.bw) && v.bw > 0 ? v.bw : null, Number.isFinite(v.start) ? v.start : null); if (!B) throw new Error("No numeric values.");
       if (B.counts.length > 200) throw new Error("That bin width gives more than 200 bins. Use a wider bin.");
-      const traces = groups.map((g) => { const counts = g == null ? B.counts : SW.countsWith(B.edges, subset(v.x, v, g)), n = counts.reduce((s, q) => s + q, 0); const y = counts.map((c) => (v.type === "rel" ? (100 * c) / n : v.type === "dens" ? c / (n * B.width) : c)); return { x: B.mids, y, width: B.width, type: "bar", name: g == null ? v.x : String(g), opacity: groups.length > 1 ? 0.6 : 1, text: v.labels ? y.map((q, j) => (v.type === "count" ? String(counts[j]) : fmt(q, v.type === "rel" ? 1 : 3))) : undefined, textposition: "outside", cliponaxis: false, marker: { color: groups.length > 1 ? undefined : "#3A7CA5", line: { color: "#fff", width: 1 } }, hovertext: B.labels.map((l, j) => `${l}: ${counts[j]}`), hoverinfo: "text+name" }; });
+      const traces = groups.map((g) => { const counts = g == null ? B.counts : SW.countsWith(B.edges, subset(v.x, v, g)), n = counts.reduce((s, q) => s + q, 0); const y = counts.map((c) => (v.type === "rel" ? (100 * c) / n : v.type === "dens" ? c / (n * B.width) : c)); return { x: B.mids, y, width: B.width, type: "bar", name: g == null ? v.x : String(g), opacity: groups.length > 1 ? 0.6 : 1, text: v.labels ? y.map((q, j) => (v.type === "count" ? String(counts[j]) : fmt(q, v.type === "rel" ? 1 : 3))) : undefined, textposition: "outside", cliponaxis: false, marker: { color: groups.length > 1 ? undefined : C(v), line: { color: "#fff", width: 1 } }, hovertext: B.labels.map((l, j) => `${l}: ${counts[j]}`), hoverinfo: "text+name" }; });
       const ymax = Math.max(...traces.flatMap((t) => t.y));
       let html = say("Bars touch because the number line has no gaps. Bin width is a decision: too few bins hide structure, too many turn noise into peaks. Try two or three widths before believing a feature. Read shape (symmetric, skewed, peaks), centre, spread, and anything unusual.");
       if (v.tbl) { let cum = 0; html += table(["Class", "Frequency", "Relative frequency", "Percent", "Cumulative frequency"], B.counts.map((c, j) => { cum += c; return [B.labels[j], c, fmt(c / B.n, 3), fmt((100 * c) / B.n, 1) + "%", cum]; }).concat([["Total", B.n, "1.000", "100%", ""]]), `Frequency table, bin width ${B.width}` + (groups.length > 1 ? " (all groups together)" : "")); }
       const cd = card("Histogram: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}, s = ${fmt(d.sd)}; ${B.counts.length} bins of width ${B.width} from ${B.start}`), html);
-      plotDiv(cd, traces, { barmode: "overlay", bargap: 0, xaxis: { title: v.x, tickvals: B.edges.length <= 16 ? B.edges : undefined, tickangle: B.edges.length > 8 ? -45 : 0 }, yaxis: { title: v.type === "rel" ? "Percent" : v.type === "dens" ? "Density" : "Count", range: [0, ymax * 1.18], fixedrange: true }, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [], showlegend: groups.length > 1 });
+      plotDiv(cd, traces, applyAppearance({ barmode: "overlay", bargap: 0, xaxis: { title: v.x, tickvals: B.edges.length <= 16 ? B.edges : undefined, tickangle: B.edges.length > 8 ? -45 : 0 }, yaxis: { title: v.type === "rel" ? "Percent" : v.type === "dens" ? "Density" : "Count", range: [0, ymax * 1.18], fixedrange: true }, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [], showlegend: groups.length > 1 }, v));
       cd.insertAdjacentHTML("beforeend", honest([`Every bin has the same width (${B.width}), so area equals height and the eye is not fooled by a wide bin.`, "Each class includes its left edge; the last class also includes the maximum, so every value is counted once.", "The count axis starts at zero and cannot be zoomed.", groups.length > 1 ? "All groups share the same bin edges; different bins per group would make the shapes incomparable." : "", "Tick marks sit on the bin edges, so you can read exactly where each class begins and ends."].filter(Boolean)));
     });
   }
   function gDot() {
     needData();
-    dialog("Graph: Dotplot", [selNum("x", "Numeric variable"), selAny("by", "Group by"), { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }], (v) => {
+    dialog("Graph: Dotplot", [selNum("x", "Numeric variable"), selAny("by", "Group by"), { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }, ...appearanceFields()], (v) => {
       const groups = groupsOf(v); const d = SW.describe(col(v.x)) || {}; const bw = (d.range || 1) / 45 || 1;
-      const traces = groups.map((g, gi) => { const xs = SW.num(subset(v.x, v, g)).sort((a, b) => a - b), bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b] + gi * 0; }); return { x: xs, y: ys, mode: "markers", type: "scatter", name: g == null ? v.x : String(g), marker: { size: 9 }, xaxis: "x", yaxis: groups.length > 1 ? "y" + (gi + 1) : "y" }; });
+      const traces = groups.map((g, gi) => { const xs = SW.num(subset(v.x, v, g)).sort((a, b) => a - b), bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b] + gi * 0; }); return { x: xs, y: ys, mode: "markers", type: "scatter", name: g == null ? v.x : String(g), marker: { size: 9, color: groups.length > 1 ? undefined : C(v) }, xaxis: "x", yaxis: groups.length > 1 ? "y" + (gi + 1) : "y" }; });
       const layout = { xaxis: { title: v.x }, showlegend: false, grid: groups.length > 1 ? { rows: groups.length, columns: 1, pattern: "coupled" } : undefined, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [] };
       groups.forEach((g, gi) => { layout["yaxis" + (gi ? gi + 1 : "")] = { visible: false, title: g == null ? "" : String(g) }; });
       const cd = card("Dotplot: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}`), say("One dot per observation, nothing hidden. The picture behind every summary number."));
-      plotDiv(cd, traces, layout, groups.length > 1 ? 120 * groups.length + 80 : 300);
+      plotDiv(cd, traces, applyAppearance(layout, v), groups.length > 1 ? 120 * groups.length + 80 : 300);
     });
   }
   function gBox() {
     needData();
-    dialog("Graph: Boxplot", [{ name: "vars", label: "Numeric variables (several draw side by side)", type: "multi", options: numCols() }, selAny("by", "Group by"), { name: "pts", label: "Show all points", type: "check", value: false }, { name: "horiz", label: "Horizontal", type: "check", value: false }], (v) => {
+    dialog("Graph: Boxplot", [{ name: "vars", label: "Numeric variables (several draw side by side)", type: "multi", options: numCols() }, selAny("by", "Group by"), { name: "pts", label: "Show all points", type: "check", value: false }, { name: "horiz", label: "Horizontal", type: "check", value: false }, ...appearanceFields()], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
       const groups = groupsOf(v); const traces = [];
-      v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", quartilemethod: "exclusive", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, marker: { color: "#3A7CA5" } }, v.horiz ? { x: vals } : { y: vals })); }));
+      v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", quartilemethod: "exclusive", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, marker: { color: C(v) } }, v.horiz ? { x: vals } : { y: vals })); }));
       const fences = v.vars.map((x) => { const d = SW.describe(col(x)); return `${x}: Q1 ${fmt(d.q1)}, median ${fmt(d.median)}, Q3 ${fmt(d.q3)}, fences ${fmt(d.lowerFence)} and ${fmt(d.upperFence)}`; }).join("; ");
       const cd = card("Boxplot: " + v.vars.join(", ") + (v.by ? " by " + v.by : ""), src(fences), say("Box from Q1 to Q3 (textbook rule: median of each half, overall median excluded), line at the median, whiskers to the last values inside the fences, dots beyond. Dots are worth a look, not wrong. Shape decides the summary: symmetric, mean with s; skewed or with dots, median with IQR."));
-      plotDiv(cd, traces, { [v.horiz ? "xaxis" : "yaxis"]: { title: v.vars.length === 1 ? v.vars[0] : "" }, showlegend: false });
+      plotDiv(cd, traces, applyAppearance({ [v.horiz ? "xaxis" : "yaxis"]: { title: v.vars.length === 1 ? v.vars[0] : "" }, showlegend: false }, v));
     });
   }
   function gScatter() {
     needData();
-    dialog("Graph: Scatter Plot", [selNum("x", "X variable"), selNum("y", "Y variable"), selAny("by", "Color by"), { name: "line", label: "Least-squares line", type: "check", value: true }, { name: "label", label: "Label points with (optional column)", type: "select", options: [["", "(none)"]].concat(D.cols) }], (v) => {
+    dialog("Graph: Scatter Plot", [selNum("x", "X variable"), selNum("y", "Y variable"), selAny("by", "Color by"), { name: "line", label: "Least-squares line", type: "check", value: true }, { name: "label", label: "Label points with (optional column)", type: "select", options: [["", "(none)"]].concat(D.cols) }, ...appearanceFields()], (v) => {
       const r = SW.regress(col(v.x), col(v.y)); const groups = groupsOf(v);
-      const traces = groups.map((g) => { const keep = (i) => g == null || col(v.by)[i] === g; const tr = { x: col(v.x).filter((_, i) => keep(i)), y: col(v.y).filter((_, i) => keep(i)), mode: v.label ? "markers+text" : "markers", type: "scatter", name: g == null ? "data" : String(g), textposition: "top center", textfont: { size: 9 } }; if (v.label) tr.text = col(v.label).filter((_, i) => keep(i)); if (g == null) tr.marker = { color: "#3A7CA5" }; return tr; });
+      const traces = groups.map((g) => { const keep = (i) => g == null || col(v.by)[i] === g; const tr = { x: col(v.x).filter((_, i) => keep(i)), y: col(v.y).filter((_, i) => keep(i)), mode: v.label ? "markers+text" : "markers", type: "scatter", name: g == null ? "data" : String(g), textposition: "top center", textfont: { size: 9 } }; if (v.label) tr.text = col(v.label).filter((_, i) => keep(i)); if (g == null) tr.marker = { color: C(v) }; return tr; });
       if (v.line) { const xs = [Math.min(...r.x), Math.max(...r.x)]; traces.push({ x: xs, y: xs.map(r.predict), mode: "lines", name: `y = ${fmt(r.b0, 3)} + ${fmt(r.b1, 4)} x`, line: { color: "#C0392B" } }); }
       const cd = card(`Scatter Plot: ${v.y} against ${v.x}`, src(`n = ${r.n}, r = ${fmt(r.r)}, r squared = ${fmt(r.r2)}`), say("Describe direction, form, strength, and outliers, in that order. r measures linear association only. Correlation is not causation."));
-      plotDiv(cd, traces, { xaxis: { title: v.x }, yaxis: { title: v.y }, showlegend: groups.length > 1 || v.line });
+      plotDiv(cd, traces, applyAppearance({ xaxis: { title: v.x }, yaxis: { title: v.y }, showlegend: groups.length > 1 || v.line }, v));
     });
   }
   function gQQ() {
@@ -342,14 +353,14 @@
       let a, b, names = ["Group 1", "Group 2"], from = "summary statistics", ga = [], gb = [];
       if (v.mode === "data") { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) { const pick = v.lv.split(",").map((s) => s.trim()); const bad = pick.filter((s) => !lv.includes(s)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${v.g}: ${lv.join(", ")}. Name exactly two of them.`); lv = pick; } else if (lv.length > 2) lv = lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} level.`); names = lv; ga = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]); gb = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); a = SW.describe(ga); b = SW.describe(gb); from = src(`${v.x} by ${v.g}`); }
       else { a = { mean: v.m1, sd: v.s1, n: v.n1 }; b = { mean: v.m2, sd: v.s2, n: v.n2 }; }
-      const r = SW.twoMeans({ m1: a.mean, s1: a.sd, n1: a.n, m2: b.mean, s2: b.sd, n2: b.n, alt: v.alt, conf: +v.conf });
-      const hdr = ["", "", "Statistic", "df", "p"], row = [v.mode === "data" ? v.x : "value", "Welch's t", r.t, r.df, SW.fmtP(r.p)];
+      const r = SW.twoMeans({ m1: a.mean, s1: a.sd, n1: a.n, m2: b.mean, s2: b.sd, n2: b.n, alt: v.alt, conf: +v.conf, pooled: !v.welch });
+      const hdr = ["", "", "Statistic", "df", "p"], row = [v.mode === "data" ? v.x : "value", v.welch ? "Welch's t" : "Student's t", r.t, r.df, SW.fmtP(r.p)];
       if (v.meanDiff) { hdr.push("Mean difference", "SE difference"); row.push(r.diff, r.se); }
       if (v.ci) { hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper"); row.push(r.lower, r.upper); }
       if (v.es) { hdr.push("Cohen's d"); row.push(r.d); }
-      let html = table(hdr, [row], "Independent Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>${esc(names[0])}</sub> ${altWord(v.alt)} mu<sub>${esc(names[1])}</sub>. Welch's df comes from the two standard errors, so it is a decimal.</div>`;
+      let html = table(hdr, [row], "Independent Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>${esc(names[0])}</sub> ${altWord(v.alt)} mu<sub>${esc(names[1])}</sub>. ${v.welch ? "Welch's df comes from the two standard errors, so it is a decimal." : "Student's t pools the two variances and uses df = n1 + n2 minus 2; it assumes the two groups have equal spread."}</div>`;
       if (v.desc) html += table(["", "Group", "N", "Mean", "SD", "SE"], [[v.mode === "data" ? v.x : "", names[0], a.n, a.mean, a.sd, a.sd / Math.sqrt(a.n)], ["", names[1], b.n, b.mean, b.sd, b.sd / Math.sqrt(b.n)]], "Group Descriptives");
-      html += formula(`t = (x bar 1 minus x bar 2) / sqrt(s1^2 / n1 + s2^2 / n2)`);
+      html += formula(v.welch ? `t = (x bar 1 minus x bar 2) / sqrt(s1^2 / n1 + s2^2 / n2)` : `t = (x bar 1 minus x bar 2) / (sp sqrt(1/n1 + 1/n2)), sp^2 = ((n1 minus 1) s1^2 + (n2 minus 1) s2^2) / (n1 + n2 minus 2)`);
       html += say(`H0: the two population means are equal. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${names[0]} is ${altWord(v.alt)} the mean of ${names[1]}.` : `There is not enough evidence of a difference between the means of ${names[0]} and ${names[1]}.`} We are ${Math.round(r.conf * 100)} percent confident the difference in population means is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
       if (v.mode === "data") { const all = [...new Set(col(v.g).filter((q) => q !== ""))]; if (all.length > 2) html += say(`${v.g} has ${all.length} levels (${all.join(", ")}); this test compares ${names[0]} with ${names[1]} only. Choosing which two is your decision to defend; for all groups at once use One-Way ANOVA.`); }
       html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have N at least 30.", "A group has N under 30: needs roughly normal populations (check box plots); state that the assumptions are met.") + say("Independent samples: different individuals in each group. If the same individuals were measured twice, use the Paired Samples T-Test.");
@@ -1185,7 +1196,7 @@
     dd.innerHTML = `<button class="top">${name}</button><div class="items">${items.map((it) => (it ? `<button>${esc(it[0])}</button>` : '<div class="sep"></div>')).join("")}</div>`;
     dd.querySelector(".top").onclick = (e) => { e.stopPropagation(); const open = dd.classList.contains("open"); nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")); if (!open) dd.classList.add("open"); };
     const btns = dd.querySelectorAll(".items button"); let k = 0;
-    items.forEach((it) => { if (!it) return; btns[k++].onclick = () => { nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")); try { it[1](); } catch (err) { alert(err.message || err); } }; });
+    items.forEach((it) => { if (!it) return; btns[k++].onclick = () => { nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")); CUR_FN = it[1]; PREFILL = null; REPLACE = null; try { it[1](); } catch (err) { alert(err.message || err); } }; });
     nav.appendChild(dd);
   });
   document.addEventListener("click", () => nav.querySelectorAll(".dd").forEach((d) => d.classList.remove("open")));
