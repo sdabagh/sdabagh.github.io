@@ -117,7 +117,7 @@
   }
   function plotDiv(div, traces, layout, h = 320) {
     const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; div.appendChild(p);
-    Plotly.newPlot(p, traces, Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout), { displaylogo: false, responsive: true, editable: true, edits: { titleText: true, axisTitleText: true, legendText: true, annotationText: true, annotationPosition: false, shapePosition: false, legendPosition: true, colorbarTitleText: false } });
+    Plotly.newPlot(p, traces, Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout), { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] });
   }
   const pWord = (p) => (p < 0.0001 ? "p < 0.0001" : `p = ${p.toFixed(4)}`);
   const decision = (p, alpha) => (p <= alpha ? `${pWord(p)} is at or below alpha = ${alpha}: reject H0.` : `${pWord(p)} is above alpha = ${alpha}: fail to reject H0.`) + (p < 0.0001 ? " Write p < 0.001 in a report; a p-value is never exactly 0." : "");
@@ -195,7 +195,7 @@
           const ymaxH = Math.max(...traces.flatMap((t) => t.y));
           const shapes = v.lines && groups.length === 1 ? [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }] : [];
           plotDiv(cd, traces, { barmode: "overlay", bargap: 0, title: `Histogram of ${x} (bin width ${B.width})`, xaxis: { title: x, tickvals: B.edges.length <= 16 ? B.edges : undefined }, yaxis: { title: v.dens ? "density" : "Count", range: [0, ymaxH * 1.18], fixedrange: true }, shapes }); }
-        if (v.box) plotDiv(cd, groups.map((g) => ({ y: SW.num(g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g)), type: "box", quartilemethod: "exclusive", name: g == null ? x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { title: `Box plot of ${x}`, yaxis: { title: x }, showlegend: false });
+        if (v.box) plotDiv(cd, groups.map((g) => ({ y: SW.num(g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g)), type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: g == null ? x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { title: `Box plot of ${x}`, yaxis: { title: x }, showlegend: false });
         if (v.dot) { const xs = SW.num(col(x)).sort((a, b) => a - b), bw = (d.range || 1) / 40 || 1, bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b]; }); plotDiv(cd, [{ x: xs, y: ys, mode: "markers", type: "scatter", marker: { size: 9, color: "#3A7CA5" } }], { title: `Dot plot of ${x}`, yaxis: { visible: false }, xaxis: { title: x } }); }
         if (v.qq) { const q = SW.qq(col(x)), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: `Q-Q plot of ${x} (points on the line means roughly normal)`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: x } }); }
       });
@@ -281,7 +281,7 @@
     dialog("Graph: Boxplot", [{ name: "vars", label: "Numeric variables (several draw side by side)", type: "multi", options: numCols() }, selAny("by", "Group by"), { name: "pts", label: "Show all points", type: "check", value: false }, { name: "horiz", label: "Horizontal", type: "check", value: false }, ...appearanceFields()], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
       const groups = groupsOf(v); const traces = [];
-      v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", quartilemethod: "exclusive", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, marker: { color: C(v) } }, v.horiz ? { x: vals } : { y: vals })); }));
+      v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", quartilemethod: "exclusive", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, hoveron: "points", hoverinfo: v.horiz ? "x+name" : "y+name", marker: { color: C(v) } }, v.horiz ? { x: vals } : { y: vals })); }));
       const fences = v.vars.map((x) => { const d = SW.describe(col(x)); return `${x}: Q1 ${fmt(d.q1)}, median ${fmt(d.median)}, Q3 ${fmt(d.q3)}, fences ${fmt(d.lowerFence)} and ${fmt(d.upperFence)}`; }).join("; ");
       const cd = card("Boxplot: " + v.vars.join(", ") + (v.by ? " by " + v.by : ""), src(fences), say("Box from Q1 to Q3 (textbook rule: median of each half, overall median excluded), line at the median, whiskers to the last values inside the fences, dots beyond. Dots are worth a look, not wrong. Shape decides the summary: symmetric, mean with s; skewed or with dots, median with IQR."));
       plotDiv(cd, traces, applyAppearance({ [v.horiz ? "xaxis" : "yaxis"]: { title: v.vars.length === 1 ? v.vars[0] : "" }, showlegend: false }, v));
@@ -367,7 +367,7 @@
       if (v.mode === "data") { const all = [...new Set(col(v.g).filter((q) => q !== ""))]; if (all.length > 2) html += say(`${v.g} has ${all.length} levels (${all.join(", ")}); this test compares ${names[0]} with ${names[1]} only. Choosing which two is your decision to defend; for all groups at once use One-Way ANOVA.`); }
       html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have N at least 30.", "A group has N under 30: needs roughly normal populations (check box plots); state that the assumptions are met.") + say("Independent samples: different individuals in each group. If the same individuals were measured twice, use the Paired Samples T-Test.");
       const cd = card("Independent Samples T-Test", from, html);
-      if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false });
+      if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false });
       tPlot(cd, r.t, r.df, v.alt);
     });
   }
@@ -413,7 +413,7 @@
       if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
       if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
       const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
-      if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
+      if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
     });
   }
   function welchAnova(r) {
@@ -558,7 +558,7 @@
       const lv = pickTwo(v.g, v.lv);
       const a = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]), b = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); const r = SW.mannWhitney(a, b, v.alt);
       const html = table(["", "", "Statistic", "z", "p"], [[v.x, "Mann-Whitney U", r.U, r.z, SW.fmtP(r.p)]], "Independent Samples T-Test (nonparametric)") + table(["Group", "N", "Median"], [[lv[0], r.n1, r.med1], [lv[1], r.n2, r.med2]], "Group Descriptives") + formula("Ranks all values together and compares the rank sums; no normality assumption. Normal approximation with tie correction, as in jamovi and R.") + say(`H0: the two distributions are the same. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that ${v.x} tends to be ${altWord(v.alt) === "not equal to" ? "different" : altWord(v.alt)} in ${lv[0]} compared with ${lv[1]}.` : `There is not enough evidence of a difference in ${v.x} between ${lv[0]} and ${lv[1]}.`} Use this when the groups are small and clearly skewed, or when the data are ranks.`);
-      const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); plotDiv(cd, [{ y: SW.num(a), type: "box", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
+      const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); plotDiv(cd, [{ y: SW.num(a), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
     });
   }
   function wilcoxonUI() {
