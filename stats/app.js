@@ -2,7 +2,7 @@
    jamovi instructions transfer as written. Engine in stats.js (window.SW); jStat and Plotly vendored. */
 (function () {
   const $ = (s) => document.querySelector(s);
-  const D = { name: "", cols: [], rows: [], types: {}, filter: "", sortCol: null, sortDir: 1 };
+  const D = { name: "", cols: [], rows: [], types: {}, manual: {}, filter: "", sortCol: null, sortDir: 1 };
   let DEC = 4; try { DEC = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { }
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -23,7 +23,9 @@
   }
   function inferTypes() {
     D.types = {};
+    D.manual = D.manual || {};
     D.cols.forEach((c, j) => {
+      if (D.manual[c]) { D.types[c] = D.manual[c]; return; } // a type the user set by hand is kept
       const vals = D.rows.map((r) => r[j]).filter((v) => v !== "" && v != null);
       const nums = vals.filter((v) => Number.isFinite(Number(v)));
       const distinct = new Set(vals).size;
@@ -38,8 +40,8 @@
     D.rows = rows.slice(1).map((r) => D.cols.map((_, j) => (r[j] == null ? "" : String(r[j]).trim())));
     D.filter = ""; D.sortCol = null; inferTypes(); renderGrid(); persist();
   }
-  function persist() { try { localStorage.setItem("sww_data", JSON.stringify({ name: D.name, cols: D.cols, rows: D.rows, filter: D.filter })); } catch (e) { } }
-  function restore() { try { const s = JSON.parse(localStorage.getItem("sww_data") || "null"); if (s && s.rows && s.rows.length) { D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; inferTypes(); renderGrid(); } } catch (e) { } }
+  function persist() { try { localStorage.setItem("sww_data", JSON.stringify({ name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, manual: D.manual || {} })); } catch (e) { } }
+  function restore() { try { const s = JSON.parse(localStorage.getItem("sww_data") || "null"); if (s && s.rows && s.rows.length) { D.name = s.name; D.cols = s.cols; D.rows = s.rows; D.filter = s.filter || ""; D.manual = s.manual || {}; inferTypes(); renderGrid(); } } catch (e) { } }
   // active rows: those passing the filter
   function activeIdx() {
     if (!D.filter.trim()) return D.rows.map((_, i) => i);
@@ -57,12 +59,23 @@
     $("#filterBox").value = D.filter;
     const g = $("#grid"); if (!D.rows.length) return;
     const icon = { continuous: "ruler, continuous", ordinal: "ordinal", nominal: "nominal", id: "ID" };
-    let h = '<table class="grid"><thead><tr><th></th>' + D.cols.map((c) => `<th data-col="${esc(c)}" title="click to sort">${esc(c)}<small>${icon[D.types[c]]}</small></th>`).join("") + "</tr></thead><tbody>";
+    let h = '<table class="grid"><thead><tr><th></th>' + D.cols.map((c) => `<th data-col="${esc(c)}" title="click the name to sort; click the type to change it">${esc(c)}<small class="ty" data-col="${esc(c)}" title="Change the type">${icon[D.types[c]]} &#9662;</small></th>`).join("") + "</tr></thead><tbody>";
     let keep = null; try { keep = new Set(activeIdx()); } catch (e) { }
     D.rows.forEach((r, i) => { h += `<tr class="${keep && !keep.has(i) ? "off" : ""}"><td class="rn">${i + 1}</td>` + r.map((v, j) => `<td contenteditable data-i="${i}" data-j="${j}">${esc(v)}</td>`).join("") + "</tr>"; });
     g.innerHTML = h + "</tbody></table>";
     g.querySelectorAll("td[contenteditable]").forEach((td) => td.addEventListener("blur", () => { D.rows[+td.dataset.i][+td.dataset.j] = td.textContent.trim(); inferTypes(); persist(); }));
     g.querySelectorAll("th[data-col]").forEach((th) => (th.onclick = () => sortBy(th.dataset.col)));
+    g.querySelectorAll("small.ty").forEach((sm) => (sm.onclick = (e) => { e.stopPropagation(); typePicker(sm, sm.dataset.col); }));
+  }
+  function typePicker(anchor, c) { // inline menu under the column name, the same job as jamovi's Setup panel
+    document.querySelectorAll(".typemenu").forEach((m) => m.remove());
+    const m = document.createElement("div"); m.className = "typemenu";
+    const opts = [["continuous", "Continuous (ruler): numbers you can average"], ["ordinal", "Ordinal: ordered categories"], ["nominal", "Nominal: names, no order"], ["id", "ID: a label, never analysed"]];
+    m.innerHTML = `<div class="tm-title">${esc(c)}</div>` + opts.map(([k, l]) => `<div class="tm-opt${D.types[c] === k ? " on" : ""}" data-k="${k}">${l}</div>`).join("") + `<div class="tm-opt tm-auto" data-k="">Back to automatic</div>`;
+    const r = anchor.getBoundingClientRect(); m.style.left = Math.min(r.left, window.innerWidth - 300) + "px"; m.style.top = r.bottom + 4 + "px";
+    document.body.appendChild(m);
+    m.querySelectorAll(".tm-opt").forEach((o) => (o.onclick = (e) => { e.stopPropagation(); const k = o.dataset.k; if (k) D.manual[c] = k; else delete D.manual[c]; inferTypes(); renderGrid(); persist(); m.remove(); }));
+    setTimeout(() => document.addEventListener("click", () => m.remove(), { once: true }), 0);
   }
   function sortBy(c) {
     const j = D.cols.indexOf(c); D.sortDir = D.sortCol === c ? -D.sortDir : 1; D.sortCol = c;
@@ -1137,7 +1150,7 @@
   }
   function typeUI() {
     needData();
-    dialog("Data: Set a variable's type", [sel("x", "Column", D.cols), sel("t", "Type", [["continuous", "Continuous (ruler)"], ["ordinal", "Ordinal"], ["nominal", "Nominal (three circles)"], ["id", "ID"]], "nominal")], (v) => { D.types[v.x] = v.t; renderGrid(); }, "Set");
+    dialog("Data: Set a variable's type", [sel("x", "Column", D.cols), sel("t", "Type", [["continuous", "Continuous (ruler)"], ["ordinal", "Ordinal"], ["nominal", "Nominal (three circles)"], ["id", "ID"]], "nominal")], (v) => { D.manual[v.x] = v.t; inferTypes(); renderGrid(); persist(); }, "Set");
   }
   function filterUI() {
     needData();
@@ -1180,5 +1193,18 @@
   $("#filterBox").addEventListener("change", () => { D.filter = $("#filterBox").value.trim(); try { activeIdx(); } catch (e) { alert(e.message); D.filter = ""; } renderGrid(); persist(); });
   document.querySelectorAll(".tabs .tab").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
   restore();
+  // draggable splitter between the data table and the results
+  (function () {
+    const sp = document.getElementById("splitter"), main = document.querySelector("main"); if (!sp) return;
+    try { const w = localStorage.getItem("sww_leftw"); if (w) main.style.setProperty("--leftw", w); } catch (e) { }
+    let drag = false;
+    sp.addEventListener("mousedown", (e) => { drag = true; sp.classList.add("on"); document.body.style.userSelect = "none"; e.preventDefault(); });
+    window.addEventListener("mousemove", (e) => { if (!drag) return; const px = Math.max(240, Math.min(window.innerWidth - 360, e.clientX)); main.style.setProperty("--leftw", px + "px"); });
+    window.addEventListener("mouseup", () => { if (!drag) return; drag = false; sp.classList.remove("on"); document.body.style.userSelect = ""; try { localStorage.setItem("sww_leftw", main.style.getPropertyValue("--leftw")); } catch (e) { } window.dispatchEvent(new Event("resize")); });
+    sp.addEventListener("dblclick", () => { main.style.removeProperty("--leftw"); try { localStorage.removeItem("sww_leftw"); } catch (e) { } window.dispatchEvent(new Event("resize")); });
+    sp.addEventListener("touchstart", (e) => { drag = true; e.preventDefault(); }, { passive: false });
+    window.addEventListener("touchmove", (e) => { if (!drag) return; const px = Math.max(240, Math.min(window.innerWidth - 360, e.touches[0].clientX)); main.style.setProperty("--leftw", px + "px"); }, { passive: true });
+    window.addEventListener("touchend", () => { if (drag) { drag = false; try { localStorage.setItem("sww_leftw", main.style.getPropertyValue("--leftw")); } catch (e) { } window.dispatchEvent(new Event("resize")); } });
+  })();
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => { });
 })();
