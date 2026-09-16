@@ -11,7 +11,7 @@
   S.sd = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
   S.sdPop = (a) => { const m = S.mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); };
   S.median = (a) => { const b = [...a].sort((x, y) => x - y), n = b.length; return n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2; };
-  S.quantile = (a, p) => { // type 7, same as R and jamovi
+  S.quantile = (a, p) => { // type 7, same as R
     const b = [...a].sort((x, y) => x - y), n = b.length, h = (n - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
     return b[lo] + (h - lo) * (b[hi] - b[lo]);
   };
