@@ -11,3 +11,33 @@ House rules baked in: means use t with df (sigma is never given); p-value approa
 Files: `index.html` (layout), `app.js` (menus, dialogs, result cards), `stats.js` (engine), `vendor/` (jStat 1.9.6 for distributions, Plotly cartesian 2.35.2 for plots), `data/` (sample datasets from the SMC, LMU and POPP courses).
 
 Verified 2026-09-12 against R (and the jmv package) on the class datasets: one-sample t, proportion test, Welch, paired, two proportions, ANOVA F and Tukey p-values, chi-square, regression coefficients and slope interval all agree to four decimals.
+
+## Learn menu, four classroom demonstrations (added 2026-09-22)
+
+Built after a POPP class where the law of large numbers had to be demonstrated in StatCrunch because
+this app could not do it. All four run with no data loaded, so they work on the projector in a room
+where nobody has a file open.
+
+- **Coin flips and the law of large numbers.** One, two or three coins, one die, two dice, or any p.
+  Shows the first fifty outcomes, the proportion after 10, 25, 50, 100, 250 trials and so on, and the
+  running proportion settling toward p. The second plot is the one that does the teaching: the count
+  drifts further and further from the expected count while the proportion settles, which is why
+  "19 percent, so 2 of the next 10" and "tails is due" are both wrong.
+- **The Central Limit Theorem.** Several sample sizes compared on one set of axes, with a table of the
+  simulated SD against sigma / sqrt(n) and the skewness falling as n grows. Separates the three things
+  that happen at once: center fixed, spread shrinking by sqrt(n), shape turning normal.
+- **What a confidence interval means.** Many samples, one interval each, plotted against a true value
+  that never moves, with the actual capture rate reported against the stated level. Uses t with n - 1
+  df for a mean, and warns when n p or n (1 - p) drops under 10 for a proportion.
+- **What a p-value is.** Forces H0 true, draws thousands of samples, counts the ones at least as
+  extreme. For a proportion it prints simulated, exact binomial and z formula p side by side and
+  explains the gap rather than hiding it.
+
+Verified 2026-09-22 in the browser. CLT: simulated SDs 7.79, 3.62, 1.462, 0.8015 against theory
+8.05, 3.60, 1.469, 0.8048 at n = 1, 5, 30, 100, skewness falling 1.87 to 0.20. Confidence intervals:
+96 of 100 at the 95 percent level for a mean; 187 of 200 at n = 15 for a proportion, correctly below
+the stated level with the success-failure warning shown. p-values checked against Python: 26 of 40
+gives exact 0.0807 and z 0.0578 (the app prints both and flags the gap), 230 of 400 gives exact 0.0031
+and z 0.0027 (the app says the approximation is fine there).
+
+Service worker cache bumped to sww-v36 so installed copies pick the new version up.

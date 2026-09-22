@@ -1136,6 +1136,179 @@
     });
   }
 
+  // ================= Learn: coin flips and the law of large numbers =================
+  function llnUI() {
+    dialog("Learn: Coin flips and the law of large numbers", [
+      sel("exp", "Chance experiment", [["coin", "flip one fair coin, count heads (p = 0.5)"], ["coin2", "flip two coins, count both heads (p = 0.25)"], ["coin3", "flip three coins, count all three heads (p = 0.125)"], ["die", "roll one die, count sixes (p = 1/6)"], ["dice2", "roll two dice, count sums of 7 (p = 6/36)"], ["custom", "a yes or no event with a probability I choose"]], "coin"),
+      { name: "p", label: "Probability for the custom event", type: "number", value: 0.3 },
+      { name: "n", label: "Number of trials", type: "number", value: 500 },
+      { name: "drift", label: "Also show how far the count drifts from the expected count", type: "check", value: true }], (v) => {
+      const P = { coin: 0.5, coin2: 0.25, coin3: 0.125, die: 1 / 6, dice2: 6 / 36, custom: v.p }[v.exp];
+      const LAB = { coin: "heads", coin2: "two heads", coin3: "three heads", die: "a six", dice2: "a sum of 7", custom: "the event" }[v.exp];
+      const NAME = { coin: "one fair coin", coin2: "two fair coins", coin3: "three fair coins", die: "one fair die", dice2: "two fair dice", custom: `a yes or no event with p = ${fmt(P, 4)}` }[v.exp];
+      if (!(P > 0 && P < 1)) throw new Error("The probability must be between 0 and 1.");
+      const n = Math.max(1, Math.min(Math.round(v.n), 100000));
+      const hit = new Array(n), runProp = new Array(n), drift = new Array(n), idx = new Array(n);
+      let count = 0;
+      for (let i = 0; i < n; i++) { hit[i] = Math.random() < P ? 1 : 0; count += hit[i]; idx[i] = i + 1; runProp[i] = count / (i + 1); drift[i] = count - (i + 1) * P; }
+      const marks = [10, 25, 50, 100, 250, 500, 1000, 5000, n].filter((m, i, a) => m <= n && a.indexOf(m) === i).sort((a, b) => a - b);
+      const rows = marks.map((m) => { const c = hit.slice(0, m).reduce((s, x) => s + x, 0); return [m, c, m * P, c / m, c / m - P, c - m * P]; });
+      let html = table(["Trials", `${LAB} so far`, "Expected count", "Proportion so far", "Proportion minus p", "Count minus expected"], rows, `Flipping ${NAME}, true probability p = ${fmt(P, 4)}`);
+      html += formula("proportion after k trials = (number of successes) / k, and it settles toward p as k grows");
+      const first = hit.slice(0, 50).map((h) => (h ? "Y" : "n")).join(" ");
+      html += say(`The first ${Math.min(50, n)} trials, Y for ${LAB}: <span style="font-family:ui-monospace,Consolas,monospace">${first}</span>`);
+      const last = rows[rows.length - 1];
+      html += say(`After ${n} trials the proportion is ${fmt(last[3], 4)} against a true p of ${fmt(P, 4)}, a gap of ${fmt(Math.abs(last[4]), 4)}. Early on the proportion swings widely; the more trials you run the harder it is to stay far from p. That is the law of large numbers, and notice what it does and does not promise: it is about the <em>proportion</em>, not about the count.`);
+      if (v.drift) html += warn(`The count is a different story. After ${n} trials the count of ${LAB} is off the expected count by ${fmt(Math.abs(last[5]), 2)}, and that gap tends to grow, not shrink. So "p is 0.5, therefore 5 of the next 10 will be heads" is wrong, and so is "tails is due after a run of heads." Nothing keeps a running tally and corrects it. The proportion settles because the early swings get diluted by the later trials, not because the coin compensates.`);
+      const cd = card("Coin flips and the law of large numbers", `${NAME}, ${n} trials`, html);
+      plotDiv(cd, [{ x: idx, y: runProp, type: "scatter", mode: "lines", name: "proportion so far", line: { color: "#3A7CA5", width: 1.5 } }], { title: `Running proportion of ${LAB}`, xaxis: { title: "number of trials" }, yaxis: { title: "proportion so far", range: [Math.max(0, Math.min(...runProp.slice(Math.min(9, n - 1))) - 0.12), Math.min(1, Math.max(...runProp.slice(Math.min(9, n - 1))) + 0.12)] }, shapes: [{ type: "line", x0: 1, x1: n, y0: P, y1: P, line: { color: "#1A3A4D", dash: "dash" } }], annotations: [{ x: n, y: P, xanchor: "right", yanchor: "bottom", text: `p = ${fmt(P, 4)}`, showarrow: false, font: { color: "#1A3A4D" } }] }, 280);
+      if (v.drift) plotDiv(cd, [{ x: idx, y: drift, type: "scatter", mode: "lines", name: "count minus expected", line: { color: "#D97D54", width: 1.5 } }], { title: "How far the count sits from the expected count", xaxis: { title: "number of trials" }, yaxis: { title: "count minus expected count" }, shapes: [{ type: "line", x0: 1, x1: n, y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 240);
+    });
+  }
+
+  // ================= Learn: the Central Limit Theorem =================
+  function cltUI() {
+    const hasData = D.rows.length > 0;
+    dialog("Learn: The Central Limit Theorem", [
+      sel("pop", "Population", (hasData ? [["col", "a column in the data (treated as the population)"]] : []).concat([["skew", "right-skewed (exponential, mean 8)"], ["normal", "normal, mean 50, SD 10"], ["uniform", "uniform 0 to 100"], ["bimodal", "two humps, a mixture of 30 and 70"], ["prop", "yes or no, with a given p"]]), hasData ? "col" : "skew"),
+      hasData ? selNum("x", "Column (used as the population)") : null,
+      { name: "p", label: "p for the yes or no population", type: "number", value: 0.3 },
+      { name: "ns", label: "Sample sizes to compare", type: "text", value: "1, 5, 30, 100" },
+      { name: "reps", label: "Samples drawn at each size", type: "number", value: 2000 }], (v) => {
+      let pop, popLabel;
+      if (v.pop === "col") { pop = SW.num(col(v.x)); popLabel = `${v.x}, treated as the population`; }
+      else if (v.pop === "normal") { pop = Array.from({ length: 20000 }, () => SW.rnorm(50, 10)); popLabel = "normal(50, 10)"; }
+      else if (v.pop === "skew") { pop = Array.from({ length: 20000 }, () => SW.rexp(1 / 8)); popLabel = "right-skewed, mean 8"; }
+      else if (v.pop === "uniform") { pop = Array.from({ length: 20000 }, () => Math.random() * 100); popLabel = "uniform(0, 100)"; }
+      else if (v.pop === "bimodal") { pop = Array.from({ length: 20000 }, () => SW.rnorm(Math.random() < 0.5 ? 30 : 70, 6)); popLabel = "two humps at 30 and 70"; }
+      else { pop = Array.from({ length: 20000 }, () => (Math.random() < v.p ? 1 : 0)); popLabel = `yes or no, p = ${fmt(v.p, 3)}`; }
+      if (pop.length < 2) throw new Error("That population has fewer than two values.");
+      const ns = String(v.ns).split(",").map((s) => Math.round(Number(s))).filter((x) => Number.isFinite(x) && x >= 1).slice(0, 5);
+      if (!ns.length) throw new Error("Give at least one sample size, for example 1, 5, 30, 100.");
+      const reps = Math.max(200, Math.min(Math.round(v.reps), 20000));
+      const pm = SW.mean(pop), ps = Math.sqrt(pop.reduce((s, x) => s + (x - pm) ** 2, 0) / pop.length);
+      const COLORS = ["#C2C2C2", "#8FB8D0", "#3A7CA5", "#D97D54", "#8E6BA8"];
+      const traces = [], rows = [];
+      ns.forEach((n, i) => {
+        const means = SW.simulate(pop, n, reps, SW.mean);
+        rows.push([n, SW.mean(means), SW.sd(means), ps / Math.sqrt(n), SW.skewness(means).skew]);
+        traces.push({ x: means, type: "histogram", name: `n = ${n}`, opacity: 0.6, histnorm: "probability density", marker: { color: COLORS[i % COLORS.length] } });
+      });
+      let html = table(["Population mean", "Population SD"], [[pm, ps]], `Population: ${popLabel}`);
+      html += table(["n", `Mean of the ${reps} sample means`, "SD of those sample means", "Theory: sigma / sqrt(n)", "Skewness of the sample means"], rows, "What changes as n grows");
+      html += formula("mean of x bar = mu, and SD of x bar = sigma / sqrt(n), called the standard error");
+      const sk0 = Math.abs(rows[0][4]), skL = Math.abs(rows[rows.length - 1][4]);
+      html += say(`Two things happen at once and students usually only see one of them. The center never moves: every row has a mean of about ${fmt(pm, 3)}, the population mean. The spread shrinks, and it shrinks by sqrt(n), not by n, which is why going from n = 25 to n = 100 only halves the standard error. ${ns.includes(1) ? "The n = 1 curve is the population itself, so compare it with the others to see the shape change." : ""}`);
+      html += say(`The shape is the Central Limit Theorem proper. Skewness of the sample means falls from ${fmt(sk0, 3)} at n = ${ns[0]} to ${fmt(skL, 3)} at n = ${ns[ns.length - 1]}. ${skL < 0.5 ? "By the largest n the sampling distribution is close to normal even though the population is not." : "Even at the largest n here some skew remains, which is what a badly skewed population or a small n does to the approximation."} The usual n at least 30 is a rule of thumb, not a law: a heavily skewed population needs more, a nearly normal one needs less.`);
+      const cd = card("The Central Limit Theorem", `${popLabel}, n = ${ns.join(", ")}`, html);
+      if (v.pop !== "prop") plotDiv(cd, [{ x: pop.slice(0, 5000), type: "histogram", name: "population", marker: { color: "#3A7CA5" } }], { title: "The population, which need not be normal", xaxis: { title: "value" }, yaxis: { title: "Count" } }, 230);
+      plotDiv(cd, traces, { barmode: "overlay", title: "Sampling distribution of the sample mean at each n", xaxis: { title: "sample mean" }, yaxis: { title: "density" }, shapes: [{ type: "line", x0: pm, x1: pm, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash" } }] }, 300);
+    });
+  }
+
+  // ================= Learn: what a confidence interval means =================
+  function ciDemoUI() {
+    dialog("Learn: What a confidence interval means", [
+      sel("kind", "Parameter", [["mean", "a mean (t interval, sigma is not given)"], ["prop", "a proportion (z interval)"]], "mean"),
+      { name: "mu", label: "True population mean", type: "number", value: 100, group: "The population, which only you can see" },
+      { name: "sigma", label: "True population SD", type: "number", value: 15, group: "The population, which only you can see" },
+      { name: "p", label: "True population proportion", type: "number", value: 0.4, group: "The population, which only you can see" },
+      { name: "n", label: "Sample size n", type: "number", value: 25 },
+      confField,
+      { name: "reps", label: "How many samples, each giving one interval", type: "number", value: 100 }], (v) => {
+      const conf = Number(v.conf), reps = Math.max(20, Math.min(Math.round(v.reps), 2000)), n = Math.max(2, Math.round(v.n));
+      const isMean = v.kind === "mean";
+      const truth = isMean ? v.mu : v.p;
+      if (!isMean && !(v.p > 0 && v.p < 1)) throw new Error("The true proportion must be between 0 and 1.");
+      if (isMean && !(v.sigma > 0)) throw new Error("The true population SD must be above 0.");
+      const lo = [], hi = [], mid = [], caught = [];
+      for (let r = 0; r < reps; r++) {
+        let c, me;
+        if (isMean) {
+          const s = Array.from({ length: n }, () => SW.rnorm(v.mu, v.sigma));
+          c = SW.mean(s); me = SW.qt(1 - (1 - conf) / 2, n - 1) * (SW.sd(s) / Math.sqrt(n));
+        } else {
+          let x = 0; for (let i = 0; i < n; i++) if (Math.random() < v.p) x++;
+          c = x / n; me = SW.qnorm(1 - (1 - conf) / 2) * Math.sqrt((c * (1 - c)) / n);
+        }
+        mid.push(c); lo.push(c - me); hi.push(c + me); caught.push(c - me <= truth && truth <= c + me);
+      }
+      const hits = caught.filter(Boolean).length;
+      let html = table(["Confidence level", "Intervals built", "Intervals containing the truth", "Actual capture rate"], [[conf, reps, hits, hits / reps]], isMean ? `True mean ${fmt(truth)}, n = ${n}, t interval with ${n - 1} degrees of freedom` : `True proportion ${fmt(truth)}, n = ${n}, z interval`);
+      html += formula(isMean ? "x bar plus or minus t* s / sqrt(n), with df = n - 1; sigma is not given, so t, not z" : "p hat plus or minus z* sqrt(p hat (1 - p hat) / n)");
+      html += say(`Each sample gives a different interval. ${hits} of the ${reps} intervals cover the true value of ${fmt(truth)}, a capture rate of ${fmt((100 * hits) / reps, 1)} percent against the ${fmt(100 * conf, 0)} percent claimed. Run it again and that number moves around; the claim is about the long run, not about any one run.`);
+      html += say(`This is the sentence to take away. The truth is a fixed number and it never moves: it is the vertical line, in the same place on every row. What moves is the interval. So ${fmt(100 * conf, 0)} percent confidence means that <em>the method</em> catches the truth ${fmt(100 * conf, 0)} percent of the time, not that any particular interval has a ${fmt(100 * conf, 0)} percent chance of containing it. Once your interval is computed it either contains the truth or it does not, and you cannot tell which.`);
+      if (isMean && n < 30) html += warn(`With n = ${n} this demo samples from a normal population, so the t interval is exact. With a skewed population and an n this small the capture rate would fall below the stated level, which is the real reason the conditions matter.`);
+      if (!isMean && (n * truth < 10 || n * (1 - truth) < 10)) html += warn(`n p = ${fmt(n * truth, 1)} and n (1 - p) = ${fmt(n * (1 - truth), 1)}. At least one is under 10, so the normal approximation is shaky here and the capture rate will sit below the stated level. That is the condition doing its job.`);
+      const cd = card("What a confidence interval means", `${fmt(100 * conf, 0)} percent, ${reps} samples of n = ${n}`, html);
+      const show = Math.min(reps, 120);
+      const mk = (want, color, nm) => { const ix = []; const x = [], ey = []; for (let i = 0; i < show; i++) if (caught[i] === want) { ix.push(i + 1); x.push(mid[i]); ey.push(hi[i] - mid[i]); } return { x, y: ix, type: "scatter", mode: "markers", name: nm, marker: { color, size: 5 }, error_x: { type: "data", array: ey, color, thickness: 1.4, width: 0 } }; };
+      plotDiv(cd, [mk(true, "#3A7CA5", "contains the truth"), mk(false, "#C4453B", "misses")], { title: `The first ${show} intervals; the truth never moves`, xaxis: { title: isMean ? "interval for the mean" : "interval for the proportion" }, yaxis: { title: "sample number", autorange: "reversed" }, shapes: [{ type: "line", x0: truth, x1: truth, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash" } }] }, 420);
+    });
+  }
+
+  // ================= Learn: what a p-value is =================
+  function pvalDemoUI() {
+    dialog("Learn: What a p-value is", [
+      sel("kind", "Situation", [["prop", "a proportion: H0 says p equals p0"], ["mean", "a mean: H0 says mu equals mu0"]], "prop"),
+      { name: "p0", label: "p0, the value H0 claims", type: "number", value: 0.5, group: "If H0 were true" },
+      { name: "mu0", label: "mu0, the value H0 claims", type: "number", value: 100, group: "If H0 were true" },
+      { name: "sigma", label: "Population SD to simulate with", type: "number", value: 15, group: "If H0 were true" },
+      { name: "n", label: "Sample size n", type: "number", value: 40, group: "What you actually saw" },
+      { name: "x", label: "Successes observed (for a proportion)", type: "number", value: 26, group: "What you actually saw" },
+      { name: "xbar", label: "Sample mean observed (for a mean)", type: "number", value: 105, group: "What you actually saw" },
+      sel("alt", "Alternative", [["two", "not equal to the claim (two sided)"], ["greater", "greater than the claim"], ["less", "less than the claim"]], "two"),
+      { name: "reps", label: "Samples simulated under H0", type: "number", value: 5000 },
+      alphaField], (v) => {
+      const isProp = v.kind === "prop", reps = Math.max(500, Math.min(Math.round(v.reps), 50000)), n = Math.max(2, Math.round(v.n)), alpha = Number(v.alpha);
+      const claim = isProp ? v.p0 : v.mu0;
+      if (isProp && !(v.p0 > 0 && v.p0 < 1)) throw new Error("p0 must be between 0 and 1.");
+      const obs = isProp ? v.x / n : v.xbar;
+      if (isProp && (v.x < 0 || v.x > n)) throw new Error("The number of successes must be between 0 and n.");
+      const stats = new Array(reps);
+      for (let r = 0; r < reps; r++) {
+        if (isProp) { let c = 0; for (let i = 0; i < n; i++) if (Math.random() < v.p0) c++; stats[r] = c / n; }
+        else { let s = 0; for (let i = 0; i < n; i++) s += SW.rnorm(v.mu0, v.sigma); stats[r] = s / n; }
+      }
+      const dObs = Math.abs(obs - claim);
+      const extreme = stats.filter((s) => (v.alt === "two" ? Math.abs(s - claim) >= dObs - 1e-12 : v.alt === "greater" ? s >= obs - 1e-12 : s <= obs + 1e-12)).length;
+      const pSim = extreme / reps;
+      let pTheory, pExact = null, statLabel, se;
+      if (isProp) {
+        se = Math.sqrt((v.p0 * (1 - v.p0)) / n); const z = (obs - v.p0) / se; pTheory = SW.pvalue(z, v.alt, SW.pnorm); statLabel = `z = ${fmt(z)}`;
+        const xObs = Math.round(v.x), hiTail = (k) => { let s = 0; for (let i = k; i <= n; i++) s += SW.dbinom(i, n, v.p0); return Math.min(1, s); }, loTail = (k) => { let s = 0; for (let i = 0; i <= k; i++) s += SW.dbinom(i, n, v.p0); return Math.min(1, s); };
+        if (v.alt === "greater") pExact = hiTail(xObs);
+        else if (v.alt === "less") pExact = loTail(xObs);
+        else { const d = Math.abs(xObs - n * v.p0); pExact = Math.min(1, loTail(Math.floor(n * v.p0 - d + 1e-9)) + hiTail(Math.ceil(n * v.p0 + d - 1e-9))); }
+      } else { se = v.sigma / Math.sqrt(n); const z = (obs - v.mu0) / se; pTheory = SW.pvalue(z, v.alt, SW.pnorm); statLabel = `z = ${fmt(z)}, using the sigma this simulation was given`; }
+      const headers = ["H0 claims", "What you observed", "Samples simulated under H0", "As extreme or more", "Simulated p"].concat(isProp ? ["Exact binomial p", "z formula p"] : ["z formula p"]);
+      const row = [claim, obs, reps, extreme, pSim].concat(isProp ? [pExact, pTheory] : [pTheory]);
+      let html = table(headers, [row], isProp ? `${Math.round(v.x)} successes in ${n} trials, p hat = ${fmt(obs, 4)}` : `x bar = ${fmt(obs, 4)} from n = ${n}`);
+      html += formula("p-value = P(a result at least this extreme | H0 is true)");
+      html += say(`Read the simulation out loud and the definition stops being abstract. We forced H0 to be true, drew ${reps} fresh samples from that world, and ${extreme} of them landed at least as far from ${fmt(claim)} as your ${fmt(obs, 4)} did. That fraction, ${fmt(pSim, 4)}, is the p-value. Here ${statLabel}.`);
+      const best = isProp ? pExact : pTheory;
+      if (isProp) {
+        const gap = Math.abs(pSim - pTheory), gapE = Math.abs(pSim - pExact);
+        html += say(`Three numbers, and they are not the same thing. The simulation gives ${fmt(pSim, 4)}. The exact binomial gives ${fmt(pExact, 4)}, and the simulation is estimating exactly that number, so the two sit within ${fmt(gapE, 4)} of each other and would close further with more samples. The z formula gives ${fmt(pTheory, 4)}.`);
+        if (gap > 0.01) html += warn(`The z formula is off by ${fmt(gap, 4)} here, and that is not simulation noise. Counts come in whole numbers, so the true distribution is a staircase, while z treats it as a smooth curve. With n = ${n} the steps are still wide enough to matter. The exact binomial is the trustworthy number; z is the hand calculation that gets close and gets closer as n grows. Report the exact one when they disagree, and use this as the reason the textbook keeps insisting on n p and n (1 - p) at least 10. Here n p0 = ${fmt(n * v.p0, 1)} and n (1 - p0) = ${fmt(n * (1 - v.p0), 1)}.`);
+        else html += say(`Here the z formula sits within ${fmt(gap, 4)} of the simulation, so the normal approximation is doing its job at this n.`);
+      }
+      html += say(decision(best, alpha));
+      html += warn(`What the p-value is not. It is not the probability that H0 is true, and it is not the probability you made a mistake. It is computed <em>assuming</em> H0 is true, so it can say nothing about how likely that assumption is. A small p says the data would be surprising in that world. It does not say the effect is large or that it matters: with a big enough n a trivial difference produces a tiny p.`);
+      const cd = card("What a p-value is", `${reps} samples drawn with H0 true`, html);
+      const cut = v.alt === "two" ? [claim - dObs, claim + dObs] : v.alt === "greater" ? [obs] : [obs];
+      const inTail = stats.filter((s) => (v.alt === "two" ? Math.abs(s - claim) >= dObs - 1e-12 : v.alt === "greater" ? s >= obs - 1e-12 : s <= obs + 1e-12));
+      const inBody = stats.filter((s) => !(v.alt === "two" ? Math.abs(s - claim) >= dObs - 1e-12 : v.alt === "greater" ? s >= obs - 1e-12 : s <= obs + 1e-12));
+      plotDiv(cd, [
+        { x: inBody, type: "histogram", name: "not that extreme", marker: { color: "#8FB8D0" }, nbinsx: 60 },
+        { x: inTail, type: "histogram", name: "as extreme or more", marker: { color: "#C4453B" }, nbinsx: 60 }], {
+        barmode: "overlay", title: `What H0 predicts, and where your result fell`, xaxis: { title: isProp ? "sample proportion if H0 were true" : "sample mean if H0 were true" }, yaxis: { title: "Count" },
+        shapes: cut.map((c) => ({ type: "line", x0: c, x1: c, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash" } })),
+        annotations: [{ x: obs, y: 1, yref: "paper", yanchor: "bottom", text: `you saw ${fmt(obs, 4)}`, showarrow: false, font: { color: "#1A3A4D" } }]
+      }, 300);
+    });
+  }
+
   // ================= Data menu =================
   function openFile() { $("#fileInput").click(); }
   $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; f.text().then((t) => loadTable(f.name.replace(/\.[^.]+$/, ""), parseCSV(t))); e.target.value = ""; });
@@ -1195,7 +1368,7 @@
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
-    ["Learn", [["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: what a p-value is", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
+    ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
