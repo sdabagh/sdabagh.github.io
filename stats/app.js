@@ -512,9 +512,14 @@
       let t, from = "counts", rn = "rows", cn = "columns";
       if (v.mode === "data") { t = SW.twoWay(col(v.r), col(v.c)); rn = v.r; cn = v.c; from = src(`${v.r} by ${v.c}`); }
       else { const rows = parseCSV(v.tbl); if (rows.length < 3) throw new Error("Need a header row and at least two rows of counts."); cn = rows[0][0] || "columns"; const rv = [], cv = []; rows.slice(1).forEach((r) => rows[0].slice(1).forEach((c, j) => { const n = Number(r[j + 1]); for (let k = 0; k < n; k++) { rv.push(r[0]); cv.push(c); } })); t = SW.twoWay(rv, cv); }
-      const cell = (i, j) => { const o = t.O[i][j]; const parts = []; if (v.obs) parts.push(String(o)); if (v.exp) parts.push(`E ${fmt(t.E[i][j], 2)}`); if (v.pcRow) parts.push(`${fmt((100 * o) / t.rt[i], 1)}% row`); if (v.pcCol) parts.push(`${fmt((100 * o) / t.ct[j], 1)}% col`); if (v.pcTot) parts.push(`${fmt((100 * o) / t.n, 1)}% total`); return parts.join(" | "); };
+      // With every box under Cells and Percentages unchecked the table used to come out with
+      // empty cells and nothing but the totals, which reads as a broken table. Fall back to the
+      // observed counts and say so.
+      const noCellOption = !v.obs && !v.exp && !v.pcRow && !v.pcCol && !v.pcTot;
+      const cell = (i, j) => { const o = t.O[i][j]; const parts = []; if (v.obs || noCellOption) parts.push(String(o)); if (v.exp) parts.push(`E ${fmt(t.E[i][j], 2)}`); if (v.pcRow) parts.push(`${fmt((100 * o) / t.rt[i], 1)}% row`); if (v.pcCol) parts.push(`${fmt((100 * o) / t.ct[j], 1)}% col`); if (v.pcTot) parts.push(`${fmt((100 * o) / t.n, 1)}% total`); return parts.join(" | "); };
       const rows = t.rows.map((r, i) => [r].concat(t.cols.map((_, j) => cell(i, j)), [t.rt[i]])); rows.push(["Total"].concat(t.ct, [t.n]));
       let html = table([rn + " \\ " + cn].concat(t.cols, ["Total"]), rows, "Contingency Tables");
+      if (noCellOption) html += warn("Nothing was ticked under Cells or Percentages, so the table would have had empty cells. Observed counts are shown. Tick what you want in each cell and run it again.");
       if (v.mode === "data") { const dropped = col(v.r).length - t.n; if (dropped > 0) html += warn(`${dropped} row${dropped > 1 ? "s" : ""} with a blank in ${rn} or ${cn} were left out of the whole table, so N = ${t.n}. Every percentage here is on that base.`); }
       html += say("A row percentage is a conditional probability given the row; a total percentage is the 'and' probability. Under independence every row shows the same percentages.");
       if (v.chi) {
