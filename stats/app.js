@@ -1072,6 +1072,48 @@
       plotDiv(cd, [{ x: t.map((q) => q.k), y: t.map((q) => q.p), type: "bar", marker: { color: t.map((q) => (inRange(q.k) ? "#C0392B" : "#3A7CA5")) } }], { xaxis: { title: "x", dtick: 1 }, yaxis: { title: "probability" } });
     });
   }
+  function discreteCalc() {
+    const hasData = D.rows.length > 0;
+    const guess = (re) => numCols().find((c) => re.test(String(c).trim()));
+    dialog("distrACTION: Custom (discrete distribution)", [hasData ? sel("mode", "Distribution", [["data", "from an x column and a P(x) column in the data"], ["custom", "typed here: x values and P(x)"]], guess(/^x$/i) && guess(/^p/i) ? "data" : "custom") : null,
+      { name: "xs", label: "x values, comma separated", type: "text", value: "0, 1, 2, 3", group: "Typed here" }, { name: "ps", label: "P(x) values, comma separated, same order", type: "text", value: "0.1, 0.3, 0.4, 0.2", group: "Typed here" },
+      hasData ? Object.assign(selNum("xc", "x column"), { value: guess(/^x$/i), group: "Columns" }) : null, hasData ? Object.assign(selNum("pc", "P(x) column"), { value: guess(/^p/i), group: "Columns" }) : null,
+      sel("kind", "Compute probability", [["none", "none, just the mean and SD"], ["eq", "P(X = x1)"], ["lt", "P(X less than x1)"], ["le", "P(X at most x1)"], ["gt", "P(X more than x1)"], ["ge", "P(X at least x1)"], ["between", "P(x1 at most X at most x2)"]], "none"), { name: "k", label: "x1", type: "number", value: "" }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
+      const list = (s) => String(s).split(",").map((q) => q.trim()).filter((q) => q !== "");
+      let xr, pr, from = "custom";
+      if (v.mode === "data") { const a = col(v.xc), b = col(v.pc); xr = []; pr = []; a.forEach((q, i) => { if (q !== "" && b[i] !== "") { xr.push(q); pr.push(b[i]); } }); from = src(`${v.xc} with P(x) in ${v.pc}`); }
+      else { xr = list(v.xs); pr = list(v.ps); }
+      const x = xr.map(Number), p = pr.map(Number);
+      if (x.length !== p.length) throw new Error(`There are ${x.length} x values but ${p.length} P(x) values. Each x needs exactly one probability.`);
+      if (x.length < 2) throw new Error("Enter at least two x values.");
+      if (x.some((q) => !Number.isFinite(q))) throw new Error("Every x value must be a number.");
+      if (p.some((q) => !Number.isFinite(q))) throw new Error("Every P(x) must be a number: type a decimal such as 0.25, not a percent or a fraction.");
+      if (p.some((q) => q < 0 || q > 1)) throw new Error(p.some((q) => q > 1) ? "Every P(x) must be between 0 and 1. If you typed percents, change 25 to 0.25." : "Every P(x) must be between 0 and 1. A probability cannot be negative.");
+      if (new Set(x).size !== x.length) throw new Error("Each x value may appear only once. Add the probabilities of repeated values together.");
+      const sum = p.reduce((s, q) => s + q, 0);
+      if (Math.abs(sum - 1) > 0.01) throw new Error(`The probabilities add to ${fmt(sum)}, not 1. A probability distribution must add to exactly 1. Check for a missing value or a typo.`);
+      const t = x.map((q, i) => ({ x: q, p: p[i] })).sort((a, b) => a.x - b.x);
+      const mu = t.reduce((s, q) => s + q.x * q.p, 0) / sum, vr = t.reduce((s, q) => s + (q.x - mu) * (q.x - mu) * q.p, 0) / sum, sd = Math.sqrt(vr);
+      let cum = 0; const rows = t.map((q) => { cum += q.p; return [q.x, q.p, cum, q.x * q.p, (q.x - mu) * (q.x - mu) * q.p]; });
+      let html = Math.abs(sum - 1) > 1e-9 ? warn(`The probabilities add to ${fmt(sum)}, close to 1 but not exactly. That is usually rounding; the results divide by this total.`) : "";
+      html += table(["Mean (expected value)", "Variance", "SD"], [[mu, vr, sd]], "Mean and standard deviation of X");
+      let inRange = () => false;
+      if (v.kind !== "none") {
+        if (!Number.isFinite(v.k)) throw new Error("Type a value for x1.");
+        if (v.kind === "between" && !(Number.isFinite(v.b) && v.b >= v.k)) throw new Error("For between, x2 must be a number at least as large as x1.");
+        inRange = (q) => (v.kind === "eq" ? q === v.k : v.kind === "lt" ? q < v.k : v.kind === "le" ? q <= v.k : v.kind === "gt" ? q > v.k : v.kind === "ge" ? q >= v.k : q >= v.k && q <= v.b);
+        const label = { eq: `P(X = ${v.k})`, lt: `P(X < ${v.k})`, le: `P(X <= ${v.k})`, gt: `P(X > ${v.k})`, ge: `P(X >= ${v.k})`, between: `P(${v.k} <= X <= ${v.b})` }[v.kind];
+        const hit = t.filter((q) => inRange(q.x)), prob = hit.reduce((s, q) => s + q.p, 0);
+        html += table(["Probability", "Value", "Adds P(x) for x ="], [[label, prob, hit.length ? hit.map((q) => q.x).join(", ") : "none"]], "Probability");
+        if (v.kind === "eq" && !hit.length) html += say(`${v.k} is not one of the x values, so its probability is 0.`);
+      }
+      html += table(["x", "P(x)", "P(X <= x)", "x P(x)", "(x minus mean)^2 P(x)"], rows.concat([["Total", sum, "", mu * sum, vr * sum]]), "Work table (by hand method)");
+      html += formula("Mean = sum of x P(x). Variance = sum of (x minus mean)^2 P(x). SD = square root of the variance. Each P(x) is between 0 and 1 and they add to 1.");
+      html += say(`Over many repetitions, X averages about ${fmt(mu, 3)}, and a typical value is about ${fmt(sd, 3)} away from that mean.`);
+      const cd = card("Custom Discrete Distribution", from === "custom" ? `x = ${t.map((q) => q.x).join(", ")}` : from, html);
+      plotDiv(cd, [{ x: t.map((q) => q.x), y: t.map((q) => q.p), type: "bar", marker: { color: t.map((q) => (inRange(q.x) ? "#C0392B" : "#3A7CA5")) }, showlegend: false }], { xaxis: { title: "x", type: "linear", dtick: t.every((q) => Number.isInteger(q.x)) && t[t.length - 1].x - t[0].x <= 30 ? 1 : undefined }, yaxis: { title: "P(x)", rangemode: "tozero" }, shapes: [{ type: "line", x0: mu, x1: mu, yref: "paper", y0: 0, y1: 1, line: { color: "#1A3A4D", dash: "dash" } }], annotations: [{ x: mu, yref: "paper", y: 1.06, text: `mean ${fmt(mu, 3)}`, showarrow: false }] });
+    });
+  }
   function normalCalc() {
     dialog("distrACTION: Normal Distribution", [{ name: "mu", label: "Mean", type: "number", value: 0, group: "Parameters" }, { name: "sd", label: "SD", type: "number", value: 1, group: "Parameters" },
       sel("kind", "Compute", [["below", "probability: P(X at most x1)"], ["above", "probability: P(X at least x1)"], ["between", "probability: P(x1 at most X at most x2)"], ["q", "quantile: the x with cumulative probability p"]], "below"), { name: "a", label: "x1 (or p for a quantile)", type: "number", value: 1 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
@@ -1371,7 +1413,7 @@
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
-    ["distrACTION", [["Binomial Distribution", binomCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
+    ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
