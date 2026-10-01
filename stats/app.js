@@ -1114,6 +1114,99 @@
       plotDiv(cd, [{ x: t.map((q) => q.x), y: t.map((q) => q.p), type: "bar", marker: { color: t.map((q) => (inRange(q.x) ? "#C0392B" : "#3A7CA5")) }, showlegend: false }], { xaxis: { title: "x", type: "linear", dtick: t.every((q) => Number.isInteger(q.x)) && t[t.length - 1].x - t[0].x <= 30 ? 1 : undefined }, yaxis: { title: "P(x)", rangemode: "tozero" }, shapes: [{ type: "line", x0: mu, x1: mu, yref: "paper", y0: 0, y1: 1, line: { color: "#1A3A4D", dash: "dash" } }], annotations: [{ x: mu, yref: "paper", y: 1.06, text: `mean ${fmt(mu, 3)}`, showarrow: false }] });
     });
   }
+  // shared output for a discrete distribution given its pmf on whole numbers from lo to hi (hi may be Infinity)
+  const probKinds = () => sel("kind", "Compute probability", [["none", "none, just the mean and SD"], ["eq", "P(X = x1)"], ["lt", "P(X less than x1)"], ["le", "P(X at most x1)"], ["gt", "P(X more than x1)"], ["ge", "P(X at least x1)"], ["between", "P(x1 at most X at most x2)"]], "none");
+  const x1x2 = () => [{ name: "k", label: "x1", type: "number", value: "" }, { name: "b", label: "x2", type: "number", value: "" }];
+  function discreteOut(title, meta, pmf, lo, hi, mu, vr, v, note) {
+    const cdf = (c) => { if (c < lo) return 0; if (c >= hi) return 1; let s = 0; for (let x = lo; x <= Math.floor(c); x++) s += pmf(x); return Math.min(1, s); };
+    let html = table(["Mean (expected value)", "Variance", "SD"], [[mu, vr, Math.sqrt(vr)]], "Mean and standard deviation of X");
+    let inRange = () => false;
+    if (v.kind !== "none") {
+      const k = v.k, b = v.b;
+      if (!Number.isFinite(k)) throw new Error("Type a value for x1.");
+      if (v.kind === "between" && !(Number.isFinite(b) && b >= k)) throw new Error("For between, x2 must be a number at least as large as x1.");
+      const below = (c) => cdf(Math.ceil(c) - 1); // P(X < c)
+      const prob = { eq: Number.isInteger(k) && k >= lo && k <= hi ? pmf(k) : 0, lt: below(k), le: cdf(k), gt: 1 - cdf(k), ge: 1 - below(k), between: cdf(b) - below(k) }[v.kind];
+      inRange = (x) => (v.kind === "eq" ? x === k : v.kind === "lt" ? x < k : v.kind === "le" ? x <= k : v.kind === "gt" ? x > k : v.kind === "ge" ? x >= k : x >= k && x <= b);
+      const label = { eq: `P(X = ${k})`, lt: `P(X < ${k})`, le: `P(X <= ${k})`, gt: `P(X > ${k})`, ge: `P(X >= ${k})`, between: `P(${k} <= X <= ${b})` }[v.kind];
+      html += table(["Probability", "Value"], [[label, Math.max(0, Math.min(1, prob))]], "Probability");
+      if (v.kind === "eq" && !(Number.isInteger(k) && k >= lo && k <= hi)) html += say(`${k} is not a possible value of X, so its probability is 0.`);
+    }
+    // table and graph: whole support if finite and short, else until 99.99 percent is covered (and past x1, x2)
+    const xs = []; let cum = 0; const stopAt = Math.max(Number.isFinite(v.k) ? v.k : lo, Number.isFinite(v.b) ? v.b : lo);
+    for (let x = lo; x <= hi && xs.length < 200; x++) { const p = pmf(x); cum += p; xs.push({ x, p, cum }); if (!Number.isFinite(hi) && cum > 0.9999 && x >= stopAt) break; }
+    if (note) html += note;
+    html += `<details><summary>Full table</summary>${table(["x", "P(X = x)", "P(X <= x)"], xs.map((q) => [q.x, q.p, Math.min(1, q.cum)]))}${!Number.isFinite(hi) || xs[xs.length - 1].x < hi ? `<div class="note">Values above ${xs[xs.length - 1].x} have total probability ${fmt(Math.max(0, 1 - cum), 6)} and are not listed.</div>` : ""}</details>`;
+    const cd = card(title, meta, html);
+    plotDiv(cd, [{ x: xs.map((q) => q.x), y: xs.map((q) => q.p), type: "bar", marker: { color: xs.map((q) => (inRange(q.x) ? "#C0392B" : "#3A7CA5")) }, showlegend: false }], { xaxis: { title: "x", dtick: xs.length <= 30 ? 1 : undefined }, yaxis: { title: "P(X = x)", rangemode: "tozero" }, shapes: [{ type: "line", x0: mu, x1: mu, yref: "paper", y0: 0, y1: 1, line: { color: "#1A3A4D", dash: "dash" } }], annotations: [{ x: mu, yref: "paper", y: 1.06, text: `mean ${fmt(mu, 3)}`, showarrow: false }] });
+  }
+  const lfact = (n) => jStat.gammaln(n + 1), lch = (n, k) => lfact(n) - lfact(k) - lfact(n - k);
+  function poissonCalc() {
+    dialog("distrACTION: Poisson Distribution", [{ name: "lam", label: "Mean number of events, lambda (mu)", type: "number", value: 3, group: "Parameters" }, probKinds(), ...x1x2()], (v) => {
+      const l = v.lam; if (!(l > 0)) throw new Error("Lambda must be a positive number: the average count per interval.");
+      discreteOut("Poisson Distribution", `lambda = ${l}`, (x) => Math.exp(-l + x * Math.log(l) - lfact(x)), 0, Infinity, l, l, v,
+        formula("P(X = x) = e^(minus lambda) lambda^x / x!; mean lambda, SD sqrt(lambda). Use for counts of events in a fixed interval when events happen independently at a steady rate."));
+    });
+  }
+  function geometricCalc() {
+    dialog("distrACTION: Geometric Distribution", [{ name: "p", label: "Probability of success on each trial", type: "number", value: 0.2, group: "Parameters" }, sel("form", "X counts", [["trials", "trials up to and including the first success (1, 2, 3, ...)"], ["fails", "failures before the first success (0, 1, 2, ...)"]], "trials"), probKinds(), ...x1x2()], (v) => {
+      const p = v.p; if (!(p > 0 && p <= 1)) throw new Error("Probability of success must be above 0 and at most 1: type a decimal such as 0.2, not a percent.");
+      const tr = v.form === "trials", lo = tr ? 1 : 0;
+      discreteOut("Geometric Distribution", `p = ${p}, X = ${tr ? "trials until the first success" : "failures before the first success"}`, (x) => (p === 1 ? (x === lo ? 1 : 0) : Math.exp((x - lo) * Math.log(1 - p)) * p), lo, Infinity, tr ? 1 / p : (1 - p) / p, (1 - p) / (p * p), v,
+        formula(tr ? "P(X = x) = (1 minus p)^(x minus 1) p for x = 1, 2, 3, ...; mean 1/p, SD sqrt(1 minus p)/p." : "P(X = x) = (1 minus p)^x p for x = 0, 1, 2, ...; mean (1 minus p)/p, SD sqrt(1 minus p)/p."));
+    });
+  }
+  function hyperCalc() {
+    dialog("distrACTION: Hypergeometric Distribution", [{ name: "N", label: "Population size N", type: "number", value: 50, group: "Parameters" }, { name: "K", label: "Successes in the population", type: "number", value: 10, group: "Parameters" }, { name: "n", label: "Sample size n (drawn without replacement)", type: "number", value: 5, group: "Parameters" }, probKinds(), ...x1x2()], (v) => {
+      const { N, K, n } = v; const whole = (q) => Number.isInteger(q) && q >= 0;
+      if (!whole(N) || !whole(K) || !whole(n) || N < 1) throw new Error("N, the number of successes and n must be whole numbers.");
+      if (K > N || n > N) throw new Error("The successes and the sample size cannot be larger than the population.");
+      const lo = Math.max(0, n - (N - K)), hi = Math.min(n, K), q = K / N;
+      discreteOut("Hypergeometric Distribution", `N = ${N}, successes = ${K}, n = ${n}`, (x) => (x < lo || x > hi ? 0 : Math.exp(lch(K, x) + lch(N - K, n - x) - lch(N, n))), lo, hi, n * q, N > 1 ? n * q * (1 - q) * (N - n) / (N - 1) : 0, v,
+        formula("P(X = x) = C(K, x) C(N minus K, n minus x) / C(N, n); mean n K/N; variance n (K/N)(1 minus K/N)(N minus n)/(N minus 1). Like the binomial, but sampling without replacement, so p changes from draw to draw."));
+    });
+  }
+  function dunifCalc() {
+    dialog("distrACTION: Discrete Uniform Distribution", [{ name: "a", label: "Smallest value (whole number)", type: "number", value: 1, group: "Parameters" }, { name: "c", label: "Largest value (whole number)", type: "number", value: 6, group: "Parameters" }, probKinds(), ...x1x2()], (v) => {
+      const a = v.a, c = v.c; if (!Number.isInteger(a) || !Number.isInteger(c) || c <= a) throw new Error("Type two whole numbers with the largest above the smallest (a fair die: 1 and 6).");
+      if (c - a > 5000) throw new Error("Keep the range to 5000 values or fewer.");
+      const m = c - a + 1;
+      discreteOut("Discrete Uniform Distribution", `whole numbers ${a} to ${c}`, () => 1 / m, a, c, (a + c) / 2, (m * m - 1) / 12, v,
+        formula("Every whole number from a to b is equally likely: P(X = x) = 1/(b minus a + 1); mean (a + b)/2; variance ((b minus a + 1)^2 minus 1)/12."));
+    });
+  }
+  // continuous: uniform and exponential, same layout as the normal calculator
+  function contOut(title, meta, pdf, cdf, quant, mu, sd, xmin, xmax, v, note) {
+    if (v.kind === "q" && !(v.a > 0 && v.a < 1)) throw new Error("For a quantile, x1 holds the cumulative probability p: type a decimal between 0 and 1 such as 0.90.");
+    if (v.kind === "between" && !(v.b >= v.a)) throw new Error("x2 must be at least x1.");
+    if (!Number.isFinite(v.a)) throw new Error("Type a value for x1.");
+    let res, label, lo = -Infinity, hi = Infinity;
+    if (v.kind === "below") { res = cdf(v.a); label = `P(X <= ${v.a})`; hi = v.a; } else if (v.kind === "above") { res = 1 - cdf(v.a); label = `P(X >= ${v.a})`; lo = v.a; } else if (v.kind === "between") { res = cdf(v.b) - cdf(v.a); label = `P(${v.a} <= X <= ${v.b})`; lo = v.a; hi = v.b; } else { res = quant(v.a); label = `x at cumulative probability ${v.a}`; hi = res; }
+    let html = table(["Mean", "SD"], [[mu, sd]], "Mean and standard deviation of X") + table([v.kind === "q" ? "Quantile" : "Probability", "Value"], [[label, res]], v.kind === "q" ? "Quantile" : "Probability") + note;
+    const cd = card(title, meta, html);
+    const xs = []; for (let i = 0; i <= 300; i++) xs.push(xmin + (xmax - xmin) * i / 300);
+    [lo, hi].forEach((e) => { if (e > xmin && e < xmax) xs.push(e, e); }); xs.sort((p, q) => p - q);
+    const ys = xs.map(pdf), inS = (x) => x >= lo && x <= hi;
+    plotDiv(cd, [{ x: xs, y: ys, type: "scatter", mode: "lines", line: { color: "#1A3A4D", shape: "linear" }, showlegend: false }, { x: xs.filter(inS), y: ys.filter((_, i) => inS(xs[i])), fill: "tozeroy", type: "scatter", mode: "lines", line: { color: "#C0392B" }, fillcolor: "rgba(192,57,43,.35)", showlegend: false }], { xaxis: { title: "x" }, yaxis: { title: "density", rangemode: "tozero" } });
+  }
+  const contKinds = () => sel("kind", "Compute", [["below", "probability: P(X at most x1)"], ["above", "probability: P(X at least x1)"], ["between", "probability: P(x1 at most X at most x2)"], ["q", "quantile: the x with cumulative probability p"]], "below");
+  const a1b2 = () => [{ name: "a", label: "x1 (or p for a quantile)", type: "number", value: "" }, { name: "b", label: "x2", type: "number", value: "" }];
+  function unifCalc() {
+    dialog("distrACTION: Uniform Distribution (continuous)", [{ name: "lo", label: "Minimum a", type: "number", value: 0, group: "Parameters" }, { name: "hi", label: "Maximum b", type: "number", value: 10, group: "Parameters" }, contKinds(), ...a1b2()], (v) => {
+      const a = v.lo, b = v.hi; if (!(Number.isFinite(a) && b > a)) throw new Error("The maximum must be larger than the minimum.");
+      const cdf = (x) => (x <= a ? 0 : x >= b ? 1 : (x - a) / (b - a)), w = b - a;
+      contOut("Uniform Distribution", `a = ${a}, b = ${b}`, (x) => (x < a || x > b ? 0 : 1 / w), cdf, (p) => a + p * w, (a + b) / 2, w / Math.sqrt(12), a - 0.15 * w, b + 0.15 * w, v,
+        formula("Density 1/(b minus a) between a and b, so a probability is a rectangle: (length of the interval) / (b minus a). Mean (a + b)/2, SD (b minus a)/sqrt(12)."));
+    });
+  }
+  function expCalc() {
+    dialog("distrACTION: Exponential Distribution", [{ name: "m", label: "Mean (average time between events)", type: "number", value: 5, group: "Parameters", hint: "If you are given a rate lambda, the mean is 1/lambda." }, contKinds(), ...a1b2()], (v) => {
+      const m = v.m; if (!(m > 0)) throw new Error("The mean must be a positive number.");
+      const r = 1 / m, cdf = (x) => (x <= 0 ? 0 : 1 - Math.exp(-r * x));
+      contOut("Exponential Distribution", `mean = ${m}, rate lambda = ${fmt(r)}`, (x) => (x < 0 ? 0 : r * Math.exp(-r * x)), cdf, (p) => -Math.log(1 - p) * m, m, m, 0, Math.max(m * 6, Number.isFinite(v.b) ? v.b * 1.1 : 0, v.kind !== "q" && Number.isFinite(v.a) ? v.a * 1.1 : 0), v,
+        formula("Density lambda e^(minus lambda x) for x at least 0, with lambda = 1/mean. P(X <= x) = 1 minus e^(minus x/mean). Mean and SD are both equal to the mean. Memoryless: the wait so far does not change the wait still to come."));
+    });
+  }
   function normalCalc() {
     dialog("distrACTION: Normal Distribution", [{ name: "mu", label: "Mean", type: "number", value: 0, group: "Parameters" }, { name: "sd", label: "SD", type: "number", value: 1, group: "Parameters" },
       sel("kind", "Compute", [["below", "probability: P(X at most x1)"], ["above", "probability: P(X at least x1)"], ["between", "probability: P(x1 at most X at most x2)"], ["q", "quantile: the x with cumulative probability p"]], "below"), { name: "a", label: "x1 (or p for a quantile)", type: "number", value: 1 }, { name: "b", label: "x2", type: "number", value: "" }], (v) => {
@@ -1413,7 +1506,7 @@
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
-    ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Normal Distribution", normalCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
+    ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
