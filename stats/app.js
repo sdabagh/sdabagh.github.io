@@ -173,21 +173,24 @@
       selAny("by", "Split by"),
       { name: "freq", label: "Frequency tables (for nominal and ordinal variables)", type: "check", value: true, group: "Tables" },
       sel("qm", "Quartile method", [["halves", "Textbook rule: median of each half, overall median excluded (default)"], ["type7", "R rule (type 7, interpolated)"]], "halves"),
-      ...[["n", "N", true], ["missing", "Missing", true], ["skew", "Skewness with its standard error", false], ["mean", "Mean", true], ["median", "Median", true], ["mode", "Mode", false], ["sum", "Sum", false], ["sd", "Std. deviation (sample, n minus 1)", true], ["variance", "Variance (sample)", false], ["sdpop", "Population std. deviation (divides by N)", false], ["range", "Range", false], ["min", "Minimum", true], ["max", "Maximum", true], ["se", "Std. error of mean (SE: spread of sample means, not of people)", false], ["iqr", "IQR", false], ["q", "Quartiles (25th, 50th, 75th)", false], ["fence", "Fences (1.5 IQR)", false]].map(([k, l, v]) => ({ name: k, label: l, type: "check", value: v, group: "Statistics" })),
+      ...[["n", "N", true], ["missing", "Missing", true], ["skew", "Skewness with its standard error", false], ["mean", "Mean", true], ["median", "Median", true], ["mode", "Mode", false], ["sum", "Sum", false], ["sd", "Std. deviation (sample, n minus 1)", true], ["variance", "Variance (sample)", false], ["sdpop", "Population std. deviation (divides by N)", false], ["range", "Range", false], ["min", "Minimum", true], ["max", "Maximum", true], ["se", "Std. error of mean (SE: spread of sample means, not of people)", false], ["iqr", "IQR", false], ["q", "Quartiles (25th, 50th, 75th)", false], ["fence", "Fences (1.5 IQR)", false], ["kurt", "Kurtosis (excess) with its standard error", false], ["cv", "Coefficient of variation (SD / mean)", false]].map(([k, l, v]) => ({ name: k, label: l, type: "check", value: v, group: "Statistics" })),
+      { name: "pcts", label: "Other percentiles, comma separated (optional)", type: "text", placeholder: "10, 90", group: "Statistics" },
       ...[["hist", "Histogram"], ["dens", "Density"], ["box", "Box plot"], ["dot", "Dot plot"], ["qq", "Q-Q plot"], ["bar", "Bar plot"]].map(([k, l]) => ({ name: k, label: l, type: "check", value: false, group: "Plots" })),
       { name: "lines", label: "Mark mean (solid) and median (dashed) on histograms", type: "check", value: true, group: "Plots" }], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
+      const pcts = String(v.pcts || "").split(",").map((q) => q.trim()).filter(Boolean).map(Number);
+      if (pcts.some((p) => !(p > 0 && p < 100))) throw new Error("Percentiles are numbers between 0 and 100, such as 10, 90.");
       const groups = v.by ? [...new Set(col(v.by).filter((g) => g !== ""))] : [null];
       const numV = v.vars.filter(isNum), catV = v.vars.filter((c) => !isNum(c));
       const cd = card("Descriptives", src(v.by ? "split by " + v.by : ""), "");
       if (numV.length) {
-        const statList = [["n", "N", "n"], ["missing", "Missing", "missing"], ["mean", "Mean", "mean"], ["median", "Median", "median"], ["mode", "Mode (all ties shown)", "mode"], ["sum", "Sum", "sum"], ["sd", "Standard deviation (sample, n - 1)", "sd"], ["variance", "Variance (sample)", "variance"], ["sdpop", "Population SD (divides by N)", "sdPop"], ["sdpop", "Population variance", "variancePop"], ["skew", "Skewness", "skew"], ["skew", "Std. error skewness", "skewSE"], ["range", "Range", "range"], ["min", "Minimum", "min"], ["max", "Maximum", "max"], ["se", "Std. error of the mean (SE)", "se"], ["iqr", "IQR", "iqr"], ["q", "25th percentile", "q1"], ["q", "50th percentile", "median"], ["q", "75th percentile", "q3"], ["fence", "Lower fence", "lowerFence"], ["fence", "Upper fence", "upperFence"]].filter(([k]) => v[k]);
+        const statList = [["n", "N", "n"], ["missing", "Missing", "missing"], ["mean", "Mean", "mean"], ["median", "Median", "median"], ["mode", "Mode (all ties shown)", "mode"], ["sum", "Sum", "sum"], ["sd", "Standard deviation (sample, n - 1)", "sd"], ["variance", "Variance (sample)", "variance"], ["sdpop", "Population SD (divides by N)", "sdPop"], ["sdpop", "Population variance", "variancePop"], ["skew", "Skewness", "skew"], ["skew", "Std. error skewness", "skewSE"], ["range", "Range", "range"], ["min", "Minimum", "min"], ["max", "Maximum", "max"], ["se", "Std. error of the mean (SE)", "se"], ["iqr", "IQR", "iqr"], ["q", "25th percentile", "q1"], ["q", "50th percentile", "median"], ["q", "75th percentile", "q3"], ["fence", "Lower fence", "lowerFence"], ["fence", "Upper fence", "upperFence"], ["kurt", "Kurtosis (excess)", "kurt"], ["kurt", "Std. error kurtosis", "kurtSE"], ["cv", "Coefficient of variation (percent)", "cv"]].concat(pcts.map((p) => ["pct", `${p}th percentile`, "p" + p])).filter(([k]) => k === "pct" || v[k]);
         const hdr = ["Statistic"].concat(numV.flatMap((x) => groups.map((g) => (g == null ? x : `${x} (${g})`))));
-        const cells = numV.flatMap((x) => groups.map((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const d = SW.describe(vals, v.qm) || {}; d.sum = (d.mean || 0) * (d.n || 0); return d; }));
+        const cells = numV.flatMap((x) => groups.map((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const d = SW.describe(vals, v.qm) || {}; d.sum = (d.mean || 0) * (d.n || 0); const xs = SW.num(vals); const ku = SW.kurtosis(xs); d.kurt = ku.kurt; d.kurtSE = ku.se; d.cv = d.mean ? (100 * d.sd) / Math.abs(d.mean) : null; pcts.forEach((p) => { d["p" + p] = SW.percentile(xs, p / 100, v.qm === "type7" ? "type7" : "rank"); }); return d; }));
         const rows = statList.map(([k, lab, key]) => [lab].concat(cells.map((d) => (d[key] == null ? "" : d[key]))));
-        cd.insertAdjacentHTML("beforeend", table(hdr, rows, "Descriptives") + (groups.length > 1 ? smallGroups(cells.map((d, i) => [d.n || 0, hdr[i + 1]])) : "") + (v.qm === "halves" ? say("Quartiles by the textbook rule: Q1 is the median of the lower half and Q3 the median of the upper half, with the overall median left out when n is odd. R and most software interpolate instead, so their quartiles can differ in the first decimal; neither is wrong, say which rule you used.") : say("Quartiles by the R interpolation rule (type 7). The textbook rule (median of each half) can differ in the first decimal.")) + (v.skew ? say("Skewness smaller than about twice its standard error is weak evidence of skew; do not call a distribution skewed on a number that small. Look at the histogram.") : "") + (cells.some((d) => d.missing > 0) ? warn("Some rows are blank for a variable and were dropped from that column only, so N differs across columns. Check N before comparing.") : "") + (v.sdpop ? say("Two standard deviations are shown. The sample one divides by n minus 1 and is the one this course reports (the data are a sample). The population one divides by N; calculators and spreadsheets sometimes use it, which is why a hand calculation can disagree with the table.") : "") + (v.mode ? say("Mode: when two or more values tie for most frequent, all of them are printed with the count. Most software prints only one and does not say so.") : "") + say("Shape from two numbers: mean above median points to a right tail, mean below median to a left tail. Report a pair: mean with standard deviation when symmetric, median with IQR when skewed or with outliers."));
+        cd.insertAdjacentHTML("beforeend", table(hdr, rows, "Descriptives") + (groups.length > 1 ? smallGroups(cells.map((d, i) => [d.n || 0, hdr[i + 1]])) : "") + (pcts.length ? say(v.qm === "type7" ? "Other percentiles by the R interpolation rule (type 7)." : "Other percentiles by the textbook rule: the kth percentile is the smallest value with at least k percent of the data at or below it.") : "") + (v.cv ? say("The coefficient of variation is the SD as a percent of the mean. It compares spread across variables on different scales, and only makes sense for positive data measured from a true zero.") : "") + (v.qm === "halves" ? say("Quartiles by the textbook rule: Q1 is the median of the lower half and Q3 the median of the upper half, with the overall median left out when n is odd. R and most software interpolate instead, so their quartiles can differ in the first decimal; neither is wrong, say which rule you used.") : say("Quartiles by the R interpolation rule (type 7). The textbook rule (median of each half) can differ in the first decimal.")) + (v.skew ? say("Skewness smaller than about twice its standard error is weak evidence of skew; do not call a distribution skewed on a number that small. Look at the histogram.") : "") + (cells.some((d) => d.missing > 0) ? warn("Some rows are blank for a variable and were dropped from that column only, so N differs across columns. Check N before comparing.") : "") + (v.sdpop ? say("Two standard deviations are shown. The sample one divides by n minus 1 and is the one this course reports (the data are a sample). The population one divides by N; calculators and spreadsheets sometimes use it, which is why a hand calculation can disagree with the table.") : "") + (v.mode ? say("Mode: when two or more values tie for most frequent, all of them are printed with the count. Most software prints only one and does not say so.") : "") + say("Shape from two numbers: mean above median points to a right tail, mean below median to a left tail. Report a pair: mean with standard deviation when symmetric, median with IQR when skewed or with outliers."));
       }
-      if (v.freq && catV.length) catV.forEach((x) => { groups.forEach((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const c = SW.counts(vals), keys = Object.keys(c).sort(), n = keys.reduce((s, k) => s + c[k], 0); let cum = 0; const miss = vals.filter((q) => q === "").length; cd.insertAdjacentHTML("beforeend", table(["Levels", "Counts", "Relative frequency", "Percent", "Cumulative percent"], keys.map((k) => { cum += c[k]; return [k, c[k], fmt(c[k] / n, 3), fmt((100 * c[k]) / n, 1) + "%", fmt((100 * cum) / n, 1) + "%"]; }).concat([["Total (non-missing)", n, "1.000", "100%", ""]]), `Frequencies of ${x}${g == null ? "" : " (" + g + ")"}`) + (miss ? warn(`${miss} blank${miss > 1 ? "s" : ""} excluded: percentages are out of ${n}, not ${n + miss}.`) : "")); }); });
+      if (v.freq && catV.length) catV.forEach((x) => { groups.forEach((g) => { const vals = g == null ? col(x) : col(x).filter((_, i) => col(v.by)[i] === g); const c = SW.counts(vals), keys = SW.naturalOrder(Object.keys(c)) || Object.keys(c).sort(), n = keys.reduce((s, k) => s + c[k], 0); let cum = 0; const miss = vals.filter((q) => q === "").length; cd.insertAdjacentHTML("beforeend", table(["Levels", "Counts", "Relative frequency", "Percent", "Cumulative frequency", "Cumulative relative frequency", "Cumulative percent"], keys.map((k) => { cum += c[k]; return [k, c[k], fmt(c[k] / n, 3), fmt((100 * c[k]) / n, 1) + "%", cum, fmt(cum / n, 3), fmt((100 * cum) / n, 1) + "%"]; }).concat([["Total (non-missing)", n, "1.000", "100%", "", "", ""]]), `Frequencies of ${x}${g == null ? "" : " (" + g + ")"}`) + (miss ? warn(`${miss} blank${miss > 1 ? "s" : ""} excluded: percentages are out of ${n}, not ${n + miss}.`) : "")); }); });
       // plots
       numV.forEach((x) => {
         const d = SW.describe(col(x)) || {};
@@ -234,7 +237,7 @@
       const traces = groups.map((g) => { const c = SW.counts(subset(v.x, v, g)), n = Object.values(c).reduce((s, q) => s + q, 0); const y = keys.map((k) => (v.type === "rel" ? (100 * (c[k] || 0)) / n : c[k] || 0)); const text = v.labels ? y.map((q) => (v.type === "rel" ? fmt(q, 1) + "%" : String(q))) : undefined; const base = { type: "bar", name: g == null ? v.x : String(g), text, textposition: "outside", cliponaxis: false, marker: g == null ? { color: C(v) } : {} }; return v.horiz ? Object.assign(base, { y: keys, x: y, orientation: "h" }) : Object.assign(base, { x: keys, y }); });
       const ymax = Math.max(...traces.flatMap((t) => (v.horiz ? t.x : t.y)));
       let html = say("Bars are separated because the categories are separate things. " + (order === "natural" ? "This variable is an ordered scale, so the bars keep their natural order; sorting an ordered scale by height would hide its shape." : "Tallest first tells the eye what the story is.") + " Relative frequency lets you compare groups of different sizes.");
-      if (v.tbl) { const rows = keys.map((k) => [k, c0[k], fmt(c0[k] / nAll, 3), fmt((100 * c0[k]) / nAll, 1) + "%"]); rows.push(["Total", nAll, "1.000", "100%"]); html += table([v.x, "Frequency", "Relative frequency", "Percent"], rows, "Frequency table" + (groups.length > 1 ? " (all groups together)" : "")); }
+      if (v.tbl) { let cum = 0; const rows = keys.map((k) => { cum += c0[k]; return [k, c0[k], fmt(c0[k] / nAll, 3), fmt((100 * c0[k]) / nAll, 1) + "%", cum, fmt(cum / nAll, 3)]; }); rows.push(["Total", nAll, "1.000", "100%", "", ""]); html += table([v.x, "Frequency", "Relative frequency", "Percent", "Cumulative frequency", "Cumulative relative frequency"], rows, "Frequency table" + (groups.length > 1 ? " (all groups together)" : "")); }
       const cd = card("Bar Plot: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${nAll}`), html);
       const axis = { title: v.type === "rel" ? (groups.length > 1 ? "Percent within group" : "Percent") : "Count", range: [0, ymax * 1.18], fixedrange: true };
       plotDiv(cd, traces, applyAppearance({ barmode: "group", [v.horiz ? "xaxis" : "yaxis"]: axis, [v.horiz ? "yaxis" : "xaxis"]: { type: "category", title: v.x }, showlegend: groups.length > 1 }, v));
@@ -252,14 +255,15 @@
   }
   function gHist() {
     needData();
-    dialog("Graph: Histogram", [selNum("x", "Numeric variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency"], ["rel", "Percent (relative frequency times 100)"], ["dens", "Density"]], "count"), { name: "bw", label: "Bin width (blank = automatic)", type: "number", value: "" }, { name: "start", label: "Start bins at (blank = automatic)", type: "number", value: "" }, { name: "labels", label: "Show the frequency above each bin", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }, ...appearanceFields()], (v) => {
+    dialog("Graph: Histogram", [selNum("x", "Numeric variable"), selAny("by", "Group by"), sel("type", "Type", [["count", "Frequency"], ["rel", "Percent (relative frequency times 100)"], ["dens", "Density"]], "count"), { name: "bw", label: "Bin width (blank = automatic)", type: "number", value: "" }, { name: "start", label: "Start bins at (blank = automatic)", type: "number", value: "" }, { name: "labels", label: "Show the frequency above each bin", type: "check", value: true }, { name: "tbl", label: "Frequency table under the graph", type: "check", value: true }, { name: "lines", label: "Mark mean (solid) and median (dashed)", type: "check", value: true }, { name: "normal", label: "Overlay a normal curve (mean and SD of the data)", type: "check", value: false }, ...appearanceFields()], (v) => {
       const groups = groupsOf(v); const d = SW.describe(col(v.x)) || {};
       const B = SW.histBins(col(v.x), Number.isFinite(v.bw) && v.bw > 0 ? v.bw : null, Number.isFinite(v.start) ? v.start : null); if (!B) throw new Error("No numeric values.");
       if (B.counts.length > 200) throw new Error("That bin width gives more than 200 bins. Use a wider bin.");
       const traces = groups.map((g) => { const counts = g == null ? B.counts : SW.countsWith(B.edges, subset(v.x, v, g)), n = counts.reduce((s, q) => s + q, 0); const y = counts.map((c) => (v.type === "rel" ? (100 * c) / n : v.type === "dens" ? c / (n * B.width) : c)); return { x: B.mids, y, width: B.width, type: "bar", name: g == null ? v.x : String(g), opacity: groups.length > 1 ? 0.6 : 1, text: v.labels ? y.map((q, j) => (v.type === "count" ? String(counts[j]) : fmt(q, v.type === "rel" ? 1 : 3))) : undefined, textposition: "outside", cliponaxis: false, marker: { color: groups.length > 1 ? undefined : C(v), line: { color: "#fff", width: 1 } }, hovertext: B.labels.map((l, j) => `${l}: ${counts[j]}`), hoverinfo: "text+name" }; });
+      if (v.normal && d.sd > 0) { const scale = v.type === "rel" ? 100 * B.width : v.type === "dens" ? 1 : B.n * B.width, lo = Math.min(B.edges[0], d.mean - 3.5 * d.sd), hi = Math.max(B.edges[B.edges.length - 1], d.mean + 3.5 * d.sd), xs = Array.from({ length: 201 }, (_, i) => lo + ((hi - lo) * i) / 200); traces.push({ x: xs, y: xs.map((q) => scale * jStat.normal.pdf(q, d.mean, d.sd)), type: "scatter", mode: "lines", name: "normal curve", line: { color: "#1A3A4D", width: 2 }, hoverinfo: "skip" }); }
       const ymax = Math.max(...traces.flatMap((t) => t.y));
-      let html = say("Bars touch because the number line has no gaps. Bin width is a decision: too few bins hide structure, too many turn noise into peaks. Try two or three widths before believing a feature. Read shape (symmetric, skewed, peaks), centre, spread, and anything unusual.");
-      if (v.tbl) { let cum = 0; html += table(["Class", "Frequency", "Relative frequency", "Percent", "Cumulative frequency"], B.counts.map((c, j) => { cum += c; return [B.labels[j], c, fmt(c / B.n, 3), fmt((100 * c) / B.n, 1) + "%", cum]; }).concat([["Total", B.n, "1.000", "100%", ""]]), `Frequency table, bin width ${B.width}` + (groups.length > 1 ? " (all groups together)" : "")); }
+      let html = (v.normal && d.sd > 0 ? say(`The curve is the normal distribution with the same mean (${fmt(d.mean)}) and SD (${fmt(d.sd)}) as the data${groups.length > 1 ? ", all groups together" : ""}. If the bars follow it closely, a normal model is reasonable; a skew or a second peak shows up as bars pulling away from the curve.`) : "") + say("Bars touch because the number line has no gaps. Bin width is a decision: too few bins hide structure, too many turn noise into peaks. Try two or three widths before believing a feature. Read shape (symmetric, skewed, peaks), centre, spread, and anything unusual.");
+      if (v.tbl) { let cum = 0; html += table(["Class", "Frequency", "Relative frequency", "Percent", "Cumulative frequency", "Cumulative relative frequency"], B.counts.map((c, j) => { cum += c; return [B.labels[j], c, fmt(c / B.n, 3), fmt((100 * c) / B.n, 1) + "%", cum, fmt(cum / B.n, 3)]; }).concat([["Total", B.n, "1.000", "100%", "", ""]]), `Frequency table, bin width ${B.width}` + (groups.length > 1 ? " (all groups together)" : "")); }
       const cd = card("Histogram: " + v.x + (v.by ? " by " + v.by : ""), src(`n = ${d.n}, mean ${fmt(d.mean)}, median ${fmt(d.median)}, s = ${fmt(d.sd)}; ${B.counts.length} bins of width ${B.width} from ${B.start}`), html);
       plotDiv(cd, traces, applyAppearance({ barmode: "overlay", bargap: 0, xaxis: { title: v.x, tickvals: B.edges.length <= 16 ? B.edges : undefined, tickangle: B.edges.length > 8 ? -45 : 0 }, yaxis: { title: v.type === "rel" ? "Percent" : v.type === "dens" ? "Density" : "Count", range: [0, ymax * 1.18], fixedrange: true }, shapes: v.lines && groups.length === 1 ? meanMedianShapes(d) : [], showlegend: groups.length > 1 }, v));
       cd.insertAdjacentHTML("beforeend", honest([`Every bin has the same width (${B.width}), so area equals height and the eye is not fooled by a wide bin.`, "Each class includes its left edge; the last class also includes the maximum, so every value is counted once.", "The count axis starts at zero and cannot be zoomed.", groups.length > 1 ? "All groups share the same bin edges; different bins per group would make the shapes incomparable." : "", "Tick marks sit on the bin edges, so you can read exactly where each class begins and ends."].filter(Boolean)));
@@ -317,6 +321,79 @@
   }
 
   // ================= T-Tests =================
+  function zOneSample() {
+    const hasData = D.rows.length > 0;
+    dialog("T-Tests: One Sample Z-Test (sigma known)", [
+      hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
+      hasData ? selNum("x", "Variable") : null,
+      { name: "xbar", label: "Sample mean", type: "number", group: "Summary statistics" }, { name: "n", label: "N", type: "number", group: "Summary statistics" },
+      { name: "sigma", label: "Population standard deviation sigma (given in the problem)", type: "number" },
+      { name: "mu0", label: "Test value", type: "number", value: 0 }, hypField("Mean"), confField, alphaField], (v) => {
+      let xbar = v.xbar, n = v.n, label = "value", from = "summary statistics";
+      if (v.mode === "data") { const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; n = d.n; label = v.x; from = src(); }
+      if (!(v.sigma > 0)) throw new Error("Type the population standard deviation sigma. If the problem gives only the sample SD s, use the One Sample T-Test instead.");
+      if (!(n >= 1) || !Number.isFinite(xbar)) throw new Error("Type the sample mean and N.");
+      const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: v.mu0, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
+      let html = table(["", "N", "Mean", "sigma", "SE = sigma / sqrt(n)", "z", "p", `${pc}% CI lower`, "upper"], [[label, n, xbar, v.sigma, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "One Sample Z-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. z* = ${fmt(r.zstar)}.</div>`;
+      html += formula("z = (x bar minus test value) / (sigma / sqrt(n)); interval x bar plus or minus z* sigma / sqrt(n). Use z only when the population sigma is actually given; with the sample SD s, use t.");
+      html += say(`H0: mu = ${v.mu0}. Ha: mu ${altWord(v.alt)} ${v.mu0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean is ${altWord(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean is ${altWord(v.alt)} ${v.mu0}.`} We are ${pc} percent confident the population mean is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
+      html += cond(n >= 30, "N is at least 30: the z procedure is fine whatever the population shape.", "N is under 30: this needs a roughly normal population; state that the assumptions are met.");
+      const cd = card("One Sample Z-Test", from, html); zPlot(cd, r.z, v.alt);
+    });
+  }
+  function zTwoSample() {
+    const hasData = D.rows.length > 0;
+    dialog("T-Tests: Two Sample Z-Test (sigmas known)", [
+      hasData ? sel("mode", "Data", [["data", "variable and grouping variable"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
+      hasData ? selNum("x", "Variable") : null, hasData ? selCat("g", "Grouping variable") : null, hasData ? lvField : null,
+      { name: "m1", label: "Mean 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" },
+      { name: "m2", label: "Mean 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
+      { name: "s1", label: "sigma 1 (population SD, given)", type: "number", group: "Known population SDs" }, { name: "s2", label: "sigma 2 (population SD, given)", type: "number", group: "Known population SDs" },
+      sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"), confField, alphaField], (v) => {
+      let m1 = v.m1, n1 = v.n1, m2 = v.m2, n2 = v.n2, names = ["Group 1", "Group 2"], from = "summary statistics";
+      if (v.mode === "data") { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) lv = v.lv.split(",").map((q) => q.trim()); if (lv.length < 2) throw new Error(`${v.g} needs two levels.`); lv = lv.slice(0, 2); names = lv; const a = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[0])), b = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[1])); if (!a || !b) throw new Error("Each group needs at least two numeric values."); m1 = a.mean; n1 = a.n; m2 = b.mean; n2 = b.n; from = src(`${v.x} by ${v.g}`); }
+      if (!(v.s1 > 0 && v.s2 > 0)) throw new Error("Type both population standard deviations. If only sample SDs are known, use the Independent Samples T-Test.");
+      const r = SW.twoZ({ m1, s1: v.s1, n1, m2, s2: v.s2, n2, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
+      let html = table(["Group", "N", "Mean", "sigma"], [[names[0], n1, m1, v.s1], [names[1], n2, m2, v.s2]], "Groups") + table(["Difference (1 minus 2)", "SE", "z", "p", `${pc}% CI lower`, "upper"], [[r.diff, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "Two Sample Z-Test");
+      html += formula("z = (x bar 1 minus x bar 2) / sqrt(sigma1^2/n1 + sigma2^2/n2). Only when both population SDs are given; otherwise use t.");
+      html += say(`H0: mu1 = mu2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${names[0]} is ${altWord(v.alt)} the mean of ${names[1]}.` : `There is not enough evidence of a difference in the direction stated.`} We are ${pc} percent confident the difference in means is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
+      const cd = card("Two Sample Z-Test", from, html); zPlot(cd, r.z, v.alt);
+    });
+  }
+  function varianceUI() {
+    const hasData = D.rows.length > 0;
+    dialog("Advanced: Variance tests (one SD or two SDs)", [sel("which", "Test", [["one", "One sample: SD against a claimed value (chi-square)"], ["two", "Two samples: compare two SDs (F)"]], "one"),
+      hasData ? sel("mode", "Data", [["data", "from the data"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
+      hasData ? selNum("x", "Variable") : null, hasData ? selCat("g", "Grouping variable (two samples)") : null, hasData ? lvField : null,
+      { name: "s1", label: "SD (sample 1)", type: "number", group: "Summary statistics" }, { name: "n1", label: "N (sample 1)", type: "number", group: "Summary statistics" }, { name: "s2", label: "SD (sample 2)", type: "number", group: "Summary statistics" }, { name: "n2", label: "N (sample 2)", type: "number", group: "Summary statistics" },
+      { name: "sigma0", label: "Claimed population SD (one sample)", type: "number", value: 1 },
+      sel("alt", "Hypothesis", [["two", "not equal"], ["greater", "greater than (sample 1 SD larger)"], ["less", "less than"]], "two"), confField, alphaField], (v) => {
+      let s1 = v.s1, n1 = v.n1, s2 = v.s2, n2 = v.n2, names = ["sample 1", "sample 2"], from = "summary statistics";
+      if (v.mode === "data") {
+        if (v.which === "one") { const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); s1 = d.sd; n1 = d.n; names[0] = v.x; from = src(v.x); }
+        else { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) lv = v.lv.split(",").map((q) => q.trim()); if (lv.length < 2) throw new Error(`${v.g} needs two levels.`); lv = lv.slice(0, 2); names = lv; const a = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[0])), b = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[1])); if (!a || !b) throw new Error("Each group needs at least two values."); s1 = a.sd; n1 = a.n; s2 = b.sd; n2 = b.n; from = src(`${v.x} by ${v.g}`); }
+      }
+      if (!(s1 > 0 && n1 >= 2)) throw new Error("Type the SD and N of sample 1 (N at least 2).");
+      const pc = Math.round(+v.conf * 100), dirWord = v.alt === "two" ? "different from" : v.alt === "greater" ? "greater than" : "less than";
+      let html, cd;
+      if (v.which === "one") {
+        if (!(v.sigma0 > 0)) throw new Error("Type the claimed population SD.");
+        const r = SW.oneVar({ s: s1, n: n1, sigma0: v.sigma0, alt: v.alt, conf: +v.conf });
+        html = table(["", "N", "s", "Claimed sigma", "chi-square", "df", "p"], [[names[0], n1, s1, v.sigma0, r.chi, r.df, SW.fmtP(r.p)]], "One sample variance test") + table(["", "lower", "upper"], [[`${pc}% CI for sigma`, r.sdLower, r.sdUpper], [`${pc}% CI for sigma squared`, r.varLower, r.varUpper]], "Confidence intervals");
+        html += formula("chi-square = (n minus 1) s^2 / sigma0^2 on n minus 1 df. Interval for sigma squared: (n minus 1) s^2 / chi-square upper and lower critical values; take square roots for sigma.");
+        html += say(`H0: sigma = ${v.sigma0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population SD is ${dirWord} ${v.sigma0}.` : `There is not enough evidence that the population SD is ${dirWord} ${v.sigma0}.`}`);
+        html += warn("This test needs a normal population, whatever the sample size. Unlike the t test, it does not become safe for large N; check a Q-Q plot.");
+        cd = card("One Sample Variance Test", from, html);
+      } else {
+        if (!(s2 > 0 && n2 >= 2)) throw new Error("Type the SD and N of sample 2 (N at least 2).");
+        const r = SW.twoVar({ s1, n1, s2, n2, alt: v.alt, conf: +v.conf });
+        html = table(["Sample", "N", "SD", "Variance"], [[names[0], n1, s1, s1 * s1], [names[1], n2, s2, s2 * s2]], "Samples") + table(["F = s1^2 / s2^2", "df1", "df2", "p", `${pc}% CI for sigma1^2 / sigma2^2: lower`, "upper"], [[r.F, r.d1, r.d2, SW.fmtP(r.p), r.lower, r.upper]], "Two sample variance test (F)");
+        html += say(`H0: sigma1 = sigma2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the SD of ${names[0]} is ${dirWord} the SD of ${names[1]}.` : "There is not enough evidence of a difference in spread."}`);
+        html += warn("The F test is very sensitive to non-normal data. To check equal spread before ANOVA, Levene's test (in One-Way ANOVA) is safer.");
+        cd = card("Two Sample Variance Test", from, html);
+      }
+    });
+  }
   function tOneSample() {
     const hasData = D.rows.length > 0;
     dialog("T-Tests: One Sample T-Test", [
@@ -399,7 +476,7 @@
     dialog("ANOVA: One-Way ANOVA", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable"),
       { name: "fisher", label: "Assume equal (Fisher's)", type: "check", value: true, group: "Variances" }, { name: "welch", label: "Don't assume equal (Welch's)", type: "check", value: false, group: "Variances" },
       { name: "desc", label: "Descriptives table", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
-      { name: "tukey", label: "Post-Hoc Tests: Tukey", type: "check", value: true, group: "Post-Hoc" }, { name: "homo", label: "Homogeneity test (largest SD over smallest)", type: "check", value: true, group: "Assumption Checks" }, alphaField], (v) => {
+      { name: "tukey", label: "Post-Hoc Tests: Tukey", type: "check", value: true, group: "Post-Hoc" }, { name: "homo", label: "Homogeneity test (largest SD over smallest)", type: "check", value: true, group: "Assumption Checks" }, { name: "levene", label: "Levene's test of equal variances", type: "check", value: false, group: "Assumption Checks" }, alphaField], (v) => {
       const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); });
       const r = SW.anova(groups);
       let html = "";
@@ -410,6 +487,7 @@
       html += formula(`H0: all group means equal. F = MS between / MS within, df = (k minus 1, N minus k). R squared = SS between / SS total = ${fmt(r.r2)}.`);
       html += say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `At least one group mean of ${v.x} differs across ${v.g}; the F test does not say which. Read the post-hoc table.` : `There is not enough evidence that the mean of ${v.x} differs across ${v.g}.`}`);
       html += smallGroups(r.groups.map((q) => [q.n, q.name]));
+      if (v.levene) { const L = SW.levene(Object.values(groups)); html += table(["F", "df1", "df2", "p"], [[L.F, L.d1, L.d2, SW.fmtP(L.p)]], "Levene's test (deviations from the median, Brown-Forsythe)") + say(L.p <= +v.alpha ? `Levene p = ${fmt(L.p, 4)}: the group variances differ, so read Welch's ANOVA.` : `Levene p = ${fmt(L.p, 4)}: no evidence the group variances differ.`); }
       if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
       if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
       const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
@@ -438,8 +516,11 @@
   }
   function linRegUI() {
     needData();
-    dialog("Regression: Linear Regression", [selNum("y", "Dependent variable"), selNum("x", "Covariate (explanatory)"), { name: "ci", label: "Confidence interval for coefficients", type: "check", value: true, group: "Model Coefficients" }, { name: "r2", label: "R and R squared (Model Fit)", type: "check", value: true, group: "Model Fit" }, { name: "resid", label: "Residual plots", type: "check", value: true, group: "Assumption Checks" }, { name: "qq", label: "Q-Q plot of residuals", type: "check", value: false, group: "Assumption Checks" }, { name: "pred", label: "Predict at x = (optional)", type: "number", value: "" }, confField, alphaField], (v) => {
+    dialog("Regression: Linear Regression", [selNum("y", "Dependent variable"), selNum("x", "Covariate (explanatory)"), { name: "ci", label: "Confidence interval for coefficients", type: "check", value: true, group: "Model Coefficients" }, { name: "r2", label: "R and R squared (Model Fit)", type: "check", value: true, group: "Model Fit" }, { name: "resid", label: "Residual plots", type: "check", value: true, group: "Assumption Checks" }, { name: "qq", label: "Q-Q plot of residuals", type: "check", value: false, group: "Assumption Checks" }, { name: "pred", label: "Predict at x = (optional; several, comma separated)", type: "text", value: "", group: "Prediction" }, { name: "bands", label: "Show confidence and prediction bands on the graph", type: "check", value: false, group: "Prediction" }, confField, alphaField], (v) => {
       const r = SW.regress(col(v.x), col(v.y), +v.conf);
+      const sxx = (r.n - 1) * r.sx * r.sx, seMean = (x0) => r.se_res * Math.sqrt(1 / r.n + (x0 - r.mx) ** 2 / sxx), sePred = (x0) => r.se_res * Math.sqrt(1 + 1 / r.n + (x0 - r.mx) ** 2 / sxx);
+      const preds = String(v.pred == null || Number.isNaN(v.pred) ? "" : v.pred).split(",").map((q) => q.trim()).filter(Boolean).map(Number);
+      if (preds.some((q) => !Number.isFinite(q))) throw new Error("Predict at x: type numbers separated by commas, such as 10, 20.");
       let html = "";
       if (v.r2) html += table(["Model", "R", "R squared"], [["1", Math.abs(r.r), r.r2]], "Model Fit Measures");
       const hdr = ["Predictor", "Estimate", "SE", "t", "p"]; if (v.ci) hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper");
@@ -448,10 +529,13 @@
       html += table(hdr, [b0row, b1row], `Model Coefficients - ${v.y}`);
       html += formula(`${v.y} hat = ${fmt(r.b0)} + ${fmt(r.b1)} ${v.x}. b1 = r s_y / s_x, b0 = y bar minus b1 x bar. Slope test: H0 beta1 = 0, t = b1 / SE, df = n minus 2 = ${r.df}.`);
       html += say(`Slope: each one-unit increase in ${v.x} predicts a change of ${fmt(r.b1)} in ${v.y}. ${fmt(100 * r.r2, 1)} percent of the variation in ${v.y} is explained by the line. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a linear relationship between ${v.x} and ${v.y}.` : `There is not enough evidence of a linear relationship between ${v.x} and ${v.y}.`} Correlation is not causation.`);
-      if (Number.isFinite(v.pred)) { const inR = v.pred >= Math.min(...r.x) && v.pred <= Math.max(...r.x); html += (inR ? say : warn)(`Predicted ${v.y} at ${v.x} = ${v.pred}: ${fmt(r.predict(v.pred))}.${inR ? "" : " That x is outside the data range: extrapolation, do not trust it."}`); }
+      if (preds.length) { const pc = Math.round(r.conf * 100); html += table([v.x, `Predicted ${v.y}`, `${pc}% CI for the mean: lower`, "upper", `${pc}% PI for one new value: lower`, "upper"], preds.map((x0) => { const yh = r.predict(x0); return [x0, yh, yh - r.tstar * seMean(x0), yh + r.tstar * seMean(x0), yh - r.tstar * sePred(x0), yh + r.tstar * sePred(x0)]; }), "Prediction");
+        html += formula(`CI for the mean response: y hat plus or minus t* s_e sqrt(1/n + (x minus x bar)^2 / Sxx). PI for one new value: y hat plus or minus t* s_e sqrt(1 + 1/n + (x minus x bar)^2 / Sxx). s_e = ${fmt(r.se_res)}, t* = ${fmt(r.tstar)} on ${r.df} df.`) + say(`The confidence interval is for the average ${v.y} of everyone with that ${v.x}; the prediction interval is for one new individual, so it is always wider.`);
+        const out = preds.filter((x0) => x0 < Math.min(...r.x) || x0 > Math.max(...r.x)); if (out.length) html += warn(`x = ${out.join(", ")} is outside the data range (${fmt(Math.min(...r.x))} to ${fmt(Math.max(...r.x))}): extrapolation, do not trust it.`); }
       const cd = card("Linear Regression", src(`${v.y} on ${v.x}`), html);
       const xs = [Math.min(...r.x), Math.max(...r.x)];
-      plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }], { xaxis: { title: v.x }, yaxis: { title: v.y } });
+      const bandTr = []; if (v.bands) { const g = Array.from({ length: 81 }, (_, i) => xs[0] + ((xs[1] - xs[0]) * i) / 80); [[seMean, "confidence band (mean)", "#C0392B", "dash"], [sePred, "prediction band (one value)", "#7F8C8D", "dot"]].forEach(([f, nm, c, dsh]) => { bandTr.push({ x: g, y: g.map((q) => r.predict(q) + r.tstar * f(q)), mode: "lines", name: nm, line: { color: c, dash: dsh, width: 1.5 } }, { x: g, y: g.map((q) => r.predict(q) - r.tstar * f(q)), mode: "lines", name: nm, showlegend: false, line: { color: c, dash: dsh, width: 1.5 } }); }); }
+      plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }].concat(bandTr), { xaxis: { title: v.x }, yaxis: { title: v.y } });
       if (v.resid) plotDiv(cd, [{ x: r.fitted, y: r.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 280);
       if (v.qq) { const q = SW.qq(r.resid), sd = SW.sd(r.resid); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }, { x: [-2.5, 2.5], y: [-2.5 * sd, 2.5 * sd], mode: "lines", line: { color: "#C0392B" } }], { title: "Q-Q plot of residuals", xaxis: { title: "theoretical quantiles" }, yaxis: { title: "residual" } }, 280); }
     });
@@ -464,18 +548,19 @@
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
       hasData ? selCat("x", "Variable") : null, hasData ? { name: "succ", label: "Level to test (leave blank for every level)", type: "text" } : null,
       { name: "xs", label: "Count of successes", type: "number", group: "Counts" }, { name: "n", label: "N", type: "number", group: "Counts" },
-      { name: "p0", label: "Test value", type: "number", value: 0.5 }, hypField("Proportion"), { name: "ci", label: "Confidence intervals", type: "check", value: true }, { name: "z", label: "Also show the z test (the course's by-hand method)", type: "check", value: true }, confField, alphaField], (v) => {
-      let levels = [], from = "counts";
+      { name: "p0", label: "Test value", type: "number", value: 0.5 }, hypField("Proportion"), { name: "ci", label: "Confidence intervals", type: "check", value: true }, sel("cim", "Interval method", [["wald", "Standard (Wald): p hat plus or minus z* SE, the by hand method"], ["plus4", "Plus four (Agresti-Coull with 2 successes and 2 failures added)"], ["ac", "Agresti-Coull (adjusted by z*)"], ["wilson", "Wilson score"], ["exact", "Exact (Clopper-Pearson)"]], "wald"), { name: "z", label: "Also show the z test (the course's by-hand method)", type: "check", value: true }, confField, alphaField], (v) => {
+      let levels = [], from = "counts"; const cim = v.cim || "wald", cimName = { wald: "standard (Wald)", plus4: "plus four", ac: "Agresti-Coull", wilson: "Wilson score", exact: "exact Clopper-Pearson" }[cim]; let lastCI;
       if (v.mode === "data") { const vals = col(v.x).filter((q) => q !== ""); const c = SW.counts(vals); const keys = v.succ.trim() ? [v.succ.trim()] : Object.keys(c).sort(); if (v.succ.trim() && !c[v.succ.trim()]) throw new Error(`No rows have ${v.x} = ${v.succ}. Check spelling and case.`); levels = keys.map((k) => ({ level: k, x: c[k] || 0, n: vals.length })); from = src(v.x); }
       else levels = [{ level: "success", x: v.xs, n: v.n }];
       const rows = [], zrows = []; let last;
-      levels.forEach((L, i) => { const r = SW.oneProp({ x: L.x, n: L.n, p0: v.p0, alt: v.alt, conf: +v.conf }); last = r; const row = [i ? "" : v.mode === "data" ? v.x : "", L.level, L.x, L.n, r.phat, SW.fmtP(r.exact)]; if (v.ci) row.push(r.lower, r.upper); rows.push(row); zrows.push([L.level, r.se0, r.z, SW.fmtP(r.p), r.condTest ? "yes" : "no", r.condCI ? "yes" : "no"]); });
+      levels.forEach((L, i) => { const r = SW.oneProp({ x: L.x, n: L.n, p0: v.p0, alt: v.alt, conf: +v.conf }); last = r; const ci = SW.propCI(L.x, L.n, +v.conf, cim); lastCI = ci; const row = [i ? "" : v.mode === "data" ? v.x : "", L.level, L.x, L.n, r.phat, SW.fmtP(r.exact)]; if (v.ci) row.push(ci.lower, ci.upper); rows.push(row); zrows.push([L.level, r.se0, r.z, SW.fmtP(r.p), r.condTest ? "yes" : "no", r.condCI ? "yes" : "no"]); });
       const hdr = ["", "Level", "Count", "Total", "Proportion", "p"]; if (v.ci) hdr.push(`${Math.round(+v.conf * 100)}% CI lower`, "upper");
-      let html = table(hdr, rows, "Binomial Test") + `<div class="note">Note. H<sub>a</sub> is proportion ${altWord(v.alt)} ${v.p0}. p is the exact binomial p-value.</div>`;
+      let html = table(hdr, rows, "Binomial Test") + `<div class="note">Note. H<sub>a</sub> is proportion ${altWord(v.alt)} ${v.p0}. p is the exact binomial p-value.${v.ci ? ` Interval method: ${cimName}.` : ""}</div>`;
+      if (v.ci && cim !== "wald") html += formula({ plus4: "Plus four: add 2 successes and 2 failures, p tilde = (x + 2)/(n + 4), interval p tilde plus or minus z* sqrt(p tilde (1 minus p tilde)/(n + 4)). Works well even for small samples.", ac: "Agresti-Coull: n tilde = n + z*^2, p tilde = (x + z*^2/2)/n tilde, interval p tilde plus or minus z* sqrt(p tilde (1 minus p tilde)/n tilde). At 95 percent this is almost the plus four interval.", wilson: "Wilson score: the set of p0 values that a two-sided z test would not reject. Stays inside 0 to 1 and works for small samples.", exact: "Clopper-Pearson: built from the binomial distribution itself (beta quantiles), so coverage is at least the stated level. Conservative, so a little wider." }[cim]);
       if (v.z) html += table(["Level", "SE0 = sqrt(p0(1 minus p0)/n)", "z", "p (z test)", "n p0 and n(1 minus p0) at least 10", "successes and failures at least 10"], zrows, "z test for a proportion (by hand method)") + formula("z = (p hat minus p0) / sqrt(p0 (1 minus p0) / n); interval p hat plus or minus z* sqrt(p hat (1 minus p hat) / n)");
       const r = last, L = levels[levels.length - 1];
-      html += say(`H0: p = ${v.p0}. ${decision(v.z ? r.p : r.exact, +v.alpha)} ${(v.z ? r.p : r.exact) <= +v.alpha ? `There is evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.` : `There is not enough evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.`}${v.ci ? ` We are ${Math.round(+v.conf * 100)} percent confident the population proportion is between ${fmt(r.lower)} and ${fmt(r.upper)}.` : ""}`);
-      html += cond(r.condCI, `Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`, `Success-failure check fails (${L.x} and ${L.n - L.x}): this course does not build a z interval here. Report the proportion descriptively.`);
+      html += say(`H0: p = ${v.p0}. ${decision(v.z ? r.p : r.exact, +v.alpha)} ${(v.z ? r.p : r.exact) <= +v.alpha ? `There is evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.` : `There is not enough evidence that the population proportion of ${L.level} is ${altWord(v.alt)} ${v.p0}.`}${v.ci ? ` We are ${Math.round(+v.conf * 100)} percent confident the population proportion is between ${fmt(lastCI.lower)} and ${fmt(lastCI.upper)}.` : ""}`);
+      if (v.ci && cim !== "wald") html += r.condCI ? ok(`Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`) : say(`Only ${Math.min(L.x, L.n - L.x)} ${L.x < L.n - L.x ? "successes" : "failures"}, so the standard interval would be unreliable; the ${cimName} interval is designed for this case.`); else html += cond(r.condCI, `Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`, `Success-failure check fails (${L.x} and ${L.n - L.x}): this course does not build a z interval here. Report the proportion descriptively.`);
       const cd = card("Binomial Test (2 Outcomes)", from, html); zPlot(cd, r.z, v.alt);
     });
   }
@@ -1277,6 +1362,58 @@
   }
 
   // ================= Learn: coin flips and the law of large numbers =================
+  // ---- Learn applets: click to add a point, click a point to remove it ----
+  function clickPlot(cd, h, onAdd, onRemove) {
+    const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; p.style.cursor = "crosshair"; cd.appendChild(p);
+    let hit = 0;
+    const draw = (traces, layout) => Plotly.react(p, traces, Object.assign({ margin: { t: 30, l: 50, r: 20, b: 45 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff", dragmode: false, hovermode: "closest" }, layout), { displaylogo: false, responsive: true, displayModeBar: false });
+    p.addEventListener("click", (e) => { setTimeout(() => { if (Date.now() - hit < 300) return; const L = p._fullLayout; if (!L) return; const bb = p.getBoundingClientRect(), xa = L.xaxis, ya = L.yaxis; const px = e.clientX - bb.left - xa._offset, py = e.clientY - bb.top - ya._offset; if (px < 0 || py < 0 || px > xa._length || py > ya._length) return; onAdd(xa.p2l(px), ya.p2l(py)); }, 40); });
+    const wire = () => { if (p.on && !p._wired) { p._wired = true; p.on("plotly_click", (ev) => { const pt = ev.points && ev.points[0]; if (pt && pt.curveNumber === 0) { hit = Date.now(); onRemove(pt.pointIndex); } }); } };
+    return (traces, layout) => { draw(traces, layout); wire(); };
+  }
+  const btns = (list) => `<div class="applet-btns" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">${list.map(([id, t]) => `<button type="button" data-a="${id}" style="padding:4px 10px">${esc(t)}</button>`).join("")}</div>`;
+  function meanMedianApplet() {
+    const start = [52, 55, 58, 60, 61, 63, 65, 66, 68, 70];
+    const cd = card("Mean versus median", "click the line to add a value, click a dot to remove it", say("Watch which center moves. Add a value far to the right: the mean chases it, the median barely moves. That is why a skewed distribution or an outlier calls for the median and IQR.") + btns([["out", "Add a value at 100"], ["outL", "Add a value at 0"], ["reset", "Reset"], ["clear", "Clear all"]]) + `<div class="mm-stats"></div>`);
+    let pts = start.slice();
+    const render = clickPlot(cd, 220, (x) => { pts.push(Math.round(Math.min(100, Math.max(0, x)) * 10) / 10); show(); }, (i) => { pts.splice(i, 1); show(); });
+    function show() {
+      const seen = {}, ys = pts.map((x) => { const k = Math.round(x); seen[k] = (seen[k] || 0) + 1; return seen[k] - 1; });
+      const n = pts.length, d = n >= 2 ? SW.describe(pts) : null, m = n ? SW.mean(pts) : NaN, med = n ? SW.median(pts) : NaN;
+      cd.querySelector(".mm-stats").innerHTML = n ? table(["N", "Mean", "Median", "Mean minus median", "SD", "IQR"], [[n, m, med, m - med, d ? d.sd : "", d ? d.iqr : ""]], "") : say("No values yet: click the line.");
+      const shapes = n ? [{ type: "line", x0: m, x1: m, yref: "paper", y0: 0, y1: 1, line: { color: "#C0392B", width: 2 } }, { type: "line", x0: med, x1: med, yref: "paper", y0: 0, y1: 1, line: { color: "#1A3A4D", width: 2, dash: "dash" } }] : [];
+      render([{ x: pts, y: ys, mode: "markers", type: "scatter", marker: { color: "#3A7CA5", size: 11 }, hovertemplate: "%{x}<extra>click to remove</extra>" }], { xaxis: { range: [0, 100], title: "value", fixedrange: true, dtick: 10, zeroline: false }, yaxis: { visible: false, range: [-0.6, Math.max(4, ...ys) + 1], fixedrange: true }, shapes, annotations: n ? [{ x: m, yref: "paper", y: 1.1, xanchor: m >= med ? "left" : "right", text: "mean", showarrow: false, font: { color: "#C0392B" } }, { x: med, yref: "paper", y: 1.1, xanchor: m >= med ? "right" : "left", text: "median", showarrow: false, font: { color: "#1A3A4D" } }] : [], showlegend: false });
+    }
+    cd.querySelector('[data-a="out"]').onclick = () => { pts.push(100); show(); }; cd.querySelector('[data-a="outL"]').onclick = () => { pts.push(0); show(); };
+    cd.querySelector('[data-a="reset"]').onclick = () => { pts = start.slice(); show(); }; cd.querySelector('[data-a="clear"]').onclick = () => { pts = []; show(); };
+    show();
+  }
+  function influenceApplet() {
+    const start = [[1, 2.1], [2, 2.9], [3, 3.2], [3.5, 4.4], [4, 4.1], [5, 5.3], [5.5, 5], [6, 6.4], [7, 6.6], [8, 7.9]];
+    const cd = card("Regression: outliers and influence", "click to add a point, click a point to remove it", say("The dashed line is the fit to the starting data; the red line refits every time you click. Add a point far to the right and off the pattern, then one in the middle of the x range and off the pattern. The first drags the line and r a long way: it is influential. The second is an outlier in y but barely moves the slope.") + btns([["reset", "Reset"], ["clear", "Clear all"]]) + `<div class="inf-stats"></div>`);
+    let pts = start.map((q) => q.slice());
+    const fit = (P) => { if (P.length < 3) return null; const r = SW.regress(P.map((q) => q[0]), P.map((q) => q[1])); return Number.isFinite(r.b1) ? r : null; };
+    const base = fit(start);
+    const render = clickPlot(cd, 340, (x, y) => { pts.push([Math.round(x * 100) / 100, Math.round(y * 100) / 100]); show(); }, (i) => { pts.splice(i, 1); show(); });
+    function show() {
+      const r = fit(pts), xs = [0, 12];
+      cd.querySelector(".inf-stats").innerHTML = r ? table(["N", "r", "R squared", "Slope", "Intercept"], [[r.n, r.r, r.r2, r.b1, r.b0], ["start", base.r, base.r2, base.b1, base.b0]], "Current fit, and the starting fit for comparison") : say("Need at least three points with different x values.");
+      const tr = [{ x: pts.map((q) => q[0]), y: pts.map((q) => q[1]), mode: "markers", type: "scatter", name: "points", marker: { color: "#3A7CA5", size: 10 }, hovertemplate: "(%{x}, %{y})<extra>click to remove</extra>" }, { x: xs, y: xs.map(base.predict), mode: "lines", name: "starting fit", line: { color: "#7F8C8D", dash: "dash" }, hoverinfo: "skip" }];
+      if (r) tr.push({ x: xs, y: xs.map(r.predict), mode: "lines", name: "current fit", line: { color: "#C0392B", width: 2 }, hoverinfo: "skip" });
+      render(tr, { xaxis: { range: [0, 12], title: "x", fixedrange: true }, yaxis: { range: [0, 12], title: "y", fixedrange: true }, legend: { orientation: "h", y: -0.2 } });
+    }
+    cd.querySelector('[data-a="reset"]').onclick = () => { pts = start.map((q) => q.slice()); show(); }; cd.querySelector('[data-a="clear"]').onclick = () => { pts = []; show(); };
+    show();
+  }
+  function guessRApplet() {
+    const cd = card("Guess the correlation", "", say("Look at the scatterplot, type your guess for r (between minus 1 and 1), then check. Strength is how tightly the points hug a line; the sign is the direction.") + `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0"><label>Your guess for r <input type="number" step="0.05" min="-1" max="1" class="gr-in" style="width:90px"></label><button type="button" data-a="check">Check</button><button type="button" data-a="new">New plot</button></div><div class="gr-out"></div>`);
+    const p = document.createElement("div"); p.className = "plot"; p.style.height = "320px"; cd.appendChild(p);
+    let r = 0, done = false; const hist = [];
+    const fresh = () => { const rho = (Math.random() * 2 - 1) * 0.97, n = 40 + Math.floor(Math.random() * 40), nrm = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random()); const x = [], y = []; for (let i = 0; i < n; i++) { const a = nrm(); x.push(50 + 10 * a); y.push(50 + 10 * (rho * a + Math.sqrt(1 - rho * rho) * nrm())); } r = SW.regress(x, y).r; done = false; cd.querySelector(".gr-in").value = ""; cd.querySelector(".gr-out").innerHTML = hist.length ? say(`Guesses so far: ${hist.length}, average miss ${fmt(hist.reduce((s, q) => s + q, 0) / hist.length, 3)}.`) : ""; Plotly.react(p, [{ x, y, mode: "markers", type: "scatter", marker: { color: "#3A7CA5", size: 7 }, hoverinfo: "skip" }], { margin: { t: 20, l: 50, r: 20, b: 45 }, xaxis: { title: "x", fixedrange: true }, yaxis: { title: "y", fixedrange: true }, dragmode: false, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, { displayModeBar: false, responsive: true }); };
+    cd.querySelector('[data-a="new"]').onclick = fresh;
+    cd.querySelector('[data-a="check"]').onclick = () => { const g = Number(cd.querySelector(".gr-in").value); if (cd.querySelector(".gr-in").value === "" || !(g >= -1 && g <= 1)) { cd.querySelector(".gr-out").innerHTML = warn("Type a number between minus 1 and 1."); return; } const miss = Math.abs(g - r); if (!done) { hist.push(miss); done = true; } cd.querySelector(".gr-out").innerHTML = (miss <= 0.1 ? ok : say)(`The correlation is r = ${fmt(r, 3)}. Your guess ${g} is off by ${fmt(miss, 3)}${miss <= 0.1 ? ": very close." : "."} Guesses so far: ${hist.length}, average miss ${fmt(hist.reduce((s, q) => s + q, 0) / hist.length, 3)}.`); };
+    fresh();
+  }
   function llnUI() {
     dialog("Learn: Coin flips and the law of large numbers", [
       sel("exp", "Chance experiment", [["coin", "flip one fair coin, count heads (p = 0.5)"], ["coin2", "flip two coins, count both heads (p = 0.25)"], ["coin3", "flip three coins, count all three heads (p = 0.125)"], ["die", "roll one die, count sixes (p = 1/6)"], ["dice2", "roll two dice, count sums of 7 (p = 6/36)"], ["custom", "a yes or no event with a probability I choose"]], "coin"),
@@ -1473,6 +1610,65 @@
     }, "Transform");
   }
   function zscoreColumn() { needData(); dialog("Data: Add a z-score column", [selNum("x", "Variable")], (v) => { addColumn("z_" + v.x, SW.zscores(col(v.x).length === D.rows.length ? D.rows.map((r) => r[D.cols.indexOf(v.x)]) : D.rows.map((r) => r[D.cols.indexOf(v.x)]))); card("New column", `z_${v.x} added`, formula("z = (x minus x bar) / s")); }, "Add"); }
+  // ---- Data tools: bin, stack, simulate, sample rows ----
+  const replaceOK = (what) => !D.rows.length || window.confirm(`${what} makes a new data table and replaces the one open now. Download the current data first if you need it. Continue?`);
+  const rng = (seed) => { if (!(Number.isFinite(seed))) return Math.random; let a = Math.floor(seed) >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+  function binUI() {
+    needData();
+    dialog("Data: Bin a numeric variable into classes", [selNum("x", "Variable"), { name: "start", label: "First class starts at", type: "number", value: "" }, { name: "w", label: "Class width", type: "number", value: "" }, { name: "nm", label: "New column name (blank = variable_class)", type: "text" }], (v) => {
+      const vals = D.rows.map((r) => r[D.cols.indexOf(v.x)]), xs = SW.num(vals); if (!xs.length) throw new Error("No numeric values.");
+      if (!(v.w > 0)) throw new Error("Type a class width, such as 10.");
+      const start = Number.isFinite(v.start) ? v.start : Math.floor(Math.min(...xs) / v.w) * v.w; if (Math.min(...xs) < start) throw new Error(`The smallest value (${Math.min(...xs)}) is below the start; start at ${Math.floor(Math.min(...xs) / v.w) * v.w} or lower.`);
+      const lab = (k) => `${fmt(start + k * v.w)} to under ${fmt(start + (k + 1) * v.w)}`;
+      const out = vals.map((q) => { const x = Number(q); if (q === "" || !Number.isFinite(x)) return ""; return lab(Math.floor((x - start) / v.w + 1e-9)); });
+      const nm = (v.nm || "").trim() || v.x + "_class"; addColumn(nm, out); D.manual[nm] = "nominal"; inferTypes(); renderGrid(); persist();
+      card("New column", `${nm} added`, say(`Each value of ${v.x} is placed in a class of width ${v.w} starting at ${start}. A class includes its left end and excludes its right end, so a value of exactly ${fmt(start + v.w)} goes in the second class. The new column is categorical, with the classes kept in numeric order, ready for a frequency table or bar plot.`));
+    }, "Add");
+  }
+  function stackUI() {
+    needData();
+    dialog("Data: Stack columns", [{ name: "vars", label: "Columns to stack (two or more)", type: "multi", options: D.cols }, { name: "vn", label: "Name for the values column", type: "text", value: "value" }, { name: "gn", label: "Name for the column that says where each value came from", type: "text", value: "group" }], (v) => {
+      if (v.vars.length < 2) throw new Error("Pick two or more columns.");
+      if (!replaceOK("Stacking")) return;
+      const rows = [[v.vn || "value", v.gn || "group"]]; v.vars.forEach((c) => { const j = D.cols.indexOf(c); D.rows.forEach((r) => { if (r[j] !== "" && r[j] != null) rows.push([r[j], c]); }); });
+      loadTable("stacked", rows);
+      card("Stack columns", `${v.vars.join(", ")} stacked`, say(`One column of values and one column naming the original column. Two-sample t tests, ANOVA and side-by-side graphs need this layout: a response variable and a grouping variable.`));
+    }, "Stack");
+  }
+  function simulateUI() {
+    dialog("Data: Simulate random data", [sel("dist", "Distribution", [["normal", "Normal (mean, SD)"], ["unif", "Uniform, continuous (min, max)"], ["dunif", "Discrete uniform whole numbers (min, max)"], ["binom", "Binomial (n, p)"], ["pois", "Poisson (lambda)"], ["exp", "Exponential (mean)"], ["bern", "Yes or no (probability of Yes)"]], "normal"),
+      { name: "a", label: "First parameter (mean, min, n, lambda or p)", type: "number", value: 0, group: "Parameters" }, { name: "b", label: "Second parameter (SD, max or p)", type: "number", value: 1, group: "Parameters" },
+      { name: "rows", label: "Rows (sample size)", type: "number", value: 30 }, { name: "cols", label: "Columns (number of samples)", type: "number", value: 1 }, { name: "seed", label: "Seed (optional: the same seed gives the same numbers)", type: "number", value: "" }], (v) => {
+      const { dist, a, b } = v, n = v.rows, k = v.cols; if (!(Number.isInteger(n) && n >= 1 && n <= 100000)) throw new Error("Rows must be a whole number from 1 to 100000."); if (!(Number.isInteger(k) && k >= 1 && k <= 200)) throw new Error("Columns must be a whole number from 1 to 200.");
+      const U = rng(v.seed), nrm = () => { let u = 0; while (u === 0) u = U(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * U()); };
+      const inv = (pmf) => { const u = U(); let c = 0, x = 0; while (x < 1e6) { c += pmf(x); if (u <= c) return x; x++; } return x; };
+      let draw, nm;
+      if (dist === "normal") { if (!(b > 0)) throw new Error("SD must be positive."); draw = () => a + b * nrm(); nm = "normal"; }
+      else if (dist === "unif") { if (!(b > a)) throw new Error("Max must be above min."); draw = () => a + (b - a) * U(); nm = "uniform"; }
+      else if (dist === "dunif") { if (!(Number.isInteger(a) && Number.isInteger(b) && b > a)) throw new Error("Type two whole numbers, max above min."); draw = () => a + Math.floor(U() * (b - a + 1)); nm = "dunif"; }
+      else if (dist === "binom") { if (!(Number.isInteger(a) && a >= 1 && b >= 0 && b <= 1)) throw new Error("Binomial: first parameter n (whole number), second p (between 0 and 1)."); draw = () => { let s = 0; for (let i = 0; i < a; i++) if (U() < b) s++; return s; }; nm = "binom"; }
+      else if (dist === "pois") { if (!(a > 0)) throw new Error("Lambda must be positive."); draw = () => inv((x) => Math.exp(-a + x * Math.log(a) - jStat.gammaln(x + 1))); nm = "pois"; }
+      else if (dist === "exp") { if (!(a > 0)) throw new Error("The mean must be positive."); draw = () => -a * Math.log(1 - U()); nm = "exp"; }
+      else { if (!(a >= 0 && a <= 1)) throw new Error("Probability of Yes must be between 0 and 1."); draw = () => (U() < a ? "Yes" : "No"); nm = "yesno"; }
+      const fmtv = (q) => (typeof q === "number" ? (Number.isInteger(q) ? String(q) : q.toFixed(4)) : q);
+      const names = Array.from({ length: k }, (_, j) => (k === 1 ? nm : `${nm}_${j + 1}`));
+      if (D.rows.length === n) { names.forEach((c) => { let c2 = c, t = 2; while (D.cols.includes(c2)) c2 = `${c}_${t++}`; addColumn(c2, Array.from({ length: n }, () => fmtv(draw()))); }); }
+      else { if (!replaceOK("Simulating " + n + " rows")) return; loadTable("simulated", [names].concat(Array.from({ length: n }, () => names.map(() => fmtv(draw()))))); }
+      card("Simulated data", `${k} column${k > 1 ? "s" : ""} of ${n} values`, say(`Random values from the ${dist === "bern" ? "yes or no" : nm} distribution.${Number.isFinite(v.seed) ? ` Seed ${v.seed}: run it again with the same seed to get the same numbers.` : " Run it again for a fresh sample; set a seed to repeat a sample exactly."}`));
+    }, "Simulate");
+  }
+  function sampleRowsUI() {
+    needData();
+    dialog("Data: Random sample of rows", [{ name: "n", label: "Sample size (rows)", type: "number", value: 10 }, sel("repl", "Sampling", [["no", "without replacement (each row at most once)"], ["yes", "with replacement (a row can repeat)"]], "no"), { name: "seed", label: "Seed (optional)", type: "number", value: "" }], (v) => {
+      const idx = activeIdx(), n = v.n; if (!(Number.isInteger(n) && n >= 1)) throw new Error("Sample size must be a whole number.");
+      if (v.repl === "no" && n > idx.length) throw new Error(`Only ${idx.length} rows are available; without replacement the sample cannot be larger.`);
+      if (!replaceOK("Sampling")) return;
+      const U = rng(v.seed), pool = idx.slice(), pick = [];
+      for (let i = 0; i < n; i++) { if (v.repl === "yes") pick.push(pool[Math.floor(U() * pool.length)]); else { const j = i + Math.floor(U() * (pool.length - i)); [pool[i], pool[j]] = [pool[j], pool[i]]; pick.push(pool[i]); } }
+      const name = D.name; loadTable(name + "_sample", [D.cols.slice()].concat(pick.map((i) => D.rows[i].slice())));
+      card("Random sample", `${n} rows ${v.repl === "yes" ? "with" : "without"} replacement from ${name}`, say("A simple random sample: every row had the same chance to be picked. The new table replaces the old one; reopen the original file to go back."));
+    }, "Sample");
+  }
   function columnUI() {
     needData();
     dialog("Data: Rename or delete a column", [sel("x", "Column", D.cols), sel("act", "Action", [["rename", "rename"], ["delete", "delete"]], "rename"), { name: "nm", label: "New name (for rename)", type: "text" }], (v) => {
@@ -1499,17 +1695,17 @@
 
   // ================= menu =================
   const MENU = [
-    ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
+    ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Bin into classes", binUI], ["Stack columns", stackUI], null, ["Simulate random data", simulateUI], ["Random sample of rows", sampleRowsUI], null, ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
     ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
-    ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample]]],
+    ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
-    ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
+    ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals (default)"], ["4", "4 decimals"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { $("#outG").innerHTML = ""; counts(); }]]],
   ];
   const nav = $("#menu");

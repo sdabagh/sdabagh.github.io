@@ -156,6 +156,14 @@ Not employed = Not employed</pre>
 60 to 300 = long</pre>
 <h3>Add z-score column</h3>
 <p><span class="path">Data, Add z-score column</span>. Adds <code>z_Variable</code> with (x minus mean) divided by the sample SD, the same as the by-hand formula.</p>
+<h3>Bin into classes</h3>
+<p><span class="path">Data, Bin into classes</span>. Turns a numeric variable into classes of a width you choose ("60 to under 70"), starting where you say. Each class includes its left end. The new column is categorical, kept in numeric order, ready for a frequency table or bar plot.</p>
+<h3>Stack columns</h3>
+<p><span class="path">Data, Stack columns</span>. When each group sits in its own column, stacking makes one column of values and one column naming where each value came from, the layout two-sample tests, ANOVA and side-by-side graphs need. It makes a new data table, so download the old one first if you need it.</p>
+<h3>Simulate random data</h3>
+<p><span class="path">Data, Simulate random data</span>. Random values from a normal, uniform, discrete uniform, binomial, Poisson, exponential or yes or no distribution, any number of rows and columns (one column per sample). If the row count matches the open table the columns are added to it; otherwise a new table is made. A seed repeats the same numbers, so a whole class can work with identical data.</p>
+<h3>Random sample of rows</h3>
+<p><span class="path">Data, Random sample of rows</span>. A simple random sample from the open table, with or without replacement, with an optional seed. Uses only the rows kept by a filter.</p>
 <h3>Sorting</h3>
 <p>Click a column header. Sorting changes the row order for Time Series and for the display; analyses do not depend on it.</p>
 
@@ -169,7 +177,7 @@ Not employed = Not employed</pre>
 <li><strong>Green or pink box</strong>: a condition check. Green means the condition for the method is met (for example n at least 30, or at least 10 successes and 10 failures). Pink means it is not, and says what to do instead.</li>
 <li><strong>Graphs</strong> attached to the analysis (descriptives plots, residual plots), below the text.</li>
 </ol>
-<div class="say">Rules that are built in and cannot be switched off: inference about a mean always uses t with degrees of freedom, because sigma is never given in practice. Proportions use z only when the success and failure counts are large enough, and the card says so. Every card reports the p-value; "p = 0" is never printed, the smallest shown is "p &lt; 0.0001".</div>
+<div class="say">Rules that are built in and cannot be switched off: inference about a mean uses t with degrees of freedom, because sigma is almost never known; the Z-Test is there for the textbook problems that do give sigma, and its card says to use t otherwise. Proportions use z only when the success and failure counts are large enough, and the card says so. Every card reports the p-value; "p = 0" is never printed, the smallest shown is "p &lt; 0.0001".</div>
 <p><strong>Decimals.</strong> Numbers are shown to the number of decimals set under <span class="path">Results, Decimal places shown</span> (3 by default). Internally everything is full precision.</p>
 
 <h2 id="choose">6. Which analysis do I need</h2>
@@ -190,6 +198,9 @@ Not employed = Not employed</pre>
 <tr><td>Predict a yes or no outcome</td><td>two-level outcome plus predictors</td><td>Advanced, Logistic Regression</td></tr>
 <tr><td>Data are skewed or ranks, small samples</td><td>as above but not normal</td><td>Nonparametric menu (Mann-Whitney, Wilcoxon, Kruskal-Wallis)</td></tr>
 <tr><td>A probability from a distribution</td><td>parameters only</td><td>distrACTION menu</td></tr>
+<tr><td>Is the mean different from a claim, and sigma is given?</td><td>a numeric column, or the mean and n, plus sigma</td><td>T-Tests, One Sample Z-Test</td></tr>
+<tr><td>Is a standard deviation different from a claim? Do two groups differ in spread?</td><td>a numeric column, or SDs and n</td><td>Advanced, Variance tests</td></tr>
+<tr><td>Predict y for a new x, with an interval</td><td>two numeric columns</td><td>Regression, Linear Regression, Predict at x</td></tr>
 <tr><td>Mean and SD of a discrete random variable</td><td>x values and their P(x), typed or as two columns</td><td>distrACTION, Custom (discrete x and P(x))</td></tr>
 <tr><td>How many people do I need?</td><td>a margin of error or an effect size</td><td>distrACTION, Sample size; Advanced, Power and Sample Size</td></tr>
 <tr><td>Understand what a p-value or a confidence interval is</td><td>nothing, no data needed</td><td>Learn, What a p-value is; Learn, What a confidence interval means</td></tr>
@@ -201,7 +212,7 @@ Not employed = Not employed</pre>
 
 <h3 id="m-exploration">Exploration</h3>
 <h4>Descriptives</h4>
-<p>Pick one or more variables; optionally split by a group. Tick the statistics you want: N, missing, mean, median, mode (all modes are listed when there is a tie), sum, standard deviation (sample, n minus 1), variance, population SD, range, minimum, maximum, standard error, IQR, quartiles, fences for outliers, skewness. Tick plots: histogram, density, boxplot, dotplot, QQ plot, bar plot for categorical variables. Frequency tables appear for nominal and ordinal variables.</p>
+<p>Pick one or more variables; optionally split by a group. Tick the statistics you want: N, missing, mean, median, mode (all modes are listed when there is a tie), sum, standard deviation (sample, n minus 1), variance, population SD, range, minimum, maximum, standard error, IQR, quartiles, fences for outliers, skewness, kurtosis, coefficient of variation, and any other percentiles you list (such as 10, 90). Tick plots: histogram, density, boxplot, dotplot, QQ plot, bar plot for categorical variables. Frequency tables appear for nominal and ordinal variables, with counts, relative frequency, percent, cumulative frequency, cumulative relative frequency and cumulative percent. Classes named by numbers ("60 to under 70") are listed in numeric order.</p>
 <p><strong>Quartile method.</strong> "Textbook halves" (default) finds Q1 and Q3 as the medians of the lower and upper halves with the overall median excluded, which is what the course teaches by hand. "Type 7" is what R and Excel use by default; the two can differ for small n. Boxplots use the same rule as the descriptives.</p>
 <h4>Scatterplot</h4>
 <p>Quick scatterplot with an optional group colour and regression line; the Graph menu version has more options.</p>
@@ -212,7 +223,7 @@ Not employed = Not employed</pre>
 <tr><th>Item</th><th>Pick</th><th>Options</th><th>Read it as</th></tr>
 <tr><td>Bar Plot</td><td>a categorical variable, optional group</td><td>counts or percent; order (automatic keeps ordered scales in order, otherwise tallest first); counts above bars; frequency table; horizontal</td><td>Which categories are common. With a group, percent within group compares groups of different sizes fairly.</td></tr>
 <tr><td>Pie Chart</td><td>a categorical variable</td><td>show percent and count</td><td>Parts of one whole only. A bar plot is usually clearer.</td></tr>
-<tr><td>Histogram</td><td>a numeric variable, optional group</td><td>frequency, relative frequency or density; bin width and starting point; frequency above each bin; frequency table (with cumulative); mean and median lines</td><td>Shape (symmetric, skewed left or right, one peak or more), centre, spread, gaps and outliers. Change the bin width twice before trusting a feature.</td></tr>
+<tr><td>Histogram</td><td>a numeric variable, optional group</td><td>frequency, relative frequency or density; bin width and starting point; frequency above each bin; frequency table (with cumulative frequency and cumulative relative frequency); mean and median lines; normal curve overlay with the mean and SD of the data</td><td>Shape (symmetric, skewed left or right, one peak or more), centre, spread, gaps and outliers. Change the bin width twice before trusting a feature.</td></tr>
 <tr><td>Dotplot</td><td>a numeric variable, optional group</td><td>mean and median lines</td><td>One dot per observation, nothing hidden.</td></tr>
 <tr><td>Boxplot</td><td>one or more numeric variables, optional group</td><td>show all points; horizontal</td><td>Box from Q1 to Q3, line at the median, whiskers to the last values inside the fences, dots beyond. Skew shows as a long whisker or an off-centre median.</td></tr>
 <tr><td>Stem and Leaf</td><td>a numeric variable</td><td>leaf unit</td><td>A histogram that keeps every value.</td></tr>
@@ -226,22 +237,24 @@ Not employed = Not employed</pre>
 <p>Tests whether the population mean equals a test value. Reports t, df, p, mean difference, the confidence interval, and the condition check (n at least 30, or a normal-looking QQ plot when n is smaller). The formula box shows t = (x bar minus mu0) / (s / sqrt(n)).</p>
 <h4>Independent Samples T-Test</h4>
 <p>Compares two group means. Welch's version (no equal-variance assumption) is the default; untick it for Student's. Hypothesis can be two-sided, group 1 greater, or group 1 less. If the grouping variable has more than two levels, name the two you want. Summary-statistics mode takes mean, SD and n for each group.</p>
+<h4>One Sample Z-Test and Two Sample Z-Test</h4>
+<p>Only for problems that give the population standard deviation sigma. You type sigma (one, or one per group); the card gives z, the p-value, and the interval x bar plus or minus z* sigma / sqrt(n). If only the sample SD s is known, use the t-test: the card says so.</p>
 <h4>Paired Samples T-Test</h4>
 <p>Two columns measured on the same subjects (before and after). The test is a one-sample t on the differences; tick "Histogram of differences" to see them.</p>
 
 <h3 id="m-anova">ANOVA</h3>
 <h4>One-Way ANOVA</h4>
-<p>Three or more group means. Fisher's (equal variances) and Welch's F are both available; the homogeneity check compares the largest SD with the smallest (ratio under 2 passes). Tukey post-hoc tests tell which pairs differ, with adjusted p-values. Descriptives table and plot (means with confidence intervals) are optional. Two-way ANOVA and repeated measures are under Advanced.</p>
+<p>Three or more group means. Fisher's (equal variances) and Welch's F are both available; the homogeneity check compares the largest SD with the smallest (ratio under 2 passes), and Levene's test (deviations from the median, the Brown-Forsythe version) is available as a formal check. Tukey post-hoc tests tell which pairs differ, with adjusted p-values. Descriptives table and plot (means with confidence intervals) are optional. Two-way ANOVA and repeated measures are under Advanced.</p>
 
 <h3 id="m-regression">Regression</h3>
 <h4>Correlation Matrix</h4>
 <p>Two or more numeric variables. Pearson (linear) and Spearman (rank) correlations, with p-values if requested, and a grid of scatter plots. r near 0 means no linear relationship, not no relationship.</p>
 <h4>Linear Regression</h4>
-<p>One dependent variable and one explanatory variable (covariate). Reports the coefficients table (intercept, slope, SE, t, p, confidence interval), R and R squared, the residual plot and QQ plot of residuals, and a prediction at any x you type, with the warning when x is outside the data. The slope interpretation sentence is written for you.</p>
+<p>One dependent variable and one explanatory variable (covariate). Reports the coefficients table (intercept, slope, SE, t, p, confidence interval), R and R squared, the residual plot and QQ plot of residuals, and predictions at one or several x values (comma separated). Each prediction comes with a confidence interval for the mean response and a prediction interval for one new value, and a warning when x is outside the data. Tick "Show confidence and prediction bands" to draw both bands around the line. The slope interpretation sentence is written for you.</p>
 
 <h3 id="m-frequencies">Frequencies</h3>
 <h4>2 Outcomes: Binomial test</h4>
-<p>One proportion against a test value. The exact binomial p-value is always given; tick "Also show the z test" for the course's by-hand method with the success and failure check (n p0 and n (1 minus p0) both at least 10). Summary mode: successes and n.</p>
+<p>One proportion against a test value. The exact binomial p-value is always given; tick "Also show the z test" for the course's by-hand method with the success and failure check (n p0 and n (1 minus p0) both at least 10). Summary mode: successes and n. Interval method: standard (Wald, the by-hand formula, default), plus four, Agresti-Coull, Wilson score, or exact Clopper-Pearson. When there are fewer than 10 successes or failures, the card points you to one of the small-sample methods instead of the standard interval.</p>
 <h4>N Outcomes: chi-square Goodness of fit</h4>
 <p>Do observed counts across categories match expected proportions (equal by default, or the ones you type)? Shows expected counts and the check that all are at least 5.</p>
 <h4>Contingency Tables: Independent Samples</h4>
@@ -253,8 +266,10 @@ Not employed = Not employed</pre>
 <p>Calculators, no data needed (Custom can also read two columns). Each one draws the distribution and shades the probability.</p>
 <ul>
 <li><strong>Binomial:</strong> P(X = x), P(X at most x), P(X at least x), P(x1 to x2), plus mean and SD of the distribution.</li>
+<li><strong>Poisson, Geometric, Hypergeometric, Discrete Uniform:</strong> the same layout as Binomial, with P(X = x), less than, at most, more than, at least and between, the mean, variance and SD, a full table and a shaded bar graph. Geometric lets you choose whether X counts the trials up to the first success (1, 2, 3, ...) or the failures before it (0, 1, 2, ...), since textbooks use both.</li>
 <li><strong>Custom (discrete x and P(x)):</strong> any discrete probability distribution. Either put x in one column and P(x) in another (columns named x and p(x) are picked automatically), or type both lists separated by commas. Gives the mean (expected value), variance and SD, a work table with x P(x) and (x minus mean)^2 P(x) to match the hand method, and the probability P(X = x), less than, at most, more than, at least, or between. The bar graph shades that probability and marks the mean. It stops with a message if the probabilities are not between 0 and 1 or do not add to 1.</li>
 <li><strong>Normal:</strong> probabilities below, above or between values, or the value for a given percentile (quantile). Type z scores by using mean 0 and SD 1.</li>
+<li><strong>Uniform (continuous) and Exponential:</strong> probabilities below, above or between values, and percentiles, with mean and SD and the shaded area. Exponential takes the mean; if you are given a rate lambda, the mean is 1/lambda.</li>
 <li><strong>T-Distribution:</strong> tail probabilities for a t statistic, or the critical t for a confidence level and df.</li>
 <li><strong>Chi-square and F:</strong> right-tail p-value for a statistic, or the critical value for alpha.</li>
 <li><strong>Sample size for a margin of error:</strong> for a proportion (with a guess for p, 0.5 if unknown) or a mean (with a guess for s).</li>
@@ -276,6 +291,9 @@ Not employed = Not employed</pre>
 <li><strong>The Central Limit Theorem:</strong> pick a population shape (right-skewed, normal, uniform, two humps, yes or no, or a column of your data) and several sample sizes at once. The sampling distributions are drawn on the same axes, with a table comparing the simulated SD against sigma / sqrt(n) and the skewness falling as n grows. The point students miss: the center never moves, the spread shrinks by sqrt(n), and only the shape is the theorem.</li>
 <li><strong>What a confidence interval means:</strong> draws many samples from a population only you can see, builds an interval from each, and plots them with the true value as a fixed vertical line. It reports the actual capture rate against the stated level. The truth never moves; the interval does. Uses t with n - 1 degrees of freedom for a mean, and warns when n p or n (1 - p) falls under 10 for a proportion.</li>
 <li><strong>What a p-value is:</strong> forces H0 to be true, draws thousands of fresh samples from that world, and counts how many land at least as far out as your result. For a proportion it prints the simulated p, the exact binomial p and the z formula p side by side, and explains the gap when the normal approximation is off.</li>
+<li><strong>Mean versus median:</strong> click the number line to add values, click a dot to remove one. A long tail or one far value drags the mean and barely moves the median.</li>
+<li><strong>Regression: outliers and influence:</strong> click to add points to a scatterplot and watch the least-squares line, r and the slope refit against the starting line. A point far out in x and off the pattern is influential; an outlier in the middle of the x range is not.</li>
+<li><strong>Guess the correlation:</strong> a fresh scatterplot each time; type your guess for r, check it, and keep a running average of how far off you are.</li>
 <li><strong>Sampling distribution simulator:</strong> pick a population (a column of your data, or a yes or no population with a chosen p), a statistic, a sample size and a number of samples. It draws the population, then the distribution of the sample statistic, and compares its SD with the formula (sigma / sqrt(n) or sqrt(p(1 minus p)/n)). Watch it turn normal as n grows.</li>
 <li><strong>Bootstrap:</strong> a confidence interval with no formula. Resample with replacement, recompute the statistic thousands of times, take the middle 95 percent.</li>
 <li><strong>Permutation:</strong> what a p-value is. Shuffle the group labels, recompute the difference, count how often the shuffled world beats the real one.</li>
@@ -293,6 +311,7 @@ Not employed = Not employed</pre>
 <tr><td>Count Regression</td><td>Poisson and negative binomial for counts (0, 1, 2, ...).</td><td>Rate ratios with confidence intervals and a dispersion check; when the dispersion is well above 1, the negative binomial is recommended.</td></tr>
 <tr><td>Multinomial Logistic Regression</td><td>Three or more unordered outcome levels against a baseline.</td><td>One set of coefficients per non-baseline level, relative risk ratios.</td></tr>
 <tr><td>Ordinal Logistic Regression</td><td>An ordered outcome (proportional odds). You type the levels from lowest to highest.</td><td>One set of odds ratios that apply across every cut point.</td></tr>
+<tr><td>Variance tests</td><td>One SD against a claimed value (chi-square), or two SDs compared (F). Data or summary statistics.</td><td>Test and confidence intervals for sigma and sigma squared, or for the ratio of variances. Both tests need normal populations at any sample size; to check equal spread before ANOVA, Levene's test is safer.</td></tr>
 <tr><td>McNemar test</td><td>Paired yes or no (before and after on the same people).</td><td>Uses only the discordant pairs; summary mode takes the two discordant counts.</td></tr>
 <tr><td>Cochran-Armitage trend test</td><td>Does a proportion rise or fall across ordered groups?</td><td>Trend chi-square and a plot of the proportions.</td></tr>
 <tr><td>Power and Sample Size</td><td>t-tests, proportions, ANOVA, correlation, chi-square.</td><td>Find power for a given n, or the n for a target power; power curve and effect-size sensitivity plot. Effect sizes should come from prior studies, not the data you are about to collect.</td></tr>
@@ -351,7 +370,8 @@ Not employed = Not employed</pre>
 <tr><td>Standard deviation</td><td>Sample (n minus 1) only</td><td>Sample by default, population SD available and labelled</td></tr>
 <tr><td>One proportion</td><td>Exact binomial only</td><td>Exact binomial plus the z test with the success-failure check</td></tr>
 <tr><td>Two proportions</td><td>Often missing from the base menus</td><td>Pooled z test with confidence interval</td></tr>
-<tr><td>Means</td><td>t</td><td>t always; z is never offered for a mean</td></tr>
+<tr><td>Means</td><td>t, or z with a known sigma</td><td>t by default; the Z-Test needs sigma typed in and its card says to use t when only s is known</td></tr>
+<tr><td>One proportion interval</td><td>One method</td><td>Standard (Wald) by default; plus four, Agresti-Coull, Wilson and exact on request</td></tr>
 <tr><td>Histogram bins</td><td>Automatic, may differ by group</td><td>Equal nice bins shared across groups, editable width and start</td></tr>
 <tr><td>Summary statistics input</td><td>Often not available</td><td>Every t-test, proportion test and chi-square accepts typed summaries</td></tr>
 <tr><td>Graphs</td><td>Mixed with output</td><td>Own Graphs tab</td></tr>
@@ -393,6 +413,7 @@ Not employed = Not employed</pre>
 
 <h2 id="verify">14. How the numbers were checked</h2>
 <p>Every procedure was run on the same data in R (and the jmv package where it exists) and compared to four decimals: t-tests, proportion tests, ANOVA and Tukey, chi-square, regression coefficients and intervals, nonparametric tests, multiple and logistic regression with diagnostics, two-way and repeated measures ANOVA, count, multinomial and ordinal models, power calculations, time-series decomposition and autocorrelation, PCA, factor analysis and varimax rotation, Cronbach's alpha, k-means, Kaplan-Meier, log-rank, Cox regression and the Bayesian conjugate updates. Distributions come from jStat; graphs are drawn with Plotly.</p>
+<p>The distribution calculators (binomial, custom discrete, Poisson, geometric, hypergeometric, discrete uniform, uniform, exponential) were checked against R's d, p and q functions; the z tests, the five proportion intervals (against prop.test and binom.test), the variance tests (against var.test), Levene's test (against car::leveneTest), kurtosis, percentiles and the regression confidence and prediction intervals (against predict) the same way. Simulated data were checked by their mean and SD against the distribution they came from.</p>
 <p>The Learn demonstrations are checked the same way. The simulated sampling distributions are compared against sigma / sqrt(n); the confidence interval demo is checked by its capture rate against the stated level, which also falls below that level on purpose when the success-failure condition fails; and the p-value demo is checked against the exact binomial, computed independently. Where the z formula and the exact answer disagree, the app prints both and says why rather than hiding the gap.</p>
 <p>Stats Without Walls was built by Safaa Dabagh for students at Santa Monica College, West Los Angeles College and Loyola Marymount University, and is free for anyone to use.</p>
 

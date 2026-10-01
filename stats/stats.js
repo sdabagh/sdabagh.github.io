@@ -619,4 +619,25 @@
     for (const sc of SCALES) if (low.every((k) => sc.includes(k)) && new Set(low).size >= 2) return keys.slice().sort((a, b) => sc.indexOf(String(a).trim().toLowerCase()) - sc.indexOf(String(b).trim().toLowerCase()));
     const lead = keys.map((k) => { const m = String(k).match(/^\s*(\d+(\.\d+)?)/); return m ? Number(m[1]) : null; }); if (lead.every((v) => v != null)) return keys.slice().sort((a, b) => lead[keys.indexOf(a)] - lead[keys.indexOf(b)]); // "1 = never", "2 = rarely"
     return null; };
+  // ---- additions: proportion interval methods, kurtosis, percentiles, z tests, variance tests, Levene ----
+  S.propCI = (x, n, conf = 0.95, method = "wald") => {
+    const z = S.qnorm(1 - (1 - conf) / 2), ph = x / n, a = 1 - conf;
+    if (method === "wald") { const se = Math.sqrt((ph * (1 - ph)) / n); return { est: ph, se, lower: ph - z * se, upper: ph + z * se }; }
+    if (method === "plus4" || method === "ac") { const nt = method === "plus4" ? n + 4 : n + z * z, pt = method === "plus4" ? (x + 2) / (n + 4) : (x + (z * z) / 2) / nt, se = Math.sqrt((pt * (1 - pt)) / nt); return { est: pt, se, lower: Math.max(0, pt - z * se), upper: Math.min(1, pt + z * se) }; }
+    if (method === "wilson") { const d = 1 + (z * z) / n, c = (ph + (z * z) / (2 * n)) / d, h = (z * Math.sqrt((ph * (1 - ph)) / n + (z * z) / (4 * n * n))) / d; return { est: c, se: NaN, lower: c - h, upper: c + h }; }
+    // exact Clopper-Pearson
+    return { est: ph, se: NaN, lower: x === 0 ? 0 : jStat.beta.inv(a / 2, x, n - x + 1), upper: x === n ? 1 : jStat.beta.inv(1 - a / 2, x + 1, n - x) };
+  };
+  S.kurtosis = (a) => { const n = a.length, m = S.mean(a), s = S.sd(a); if (n < 4 || s === 0) return { kurt: NaN, se: NaN }; const g = ((n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3))) * a.reduce((t, x) => t + ((x - m) / s) ** 4, 0) - (3 * (n - 1) ** 2) / ((n - 2) * (n - 3)); const ses = Math.sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))); return { kurt: g, se: 2 * ses * Math.sqrt((n * n - 1) / ((n - 3) * (n + 5))) }; };
+  S.percentile = (a, p, method = "type7") => { const b = S.num(a).sort((x, y) => x - y), n = b.length; if (!n) return NaN; if (method === "type7") return S.quantile(b, p); const r = Math.ceil(p * n); return b[Math.min(n, Math.max(1, r)) - 1]; }; // "rank": smallest value with at least p of the data at or below it
+  S.oneZ = ({ xbar, sigma, n, mu0 = 0, alt = "two", conf = 0.95 }) => { const se = sigma / Math.sqrt(n), z = (xbar - mu0) / se, zs = S.qnorm(1 - (1 - conf) / 2); return { se, z, p: S.pvalue(z, alt, S.pnorm), zstar: zs, lower: xbar - zs * se, upper: xbar + zs * se, conf }; };
+  S.twoZ = ({ m1, s1, n1, m2, s2, n2, alt = "two", conf = 0.95 }) => { const se = Math.sqrt((s1 * s1) / n1 + (s2 * s2) / n2), diff = m1 - m2, z = diff / se, zs = S.qnorm(1 - (1 - conf) / 2); return { se, diff, z, p: S.pvalue(z, alt, S.pnorm), zstar: zs, lower: diff - zs * se, upper: diff + zs * se, conf }; };
+  S.oneVar = ({ s, n, sigma0, alt = "two", conf = 0.95 }) => { const df = n - 1, chi = (df * s * s) / (sigma0 * sigma0), cdf = S.pchisq(chi, df); const p = alt === "less" ? cdf : alt === "greater" ? 1 - cdf : Math.min(1, 2 * Math.min(cdf, 1 - cdf)); const a = 1 - conf; const vl = (df * s * s) / S.qchisq(1 - a / 2, df), vu = (df * s * s) / S.qchisq(a / 2, df); return { df, chi, p, varLower: vl, varUpper: vu, sdLower: Math.sqrt(vl), sdUpper: Math.sqrt(vu), conf }; };
+  S.twoVar = ({ s1, n1, s2, n2, ratio0 = 1, alt = "two", conf = 0.95 }) => { const d1 = n1 - 1, d2 = n2 - 1, F = (s1 * s1) / (s2 * s2) / ratio0, cdf = S.pf(F, d1, d2); const p = alt === "less" ? cdf : alt === "greater" ? 1 - cdf : Math.min(1, 2 * Math.min(cdf, 1 - cdf)); const a = 1 - conf, r = (s1 * s1) / (s2 * s2); return { d1, d2, F, p, ratio: r, lower: r / S.qf(1 - a / 2, d1, d2), upper: r / S.qf(a / 2, d1, d2), conf }; };
+  S.levene = (groups) => { // Brown-Forsythe version (deviations from the median), same as R car::leveneTest default
+    const gs = groups.map((g) => S.num(g)).filter((g) => g.length > 0), k = gs.length, z = gs.map((g) => { const m = S.median(g); return g.map((x) => Math.abs(x - m)); });
+    const N = z.reduce((s, g) => s + g.length, 0), zbar = z.reduce((s, g) => s + g.reduce((t, x) => t + x, 0), 0) / N, means = z.map((g) => S.mean(g));
+    const ssb = z.reduce((s, g, i) => s + g.length * (means[i] - zbar) ** 2, 0), ssw = z.reduce((s, g, i) => s + g.reduce((t, x) => t + (x - means[i]) ** 2, 0), 0);
+    const d1 = k - 1, d2 = N - k, F = ssb / d1 / (ssw / d2); return { F, d1, d2, p: 1 - S.pf(F, d1, d2) };
+  };
 })(window.SW);
