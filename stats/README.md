@@ -46,6 +46,64 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-15: review fixes: filter freeze, dialog defaults, restore after a reload, worked numbers, APA line, table and graph export
+
+From an outside walkthrough of build 53 (every statistic recomputed in SciPy and found to match; the findings were all
+interface). In the order the review listed them:
+
+- **A filter with `and` no longer locks the tab.** `and`, `or` in any case, a single `&` or `|`, and a lone `=` are
+  accepted in a filter or a Compute formula (changed only outside text in quotes). A filter that cannot be read says so
+  under the box, in red, with the typed text kept so it can be fixed, and all rows stay in use; the Data, Filters dialog
+  shows the same message under its field. It was an `alert()` raised from the box's change event, and a blocking dialog
+  there could lock the tab in Chrome. The box and the dialog hint now mention `and` and `or`.
+- **Dialogs open on two different variables.** Two boxes offering the same columns (dependent variable and covariate in
+  Linear Regression, rows and columns in Contingency Tables, the two variables of a Paired T-Test, x and y of a
+  scatterplot) default to the first and second column, so Run never regresses Age on Age.
+- **Summary-statistics boxes show only when "from summary statistics" is chosen**, and the column boxes only for "from a
+  column": the one-sample and independent t-tests, both z-tests, the variance tests (sample 2 only for the two-sample
+  test, the claimed SD only for the one-sample test), the binomial test, goodness of fit, contingency tables, two
+  proportions, McNemar and Cochran-Armitage. The CLT demonstration shows its column box only when the population is a column.
+- **Descriptives explains the quartile rule only when quartiles are on the card** (quartiles, IQR, fences or other
+  percentiles ticked) or a box plot uses them (the note then says so).
+- **The empty Graphs tab says what goes there**: graphs from the Graph menu; a plot ticked inside an analysis stays with
+  its card under Analyses.
+- **A box plot's axis covers its outliers**: the value axis runs from a labelled tick at or below the minimum to one at or
+  above the maximum (Commute_Minutes now ends at 80, with 68 and 70 inside the axis), in Descriptives, Graph, Boxplot,
+  the independent t-test and ANOVA plots.
+- **Linear Regression reports r with its sign** (the slope's sign), labelled r and r squared, with a note that other
+  software prints an unsigned R.
+- **One chart style.** The Plotly toolbar is gone from every graph (dragging still zooms, a double click resets); under
+  each graph a **download PNG** button saves it at twice the screen resolution.
+- **Results survive a reload.** The choices behind every card on the Analyses and Graphs tabs are stored as the cards are
+  made, with the name of the data. After a reload a bar above the tabs offers "Restore your last session?" with the
+  count, the dataset and the time; Restore opens the same data (an untouched sample dataset is fetched again, so the
+  "opens empty" rule of 2026-10-14 is unchanged unless the student asks) and runs the same analyses, so graphs and edit
+  buttons come back; No thanks forgets them. A card that can no longer run (a column that is gone) is reported, not
+  silently dropped. A session file still works as before.
+- **Widen table** next to the filter box folds the results pane away so all eighteen columns show; the next result, or
+  Show results, brings it back. (The bar between the panels could already be dragged; it was easy to miss.)
+- The Welch checkbox says "the default here", not "the default in this course".
+- **Phone layout checked** headlessly at 390 px: no horizontal overflow on the data page with a result card open or on
+  the distrACTION page.
+
+From the review's suggestions:
+
+- **Show the numbers in the formula**: under the formula line of the one-sample, independent (Welch and pooled) and
+  paired t-tests, both z-tests, ANOVA, linear regression, goodness of fit and contingency tables, a closed toggle opens
+  the same formula with the actual values in it, worked through to the statistic, the df, the interval and the effect
+  size (t = (3.517 minus 3.5318) / sqrt(0.3455^2 / 23 + 0.2588^2 / 17) = -0.0148 / 0.0955 = -0.155).
+- **Report it as (APA style)**: one line under the same cards, t(37.98) = −0.15, p = .878, d = −0.05, 95% CI [−0.21, 0.18],
+  with p and r without a leading zero and a real minus sign.
+- **copy as CSV** and **copy as Markdown** under every table (CSV cells quoted when they need it; a Markdown table with
+  right-aligned number columns), and download PNG under every graph. Copy text still skips the buttons.
+- Not done, noted for later: a shareable state link, a "which test?" wizard, course profiles.
+
+Service worker cache `sww-v51`, scripts `?v=54`. Verified headlessly in Chrome on the class data: `and`, `&&`, `&` keep
+the same 9 rows, `or`, `|` and `=` the same 16; a bad filter gives the message and no alert; regression of GPA on
+Hours_Study prints r = -0.1753 beside the negative slope; Welch t for GPA by Pet_Owner -0.155 on 37.98 df, p = 0.8776,
+the worked line ending in the same t; box plot of Commute_Minutes on an axis from 0 to 80 in steps of 20; five cards
+restored after a reload in their order with six plots; no console errors.
+
 ### 2026-10-14: empty table on open, distrACTION and Learn on their own pages, more events, calmer layout
 
 - **Opens empty.** An untouched sample dataset is no longer remembered, so a student never opens the app to last week's

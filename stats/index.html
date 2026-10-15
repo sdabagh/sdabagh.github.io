@@ -60,6 +60,16 @@ body:not(.view-data) main{display:none}
 #datapane .filt{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;flex:0 1 300px}
 #datapane.nodata .filt{display:none}
 #filterBox{width:100%;min-width:0;min-height:44px;padding:4px 8px;border:1px solid var(--edge);border-radius:6px;font-family:var(--mono);font-size:14px}
+#filterBox[aria-invalid="true"]{border-color:var(--rose);box-shadow:0 0 0 2px rgba(181,71,107,.25)}
+/* a filter that cannot be read says so under the box (never a blocking dialog) */
+#filterMsg{flex-basis:100%;color:var(--rose);font-size:14px;line-height:1.35}#filterMsg:empty{display:none}
+/* Widen table folds the results away so all the columns show; the next result, or the button again, brings them back */
+#paneToggle{min-height:36px;padding:0 10px;border:1px solid var(--edge);border-radius:6px;background:#fff;color:var(--navy);font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap}#paneToggle:hover{border-color:var(--sky);background:#EAF2F7}
+#datapane.nodata #paneToggle{display:none}
+body.tablewide main{grid-template-columns:minmax(0,1fr) 0 0}body.tablewide #splitter,body.tablewide #outwrap{display:none}
+/* the offer to bring back the last visit's results after a reload */
+#restoreBar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 14px;background:#FFF6E5;border-bottom:1px solid #E8D2A8;font-size:15px;color:var(--ink)}#restoreBar[hidden]{display:none}
+#restoreBar button{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);font-family:inherit;font-size:15px;cursor:pointer}#restoreBar button.go{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
 #grid{overflow:auto;flex:1;min-height:0}
 table.grid{border-collapse:collapse;font-size:14px;font-family:var(--mono)}
 table.grid th{position:sticky;top:0;z-index:2;background:var(--teal);color:#fff;padding:3px 8px 5px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap;vertical-align:top}
@@ -93,6 +103,7 @@ table.grid td[contenteditable]:focus{outline:3px solid var(--navy);outline-offse
 .pane{display:none;overflow:auto;padding:16px 20px;background:#fff;min-height:0;min-width:0;flex:1}
 .pane.active{display:block}
 #out:empty::before,#outG:empty::before,#outD:empty::before{content:"Results appear here, newest on top.";display:block;color:var(--muted);padding:20px 4px}
+#outG:empty::before{content:"Graphs made from the Graph menu appear here, newest on top. A plot ticked inside an analysis (Descriptives, a t-test, Regression) stays with its card under Analyses."}
 #outD:empty::before{content:"Pick a calculator to start."}
 body.dist-open #outD:empty::before{content:"Fill in the inputs and the result appears here."}
 /* result cards */
@@ -126,7 +137,13 @@ body.view-distraction .card.editing.stale::before{content:"Editing this result. 
 .card .tools button{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;color:var(--muted)}
 .card .tools button:hover{background:var(--alt);color:var(--navy)}
 .card .plot{width:100%;height:320px}
-.card.copying .tools,.card.copying .plot{display:none!important}
+.card.copying .tools,.card.copying .plot,.card.copying .tblbtns,.card.copying .pngbtn{display:none!important}
+/* copy a table as CSV or Markdown; save a graph as a PNG */
+.card .tblbtns{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}.card .tblbtns button,.card .pngbtn{min-height:32px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer}.card .tblbtns button:hover,.card .pngbtn:hover{background:var(--alt);color:var(--navy)}
+.card .pngbtn{display:block;margin:-6px 0 10px}
+/* the formula with the numbers in it (a toggle, closed by default) and the one-line APA report */
+.card details.worked summary{font-size:14px;min-height:36px;padding:6px 0}.card details.worked .formula{margin:2px 0 6px 8px;color:var(--ink)}
+.card .apa{font-size:14px;color:var(--muted);margin:4px 0 8px}.card .apa code{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--alt);padding:2px 6px;border-radius:4px;overflow-wrap:anywhere}
 .card .formula{font-family:var(--mono);font-size:13px;color:var(--muted);margin:4px 0}
 /* distrACTION and Learn pages */
 #toolpage{display:none;flex:1;min-height:0;flex-direction:column}
@@ -192,6 +209,7 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
 /* narrow screens: iPad portrait and phones scroll the page, not nested panes */
 @media (max-width:900px){
   body{height:auto;min-height:100vh;overflow:visible}
+  #paneToggle{display:none}
   main{grid-template-columns:minmax(0,1fr)}
   #splitter{display:none}
   header h1 span{display:none}
@@ -232,7 +250,7 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
   .pane{padding:12px}
   .card .big{font-size:24px}
 }
-@media print{body{display:block;height:auto;overflow:visible}header,nav.menu,#datapane,#splitter,.card .tools,.tabs,.toolbar,#distPanel,#learnPick,#learnSwitch{display:none!important}main{display:block;height:auto}.pane{display:block;overflow:visible}.toolscroll{overflow:visible}.toolbody{display:block;padding:0}}
+@media print{body{display:block;height:auto;overflow:visible}header,nav.menu,#datapane,#splitter,.card .tools,.card .tblbtns,.card .pngbtn,#restoreBar,.tabs,.toolbar,#distPanel,#learnPick,#learnSwitch{display:none!important}main{display:block;height:auto}.pane{display:block;overflow:visible}.toolscroll{overflow:visible}.toolbody{display:block;padding:0}}
 </style>
 </head>
 <body class="view-data">
@@ -245,11 +263,12 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
 <nav class="menu" id="menu" aria-label="Main menu"></nav>
 <main>
   <section id="datapane" class="nodata">
-    <div class="bar"><b id="dsname" tabindex="-1">No data loaded</b><span id="dsinfo"></span><label class="filt">Filter: <input id="filterBox" type="text" placeholder='e.g. Year == "Freshman"' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= AND OR. Blank = all rows."></label></div>
+    <div class="bar"><b id="dsname" tabindex="-1">No data loaded</b><span id="dsinfo"></span><label class="filt">Filter: <input id="filterBox" type="text" placeholder='e.g. Year == "Freshman" and GPA > 3' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= and or. Blank = all rows."></label><button type="button" id="paneToggle" aria-pressed="false" title="Give the table the whole width. The bar between the panels can also be dragged.">Widen table</button><div id="filterMsg" role="alert"></div></div>
     <div id="grid"></div>
   </section>
   <div id="splitter" title="Drag to resize the panels; double-click to reset"></div>
   <section id="outwrap">
+    <div id="restoreBar" hidden><span id="restoreText"></span><button type="button" class="go" id="restoreYes">Restore</button><button type="button" id="restoreNo">No thanks</button></div>
     <div class="tabs" role="tablist" aria-label="Results"><button class="tab active" type="button" role="tab" id="tabA" aria-selected="true" aria-controls="out" data-tab="analyses">Analyses <span class="cnt" id="cntA"></span></button><button class="tab" type="button" role="tab" id="tabG" aria-selected="false" aria-controls="outG" data-tab="graphs">Graphs <span class="cnt" id="cntG"></span></button></div>
     <div id="out" class="pane active" role="tabpanel" aria-labelledby="tabA"></div>
     <div id="outG" class="pane" role="tabpanel" aria-labelledby="tabG"></div>
@@ -270,7 +289,7 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
 <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display:none">
 <script src="vendor/jstat.min.js"></script>
 <script src="vendor/plotly-cartesian.min.js"></script>
-<script src="stats.js?v=53"></script>
-<script src="app.js?v=53"></script>
+<script src="stats.js?v=54"></script>
+<script src="app.js?v=54"></script>
 </body>
 </html>
