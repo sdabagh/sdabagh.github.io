@@ -7,6 +7,8 @@
   let VIEW = "data", INLINE = false, LIVE = null, LASTCARD = null; // page shown; next dialog renders in the distrACTION inputs card; the card that card updates live; newest card
   let RESUME = null, UNDO = null; // Undo clear: the live card a reopened calculator takes back; what Clear this page took away
   let DEC = 4; try { DEC = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { }
+  let LAST = null; try { LAST = JSON.parse(localStorage.getItem("sww_last") || "null"); } catch (e) { } // the last visit's results, offered back after a reload
+  let AUTORUN = false; // restoring: a dialog is filled in and run without opening
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const escA = (s) => esc(s).replace(/"/g, "&quot;"); // inside an attribute
@@ -133,7 +135,7 @@
   function renderGrid() {
     $("#dsname").textContent = D.name || "No data loaded";
     gridInfo();
-    $("#filterBox").value = D.filter;
+    $("#filterBox").value = D.filter; filterMsg("");
     $("#datapane").classList.toggle("nodata", !D.rows.length);
     const g = $("#grid"), hadFocus = g.contains(document.activeElement); if (!D.rows.length) { g.innerHTML = emptyState(); wireEmpty(g); return; }
     // the column name is a button that sorts (aria-sort says how); under it, with a gap, the type is its own button.
@@ -236,6 +238,7 @@
     const tc = $("#toolClear"), tu = $("#toolUndo"), undo = !!(UNDO && UNDO.view === VIEW);
     if (tc) tc.style.display = !undo && ((VIEW === "learn" && any) || (VIEW === "distraction" && ($("#outD").children.length > 0 || $("#distForm").children.length > 0))) ? "" : "none";
     if (tu) tu.style.display = undo ? "" : "none";
+    autosave();
   }
   function card(title, meta, html) {
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
@@ -247,6 +250,7 @@
     LASTCARD = div; const onData = TARGET === "#out" || TARGET === "#outG";
     if (UNDO && UNDO.pane === TARGET) UNDO = null;
     const reveal = TARGET !== "#outD" && narrow(); // the distrACTION inputs card shows its own live answer instead
+    if (onData && document.body.classList.contains("tablewide")) setWide(false); // the results come back for a new result
     if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div; }
     const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div;
   }
@@ -259,8 +263,11 @@
   // copy text: the card's words and tables without its buttons and graphs, then a short "Copied" on the button and for screen readers
   function copyCard(div, b) {
     div.classList.add("copying"); const txt = div.innerText.trim(); div.classList.remove("copying");
-    const name = (div.querySelector("h2") || {}).textContent || "the result";
-    const done = (ok) => { b.textContent = ok ? "Copied" : "Copy failed"; announce(ok ? "Copied the text of " + name + "." : "Copy failed. Select the text and copy it by hand."); clearTimeout(b._t); b._t = setTimeout(() => { b.textContent = "copy text"; }, ok ? 1500 : 3000); };
+    clipText(txt, b, "copy text", "the text of " + ((div.querySelector("h2") || {}).textContent || "the result"));
+  }
+  // put text on the clipboard; the button says Copied (or Copy failed) for a moment and goes back to its label
+  function clipText(txt, b, label, what) {
+    const done = (ok) => { b.textContent = ok ? "Copied" : "Copy failed"; announce(ok ? "Copied " + what + "." : "Copy failed. Select the text and copy it by hand."); clearTimeout(b._t); b._t = setTimeout(() => { b.textContent = label; }, ok ? 1500 : 3000); };
     const byHand = () => { let ok = false; try { const ta = document.createElement("textarea"); ta.value = txt; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e) { } b.focus({ preventScroll: true }); done(ok); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => done(true), byHand); else byHand();
   }
@@ -271,8 +278,18 @@
   }
   function table(headers, rows, caption) {
     return (caption ? `<div class="cap">${esc(caption)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
-      rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : esc(v)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
+      rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : esc(v)}</td>`).join("")}</tr>`).join("") + "</tbody></table>" +
+      `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">copy as CSV</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">copy as Markdown</button></div>`;
   }
+  // a table copied as CSV (for a spreadsheet) or as Markdown (for a report or a slide); the buttons sit under every table
+  function tableCells(t) { return [...t.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => c.textContent.replace(/\s+/g, " ").trim())); }
+  function copyTable(t, b, how) {
+    const rows = tableCells(t); if (!rows.length) return;
+    const csvCell = (s) => (/[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s);
+    const txt = how === "md" ? [rows[0], rows[0].map((_, j) => (j ? "---:" : "---"))].concat(rows.slice(1)).map((r) => "| " + r.map((s) => s.replace(/\|/g, "\\|")).join(" | ") + " |").join("\n") : rows.map((r) => r.map(csvCell).join(",")).join("\n");
+    clipText(txt, b, how === "md" ? "copy as Markdown" : "copy as CSV", "the table");
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest ? e.target.closest('button[data-act="csv"], button[data-act="md"]') : null; if (!b) return; const t = b.parentNode && b.parentNode.previousElementSibling; if (t && t.tagName === "TABLE") copyTable(t, b, b.dataset.act); });
   // whole-number x axis (the discrete distributions): a label on every value only when each label has room, otherwise one every
   // 2, 5, 10, ... values, so a phone shows a readable axis. Worked out from the plot's width, and again when the window resizes.
   function wholeStep(wh, p) {
@@ -332,20 +349,37 @@
     const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; p.setAttribute("role", "img"); p.setAttribute("aria-label", plotName(layout, div)); div.appendChild(p);
     const wh = layout && layout.xaxis && layout.xaxis.whole; if (layout && layout.xaxis && "whole" in layout.xaxis) { layout.xaxis = Object.assign({}, layout.xaxis); delete layout.xaxis.whole; }
     if (wh && Number.isFinite(wh.from) && Number.isFinite(wh.to)) { const st = wholeStep(wh, p); p._whole = wh; p._step = st; if (st) Object.assign(layout.xaxis, { dtick: st, tick0: 0 }); }
-    const bare = (p.clientWidth || window.innerWidth) < 640 || matchMedia("(hover: none)").matches; // phones, iPads: the toolbar would cover the title
     const L = Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout);
     if (L.title) { // Plotly's own sizes: a title is 1.4 times the page font, and a margin object without t has t = 100
       if (typeof L.title === "string") L.title = { text: L.title };
       const f = L.font || {}; p._tt = { text: String(L.title.text || ""), size: (L.title.font && L.title.font.size) || (f.size || 12) * 1.4, family: (L.title.font && L.title.font.family) || f.family || "Segoe UI, Arial", mt: L.margin && L.margin.t != null ? L.margin.t : 100, h };
       fitTitle(p, L);
     }
-    Plotly.newPlot(p, traces, L, Object.assign({ displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] }, bare ? { displayModeBar: false } : {}));
+    // No Plotly toolbar: it was noise for a student, and the histograms (drawn without it) and the scatterplots (drawn with
+    // it) looked like two different apps. Dragging still zooms and a double click resets. Under each graph one button saves
+    // it as a PNG for a report or a slide, at twice the screen resolution.
+    Plotly.newPlot(p, traces, L, { displaylogo: false, responsive: true, displayModeBar: false });
+    const b = document.createElement("button"); b.type = "button"; b.className = "pngbtn"; b.dataset.act = "png"; b.textContent = "download PNG"; b.setAttribute("aria-label", "Download as PNG: " + plotName(layout, div)); div.appendChild(b);
+    b.onclick = () => { const name = plotName(layout, div).replace(/[^\w\- ]+/g, " ").trim().replace(/\s+/g, "_").slice(0, 60) || "graph"; try { Plotly.downloadImage(p, { format: "png", width: p.clientWidth || 800, height: h, scale: 2, filename: name }); } catch (e) { announce("The graph could not be saved. Take a screenshot instead."); } };
   }
   const pWord = (p) => (p < 0.0001 ? "p < 0.0001" : `p = ${p.toFixed(4)}`);
   const decision = (p, alpha) => (!Number.isFinite(p) ? "The p-value could not be worked out for these numbers, so there is no decision yet. Check the inputs." : p <= alpha ? `${pWord(p)} is at or below alpha = ${alpha}: reject H0.` : `${pWord(p)} is above alpha = ${alpha}: fail to reject H0.`) + (p < 0.0001 ? " Write p < 0.001 in a report; a p-value is never exactly 0." : "");
   const altWord = (alt) => (alt === "two" ? "not equal to" : alt === "less" ? "less than" : "greater than");
   const say = (t) => `<div class="say">${t}</div>`, warn = (t) => `<div class="warn">${t}</div>`, ok = (t) => `<div class="ok">${t}</div>`, formula = (t) => `<div class="formula">${esc(t)}</div>`;
   const cond = (pass, yes, no) => (pass ? ok(yes) : warn(no));
+  // the formula again with the actual numbers in it: the step a student cannot do alone, and the one that turns output into a
+  // worked example. A toggle, closed by default, so the card stays short.
+  const worked = (lines) => `<details class="worked"><summary>Show the numbers in the formula</summary>${lines.map(formula).join("")}</details>`;
+  // one sentence in APA style to paste into a write-up: p and r without a leading zero, a real minus sign
+  const apaP = (p) => (!Number.isFinite(p) ? "p = n/a" : p < 0.001 ? "p < .001" : "p = " + p.toFixed(3).replace(/^0/, ""));
+  const noZero = (x, d = 2) => (!Number.isFinite(x) ? "n/a" : (x < 0 ? "-" : "") + Math.abs(x).toFixed(d).replace(/^0(?=\.)/, ""));
+  const apa = (t) => `<div class="apa">Report it as (APA style): <code>${esc(String(t).replace(/(^|[\s(\[=,])-(?=\d|\.)/g, "$1\u2212"))}</code></div>`;
+  const dfText = (df) => (Number.isInteger(df) ? String(df) : fmt(df, 2));
+  const apaN = (x, d = 2) => (Number.isFinite(x) ? x.toFixed(d) : "n/a"); // APA keeps the trailing zeros: 1.10, not 1.1
+  // fields that apply to one way of giving the data only: the column boxes for "from a column", the typed numbers for
+  // "from summary statistics". A dialog without a Data box shows everything.
+  const onData = (raw) => raw.mode === "data", onSummary = (raw) => raw.mode !== "data";
+  const only = (fd, vis) => (fd ? Object.assign({}, fd, { vis }) : null);
   const smallGroups = (pairs, min = 5) => { const s = pairs.filter(([n]) => n < min); return s.length ? warn(`Small group: ${s.map(([n, g]) => `${esc(g)} has N = ${n}`).join("; ")}. A mean, SD or test from fewer than ${min} people is fragile and any normality check on it is meaningless. Say so in the write-up.`) : ""; };
 
   // ================= dialog =================
@@ -405,6 +439,7 @@
     f.innerHTML = ""; f.dataset.target = TARGET;
     const groups = {}, wide = new Set(); let html = ""; // wide: a group with a typed list gets full-width boxes, one under the other
     if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) fd = Object.assign(fd, { value: PREFILL[fd.name] }); });
+    const taken = []; fields.filter(Boolean).forEach((fd) => { if (!fd.distinct || fd.value != null) return; const opts = (fd.options || []).map((o) => (Array.isArray(o) ? o[0] : o)); const pick = opts.find((o) => !taken.includes(o)); if (pick != null) { fd.value = pick; taken.push(pick); } });
     fields.filter(Boolean).forEach((fd) => {
       const id = pre + fd.name; let ctl = "";
       if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
@@ -446,6 +481,7 @@
       catch (err) { if (replace && LASTCARD && LASTCARD.isConnected) LASTCARD.remove(); throw err; }
       finally { TARGET = prev; PENDING = null; REPLACE = null; }
     };
+    if (AUTORUN) { exec(null); return; } // restoring the last visit's results: run with the saved choices, no dialog shown
     if (!inline) {
       $("#dlgCancel").onclick = () => closeDlg();
       f.oninput = f.onchange = applyVis;
@@ -530,8 +566,10 @@
   const MULTI_HINT = () => (matchMedia("(pointer: coarse)").matches ? "tap each one you want" : "hold Cmd or Ctrl to pick several");
   const needData = () => { if (!D.rows.length) throw new Error("Open a data file first (Data menu)."); };
   const sel = (name, label, options, value) => ({ name, label, type: "select", options, value });
-  const selNum = (name, label) => sel(name, label, numCols());
-  const selCat = (name, label) => sel(name, label, catCols());
+  // distinct: two boxes offering the same columns (dependent variable and covariate, rows and columns, the two paired
+  // variables) open on different columns, so Run never regresses a variable on itself
+  const selNum = (name, label) => Object.assign(sel(name, label, numCols()), { distinct: true });
+  const selCat = (name, label) => Object.assign(sel(name, label, catCols()), { distinct: true });
   const lvField = { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" };
   const pickTwo = (g, lvText) => { let lv = [...new Set(col(g).filter((q) => q !== ""))]; if (lvText && lvText.trim()) { const pick = lvText.split(",").map((t) => t.trim()); const bad = pick.filter((t) => !lv.includes(t)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${g}: ${lv.join(", ")}. Name exactly two of them.`); return pick; } if (lv.length > 2) return lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${g} has ${lv.length} level.`); return lv; };
   const selAny = (name, label, none = true) => sel(name, label, (none ? [["", "(none)"]] : []).concat(D.cols));
@@ -563,7 +601,7 @@
         const hdr = ["Statistic"].concat(numV.flatMap((x) => groups.map((g) => (g == null ? x : `${x} (${g})`))));
         const cells = numV.flatMap((x) => groups.map((g) => { const vals = subset(x, v, g); const d = SW.describe(vals, v.qm) || {}; d.sum = (d.mean || 0) * (d.n || 0); const xs = SW.num(vals); const ku = SW.kurtosis(xs); d.kurt = ku.kurt; d.kurtSE = ku.se; d.cv = d.mean ? (100 * d.sd) / Math.abs(d.mean) : null; pcts.forEach((p) => { d["p" + p] = SW.percentile(xs, p / 100, v.qm === "type7" ? "type7" : "rank"); }); return d; }));
         const rows = statList.map(([k, lab, key]) => [lab].concat(cells.map((d) => (d[key] == null ? "" : d[key]))));
-        cd.insertAdjacentHTML("beforeend", table(hdr, rows, "Descriptives") + (groups.length > 1 ? smallGroups(cells.map((d, i) => [d.n || 0, hdr[i + 1]])) : "") + (pcts.length ? say(v.qm === "type7" ? "Other percentiles by the R interpolation rule (type 7)." : "Other percentiles by the textbook rule: the kth percentile is the smallest value with at least k percent of the data at or below it.") : "") + (v.cv ? say("The coefficient of variation is the SD as a percent of the mean. It compares spread across variables on different scales, and only makes sense for positive data measured from a true zero.") : "") + (v.qm === "halves" ? say("Quartiles by the textbook rule: Q1 is the median of the lower half and Q3 the median of the upper half, with the overall median left out when n is odd. R and most software interpolate instead, so their quartiles can differ in the first decimal; neither is wrong, say which rule you used.") : say("Quartiles by the R interpolation rule (type 7). The textbook rule (median of each half) can differ in the first decimal.")) + (v.skew ? say("Skewness smaller than about twice its standard error is weak evidence of skew; do not call a distribution skewed on a number that small. Look at the histogram.") : "") + (cells.some((d) => d.missing > 0) ? warn("Some rows are blank for a variable and were dropped from that column only, so N differs across columns. Check N before comparing.") : "") + (v.sdpop ? say("Two standard deviations are shown. The sample one divides by n minus 1 and is the one this course reports (the data are a sample). The population one divides by N; calculators and spreadsheets sometimes use it, which is why a hand calculation can disagree with the table.") : "") + (v.mode ? say("Mode: when two or more values tie for most frequent, all of them are printed with the count. Most software prints only one and does not say so.") : "") + say("Shape from two numbers: mean above median points to a right tail, mean below median to a left tail. Report a pair: mean with standard deviation when symmetric, median with IQR when skewed or with outliers."));
+        cd.insertAdjacentHTML("beforeend", table(hdr, rows, "Descriptives") + (groups.length > 1 ? smallGroups(cells.map((d, i) => [d.n || 0, hdr[i + 1]])) : "") + (pcts.length ? say(v.qm === "type7" ? "Other percentiles by the R interpolation rule (type 7)." : "Other percentiles by the textbook rule: the kth percentile is the smallest value with at least k percent of the data at or below it.") : "") + (v.cv ? say("The coefficient of variation is the SD as a percent of the mean. It compares spread across variables on different scales, and only makes sense for positive data measured from a true zero.") : "") + (!(v.q || v.iqr || v.fence || v.box || pcts.length) ? "" : v.qm === "halves" ? say(`Quartiles${v.q || v.iqr || v.fence ? "" : " (used by the box plot)"} by the textbook rule: Q1 is the median of the lower half and Q3 the median of the upper half, with the overall median left out when n is odd. R and most software interpolate instead, so their quartiles can differ in the first decimal; neither is wrong, say which rule you used.`) : say("Quartiles by the R interpolation rule (type 7). The textbook rule (median of each half) can differ in the first decimal.")) + (v.skew ? say("Skewness smaller than about twice its standard error is weak evidence of skew; do not call a distribution skewed on a number that small. Look at the histogram.") : "") + (cells.some((d) => d.missing > 0) ? warn("Some rows are blank for a variable and were dropped from that column only, so N differs across columns. Check N before comparing.") : "") + (v.sdpop ? say("Two standard deviations are shown. The sample one divides by n minus 1 and is the one this course reports (the data are a sample). The population one divides by N; calculators and spreadsheets sometimes use it, which is why a hand calculation can disagree with the table.") : "") + (v.mode ? say("Mode: when two or more values tie for most frequent, all of them are printed with the count. Most software prints only one and does not say so.") : "") + say("Shape from two numbers: mean above median points to a right tail, mean below median to a left tail. Report a pair: mean with standard deviation when symmetric, median with IQR when skewed or with outliers."));
       }
       if (v.freq && catV.length) catV.forEach((x) => { groups.forEach((g) => { const vals = subset(x, v, g); const c = SW.counts(vals), keys = SW.naturalOrder(Object.keys(c)) || Object.keys(c).sort(), n = keys.reduce((s, k) => s + c[k], 0); let cum = 0; const miss = vals.filter((q) => q === "").length; cd.insertAdjacentHTML("beforeend", table(["Levels", "Counts", "Relative frequency", "Percent", "Cumulative frequency", "Cumulative relative frequency", "Cumulative percent"], keys.map((k) => { cum += c[k]; return [k, c[k], fmt(c[k] / n, 3), fmt((100 * c[k]) / n, 1) + "%", cum, fmt(cum / n, 3), fmt((100 * cum) / n, 1) + "%"]; }).concat([["Total (non-missing)", n, "1.000", "100%", "", "", ""]]), `Frequencies of ${x}${g == null ? "" : " (" + g + ")"}`) + (miss ? warn(`${miss} blank${miss > 1 ? "s" : ""} excluded: percentages are out of ${n}, not ${n + miss}.`) : "")); }); });
       // plots
@@ -575,7 +613,7 @@
           const annotations = shapes.length && traces[0].text ? traces[0].text.map((t, j) => ({ x: B.mids[j], y: traces[0].y[j], text: t, showarrow: false, yanchor: "bottom", yshift: 2, bgcolor: "#fff", borderpad: 1, font: { size: 12, color: "#333" } })) : [];
           if (annotations.length) traces[0].text = undefined;
           plotDiv(cd, traces, { barmode: "overlay", bargap: 0, title: `Histogram of ${x} (bin width ${B.width})`, xaxis: { title: x, tickvals: B.edges.length <= 16 ? B.edges : undefined }, yaxis: { title: v.dens ? "density" : "Count", range: [0, ymaxH * 1.18], fixedrange: true }, shapes, annotations }); }
-        if (v.box) plotDiv(cd, groups.map((g) => ({ y: SW.num(subset(x, v, g)), type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: g == null ? x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { title: `Box plot of ${x}`, yaxis: { title: x }, showlegend: false });
+        if (v.box) plotDiv(cd, groups.map((g) => ({ y: SW.num(subset(x, v, g)), type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: g == null ? x : String(g), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { title: `Box plot of ${x}`, yaxis: Object.assign({ title: x }, coverAxis(SW.num(col(x)))), showlegend: false });
         if (v.dot) { const xs = SW.num(col(x)).sort((a, b) => a - b), bw = (d.range || 1) / 40 || 1, bins = {}; const ys = xs.map((val) => { const b = Math.round(val / bw); bins[b] = (bins[b] || 0) + 1; return bins[b]; }); plotDiv(cd, [{ x: xs, y: ys, mode: "markers", type: "scatter", marker: { size: 9, color: "#3A7CA5" } }], { title: `Dot plot of ${x}`, yaxis: { visible: false }, xaxis: { title: x } }); }
         if (v.qq) { const q = SW.qq(col(x)), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: `Q-Q plot of ${x} (points on the line means roughly normal)`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: x } }); }
       });
@@ -620,6 +658,14 @@
     return isNum(v.by) ? g.sort((a, b) => Number(a) - Number(b)) : g;
   }
   function subset(x, v, g) { if (g == null) return col(x); const k = byKey(v.by), b = col(v.by); return col(x).filter((_, i) => k(b[i]) === g); }
+  // a box plot's value axis runs from a labelled tick at or below the smallest value to one at or above the largest, so an
+  // outlier is never drawn past the last label (Commute_Minutes had 68 and 70 floating above a last tick of 60)
+  function coverAxis(vals) {
+    const x = vals.map(Number).filter(Number.isFinite); if (!x.length) return {};
+    const lo = Math.min(...x), hi = Math.max(...x), span = hi - lo || Math.abs(hi) || 1, raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const dtick = [1, 2, 5, 10].map((m) => m * p).find((d) => d >= raw), a = Math.floor(lo / dtick + 1e-9) * dtick, b = Math.ceil(hi / dtick - 1e-9) * dtick;
+    return { range: [a - 0.12 * dtick, b + 0.12 * dtick], tick0: a, dtick };
+  }
   function meanMedianShapes(d) { return [{ type: "line", x0: d.mean, x1: d.mean, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }, { type: "line", x0: d.median, x1: d.median, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", width: 2, dash: "dash" } }]; }
   const honest = (items) => `<div class="formula">${esc("Honest-graph rules applied: " + items.join(" "))}</div>`;
   function gBar() {
@@ -683,7 +729,7 @@
       v.vars.forEach((x) => groups.forEach((g) => { const vals = SW.num(subset(x, v, g)); traces.push(Object.assign({ type: "box", quartilemethod: "exclusive", name: (v.vars.length > 1 ? x : "") + (g == null ? (v.vars.length > 1 ? "" : x) : (v.vars.length > 1 ? " " : "") + String(g)), boxpoints: v.pts ? "all" : "outliers", jitter: 0.3, hoveron: "points", hoverinfo: v.horiz ? "x+name" : "y+name", marker: { color: C(v) } }, v.horiz ? { x: vals } : { y: vals })); }));
       const fences = v.vars.map((x) => { const d = SW.describe(col(x)); return `${x}: Q1 ${fmt(d.q1)}, median ${fmt(d.median)}, Q3 ${fmt(d.q3)}, fences ${fmt(d.lowerFence)} and ${fmt(d.upperFence)}`; }).join("; ");
       const cd = card("Boxplot: " + v.vars.join(", ") + (v.by ? " by " + v.by : ""), src(fences), say("Box from Q1 to Q3 (textbook rule: median of each half, overall median excluded), line at the median, whiskers to the last values inside the fences, dots beyond. Dots are worth a look, not wrong. Shape decides the summary: symmetric, mean with s; skewed or with dots, median with IQR."));
-      plotDiv(cd, traces, applyAppearance({ [v.horiz ? "xaxis" : "yaxis"]: { title: v.vars.length === 1 ? v.vars[0] : "" }, showlegend: false }, v));
+      plotDiv(cd, traces, applyAppearance({ [v.horiz ? "xaxis" : "yaxis"]: Object.assign({ title: v.vars.length === 1 ? v.vars[0] : "" }, coverAxis(traces.flatMap((t) => (v.horiz ? t.x : t.y)))), showlegend: false }, v));
     });
   }
   function gScatter() {
@@ -722,8 +768,8 @@
     const hasData = D.rows.length > 0;
     dialog("T-Tests: One Sample Z-Test (sigma known)", [
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
-      hasData ? selNum("x", "Variable") : null,
-      { name: "xbar", label: "Sample mean", type: "number", group: "Summary statistics" }, { name: "n", label: "N", type: "number", group: "Summary statistics" },
+      only(hasData ? selNum("x", "Variable") : null, onData),
+      { name: "xbar", label: "Sample mean", type: "number", group: "Summary statistics", vis: onSummary }, { name: "n", label: "N", type: "number", group: "Summary statistics", vis: onSummary },
       { name: "sigma", label: "Population standard deviation sigma (given in the problem)", type: "number" },
       { name: "mu0", label: "Test value", type: "number", value: 0 }, hypField("Mean"), confField, alphaField], (v) => {
       let xbar = v.xbar, n = v.n, label = "value", from = "summary statistics";
@@ -733,6 +779,8 @@
       const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: v.mu0, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
       let html = table(["", "N", "Mean", "sigma", "SE = sigma / sqrt(n)", "z", "p", `${pc}% CI lower`, "upper"], [[label, n, xbar, v.sigma, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "One Sample Z-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. z* = ${fmt(r.zstar)}.</div>`;
       html += formula("z = (x bar minus test value) / (sigma / sqrt(n)); interval x bar plus or minus z* sigma / sqrt(n). Use z only when the population sigma is actually given; with the sample SD s, use t.");
+      html += worked([`z = (${fmt(xbar)} minus ${v.mu0}) / (${v.sigma} / sqrt(${n})) = ${fmt(xbar - v.mu0)} / ${fmt(r.se)} = ${fmt(r.z)}`, `interval: ${fmt(xbar)} plus or minus ${fmt(r.zstar)} times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
+      html += apa(`z = ${apaN(r.z, 2)}, ${apaP(r.p)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: mu = ${v.mu0}. Ha: mu ${altWord(v.alt)} ${v.mu0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean is ${altWord(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean is ${altWord(v.alt)} ${v.mu0}.`} We are ${pc} percent confident the population mean is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
       html += cond(n >= 30, "N is at least 30: the z procedure is fine whatever the population shape.", "N is under 30: this needs a roughly normal population; state that the assumptions are met.");
       const cd = card("One Sample Z-Test", from, html); zPlot(cd, r.z, v.alt);
@@ -742,10 +790,10 @@
     const hasData = D.rows.length > 0;
     dialog("T-Tests: Two Sample Z-Test (sigmas known)", [
       hasData ? sel("mode", "Data", [["data", "variable and grouping variable"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
-      hasData ? selNum("x", "Variable") : null, hasData ? selCat("g", "Grouping variable") : null, hasData ? lvField : null,
-      { name: "m1", label: "Mean 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" },
-      { name: "m2", label: "Mean 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
-      { name: "s1", label: "sigma 1 (population SD, given)", type: "number", group: "Known population SDs" }, { name: "s2", label: "sigma 2 (population SD, given)", type: "number", group: "Known population SDs" },
+      only(hasData ? selNum("x", "Variable") : null, onData), only(hasData ? selCat("g", "Grouping variable") : null, onData), only(hasData ? lvField : null, onData),
+      { name: "m1", label: "Mean 1", type: "number", group: "Group 1", vis: onSummary }, { name: "n1", label: "N 1", type: "number", group: "Group 1", vis: onSummary },
+      { name: "m2", label: "Mean 2", type: "number", group: "Group 2", vis: onSummary }, { name: "n2", label: "N 2", type: "number", group: "Group 2", vis: onSummary },
+      { name: "s1", label: "sigma 1 (population SD, given)", type: "number", group: "Known population SDs", vis: onSummary }, { name: "s2", label: "sigma 2 (population SD, given)", type: "number", group: "Known population SDs", vis: onSummary },
       sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"), confField, alphaField], (v) => {
       let m1 = v.m1, n1 = v.n1, m2 = v.m2, n2 = v.n2, names = ["Group 1", "Group 2"], from = "summary statistics";
       if (v.mode === "data") { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) lv = v.lv.split(",").map((q) => q.trim()); if (lv.length < 2) throw new Error(`${v.g} needs two levels.`); lv = lv.slice(0, 2); names = lv; const a = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[0])), b = SW.describe(col(v.x).filter((_, i) => col(v.g)[i] === lv[1])); if (!a || !b) throw new Error("Each group needs at least two numeric values."); m1 = a.mean; n1 = a.n; m2 = b.mean; n2 = b.n; from = src(`${v.x} by ${v.g}`); }
@@ -754,6 +802,8 @@
       const r = SW.twoZ({ m1, s1: v.s1, n1, m2, s2: v.s2, n2, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
       let html = table(["Group", "N", "Mean", "sigma"], [[names[0], n1, m1, v.s1], [names[1], n2, m2, v.s2]], "Groups") + table(["Difference (1 minus 2)", "SE", "z", "p", `${pc}% CI lower`, "upper"], [[r.diff, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "Two Sample Z-Test");
       html += formula("z = (x bar 1 minus x bar 2) / sqrt(sigma1^2/n1 + sigma2^2/n2). Only when both population SDs are given; otherwise use t.");
+      html += worked([`z = (${fmt(m1)} minus ${fmt(m2)}) / sqrt(${v.s1}^2 / ${n1} + ${v.s2}^2 / ${n2}) = ${fmt(r.diff)} / ${fmt(r.se)} = ${fmt(r.z)}`, `interval: ${fmt(r.diff)} plus or minus z* times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
+      html += apa(`z = ${apaN(r.z, 2)}, ${apaP(r.p)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: mu1 = mu2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${esc(names[0])} is ${altWord(v.alt)} the mean of ${esc(names[1])}.` : `There is not enough evidence of a difference in the direction stated.`} We are ${pc} percent confident the difference in means is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
       const cd = card("Two Sample Z-Test", from, html); zPlot(cd, r.z, v.alt);
     });
@@ -762,9 +812,9 @@
     const hasData = D.rows.length > 0;
     dialog("Advanced: Variance tests (one SD or two SDs)", [sel("which", "Test", [["one", "One sample: SD against a claimed value (chi-square)"], ["two", "Two samples: compare two SDs (F)"]], "one"),
       hasData ? sel("mode", "Data", [["data", "from the data"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
-      hasData ? selNum("x", "Variable") : null, hasData ? selCat("g", "Grouping variable (two samples)") : null, hasData ? lvField : null,
-      { name: "s1", label: "SD (sample 1)", type: "number", group: "Summary statistics" }, { name: "n1", label: "N (sample 1)", type: "number", group: "Summary statistics" }, { name: "s2", label: "SD (sample 2)", type: "number", group: "Summary statistics" }, { name: "n2", label: "N (sample 2)", type: "number", group: "Summary statistics" },
-      { name: "sigma0", label: "Claimed population SD (one sample)", type: "number", value: 1 },
+      only(hasData ? selNum("x", "Variable") : null, onData), only(hasData ? selCat("g", "Grouping variable (two samples)") : null, (raw) => onData(raw) && raw.which === "two"), only(hasData ? lvField : null, (raw) => onData(raw) && raw.which === "two"),
+      { name: "s1", label: "SD (sample 1)", type: "number", group: "Summary statistics", vis: onSummary }, { name: "n1", label: "N (sample 1)", type: "number", group: "Summary statistics", vis: onSummary }, { name: "s2", label: "SD (sample 2)", type: "number", group: "Summary statistics", vis: (raw) => onSummary(raw) && raw.which === "two" }, { name: "n2", label: "N (sample 2)", type: "number", group: "Summary statistics", vis: (raw) => onSummary(raw) && raw.which === "two" },
+      { name: "sigma0", label: "Claimed population SD (one sample)", type: "number", value: 1, vis: (raw) => raw.which !== "two" },
       sel("alt", "Hypothesis", [["two", "not equal"], ["greater", "greater than (sample 1 SD larger)"], ["less", "less than"]], "two"), confField, alphaField], (v) => {
       let s1 = v.s1, n1 = v.n1, s2 = v.s2, n2 = v.n2, names = ["sample 1", "sample 2"], from = "summary statistics";
       if (v.mode === "data") {
@@ -796,8 +846,8 @@
     const hasData = D.rows.length > 0;
     dialog("T-Tests: One Sample T-Test", [
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
-      hasData ? selNum("x", "Dependent variable") : null,
-      { name: "xbar", label: "Mean", type: "number", group: "Summary statistics" }, { name: "s", label: "Std. deviation", type: "number", group: "Summary statistics" }, { name: "n", label: "N", type: "number", group: "Summary statistics" },
+      only(hasData ? selNum("x", "Dependent variable") : null, onData),
+      { name: "xbar", label: "Mean", type: "number", group: "Summary statistics", vis: onSummary }, { name: "s", label: "Std. deviation", type: "number", group: "Summary statistics", vis: onSummary }, { name: "n", label: "N", type: "number", group: "Summary statistics", vis: onSummary },
       { name: "mu0", label: "Test value", type: "number", value: 0 }, hypField("Mean"),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size (Cohen's d)", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
@@ -813,6 +863,8 @@
       let html = table(hdr, [row], "One Sample T-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. Confidence interval is for the mean difference; the interval for the mean itself is ${fmt(r.lower)} to ${fmt(r.upper)}.</div>`;
       if (v.desc) html += table(["", "N", "Mean", "Median", "SD", "SE"], [[label, n, xbar, v.mode === "data" ? SW.describe(col(v.x)).median : "", s, r.se]], "Descriptives");
       html += formula(`t = (x bar minus test value) / (s / sqrt(n)), df = n minus 1. Sigma is not given, so t, never z.`);
+      html += worked([`t = (${fmt(xbar)} minus ${v.mu0}) / (${fmt(s)} / sqrt(${n})) = ${fmt(xbar - v.mu0)} / ${fmt(r.se)} = ${fmt(r.t)}, df = ${n} minus 1 = ${r.df}`, `interval: ${fmt(xbar)} plus or minus ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`, `d = (${fmt(xbar)} minus ${v.mu0}) / ${fmt(s)} = ${fmt(r.d)}`]);
+      html += apa(`t(${r.df}) = ${apaN(r.t, 2)}, ${apaP(r.p)}, d = ${apaN(r.d, 2)}, ${Math.round(r.conf * 100)}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: mu = ${v.mu0}. Ha: mu ${altWord(v.alt)} ${v.mu0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean of ${esc(label)} is ${altWord(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean of ${esc(label)} is ${altWord(v.alt)} ${v.mu0}.`} The sample mean is ${fmt(xbar)}, ${fmt(Math.abs(r.d), 2)} standard deviations from ${v.mu0}.`);
       html += cond(n >= 30, "N is at least 30: the t procedure is fine whatever the population shape.", "N is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
       const cd = card("One Sample T-Test", from, html); tPlot(cd, r.t, r.df, v.alt);
@@ -822,10 +874,10 @@
     const hasData = D.rows.length > 0;
     dialog("T-Tests: Independent Samples T-Test", [
       hasData ? sel("mode", "Data", [["data", "dependent variable and grouping variable"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
-      hasData ? selNum("x", "Dependent variable") : null, hasData ? selCat("g", "Grouping variable") : null, hasData ? { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" } : null,
-      { name: "m1", label: "Mean 1", type: "number", group: "Group 1" }, { name: "s1", label: "SD 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" },
-      { name: "m2", label: "Mean 2", type: "number", group: "Group 2" }, { name: "s2", label: "SD 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
-      { name: "welch", label: "Welch's (unequal variances, the default in this course)", type: "check", value: true, group: "Tests" },
+      only(hasData ? selNum("x", "Dependent variable") : null, onData), only(hasData ? selCat("g", "Grouping variable") : null, onData), only(hasData ? { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" } : null, onData),
+      { name: "m1", label: "Mean 1", type: "number", group: "Group 1", vis: onSummary }, { name: "s1", label: "SD 1", type: "number", group: "Group 1", vis: onSummary }, { name: "n1", label: "N 1", type: "number", group: "Group 1", vis: onSummary },
+      { name: "m2", label: "Mean 2", type: "number", group: "Group 2", vis: onSummary }, { name: "s2", label: "SD 2", type: "number", group: "Group 2", vis: onSummary }, { name: "n2", label: "N 2", type: "number", group: "Group 2", vis: onSummary },
+      { name: "welch", label: "Welch's (unequal variances, the default here)", type: "check", value: true, group: "Tests" },
       sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
@@ -840,11 +892,16 @@
       let html = table(hdr, [row], "Independent Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>${esc(names[0])}</sub> ${altWord(v.alt)} mu<sub>${esc(names[1])}</sub>. ${v.welch ? "Welch's df comes from the two standard errors, so it is a decimal." : "Student's t pools the two variances and uses df = n1 + n2 minus 2; it assumes the two groups have equal spread."}</div>`;
       if (v.desc) html += table(["", "Group", "N", "Mean", "SD", "SE"], [[v.mode === "data" ? v.x : "", names[0], a.n, a.mean, a.sd, a.sd / Math.sqrt(a.n)], ["", names[1], b.n, b.mean, b.sd, b.sd / Math.sqrt(b.n)]], "Group Descriptives");
       html += formula(v.welch ? `t = (x bar 1 minus x bar 2) / sqrt(s1^2 / n1 + s2^2 / n2)` : `t = (x bar 1 minus x bar 2) / (sp sqrt(1/n1 + 1/n2)), sp^2 = ((n1 minus 1) s1^2 + (n2 minus 1) s2^2) / (n1 + n2 minus 2)`);
+      const sp = Math.sqrt(((a.n - 1) * a.sd * a.sd + (b.n - 1) * b.sd * b.sd) / (a.n + b.n - 2));
+      html += worked((v.welch ? [`t = (${fmt(a.mean)} minus ${fmt(b.mean)}) / sqrt(${fmt(a.sd)}^2 / ${a.n} + ${fmt(b.sd)}^2 / ${b.n}) = ${fmt(r.diff)} / ${fmt(r.se)} = ${fmt(r.t)}`, `df = (s1^2/n1 + s2^2/n2)^2 / ((s1^2/n1)^2 / (n1 minus 1) + (s2^2/n2)^2 / (n2 minus 1)) = ${fmt(r.df)}`]
+        : [`sp^2 = ((${a.n} minus 1) ${fmt(a.sd)}^2 + (${b.n} minus 1) ${fmt(b.sd)}^2) / (${a.n} + ${b.n} minus 2) = ${fmt(sp * sp)}, sp = ${fmt(sp)}`, `t = (${fmt(a.mean)} minus ${fmt(b.mean)}) / (${fmt(sp)} sqrt(1/${a.n} + 1/${b.n})) = ${fmt(r.diff)} / ${fmt(r.se)} = ${fmt(r.t)}, df = ${a.n} + ${b.n} minus 2 = ${r.df}`])
+        .concat([`interval: ${fmt(r.diff)} plus or minus ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`, `d = (${fmt(a.mean)} minus ${fmt(b.mean)}) / sp = ${fmt(r.diff)} / ${fmt(sp)} = ${fmt(r.d)}`]));
+      html += apa(`t(${dfText(r.df)}) = ${apaN(r.t, 2)}, ${apaP(r.p)}, d = ${apaN(r.d, 2)}, ${Math.round(r.conf * 100)}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: the two population means are equal. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${esc(names[0])} is ${altWord(v.alt)} the mean of ${esc(names[1])}.` : `There is not enough evidence of a difference between the means of ${esc(names[0])} and ${esc(names[1])}.`} We are ${Math.round(r.conf * 100)} percent confident the difference in population means is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
       if (v.mode === "data") { const all = [...new Set(col(v.g).filter((q) => q !== ""))]; if (all.length > 2) html += say(`${esc(v.g)} has ${all.length} levels (${esc(all.join(", "))}); this test compares ${esc(names[0])} with ${esc(names[1])} only. Choosing which two is your decision to defend; for all groups at once use One-Way ANOVA.`); }
       html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have N at least 30.", "A group has N under 30: needs roughly normal populations (check box plots); state that the assumptions are met.") + say("Independent samples: different individuals in each group. If the same individuals were measured twice, use the Paired Samples T-Test.");
       const cd = card("Independent Samples T-Test", from, html);
-      if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false });
+      if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: Object.assign({ title: v.x }, coverAxis(SW.num(ga).concat(SW.num(gb)))), showlegend: false });
       tPlot(cd, r.t, r.df, v.alt);
     });
   }
@@ -863,6 +920,8 @@
       let html = table(hdr, [row], "Paired Samples T-Test") + `<div class="note">Note. H<sub>a</sub> mu<sub>Measure 1 minus Measure 2</sub> ${altWord(v.alt)} 0. Difference = ${esc(v.a)} minus ${esc(v.b)}.</div>`;
       if (v.desc) { const da = SW.describe(col(v.a)), db = SW.describe(col(v.b)); html += table(["", "N", "Mean", "Median", "SD", "SE"], [[v.a, da.n, da.mean, da.median, da.sd, da.se], [v.b, db.n, db.mean, db.median, db.sd, db.se]], "Descriptives"); }
       html += formula(`d = ${v.a} minus ${v.b} for each pair; t = d bar / (s_d / sqrt(n)), df = n minus 1`);
+      html += worked([`d bar = ${fmt(r.dbar)}, s_d = ${fmt(r.sd)}, n = ${r.n}`, `t = ${fmt(r.dbar)} / (${fmt(r.sd)} / sqrt(${r.n})) = ${fmt(r.dbar)} / ${fmt(r.se)} = ${fmt(r.t)}, df = ${r.n} minus 1 = ${r.df}`, `interval: ${fmt(r.dbar)} plus or minus ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`, `d = ${fmt(r.dbar)} / ${fmt(r.sd)} = ${fmt(r.d)}`]);
+      html += apa(`t(${r.df}) = ${apaN(r.t, 2)}, ${apaP(r.p)}, d = ${apaN(r.d, 2)}, ${Math.round(r.conf * 100)}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: the mean difference is 0. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${esc(v.a)} is ${altWord(v.alt)} the mean of ${esc(v.b)} for the same individuals.` : `There is not enough evidence of a difference between ${esc(v.a)} and ${esc(v.b)}.`} Mean difference ${fmt(r.dbar)}, ${Math.round(r.conf * 100)} percent interval ${fmt(r.lower)} to ${fmt(r.upper)}.`) + say("Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.");
       const cd = card("Paired Samples T-Test", src(), html);
       if (v.plot) plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: `difference: ${v.a} minus ${v.b}` }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
@@ -885,13 +944,15 @@
       html += table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p"], [[v.g, r.ssb, r.df1, r.msb, r.F, SW.fmtP(r.p)], ["Residuals", r.ssw, r.df2, r.msw, "", ""]], `ANOVA - ${v.x}`);
       if (v.desc) html += table(["", v.g, "N", "Mean", "SD", "SE"], r.groups.map((q, i) => [i ? "" : v.x, q.name, q.n, q.mean, q.sd, q.sd / Math.sqrt(q.n)]), "Group Descriptives");
       html += formula(`H0: all group means equal. F = MS between / MS within, df = (k minus 1, N minus k). R squared = SS between / SS total = ${fmt(r.r2)}.`);
+      html += worked([`MS between = SS between / df1 = ${fmt(r.ssb)} / ${r.df1} = ${fmt(r.msb)}; MS within = SS within / df2 = ${fmt(r.ssw)} / ${r.df2} = ${fmt(r.msw)}`, `F = ${fmt(r.msb)} / ${fmt(r.msw)} = ${fmt(r.F)} on (${r.df1}, ${r.df2}) df`]);
+      html += apa(`F(${r.df1}, ${r.df2}) = ${apaN(r.F, 2)}, ${apaP(r.p)}, eta squared = ${noZero(r.r2)}`);
       html += say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `At least one group mean of ${esc(v.x)} differs across ${esc(v.g)}; the F test does not say which. Read the post-hoc table.` : `There is not enough evidence that the mean of ${esc(v.x)} differs across ${esc(v.g)}.`}`);
       html += smallGroups(r.groups.map((q) => [q.n, q.name]));
       if (v.levene) { const L = SW.levene(Object.values(groups)); html += table(["F", "df1", "df2", "p"], [[L.F, L.d1, L.d2, SW.fmtP(L.p)]], "Levene's test (deviations from the median, Brown-Forsythe)") + say(L.p <= +v.alpha ? `Levene p = ${fmt(L.p, 4)}: the group variances differ, so read Welch's ANOVA.` : `Levene p = ${fmt(L.p, 4)}: no evidence the group variances differ.`); }
       if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
       if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
       const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
-      if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: { title: v.x }, showlegend: false });
+      if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: Object.assign({ title: v.x }, coverAxis(r.groups.flatMap((q) => q.x))), showlegend: false });
     });
   }
   function welchAnova(r) {
@@ -923,12 +984,14 @@
       const preds = String(v.pred == null || Number.isNaN(v.pred) ? "" : v.pred).split(",").map((q) => q.trim()).filter(Boolean).map(Number);
       if (preds.some((q) => !Number.isFinite(q))) throw new Error("Predict at x: type numbers separated by commas, such as 10, 20.");
       let html = "";
-      if (v.r2) html += table(["Model", "R", "R squared"], [["1", Math.abs(r.r), r.r2]], "Model Fit Measures");
+      if (v.r2) html += table(["Model", "r", "r squared"], [["1", r.r, r.r2]], "Model Fit Measures") + `<div class="note">Note. r is the correlation, with the sign of the slope (other software prints R without a sign, the multiple-regression convention). r squared is the share of the variation in ${esc(v.y)} explained by the line.</div>`;
       const hdr = ["Predictor", "Estimate", "SE", "t", "p"]; if (v.ci) hdr.push(`${Math.round(r.conf * 100)}% CI lower`, "upper");
       const b0row = ["Intercept", r.b0, r.seb0, r.b0 / r.seb0, SW.fmtP(2 * (1 - SW.pt(Math.abs(r.b0 / r.seb0), r.df)))], b1row = [v.x, r.b1, r.seb1, r.t, SW.fmtP(r.p)];
       if (v.ci) { b0row.push(r.b0 - r.tstar * r.seb0, r.b0 + r.tstar * r.seb0); b1row.push(r.b1lower, r.b1upper); }
       html += table(hdr, [b0row, b1row], `Model Coefficients - ${v.y}`);
       html += formula(`${v.y} hat = ${fmt(r.b0)} + ${fmt(r.b1)} ${v.x}. b1 = r s_y / s_x, b0 = y bar minus b1 x bar. Slope test: H0 beta1 = 0, t = b1 / SE, df = n minus 2 = ${r.df}.`);
+      html += worked([`b1 = r s_y / s_x = ${fmt(r.r)} times ${fmt(r.sy)} / ${fmt(r.sx)} = ${fmt(r.b1)}`, `b0 = y bar minus b1 x bar = ${fmt(r.my)} minus ${fmt(r.b1)} times ${fmt(r.mx)} = ${fmt(r.b0)}`, `t = b1 / SE = ${fmt(r.b1)} / ${fmt(r.seb1)} = ${fmt(r.t)}, df = ${r.n} minus 2 = ${r.df}`, `r^2 = ${fmt(r.r)}^2 = ${fmt(r.r2)}`]);
+      html += apa(`b = ${apaN(r.b1, 2)}, t(${r.df}) = ${apaN(r.t, 2)}, ${apaP(r.p)}; r = ${noZero(r.r)}, r squared = ${noZero(r.r2)}, N = ${r.n}`);
       html += say(`Slope: each one-unit increase in ${esc(v.x)} predicts a change of ${fmt(r.b1)} in ${esc(v.y)}. ${fmt(100 * r.r2, 1)} percent of the variation in ${esc(v.y)} is explained by the line. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a linear relationship between ${esc(v.x)} and ${esc(v.y)}.` : `There is not enough evidence of a linear relationship between ${esc(v.x)} and ${esc(v.y)}.`} Correlation is not causation.`);
       if (preds.length) { const pc = Math.round(r.conf * 100); html += table([v.x, `Predicted ${v.y}`, `${pc}% CI for the mean: lower`, "upper", `${pc}% PI for one new value: lower`, "upper"], preds.map((x0) => { const yh = r.predict(x0); return [x0, yh, yh - r.tstar * seMean(x0), yh + r.tstar * seMean(x0), yh - r.tstar * sePred(x0), yh + r.tstar * sePred(x0)]; }), "Prediction");
         html += formula(`CI for the mean response: y hat plus or minus t* s_e sqrt(1/n + (x minus x bar)^2 / Sxx). PI for one new value: y hat plus or minus t* s_e sqrt(1 + 1/n + (x minus x bar)^2 / Sxx). s_e = ${fmt(r.se_res)}, t* = ${fmt(r.tstar)} on ${r.df} df.`) + say(`The confidence interval is for the average ${esc(v.y)} of everyone with that ${esc(v.x)}; the prediction interval is for one new individual, so it is always wider.`);
@@ -947,8 +1010,8 @@
     const hasData = D.rows.length > 0, succCheck = levelCheck("x", null, (raw) => raw.mode === "data");
     dialog("Frequencies: 2 Outcomes, Binomial test", [
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
-      hasData ? selCat("x", "Variable") : null, hasData ? { name: "succ", label: "Level to test (leave blank for every level)", type: "text", check: succCheck } : null,
-      { name: "xs", label: "Count of successes", type: "number", group: "Counts" }, { name: "n", label: "N", type: "number", group: "Counts" },
+      only(hasData ? selCat("x", "Variable") : null, onData), only(hasData ? { name: "succ", label: "Level to test (leave blank for every level)", type: "text", check: succCheck } : null, onData),
+      { name: "xs", label: "Count of successes", type: "number", group: "Counts", vis: onSummary }, { name: "n", label: "N", type: "number", group: "Counts", vis: onSummary },
       { name: "p0", label: "Test value", type: "number", value: 0.5 }, hypField("Proportion"), { name: "ci", label: "Confidence intervals", type: "check", value: true }, sel("cim", "Interval method", [["wald", "Standard (Wald): p hat plus or minus z* SE, the by hand method"], ["plus4", "Plus four (Agresti-Coull with 2 successes and 2 failures added)"], ["ac", "Agresti-Coull (adjusted by z*)"], ["wilson", "Wilson score"], ["exact", "Exact (Clopper-Pearson)"]], "wald"), { name: "z", label: "Also show the z test (the course's by-hand method)", type: "check", value: true }, confField, alphaField], (v) => {
       let levels = [], from = "counts"; const cim = v.cim || "wald", cimName = { wald: "standard (Wald)", plus4: "plus four", ac: "Agresti-Coull", wilson: "Wilson score", exact: "exact Clopper-Pearson" }[cim]; let lastCI;
       if (v.mode === "data") { const lm = succCheck(v, true); if (lm) throw fieldErr("succ", lm); const vals = col(v.x).filter((q) => q !== ""); if (!vals.length) throw new Error(`${v.x} has no values in the rows in use.`); const c = SW.counts(vals); const keys = v.succ.trim() ? [v.succ.trim()] : Object.keys(c).sort(); levels = keys.map((k) => ({ level: k, x: c[k] || 0, n: vals.length })); from = src(v.x); }
@@ -974,8 +1037,8 @@
     const hasData = D.rows.length > 0;
     dialog("Frequencies: N Outcomes, Chi-square Goodness of fit", [
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
-      hasData ? selCat("x", "Variable") : null,
-      { name: "counts", label: "Counts, one per line as  level: count", type: "textarea", rows: 5, placeholder: "Freshman: 11\nSophomore: 15\nJunior: 9\nSenior: 5", group: "Counts (for the counts option)" },
+      only(hasData ? selCat("x", "Variable") : null, onData),
+      { name: "counts", label: "Counts, one per line as  level: count", type: "textarea", rows: 5, placeholder: "Freshman: 11\nSophomore: 15\nJunior: 9\nSenior: 5", group: "Counts (for the counts option)", vis: onSummary },
       { name: "props", label: "Expected proportions, comma separated in the level order shown (blank = equal)", type: "text", placeholder: "0.30, 0.25, 0.15, 0.30", hint: "Levels are sorted alphabetically, the order the frequency table shows them." },
       { name: "exp", label: "Expected counts", type: "check", value: true }, alphaField], (v) => {
       let obs = {}, from = "counts";
@@ -986,6 +1049,8 @@
       const r = SW.gof(obs, props);
       let html = propNote + table(["Level", "Count", "Expected", "Proportion", "(O minus E)^2 / E"], r.rows.map((q) => [q.cat, q.o, v.exp ? q.e : "", q.o / r.n, q.contrib]), "Proportions") + table(["chi-square", "df", "p"], [[r.chi, r.df, SW.fmtP(r.p)]], "Chi-square Goodness of Fit");
       html += formula(`chi-square = sum of (O minus E)^2 / E, E = n times expected proportion, df = levels minus 1`);
+      html += worked([`${r.rows[0].cat}: (${r.rows[0].o} minus ${fmt(r.rows[0].e)})^2 / ${fmt(r.rows[0].e)} = ${fmt(r.rows[0].contrib)}, and so on for each level`, `chi-square = ${r.rows.map((q) => fmt(q.contrib)).join(" + ")} = ${fmt(r.chi)}, df = ${keys.length} minus 1 = ${r.df}`]);
+      html += apa(`chi-square(${r.df}, N = ${r.n}) = ${apaN(r.chi, 2)}, ${apaP(r.p)}`);
       html += cond(r.minE >= 5, "Every expected count is at least 5.", `Smallest expected count is ${fmt(r.minE, 2)}, below 5: the test is not trustworthy.`);
       html += say(`H0: the population follows the stated proportions${props ? "" : " (all equal)"}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the distribution differs from the stated one.` : `There is not enough evidence that the distribution departs from the stated one; that is not proof that it matches.`}`);
       const cd = card("Chi-square Goodness of Fit (N Outcomes)", from, html);
@@ -996,8 +1061,8 @@
     const hasData = D.rows.length > 0;
     dialog("Frequencies: Contingency Tables, Independent Samples (chi-square test of association)", [
       hasData ? sel("mode", "Data", [["data", "from two columns"], ["summary", "from a table of counts"]], "data") : sel("mode", "Data", [["summary", "from a table of counts"]]),
-      hasData ? selCat("r", "Rows") : null, hasData ? selCat("c", "Columns") : null,
-      { name: "tbl", label: "Table of counts: first row = column names, first column = row names", type: "textarea", rows: 5, placeholder: "employment, Pet No, Pet Yes\nFull-time, 4, 6\nNot employed, 3, 6\nPart-time, 10, 11", group: "Counts (for the table option)" },
+      only(hasData ? selCat("r", "Rows") : null, onData), only(hasData ? selCat("c", "Columns") : null, onData),
+      { name: "tbl", label: "Table of counts: first row = column names, first column = row names", type: "textarea", rows: 5, placeholder: "employment, Pet No, Pet Yes\nFull-time, 4, 6\nNot employed, 3, 6\nPart-time, 10, 11", group: "Counts (for the table option)", vis: onSummary },
       { name: "chi", label: "chi-square", type: "check", value: true, group: "Tests" }, { name: "fisher", label: "Fisher's exact test (2 by 2)", type: "check", value: false, group: "Tests" }, { name: "orrr", label: "Odds ratio and relative risk (2 by 2)", type: "check", value: false, group: "Comparative Measures" }, { name: "obs", label: "Observed counts", type: "check", value: true, group: "Cells" }, { name: "exp", label: "Expected counts", type: "check", value: false, group: "Cells" },
       { name: "pcRow", label: "Row percentages", type: "check", value: false, group: "Percentages" }, { name: "pcCol", label: "Column percentages", type: "check", value: false, group: "Percentages" }, { name: "pcTot", label: "Total percentages", type: "check", value: false, group: "Percentages" }, alphaField], (v) => {
       let t, from = "counts", rn = "rows", cn = "columns";
@@ -1016,6 +1081,9 @@
       if (v.chi) {
         html += table(["", "Value", "df", "p"], [["chi-square", t.chi, t.df, SW.fmtP(t.p)], ["N", t.n, "", ""]], "chi-square Tests");
         html += formula(`chi-square = sum of (O minus E)^2 / E, E = row total times column total / N, df = (rows minus 1)(columns minus 1) = ${t.df}`);
+        const terms = t.O.flatMap((row, i) => row.map((o, j) => (o - t.E[i][j]) ** 2 / t.E[i][j]));
+        html += worked([`first cell (${t.rows[0]}, ${t.cols[0]}): E = ${t.rt[0]} times ${t.ct[0]} / ${t.n} = ${fmt(t.E[0][0])}; (${t.O[0][0]} minus ${fmt(t.E[0][0])})^2 / ${fmt(t.E[0][0])} = ${fmt(terms[0])}, and so on for each cell`, `chi-square = ${terms.map((q) => fmt(q)).join(" + ")} = ${fmt(t.chi)}, df = (${t.rows.length} minus 1)(${t.cols.length} minus 1) = ${t.df}`]);
+        html += apa(`chi-square(${t.df}, N = ${t.n}) = ${apaN(t.chi, 2)}, ${apaP(t.p)}`);
         html += cond(t.minE >= 5, "Every expected count is at least 5.", `Smallest expected count is ${fmt(t.minE, 2)}, below 5: the test is not trustworthy. Combine categories or collect more data.`);
         html += say(`H0: ${esc(rn)} and ${esc(cn)} are independent. ${decision(t.p, +v.alpha)} ${t.p <= +v.alpha ? `There is evidence of an association between ${esc(rn)} and ${esc(cn)}.` : `There is not enough evidence of an association between ${esc(rn)} and ${esc(cn)}.`}`);
       }
@@ -1031,8 +1099,8 @@
     const hasData = D.rows.length > 0, succCheck = levelCheck("x", "the success level", (raw) => raw.mode === "data");
     dialog("Frequencies: Two proportions, z test (course method)", [
       hasData ? sel("mode", "Data", [["data", "outcome column split by a group"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]),
-      hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text", check: succCheck } : null, hasData ? selCat("g", "Grouping variable (two levels)") : null, hasData ? lvField : null,
-      { name: "x1", label: "Successes 1", type: "number", group: "Group 1" }, { name: "n1", label: "N 1", type: "number", group: "Group 1" }, { name: "x2", label: "Successes 2", type: "number", group: "Group 2" }, { name: "n2", label: "N 2", type: "number", group: "Group 2" },
+      only(hasData ? selCat("x", "Outcome variable") : null, onData), only(hasData ? { name: "succ", label: "Success level (exactly as in the data)", type: "text", check: succCheck } : null, onData), only(hasData ? selCat("g", "Grouping variable (two levels)") : null, onData), only(hasData ? lvField : null, onData),
+      { name: "x1", label: "Successes 1", type: "number", group: "Group 1", vis: onSummary }, { name: "n1", label: "N 1", type: "number", group: "Group 1", vis: onSummary }, { name: "x2", label: "Successes 2", type: "number", group: "Group 2", vis: onSummary }, { name: "n2", label: "N 2", type: "number", group: "Group 2", vis: onSummary },
       sel("alt", "Hypothesis", [["two", "p1 not equal to p2"], ["greater", "p1 greater than p2"], ["less", "p1 less than p2"]], "two"), confField, alphaField], (v) => {
       let x1 = v.x1, n1 = v.n1, x2 = v.x2, n2 = v.n2, names = ["Group 1", "Group 2"], from = "counts";
       if (v.mode === "data") {
@@ -1263,7 +1331,7 @@
   }
   function mcnemarUI() {
     const hasData = D.rows.length > 0, succCheck = levelCheck(["a", "b"], "the level that counts as yes", (raw) => raw.mode === "data");
-    dialog("Advanced: McNemar test (paired yes or no)", [hasData ? sel("mode", "Data", [["data", "two paired categorical columns"], ["summary", "from the two discordant counts"]], "data") : sel("mode", "Data", [["summary", "from the two discordant counts"]]), hasData ? selCat("a", "Before (or measure 1)") : null, hasData ? selCat("b", "After (or measure 2)") : null, hasData ? { name: "succ", label: "Level that counts as yes", type: "text", check: succCheck } : null, { name: "bc", label: "Yes before, No after", type: "number", group: "Discordant counts" }, { name: "cb", label: "No before, Yes after", type: "number", group: "Discordant counts" }, alphaField], (v) => {
+    dialog("Advanced: McNemar test (paired yes or no)", [hasData ? sel("mode", "Data", [["data", "two paired categorical columns"], ["summary", "from the two discordant counts"]], "data") : sel("mode", "Data", [["summary", "from the two discordant counts"]]), only(hasData ? selCat("a", "Before (or measure 1)") : null, onData), only(hasData ? selCat("b", "After (or measure 2)") : null, onData), only(hasData ? { name: "succ", label: "Level that counts as yes", type: "text", check: succCheck } : null, onData), { name: "bc", label: "Yes before, No after", type: "number", group: "Discordant counts", vis: onSummary }, { name: "cb", label: "No before, Yes after", type: "number", group: "Discordant counts", vis: onSummary }, alphaField], (v) => {
       let b = v.bc, c = v.cb, from = "counts", tab = null;
       if (v.mode === "data") { const lm = succCheck(v, true); if (lm) throw fieldErr("succ", lm); const A = col(v.a), B = col(v.b), s = v.succ.trim(); let yy = 0, yn = 0, ny = 0, nn = 0; for (let i = 0; i < A.length; i++) { if (A[i] === "" || B[i] === "") continue; const a1 = A[i] === s, b1 = B[i] === s; if (a1 && b1) yy++; else if (a1) yn++; else if (b1) ny++; else nn++; } b = yn; c = ny; tab = [[yy, yn], [ny, nn]]; from = src(`${v.a} to ${v.b}, yes = ${s}`); if (yy + yn + ny + nn === 0) throw new Error(`No row has both ${v.a} and ${v.b} filled in, so there are no pairs to compare.`); }
       if (!(Number.isInteger(b) && Number.isInteger(c) && b >= 0 && c >= 0)) throw new Error("Type the two discordant counts as whole numbers, 0 or more.");
@@ -1285,7 +1353,7 @@
       const lv = [...new Set(col(raw.g).filter((q) => q !== ""))], bad = raw.order.split(",").map((q) => q.trim()).filter((q) => q && !lv.includes(q));
       return bad.length ? `Levels of ${raw.g}: ${lv.slice(0, 12).join(", ")}${lv.length > 12 ? ", and more" : ""}. ${bad.join(", ")} ${bad.length > 1 ? "are" : "is"} not one of them; type each group exactly, comma separated.` : "";
     };
-    dialog("Advanced: Cochran-Armitage trend test (proportion across ordered groups)", [hasData ? sel("mode", "Data", [["data", "outcome column by an ordered group column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]), hasData ? selCat("x", "Outcome variable") : null, hasData ? { name: "succ", label: "Level that counts as success", type: "text", check: succCheck } : null, hasData ? selCat("g", "Ordered group variable") : null, hasData ? { name: "order", label: "Group levels in order, comma separated (blank = alphabetical)", type: "text", check: orderCheck } : null, { name: "s", label: "Successes per group, comma separated", type: "text", group: "Counts" }, { name: "n", label: "Totals per group, comma separated", type: "text", group: "Counts" }, alphaField], (v) => {
+    dialog("Advanced: Cochran-Armitage trend test (proportion across ordered groups)", [hasData ? sel("mode", "Data", [["data", "outcome column by an ordered group column"], ["summary", "from counts"]], "data") : sel("mode", "Data", [["summary", "from counts"]]), only(hasData ? selCat("x", "Outcome variable") : null, onData), only(hasData ? { name: "succ", label: "Level that counts as success", type: "text", check: succCheck } : null, onData), only(hasData ? selCat("g", "Ordered group variable") : null, onData), only(hasData ? { name: "order", label: "Group levels in order, comma separated (blank = alphabetical)", type: "text", check: orderCheck } : null, onData), { name: "s", label: "Successes per group, comma separated", type: "text", group: "Counts", vis: onSummary }, { name: "n", label: "Totals per group, comma separated", type: "text", group: "Counts", vis: onSummary }, alphaField], (v) => {
       let succ, tot, labels, from = "counts";
       if (v.mode === "data") { const lm = succCheck(v, true); if (lm) throw fieldErr("succ", lm); const om = orderCheck(v); if (om) throw fieldErr("order", om); const xv = col(v.x), gv = col(v.g); labels = v.order.trim() ? v.order.split(",").map((s) => s.trim()) : [...new Set(gv.filter((q) => q !== ""))].sort(); succ = labels.map((l) => xv.filter((q, i) => gv[i] === l && q === v.succ.trim()).length); tot = labels.map((l) => xv.filter((q, i) => gv[i] === l && q !== "").length); from = src(`${v.x} = ${v.succ} across ${v.g}`); }
       else { succ = v.s.split(",").map(Number); tot = v.n.split(",").map(Number); labels = succ.map((_, i) => "group " + (i + 1)); }
@@ -2086,7 +2154,7 @@
     const hasData = D.rows.length > 0;
     dialog("Learn: The Central Limit Theorem", [
       sel("pop", "Population", (hasData ? [["col", "a column in the data (treated as the population)"]] : []).concat([["skew", "right-skewed (exponential, mean 8)"], ["normal", "normal, mean 50, SD 10"], ["uniform", "uniform 0 to 100"], ["bimodal", "two humps, a mixture of 30 and 70"], ["prop", "yes or no, with a given p"]]), hasData ? "col" : "skew"),
-      hasData ? selNum("x", "Column (used as the population)") : null,
+      only(hasData ? selNum("x", "Column (used as the population)") : null, (raw) => raw.pop === "col"),
       { name: "p", label: "p for the yes or no population", type: "number", value: 0.3 },
       { name: "ns", label: "Sample sizes to compare", type: "text", value: "1, 5, 30, 100" },
       { name: "reps", label: "Samples drawn at each size", type: "number", value: 2000 }], (v) => {
@@ -2320,7 +2388,8 @@
   }
   function filterUI() {
     needData();
-    dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" AND Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= AND OR. Blank removes the filter. Every analysis uses only the kept rows." }], (v) => { D.filter = v.f.trim(); if (D.filter) activeIdx(); renderGrid(); if (D.filter) changed(); else persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
+    const problem = (f) => { const t = String(f == null ? "" : f).trim(); if (!t) return ""; try { SW.compileFormula(t, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); return ""; } catch (e) { return "Filter could not be read: " + e.message; } };
+    dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" and Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= and or (AND, OR, &&, || work too). Blank removes the filter. Every analysis uses only the kept rows.", check: (raw) => problem(raw.f) }], (v) => { const bad = problem(v.f); if (bad) throw fieldErr("f", bad); D.filter = v.f.trim(); renderGrid(); if (D.filter) changed(); else persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
   }
   function saveSession() { const payload = { name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, manual: D.manual || {}, origin: D.origin || "own", results: $("#out").innerHTML, graphs: $("#outG").innerHTML, distraction: $("#outD").innerHTML, learn: $("#outL").innerHTML, saved: new Date().toISOString() }; downloadText(JSON.stringify(payload), (D.name || "session") + ".sww.json", "application/json"); }
   // A session file can come from anyone (a classmate, an email), so nothing in it may run and nothing in it may fetch. Its
@@ -2380,7 +2449,7 @@
       D.origin = s.origin === "sample" || legacy ? "sample" : "own"; D.restored = false; D.name = d.name; D.cols = d.cols; D.rows = d.rows; D.filter = plainFormula(d.filter, d.cols, d.rows) ? d.filter : ""; D.manual = d.manual; inferTypes(); renderGrid(); persist();
       if (d.filter && !D.filter) alert("The filter saved in this session was not applied: it has something other than column names, numbers, text in quotes and operators. All rows are in use. To filter again, use Data, Filters.");
       if (legacy) untouchedSample({ name: d.name, cols: d.cols, rows: d.rows, filter: d.filter, manual: d.manual }).then((same) => { if (!same && D.rows === myRows) { D.origin = "own"; persist(); } });
-      [["#out", s.results], ["#outG", s.graphs], ["#outD", s.distraction], ["#outL", s.learn]].forEach(([id, h]) => { const pane = $(id), frag = cleanFragment(h); pane.innerHTML = ""; pane.appendChild(frag); }); LIVE = null; document.querySelectorAll("#out .plot, #outG .plot, #outD .plot, #outL .plot").forEach((p) => p.remove());
+      [["#out", s.results], ["#outG", s.graphs], ["#outD", s.distraction], ["#outL", s.learn]].forEach(([id, h]) => { const pane = $(id), frag = cleanFragment(h); pane.innerHTML = ""; pane.appendChild(frag); }); LIVE = null; document.querySelectorAll("#out .plot, #outG .plot, #outD .plot, #outL .plot, #out [data-act=\"png\"], #outG [data-act=\"png\"], #outD [data-act=\"png\"], #outL [data-act=\"png\"]").forEach((p) => p.remove());
       // a card from a file has no dialog behind it, so it has no edit button: run the analysis again from its menu to change it or redraw its graph
       document.querySelectorAll('#out [data-act="edit"], #outG [data-act="edit"], #outD [data-act="edit"], #outL [data-act="edit"]').forEach((b) => b.remove());
       document.querySelectorAll("#outD .card").forEach((c) => c.classList.remove("editing", "kept", "stale")); document.querySelectorAll('#out [data-act="close"], #outG [data-act="close"], #outD [data-act="close"], #outL [data-act="close"]').forEach((b) => (b.onclick = () => removeCard(b.closest(".card")))); document.querySelectorAll('#out [data-act="copy"], #outG [data-act="copy"], #outD [data-act="copy"], #outL [data-act="copy"]').forEach((b) => (b.onclick = () => copyCard(b.closest(".card"), b))); counts(); }); };
@@ -2403,6 +2472,55 @@
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
+
+  // ================= last visit's results =================
+  // Results were lost on a reload (an accidental refresh wiped every card, and nobody saves a session before a refresh).
+  // Now the choices behind each card on the Analyses and Graphs tabs are stored as they are made, with the name of the data
+  // they ran on, and on the next visit a bar offers to run them again. The app still opens as before (the empty table, or
+  // the user's own data) unless Restore is chosen: an untouched sample dataset comes back only with its results.
+  const FN_KEY = new Map(), KEY_FN = new Map();
+  MENU.forEach(([m, items]) => items.forEach((it) => { if (it) { FN_KEY.set(it[1], m + " | " + it[0]); KEY_FN.set(m + " | " + it[0], it[1]); } }));
+  function autosave() {
+    try {
+      const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
+      if (!cards.length) { if (!LAST) localStorage.removeItem("sww_last"); return; } // nothing yet this visit: the offer from the last one stands
+      localStorage.setItem("sww_last", JSON.stringify({ name: D.name, origin: D.origin || "own", filter: D.filter, cards, at: Date.now() }));
+    } catch (e) { }
+  }
+  function offerLast() {
+    const s = LAST, bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object" || !Array.isArray(s.cards) || !s.cards.length) { LAST = null; return; }
+    const n = s.cards.length, when = Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
+    const name = s.name == null ? "" : String(s.name), filt = typeof s.filter === "string" ? s.filter.trim() : "";
+    $("#restoreText").textContent = `Restore your last session? ${n} result${n > 1 ? "s" : ""} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
+    bar.hidden = false;
+    $("#restoreYes").onclick = () => restoreLast(s);
+    $("#restoreNo").onclick = () => { LAST = null; bar.hidden = true; try { localStorage.removeItem("sww_last"); } catch (e) { } focusTo(pageHeading()); };
+  }
+  function restoreLast(s) {
+    LAST = null; $("#restoreBar").hidden = true;
+    const name = s.name == null ? "" : String(s.name);
+    const run = () => {
+      const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); if (D.filter) changed();
+      let made = 0, first = null;
+      s.cards.forEach((c) => {
+        const fn = c && KEY_FN.get(c.k); if (!fn || !c.v || typeof c.v !== "object") return;
+        CUR_FN = fn; PREFILL = Object.assign({}, c.v); REPLACE = null; TARGET = c.t === "#outG" ? "#outG" : "#out"; AUTORUN = true; const before = LASTCARD;
+        try { fn(); if (LASTCARD && LASTCARD !== before && LASTCARD.isConnected) { made++; first = first || LASTCARD; } } catch (e) { } finally { AUTORUN = false; PREFILL = null; CUR_FN = null; TARGET = baseTarget(); }
+      });
+      const miss = s.cards.length - made;
+      if (miss) { TARGET = "#out"; CUR_FN = null; card("Last session", `${made} of ${s.cards.length} results restored`, warn(`${miss} result${miss > 1 ? "s" : ""} could not be run again on these data (a column that is no longer there, or a choice that no longer fits). Run ${miss > 1 ? "them" : "it"} again from the menu.`)); TARGET = baseTarget(); }
+      counts(); announce(`${made} result${made === 1 ? "" : "s"} restored${miss ? `, ${miss} not` : ""}.`);
+      if (first && first.isConnected) focusTo(first.querySelector("h2"), true); else focusTo(pageHeading());
+    };
+    if (D.rows.length && D.name === name) return run();
+    const f = s.origin === "sample" ? sampleFileFor(name) : null;
+    if (f) { fetch("data/" + f).then((r) => (r.ok ? r.text() : Promise.reject(new Error("no file")))).then((t) => { loadTable(name, parseCSV(t), "sample"); run(); }).catch(() => { TARGET = "#out"; CUR_FN = null; card("Last session", "not restored", warn("The sample dataset could not be loaded, so the results were not run again. Open it from Data, Sample datasets and run the analyses from the menus.")); TARGET = baseTarget(); }); return; }
+    TARGET = "#out"; CUR_FN = null; card("Last session", "not restored", warn(`Those results were run on ${esc(name || "a dataset")}, which is not on this computer any more. Open the file again and run the analyses from the menus.`)); TARGET = baseTarget();
+  }
+  // Widen table: the results pane folds away so the whole width shows the data (eighteen columns need it). The next result,
+  // or the button again, brings the results back. The bar between the panels still drags.
+  function setWide(on) { const pt = $("#paneToggle"); document.body.classList.toggle("tablewide", on); if (pt) { pt.textContent = on ? "Show results" : "Widen table"; pt.setAttribute("aria-pressed", String(on)); } if (!on) setTimeout(() => window.dispatchEvent(new Event("resize")), 0); }
+  if ($("#paneToggle")) $("#paneToggle").onclick = () => setWide(!document.body.classList.contains("tablewide"));
 
   // ================= pages =================
   // Data page: the table and its results. distrACTION page (#distraction): inputs card and live results, no table.
@@ -2556,7 +2674,15 @@
   }
   $("#toolClear").onclick = clearToolPage;
   $("#toolUndo").onclick = undoClear;
-  $("#filterBox").addEventListener("change", () => { D.filter = $("#filterBox").value.trim(); try { activeIdx(); } catch (e) { alert(e.message); D.filter = ""; } renderGrid(); if (D.filter) changed(); else persist(); });
+  // A filter that cannot be read says so under the box and leaves every row in use; the typed text stays so it can be fixed.
+  // (This used to be an alert, and a blocking dialog raised from the box's change event could lock the tab in Chrome.)
+  function filterMsg(t) { const m = $("#filterMsg"), b = $("#filterBox"); if (m) m.textContent = t || ""; if (b) { if (t) b.setAttribute("aria-invalid", "true"); else b.removeAttribute("aria-invalid"); } }
+  $("#filterBox").addEventListener("change", () => {
+    const typed = $("#filterBox").value.trim(); D.filter = typed; let bad = "";
+    try { activeIdx(); } catch (e) { bad = e.message; }
+    if (bad) { D.filter = ""; renderGrid(); $("#filterBox").value = typed; filterMsg(bad + " All rows are in use until the filter is fixed."); persist(); return; }
+    filterMsg(""); renderGrid(); if (D.filter) changed(); else persist();
+  });
   document.querySelectorAll(".tabs .tab").forEach((b) => (b.onclick = () => { showTab(b.dataset.tab); if (narrow()) toView($(".tabs")); }));
   $(".tabs").addEventListener("keydown", (e) => { // Analyses and Graphs: arrow keys switch tabs too
     if (!/^(ArrowLeft|ArrowRight|Home|End)$/.test(e.key)) return; const t = [...document.querySelectorAll(".tabs .tab")], i = t.indexOf(document.activeElement); if (i < 0) return;
@@ -2572,6 +2698,7 @@
   renderGrid();
   restore();
   setView(pageFromHash());
+  offerLast();
   // draggable splitter between the data table and the results
   (function () {
     const sp = document.getElementById("splitter"), main = document.querySelector("main"); if (!sp) return;

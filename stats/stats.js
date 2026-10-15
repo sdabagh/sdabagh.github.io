@@ -261,7 +261,7 @@
     let i = 0, prev = null; // prev: the last token that was not a space
     while (i < src.length) {
       FORMULA_TOKEN.lastIndex = i; const m = FORMULA_TOKEN.exec(src);
-      const bad = (what) => { throw new Error(`A formula can use column names, numbers, text in quotes, the functions log, sqrt, abs, exp, round, floor, ceil, pow, min, max, mean, sd, median, sum, n and the operators + - * / % ( ) == != < <= > >= AND OR ! ? : , only. ${what}`); };
+      const bad = (what) => { throw new Error(`A formula can use column names, numbers, text in quotes, the functions log, sqrt, abs, exp, round, floor, ceil, pow, min, max, mean, sd, median, sum, n and the operators + - * / % ( ) == != < <= > >= and or (also AND, OR, &&, ||, &, |) ! ? : , only. ${what}`); };
       if (!m) bad(`This one has ${JSON.stringify(src[i])}, which is not one of them.`);
       const t = m[0]; i += t.length;
       if (/^[ \t]/.test(t)) continue;
@@ -273,6 +273,13 @@
     }
     return true;
   };
+  // The operator spellings students bring from Python, R and spreadsheets are accepted: and, or in any case (AND, and, And),
+  // a single & or |, and a lone = for equals. They are changed only outside text in quotes, so a level written "A and B"
+  // is left alone. (A filter typed with a lowercase and used to stop at "Column not found: and".)
+  S.plainOps = (f) => String(f).split(/("[^"]*"|'[^']*')/).map((part, i) => (i % 2 ? part : part
+    .replace(/\b(and|or)\b/gi, (m) => (m.toLowerCase() === "and" ? " && " : " || "))
+    .replace(/&&|\|\||[&|]/g, (m) => (m[0] === "&" ? "&&" : "||"))
+    .replace(/(?<![<>=!])=(?!=)/g, "=="))).join("");
   // formula over columns: identifiers are column names (non-word chars become _); mean(X), sd(X), median(X), min(X), max(X), sum(X), n(X) are precomputed
   S.compileFormula = (formula, cols, colGetter) => {
     const ident = (c) => c.replace(/[^A-Za-z0-9_]/g, "_").replace(/^(\d)/, "_$1");
@@ -284,7 +291,7 @@
       return "(" + v + ")";
     });
     const names = cols.map(ident);
-    const expr = f.replace(/\bAND\b/g, "&&").replace(/\bOR\b/g, "||").replace(/(?<![<>=!])=(?!=)/g, "==");
+    const expr = S.plainOps(f);
     S.formulaCheck(expr, names);
     const body = "const {log, sqrt, abs, exp, round, floor, ceil, pow, min, max} = Math; const ln = Math.log; const log10 = Math.log10; return (" + expr + ");";
     const fn = new Function(...names, body);
