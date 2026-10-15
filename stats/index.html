@@ -10,123 +10,267 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="Stats Without Walls: a free statistical tool for all levels, from first descriptives to regression, factor analysis and time series. Load a CSV, summarize, graph, infer. No install, no account.">
 <style>
-:root{--navy:#1A3A4D;--teal:#2C5F7C;--sky:#3A7CA5;--terra:#D97D54;--ink:#2D2D2D;--muted:#5A5A5A;--line:#E1E4E8;--alt:#F8F9FA;--green:#2E7D5B;--rose:#B5476B;
+:root{--navy:#1A3A4D;--teal:#2C5F7C;--sky:#3A7CA5;--terra:#D97D54;--primary:#B4532A;--ink:#222;--muted:#555;--line:#DDE2E7;--edge:#AEB9C4;--alt:#F5F7F9;--green:#2E7D5B;--rose:#B5476B;
   --font:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;--mono:Consolas,Monaco,'Courier New',monospace}
 *{box-sizing:border-box}
-body{margin:0;font-family:var(--font);color:var(--ink);background:#fff;font-size:14px}
-header{background:var(--navy);color:#fff;padding:8px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-header h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.2px}
-header h1 span{color:#E89B7B;font-weight:400}
-header .sub{font-size:12px;opacity:.8}
-header a{color:#fff;opacity:.85;font-size:12px}header .hlinks{margin-left:auto;display:flex;gap:14px;white-space:nowrap}
-nav.menu{background:var(--teal);display:flex;flex-wrap:wrap;padding:0 8px}
-nav.menu .dd{position:relative}
-nav.menu button.top{background:none;border:0;color:#fff;padding:10px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);color:var(--ink);background:#fff;font-size:16px;line-height:1.45;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+a{color:var(--teal)}
+/* header and menu bar */
+header{background:var(--navy);color:#fff;padding:2px 16px;display:flex;align-items:center;gap:4px 18px;flex-wrap:wrap;flex:none}
+header h1{font-size:19px;margin:0;font-weight:600;letter-spacing:.2px}
+header h1 span{color:#F2BFA6;font-weight:400;font-size:15px;margin-left:6px}
+header .sub{font-size:13px;opacity:.85}
+header .hlinks{margin-left:auto;display:flex;flex-wrap:wrap;gap:0 16px}
+header .hlinks a{color:#fff;font-size:14px;display:inline-flex;align-items:center;min-height:44px;padding:4px 0}
+nav.menu{background:var(--teal);display:flex;flex-wrap:wrap;padding:0 6px;flex:none}
+nav.menu .dd{position:relative;flex:none}
+nav.menu button.top{background:none;border:0;border-bottom:3px solid transparent;color:#fff;min-height:44px;padding:0 13px;font-size:16px;cursor:pointer;font-family:inherit}
 nav.menu button.top:hover,nav.menu .dd.open button.top{background:var(--sky)}
-nav.menu .items{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.15);min-width:240px;z-index:50}
+nav.menu .dd.here button.top{border-bottom-color:#F2BFA6;font-weight:600}
+nav.menu .items{display:none;position:fixed;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);width:min(330px,calc(100vw - 16px));overflow-y:auto;overscroll-behavior:contain;z-index:50;padding:4px 0}
 nav.menu .dd.open .items{display:block}
-nav.menu .items button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
-nav.menu .items button:hover{background:var(--alt)}
+nav.menu .items button{display:block;width:100%;text-align:left;background:none;border:0;min-height:44px;padding:9px 16px;font-size:16px;cursor:pointer;font-family:inherit;color:var(--ink)}
+nav.menu .items button:hover{background:#EAF2F7}
+/* a keyboard-focused menu item: darker tint plus an inset navy ring (inset, because the list scrolls and would clip an outside ring) */
+nav.menu .items button:focus-visible{background:#CFE1EC;color:var(--navy);outline:3px solid var(--navy);outline-offset:-3px}
 nav.menu .items .sep{border-top:1px solid var(--line);margin:4px 0}
-main{display:grid;grid-template-columns:var(--leftw,42%) 8px minmax(0,1fr);height:calc(100vh - 82px)}#splitter{cursor:col-resize;background:var(--line);position:relative}#splitter:hover,#splitter.on{background:var(--sky)}#splitter::after{content:"";position:absolute;left:2px;top:50%;width:4px;height:36px;margin-top:-18px;border-left:1px solid #fff;border-right:1px solid #fff;opacity:.7}
-@media (max-width:900px){main{grid-template-columns:minmax(0,1fr);height:auto}#datapane{max-height:45vh;min-width:0}#splitter{display:none}}
-#datapane{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
-#datapane .bar{padding:6px 10px;background:var(--alt);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
-#datapane .bar b{color:var(--ink)}
-#filterBox{width:220px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:12px}
-table.grid tr.off td{color:#b0b0b0;background:#fafafa}
-.card .cap{font-weight:600;font-size:13px;color:var(--navy);margin:8px 0 2px}
-.card .note{font-size:12px;color:var(--muted);margin:2px 0 8px}
-.card details summary{cursor:pointer;color:var(--muted);font-size:13px}
-#dlg label.chk{display:block;margin:4px 0;font-size:13.5px;color:var(--ink)}
-#dlg .fld{min-width:0}
-#grid{overflow:auto;flex:1}
-table.grid{border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
-table.grid th{position:sticky;top:0;background:var(--teal);color:#fff;padding:5px 8px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap;cursor:pointer}
-table.grid th small{display:block;font-weight:400;opacity:.8;font-size:10px}table.grid th small.ty{cursor:pointer;display:block;margin-top:1px;text-decoration:underline dotted;text-underline-offset:2px}table.grid th small.ty:hover{opacity:1}
-.typemenu{position:fixed;z-index:60;background:#fff;border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.18);border-radius:6px;min-width:280px;font-size:13px}.typemenu .tm-title{padding:7px 12px;font-weight:600;color:var(--navy);border-bottom:1px solid var(--line)}.typemenu .tm-opt{padding:7px 12px;cursor:pointer}.typemenu .tm-opt:hover{background:var(--alt)}.typemenu .tm-opt.on{background:#EEF5F8;font-weight:600}.typemenu .tm-auto{color:var(--muted);border-top:1px solid var(--line)}
-table.grid td{border:1px solid var(--line);padding:3px 8px;white-space:nowrap;min-width:60px}
-table.grid td.rn{background:var(--alt);color:var(--muted);text-align:right;font-family:var(--font)}
-table.grid td[contenteditable]:focus{outline:2px solid var(--sky);background:#fffbe6}
-#outwrap{display:flex;flex-direction:column;min-height:0;min-width:0}.pane{min-width:0}
+/* one button style everywhere, one primary */
+.emptybtns button,.pickbtns button,.toolbar button,.form button,#dlg button,.applet-btns button,.applet-row button{min-height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);cursor:pointer;font-family:inherit;font-size:16px}
+.emptybtns button:hover,.pickbtns button:hover,.toolbar button:hover,.form button:hover,.applet-btns button:hover,.applet-row button:hover{background:var(--alt)}
+button.go,.form button.go,#dlg button.go{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+button.go:hover,.form button.go:hover{background:#9A4522}
+/* keyboard focus ring: navy (about 12:1 on white, 11:1 on the grey toolbar) with a 2 px gap, so it also shows around the orange Run button;
+   peach on the navy header, white inside the teal menu bar (it must not look like the peach underline of the open page) */
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+header :focus-visible{outline-color:#F2BFA6}
+nav.menu button.top:focus-visible{outline:3px solid #fff;outline-offset:-5px}
+/* read by screen readers only */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+a.skip{position:absolute;left:8px;top:-60px;z-index:200;background:#fff;color:var(--navy);padding:10px 16px;border-radius:8px;font-weight:600;min-height:44px}
+a.skip:focus{top:8px}
+.muted{color:var(--muted);font-size:15px}
+/* data page */
+main{flex:1;min-height:0;display:grid;grid-template-columns:var(--leftw,42%) 8px minmax(0,1fr)}
+body:not(.view-data) main{display:none}
+#splitter{cursor:col-resize;background:var(--line);position:relative}#splitter:hover,#splitter.on{background:var(--sky)}#splitter::after{content:"";position:absolute;left:2px;top:50%;width:4px;height:36px;margin-top:-18px;border-left:1px solid #fff;border-right:1px solid #fff;opacity:.7}
+#datapane{display:flex;flex-direction:column;min-height:0;min-width:0}
+#datapane .bar{min-height:48px;padding:6px 12px;background:var(--alt);border-bottom:1px solid var(--line);display:flex;gap:6px 10px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+#datapane .bar b{color:var(--ink);font-size:15px}
+#datapane .filt{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;flex:0 1 300px}
+#datapane.nodata .filt{display:none}
+#filterBox{width:100%;min-width:0;min-height:44px;padding:4px 8px;border:1px solid var(--edge);border-radius:6px;font-family:var(--mono);font-size:14px}
+#grid{overflow:auto;flex:1;min-height:0}
+table.grid{border-collapse:collapse;font-size:14px;font-family:var(--mono)}
+table.grid th{position:sticky;top:0;z-index:2;background:var(--teal);color:#fff;padding:3px 8px 5px;text-align:left;font-weight:600;font-family:var(--font);white-space:nowrap;vertical-align:top}
+table.grid th:first-child{left:0;z-index:3}
+table.grid th small{display:block;font-weight:400;font-size:13px}
+table.grid th .sortbtn{display:flex;align-items:center;gap:6px;width:100%;min-height:28px;padding:2px 2px;background:none;border:0;border-radius:6px;color:#fff;font:inherit;font-weight:600;font-size:14px;text-align:left;cursor:pointer;white-space:nowrap}
+table.grid th .sortbtn:hover{background:rgba(255,255,255,.14)}
+table.grid th .sortbtn .arr{font-size:11px;opacity:.9}
+table.grid th .tybtn{display:block;width:100%;min-height:32px;margin-top:3px;padding:2px 8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.5);border-radius:6px;color:#fff;font:inherit;text-align:left;cursor:pointer;white-space:nowrap}
+table.grid th .tybtn:hover{background:rgba(255,255,255,.24)}
+table.grid th :focus-visible{outline:3px solid #fff;outline-offset:-3px}
+table.grid td{border:1px solid var(--line);padding:5px 10px;white-space:nowrap;min-width:60px}
+table.grid td.rn{position:sticky;left:0;z-index:1;background:var(--alt);color:var(--muted);text-align:right;font-family:var(--font)}
+table.grid tr.off td{color:#9a9a9a;background:#fafafa}
+table.grid td[contenteditable]:focus{outline:3px solid var(--navy);outline-offset:-3px;background:#fffbe6}
+#grid{scroll-padding:72px 0 0 48px}
+.typemenu{position:fixed;z-index:60;background:#fff;border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.18);border-radius:8px;min-width:280px;max-width:calc(100vw - 16px);font-size:15px}.typemenu .tm-title{padding:9px 14px;font-weight:600;color:var(--navy);border-bottom:1px solid var(--line)}.typemenu .tm-opt{display:block;width:100%;text-align:left;background:none;border:0;font:inherit;color:var(--ink);min-height:44px;padding:10px 14px;cursor:pointer}.typemenu .tm-opt:focus-visible{background:#CFE1EC;outline:3px solid var(--navy);outline-offset:-3px}.typemenu .tm-opt:hover{background:var(--alt)}.typemenu .tm-opt.on{background:#EEF5F8;font-weight:600}.typemenu .tm-auto{color:var(--muted);border-top:1px solid var(--line)}
+.empty{padding:28px 24px;max-width:560px}
+.empty h2{font-size:22px;color:var(--navy);margin:0 0 6px}
+.empty p{margin:6px 0}
+.emptybtns,.pickbtns{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.emptybtns a.pagebtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 16px;border:1px solid var(--edge);border-radius:8px;color:var(--navy);text-decoration:none;font-size:16px}
+.emptybtns a.pagebtn:hover{background:var(--alt)}
+.emptybtns a.pagebtn span{color:var(--muted);font-size:14px}
+#outwrap{display:flex;flex-direction:column;min-height:0;min-width:0}
 .tabs{display:flex;gap:4px;padding:8px 14px 0;background:var(--alt);border-bottom:1px solid var(--line)}
-.tabs .tab{background:#fff;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;padding:7px 16px;font-family:inherit;font-size:13.5px;color:var(--muted);cursor:pointer}
+.tabs .tab{background:#fff;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;min-height:44px;padding:0 18px;font-family:inherit;font-size:15px;color:var(--muted);cursor:pointer}
+.tabs .tab:focus-visible{outline-offset:-4px}
 .tabs .tab.active{color:var(--navy);font-weight:600;border-color:var(--teal);border-top:3px solid var(--teal)}
-.tabs .cnt{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--line);font-size:11px;color:var(--muted);margin-left:4px}
-.pane{display:none;overflow:auto;padding:14px 18px;background:#fff;min-height:0;flex:1}
+.tabs .cnt{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--line);font-size:12px;color:var(--muted);margin-left:4px}
+.pane{display:none;overflow:auto;padding:16px 20px;background:#fff;min-height:0;min-width:0;flex:1}
 .pane.active{display:block}
-.card{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:6px;padding:12px 16px;margin-bottom:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto}
-.card h2{margin:0 0 6px;font-size:16px;color:var(--navy)}
-.card .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
-.card table.res{border-collapse:collapse;font-size:13px;margin:6px 0 8px}
-.card table.res th{background:var(--alt);text-align:left;padding:4px 10px;border-bottom:2px solid var(--line);font-weight:600}
-.card table.res td{padding:4px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+#out:empty::before,#outG:empty::before,#outD:empty::before{content:"Results appear here, newest on top.";display:block;color:var(--muted);padding:20px 4px}
+#outD:empty::before{content:"Pick a calculator to start."}
+body.dist-open #outD:empty::before{content:"Fill in the inputs and the result appears here."}
+/* result cards */
+.card{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:10px;padding:14px 18px;margin-bottom:16px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto;transition:opacity .15s}
+.card.stale>*{opacity:.4}
+body.view-distraction .card.editing{border-left-color:var(--primary);box-shadow:0 0 0 3px rgba(180,83,42,.35)}
+body.view-distraction .card.editing::before,body.view-distraction .card.kept::before,body.view-distraction .card.stale::before{content:"Editing this result";display:block;width:max-content;max-width:100%;margin:0 0 8px;padding:2px 10px;border-radius:6px;background:var(--primary);color:#fff;font-size:14px;font-weight:600}
+body.view-distraction .card.kept::before{content:"Kept";background:var(--green)}
+/* a live card whose inputs now give a message: faded, with words saying so (not only the fading) */
+body.view-distraction .card.stale::before{content:"Out of date: see the message under the inputs";background:var(--rose)}
+body.view-distraction .card.editing.stale::before{content:"Editing this result. Out of date: see the message under the inputs"}
+.card h2{margin:0 0 4px;font-size:18px;color:var(--navy)}
+/* headings that receive focus after Run or a page change: a ring only when the student is using the keyboard */
+.card h2:focus:not(:focus-visible),#toolTitle:focus:not(:focus-visible),#dsname:focus:not(:focus-visible),.empty h2:focus:not(:focus-visible),#dlgTitle:focus:not(:focus-visible),.quietfocus:focus{outline:none}
+#dlgTitle:focus-visible{outline-color:#F2BFA6;outline-offset:-5px}
+.card .meta{font-size:14px;color:var(--muted);margin-bottom:8px}
+.card .cap{font-weight:600;font-size:14px;color:var(--navy);margin:10px 0 2px}
+.card .note{font-size:14px;color:var(--muted);margin:4px 0 8px}
+.card details summary{cursor:pointer;color:var(--muted);font-size:15px;min-height:44px;padding:10px 0;display:list-item}
+.card table.res{border-collapse:collapse;font-size:15px;margin:6px 0 8px}
+.card table.res th{background:var(--alt);text-align:left;padding:5px 10px;border-bottom:2px solid var(--line);font-weight:600}
+.card table.res td{padding:5px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
 .card .num{text-align:right}
-.card .say{background:#EEF5F8;border-left:3px solid var(--sky);padding:8px 12px;margin:8px 0;font-size:13.5px}
-.card .warn{background:#FBEEF2;border-left:3px solid var(--rose);padding:8px 12px;margin:8px 0;font-size:13px}
-.card .ok{background:#EAF5EF;border-left:3px solid var(--green);padding:8px 12px;margin:8px 0;font-size:13px}
-.card .tools{float:right;font-size:12px}
-.card .tools button{background:none;border:1px solid var(--line);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:inherit;color:var(--muted);margin-left:4px}
+.card .big{font-size:28px;line-height:1.25;font-weight:600;color:var(--navy);margin:8px 0 2px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.card .big .pct{font-size:18px;font-weight:400;color:var(--muted);margin-left:6px;white-space:nowrap}
+.card .words{font-size:16px;margin:0 0 10px}
+.card .say{background:#EEF5F8;border-left:3px solid var(--sky);padding:9px 13px;margin:8px 0;font-size:15px}
+.card .warn{background:#FBEEF2;border-left:3px solid var(--rose);padding:9px 13px;margin:8px 0;font-size:15px}
+.card .ok{background:#EAF5EF;border-left:3px solid var(--green);padding:9px 13px;margin:8px 0;font-size:15px}
+.card .tools{float:right;display:flex;gap:6px;margin:0 0 6px 10px}
+.card .tools button{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;color:var(--muted)}
+.card .tools button:hover{background:var(--alt);color:var(--navy)}
 .card .plot{width:100%;height:320px}
-.card .formula{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:4px 0}
-/* dialog */
-#dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-start;justify-content:center;padding-top:60px;z-index:100}
-#dlg.open{display:flex}
-#dlg .box{background:#fff;border-radius:8px;width:min(560px,94vw);max-height:85vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
-#dlg .box h3{margin:0;padding:12px 18px;background:var(--navy);color:#fff;font-size:15px;border-radius:8px 8px 0 0}
-#dlg form{padding:14px 18px}
-#dlg label{display:block;margin:8px 0 3px;font-size:13px;color:var(--muted)}
-#dlg input[type=color]{width:60px;height:32px;padding:2px;border:1px solid var(--line);border-radius:4px;background:#fff}
-#dlg input[type=text],#dlg input[type=number],#dlg select,#dlg textarea{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:14px}
-#dlg select[multiple]{height:120px}
-#dlg .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-#dlg .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-#dlg .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
-#dlg button{padding:7px 16px;border-radius:4px;border:1px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-size:14px}
-#dlg button.go{background:var(--terra);color:#fff;border-color:var(--terra)}
-#dlg .hint{font-size:12px;color:var(--muted);margin-top:2px}
-#dlg fieldset{border:1px solid var(--line);border-radius:4px;padding:6px 12px 10px;margin:8px 0}
-#dlg legend{font-size:12px;color:var(--muted);padding:0 4px}
-.welcome{color:var(--muted);font-size:14px;line-height:1.6;max-width:640px}
-.welcome b{color:var(--navy)}
-.welcome ol{padding-left:20px}
-@media print{header,nav.menu,#datapane,.card .tools,.tabs{display:none}main{display:block;height:auto}.pane{display:block;overflow:visible}}
+.card.copying .tools,.card.copying .plot{display:none!important}
+.card .formula{font-family:var(--mono);font-size:13px;color:var(--muted);margin:4px 0}
+/* distrACTION and Learn pages */
+#toolpage{display:none;flex:1;min-height:0;flex-direction:column}
+body.view-distraction #toolpage,body.view-learn #toolpage{display:flex}
+.toolbar{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding:10px 20px;background:var(--alt);border-bottom:1px solid var(--line);flex:none}
+.toolbar h2{margin:0;font-size:22px;color:var(--navy)}
+.toolbar .tnote{color:var(--muted);font-size:15px}
+.toolbar #toolClear,.toolbar #toolUndo{margin-left:auto}
+.toolbar #toolClear{background:none;border-color:transparent;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:15px}
+.toolbar #toolClear:hover{background:var(--line);color:var(--navy)}
+.toolscroll{flex:1;min-height:0;overflow:auto}
+.toolbody{display:grid;grid-template-columns:minmax(300px,390px) minmax(0,1fr);gap:20px;align-items:start;max-width:1400px;margin:0 auto;padding:20px}
+@media (min-width:1180px){.toolbody{grid-template-columns:minmax(300px,440px) minmax(0,1fr)}}
+body.view-learn .toolbody{grid-template-columns:minmax(0,1fr);max-width:1040px}
+body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,body.view-distraction #learnPick,body.view-distraction #learnSwitch{display:none!important}
+#distPanel{position:sticky;top:0;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 18px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#distMsg{color:var(--rose);font-size:15px;margin-top:8px}
+#distMsg.info{color:var(--muted)}
+.form .selfull{font-size:14px;color:var(--navy);margin-top:4px;overflow-wrap:anywhere}
+.switch{margin:8px 0 6px}
+.switch label{margin-top:4px}
+#distSwitch,#learnSwitch{display:none}
+#learnSwitch{max-width:520px}
+#distNow{display:none}
+#distMsg:empty{display:none}
+.pickbtns button{text-align:left}
+#distPick .pickbtns{flex-direction:column}
+#outD,#outL{min-width:0}
+/* forms: the modal dialog and the distrACTION inputs card share one look */
+#dlg{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;padding:48px 8px 8px;background:transparent;color:var(--ink);overflow:hidden;display:none;align-items:flex-start;justify-content:center;z-index:100}
+#dlg[open],#dlg.open{display:flex}
+#dlg::backdrop{background:rgba(0,0,0,.35)}
+#dlg.nomodal{background:rgba(0,0,0,.35)}
+#dlg .box{background:#fff;border-radius:12px;width:min(580px,100%);max-height:calc(100dvh - 60px);overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#dlg .box h3{margin:0;padding:14px 18px;background:var(--navy);color:#fff;font-size:17px;border-radius:12px 12px 0 0}
+#dlg form{padding:8px 18px 16px}
+#dlg .form .actions{position:sticky;bottom:0;z-index:1;background:#fff;margin:16px -18px -16px;padding:10px 18px 14px;border-top:1px solid var(--line)}
+.form label{display:block;margin:10px 0 4px;font-size:15px;color:var(--muted)}
+.form label.chk{display:flex;align-items:center;gap:8px;min-height:44px;margin:0;font-size:15px;color:var(--ink)}
+.form input[type=checkbox]{width:20px;height:20px;flex:none}
+.form input[type=color]{width:60px;height:40px;padding:2px;border:1px solid var(--edge);border-radius:6px;background:#fff}
+.form input[type=text],.form input[type=number],.form select,.form textarea{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--edge);border-radius:8px;font-family:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.form select[multiple]{height:140px}
+.form .fld{min-width:0}
+.form .row,.form .row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}
+.applet-btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.applet-row{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end;margin:8px 0}
+.applet-row label{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted)}
+.applet-row input{width:120px;min-height:44px;padding:8px 10px;border:1px solid var(--edge);border-radius:8px;font-family:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.applet-msg:empty{display:none}.applet-msg{color:var(--rose);font-size:15px;margin:4px 0}
+.form .find{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.form .find .fld:first-child,.form .find .fld:has(+ .fld[style*="none"]){grid-column:1/-1}
+.form .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.form .hint{font-size:14px;color:var(--muted);margin-top:6px}
+.form .fldmsg{font-size:15px;color:var(--rose);margin-top:6px}
+.form .fldmsg:empty{display:none}
+.form fieldset{border:1px solid var(--line);border-radius:10px;padding:4px 14px 12px;margin:12px 0}
+.form legend{font-size:14px;font-weight:600;color:var(--navy);padding:0 4px}
+#distForm .actions{justify-content:stretch}#distForm .actions button{flex:1}
+/* iPad landscape and small laptops: header and menu bar each stay on one row */
+@media (max-width:1240px){header .sub{display:none}}
+@media (max-width:1140px){nav.menu button.top{padding:0 8px}}
+/* narrow screens: iPad portrait and phones scroll the page, not nested panes */
+@media (max-width:900px){
+  body{height:auto;min-height:100vh;overflow:visible}
+  main{grid-template-columns:minmax(0,1fr)}
+  #splitter{display:none}
+  header h1 span{display:none}
+  main{align-content:start}
+  #datapane{max-height:35vh;border-bottom:1px solid var(--line)}
+  #datapane.nodata{max-height:none}
+  .pane{overflow:visible}
+  .toolscroll{overflow:visible}
+  .toolbody{grid-template-columns:minmax(0,1fr);padding:14px}
+  #distPanel{position:static;max-height:none!important;overflow:visible}
+  #distNow:not(:empty){display:block;margin:12px 0 4px;padding:10px 12px;background:#EEF5F8;border-left:4px solid var(--sky);border-radius:8px}
+  #distNow .nowbig{font-size:20px;line-height:1.3;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  #distNow .nowbig .pct{font-size:15px;font-weight:400;color:var(--muted);margin-left:6px;white-space:nowrap}
+  #distNow button{margin-top:6px;min-height:44px;width:100%}
+  #distPick .pickbtns{flex-direction:row}
+  .toolbar #backData{order:1}.toolbar #toolClear,.toolbar #toolUndo{order:2}
+  body:not(.dist-open) #outD:empty::before{display:none}
+  .toolbar h2{order:3;flex-basis:100%}.toolbar .tnote{order:4;margin-top:-6px}
+}
+@media (max-width:640px){
+  header{padding:2px 12px;gap:0 12px}
+  header .hlinks{margin-left:0;gap:0 14px}
+  nav.menu{padding:0 4px}
+  nav.menu button.top{padding:0 9px;font-size:15px}
+  .toolbar .tnote{display:none}
+  .toolbody{padding:10px}
+  #distPanel{padding:4px 12px 12px}
+  #distPanel .form fieldset{padding:2px 10px 10px;margin:10px 0}
+  #distForm .row{grid-template-columns:1fr 1fr}
+}
+@media (max-width:400px){
+  header .hlinks{gap:0 12px}
+  header .hlinks a{font-size:13px}
+  .card{padding:12px 12px}
+  .card .tools{float:none;justify-content:flex-end;margin:0 0 4px}
+  .toolbar{padding:10px 14px}
+  .toolbar h2{font-size:20px}
+  .pane{padding:12px}
+  .card .big{font-size:24px}
+}
+@media print{body{display:block;height:auto;overflow:visible}header,nav.menu,#datapane,#splitter,.card .tools,.tabs,.toolbar,#distPanel,#learnPick,#learnSwitch{display:none!important}main{display:block;height:auto}.pane{display:block;overflow:visible}.toolscroll{overflow:visible}.toolbody{display:block;padding:0}}
 </style>
 </head>
-<body>
+<body class="view-data">
+<a class="skip" href="#" id="skipLink">Skip to content</a>
 <header>
   <h1>Stats Without Walls <span>free statistical tool for all levels</span></h1>
   <div class="sub">Load a file, summarize, graph, infer. Nothing leaves your browser.</div>
-  <nav class="hlinks"><a href="guide.html">User guide</a><a href="download.html" title="The app is updated almost daily; the browser version is always current">Download the app (browser version recommended for now)</a><a href="https://learnwithoutwalls.com/" target="_blank" rel="noopener">learnwithoutwalls.com</a></nav>
+  <nav class="hlinks" aria-label="Site links"><a href="guide.html">User guide</a><a href="download.html" title="The app is updated almost daily; the browser version is always current">Download the app</a><a href="https://learnwithoutwalls.com/" target="_blank" rel="noopener">learnwithoutwalls.com</a></nav>
 </header>
-<nav class="menu" id="menu"></nav>
+<nav class="menu" id="menu" aria-label="Main menu"></nav>
 <main>
-  <section id="datapane">
-    <div class="bar"><b id="dsname">No data loaded</b><span id="dsinfo"></span><span style="margin-left:auto">Filter:</span><input id="filterBox" type="text" placeholder='e.g. Year == "Freshman"' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= AND OR. Blank = all rows."></div>
-    <div id="grid"><div class="welcome" style="padding:18px">
-      <b>Start here.</b>
-      <ol>
-        <li><b>Data</b>: open a CSV from your computer, paste from a spreadsheet, or pick a sample dataset. Bin, stack, simulate random data, or draw a random sample.</li>
-        <li><b>Exploration</b>: Descriptives, with the plots. <b>Graph</b>: bar, pie, histogram, dotplot, boxplot, stem and leaf, scatter, QQ, StatCrunch style, each with Group by.</li>
-        <li><b>T-Tests, ANOVA, Regression, Frequencies</b>: the menus and options the course instructions use, so they work as written. Every result adds the formula, the decision, the sentence to write, and a condition check.</li>
-        <li><b>distrACTION</b>: binomial, normal, t, chi-square and F, Poisson, geometric, hypergeometric, uniform, exponential and a custom discrete distribution (mean, SD and probabilities from x and P(x)), built in, nothing to install.</li>
-        <li><b>Learn</b>: demonstrations you can run in class. Coin flips and the law of large numbers, the Central Limit Theorem, what a confidence interval means, what a p-value is, mean versus median, regression influence, guess the correlation, plus the sampling distribution simulator, bootstrap, permutation and Bayesian updating.</li>
-      </ol>
-      Means use t with degrees of freedom, because the population standard deviation is almost never given; when a problem does give it, use the Z-Test under T-Tests. Decisions use the p-value approach. Tests for a standard deviation are under Advanced. Your data stays on this computer, and the page keeps working with no internet once it has loaded. To install it like an app: in Chrome or Edge use the install icon in the address bar; in Safari on a Mac use File, then Add to Dock.
-    </div></div>
+  <section id="datapane" class="nodata">
+    <div class="bar"><b id="dsname" tabindex="-1">No data loaded</b><span id="dsinfo"></span><label class="filt">Filter: <input id="filterBox" type="text" placeholder='e.g. Year == "Freshman"' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= AND OR. Blank = all rows."></label></div>
+    <div id="grid"></div>
   </section>
   <div id="splitter" title="Drag to resize the panels; double-click to reset"></div>
   <section id="outwrap">
-    <div class="tabs"><button class="tab active" data-tab="analyses">Analyses <span class="cnt" id="cntA"></span></button><button class="tab" data-tab="graphs">Graphs <span class="cnt" id="cntG"></span></button></div>
-    <div id="out" class="pane active"></div>
-    <div id="outG" class="pane"></div>
+    <div class="tabs" role="tablist" aria-label="Results"><button class="tab active" type="button" role="tab" id="tabA" aria-selected="true" aria-controls="out" data-tab="analyses">Analyses <span class="cnt" id="cntA"></span></button><button class="tab" type="button" role="tab" id="tabG" aria-selected="false" aria-controls="outG" data-tab="graphs">Graphs <span class="cnt" id="cntG"></span></button></div>
+    <div id="out" class="pane active" role="tabpanel" aria-labelledby="tabA"></div>
+    <div id="outG" class="pane" role="tabpanel" aria-labelledby="tabG"></div>
   </section>
 </main>
-<div id="dlg"><div class="box"><h3 id="dlgTitle"></h3><form id="dlgForm"></form></div></div>
+<section id="toolpage">
+  <div class="toolbar"><button type="button" id="backData">Back to data</button><h2 id="toolTitle" tabindex="-1">distrACTION</h2><span class="tnote" id="toolNote">Probability calculators. No data needed.</span><button type="button" id="toolClear">Clear this page</button><button type="button" id="toolUndo" style="display:none">Undo clear</button></div>
+  <div class="toolscroll"><div class="toolbody">
+    <aside id="distPanel"><div id="distSwitch" class="switch form"><label for="distSel">Change distribution</label><select id="distSel"></select></div><div id="distPick"></div><form id="distForm" class="form"></form><div id="distMsg" role="status"></div></aside>
+    <div id="outD"></div>
+    <div id="learnSwitch" class="switch form"><label for="learnSel">Choose another demonstration</label><select id="learnSel"></select></div>
+    <div id="learnPick"></div>
+    <div id="outL"></div>
+  </div></div>
+</section>
+<dialog id="dlg" aria-labelledby="dlgTitle"><div class="box"><h3 id="dlgTitle" tabindex="-1"></h3><form id="dlgForm" class="form"></form></div></dialog>
+<div id="srsay" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display:none">
 <script src="vendor/jstat.min.js"></script>
 <script src="vendor/plotly-cartesian.min.js"></script>
-<script src="stats.js?v=41"></script>
-<script src="app.js?v=41"></script>
+<script src="stats.js?v=53"></script>
+<script src="app.js?v=53"></script>
 </body>
 </html>

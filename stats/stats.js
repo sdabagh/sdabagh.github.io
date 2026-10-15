@@ -31,10 +31,98 @@
   S.qt = (p, df) => J.studentt.inv(p, df);
   S.pnorm = (z) => J.normal.cdf(z, 0, 1);
   S.qnorm = (p) => J.normal.inv(p, 0, 1);
+  // P(Z <= z) that keeps its digits far in the lower tail. jStat works out 1 + erf(z / sqrt 2), which is 2 percent off at
+  // z = -8 and exactly 0 at z = -10. Below z = -5 this uses the Mills ratio continued fraction instead; above it, the
+  // value is S.pnorm's, unchanged.
+  S.pnormLow = (z) => {
+    if (!(z < -5)) return S.pnorm(z);
+    const x = -z; let t = x; for (let k = 120; k >= 1; k--) t = x + k / t;
+    return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI) / t;
+  };
   S.pchisq = (x, df) => J.chisquare.cdf(x, df);
   S.pf = (f, d1, d2) => J.centralF.cdf(f, d1, d2);
-  S.dbinom = (k, n, p) => J.binomial.pdf(k, n, p);
-  S.pbinom = (k, n, p) => J.binomial.cdf(k, n, p);
+  // Upper tails that keep their digits far out. 1 minus pchisq(100, 3) is exactly 0 in a computer although the true value
+  // is 1.55E-21. The chi-square tail is the upper incomplete gamma ratio Q(df/2, x/2), from its continued fraction (Lentz)
+  // once x/2 is past df/2 + 1; below that the tail is not small and 1 minus the lower ratio is exact enough. The F tail is
+  // the incomplete beta I(d2 / (d2 + d1 f); d2/2, d1/2), which jStat works out from the small end.
+  S.pchisqUpper = (x, df) => {
+    if (!(x > 0)) return 1;
+    const a = df / 2, y = x / 2;
+    if (y < a + 1) return 1 - J.lowRegGamma(a, y);
+    const tiny = 1e-300; let b = y + 1 - a, c = 1 / tiny, d = 1 / b, h = d;
+    for (let i = 1; i < 1000; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < tiny) d = tiny; c = b + an / c; if (Math.abs(c) < tiny) c = tiny; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-16) break; }
+    return Math.exp(-y + a * Math.log(y) - J.gammaln(a)) * h;
+  };
+  S.pfUpper = (f, d1, d2) => (f > 0 ? J.ibeta(d2 / (d2 + d1 * f), d2 / 2, d1 / 2) : 1);
+  // Binomial without overflow. jStat's pdf multiplies C(n, k) by p^k, and C(n, k) passes the largest number a computer
+  // stores near n = 1030, so it returned Infinity (shown as 1) and then NaN. This is Loader's saddle point method, the one
+  // R's dbinom uses: every piece stays small, and it is accurate to about 15 digits for any n.
+  const LN_2PI = Math.log(2 * Math.PI);
+  const SFERR = [0, 0.1534264097200273452914, 0.08106146679532725821967, 0.05481412105191765389614, 0.04134069595540929409382, 0.03316287351993628748511, 0.02767792568499833914879, 0.02374616365629749597133, 0.02079067210376509311152, 0.01848845053267318523078, 0.01664469118982119216319, 0.01513497322191737887351, 0.01387612882307074799875, 0.01281046524292022692425, 0.01189670994589177009506, 0.01110455975820691732663, 0.01041126526197209649748, 0.00979941612615880329839, 0.009255462182712732917729, 0.008768700134139385462955, 0.008330563433362871256469, 0.00793411456431402054725, 0.007573675487951840794972, 0.007244554301320383179546, 0.006942840107209529865664, 0.006665247032707682442356, 0.00640899418800420706844, 0.006171712263039457647535, 0.005951370112758847735624, 0.005746216513010115682026, 0.005554733551962801371039];
+  const stirlerr = (n) => { // log(n!) minus log(sqrt(2 pi n) (n/e)^n); exact table up to 15 (halves), series above
+    if (n <= 15) { const nn = n + n; return nn === Math.floor(nn) ? SFERR[nn] : J.gammaln(n + 1) - (n + 0.5) * Math.log(n) + n - 0.5 * LN_2PI; }
+    const nn = n * n, S0 = 1 / 12, S1 = 1 / 360, S2 = 1 / 1260, S3 = 1 / 1680, S4 = 1 / 1188;
+    if (n > 500) return (S0 - S1 / nn) / n;
+    if (n > 80) return (S0 - (S1 - S2 / nn) / nn) / n;
+    if (n > 35) return (S0 - (S1 - (S2 - S3 / nn) / nn) / nn) / n;
+    return (S0 - (S1 - (S2 - (S3 - S4 / nn) / nn) / nn) / nn) / n;
+  };
+  const bd0 = (x, np) => { // x log(x / np) + np minus x, without the cancellation when x is close to np
+    if (Math.abs(x - np) < 0.1 * (x + np)) {
+      let v = (x - np) / (x + np), s = (x - np) * v, ej = 2 * x * v; v *= v;
+      for (let j = 1; j < 1000; j++) { ej *= v; const s1 = s + ej / (2 * j + 1); if (s1 === s) return s1; s = s1; }
+    }
+    return x * Math.log(x / np) + np - x;
+  };
+  S.dbinom = (k, n, p) => {
+    if (!(n >= 0) || !(p >= 0 && p <= 1)) return NaN;
+    if (!Number.isInteger(k) || k < 0 || k > n) return 0;
+    const q = 1 - p;
+    if (p === 0) return k === 0 ? 1 : 0;
+    if (q === 0) return k === n ? 1 : 0;
+    if (k === 0) return n === 0 ? 1 : Math.exp(p < 0.1 ? -bd0(n, n * q) - n * p : n * Math.log1p(-p));
+    if (k === n) return Math.exp(q < 0.1 ? -bd0(n, n * p) - n * q : n * Math.log(p));
+    const lc = stirlerr(n) - stirlerr(k) - stirlerr(n - k) - bd0(k, n * p) - bd0(n - k, n * q);
+    return Math.exp(lc - 0.5 * (LN_2PI + Math.log(k) + Math.log1p(-k / n)));
+  };
+  // P(X <= c) and P(X > c) for a whole-number distribution with one peak (at `mode`). Each is added up from its own
+  // small tail outward, so a tiny tail keeps its digits instead of becoming 1 minus 0.99999..., and the adding stops
+  // once a term no longer changes the total, so a huge c costs nothing. Used by the binomial and the distrACTION calculators.
+  S.discreteTails = (pmf, lo, hi, mode) => {
+    const CAP = 5e6; // a sum this long means a tail too wide to add term by term: report that rather than guess
+    const sumDown = (k) => { let s = 0; for (let i = k, j = 0; i >= lo; i--, j++) { if (j > CAP) return NaN; const t = pmf(i); s += t; if (t <= s * 1e-17) break; } return s; };
+    const sumUp = (k) => { let s = 0; for (let i = k, j = 0; i <= hi; i++, j++) { if (j > CAP) return NaN; const t = pmf(i); s += t; if (t <= s * 1e-17) break; } return s; };
+    const cdf = (c) => { const k = Math.floor(c); if (k < lo) return 0; if (k >= hi) return 1; return k < mode ? Math.min(1, sumDown(k)) : Math.max(0, 1 - sumUp(k + 1)); };
+    const sf = (c) => { const k = Math.floor(c); if (k < lo) return 1; if (k >= hi) return 0; return k + 1 > mode ? Math.min(1, sumUp(k + 1)) : Math.max(0, 1 - sumDown(k)); };
+    return { cdf, sf };
+  };
+  const binomTails = (n, p) => S.discreteTails((i) => S.dbinom(i, n, p), 0, n, Math.floor((n + 1) * p));
+  S.pbinom = (k, n, p) => (p === 0 ? (k >= 0 ? 1 : 0) : p === 1 ? (k >= n ? 1 : 0) : binomTails(n, p).cdf(k)); // P(X <= k)
+  S.pbinomUpper = (k, n, p) => (p === 0 ? (k >= 0 ? 0 : 1) : p === 1 ? (k >= n ? 0 : 1) : binomTails(n, p).sf(k)); // P(X > k), R's lower.tail = FALSE
+  // smallest whole x in lo..hi where ok(x) turns true (ok is false, then true from some x on); hi may be Infinity; hi when never
+  S.firstWhole = (ok, lo, hi) => {
+    let a = lo, b = Number.isFinite(hi) ? hi : lo;
+    if (!Number.isFinite(hi)) { let step = 1; while (!ok(b)) { a = b + 1; b += step; step *= 2; if (step > 1e15) return NaN; } }
+    if (!ok(b)) return b;
+    while (a < b) { const m = Math.floor((a + b) / 2); if (ok(m)) b = m; else a = m + 1; }
+    return a;
+  };
+  // smallest whole x from lo up with P(X <= x) at least prob (tolerance 1e-12, as before)
+  S.discreteQuantile = (prob, cdf, lo, hi) => S.firstWhole((x) => cdf(x) >= prob - 1e-12, lo, hi);
+  S.qbinom = (prob, n, p) => S.discreteQuantile(prob, (x) => S.pbinom(x, n, p), 0, n);
+  // Two-sided exact binomial test, R's binom.test rule: add the probability of every outcome no more likely than the one
+  // observed (with R's relative tolerance 1 + 1e-7), not twice the smaller tail. The outcomes it adds are every k <= lo and
+  // every k >= hi. On the far side of n p the probabilities only fall as k moves away, so the start of that tail is found by
+  // halving (a few dozen dbinom calls for any n) and each tail is added from its own side, as pbinom and pbinomUpper do.
+  S.binomTwoSided = (x, n, p) => {
+    if (p === 0 || p === 1) { const hit = p === 0 ? x === 0 : x === n; return { p: hit ? 1 : 0, lo: hit ? n : -1, hi: n + 1 }; }
+    const m = n * p, d = S.dbinom(x, n, p) * (1 + 1e-7), asRare = (k) => S.dbinom(k, n, p) <= d;
+    let lo = x, hi = x;
+    if (x === m) { lo = n; hi = n + 1; } // the expected count itself: every outcome counts, p = 1
+    else if (x < m) { const h = S.firstWhole(asRare, Math.ceil(m), n); hi = asRare(h) ? h : n + 1; }
+    else { const top = Math.floor(m), j = S.firstWhole((i) => asRare(top - i), 0, top); lo = asRare(top - j) ? top - j : -1; }
+    return { p: Math.min(1, (lo >= 0 ? S.pbinom(lo, n, p) : 0) + (hi <= n ? S.pbinomUpper(hi - 1, n, p) : 0)), lo, hi };
+  };
   S.ptukey = (q, k, df) => J.tukey.cdf(q, k, df);
   S.pvalue = (stat, alt, cdf) => {
     if (alt === "less") return cdf(stat);
@@ -68,10 +156,7 @@
   S.oneProp = ({ x, n, p0 = 0.5, alt = "two", conf = 0.95 }) => {
     const phat = x / n, se0 = Math.sqrt((p0 * (1 - p0)) / n), z = (phat - p0) / se0, p = S.pvalue(z, alt, S.pnorm);
     const zstar = S.qnorm(1 - (1 - conf) / 2), se = Math.sqrt((phat * (1 - phat)) / n), me = zstar * se;
-    const upper = (k) => { let s = 0; for (let i = k; i <= n; i++) s += S.dbinom(i, n, p0); return Math.min(1, s); };
-    const lower = (k) => { let s = 0; for (let i = 0; i <= k; i++) s += S.dbinom(i, n, p0); return Math.min(1, s); };
-    let exact; if (alt === "less") exact = lower(x); else if (alt === "greater") exact = upper(x);
-    else { exact = Math.min(1, 2 * Math.min(lower(x), upper(x))); }
+    const exact = alt === "less" ? S.pbinom(x, n, p0) : alt === "greater" ? S.pbinomUpper(x - 1, n, p0) : S.binomTwoSided(x, n, p0).p; // each tail from its own side
     return { x, n, phat, p0, se0, z, p, exact, zstar, se, me, lower: phat - me, upper: phat + me, alt, conf,
       condTest: n * p0 >= 10 && n * (1 - p0) >= 10, condCI: x >= 10 && n - x >= 10 };
   };
@@ -150,7 +235,7 @@
       predict: (v) => b0 + b1 * v };
   };
   // ---------- calculators ----------
-  S.binomTable = (n, p) => Array.from({ length: n + 1 }, (_, k) => ({ k, p: S.dbinom(k, n, p), cum: S.pbinom(k, n, p) }));
+  S.binomTable = (n, p, from = 0, to = n) => { let cum = from > 0 ? S.pbinom(from - 1, n, p) : 0; const out = []; for (let k = from; k <= to; k++) { const pk = S.dbinom(k, n, p); cum += pk; out.push({ k, p: pk, cum: Math.min(1, cum) }); } return out; };
   S.sampleSizeMean = (me, s, conf = 0.95) => Math.ceil((S.qnorm(1 - (1 - conf) / 2) * s / me) ** 2);
   S.sampleSizeProp = (me, p = 0.5, conf = 0.95) => Math.ceil((S.qnorm(1 - (1 - conf) / 2) / me) ** 2 * p * (1 - p));
 
@@ -165,6 +250,29 @@
   S.rexp = (rate) => jStat.exponential.sample(rate);
   // draw `reps` samples of size n from pop (array) with replacement, return statistics
   S.simulate = (pop, n, reps, stat) => { const out = new Array(reps); for (let r = 0; r < reps; r++) { const s = new Array(n); for (let i = 0; i < n; i++) s[i] = pop[Math.floor(Math.random() * pop.length)]; out[r] = stat(s); } return out; };
+  // A formula (a filter or Compute) may hold only column names, numbers, text in quotes, the functions below and the
+  // operators. It is read token by token from the left, the same way the browser will read it, before it is compiled, so
+  // nothing else can get in: no dot, bracket, backquote or backslash, no comment, no line break, and a / only where it
+  // divides. A filter saved in a session file comes from someone else, so this is what keeps it to plain arithmetic.
+  const FORMULA_WORDS = new Set(["log", "sqrt", "abs", "exp", "round", "floor", "ceil", "pow", "min", "max", "ln", "log10", "mean", "sd", "median", "sum", "n", "true", "false", "null", "NaN", "Infinity"]);
+  const FORMULA_TOKEN = /[ \t]+|"[^"\\\r\n\u2028\u2029]*"|'[^'\\\r\n\u2028\u2029]*'|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|===?|!==?|<=|>=|&&|\|\||\*\*|[-+*/%()<>!?:,]/y;
+  S.formulaCheck = (expr, names) => {
+    const known = new Set(names), src = String(expr);
+    let i = 0, prev = null; // prev: the last token that was not a space
+    while (i < src.length) {
+      FORMULA_TOKEN.lastIndex = i; const m = FORMULA_TOKEN.exec(src);
+      const bad = (what) => { throw new Error(`A formula can use column names, numbers, text in quotes, the functions log, sqrt, abs, exp, round, floor, ceil, pow, min, max, mean, sd, median, sum, n and the operators + - * / % ( ) == != < <= > >= AND OR ! ? : , only. ${what}`); };
+      if (!m) bad(`This one has ${JSON.stringify(src[i])}, which is not one of them.`);
+      const t = m[0]; i += t.length;
+      if (/^[ \t]/.test(t)) continue;
+      if (/^[A-Za-z_]/.test(t) && !known.has(t) && !FORMULA_WORDS.has(t)) throw new Error(`Column not found: ${t}. Use the column name exactly as written (case and underscores matter).`);
+      if (t === "/" && !(prev && /^(["'\w.)])/.test(prev) && prev !== "(")) bad("A / must come after a number, a name or a closing bracket.");
+      if (t === "/" && (src[i] === "/" || src[i] === "*")) bad("Comments (// or /*) cannot be used.");
+      if ((t === "<" && src.startsWith("!--", i)) || (t === "-" && src.startsWith("->", i))) bad("<!-- and --> cannot be used.");
+      prev = t;
+    }
+    return true;
+  };
   // formula over columns: identifiers are column names (non-word chars become _); mean(X), sd(X), median(X), min(X), max(X), sum(X), n(X) are precomputed
   S.compileFormula = (formula, cols, colGetter) => {
     const ident = (c) => c.replace(/[^A-Za-z0-9_]/g, "_").replace(/^(\d)/, "_$1");
@@ -176,7 +284,9 @@
       return "(" + v + ")";
     });
     const names = cols.map(ident);
-    const body = "const {log, sqrt, abs, exp, round, floor, ceil, pow, min, max} = Math; const ln = Math.log; const log10 = Math.log10; return (" + f.replace(/\bAND\b/g, "&&").replace(/\bOR\b/g, "||").replace(/(?<![<>=!])=(?!=)/g, "==") + ");";
+    const expr = f.replace(/\bAND\b/g, "&&").replace(/\bOR\b/g, "||").replace(/(?<![<>=!])=(?!=)/g, "==");
+    S.formulaCheck(expr, names);
+    const body = "const {log, sqrt, abs, exp, round, floor, ceil, pow, min, max} = Math; const ln = Math.log; const log10 = Math.log10; return (" + expr + ");";
     const fn = new Function(...names, body);
     return (row) => fn(...row.map((v) => (v !== "" && Number.isFinite(Number(v)) ? Number(v) : v)));
   };
@@ -320,7 +430,8 @@
     const order = pairs.map((q, i) => i).sort((x, y) => pairs[x].p - pairs[y].p); let prev = 0; order.forEach((idx, rank) => { const adj = Math.min(1, Math.max(prev, pairs[idx].p * (pairs.length - rank))); pairs[idx].pHolm = adj; prev = adj; });
     out.pairs = pairs;
     // variance components (compound symmetry): subject variance and residual variance
-    const msSubj = (group ? out.rows[1].ms : ssSubj / (n - 1)), msErr = out.rows[out.rows.length - 1].ms;
+    // the within-subject error row: last in the mixed table, but second in the one-way table (Subjects is last there)
+    const msSubj = (group ? out.rows[1].ms : ssSubj / (n - 1)), msErr = out.rows.find((r) => r.source === "Error (within)").ms;
     out.varSubject = Math.max(0, (msSubj - msErr) / k); out.varResid = msErr; out.icc = out.varSubject / (out.varSubject + out.varResid);
     return out;
   };
@@ -366,7 +477,7 @@
     }
     const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = llTheta(theta, mu);
     const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
-    const lrt = 2 * (ll - pois.ll);
+    const lrt = Math.max(0, 2 * (ll - pois.ll)); // never below 0: at theta near infinity NB is the Poisson model, and a tiny negative is the search stopping short
     return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf };
   };
   S.multinom = (X, yLab, names, conf = 0.95) => { // baseline = first level (sorted)

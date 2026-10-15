@@ -2,13 +2,15 @@
 
 Free statistical tool for all levels, browser-only. Open `stats/index.html` on the site; no install, no account, no data leaves the browser.
 
-Menus, option names and result tables (Exploration, T-Tests, ANOVA, Regression, Frequencies, distrACTION) match the course instructions as written. On top of that, StatCrunch-style conveniences: Filters, Compute, Transform, sort by clicking a header, summary-statistic input on every test, a two-proportion z test, chi-square and F calculators, a sampling distribution simulator, session save and load, and offline use as an installable app (PWA).
+Three pages, one menu bar: the data page (table on the left, Analyses and Graphs on the right; on a phone or an iPad in portrait the table sits above the results), the distrACTION page (`#distraction`: inputs card and live result cards, no table) and the Learn page (`#learn`: the demonstrations that need no data). Both extra pages have a Back to data button and work with the browser's Back button. The app opens with an empty table. The browser remembers the user's own data (a file; pasted, typed or simulated data; a stacked or sampled table; a sample dataset once it has been changed), with its filter and hand-set types, plus the decimal setting and the panel width. An untouched sample dataset, results and distrACTION inputs are not remembered.
 
-What it does: load a CSV (or paste, or a sample dataset), edit cells in place; descriptives, frequency and two-way tables; bar, pie, histogram, dotplot, boxplot, scatterplot; one mean (t, or z when sigma is given), one proportion (z with exact binomial; Wald, plus four, Agresti-Coull, Wilson or exact interval), two means (Welch), paired, two proportions, one-way ANOVA with Tukey, chi-square goodness of fit and independence, correlation and regression with residual plot, confidence and prediction intervals; one and two variance tests; Levene's test; binomial, Poisson, geometric, hypergeometric, discrete uniform, custom discrete (mean, SD and probabilities from x and P(x)), normal, uniform, exponential, t, and sample-size calculators; data tools to bin, stack, simulate and sample; Learn applets for mean versus median, regression influence and guessing r. Every inference card gives the formula, the statistic, the p-value, a decision at alpha, a written conclusion, and a condition check.
+Menus, option names and result tables (Exploration, T-Tests, ANOVA, Regression, Frequencies, distrACTION) match the course instructions as written. On top of that, StatCrunch-style conveniences: Filters, Compute, Transform, sort by clicking a header, summary-statistic input on the t, z, proportion and chi-square tests, a two-proportion z test, chi-square and F calculators, a sampling distribution simulator, session save and load, and offline use as an installable app (PWA).
 
-House rules baked in: means use t with df (sigma is never given); p-value approach; no inference about a variance; z procedures for proportions require the success-failure check.
+What it does: load a CSV (or paste, or a sample dataset), edit cells in place; descriptives, frequency and two-way tables; bar, pie, histogram, dotplot, boxplot, scatterplot; one mean (t, or z when sigma is given), one proportion (z with exact binomial; Wald, plus four, Agresti-Coull, Wilson or exact interval), two means (Welch), paired, two proportions, one-way ANOVA with Tukey, chi-square goodness of fit and independence, correlation and regression with residual plot, confidence and prediction intervals; one and two variance tests; Levene's test; binomial, Poisson, geometric, hypergeometric, discrete uniform, custom discrete (mean, SD and probabilities from x and P(x)), normal, uniform, exponential, t, chi-square and F calculators, each with the events at most, less than, at least, more than, equal to, between (inclusive or strict) and quantile, plus t*, p-value and critical-value choices for t, chi-square and F, all updating live as inputs change; sample size for a margin of error and power; data tools to bin, stack, simulate and sample; Learn applets for mean versus median, regression influence and guessing r (each value or point can be typed as well as clicked). Every inference card gives the formula, the statistic, the p-value, a decision at alpha, a written conclusion, and a condition check.
 
-Files: `index.html` (layout), `app.js` (menus, dialogs, result cards), `stats.js` (engine), `vendor/` (jStat 1.9.6 for distributions, Plotly cartesian 2.35.2 for plots), `data/` (sample datasets from the SMC, LMU and POPP courses).
+House rules baked in: means use t with df (the z test is there only for problems that give sigma, and its card says so); p-value approach; tests for a standard deviation live under Advanced, not in the first-course menus; z procedures for proportions require the success-failure check.
+
+Files: `index.html` (layout and styles), `app.js` (menus, pages, dialogs, result cards), `stats.js` (engine), `sw.js` (offline cache; bump `CACHE` and the `?v=` numbers in `index.html` with every release), `vendor/` (jStat 1.9.6 for distributions, Plotly cartesian 2.35.2 for plots), `data/` (sample datasets from the SMC, LMU and POPP courses).
 
 Verified 2026-09-12 against R (and the jmv package) on the class datasets: one-sample t, proportion test, Welch, paired, two proportions, ANOVA F and Tukey p-values, chi-square, regression coefficients and slope interval all agree to four decimals.
 
@@ -41,3 +43,111 @@ gives exact 0.0807 and z 0.0578 (the app prints both and flags the gap), 230 of 
 and z 0.0027 (the app says the approximation is fine there).
 
 Service worker cache bumped to sww-v36 so installed copies pick the new version up.
+
+## Changelog
+
+### 2026-10-14: empty table on open, distrACTION and Learn on their own pages, more events, calmer layout
+
+- **Opens empty.** An untouched sample dataset is no longer remembered, so a student never opens the app to last week's
+  class data. The user's own data is still remembered and the bar says "remembered from your last visit". A sample dataset
+  counts as the user's own once it changes (an edited cell, a computed, recoded, z-score or binned column, a renamed or
+  deleted column, a filter, a type set by hand), and Stack columns and Random sample of rows make a table of the user's own;
+  before, all of these were lost on reload. Sorting alone does not count. An old remembered copy (or an old session file)
+  under a sample's name is forgotten only when it is exactly the untouched sample; a copy the student changed is kept.
+  Save session also stores the hand-set column types. The empty table shows "No data yet" with four buttons (Sample
+  datasets, Open CSV file, Paste data, New data table) that run the Data menu items of the same name, and two buttons
+  that open distrACTION and Learn.
+- **distrACTION page.** Every distrACTION item opens a page without the data table (`#distraction`): inputs card left
+  (top on narrow screens), result cards right. A calculator opens with its answer worked out from the starting values.
+  Results update live as the parameters, the Compute list, x1 or x2 change, with no Run needed. Run keeps the card (it
+  shows "Kept" for a moment) and the next change starts a new card; a second Run with nothing changed makes no copy. edit
+  reloads a card's values into the inputs card and marks it "Editing this result". x2 shows only for between. An empty
+  input gives a grey note under the inputs and an impossible one a red message, and the card fades with the label "Out of
+  date: see the message under the inputs"; never an alert. Change distribution switches calculators; Clear this page has
+  an Undo clear.
+- **More events.** Every distribution now offers less than, at most, more than, at least, equal to, between inclusive,
+  between strict and quantile (discrete calculators gained the strict and quantile choices; normal, uniform and exponential
+  gained less than, more than, equal to and strict between; t, chi-square and F gained all of them). The original option
+  labels are unchanged word for word. Discrete events are exact; continuous cards say that < and <= give the same area and
+  P(X = a) = 0. Every card leads with the answer in large type: for an event, the event in symbols, words and percent,
+  with a plot title naming the shaded event; for t*, a p-value, a critical value, a sample size or power, that number;
+  for "none, just the mean and SD", the mean and SD (nothing shaded, and the plot title says so).
+  A probability too small to show prints as "< 0.0001" (never a bare 0), with the calculator form (3.17E-5) in words.
+  Binomial uses R's method (Loader's saddle point), so it is right for any n; above n = 100 the graph and Full table show
+  where the probability is.
+- **Learn page.** The nine demonstrations that need no data open on `#learn` (the sampling distribution simulator and
+  Bayesian included, since both run from built-in or typed numbers); bootstrap and permutation, which need a data file,
+  stay with the table. Advanced, Bayesian Inference still opens with the table.
+- **Layout.** 16 px body text, 44 px tap targets, one primary button colour, the menu tab of the open page underlined,
+  dropdowns placed on screen (they ran off the right edge at 1024 px and below the screen for Advanced), sticky header
+  row and row numbers in the table, no sideways page scroll at 1280, 1024, 768 or 390 px. On a phone the menu bar wraps
+  onto three rows, so every menu shows; the plot toolbar is hidden on touch screens.
+- **Keyboard and screen readers.** Native dialogs (Escape closes, focus returns), Skip to content, menus by arrow keys, the
+  data table as one Tab stop with arrow keys and Enter inside it, a third click on a column name to restore the first
+  order, a navy focus ring, and an announcer that reads only the distrACTION answer line.
+- **Drift fixed.** Decimal places dialog and the guide said 3 was the default; the app has always used 4. The guide said
+  results are remembered between visits; they never were. The guide said only four Learn items run without data; nine do.
+  The guide's first run used a three-level grouping variable, and its write-up examples quoted numbers the class data do
+  not give; both now use the class data as it is. This README said "no inference about a variance"; Advanced has
+  variance tests.
+- **Blank boxes.** The t, z, two-proportion, McNemar and power dialogs in summary mode, and Linear Regression or Wilcoxon
+  with the same column picked twice, give a message instead of a card full of NaN.
+- **Found in the last full check.** Chi-square and F, p-value for a huge statistic (chi-square 100 on df 3) printed a bare
+  0; the upper tail is now worked out from its own side, so it prints "< 0.0001" with 1.55E-21 in words (the words also
+  say "an F variable" now). One-way Repeated Measures with no between factor: the Random-intercept view took the Subjects
+  mean square as the error, so it showed subject variance 0 and ICC 0; it now matches R's lmer (cadet mile times: 188.54,
+  98.42, ICC 0.657). That one was in the live version too. The negative binomial LR test against Poisson is never below 0.
+  The Multiple Regression dialog says the most frequent level is the reference, as the code and the guide do. On a phone
+  a long graph title wraps onto a second line inside the graph, and histogram counts sit on white labels in front of the
+  mean and median lines.
+- **The exact binomial test matches R.** The two-sided p adds every outcome as unlikely as the one observed, the same
+  rule as R and jamovi (before, it doubled the smaller tail): 23 of 40 with p0 0.6 now gives 0.7493, not 0.8637.
+  One-sided p-values and results with p0 = 0.5 (the sign test, McNemar's exact p) were already the same as R. The
+  Binomial test, the sign test and Learn, What a p-value is use it; that demo counts a simulated sample as extreme by the
+  same rule, so its simulated p still estimates the exact one. Checked against R's binom.test on 1,683 cases (n from 5
+  to 3000, p0 from 0.1 to 0.9, all three alternatives; n 10,000 and 100,000; McNemar and the sign test), largest relative
+  difference 2.4E-13.
+- **Any text is safe.** A column name, a level label, a cell, a file name or a typed graph title that looks like HTML
+  shows as typed and never runs: card text escapes it, every graph string is escaped once in plotDiv, and a graph title is
+  measured in a separate, inert document. The October 14 build read the title in the page, so a column name such as
+  `score<img src=x onerror=...>` ran when a titled graph was drawn. The live version did not do that, but it had the same
+  problem in card sentences (a level label named by a t test, the small-group warning), in a quote inside a typed title
+  reopened by edit, and in session files. Opening a session file now brings in its cards without scripts, handlers or
+  outside addresses, and applies its filter only when it is made of column names, numbers, text in quotes and operators.
+- **Group by a numeric column.** Group by in the Graph menu (Color by for the scatter plot, Split by in Descriptives, Group
+  in the Exploration scatterplot) takes a numeric column with 10 or fewer values as groups, in numeric order. With more
+  values (GPA has 34), or with an ID column, a message under the box asks for a categorical grouping variable and points
+  to Bin into classes. Before, Boxplot drew broken boxes (one-person groups) and QQ Plot stopped with "Cannot read
+  properties of null"; that was in the live version too. A box of one value now draws as a line, and QQ Plot notes a
+  group with fewer than 3 values instead of plotting it.
+- Results, Save session and Export include the distrACTION and Learn results. A card opened from a session file can be
+  copied and removed, but has no edit button.
+- **A session file is treated as untrusted.** Its filter is kept only when it is a plain formula (the same token check the
+  engine runs before compiling any formula: column names, numbers, text in quotes, the listed functions and operators, and
+  nothing else, so no comment, bracket, dot or line break can sneak code into `new Function`); otherwise the student is told
+  and all rows stay in use. Its result cards are rebuilt from an allowed shape only: the text and table tags the app's own
+  cards use, each with only the attributes they use. Anything that could run or fetch (a script or frame, a link or picture,
+  an `on...`, `src`, `href` or positioning `style`, an `id` that could stand in for a page element, a custom element) is
+  dropped; a plain wrapper is unwrapped so the words survive. A table remembered by an older build is read the same way, and
+  a `#hash` that is not a known page (even a built-in property name) opens the data page. Column names, cells and the data
+  name from a file are forced to text, so a malformed file cannot crash the table.
+- **Sampling distribution simulator**, population set to a column: if the column has no numbers for a mean or median, a
+  message under the Column box says so; for a sample proportion, a blank or mistyped success level gets its message under
+  the Success level box. Each message shows once, under the box it is about, and no plot is drawn (it drew a NaN path
+  before). The Success level box shows only when the statistic is a sample proportion.
+- **A typed level is checked under its box.** Two proportions, z test made a card with z = NaN and p = NaN (and a broken
+  graph) when the success level was not in the data, for example `yes` for `Yes`, or was left blank. Now every box where a
+  level is typed (Two proportions, the Binomial test's Level to test, McNemar's yes level, Cochran-Armitage's success level
+  and group order, Bootstrap's level for a proportion, Bayesian's success level, Logistic Regression's level to model as 1,
+  Survival's event level) says under itself "Levels of X: ... Type one of them exactly", naming the right spelling when
+  only the capitals differ, and Run makes no card until it matches. A blank box that needs a level is asked for once the
+  student has touched the dialog, with the levels listed. Two proportions and Cochran-Armitage also give a message, not a
+  NaN card, when no row (or every row) is a success. Service worker cache `sww-v50`, scripts `?v=53`.
+- Verified headlessly in Chrome against R: Binomial(4, 1/6) P(X < 1) 0.4823, P(X <= 1) 0.8681, P(X = 1) 0.3858,
+  P(X > 3) 0.0008, P(X >= 3) 0.0162, P(1 <= X <= 3) 0.517, P(1 < X < 3) 0.1157; Normal(64, 2.5) P(X <= 67) and
+  P(X < 67) 0.8849, P(X > 67) 0.1151, 90th percentile 67.2039; Uniform(2, 8) P(X <= 5) 0.5; Poisson(3) P(X < 2) 0.1991 and
+  90th percentile 5; Geometric(0.2) P(X <= 3) 0.488; Hypergeometric(50, 10, 5) P(X >= 2) 0.2581; t(20) P(X <= 2.086) 0.975;
+  chi-square(3) P(X >= 7.815) and F(2, 30) P(X > 3.316) 0.05. Academy fitness Descriptives unchanged (mile week 1 mean
+  578.4167, SD 53.6724; push-ups week 1 mean 35.1, SD 8.3152).
+- Not changed: the desktop app (download page, version 1.3.0, October 1, 2026) is a separate build and does not have
+  these changes yet; the download page and the guide say so.
