@@ -225,7 +225,7 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"], ["darfur.csv", "Darfur survey (Hazlett 2020): violence and support for peace, 1276 refugees (sensitivity to a lurking variable)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -1029,6 +1029,87 @@
       plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }].concat(bandTr), { xaxis: { title: v.x }, yaxis: { title: v.y } });
       if (v.resid) plotDiv(cd, [{ x: r.fitted, y: r.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 280);
       if (v.qq) { const q = SW.qq(r.resid), sd = SW.sd(r.resid); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }, { x: [-2.5, 2.5], y: [-2.5 * sd, 2.5 * sd], mode: "lines", line: { color: "#C0392B" } }], { title: "Q-Q plot of residuals", xaxis: { title: "theoretical quantiles" }, yaxis: { title: "residual" } }, 280); }
+    });
+  }
+
+  // ================= Regression: sensitivity to a lurking variable =================
+  // Cinelli and Hazlett (2020), the benchmark of Chad Hazlett's causal inference course: how strong an unobserved confounder
+  // (the lurking variable of a first course) would have to be, compared with the covariates already measured, to change
+  // the conclusion. Everything comes from the regression table (t of the treatment, the residual df) plus two partial R2s
+  // for the benchmark covariate. Verified on the Darfur data against the paper: RV 13.9%, RV at alpha 7.6%, 1x female 0.0752.
+  // The covariates are dummy coded without the rare-level rule of the other regressions: a fixed effect for a village with
+  // one respondent is fine here (it absorbs that row), and the paper keeps every row.
+  function sensitivityUI() {
+    needData();
+    dialog("Regression: Sensitivity to a lurking variable (Cinelli-Hazlett benchmark)", [
+      selNum("y", "Outcome"), selNum("d", "Treatment (the cause being studied: a number, or a 0/1 column)"),
+      { name: "xs", label: `Numeric covariates adjusted for (${MULTI_HINT()})`, type: "multi", options: numCols(), group: "Covariates" },
+      { name: "cs", label: "Categorical covariates (dummy coded; a fixed effect such as a village or a school is fine)", type: "multi", options: catCols(), group: "Covariates" },
+      Object.assign(selAny("bench", "Benchmark: how strong would a lurking variable be, compared with this covariate?"), { hint: "Added to the covariates if it is not among them. Pick the strongest thing you did measure." }),
+      { name: "ks", label: "Multiples of the benchmark to try, comma separated", type: "text", value: "1, 2, 3" },
+      { name: "q", label: "q: the fraction of the estimate a lurking variable would have to explain away (1 = all of it)", type: "number", value: 1 },
+      { name: "plot", label: "Contour plot of the adjusted estimate", type: "check", value: true },
+      confField, alphaField], (v) => {
+      if (v.y === v.d) throw new Error("Pick two different columns: the outcome and the treatment are the same column.");
+      const q = Number.isFinite(v.q) && v.q > 0 ? v.q : 1, alpha = +v.alpha, conf = +v.conf;
+      const ks = String(v.ks || "").split(",").map((s) => s.trim()).filter(Boolean).map(Number); if (!ks.length || ks.some((k) => !(k > 0))) throw new Error("Multiples are positive numbers, such as 1, 2, 3.");
+      let xs = v.xs.filter((c) => c !== v.y && c !== v.d), cs = v.cs.filter((c) => c !== v.y && c !== v.d);
+      const bench = v.bench && v.bench !== v.y && v.bench !== v.d ? v.bench : "";
+      let html = "";
+      if (bench && !xs.includes(bench) && !cs.includes(bench)) { if (isNum(bench)) xs = xs.concat([bench]); else cs = cs.concat([bench]); html += say(`${esc(bench)} was added to the covariates so it can serve as the benchmark.`); }
+      // design matrix: numeric columns as they are, each categorical dummy coded against its most frequent level
+      const names = [], parts = [];
+      xs.forEach((c) => { names.push(c); parts.push(col(c).map((x) => [x])); });
+      cs.forEach((c) => { const raw = col(c), dd = SW.dummies(raw); dd.cols.forEach((l) => names.push(`${c} = ${l} (vs ${dd.levels[0]})`)); parts.push(dd.rows.map((r, i) => (raw[i] === "" ? r.map(() => "") : r))); });
+      const yv = col(v.y), dv = col(v.d), rows = yv.map((_, i) => parts.flatMap((p) => p[i]));
+      const keep = keepComplete(rows, yv, [dv]).filter((i) => Number.isFinite(Number(dv[i])));
+      const Xc = keep.map((i) => rows[i].map(Number)), y = keep.map((i) => Number(yv[i])), d = keep.map((i) => Number(dv[i]));
+      if (y.length <= names.length + 3) throw new Error(`Not enough complete rows (${y.length}) for ${names.length} covariate columns.`);
+      if (new Set(d).size < 2) throw new Error(`${v.d} takes a single value in the rows in use, so it cannot be a treatment.`);
+      const light = { light: true };
+      const m = SW.ols(Xc.map((r, i) => [d[i]].concat(r)), y, [v.d].concat(names), conf, light);
+      const est = m.b[1], se = m.se[1], t = m.t[1], df = m.df, R = SW.robustness({ t, df, q, alpha }), pc = (x) => (Number.isFinite(x) ? fmt(100 * x, 1) + "%" : "n/a");
+      html += table(["Treatment", "Estimate", "SE", "t", "df", "Partial R2 of treatment with outcome", `RV (q = ${q})`, `RV (q = ${q}, alpha = ${alpha})`], [[v.d, est, se, t, df, pc(R.r2yd), pc(R.rv), pc(R.rva)]], `Sensitivity statistics: ${v.y} on ${v.d}${names.length ? `, adjusting for ${names.length} covariate column${names.length > 1 ? "s" : ""}` : ", no covariates"}`);
+      html += `<div class="note">Note. n = ${m.n} complete rows${m.n < yv.length ? ` (${yv.length - m.n} dropped for blanks)` : ""}; ${pWord(m.p[1])} for the treatment. RV is the share of the remaining variation of both ${esc(v.d)} and ${esc(v.y)} that a lurking variable would have to explain.</div>`;
+      // benchmark against an observed covariate: its partial R2 with the treatment (given the other covariates) and with the outcome (given the treatment and the others)
+      let B = null, bounds = [];
+      if (bench && names.length) {
+        const J = names.map((nm, j) => (nm === bench || nm.startsWith(bench + " = ") ? j : -1)).filter((j) => j >= 0), rest = names.filter((_, j) => !J.includes(j));
+        if (J.length) {
+          const drop = (rs) => rs.map((r) => r.filter((_, j) => !J.includes(j)));
+          const mRedY = SW.ols(drop(Xc).map((r, i) => [d[i]].concat(r)), y, [v.d].concat(rest), conf, light), fy = SW.nestedF(mRedY, m), r2yxj = SW.groupPartialR2(fy.F, J.length, m.df);
+          const mFullD = SW.ols(Xc, d, names, conf, light); let r2dxj;
+          if (rest.length) { const mRedD = SW.ols(drop(Xc), d, rest, conf, light), fd = SW.nestedF(mRedD, mFullD); r2dxj = SW.groupPartialR2(fd.F, J.length, mFullD.df); } else r2dxj = mFullD.r2;
+          B = { r2dxj, r2yxj };
+          bounds = ks.map((k) => { const b = SW.ovbBound(r2dxj, r2yxj, k, k); const adj = b.ok ? SW.ovbAdjust({ est, se, df, r2dz: b.r2dz, r2yz: b.r2yz, conf }) : null; return { k, b, adj }; });
+          html += table(["Lurking variable as strong as", `R2 with ${v.d} (given covariates)`, `R2 with ${v.y} (given treatment and covariates)`, "Adjusted estimate", "Adjusted SE", "Adjusted t", `${Math.round(conf * 100)}% CI lower`, "upper"],
+            bounds.map(({ k, b, adj }) => [`${k} times ${bench}`, b.ok ? pc(b.r2dz) : "over 100%", b.ok ? pc(b.r2yz) + (b.capped ? " (capped)" : "") : "", adj ? adj.est : "no variable can be that strong", adj ? adj.se : "", adj ? adj.t : "", adj ? adj.lower : "", adj ? adj.upper : ""]),
+            `Benchmark bounds: ${bench} itself has R2 ${pc(r2dxj)} with ${v.d} and ${pc(r2yxj)} with ${v.y}`);
+        }
+      }
+      html += formula(`partial R2 of the treatment = t^2 / (t^2 + df); RV_q = (sqrt(f^4 + 4 f^2) minus f^2) / 2 with f = q |t| / sqrt(df); bias from a lurking variable = SE sqrt(R2yz R2dz / (1 minus R2dz)) sqrt(df), where R2dz is its R2 with the treatment and R2yz its R2 with the outcome`);
+      const w = [`partial R2 = ${fmt(t)}^2 / (${fmt(t)}^2 + ${df}) = ${fmt(R.r2yd)}`, `f = ${q} times ${fmt(Math.abs(t))} / sqrt(${df}) = ${fmt(R.fq)}; RV = (sqrt(${fmt(R.fq)}^4 + 4 times ${fmt(R.fq)}^2) minus ${fmt(R.fq)}^2) / 2 = ${fmt(R.rv)}`, `at alpha ${alpha}: f minus t* / sqrt(df minus 1) = ${fmt(R.fqa)}, so RV = ${fmt(R.rva)}`];
+      if (bounds.length && bounds[0].adj) w.push(`${bounds[0].k} times ${bench}: bias = ${fmt(se)} sqrt(${fmt(bounds[0].b.r2yz)} times ${fmt(bounds[0].b.r2dz)} / (1 minus ${fmt(bounds[0].b.r2dz)})) sqrt(${df}) = ${fmt(bounds[0].adj.bias)}; adjusted estimate = ${fmt(est)} ${est >= 0 ? "minus" : "plus"} ${fmt(bounds[0].adj.bias)} = ${fmt(bounds[0].adj.est)}`);
+      html += worked(w);
+      html += say(`A lurking variable (an unobserved confounder) can change this estimate only if it is related to both ${esc(v.d)} and ${esc(v.y)} after the covariates. The robustness value says how strong it would have to be: one that explains ${pc(R.rv)} of what is left of both ${esc(v.d)} and ${esc(v.y)} would bring the estimate to ${q === 1 ? "zero" : `${fmt(100 * (1 - q), 0)} percent of its size`}, and one that explains ${pc(R.rva)} of both would make it not significant at alpha ${alpha}. Any lurking variable that explains less than ${pc(R.r2yd)} of the remaining variation in ${esc(v.y)} cannot explain the estimate away, however strongly it is tied to ${esc(v.d)}.`);
+      if (B) {
+        const first = bounds.find((x) => x.adj && Math.sign(x.adj.est) !== Math.sign(est)), notSig = bounds.find((x) => x.adj && Math.abs(x.adj.t) < SW.qt(1 - alpha / 2, df - 1)), b1 = bounds[0];
+        html += say(`Benchmark: a lurking variable as strong as ${esc(bench)} would move the estimate from ${fmt(est)} to ${b1.adj ? fmt(b1.adj.est) : "beyond what the model can say"}. ${notSig ? `One about ${notSig.k} times as strong as ${esc(bench)} would make it not significant at alpha ${alpha}` : `None of the multiples tried (${ks.join(", ")}) makes it not significant at alpha ${alpha}`}${first ? `, and one ${first.k} times as strong would change its sign` : ", and none changes its sign"}. Whether such a variable is plausible is a judgement about the study, not a calculation: name the strongest thing you did measure and ask whether anything left out could matter more.`);
+      } else html += say("Pick a benchmark covariate to see how strong a lurking variable would have to be compared with something you did measure.");
+      html += warn("This is a sensitivity analysis for a linear model with one treatment coefficient. It says how much unmeasured confounding would be needed to change the conclusion, not whether any exists. Correlation is still not causation; this is the honest next step after that sentence.");
+      html += apa(`${v.y} on ${v.d}: b = ${apaN(est, 3)}, SE = ${apaN(se, 3)}, t(${df}) = ${apaN(t)}, ${apaP(m.p[1])}. Robustness value RV = ${pc(R.rv)} (RV at alpha ${alpha} = ${pc(R.rva)}); partial R2 of the treatment = ${pc(R.r2yd)}${bounds.length && bounds[0].adj ? `. A confounder as strong as ${bench} would give b = ${apaN(bounds[0].adj.est, 3)}, t = ${apaN(bounds[0].adj.t)}` : ""}.`);
+      html += `<div class="note">Cinelli, C. and Hazlett, C. (2020). Making sense of sensitivity: extending omitted variable bias. Journal of the Royal Statistical Society, Series B, 82(1), 39 to 67. The R package sensemakr prints the same statistics.</div>`;
+      const cd = card("Sensitivity to a lurking variable", src(`${v.y} on ${v.d}`), html);
+      if (v.plot) {
+        const top = Math.min(0.95, Math.max(0.4, ...bounds.filter((x) => x.adj).flatMap((x) => [x.b.r2dz, x.b.r2yz]).map((r) => r * 1.3)));
+        const N = 60, g = Array.from({ length: N + 1 }, (_, i) => (top * i) / N), ts = SW.qt(1 - (1 - conf) / 2, df - 1), z = g.map((ry) => g.map((rd) => SW.ovbAdjust({ est, se, df, r2dz: rd, r2yz: ry, tstar: ts }).est));
+        const traces = [{ type: "contour", x: g, y: g, z, contours: { coloring: "lines", showlabels: true, labelfont: { size: 11, color: "#444" } }, line: { color: "#8A8A8A", width: 1 }, showscale: false, hoverinfo: "skip", name: "adjusted estimate" },
+          { type: "contour", x: g, y: g, z, contours: { coloring: "lines", start: 0, end: 0, size: 1, showlabels: false }, line: { color: "#C0392B", width: 2.5, dash: "dash" }, showscale: false, hoverinfo: "skip", name: "estimate = 0" },
+          { x: [0], y: [0], mode: "markers+text", type: "scatter", text: [`unadjusted (${fmt(est, 3)})`], textposition: "top right", marker: { color: "#1A3A4D", size: 10, symbol: "diamond" }, name: "unadjusted", hoverinfo: "text" }];
+        const pts = bounds.filter((x) => x.adj && x.b.r2dz <= top && x.b.r2yz <= top);
+        if (pts.length) traces.push({ x: pts.map((x) => x.b.r2dz), y: pts.map((x) => x.b.r2yz), mode: "markers+text", type: "scatter", text: pts.map((x) => `${x.k} times ${bench} (${fmt(x.adj.est, 3)})`), textposition: "top right", marker: { color: "#C0392B", size: 9 }, name: "benchmarks", hoverinfo: "text" });
+        plotDiv(cd, traces, { title: "Adjusted estimate for a lurking variable of each strength (dashed red: estimate = 0)", xaxis: { title: `R2 of the lurking variable with ${v.d} (given covariates)`, range: [0, top] }, yaxis: { title: `R2 with ${v.y} (given treatment and covariates)`, range: [0, top] }, showlegend: false, margin: { t: 40, l: 60, r: 20, b: 55 } }, 440);
+      }
     });
   }
 
@@ -2491,7 +2572,7 @@
     ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
     ["T-Tests", [["Which test?", whichTest], null, ["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
-    ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
+    ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI], null, ["Sensitivity to a lurking variable", sensitivityUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],

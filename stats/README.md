@@ -46,6 +46,24 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-15 (evening): sensitivity to a lurking variable (Cinelli-Hazlett benchmark), Darfur sample dataset
+
+- **Regression, Sensitivity to a lurking variable.** The omitted-variable-bias sensitivity analysis of Cinelli and
+  Hazlett (2020), the benchmark used in Chad Hazlett's causal inference course, as a card in the first-course register.
+  Outcome, treatment, numeric and categorical covariates (dummy coded; a village fixed effect with 485 dummies is fine),
+  a benchmark covariate and the multiples to try. Reports the estimate, SE, t and df of the treatment, its partial R2
+  with the outcome, the robustness value RV_q and RV_{q,alpha}; for the benchmark, its own partial R2s with the
+  treatment and the outcome (a categorical benchmark uses the group partial R2 from the nested F), and for each
+  multiple the bounded R2s, adjusted estimate, SE, t and interval; a contour plot of the adjusted estimate with the
+  zero line and the benchmark points; the formula, worked numbers, a plain-English reading (the floor set by the
+  partial R2, which multiple would make it not significant or change its sign), an APA-style sentence and the citation.
+- Engine: `S.partialR2`, `S.groupPartialR2`, `S.robustness`, `S.ovbAdjust`, `S.ovbBound`; `S.ols` takes
+  `{ light: true }` to skip VIFs and influence diagnostics (each VIF is another inversion).
+- Sample dataset `darfur.csv` (Hazlett 2020, as distributed with sensemakr): the paper's example.
+- Verified in the browser against the paper's Table 2 and a NumPy reference: estimate 0.0973, SE 0.0233, t 4.18 on
+  783 df, partial R2 2.2%, RV 13.9%, RV at alpha 0.05 7.6%; 1x female: R2 with treatment 0.9%, with outcome 12.5%,
+  adjusted estimate 0.0752, SE 0.0219, t 3.44; 2x 0.0529; 3x 0.0304. Service worker cache `sww-v53`, scripts `?v=56`.
+
 ### 2026-10-15 (later): share link, "Which test?" wizard, course profiles
 
 The three review suggestions left open that morning.
