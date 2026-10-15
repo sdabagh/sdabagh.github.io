@@ -2,11 +2,13 @@
 
 ## Repository Overview
 
-This is the personal academic website for **Safaa Dabagh**, a UCLA Statistics PhD candidate and Santa Monica College mathematics instructor. The repository is hosted as a GitHub Pages site at `sdabagh.github.io`.
+> **Status note (October 2026).** The site was simplified to what is real now. Safaa's only UCLA connection is her education (BA, MA); do not describe her as a PhD candidate or affiliate of UCLA, and do not frame her research as a dissertation on AI-powered cognitive scaffolding for statistics education. Her published research is on `publications.html` and `research-papers.html` (placement reform and equity, AI-assisted course design, a state panel study). The AI statistics tutor, the research-participation study and its IRB materials, the "AI journey" page and the kids' coding camp are inactive: their pages stay in the repo but are unlinked, marked `noindex`, and out of the sitemap (`participate.html` redirects to `publications.html`). Much of the text below this note predates that change and is kept as history.
+
+This is the personal academic website for **Safaa Dabagh**, a mathematics and statistics instructor (Santa Monica College, West Los Angeles College, Loyola Marymount University) with an MA in Statistics from UCLA. The repository is hosted as a GitHub Pages site at `sdabagh.github.io`.
 
 **Purpose**: Professional academic portfolio showcasing research, teaching, and educational technology expertise:
 - **Dissertation Research**: AI-powered cognitive scaffolding for statistics education
-- **Teaching**: Math 54 (Statistics) and Math 4/4C (Algebra) at Santa Monica College
+- **Teaching** (Fall 2026): Math C1000 Introduction to Statistics at Santa Monica College (two sections, one with the Math 54C support course), Math C1000 for the POPP program at West Los Angeles College, and Math 205 Applied Statistics in R at Loyola Marymount University (two sections). Past: Math 54 (now C1000) and Math 4/4C College Algebra at SMC
 - **Professional Development**: AI in Education journey and certifications
 - **Personal Projects**: Mommy Coding Camp for children
 - **Publications & Academic Profile**: CV, papers, presentations
@@ -29,8 +31,8 @@ sdabagh.github.io/
 ├── research.html                       # NEW: Dissertation research overview
 ├── participate.html                    # NEW: Research participation info
 ├── publications.html                   # NEW: CV and academic work
-├── math54.html                         # Math 54 course page (SMC)
-├── math4.html                          # Math 4/4C course page (SMC)
+├── math54.html                         # Math C1000 (formerly Math 54) statistics course page (SMC)
+├── math4.html                          # Math 4/4C course page (SMC, last taught Spring 2026)
 ├── ai-education.html                   # AI in Education professional development
 ├── mommy-camp.html                     # Mommy Coding Camp
 ├── style.css                           # NEW: External stylesheet (professional design)
