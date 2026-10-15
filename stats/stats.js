@@ -337,9 +337,14 @@
   const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
   const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
   const inv = (M) => { const n = M.length, A = M.map((r, i) => r.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; if (Math.abs(A[p][c]) < 1e-12) throw new Error("A predictor is a perfect combination of the others (singular matrix). Remove one."); [A[c], A[p]] = [A[p], A[c]]; const d = A[c][c]; for (let j = 0; j < 2 * n; j++) A[c][j] /= d; for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; } } return A.map((r) => r.slice(n)); };
-  S.ols = (X, y, names, conf = 0.95) => { // X: rows of predictors (no intercept column), y: numbers
+  // opts.light: skip the VIFs and the influence diagnostics (each VIF is another inversion; a village fixed effect with
+  // 485 dummies made them take minutes). The sensitivity analysis fits four such models and needs only the table.
+  // X'X with plain loops, skipping the zeros: a design matrix of dummies is mostly zeros, and the general product took
+  // seconds per fit with a village fixed effect (485 columns)
+  const xtx = (X) => { const n = X.length, p = X[0].length, out = Array.from({ length: p }, () => new Array(p).fill(0)); for (let i = 0; i < n; i++) { const r = X[i]; for (let a = 0; a < p; a++) { const va = r[a]; if (va === 0) continue; const oa = out[a]; for (let b = a; b < p; b++) oa[b] += va * r[b]; } } for (let a = 1; a < p; a++) for (let b = 0; b < a; b++) out[a][b] = out[b][a]; return out; };
+  S.ols = (X, y, names, conf = 0.95, opts = {}) => { // X: rows of predictors (no intercept column), y: numbers
     const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, Xt = T(Xd);
-    const XtX = mul(Xt, Xd), XtXi = inv(XtX), b = mul(XtXi, mul(Xt, y.map((v) => [v]))).map((r) => r[0]);
+    const XtX = xtx(Xd), XtXi = inv(XtX), b = mul(XtXi, mul(Xt, y.map((v) => [v]))).map((r) => r[0]);
     const fitted = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), resid = y.map((v, i) => v - fitted[i]);
     const ybar = S.mean(y), ssres = resid.reduce((s, e) => s + e * e, 0), sstot = y.reduce((s, v) => s + (v - ybar) ** 2, 0), df = n - p, mse = ssres / df;
     const se = XtXi.map((r, i) => Math.sqrt(mse * r[i])), t = b.map((v, i) => v / se[i]), pv = t.map((v) => 2 * (1 - S.pt(Math.abs(v), df))), tstar = S.qt(1 - (1 - conf) / 2, df);
@@ -347,12 +352,40 @@
     // VIF: regress each predictor on the others
     // VIF: regress each predictor on the others with a plain least-squares fit (no recursion into S.ols, which would explode with many predictors)
     const r2of = (Xa, ya) => { const Xa1 = Xa.map((r) => [1].concat(r)); const bb = mul(inv(mul(T(Xa1), Xa1)), mul(T(Xa1), ya.map((v) => [v]))).map((r) => r[0]); const fit = Xa1.map((r) => r.reduce((s2, v, k) => s2 + v * bb[k], 0)); const yb = S.mean(ya); const ssr = ya.reduce((s2, v, i) => s2 + (v - fit[i]) ** 2, 0), sst = ya.reduce((s2, v) => s2 + (v - yb) ** 2, 0); return 1 - ssr / sst; };
-    const vif = names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { return 1 / (1 - r2of(Xj, yj)); } catch (e) { return NaN; } });
+    const vif = opts.light ? names.map(() => NaN) : names.map((_, j) => { if (names.length < 2) return 1; const Xj = X.map((r) => r.filter((_, k) => k !== j)), yj = X.map((r) => r[j]); try { return 1 / (1 - r2of(Xj, yj)); } catch (e) { return NaN; } });
     // diagnostics: leverage h_ii, standardized residuals, Cook's distance
-    const hat = Xd.map((r) => r.reduce((s, v, i) => s + v * r.reduce((s2, w, j) => s2 + w * XtXi[j][i], 0), 0));
+    const hat = opts.light ? Xd.map(() => NaN) : Xd.map((r) => r.reduce((s, v, i) => s + v * r.reduce((s2, w, j) => s2 + w * XtXi[j][i], 0), 0));
     const rstd = resid.map((e, i) => e / Math.sqrt(mse * (1 - hat[i]))), cook = rstd.map((r, i) => (r * r * hat[i]) / (p * (1 - hat[i])));
     const aic = n * Math.log(ssres / n) + 2 * (p + 1) + n * (Math.log(2 * Math.PI) + 1), bic = n * Math.log(ssres / n) + (p + 1) * Math.log(n) + n * (Math.log(2 * Math.PI) + 1);
     return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), vif, conf, hat, rstd, cook, ssres, aic, bic, k: p };
+  };
+  // ---------- sensitivity to an omitted variable: Cinelli and Hazlett (2020), the sensemakr statistics ----------
+  // Everything comes from the regression table. Partial R2 of the treatment with the outcome, t^2 / (t^2 + df); the
+  // robustness value RV_q, the share of the residual variance of both the treatment and the outcome that an unobserved
+  // confounder would need to explain to reduce the estimate by the fraction q; and RV_{q,alpha}, to make it not significant.
+  S.partialR2 = (t, df) => (t * t) / (t * t + df);
+  S.groupPartialR2 = (F, q, df) => (q * F) / (q * F + df); // a group of q columns, from the nested F against the model without them
+  S.robustness = ({ t, df, q = 1, alpha = 0.05 }) => {
+    const fq = (q * Math.abs(t)) / Math.sqrt(df), rv = 0.5 * (Math.sqrt(fq ** 4 + 4 * fq * fq) - fq * fq);
+    const fqa = fq - S.qt(1 - alpha / 2, df - 1) / Math.sqrt(df - 1);
+    const rva = fqa < 0 ? 0 : fq <= 1 / fqa ? 0.5 * (Math.sqrt(fqa ** 4 + 4 * fqa * fqa) - fqa * fqa) : (fq * fq - fqa * fqa) / (1 + fq * fq);
+    return { r2yd: S.partialR2(t, df), rv, rva, fq, fqa };
+  };
+  // the estimate after a confounder with partial R2 r2dz (with the treatment, given the covariates) and r2yz (with the
+  // outcome, given the treatment and the covariates), with the bias taken in the direction that shrinks the estimate
+  S.ovbAdjust = ({ est, se, df, r2dz, r2yz, conf = 0.95, tstar }) => { // tstar: pass it when calling many times (a contour grid)
+    const bias = se * Math.sqrt((r2yz * r2dz) / (1 - r2dz)) * Math.sqrt(df), adj = est - Math.sign(est || 1) * bias;
+    const adjSe = se * Math.sqrt((1 - r2yz) / (1 - r2dz)) * Math.sqrt(df / (df - 1)); if (tstar == null) tstar = S.qt(1 - (1 - conf) / 2, df - 1);
+    return { bias, est: adj, se: adjSe, t: adj / adjSe, lower: adj - tstar * adjSe, upper: adj + tstar * adjSe };
+  };
+  // bounds for a confounder kd times as strongly associated with the treatment, and ky times with the outcome, as an
+  // observed covariate whose own partial R2s are r2dxj (with the treatment, given the other covariates) and r2yxj (with
+  // the outcome, given the treatment and the other covariates)
+  S.ovbBound = (r2dxj, r2yxj, kd = 1, ky = 1) => {
+    const r2dz = kd * (r2dxj / (1 - r2dxj)), r2zxj = (kd * r2dxj * r2dxj) / ((1 - kd * r2dxj) * (1 - r2dxj));
+    if (!(r2dz < 1) || !(r2zxj < 1) || !(r2zxj >= 0)) return { r2dz, r2yz: NaN, ok: false };
+    const r2yz = ((Math.sqrt(ky) + Math.sqrt(r2zxj)) / Math.sqrt(1 - r2zxj)) ** 2 * (r2yxj / (1 - r2yxj));
+    return { r2dz, r2yz: Math.min(r2yz, 1), ok: true, capped: r2yz > 1 };
   };
   S.nestedF = (reduced, full) => { const df1 = full.k - reduced.k, df2 = full.df, F = ((reduced.ssres - full.ssres) / df1) / (full.ssres / df2); return { F, df1, df2, p: 1 - S.pf(F, df1, df2) }; };
   S.backward = (X, y, names, alpha = 0.05) => { // teaching demo of backward elimination by p-value

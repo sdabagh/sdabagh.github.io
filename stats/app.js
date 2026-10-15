@@ -9,6 +9,7 @@
   let DEC = 4; try { DEC = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { }
   let LAST = null; try { LAST = JSON.parse(localStorage.getItem("sww_last") || "null"); } catch (e) { } // the last visit's results, offered back after a reload
   let AUTORUN = false; // restoring: a dialog is filled in and run without opening
+  let SHARED = null; // a setup carried in the address (#s=...), offered with an Open button
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const escA = (s) => esc(s).replace(/"/g, "&quot;"); // inside an attribute
@@ -224,7 +225,7 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"], ["darfur.csv", "Darfur survey (Hazlett 2020): violence and support for peace, 1276 refugees (sensitivity to a lurking variable)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -445,8 +446,9 @@
       if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
       else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${escA(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
       else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
+      else if (fd.type === "note") ctl = `<div class="say note" id="${id}" aria-live="polite"></div>`; // a box of text that follows the other answers
       else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null || Number.isNaN(fd.value) ? "" : escA(fd.value)}" step="any" placeholder="${escA(fd.placeholder || "")}"${fd.list ? ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : ""}>`;
-      const lab = fd.type === "check" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
+      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
       // check(raw): a field that can be set to something that will not work (a grouping column with too many values) says so
       // right under itself as soon as it is chosen, and Run shows the same message there instead of an alert
       const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${esc(fd.hint)}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
@@ -467,6 +469,7 @@
       fields.filter(Boolean).forEach((fd) => {
         const el = f.querySelector("#" + pre + fd.name);
         if (fd.lab) { const l = f.querySelector(`label[for="${pre + fd.name}"]`); if (l) l.textContent = fd.lab(raw); }
+        if (fd.type === "note" && fd.text && el) { const t = fd.text(raw); if (el.textContent !== t) el.textContent = t; }
         if (fd.check) { const m = f.querySelector(`#${pre + fd.name}_msg`), t = fd.check(raw, !!ev) || ""; if (m && m.textContent !== t && !(t && el && el === typingIn)) { m.textContent = t; if (el) { if (t) el.setAttribute("aria-describedby", m.id); else el.removeAttribute("aria-describedby"); } } }
         if (!fd.vis) return; const box = el && el.closest(".fld"); if (box) box.style.display = fd.vis(raw) ? "" : "none";
       });
@@ -587,7 +590,7 @@
       ...[["hist", "Histogram"], ["dens", "Density"], ["box", "Box plot"], ["dot", "Dot plot"], ["qq", "Q-Q plot"], ["bar", "Bar plot"]].map(([k, l]) => ({ name: k, label: l, type: "check", value: false, group: "Plots" })),
       { name: "lines", label: "Mark mean (solid) and median (dashed) on histograms", type: "check", value: true, group: "Plots" },
       { name: "freq", label: "Frequency tables (for nominal and ordinal variables)", type: "check", value: true, group: "Tables" },
-      sel("qm", "Quartile method", [["halves", "Textbook rule: median of each half, overall median excluded (default)"], ["type7", "R rule (type 7, interpolated)"]], "halves"),
+      sel("qm", "Quartile method", [["halves", "Textbook rule: median of each half, overall median excluded (default)"], ["type7", "R rule (type 7, interpolated)"]], PROF ? PROF.qm : "halves"),
       ...[["n", "N", true], ["missing", "Missing", true], ["skew", "Skewness with its standard error", false], ["mean", "Mean", true], ["median", "Median", true], ["mode", "Mode", false], ["sum", "Sum", false], ["sd", "Std. deviation (sample, n minus 1)", true], ["variance", "Variance (sample)", false], ["sdpop", "Population std. deviation (divides by N)", false], ["range", "Range", false], ["min", "Minimum", true], ["max", "Maximum", true], ["se", "Std. error of mean (SE: spread of sample means, not of people)", false], ["iqr", "IQR", false], ["q", "Quartiles (25th, 50th, 75th)", false], ["fence", "Fences (1.5 IQR)", false], ["kurt", "Kurtosis (excess) with its standard error", false], ["cv", "Coefficient of variation (SD / mean)", false]].map(([k, l, v]) => ({ name: k, label: l, type: "check", value: v, group: "Statistics" })),
       { name: "pcts", label: "Other percentiles, comma separated (optional)", type: "text", placeholder: "10, 90", group: "Statistics" }], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
@@ -763,6 +766,30 @@
     });
   }
 
+  // ================= Which test? =================
+  // The most common question in a first course, which twelve menu headings do not answer: three questions open the right
+  // dialog. Rows: what was measured; columns: one group against a value, two groups (independent or paired), three or more,
+  // or a relationship with a second variable (a number or a category).
+  const WIZ = {
+    num: { one: ["T-Tests", "One Sample T-Test", "One sample mean against a test value: t, because sigma is not known."], ind: ["T-Tests", "Independent Samples T-Test", "Two means from different people: Welch's t."], pair: ["T-Tests", "Paired Samples T-Test", "Each person measured twice: a t-test on the mean of the differences."], many: ["ANOVA", "One-Way ANOVA", "Three or more means at once; the Tukey table says which pairs differ."], relnum: ["Regression", "Linear Regression", "How one number predicts another: the slope, r and r squared (Correlation Matrix gives r alone)."], relcat: ["ANOVA", "One-Way ANOVA", "A number across the levels of a category is a comparison of group means: two levels, an independent t-test; more, ANOVA, which handles two as well."] },
+    two: { one: ["Frequencies", "2 Outcomes: Binomial test", "One proportion against a claimed value."], ind: ["Frequencies", "Two proportions: z test", "Two proportions from different people."], pair: ["Advanced", "McNemar test (paired yes or no)", "The same people answering yes or no twice."], many: ["Frequencies", "Contingency Tables: Independent Samples", "A yes-or-no outcome across several groups is a two-way table: the chi-square test of association."], relnum: ["Advanced", "Logistic Regression", "A yes-or-no outcome predicted by a number."], relcat: ["Frequencies", "Contingency Tables: Independent Samples", "Two categories: a two-way table and the chi-square test of association."] },
+    many: { one: ["Frequencies", "N Outcomes: chi-square Goodness of fit", "Counts in each category against claimed (or equal) proportions."], ind: ["Frequencies", "Contingency Tables: Independent Samples", "Categories by group: a two-way table and the chi-square test of association."], pair: ["Frequencies", "Contingency Tables: Independent Samples", "With more than two outcomes a first course has no paired test; the two-way table is the usual choice (say in the write-up that the samples are paired)."], many: ["Frequencies", "Contingency Tables: Independent Samples", "Categories by group: a two-way table and the chi-square test of association."], relnum: ["ANOVA", "One-Way ANOVA", "Turn it round: treat the number as the outcome and compare its mean across the categories."], relcat: ["Frequencies", "Contingency Tables: Independent Samples", "Two categories: a two-way table and the chi-square test of association."] }
+  };
+  const wizKey = (raw) => (raw.q === "two" ? (raw.pair === "pair" ? "pair" : "ind") : raw.q === "rel" ? (raw.x === "cat" ? "relcat" : "relnum") : raw.q === "many" ? "many" : "one");
+  function whichTest() {
+    const pick = (raw) => (WIZ[raw.y] && WIZ[raw.y][wizKey(raw)]) || WIZ.num.one;
+    dialog("Which test?", [
+      sel("y", "What did you measure on each person (or unit)?", [["num", "a number (a score, minutes, GPA, a height)"], ["two", "a yes or no (two outcomes: passed or not, owns a pet or not)"], ["many", "a category with more than two outcomes (major, commute method)"]], "num"),
+      sel("q", "What is the question?", [["one", "compare one group with a known or claimed value"], ["two", "compare two groups"], ["many", "compare three or more groups"], ["rel", "look for a relationship between two variables"]], "two"),
+      Object.assign(sel("pair", "The two groups are", [["ind", "different people (independent samples)"], ["pair", "the same people measured twice, or matched pairs"]], "ind"), { vis: (raw) => raw.q === "two" }),
+      Object.assign(sel("x", "The other variable is", [["num", "a number"], ["cat", "a category"]], "num"), { vis: (raw) => raw.q === "rel" }),
+      { name: "rec", type: "note", text: (raw) => { const r = pick(raw); return `${r[1]} (${r[0]} menu). ${r[2]}`; } }], (v) => {
+      const r = pick(v), it = findItem(r[0], r[1]);
+      if (!D.rows.length || !it) { const cd = card("Which test?", `${r[1]}, ${r[0]} menu`, say(`${r[2]} Open a data file (Data menu), then find ${r[1]} under ${r[0]}.`)); cd._skip = true; return; }
+      setTimeout(() => runItem(r[0], it), 0); // once this dialog has closed
+    }, D.rows.length ? "Open it" : "Note it");
+  }
+
   // ================= T-Tests =================
   function zOneSample() {
     const hasData = D.rows.length > 0;
@@ -877,7 +904,7 @@
       only(hasData ? selNum("x", "Dependent variable") : null, onData), only(hasData ? selCat("g", "Grouping variable") : null, onData), only(hasData ? { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" } : null, onData),
       { name: "m1", label: "Mean 1", type: "number", group: "Group 1", vis: onSummary }, { name: "s1", label: "SD 1", type: "number", group: "Group 1", vis: onSummary }, { name: "n1", label: "N 1", type: "number", group: "Group 1", vis: onSummary },
       { name: "m2", label: "Mean 2", type: "number", group: "Group 2", vis: onSummary }, { name: "s2", label: "SD 2", type: "number", group: "Group 2", vis: onSummary }, { name: "n2", label: "N 2", type: "number", group: "Group 2", vis: onSummary },
-      { name: "welch", label: "Welch's (unequal variances, the default here)", type: "check", value: true, group: "Tests" },
+      { name: "welch", label: `Welch's (unequal variances, the default ${PROF && PROF.name ? "in " + PROF.name : "here"})`, type: "check", value: !PROF || PROF.welch, group: "Tests" },
       sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
@@ -1002,6 +1029,87 @@
       plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }].concat(bandTr), { xaxis: { title: v.x }, yaxis: { title: v.y } });
       if (v.resid) plotDiv(cd, [{ x: r.fitted, y: r.resid, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: "Residuals against fitted values (want a formless band around 0)", xaxis: { title: "fitted" }, yaxis: { title: "residual" }, shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 0, y1: 0, line: { color: "#1A3A4D", dash: "dash" } }] }, 280);
       if (v.qq) { const q = SW.qq(r.resid), sd = SW.sd(r.resid); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }, { x: [-2.5, 2.5], y: [-2.5 * sd, 2.5 * sd], mode: "lines", line: { color: "#C0392B" } }], { title: "Q-Q plot of residuals", xaxis: { title: "theoretical quantiles" }, yaxis: { title: "residual" } }, 280); }
+    });
+  }
+
+  // ================= Regression: sensitivity to a lurking variable =================
+  // Cinelli and Hazlett (2020), the benchmark of Chad Hazlett's causal inference course: how strong an unobserved confounder
+  // (the lurking variable of a first course) would have to be, compared with the covariates already measured, to change
+  // the conclusion. Everything comes from the regression table (t of the treatment, the residual df) plus two partial R2s
+  // for the benchmark covariate. Verified on the Darfur data against the paper: RV 13.9%, RV at alpha 7.6%, 1x female 0.0752.
+  // The covariates are dummy coded without the rare-level rule of the other regressions: a fixed effect for a village with
+  // one respondent is fine here (it absorbs that row), and the paper keeps every row.
+  function sensitivityUI() {
+    needData();
+    dialog("Regression: Sensitivity to a lurking variable (Cinelli-Hazlett benchmark)", [
+      selNum("y", "Outcome"), selNum("d", "Treatment (the cause being studied: a number, or a 0/1 column)"),
+      { name: "xs", label: `Numeric covariates adjusted for (${MULTI_HINT()})`, type: "multi", options: numCols(), group: "Covariates" },
+      { name: "cs", label: "Categorical covariates (dummy coded; a fixed effect such as a village or a school is fine)", type: "multi", options: catCols(), group: "Covariates" },
+      Object.assign(selAny("bench", "Benchmark: how strong would a lurking variable be, compared with this covariate?"), { hint: "Added to the covariates if it is not among them. Pick the strongest thing you did measure." }),
+      { name: "ks", label: "Multiples of the benchmark to try, comma separated", type: "text", value: "1, 2, 3" },
+      { name: "q", label: "q: the fraction of the estimate a lurking variable would have to explain away (1 = all of it)", type: "number", value: 1 },
+      { name: "plot", label: "Contour plot of the adjusted estimate", type: "check", value: true },
+      confField, alphaField], (v) => {
+      if (v.y === v.d) throw new Error("Pick two different columns: the outcome and the treatment are the same column.");
+      const q = Number.isFinite(v.q) && v.q > 0 ? v.q : 1, alpha = +v.alpha, conf = +v.conf;
+      const ks = String(v.ks || "").split(",").map((s) => s.trim()).filter(Boolean).map(Number); if (!ks.length || ks.some((k) => !(k > 0))) throw new Error("Multiples are positive numbers, such as 1, 2, 3.");
+      let xs = v.xs.filter((c) => c !== v.y && c !== v.d), cs = v.cs.filter((c) => c !== v.y && c !== v.d);
+      const bench = v.bench && v.bench !== v.y && v.bench !== v.d ? v.bench : "";
+      let html = "";
+      if (bench && !xs.includes(bench) && !cs.includes(bench)) { if (isNum(bench)) xs = xs.concat([bench]); else cs = cs.concat([bench]); html += say(`${esc(bench)} was added to the covariates so it can serve as the benchmark.`); }
+      // design matrix: numeric columns as they are, each categorical dummy coded against its most frequent level
+      const names = [], parts = [];
+      xs.forEach((c) => { names.push(c); parts.push(col(c).map((x) => [x])); });
+      cs.forEach((c) => { const raw = col(c), dd = SW.dummies(raw); dd.cols.forEach((l) => names.push(`${c} = ${l} (vs ${dd.levels[0]})`)); parts.push(dd.rows.map((r, i) => (raw[i] === "" ? r.map(() => "") : r))); });
+      const yv = col(v.y), dv = col(v.d), rows = yv.map((_, i) => parts.flatMap((p) => p[i]));
+      const keep = keepComplete(rows, yv, [dv]).filter((i) => Number.isFinite(Number(dv[i])));
+      const Xc = keep.map((i) => rows[i].map(Number)), y = keep.map((i) => Number(yv[i])), d = keep.map((i) => Number(dv[i]));
+      if (y.length <= names.length + 3) throw new Error(`Not enough complete rows (${y.length}) for ${names.length} covariate columns.`);
+      if (new Set(d).size < 2) throw new Error(`${v.d} takes a single value in the rows in use, so it cannot be a treatment.`);
+      const light = { light: true };
+      const m = SW.ols(Xc.map((r, i) => [d[i]].concat(r)), y, [v.d].concat(names), conf, light);
+      const est = m.b[1], se = m.se[1], t = m.t[1], df = m.df, R = SW.robustness({ t, df, q, alpha }), pc = (x) => (Number.isFinite(x) ? fmt(100 * x, 1) + "%" : "n/a");
+      html += table(["Treatment", "Estimate", "SE", "t", "df", "Partial R2 of treatment with outcome", `RV (q = ${q})`, `RV (q = ${q}, alpha = ${alpha})`], [[v.d, est, se, t, df, pc(R.r2yd), pc(R.rv), pc(R.rva)]], `Sensitivity statistics: ${v.y} on ${v.d}${names.length ? `, adjusting for ${names.length} covariate column${names.length > 1 ? "s" : ""}` : ", no covariates"}`);
+      html += `<div class="note">Note. n = ${m.n} complete rows${m.n < yv.length ? ` (${yv.length - m.n} dropped for blanks)` : ""}; ${pWord(m.p[1])} for the treatment. RV is the share of the remaining variation of both ${esc(v.d)} and ${esc(v.y)} that a lurking variable would have to explain.</div>`;
+      // benchmark against an observed covariate: its partial R2 with the treatment (given the other covariates) and with the outcome (given the treatment and the others)
+      let B = null, bounds = [];
+      if (bench && names.length) {
+        const J = names.map((nm, j) => (nm === bench || nm.startsWith(bench + " = ") ? j : -1)).filter((j) => j >= 0), rest = names.filter((_, j) => !J.includes(j));
+        if (J.length) {
+          const drop = (rs) => rs.map((r) => r.filter((_, j) => !J.includes(j)));
+          const mRedY = SW.ols(drop(Xc).map((r, i) => [d[i]].concat(r)), y, [v.d].concat(rest), conf, light), fy = SW.nestedF(mRedY, m), r2yxj = SW.groupPartialR2(fy.F, J.length, m.df);
+          const mFullD = SW.ols(Xc, d, names, conf, light); let r2dxj;
+          if (rest.length) { const mRedD = SW.ols(drop(Xc), d, rest, conf, light), fd = SW.nestedF(mRedD, mFullD); r2dxj = SW.groupPartialR2(fd.F, J.length, mFullD.df); } else r2dxj = mFullD.r2;
+          B = { r2dxj, r2yxj };
+          bounds = ks.map((k) => { const b = SW.ovbBound(r2dxj, r2yxj, k, k); const adj = b.ok ? SW.ovbAdjust({ est, se, df, r2dz: b.r2dz, r2yz: b.r2yz, conf }) : null; return { k, b, adj }; });
+          html += table(["Lurking variable as strong as", `R2 with ${v.d} (given covariates)`, `R2 with ${v.y} (given treatment and covariates)`, "Adjusted estimate", "Adjusted SE", "Adjusted t", `${Math.round(conf * 100)}% CI lower`, "upper"],
+            bounds.map(({ k, b, adj }) => [`${k} times ${bench}`, b.ok ? pc(b.r2dz) : "over 100%", b.ok ? pc(b.r2yz) + (b.capped ? " (capped)" : "") : "", adj ? adj.est : "no variable can be that strong", adj ? adj.se : "", adj ? adj.t : "", adj ? adj.lower : "", adj ? adj.upper : ""]),
+            `Benchmark bounds: ${bench} itself has R2 ${pc(r2dxj)} with ${v.d} and ${pc(r2yxj)} with ${v.y}`);
+        }
+      }
+      html += formula(`partial R2 of the treatment = t^2 / (t^2 + df); RV_q = (sqrt(f^4 + 4 f^2) minus f^2) / 2 with f = q |t| / sqrt(df); bias from a lurking variable = SE sqrt(R2yz R2dz / (1 minus R2dz)) sqrt(df), where R2dz is its R2 with the treatment and R2yz its R2 with the outcome`);
+      const w = [`partial R2 = ${fmt(t)}^2 / (${fmt(t)}^2 + ${df}) = ${fmt(R.r2yd)}`, `f = ${q} times ${fmt(Math.abs(t))} / sqrt(${df}) = ${fmt(R.fq)}; RV = (sqrt(${fmt(R.fq)}^4 + 4 times ${fmt(R.fq)}^2) minus ${fmt(R.fq)}^2) / 2 = ${fmt(R.rv)}`, `at alpha ${alpha}: f minus t* / sqrt(df minus 1) = ${fmt(R.fqa)}, so RV = ${fmt(R.rva)}`];
+      if (bounds.length && bounds[0].adj) w.push(`${bounds[0].k} times ${bench}: bias = ${fmt(se)} sqrt(${fmt(bounds[0].b.r2yz)} times ${fmt(bounds[0].b.r2dz)} / (1 minus ${fmt(bounds[0].b.r2dz)})) sqrt(${df}) = ${fmt(bounds[0].adj.bias)}; adjusted estimate = ${fmt(est)} ${est >= 0 ? "minus" : "plus"} ${fmt(bounds[0].adj.bias)} = ${fmt(bounds[0].adj.est)}`);
+      html += worked(w);
+      html += say(`A lurking variable (an unobserved confounder) can change this estimate only if it is related to both ${esc(v.d)} and ${esc(v.y)} after the covariates. The robustness value says how strong it would have to be: one that explains ${pc(R.rv)} of what is left of both ${esc(v.d)} and ${esc(v.y)} would bring the estimate to ${q === 1 ? "zero" : `${fmt(100 * (1 - q), 0)} percent of its size`}, and one that explains ${pc(R.rva)} of both would make it not significant at alpha ${alpha}. Any lurking variable that explains less than ${pc(R.r2yd)} of the remaining variation in ${esc(v.y)} cannot explain the estimate away, however strongly it is tied to ${esc(v.d)}.`);
+      if (B) {
+        const first = bounds.find((x) => x.adj && Math.sign(x.adj.est) !== Math.sign(est)), notSig = bounds.find((x) => x.adj && Math.abs(x.adj.t) < SW.qt(1 - alpha / 2, df - 1)), b1 = bounds[0];
+        html += say(`Benchmark: a lurking variable as strong as ${esc(bench)} would move the estimate from ${fmt(est)} to ${b1.adj ? fmt(b1.adj.est) : "beyond what the model can say"}. ${notSig ? `One about ${notSig.k} times as strong as ${esc(bench)} would make it not significant at alpha ${alpha}` : `None of the multiples tried (${ks.join(", ")}) makes it not significant at alpha ${alpha}`}${first ? `, and one ${first.k} times as strong would change its sign` : ", and none changes its sign"}. Whether such a variable is plausible is a judgement about the study, not a calculation: name the strongest thing you did measure and ask whether anything left out could matter more.`);
+      } else html += say("Pick a benchmark covariate to see how strong a lurking variable would have to be compared with something you did measure.");
+      html += warn("This is a sensitivity analysis for a linear model with one treatment coefficient. It says how much unmeasured confounding would be needed to change the conclusion, not whether any exists. Correlation is still not causation; this is the honest next step after that sentence.");
+      html += apa(`${v.y} on ${v.d}: b = ${apaN(est, 3)}, SE = ${apaN(se, 3)}, t(${df}) = ${apaN(t)}, ${apaP(m.p[1])}. Robustness value RV = ${pc(R.rv)} (RV at alpha ${alpha} = ${pc(R.rva)}); partial R2 of the treatment = ${pc(R.r2yd)}${bounds.length && bounds[0].adj ? `. A confounder as strong as ${bench} would give b = ${apaN(bounds[0].adj.est, 3)}, t = ${apaN(bounds[0].adj.t)}` : ""}.`);
+      html += `<div class="note">Cinelli, C. and Hazlett, C. (2020). Making sense of sensitivity: extending omitted variable bias. Journal of the Royal Statistical Society, Series B, 82(1), 39 to 67. The R package sensemakr prints the same statistics.</div>`;
+      const cd = card("Sensitivity to a lurking variable", src(`${v.y} on ${v.d}`), html);
+      if (v.plot) {
+        const top = Math.min(0.95, Math.max(0.4, ...bounds.filter((x) => x.adj).flatMap((x) => [x.b.r2dz, x.b.r2yz]).map((r) => r * 1.3)));
+        const N = 60, g = Array.from({ length: N + 1 }, (_, i) => (top * i) / N), ts = SW.qt(1 - (1 - conf) / 2, df - 1), z = g.map((ry) => g.map((rd) => SW.ovbAdjust({ est, se, df, r2dz: rd, r2yz: ry, tstar: ts }).est));
+        const traces = [{ type: "contour", x: g, y: g, z, contours: { coloring: "lines", showlabels: true, labelfont: { size: 11, color: "#444" } }, colorscale: [[0, "#9A9A9A"], [1, "#9A9A9A"]], line: { width: 1 }, showscale: false, hoverinfo: "skip", name: "adjusted estimate" },
+          { type: "contour", x: g, y: g, z, contours: { coloring: "lines", start: 0, end: 0, size: 1, showlabels: false }, line: { color: "#C0392B", width: 2.5, dash: "dash" }, showscale: false, hoverinfo: "skip", name: "estimate = 0" },
+          { x: [0], y: [0], mode: "markers+text", type: "scatter", text: [`unadjusted (${fmt(est, 3)})`], textposition: "top right", marker: { color: "#1A3A4D", size: 10, symbol: "diamond" }, name: "unadjusted", hoverinfo: "text" }];
+        const pts = bounds.filter((x) => x.adj && x.b.r2dz <= top && x.b.r2yz <= top);
+        if (pts.length) traces.push({ x: pts.map((x) => x.b.r2dz), y: pts.map((x) => x.b.r2yz), mode: "markers+text", type: "scatter", text: pts.map((x) => `${x.k} times ${bench} (${fmt(x.adj.est, 3)})`), textposition: "top right", marker: { color: "#C0392B", size: 9 }, name: "benchmarks", hoverinfo: "text" });
+        plotDiv(cd, traces, { title: "Adjusted estimate for a lurking variable of each strength (dashed red: estimate = 0)", xaxis: { title: `R2 of the lurking variable with ${v.d} (given covariates)`, range: [0, top] }, yaxis: { title: `R2 with ${v.y} (given treatment and covariates)`, range: [0, top] }, showlegend: false, margin: { t: 40, l: 60, r: 20, b: 55 } }, 440);
+      }
     });
   }
 
@@ -2462,15 +2570,15 @@
     ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Bin into classes", binUI], ["Stack columns", stackUI], null, ["Simulate random data", simulateUI], ["Random sample of rows", sampleRowsUI], null, ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
     ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
-    ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
+    ["T-Tests", [["Which test?", whichTest], null, ["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
-    ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
+    ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI], null, ["Sensitivity to a lurking variable", sensitivityUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
-    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
@@ -2480,38 +2588,141 @@
   // the user's own data) unless Restore is chosen: an untouched sample dataset comes back only with its results.
   const FN_KEY = new Map(), KEY_FN = new Map();
   MENU.forEach(([m, items]) => items.forEach((it) => { if (it) { FN_KEY.set(it[1], m + " | " + it[0]); KEY_FN.set(m + " | " + it[0], it[1]); } }));
+  // the setup behind the page: the data's name and origin, the filter, and the choices behind each card on the Analyses and
+  // Graphs tabs (a card that is only a note, such as a share link, is skipped)
+  function stateNow() {
+    const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && !c._skip && !NOTE_FNS.has(c._redo.fn) && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
+    return { name: D.name, origin: D.origin || "own", filter: D.filter, cards };
+  }
   function autosave() {
     try {
-      const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
-      if (!cards.length) { if (!LAST) localStorage.removeItem("sww_last"); return; } // nothing yet this visit: the offer from the last one stands
-      localStorage.setItem("sww_last", JSON.stringify({ name: D.name, origin: D.origin || "own", filter: D.filter, cards, at: Date.now() }));
+      const s = stateNow();
+      if (!s.cards.length) { if (!LAST) localStorage.removeItem("sww_last"); return; } // nothing yet this visit: the offer from the last one stands
+      s.at = Date.now(); localStorage.setItem("sww_last", JSON.stringify(s));
     } catch (e) { }
   }
-  function offerLast() {
-    const s = LAST, bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object" || !Array.isArray(s.cards) || !s.cards.length) { LAST = null; return; }
-    const n = s.cards.length, when = Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
+  // ---- a link that carries the setup: the dataset (a sample's name, or a small table of the user's own, inside the link),
+  // the filter and the analyses, as JSON in the address after #s=. Nothing is sent anywhere; the receiver sees the setup and
+  // an Open button, and nothing runs until it is pressed. Read with the same checks as a session file.
+  const packState = (o) => { const b = new TextEncoder().encode(JSON.stringify(o)); let s = ""; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return "s=" + btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+  function unpackState(h) {
+    try {
+      const m = /^#?s=([A-Za-z0-9_-]+)$/.exec(String(h || "")); if (!m) return null;
+      const b = m[1].replace(/-/g, "+").replace(/_/g, "/"), s = atob(b + "=".repeat((4 - (b.length % 4)) % 4)), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+      const o = JSON.parse(new TextDecoder().decode(u)); return o && typeof o === "object" && !Array.isArray(o) ? o : null;
+    } catch (e) { return null; }
+  }
+  const dropHash = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { } };
+  function shareLink() {
+    const s = stateNow(); let note;
+    if (D.rows.length && s.origin === "sample" && sampleFileFor(s.name)) note = `The link names the sample dataset (${s.name}), which is loaded again when the link opens.`;
+    else if (D.rows.length) { const d = { cols: D.cols, rows: D.rows, manual: D.manual || {} }; if (JSON.stringify(d).length <= 60000) { s.data = d; note = `Your table (${D.rows.length} rows, ${D.cols.length} columns) travels inside the link, so it opens on any computer.`; } else note = `Your table is too big to travel inside a link (${D.rows.length} rows). The link carries the filter and the analyses; whoever opens it must first open the same file (Data, Open CSV file), then press Open.`; }
+    else note = "No data are loaded, so the link carries the analyses only.";
+    if (PROF) { s.profile = PROF; note += ` The course profile (${profileName(PROF)}) travels with it.`; }
+    const url = location.origin + location.pathname + "#" + packState(s), n = s.cards.length;
+    const meta = `${n} ${n === 1 ? "analysis" : "analyses"}${D.filter.trim() ? ", filter " + D.filter.trim() : ""}, ${url.length} characters`;
+    dialog("Results: Share link", [{ name: "url", label: "The link", type: "textarea", rows: 4, value: url, hint: `${meta}. ${note} Paste it into Canvas, an email or a message: whoever opens it sees the setup and an Open button, and nothing runs until it is pressed. Nothing is sent anywhere; the whole setup is in the address.` }], () => {
+      const cd = card("Share link", meta, `<div class="formula link">${esc(url)}</div>` + say(note + " Whoever opens the link sees the setup and an Open button. The link was put on the clipboard; if that failed, select it above and copy it by hand."));
+      cd._skip = true; // a note, not an analysis: not kept for a restore, not part of the next link
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => announce("Link copied."), () => announce("Select the link in the card and copy it by hand."));
+    }, "Copy link");
+  }
+  // ================= course profile =================
+  // A small set of defaults an instructor shares (a file, or a link): the two-sample t-test (Welch or pooled), the quartile
+  // rule, decimal places, the alpha and confidence level offered first, and which menus show (Advanced alone has nineteen
+  // models a first course never meets). Data and Results always show. One app, one profile per course, no fork.
+  const MENU_NAMES = MENU.map((m) => m[0]);
+  const NOTE_FNS = new Set([shareLink, whichTest, profileUI]); // dialogs whose card is a note, not an analysis: never saved or shared
+  function cleanProfile(p) {
+    if (!p || typeof p !== "object") return null;
+    const o = { name: String(p.name == null ? "" : p.name).replace(/\s+/g, " ").trim().slice(0, 60), welch: p.welch !== false, qm: p.qm === "type7" ? "type7" : "halves" };
+    o.dec = [2, 3, 4, 6].includes(Number(p.dec)) ? Number(p.dec) : 4;
+    o.alpha = ["0.05", "0.01", "0.10"].includes(String(p.alpha)) ? String(p.alpha) : "0.05";
+    o.conf = ["0.90", "0.95", "0.99"].includes(String(p.conf)) ? String(p.conf) : "0.95";
+    o.menus = Array.isArray(p.menus) ? p.menus.filter((m) => typeof m === "string" && MENU_NAMES.includes(m) && m !== "Data" && m !== "Results") : null;
+    return o;
+  }
+  let PROF = null; try { PROF = cleanProfile(JSON.parse(localStorage.getItem("sww_profile") || "null")); } catch (e) { }
+  const profileName = (p) => (p && p.name ? String(p.name) : "unnamed");
+  function showMenus() { document.querySelectorAll("#menu .dd").forEach((d) => { const m = d.dataset.name; d.style.display = !PROF || !PROF.menus || m === "Data" || m === "Results" || PROF.menus.includes(m) ? "" : "none"; }); }
+  function applyProfile(p, store) {
+    PROF = cleanProfile(p); if (!PROF) return clearProfile();
+    DEC = PROF.dec; alphaField.value = PROF.alpha; confField.value = PROF.conf; showMenus();
+    const pn = $("#profName"); if (pn) pn.textContent = PROF.name ? "Profile: " + PROF.name : "Course profile set";
+    if (store) { try { localStorage.setItem("sww_profile", JSON.stringify(PROF)); } catch (e) { } }
+  }
+  function clearProfile() {
+    PROF = null; try { localStorage.removeItem("sww_profile"); } catch (e) { }
+    let d = 4; try { d = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { } DEC = d;
+    alphaField.value = "0.05"; confField.value = "0.95"; showMenus(); const pn = $("#profName"); if (pn) pn.textContent = "";
+  }
+  const profileWords = (p) => `${p.welch ? "Welch's" : "Student's pooled"} t for two samples; ${p.qm === "type7" ? "R (type 7)" : "textbook"} quartiles; ${p.dec} decimals; alpha ${p.alpha} and ${Math.round(Number(p.conf) * 100)} percent offered first; menus: ${p.menus ? "Data, " + p.menus.join(", ") + ", Results" : "all"}.`;
+  function profileUI() {
+    const p = PROF || cleanProfile({}), menuOpts = MENU_NAMES.filter((m) => m !== "Data" && m !== "Results");
+    dialog("Results: Course profile", [
+      { name: "name", label: "Profile name (shown above the table)", type: "text", value: p.name, placeholder: "STAT C1000, Fall 2026" },
+      sel("welch", "Two-sample t-test offered first", [["welch", "Welch's (unequal variances)"], ["pooled", "Student's (pooled)"]], p.welch ? "welch" : "pooled"),
+      sel("qm", "Quartile rule in Descriptives", [["halves", "Textbook rule (median of each half)"], ["type7", "R rule (type 7, interpolated)"]], p.qm),
+      sel("dec", "Decimal places", [["2", "2"], ["3", "3"], ["4", "4"], ["6", "6"]], String(p.dec)),
+      sel("alpha", "Alpha offered first", [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], p.alpha),
+      sel("conf", "Confidence level offered first", [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], p.conf),
+      { name: "menus", label: `Menus to show (${MULTI_HINT()}). Data and Results always show.`, type: "multi", options: menuOpts, value: p.menus || menuOpts },
+      sel("how", "Then", [["apply", "Use this profile on this computer"], ["file", "Use it here and download it as a file to share"], ["link", "Use it here and copy a link that sets it"], ["off", "Remove the profile from this computer"]], "apply")], (v) => {
+      if (v.how === "off") { clearProfile(); card("Course profile", "removed", say("The app's own defaults are back: Welch's t, the textbook quartile rule, 4 decimals, alpha 0.05, 95 percent, every menu."))._skip = true; return; }
+      const prof = cleanProfile({ name: v.name, welch: v.welch !== "pooled", qm: v.qm, dec: Number(v.dec), alpha: v.alpha, conf: v.conf, menus: v.menus.length === menuOpts.length ? null : v.menus });
+      applyProfile(prof, true);
+      let html = say("In use on this computer. " + profileWords(prof));
+      if (v.how === "file") { downloadText(JSON.stringify(Object.assign({ sww_profile: 1 }, prof), null, 2), ((prof.name || "course").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_") || "course") + ".sww-profile.json", "application/json"); html += say("The profile file was downloaded. A student opens it with Results, Open a profile file."); }
+      if (v.how === "link") { const url = location.origin + location.pathname + "#" + packState({ name: "", origin: "own", filter: "", cards: [], profile: prof }); html += `<div class="formula link">${esc(url)}</div>` + say("The link was put on the clipboard. Whoever opens it is offered the profile and presses Open to use it; a share link made while a profile is set carries the profile too."); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => announce("Link copied."), () => { }); }
+      card("Course profile", prof.name || "unnamed", html)._skip = true;
+    }, "Apply");
+  }
+  function loadProfile() {
+    const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
+    inp.onchange = () => { const file = inp.files[0]; if (!file) return; file.text().then((t) => {
+      let s = null; try { s = JSON.parse(t); } catch (e) { }
+      TARGET = "#out"; CUR_FN = null;
+      if (!s || typeof s !== "object" || !s.sww_profile) { card("Course profile", "not opened", warn("That file is not a course profile. Choose the .sww-profile.json file that Results, Course profile made."))._skip = true; TARGET = baseTarget(); return; }
+      applyProfile(s, true); card("Course profile", profileName(PROF), say("In use on this computer. " + profileWords(PROF)))._skip = true; TARGET = baseTarget();
+    }); };
+    inp.click();
+  }
+  const hasTable = (s) => !!(s && s.data && Array.isArray(s.data.cols) && Array.isArray(s.data.rows) && s.data.rows.length);
+  // the bar above the tabs: the last visit's results (Restore / No thanks), or a setup from a share link (Open / Not now)
+  function offerLast(s, shared) {
+    const bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object") { if (!shared) LAST = null; return; }
+    const cards = Array.isArray(s.cards) ? s.cards : [], withData = hasTable(s);
+    const prof = shared && s.profile && typeof s.profile === "object" ? cleanProfile(s.profile) : null;
+    if (!cards.length && !withData && !prof) { if (shared) dropHash(); else LAST = null; return; }
+    const n = cards.length, when = !shared && Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
     const name = s.name == null ? "" : String(s.name), filt = typeof s.filter === "string" ? s.filter.trim() : "";
-    $("#restoreText").textContent = `Restore your last session? ${n} result${n > 1 ? "s" : ""} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
+    const what = `${n} ${n === 1 ? "analysis" : "analyses"} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}`;
+    $("#restoreText").textContent = shared ? (cards.length || withData ? `Open the shared setup? ${what}${withData ? `, with the table (${s.data.rows.length} rows) inside the link` : ""}${prof ? `, and the course profile ${profileName(prof)}` : ""}. Nothing runs until you press Open.` : `This link sets the course profile ${profileName(prof)}: ${profileWords(prof)} Press Open to use it on this computer.`)
+      : `Restore your last session? ${what}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
+    $("#restoreYes").textContent = shared ? "Open" : "Restore"; $("#restoreNo").textContent = shared ? "Not now" : "No thanks";
     bar.hidden = false;
-    $("#restoreYes").onclick = () => restoreLast(s);
-    $("#restoreNo").onclick = () => { LAST = null; bar.hidden = true; try { localStorage.removeItem("sww_last"); } catch (e) { } focusTo(pageHeading()); };
+    $("#restoreYes").onclick = () => { if (shared) dropHash(); restoreLast(s); };
+    $("#restoreNo").onclick = () => { bar.hidden = true; if (shared) dropHash(); else { LAST = null; try { localStorage.removeItem("sww_last"); } catch (e) { } } focusTo(pageHeading()); };
   }
   function restoreLast(s) {
-    LAST = null; $("#restoreBar").hidden = true;
-    const name = s.name == null ? "" : String(s.name);
+    if (s === LAST) LAST = null; $("#restoreBar").hidden = true;
+    const name = s.name == null ? "" : String(s.name), list = Array.isArray(s.cards) ? s.cards : [];
+    if (s !== LAST && s.profile && typeof s.profile === "object") { applyProfile(s.profile, true); if (!list.length && !hasTable(s)) { TARGET = "#out"; CUR_FN = null; card("Course profile", profileName(PROF), say("Set from a link and in use on this computer. " + profileWords(PROF)))._skip = true; TARGET = baseTarget(); counts(); return; } }
     const run = () => {
       const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); if (D.filter) changed();
       let made = 0, first = null;
-      s.cards.forEach((c) => {
+      list.forEach((c) => {
         const fn = c && KEY_FN.get(c.k); if (!fn || !c.v || typeof c.v !== "object") return;
         CUR_FN = fn; PREFILL = Object.assign({}, c.v); REPLACE = null; TARGET = c.t === "#outG" ? "#outG" : "#out"; AUTORUN = true; const before = LASTCARD;
         try { fn(); if (LASTCARD && LASTCARD !== before && LASTCARD.isConnected) { made++; first = first || LASTCARD; } } catch (e) { } finally { AUTORUN = false; PREFILL = null; CUR_FN = null; TARGET = baseTarget(); }
       });
-      const miss = s.cards.length - made;
-      if (miss) { TARGET = "#out"; CUR_FN = null; card("Last session", `${made} of ${s.cards.length} results restored`, warn(`${miss} result${miss > 1 ? "s" : ""} could not be run again on these data (a column that is no longer there, or a choice that no longer fits). Run ${miss > 1 ? "them" : "it"} again from the menu.`)); TARGET = baseTarget(); }
+      const miss = list.length - made;
+      if (miss) { TARGET = "#out"; CUR_FN = null; card("Last session", `${made} of ${list.length} results restored`, warn(`${miss} result${miss > 1 ? "s" : ""} could not be run again on these data (a column that is no longer there, or a choice that no longer fits). Run ${miss > 1 ? "them" : "it"} again from the menu.`)); TARGET = baseTarget(); }
       counts(); announce(`${made} result${made === 1 ? "" : "s"} restored${miss ? `, ${miss} not` : ""}.`);
       if (first && first.isConnected) focusTo(first.querySelector("h2"), true); else focusTo(pageHeading());
     };
+    // a table carried inside a share link: read with the same care as a session file, and then the user's own data
+    if (hasTable(s)) { const d = normalizeData({ name, cols: s.data.cols, rows: s.data.rows, manual: s.data.manual, filter: "" }); if (d.cols.length) { D.origin = "own"; D.restored = false; D.name = name; D.cols = d.cols; D.rows = d.rows; D.manual = d.manual; D.filter = ""; D.sortCol = null; inferTypes(); renderGrid(); persist(); return run(); } }
     if (D.rows.length && D.name === name) return run();
     const f = s.origin === "sample" ? sampleFileFor(name) : null;
     if (f) { fetch("data/" + f).then((r) => (r.ok ? r.text() : Promise.reject(new Error("no file")))).then((t) => { loadTable(name, parseCSV(t), "sample"); run(); }).catch(() => { TARGET = "#out"; CUR_FN = null; card("Last session", "not restored", warn("The sample dataset could not be loaded, so the results were not run again. Open it from Data, Sample datasets and run the analyses from the menus.")); TARGET = baseTarget(); }); return; }
@@ -2521,6 +2732,7 @@
   // or the button again, brings the results back. The bar between the panels still drags.
   function setWide(on) { const pt = $("#paneToggle"); document.body.classList.toggle("tablewide", on); if (pt) { pt.textContent = on ? "Show results" : "Widen table"; pt.setAttribute("aria-pressed", String(on)); } if (!on) setTimeout(() => window.dispatchEvent(new Event("resize")), 0); }
   if ($("#paneToggle")) $("#paneToggle").onclick = () => setWide(!document.body.classList.contains("tablewide"));
+  if ($("#whichBtn")) $("#whichBtn").onclick = () => { const it = findItem("T-Tests", "Which test?"); if (it) runItem("T-Tests", it); };
 
   // ================= pages =================
   // Data page: the table and its results. distrACTION page (#distraction): inputs card and live results, no table.
@@ -2698,7 +2910,8 @@
   renderGrid();
   restore();
   setView(pageFromHash());
-  offerLast();
+  applyProfile(PROF, false);
+  SHARED = unpackState(location.hash); if (SHARED) offerLast(SHARED, true); else offerLast(LAST, false);
   // draggable splitter between the data table and the results
   (function () {
     const sp = document.getElementById("splitter"), main = document.querySelector("main"); if (!sp) return;

@@ -45,3 +45,15 @@ Same Open-Source Psychometrics source as big5_personality_1200, but the raw item
 
 ## lung_cancer_survival.csv (227 patients, added 2026-09-14)
 North Central Cancer Treatment Group lung cancer study (Loprinzi et al. 1994), distributed with R's survival package. Columns: patient, time_days (follow-up), died (Yes = death observed, No = censored), age, sex, ecog (performance score 0 good to 3 bad), weight_loss_lb (blank where unknown). Teaching use: Kaplan-Meier curves by sex, log-rank test, Cox regression on age, sex and ecog.
+
+## darfur.csv (1,276 rows), added 2026-10-15
+Survey of Darfurian refugees: Hazlett, C. (2020). Angry or weary? How violence impacts attitudes toward peace among
+Darfurian refugees. Journal of Conflict Resolution, 64(5), 844 to 870. The copy distributed with the sensemakr package
+(Cinelli and Hazlett 2020, GPL-3), unchanged. One row = one respondent.
+- directlyharmed (1 = physically injured during the attacks), peacefactor (0 to 1, support for peace), wouldvote,
+  peace_formerenemies, peace_jjindiv, peace_jjtribes, gos_soldier_execute
+- age, farmer_dar, herder_dar, pastvoted, hhsize_darfur, female, village (486 villages)
+The running example of Regression, Sensitivity to a lurking variable: peacefactor on directlyharmed, adjusting for age,
+farmer_dar, herder_dar, pastvoted, hhsize_darfur, female and village, benchmarked against female. The app reproduces the
+paper's Table 2: estimate 0.0973 (SE 0.0233, t 4.18 on 783 df), partial R2 2.2%, RV 13.9%, RV at alpha 0.05 7.6%, a
+confounder as strong as female 0.0752 (SE 0.0219, t 3.44).

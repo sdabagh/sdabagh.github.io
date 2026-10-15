@@ -46,6 +46,55 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-15 (evening): sensitivity to a lurking variable (Cinelli-Hazlett benchmark), Darfur sample dataset
+
+- **Regression, Sensitivity to a lurking variable.** The omitted-variable-bias sensitivity analysis of Cinelli and
+  Hazlett (2020), the benchmark used in Chad Hazlett's causal inference course, as a card in the first-course register.
+  Outcome, treatment, numeric and categorical covariates (dummy coded; a village fixed effect with 485 dummies is fine),
+  a benchmark covariate and the multiples to try. Reports the estimate, SE, t and df of the treatment, its partial R2
+  with the outcome, the robustness value RV_q and RV_{q,alpha}; for the benchmark, its own partial R2s with the
+  treatment and the outcome (a categorical benchmark uses the group partial R2 from the nested F), and for each
+  multiple the bounded R2s, adjusted estimate, SE, t and interval; a contour plot of the adjusted estimate with the
+  zero line and the benchmark points; the formula, worked numbers, a plain-English reading (the floor set by the
+  partial R2, which multiple would make it not significant or change its sign), an APA-style sentence and the citation.
+- Engine: `S.partialR2`, `S.groupPartialR2`, `S.robustness`, `S.ovbAdjust`, `S.ovbBound`; `S.ols` takes
+  `{ light: true }` to skip VIFs and influence diagnostics (each VIF is another inversion).
+- Sample dataset `darfur.csv` (Hazlett 2020, as distributed with sensemakr): the paper's example.
+- Verified in the browser against the paper's Table 2 and a NumPy reference: estimate 0.0973, SE 0.0233, t 4.18 on
+  783 df, partial R2 2.2%, RV 13.9%, RV at alpha 0.05 7.6%; 1x female: R2 with treatment 0.9%, with outcome 12.5%,
+  adjusted estimate 0.0752, SE 0.0219, t 3.44; 2x 0.0529; 3x 0.0304. Service worker cache `sww-v53`, scripts `?v=56`.
+
+### 2026-10-15 (later): share link, "Which test?" wizard, course profiles
+
+The three review suggestions left open that morning.
+
+- **Share link.** Results, Share link packs the setup into the address after `#s=`: the dataset (a sample's name, or a
+  table of the user's own inside the link when its JSON is under 60,000 characters), the filter, the choices behind every
+  card on the Analyses and Graphs tabs, and the course profile if one is set. The dialog shows the link and Copy link
+  puts it on the clipboard and leaves a card holding it (a note card: not kept for a restore, not part of the next link).
+  Opening a link shows the bar above the tabs ("Open the shared setup? 3 analyses on STATC1000_Class_Data, with the
+  table inside the link") with Open and Not now; nothing runs until Open. The setup is read with the session-file checks
+  (names and cells forced to text, the filter kept only when it is a plain formula, cards matched to menu items by name)
+  and re-run the way Restore re-runs the last session, so graphs and edit buttons come back. The hash is dropped from the
+  address once answered. Nothing is sent anywhere.
+- **Which test?** First item of the T-Tests menu and a button beside the filter box. Three questions (what was measured:
+  a number, a yes or no, a category; one group against a value, two groups, three or more, or a relationship; paired or
+  independent; the other variable a number or a category) name the test in a box that follows the answers, with one
+  sentence on why, and Open it opens that dialog. Nineteen routes, from the one-sample t to McNemar and logistic
+  regression. With no data loaded, Note it leaves a card naming the test.
+- **Course profile.** Results, Course profile: a name, the two-sample t offered first (Welch's or pooled), the quartile
+  rule, decimal places, the alpha and confidence level offered first, and which menus show (Data and Results always).
+  Apply uses it on this computer (remembered; the name shows above the table, the Welch label names the profile); the
+  same dialog downloads it as a `.sww-profile.json` file or copies a link that sets it; Open a profile file reads the
+  file; Remove restores the app's defaults. A share link made with a profile set carries the profile. Unknown values
+  in a file or link fall back to the defaults.
+- Dialogs gained a `note` field (a box of text that follows the other answers), used by the wizard.
+- Service worker cache `sww-v52`, scripts `?v=55`. Verified headlessly in Chrome: a share link of the class data with
+  three analyses reopens in a fresh browser with the table, the filter and the three cards in order; a link carrying a
+  40-row table of the user's own reopens with the rows; the wizard names the paired t, the two-proportion z, the
+  chi-square table and McNemar for the matching answers and opens the paired dialog; a profile hiding Advanced and
+  choosing pooled t hides the menu and unticks Welch, survives a reload, and is removed cleanly.
+
 ### 2026-10-15: review fixes: filter freeze, dialog defaults, restore after a reload, worked numbers, APA line, table and graph export
 
 From an outside walkthrough of build 53 (every statistic recomputed in SciPy and found to match; the findings were all
