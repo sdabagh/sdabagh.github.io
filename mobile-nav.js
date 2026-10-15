@@ -18,8 +18,8 @@
     btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<span class="hamburger-icon"></span>';
 
-    // Insert before nav
-    header.insertBefore(btn, nav);
+    // Insert before nav (its parent is not always the header: some course pages wrap the nav in a div)
+    nav.parentNode.insertBefore(btn, nav);
 
     // Toggle menu
     btn.addEventListener('click', function(e) {
