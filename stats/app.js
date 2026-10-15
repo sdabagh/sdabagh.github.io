@@ -1103,7 +1103,7 @@
       if (v.plot) {
         const top = Math.min(0.95, Math.max(0.4, ...bounds.filter((x) => x.adj).flatMap((x) => [x.b.r2dz, x.b.r2yz]).map((r) => r * 1.3)));
         const N = 60, g = Array.from({ length: N + 1 }, (_, i) => (top * i) / N), ts = SW.qt(1 - (1 - conf) / 2, df - 1), z = g.map((ry) => g.map((rd) => SW.ovbAdjust({ est, se, df, r2dz: rd, r2yz: ry, tstar: ts }).est));
-        const traces = [{ type: "contour", x: g, y: g, z, contours: { coloring: "lines", showlabels: true, labelfont: { size: 11, color: "#444" } }, line: { color: "#8A8A8A", width: 1 }, showscale: false, hoverinfo: "skip", name: "adjusted estimate" },
+        const traces = [{ type: "contour", x: g, y: g, z, contours: { coloring: "lines", showlabels: true, labelfont: { size: 11, color: "#444" } }, colorscale: [[0, "#9A9A9A"], [1, "#9A9A9A"]], line: { width: 1 }, showscale: false, hoverinfo: "skip", name: "adjusted estimate" },
           { type: "contour", x: g, y: g, z, contours: { coloring: "lines", start: 0, end: 0, size: 1, showlabels: false }, line: { color: "#C0392B", width: 2.5, dash: "dash" }, showscale: false, hoverinfo: "skip", name: "estimate = 0" },
           { x: [0], y: [0], mode: "markers+text", type: "scatter", text: [`unadjusted (${fmt(est, 3)})`], textposition: "top right", marker: { color: "#1A3A4D", size: 10, symbol: "diamond" }, name: "unadjusted", hoverinfo: "text" }];
         const pts = bounds.filter((x) => x.adj && x.b.r2dz <= top && x.b.r2yz <= top);
