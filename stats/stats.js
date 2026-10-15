@@ -357,7 +357,7 @@
     const hat = opts.light ? Xd.map(() => NaN) : Xd.map((r) => r.reduce((s, v, i) => s + v * r.reduce((s2, w, j) => s2 + w * XtXi[j][i], 0), 0));
     const rstd = resid.map((e, i) => e / Math.sqrt(mse * (1 - hat[i]))), cook = rstd.map((r, i) => (r * r * hat[i]) / (p * (1 - hat[i])));
     const aic = n * Math.log(ssres / n) + 2 * (p + 1) + n * (Math.log(2 * Math.PI) + 1), bic = n * Math.log(ssres / n) + (p + 1) * Math.log(n) + n * (Math.log(2 * Math.PI) + 1);
-    return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), vif, conf, hat, rstd, cook, ssres, aic, bic, k: p };
+    return { names: ["Intercept"].concat(names), b, se, t, p: pv, lower: b.map((v, i) => v - tstar * se[i]), upper: b.map((v, i) => v + tstar * se[i]), fitted, resid, n, df, r2, adj, F, dfF: [p - 1, df], pF, se_res: Math.sqrt(mse), covb: XtXi.map((r) => r.map((v) => v * mse)), vif, conf, hat, rstd, cook, ssres, aic, bic, k: p };
   };
   // ---------- sensitivity to an omitted variable: Cinelli and Hazlett (2020), the sensemakr statistics ----------
   // Everything comes from the regression table. Partial R2 of the treatment with the outcome, t^2 / (t^2 + df); the
@@ -790,5 +790,66 @@
     const N = z.reduce((s, g) => s + g.length, 0), zbar = z.reduce((s, g) => s + g.reduce((t, x) => t + x, 0), 0) / N, means = z.map((g) => S.mean(g));
     const ssb = z.reduce((s, g, i) => s + g.length * (means[i] - zbar) ** 2, 0), ssw = z.reduce((s, g, i) => s + g.reduce((t, x) => t + (x - means[i]) ** 2, 0), 0);
     const d1 = k - 1, d2 = N - k, F = ssb / d1 / (ssw / d2); return { F, d1, d2, p: 1 - S.pf(F, d1, d2) };
+  };
+})(window.SW);
+
+/* ---- ANOVA family: ANCOVA, MANOVA, Friedman (added 2026-10-15) ---- */
+(function (S) {
+  // Holm's step-down adjustment of a list of p-values (the same rule the repeated measures post hoc uses)
+  S.holm = (ps) => { const order = ps.map((_, i) => i).sort((a, b) => ps[a] - ps[b]), out = new Array(ps.length); let prev = 0; order.forEach((idx, rank) => { const adj = Math.min(1, Math.max(prev, ps[idx] * (ps.length - rank))); out[idx] = adj; prev = adj; }); return out; };
+  // ANCOVA: one factor plus covariates. Type II sums of squares by model comparison (as car::Anova), adjusted means at the
+  // covariate means with their standard errors from the coefficient covariance, Holm-adjusted pairwise comparisons of the
+  // adjusted means, and the homogeneity-of-slopes check (every group by covariate interaction at once).
+  S.ancova = (y, group, X, covNames, conf = 0.95) => {
+    const dG = S.dummies(group), c = covNames.length, levels = dG.levels;
+    const fit = (parts, names) => S.ols(y.map((_, i) => parts.flatMap((p) => p[i])), y, names, conf, { light: true });
+    const covCols = covNames.map((_, j) => X.map((r) => [r[j]])), gNames = dG.cols.map((l) => "group " + l);
+    const full = fit(covCols.concat([dG.rows]), covNames.concat(gNames)), mse = full.ssres / full.df, rows = [];
+    const add = (name, ssdiff, df) => { const F = (ssdiff / df) / mse; rows.push({ source: name, ss: ssdiff, df, ms: ssdiff / df, F, p: 1 - S.pf(F, df, full.df), eta: ssdiff / (ssdiff + full.ssres) }); };
+    covNames.forEach((nm, j) => { const red = fit(covCols.filter((_, k) => k !== j).concat([dG.rows]), covNames.filter((_, k) => k !== j).concat(gNames)); add(nm, red.ssres - full.ssres, 1); });
+    const noG = fit(covCols, covNames); add("group", noG.ssres - full.ssres, dG.cols.length);
+    rows.push({ source: "Residuals", ss: full.ssres, df: full.df, ms: mse });
+    const inter = covCols.map((cc) => dG.rows.map((r, i) => r.map((d) => d * cc[i][0])));
+    const mInt = fit(covCols.concat([dG.rows], inter), covNames.concat(gNames, inter.flatMap((_, j) => dG.cols.map((l) => `${covNames[j]} x ${l}`))));
+    const dfInt = dG.cols.length * c, FInt = ((full.ssres - mInt.ssres) / dfInt) / (mInt.ssres / mInt.df);
+    const xm = covNames.map((_, j) => S.mean(X.map((r) => r[j])));
+    const vec = (l) => [1].concat(xm, dG.cols.map((cl) => (cl === l ? 1 : 0)));
+    const quad = (a) => a.reduce((s, v, i) => s + v * a.reduce((s2, w, j) => s2 + w * full.covb[i][j], 0), 0);
+    const adj = levels.map((l) => { const a = vec(l); return { level: l, est: a.reduce((s, v, k) => s + v * full.b[k], 0), se: Math.sqrt(quad(a)), n: group.filter((g) => g === l).length, raw: S.mean(y.filter((_, i) => group[i] === l)) }; });
+    const pairs = []; for (let i = 0; i < levels.length; i++) for (let j = i + 1; j < levels.length; j++) { const d = vec(levels[i]).map((v, k) => v - vec(levels[j])[k]), diff = d.reduce((s, v, k) => s + v * full.b[k], 0), se = Math.sqrt(quad(d)), t = diff / se; pairs.push({ a: levels[i], b: levels[j], diff, se, t, df: full.df, p: 2 * (1 - S.pt(Math.abs(t), full.df)) }); }
+    S.holm(pairs.map((q) => q.p)).forEach((p, i) => (pairs[i].pHolm = p));
+    return { rows, levels, adj, pairs, slopes: { F: FInt, df1: dfInt, df2: mInt.df, p: 1 - S.pf(FInt, dfInt, mInt.df) }, b: full.b, covMeans: xm, n: y.length, df: full.df, r2: full.r2, mse };
+  };
+  // MANOVA, one factor: H (between) and E (within) sums-of-squares-and-cross-products matrices; the eigenvalues of E^-1 H by
+  // the symmetric route (Cholesky E = L L', then the eigenvalues of L^-1 H L^-T, Jacobi rotations); the four statistics with
+  // the F approximations of R's summary.manova. Verified on iris: Pillai 1.1919, F 53.47 on (8, 290).
+  const chol = (A) => { const n = A.length, L = A.map(() => new Array(n).fill(0)); for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) { let s = A[i][j]; for (let k = 0; k < j; k++) s -= L[i][k] * L[j][k]; if (i === j) { if (!(s > 1e-12)) throw new Error("The within-groups covariance matrix is singular: one outcome is a combination of the others, or a group has too few rows. Remove an outcome."); L[i][i] = Math.sqrt(s); } else L[i][j] = s / L[j][j]; } return L; };
+  const symEig = (A) => { const n = A.length, M = A.map((r) => r.slice()); for (let sweep = 0; sweep < 100; sweep++) { let off = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += M[i][j] * M[i][j]; if (off < 1e-24) break; for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) { if (Math.abs(M[p][q]) < 1e-300) continue; const th = (M[q][q] - M[p][p]) / (2 * M[p][q]), t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(t * t + 1), s = t * c; for (let k = 0; k < n; k++) { const kp = M[k][p], kq = M[k][q]; M[k][p] = c * kp - s * kq; M[k][q] = s * kp + c * kq; } for (let k = 0; k < n; k++) { const pk = M[p][k], qk = M[q][k]; M[p][k] = c * pk - s * qk; M[q][k] = s * pk + c * qk; } } } return M.map((r, i) => r[i]).sort((a, b) => b - a); };
+  S.manova = (Y, group) => {
+    const p = Y[0].length, levels = [...new Set(group)], k = levels.length, N = Y.length, colMean = (rows) => Y[0].map((_, j) => S.mean(rows.map((r) => r[j])));
+    const gm = colMean(Y), H = Array.from({ length: p }, () => new Array(p).fill(0)), E = Array.from({ length: p }, () => new Array(p).fill(0));
+    const groups = levels.map((l) => { const rows = Y.filter((_, i) => group[i] === l), m = colMean(rows); for (let a = 0; a < p; a++) for (let b = 0; b < p; b++) { H[a][b] += rows.length * (m[a] - gm[a]) * (m[b] - gm[b]); rows.forEach((r) => (E[a][b] += (r[a] - m[a]) * (r[b] - m[b]))); } return { name: l, n: rows.length, mean: m, sd: m.map((_, j) => S.sd(rows.map((r) => r[j]))) }; });
+    const L = chol(E), Li = L.map(() => new Array(p).fill(0)); for (let c = 0; c < p; c++) for (let i = 0; i < p; i++) { let s = i === c ? 1 : 0; for (let m = 0; m < i; m++) s -= L[i][m] * Li[m][c]; Li[i][c] = s / L[i][i]; }
+    const LiH = Li.map((r) => H[0].map((_, j) => r.reduce((s, v, m) => s + v * H[m][j], 0))), Msym = LiH.map((r) => Li.map((lr) => r.reduce((s, v, m) => s + v * lr[m], 0)));
+    const eig = symEig(Msym).map((v) => Math.max(0, v)), q = k - 1, dfe = N - k, s = Math.min(p, q), mm = 0.5 * (Math.abs(p - q) - 1), nn = 0.5 * (dfe - p - 1), stats = [];
+    const V = eig.reduce((a, l) => a + l / (1 + l), 0), t1p = 2 * mm + s + 1, t2p = 2 * nn + s + 1; stats.push({ name: "Pillai's trace", value: V, F: ((t2p / t1p) * V) / (s - V), df1: s * t1p, df2: s * t2p });
+    const W = eig.reduce((a, l) => a / (1 + l), 1), w1 = dfe - 0.5 * (p - q + 1), w2 = (p * q - 2) / 4, w3r = p * p + q * q - 5, w3 = w3r > 0 ? Math.sqrt(((p * q) ** 2 - 4) / w3r) : 1; stats.push({ name: "Wilks' lambda", value: W, F: ((W ** (-1 / w3) - 1) * (w1 * w3 - 2 * w2)) / p / q, df1: p * q, df2: w1 * w3 - 2 * w2 });
+    const T = eig.reduce((a, l) => a + l, 0), h2 = 2 * (s * nn + 1); stats.push({ name: "Hotelling-Lawley trace", value: T, F: (h2 * T) / s / s / t1p, df1: s * t1p, df2: h2 });
+    const R = Math.max(...eig), r1 = Math.max(p, q), r2 = dfe - r1 + q; stats.push({ name: "Roy's largest root", value: R, F: (r2 * R) / r1, df1: r1, df2: r2 });
+    stats.forEach((st) => (st.p = 1 - S.pf(st.F, st.df1, st.df2)));
+    const uni = Y[0].map((_, j) => { const g = {}; levels.forEach((l) => (g[l] = Y.filter((_, i) => group[i] === l).map((r) => r[j]))); const a = S.anova(g); return { F: a.F, df1: a.df1, df2: a.df2, p: a.p, eta: a.r2 }; });
+    return { stats, eig, groups, levels, p, k, N, dfe, uni, H, E };
+  };
+  // Friedman: k related columns on n rows (each row one person or block), ranked within the row, with the tie correction;
+  // Kendall's W; Holm-adjusted pairwise Wilcoxon signed-rank tests
+  S.friedman = (Y) => {
+    const n = Y.length, k = Y[0].length, R = new Array(k).fill(0); let ties = 0;
+    Y.forEach((row) => { S.ranks(row).forEach((v, j) => (R[j] += v)); const c = {}; row.forEach((v) => (c[v] = (c[v] || 0) + 1)); ties += Object.values(c).reduce((s, t) => s + t ** 3 - t, 0); });
+    let Fr = (12 / (n * k * (k + 1))) * R.reduce((s, r) => s + r * r, 0) - 3 * n * (k + 1);
+    const corr = 1 - ties / (n * k * (k * k - 1)); if (corr > 0) Fr /= corr;
+    const df = k - 1, p = 1 - S.pchisq(Fr, df), W = Fr / (n * (k - 1)), pairs = [];
+    for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) { const w = S.wilcoxonSigned(Y.map((r) => r[i]), Y.map((r) => r[j])); pairs.push({ a: i, b: j, z: w.z, p: w.p, medianDiff: w.medianDiff, n: w.n }); }
+    S.holm(pairs.map((q) => (Number.isFinite(q.p) ? q.p : 1))).forEach((pp, i) => (pairs[i].pHolm = pp));
+    return { n, k, Fr, df, p, W, rankTotals: R, meanRank: R.map((r) => r / n), medians: Y[0].map((_, j) => S.median(Y.map((r) => r[j]))), pairs };
   };
 })(window.SW);

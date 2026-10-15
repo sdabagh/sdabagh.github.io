@@ -46,6 +46,26 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-15 (late): the ANOVA menu holds the family; ANCOVA, MANOVA and Friedman added
+
+- **ANOVA menu**: One-Way ANOVA, Two-Way ANOVA, ANCOVA, Repeated Measures and Mixed ANOVA, MANOVA, then Kruskal-Wallis
+  and Friedman. Two-Way and Repeated Measures moved here from Advanced; Kruskal-Wallis stays under Nonparametric as well,
+  and Friedman is listed in both.
+- **ANCOVA** (new): one factor plus covariates. Type II sums of squares by model comparison, partial eta squared,
+  adjusted means at the covariate means with standard errors from the coefficient covariance, Holm-adjusted pairwise
+  comparisons of adjusted means, the homogeneity-of-slopes check, and the scatterplot with parallel fitted lines.
+  Verified against a NumPy fit on the class data (GPA by Year adjusting for Hours_Study: F for Year 1.678 on (3, 35),
+  for Hours_Study 2.553 on (1, 35), slope -0.0143, adjusted means 3.409, 3.593, 3.755, 3.488, slopes interaction F 0.080).
+- **MANOVA** (new): one factor, several outcomes. H and E matrices, the eigenvalues of E^-1 H by the symmetric route
+  (Cholesky, Jacobi), Pillai's trace, Wilks' lambda, Hotelling-Lawley and Roy with the F approximations of R's
+  summary.manova, follow-up ANOVAs with a Bonferroni line, a standardized profile plot. Verified against R on iris:
+  Pillai 1.1919, F 53.47 on (8, 290); Wilks 0.02344, F 199.15 on (8, 288); Hotelling-Lawley 32.477, F 580.5; Roy 32.192,
+  F 1167.0 on (4, 145).
+- **Friedman** (new): ranks within rows with the tie correction, Kendall's W, Holm-adjusted pairwise Wilcoxon
+  signed-rank tests, box plots. Verified on a hand-worked table (chi-square 4.5 on 2 df, p 0.1054, W 0.5625).
+- Engine: `S.ancova`, `S.manova`, `S.friedman`, `S.holm`; `S.ols` now returns `covb`, the coefficient covariance.
+  Service worker cache `sww-v55`, scripts `?v=58`.
+
 ### 2026-10-15 (night): a filter no longer makes a sample dataset the user's own
 
 - Reported right after the merge: the app opened with the class data again. A filter counted as a change since
