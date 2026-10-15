@@ -46,6 +46,19 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-15 (night): a filter no longer makes a sample dataset the user's own
+
+- Reported right after the merge: the app opened with the class data again. A filter counted as a change since
+  2026-10-14, so a filtered sample was remembered as the user's own, and the share link and Restore apply filters all
+  the time (a share link of a filtered sample even embedded the table and the receiver got it as their own data). A
+  filter, like a sort, is a view of the data and never makes a sample the student's own now: the filter box, Data,
+  Filters and a restore keep the origin; a share link of a filtered sample names the sample instead of embedding it.
+  A remembered copy under a sample's name is compared with the sample file whatever origin it was stored with, so a
+  copy that is exactly the sample (a filter aside) is forgotten on the next open. Guide and the Sample datasets hint
+  updated. Service worker cache `sww-v54`, scripts `?v=57`.
+- Verified headlessly: load the class data, filter, reload: the table is empty and nothing is remembered; a share
+  link of the filtered sample says it names the sample dataset; the three suites still pass.
+
 ### 2026-10-15 (evening): sensitivity to a lurking variable (Cinelli-Hazlett benchmark), Darfur sample dataset
 
 - **Regression, Sensitivity to a lurking variable.** The omitted-variable-bias sensitivity analysis of Cinelli and

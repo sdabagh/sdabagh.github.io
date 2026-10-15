@@ -66,7 +66,9 @@
   // The browser remembers the user's own data (a file, pasted or typed data, simulated data) between visits.
   // A sample dataset is never remembered, so the app always opens with an empty table unless the data are yours.
   // a sample dataset is never remembered while it is untouched; once the student changes it (an edited cell, a new, renamed or
-  // deleted column, a type set by hand, a filter, a stack or a random sample) it is their own work and is remembered like a file
+  // deleted column, a type set by hand, a stack or a random sample) it is their own work and is remembered like a file.
+  // A filter (like a sort) is a view of the data, not a change to it, so it never makes a sample the student's own: with the
+  // share link and Restore applying filters all the time, the class data kept coming back as "remembered from your last visit".
   function changed() { if (D.origin === "sample") D.origin = "own"; persist(); }
   function persist() { try { if (D.origin === "sample") localStorage.removeItem("sww_data"); else localStorage.setItem("sww_data", JSON.stringify({ name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, manual: D.manual || {}, origin: "own" })); } catch (e) { } }
   // Copies stored before 2026-10-14 (the remembered table, and .sww.json session files) carry no origin. A student's own
@@ -77,7 +79,7 @@
   const sampleFileFor = (name) => { const s = SAMPLES.find(([f]) => f.replace(/\.csv$/, "") === name); return s ? s[0] : null; };
   function untouchedSample(s) {
     const f = sampleFileFor(s.name), manual = s.manual || {};
-    if (!f || String(s.filter || "").trim() || !Array.isArray(s.cols) || !Array.isArray(s.rows) || s.cols.some((c) => Object.prototype.hasOwnProperty.call(manual, c) && manual[c])) return Promise.resolve(false);
+    if (!f || !Array.isArray(s.cols) || !Array.isArray(s.rows) || s.cols.some((c) => Object.prototype.hasOwnProperty.call(manual, c) && manual[c])) return Promise.resolve(false);
     return fetch("data/" + f).then((r) => (r.ok ? r.text() : Promise.reject(new Error("no file")))).then((t) => {
       const rows = parseCSV(t), cols = rows[0].map((h, i) => h.trim() || "col" + (i + 1));
       if (JSON.stringify(cols) !== JSON.stringify(s.cols) || rows.length - 1 !== s.rows.length) return false;
@@ -101,8 +103,9 @@
     try { raw = localStorage.getItem("sww_data"); s = JSON.parse(raw || "null"); } catch (e) { return; }
     if (!s || !Array.isArray(s.rows) || !s.rows.length || !Array.isArray(s.cols)) return;
     if (s.origin === "sample") { try { localStorage.removeItem("sww_data"); } catch (e) { } return; }
-    if (s.origin || !sampleFileFor(s.name)) return showRemembered(s);
-    // an old copy under a sample's exact name: the table stays empty until the copy is compared with the sample file
+    if (!sampleFileFor(s.name)) return showRemembered(s);
+    // a copy under a sample's exact name (whatever origin it was stored with: a filter used to turn a sample into the user's
+    // own): the table stays empty until the copy is compared with the sample file, and an untouched copy is forgotten
     untouchedSample(s).then((same) => {
       let now = null; try { now = localStorage.getItem("sww_data"); } catch (e) { }
       if (D.rows.length || now !== raw) return; // other data was opened in the meantime
@@ -2403,7 +2406,7 @@
   function openFile() { $("#fileInput").click(); }
   $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; f.text().then((t) => loadTable(f.name.replace(/\.[^.]+$/, ""), parseCSV(t))); e.target.value = ""; });
   function pasteData() { dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows); }, "Load"); }
-  function sampleData() { dialog("Sample datasets", [Object.assign(sel("f", "Dataset", SAMPLES), { hint: "A sample dataset is not remembered for your next visit until you change it (a new column, an edited cell, a filter). Then it is kept as your own." })], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t), "sample")).catch(() => alert("Could not load the sample file.")), "Open"); }
+  function sampleData() { dialog("Sample datasets", [Object.assign(sel("f", "Dataset", SAMPLES), { hint: "A sample dataset is not remembered for your next visit until you change it (a new column, an edited cell). Then it is kept as your own. A filter alone does not count." })], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t), "sample")).catch(() => alert("Could not load the sample file.")), "Open"); }
   function newBlank() { dialog("New data table", [{ name: "cols", label: "Column names, comma separated", type: "text", value: "x, y" }, { name: "n", label: "Rows", type: "number", value: 20 }], (v) => { const cols = v.cols.split(",").map((s) => s.trim()).filter(Boolean); loadTable("new", [cols].concat(Array.from({ length: v.n }, () => cols.map(() => "")))); }, "Create"); }
   function computeUI() {
     needData();
@@ -2497,7 +2500,7 @@
   function filterUI() {
     needData();
     const problem = (f) => { const t = String(f == null ? "" : f).trim(); if (!t) return ""; try { SW.compileFormula(t, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); return ""; } catch (e) { return "Filter could not be read: " + e.message; } };
-    dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" and Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= and or (AND, OR, &&, || work too). Blank removes the filter. Every analysis uses only the kept rows.", check: (raw) => problem(raw.f) }], (v) => { const bad = problem(v.f); if (bad) throw fieldErr("f", bad); D.filter = v.f.trim(); renderGrid(); if (D.filter) changed(); else persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
+    dialog("Data: Filter", [{ name: "f", label: "Keep rows where", type: "text", value: D.filter, placeholder: 'Year == "Freshman" and Commute_Minutes < 30', hint: "Use column names as written; text in quotes; operators == != < <= > >= and or (AND, OR, &&, || work too). Blank removes the filter. Every analysis uses only the kept rows.", check: (raw) => problem(raw.f) }], (v) => { const bad = problem(v.f); if (bad) throw fieldErr("f", bad); D.filter = v.f.trim(); renderGrid(); persist(); card("Filter", D.filter || "removed", say(D.filter ? `Analyses now use the ${activeIdx().length} rows that satisfy: ${esc(D.filter)}. Greyed rows in the table are excluded.` : "All rows are back in use.")); }, "Apply");
   }
   function saveSession() { const payload = { name: D.name, cols: D.cols, rows: D.rows, filter: D.filter, manual: D.manual || {}, origin: D.origin || "own", results: $("#out").innerHTML, graphs: $("#outG").innerHTML, distraction: $("#outD").innerHTML, learn: $("#outL").innerHTML, saved: new Date().toISOString() }; downloadText(JSON.stringify(payload), (D.name || "session") + ".sww.json", "application/json"); }
   // A session file can come from anyone (a classmate, an email), so nothing in it may run and nothing in it may fetch. Its
@@ -2709,7 +2712,7 @@
     const name = s.name == null ? "" : String(s.name), list = Array.isArray(s.cards) ? s.cards : [];
     if (s !== LAST && s.profile && typeof s.profile === "object") { applyProfile(s.profile, true); if (!list.length && !hasTable(s)) { TARGET = "#out"; CUR_FN = null; card("Course profile", profileName(PROF), say("Set from a link and in use on this computer. " + profileWords(PROF)))._skip = true; TARGET = baseTarget(); counts(); return; } }
     const run = () => {
-      const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); if (D.filter) changed();
+      const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); persist();
       let made = 0, first = null;
       list.forEach((c) => {
         const fn = c && KEY_FN.get(c.k); if (!fn || !c.v || typeof c.v !== "object") return;
@@ -2893,7 +2896,7 @@
     const typed = $("#filterBox").value.trim(); D.filter = typed; let bad = "";
     try { activeIdx(); } catch (e) { bad = e.message; }
     if (bad) { D.filter = ""; renderGrid(); $("#filterBox").value = typed; filterMsg(bad + " All rows are in use until the filter is fixed."); persist(); return; }
-    filterMsg(""); renderGrid(); if (D.filter) changed(); else persist();
+    filterMsg(""); renderGrid(); persist();
   });
   document.querySelectorAll(".tabs .tab").forEach((b) => (b.onclick = () => { showTab(b.dataset.tab); if (narrow()) toView($(".tabs")); }));
   $(".tabs").addEventListener("keydown", (e) => { // Analyses and Graphs: arrow keys switch tabs too
