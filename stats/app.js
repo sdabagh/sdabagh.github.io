@@ -1265,6 +1265,72 @@
   }
 
 
+  // ================= ANOVA: ANCOVA, MANOVA, Friedman =================
+  const PAL = ["#3A7CA5", "#D97D54", "#2E7D5B", "#B5476B", "#7F8C8D", "#8E44AD", "#C0392B", "#1A3A4D"];
+  function ancovaUI() {
+    needData();
+    dialog("ANOVA: ANCOVA (one factor plus covariates)", [selNum("y", "Dependent variable"), selCat("g", "Factor (the groups)"), { name: "xs", label: `Covariates: numeric variables to adjust for (${MULTI_HINT()})`, type: "multi", options: numCols() }, { name: "post", label: "Pairwise comparisons of the adjusted means (Holm adjusted)", type: "check", value: true }, { name: "plot", label: "Scatterplot with the parallel fitted lines", type: "check", value: true }, confField, alphaField], (v) => {
+      const xs = v.xs.filter((c) => c !== v.y); if (!xs.length) throw new Error("Pick at least one covariate: a numeric variable to adjust for. With none, use One-Way ANOVA.");
+      const yv = col(v.y), gv = col(v.g), cv = xs.map((c) => col(c));
+      const keep = yv.map((_, i) => i).filter((i) => yv[i] !== "" && Number.isFinite(Number(yv[i])) && gv[i] !== "" && cv.every((c) => c[i] !== "" && Number.isFinite(Number(c[i]))));
+      const y = keep.map((i) => Number(yv[i])), g = keep.map((i) => gv[i]), X = keep.map((i) => cv.map((c) => Number(c[i]))), lv = [...new Set(g)];
+      if (lv.length < 2) throw new Error(`${v.g} has one group in the rows in use.`);
+      if (y.length <= lv.length + xs.length + 2) throw new Error(`Not enough complete rows (${y.length}).`);
+      const r = SW.ancova(y, g, X, xs, +v.conf), alpha = +v.alpha, gRow = r.rows.find((q) => q.source === "group"), covRows = r.rows.filter((q) => q.source !== "group" && q.source !== "Residuals");
+      let html = table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p", "partial eta squared"], r.rows.map((q) => [q.source === "group" ? v.g : q.source, q.ss, q.df, q.ms, q.F == null ? "" : q.F, q.p == null ? "" : SW.fmtP(q.p), q.eta == null ? "" : q.eta]), `ANCOVA - ${v.y} (Type II sums of squares)`);
+      html += table([v.g, "N", "Raw mean", "Adjusted mean", "SE"], r.adj.map((a) => [a.level, a.n, a.raw, a.est, a.se]), `Adjusted means of ${v.y} at ${xs.map((c, j) => `${c} = ${fmt(r.covMeans[j])}`).join(", ")}`);
+      html += formula(`${v.y} = ${fmt(r.b[0])} + ${xs.map((c, j) => `${fmt(r.b[1 + j])} ${c}`).join(" + ")} + group effect. Each group's adjusted mean is its predicted ${v.y} at the covariate mean${xs.length > 1 ? "s" : ""}, so the groups are compared as if they had the same ${xs.join(" and ")}. F for ${v.g} = MS group (after the covariate${xs.length > 1 ? "s" : ""}) / MS residual.`);
+      html += worked([`SS ${v.g} after ${xs.join(", ")} = ${fmt(gRow.ss)}; MS = ${fmt(gRow.ss)} / ${gRow.df} = ${fmt(gRow.ms)}; F = ${fmt(gRow.ms)} / ${fmt(r.mse)} = ${fmt(gRow.F)} on (${gRow.df}, ${r.df}) df`, `adjusted mean of ${r.adj[0].level} = ${fmt(r.b[0])} + ${xs.map((c, j) => `${fmt(r.b[1 + j])} times ${fmt(r.covMeans[j])}`).join(" + ")}${r.levels[0] === r.adj[0].level ? " (the reference group)" : ""} = ${fmt(r.adj[0].est)}`]);
+      html += say(`H0: the groups have the same mean ${esc(v.y)} once ${esc(xs.join(" and "))} ${xs.length > 1 ? "are" : "is"} taken into account. ${decision(gRow.p, alpha)} ${gRow.p <= alpha ? `The adjusted means differ across ${esc(v.g)}; the pairwise table says which.` : `There is not enough evidence that the adjusted means differ across ${esc(v.g)}.`} ${covRows.map((q) => `${esc(q.source)}: ${pWord(q.p)}${q.p <= alpha ? ", so the covariate matters, and adjusting for it sharpens the comparison" : ", so this covariate adds little here"}.`).join(" ")}`);
+      html += cond(r.slopes.p > alpha, `Homogeneity of regression slopes: the group by covariate interaction gives F = ${fmt(r.slopes.F, 2)} on (${r.slopes.df1}, ${r.slopes.df2}) df, ${pWord(r.slopes.p)}. The slopes can be taken as parallel, so one adjustment serves every group.`, `Homogeneity of regression slopes fails: F = ${fmt(r.slopes.F, 2)} on (${r.slopes.df1}, ${r.slopes.df2}) df, ${pWord(r.slopes.p)}. The covariate's effect differs by group, so one adjusted mean per group misleads; report the slope within each group instead (Multiple Linear Regression with the interaction).`);
+      html += smallGroups(r.adj.map((a) => [a.n, a.level]));
+      if (v.post) html += table(["Comparison", "Difference in adjusted means", "SE", "t", "df", "p", "p (Holm)", `differs at ${alpha}?`], r.pairs.map((q) => [`${q.a} vs ${q.b}`, q.diff, q.se, q.t, q.df, SW.fmtP(q.p), SW.fmtP(q.pHolm), q.pHolm <= alpha ? "yes" : "no"]), "Pairwise comparisons of adjusted means (Holm adjusted)");
+      html += apa(`ANCOVA on ${v.y} with ${xs.join(", ")} as covariate${xs.length > 1 ? "s" : ""}: ${v.g}, F(${gRow.df}, ${r.df}) = ${apaN(gRow.F)}, ${apaP(gRow.p)}, partial eta squared = ${noZero(gRow.eta)}.`);
+      const cd = card("ANCOVA", src(`${v.y} by ${v.g}, adjusting for ${xs.join(", ")}`), html);
+      if (v.plot) { const x0 = X.map((rw) => rw[0]), lo = Math.min(...x0), hi = Math.max(...x0); plotDiv(cd, r.levels.flatMap((l, li) => { const idx = g.map((q, i) => (q === l ? i : -1)).filter((i) => i >= 0), off = r.adj[li].est - r.b[1] * r.covMeans[0], color = PAL[li % PAL.length]; return [{ x: idx.map((i) => x0[i]), y: idx.map((i) => y[i]), mode: "markers", type: "scatter", name: String(l), marker: { color } }, { x: [lo, hi], y: [off + r.b[1] * lo, off + r.b[1] * hi], mode: "lines", type: "scatter", name: `${l} (fitted)`, showlegend: false, line: { color, width: 1.5 } }]; }), { title: `${v.y} against ${xs[0]} by ${v.g}: one slope for all groups, a different height for each`, xaxis: { title: xs[0] }, yaxis: { title: v.y } }, 320); }
+    });
+  }
+  function manovaUI() {
+    needData();
+    dialog("ANOVA: MANOVA (one factor, several outcomes at once)", [{ name: "ys", label: `Dependent variables, two or more (${MULTI_HINT()})`, type: "multi", options: numCols() }, selCat("g", "Factor (the groups)"), { name: "uni", label: "Follow-up: one-way ANOVA on each outcome", type: "check", value: true }, alphaField], (v) => {
+      if (v.ys.length < 2) throw new Error("Pick at least two dependent variables; with one, use One-Way ANOVA.");
+      const cols = v.ys.map((c) => col(c)), gv = col(v.g), keep = gv.map((_, i) => i).filter((i) => gv[i] !== "" && cols.every((c) => c[i] !== "" && Number.isFinite(Number(c[i]))));
+      const Y = keep.map((i) => cols.map((c) => Number(c[i]))), g = keep.map((i) => gv[i]), lv = [...new Set(g)];
+      if (lv.length < 2) throw new Error(`${v.g} has one group in the rows in use.`);
+      const small = lv.filter((l) => g.filter((q) => q === l).length <= v.ys.length); if (small.length) throw new Error(`Each group needs more rows than there are outcomes (${v.ys.length}): ${small.join(", ")} ${small.length > 1 ? "have" : "has"} too few.`);
+      const r = SW.manova(Y, g), alpha = +v.alpha, P = r.stats[0], Wk = r.stats[1];
+      let html = table(["Test", "Statistic", "F", "df1", "df2", "p"], r.stats.map((s) => [s.name, s.value, s.F, s.df1, s.df2, SW.fmtP(s.p)]), `MANOVA - ${v.g} on ${v.ys.join(", ")}`);
+      html += table([v.g, "N"].concat(v.ys.map((c) => "mean " + c)), r.groups.map((q) => [q.name, q.n].concat(q.mean)), "Group means");
+      if (v.uni) html += table(["Outcome", "F", "df1", "df2", "p", `p below ${fmt(alpha / v.ys.length, 4)} (Bonferroni)?`, "eta squared"], r.uni.map((u, j) => [v.ys[j], u.F, u.df1, u.df2, SW.fmtP(u.p), u.p < alpha / v.ys.length ? "yes" : "no", u.eta]), "Follow-up: one-way ANOVA on each outcome");
+      html += formula(`H = between-groups and E = within-groups sums of squares and cross products. The four statistics are functions of the eigenvalues of E^-1 H (${r.eig.map((e) => fmt(e, 4)).join(", ")}): Pillai = sum of lambda / (1 + lambda); Wilks = product of 1 / (1 + lambda); Hotelling-Lawley = sum of lambda; Roy = the largest lambda. F approximations as in R's summary.manova.`);
+      html += say(`H0: the groups have the same mean vector, the same means on all ${v.ys.length} outcomes at once. Pillai's trace, the most robust of the four: ${decision(P.p, alpha)} ${P.p <= alpha ? "The groups differ on the outcomes taken together; the follow-up table says on which. The four tests agree when the groups differ along one direction (one eigenvalue dominates) and can disagree when they differ along several." : "There is not enough evidence that the groups differ on the outcomes taken together."}`);
+      html += warn(`MANOVA assumes multivariate normality within groups, equal covariance matrices across groups, and more rows per group than outcomes. With unequal covariance matrices or unequal group sizes, trust Pillai's trace over the others. Correlated outcomes are the point: one test holds alpha at ${alpha} for the whole set and can find a difference spread over several outcomes that no single ANOVA finds.`);
+      html += smallGroups(r.groups.map((q) => [q.n, q.name]));
+      html += apa(`MANOVA: ${v.g}, Pillai's trace = ${noZero(P.value)}, F(${P.df1}, ${apaN(P.df2, 0)}) = ${apaN(P.F)}, ${apaP(P.p)}; Wilks' lambda = ${noZero(Wk.value)}, F(${Wk.df1}, ${apaN(Wk.df2, 1)}) = ${apaN(Wk.F)}, ${apaP(Wk.p)}.`);
+      const cd = card("MANOVA", src(`${v.ys.join(", ")} by ${v.g}`), html);
+      const sds = v.ys.map((_, j) => SW.sd(Y.map((rw) => rw[j]))), gm = v.ys.map((_, j) => SW.mean(Y.map((rw) => rw[j])));
+      plotDiv(cd, r.groups.map((q, gi) => ({ x: v.ys, y: q.mean.map((m, j) => (m - gm[j]) / sds[j]), mode: "lines+markers", name: String(q.name), line: { color: PAL[gi % PAL.length] }, marker: { color: PAL[gi % PAL.length] } })), { title: "Group means on each outcome, in standard-deviation units from the grand mean", yaxis: { title: "standardized mean" } }, 300);
+    });
+  }
+  function friedmanUI() {
+    needData();
+    dialog("ANOVA: Friedman (nonparametric repeated measures)", [{ name: "cols", label: `Related measures, one column per condition, two or more (${MULTI_HINT()})`, type: "multi", options: numCols() }, { name: "post", label: "Pairwise Wilcoxon signed-rank tests with Holm correction", type: "check", value: true }, alphaField], (v) => {
+      if (v.cols.length < 2) throw new Error("Pick at least two columns: the same people measured under each condition.");
+      const cols = v.cols.map((c) => col(c)), keep = cols[0].map((_, i) => i).filter((i) => cols.every((c) => c[i] !== "" && Number.isFinite(Number(c[i]))));
+      const Y = keep.map((i) => cols.map((c) => Number(c[i]))); if (Y.length < 3) throw new Error(`Need at least 3 rows complete on every column (${Y.length} found).`);
+      const r = SW.friedman(Y), alpha = +v.alpha;
+      let html = table(["", "Friedman chi-square", "df", "p", "Kendall's W"], [[v.cols.join(", "), r.Fr, r.df, SW.fmtP(r.p), r.W]], "Repeated Measures ANOVA (Non-parametric)");
+      html += table(["Condition", "Median", "Mean rank", "Rank total"], v.cols.map((c, j) => [c, r.medians[j], r.meanRank[j], r.rankTotals[j]]), `Ranks within each of the ${r.n} rows`);
+      html += formula(`Each row (one person) is ranked across the ${r.k} conditions; chi-square = 12 / (n k (k + 1)) times the sum of the squared rank totals, minus 3 n (k + 1), corrected for ties, on k minus 1 df. Kendall's W = chi-square / (n (k minus 1)), the agreement between rows from 0 to 1.`);
+      html += worked([`rank totals ${r.rankTotals.map((t) => fmt(t, 2)).join(", ")}; chi-square = 12 / (${r.n} times ${r.k} times ${r.k + 1}) times (${r.rankTotals.map((t) => `${fmt(t, 2)}^2`).join(" + ")}) minus 3 times ${r.n} times ${r.k + 1} = ${fmt(r.Fr)} on ${r.df} df`, `W = ${fmt(r.Fr)} / (${r.n} times ${r.k - 1}) = ${fmt(r.W)}`]);
+      html += say(`H0: the conditions have the same distribution. ${decision(r.p, alpha)} ${r.p <= alpha ? "At least one condition tends to be higher or lower than another; the pairwise table says which." : "There is not enough evidence that the conditions differ."} Use this instead of Repeated Measures ANOVA when the measurements are ordinal, skewed, or few; it only needs the order within each row.`);
+      if (v.post) html += table(["Comparison", "Median difference", "z", "p", "p (Holm)", `differs at ${alpha}?`], r.pairs.map((q) => [`${v.cols[q.a]} vs ${v.cols[q.b]}`, q.medianDiff, q.z, SW.fmtP(q.p), SW.fmtP(q.pHolm), q.pHolm <= alpha ? "yes" : "no"]), "Post hoc: pairwise Wilcoxon signed-rank (Holm adjusted)");
+      html += apa(`Friedman test: chi-square(${r.df}) = ${apaN(r.Fr)}, ${apaP(r.p)}, Kendall's W = ${noZero(r.W)}, N = ${r.n}.`);
+      const cd = card("Friedman", src(v.cols.join(", ")), html);
+      plotDiv(cd, v.cols.map((c, j) => ({ y: Y.map((rw) => rw[j]), type: "box", name: c, quartilemethod: "exclusive", boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: Object.assign({ title: "value" }, coverAxis(Y.flat())), showlegend: false }, 300);
+    });
+  }
+
   // ================= Advanced =================
   function designMatrix(numVars, catVars) {
     const names = [], parts = [], notes = [];
@@ -1344,7 +1410,7 @@
   }
   function anova2UI() {
     needData();
-    dialog("Advanced: Two-Way ANOVA", [selNum("y", "Dependent variable"), selCat("a", "Factor A"), selCat("b", "Factor B"), { name: "inter", label: "Include the A x B interaction", type: "check", value: true }, alphaField], (v) => {
+    dialog("ANOVA: Two-Way ANOVA", [selNum("y", "Dependent variable"), selCat("a", "Factor A"), selCat("b", "Factor B"), { name: "inter", label: "Include the A x B interaction", type: "check", value: true }, alphaField], (v) => {
       const yv = col(v.y), A = col(v.a), B = col(v.b), keep = keepComplete(yv.map((q) => [q]), yv, [A, B]);
       const r = SW.anova2(keep.map((i) => Number(yv[i])), keep.map((i) => A[i]), keep.map((i) => B[i]), v.inter);
       let html = table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p"], r.rows.map((q) => [q.source === "A" ? v.a : q.source === "B" ? v.b : q.source === "A x B" ? `${v.a} x ${v.b}` : q.source, q.ss, q.df, q.ms, q.F == null ? "" : q.F, q.p == null ? "" : SW.fmtP(q.p)]), `ANOVA - ${v.y} (Type II sums of squares, as R's car::Anova)`);
@@ -1362,7 +1428,7 @@
 
   function rmAnovaUI() {
     needData();
-    dialog("Advanced: Repeated Measures ANOVA (wide data: one column per condition)", [{ name: "cols", label: "Repeated measures columns, in order (2 or more)", type: "multi", options: numCols() }, selAny("g", "Between-subjects factor (optional)"), { name: "post", label: "Pairwise paired t-tests with Holm correction", type: "check", value: true }, alphaField], (v) => {
+    dialog("ANOVA: Repeated Measures ANOVA (wide data: one column per condition)", [{ name: "cols", label: "Repeated measures columns, in order (2 or more)", type: "multi", options: numCols() }, selAny("g", "Between-subjects factor (optional)"), { name: "post", label: "Pairwise paired t-tests with Holm correction", type: "check", value: true }, alphaField], (v) => {
       if (v.cols.length < 2) throw new Error("Pick at least two columns.");
       const cols = v.cols.map((c) => col(c)), gcol = v.g ? col(v.g) : null;
       const keep = cols[0].map((_, i) => i).filter((i) => cols.every((c) => c[i] !== "" && Number.isFinite(Number(c[i]))) && (!gcol || gcol[i] !== ""));
@@ -2574,13 +2640,13 @@
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
     ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
     ["T-Tests", [["Which test?", whichTest], null, ["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
-    ["ANOVA", [["One-Way ANOVA", anovaUI]]],
+    ["ANOVA", [["One-Way ANOVA", anovaUI], ["Two-Way ANOVA", anova2UI], ["ANCOVA", ancovaUI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], ["MANOVA", manovaUI], null, ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI], null, ["Sensitivity to a lurking variable", sensitivityUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
-    ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
+    ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
-    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
+    ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 

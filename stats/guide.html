@@ -256,7 +256,17 @@ Not employed = Not employed</pre>
 
 <h3 id="m-anova">ANOVA</h3>
 <h4>One-Way ANOVA</h4>
-<p>Three or more group means. Fisher's (equal variances) and Welch's F are both available; the homogeneity check compares the largest SD with the smallest (ratio under 2 passes), and Levene's test (deviations from the median, the Brown-Forsythe version) is available as a formal check. Tukey post-hoc tests tell which pairs differ, with adjusted p-values. Descriptives table and plot (means with confidence intervals) are optional. Two-way ANOVA and repeated measures are under Advanced.</p>
+<p>Three or more group means. Fisher's (equal variances) and Welch's F are both available; the homogeneity check compares the largest SD with the smallest (ratio under 2 passes), and Levene's test (deviations from the median, the Brown-Forsythe version) is available as a formal check. Tukey post-hoc tests tell which pairs differ, with adjusted p-values. Descriptives table and plot (means with confidence intervals) are optional.</p>
+<h4>Two-Way ANOVA</h4>
+<p>Two factors, with or without their interaction (Type II sums of squares, as R's car::Anova). Main effects, interaction, cell means table and interaction plot: non-parallel lines in the plot are the interaction.</p>
+<h4>ANCOVA</h4>
+<p>One factor plus one or more numeric covariates. The ANCOVA table (Type II) tests the factor after the covariates and each covariate after the factor, with partial eta squared; the adjusted means are each group's predicted value at the covariate mean, with standard errors, so the groups are compared as if they had the same covariate value; Holm-adjusted pairwise comparisons of the adjusted means; the homogeneity-of-slopes check (the group by covariate interaction) says whether one adjustment serves every group; and a scatterplot with the parallel fitted lines.</p>
+<h4>Repeated Measures and Mixed ANOVA</h4>
+<p>Wide data, one column per condition, with an optional between-subjects factor. Mauchly's sphericity test, Greenhouse-Geisser and Huynh-Feldt corrections, Holm-adjusted pairwise paired t-tests, the ICC and a profile plot.</p>
+<h4>MANOVA</h4>
+<p>One factor, two or more outcomes tested at once. Pillai's trace, Wilks' lambda, the Hotelling-Lawley trace and Roy's largest root, each with its F approximation (as R's summary.manova), the group means, a follow-up one-way ANOVA on each outcome with a Bonferroni line, and a profile plot of the standardized group means. Pillai's trace is the one to read when the groups are unequal in size or spread. Checked against R on the iris data.</p>
+<h4>Kruskal-Wallis and Friedman</h4>
+<p>The rank-based versions of one-way and repeated measures ANOVA, for ordinal, skewed or small data. Kruskal-Wallis compares three or more independent groups (H on chi-square). Friedman ranks each row across the conditions: the chi-square with the tie correction, Kendall's W as the agreement between rows, median and mean rank per condition, and Holm-adjusted pairwise Wilcoxon signed-rank tests. Both are also under Nonparametric.</p>
 
 <h3 id="m-regression">Regression</h3>
 <h4>Correlation Matrix</h4>
@@ -320,6 +330,7 @@ Not employed = Not employed</pre>
 <li><strong>Mann-Whitney U:</strong> two independent groups (alternative to the independent t-test). Reports U, the p-value and the group medians.</li>
 <li><strong>Wilcoxon signed-rank and sign test:</strong> paired data, or one column against a constant. Both tests are shown; the sign test uses only the direction of each difference.</li>
 <li><strong>Kruskal-Wallis:</strong> three or more groups (alternative to one-way ANOVA). Follow a significant result with Mann-Whitney tests on the pairs that matter.</li>
+<li><strong>Friedman:</strong> the same people measured under three or more conditions (alternative to Repeated Measures ANOVA). Ranks within each row, Kendall\'s W, Holm-adjusted pairwise Wilcoxon tests. Also under ANOVA.</li>
 </ul>
 
 <h3 id="m-learn">Learn</h3>
@@ -344,8 +355,6 @@ Not employed = Not employed</pre>
 <tr><th>Item</th><th>What it does</th><th>Key options and reading</th></tr>
 <tr><td>Multiple Linear Regression</td><td>One numeric outcome, several numeric and categorical predictors (categories are dummy coded; the most frequent level is the reference).</td><td>Squared terms, one interaction, residual and QQ plots, VIF for collinearity (above 5 is a concern), influence diagnostics (leverage, standardized residuals, Cook's distance), nested F test against a reduced model, backward elimination demo. Read each slope as the change in the outcome per unit of that predictor, holding the others fixed.</td></tr>
 <tr><td>Logistic Regression</td><td>A two-level outcome. You name the level modelled as 1.</td><td>Coefficients, odds ratios with confidence intervals, model chi-square, McFadden R squared, classification accuracy, predicted-probability plot. An odds ratio of 1.5 means the odds are 50 percent higher per unit.</td></tr>
-<tr><td>Two-Way ANOVA</td><td>Two factors, with or without their interaction (Type II sums of squares).</td><td>Main effects, interaction, cell means table and interaction plot. Non-parallel lines in the plot are the interaction.</td></tr>
-<tr><td>Repeated Measures and Mixed ANOVA</td><td>Wide data: one column per condition, optional between-subjects factor.</td><td>Mauchly's sphericity test, Greenhouse-Geisser and Huynh-Feldt corrections, Holm-adjusted pairwise paired t-tests, ICC, profile plot.</td></tr>
 <tr><td>Count Regression</td><td>Poisson and negative binomial for counts (0, 1, 2, ...).</td><td>Rate ratios with confidence intervals and a dispersion check; when the dispersion is well above 1, the negative binomial is recommended.</td></tr>
 <tr><td>Multinomial Logistic Regression</td><td>Three or more unordered outcome levels against a baseline.</td><td>One set of coefficients per non-baseline level, relative risk ratios.</td></tr>
 <tr><td>Ordinal Logistic Regression</td><td>An ordered outcome (proportional odds). You type the levels from lowest to highest.</td><td>One set of odds ratios that apply across every cut point.</td></tr>
