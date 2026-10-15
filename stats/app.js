@@ -590,7 +590,7 @@
       ...[["hist", "Histogram"], ["dens", "Density"], ["box", "Box plot"], ["dot", "Dot plot"], ["qq", "Q-Q plot"], ["bar", "Bar plot"]].map(([k, l]) => ({ name: k, label: l, type: "check", value: false, group: "Plots" })),
       { name: "lines", label: "Mark mean (solid) and median (dashed) on histograms", type: "check", value: true, group: "Plots" },
       { name: "freq", label: "Frequency tables (for nominal and ordinal variables)", type: "check", value: true, group: "Tables" },
-      sel("qm", "Quartile method", [["halves", "Textbook rule: median of each half, overall median excluded (default)"], ["type7", "R rule (type 7, interpolated)"]], "halves"),
+      sel("qm", "Quartile method", [["halves", "Textbook rule: median of each half, overall median excluded (default)"], ["type7", "R rule (type 7, interpolated)"]], PROF ? PROF.qm : "halves"),
       ...[["n", "N", true], ["missing", "Missing", true], ["skew", "Skewness with its standard error", false], ["mean", "Mean", true], ["median", "Median", true], ["mode", "Mode", false], ["sum", "Sum", false], ["sd", "Std. deviation (sample, n minus 1)", true], ["variance", "Variance (sample)", false], ["sdpop", "Population std. deviation (divides by N)", false], ["range", "Range", false], ["min", "Minimum", true], ["max", "Maximum", true], ["se", "Std. error of mean (SE: spread of sample means, not of people)", false], ["iqr", "IQR", false], ["q", "Quartiles (25th, 50th, 75th)", false], ["fence", "Fences (1.5 IQR)", false], ["kurt", "Kurtosis (excess) with its standard error", false], ["cv", "Coefficient of variation (SD / mean)", false]].map(([k, l, v]) => ({ name: k, label: l, type: "check", value: v, group: "Statistics" })),
       { name: "pcts", label: "Other percentiles, comma separated (optional)", type: "text", placeholder: "10, 90", group: "Statistics" }], (v) => {
       if (!v.vars.length) throw new Error("Pick at least one variable.");
@@ -904,7 +904,7 @@
       only(hasData ? selNum("x", "Dependent variable") : null, onData), only(hasData ? selCat("g", "Grouping variable") : null, onData), only(hasData ? { name: "lv", label: "If the grouping variable has more than two levels, name the two to compare, comma separated (blank = the first two)", type: "text" } : null, onData),
       { name: "m1", label: "Mean 1", type: "number", group: "Group 1", vis: onSummary }, { name: "s1", label: "SD 1", type: "number", group: "Group 1", vis: onSummary }, { name: "n1", label: "N 1", type: "number", group: "Group 1", vis: onSummary },
       { name: "m2", label: "Mean 2", type: "number", group: "Group 2", vis: onSummary }, { name: "s2", label: "SD 2", type: "number", group: "Group 2", vis: onSummary }, { name: "n2", label: "N 2", type: "number", group: "Group 2", vis: onSummary },
-      { name: "welch", label: "Welch's (unequal variances, the default here)", type: "check", value: true, group: "Tests" },
+      { name: "welch", label: `Welch's (unequal variances, the default ${PROF && PROF.name ? "in " + PROF.name : "here"})`, type: "check", value: !PROF || PROF.welch, group: "Tests" },
       sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
@@ -2497,7 +2497,7 @@
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
-    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
@@ -2510,7 +2510,7 @@
   // the setup behind the page: the data's name and origin, the filter, and the choices behind each card on the Analyses and
   // Graphs tabs (a card that is only a note, such as a share link, is skipped)
   function stateNow() {
-    const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && !c._skip && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
+    const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && !c._skip && !NOTE_FNS.has(c._redo.fn) && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
     return { name: D.name, origin: D.origin || "own", filter: D.filter, cards };
   }
   function autosave() {
@@ -2537,6 +2537,7 @@
     if (D.rows.length && s.origin === "sample" && sampleFileFor(s.name)) note = `The link names the sample dataset (${s.name}), which is loaded again when the link opens.`;
     else if (D.rows.length) { const d = { cols: D.cols, rows: D.rows, manual: D.manual || {} }; if (JSON.stringify(d).length <= 60000) { s.data = d; note = `Your table (${D.rows.length} rows, ${D.cols.length} columns) travels inside the link, so it opens on any computer.`; } else note = `Your table is too big to travel inside a link (${D.rows.length} rows). The link carries the filter and the analyses; whoever opens it must first open the same file (Data, Open CSV file), then press Open.`; }
     else note = "No data are loaded, so the link carries the analyses only.";
+    if (PROF) { s.profile = PROF; note += ` The course profile (${profileName(PROF)}) travels with it.`; }
     const url = location.origin + location.pathname + "#" + packState(s), n = s.cards.length;
     const meta = `${n} ${n === 1 ? "analysis" : "analyses"}${D.filter.trim() ? ", filter " + D.filter.trim() : ""}, ${url.length} characters`;
     dialog("Results: Share link", [{ name: "url", label: "The link", type: "textarea", rows: 4, value: url, hint: `${meta}. ${note} Paste it into Canvas, an email or a message: whoever opens it sees the setup and an Open button, and nothing runs until it is pressed. Nothing is sent anywhere; the whole setup is in the address.` }], () => {
@@ -2545,16 +2546,77 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => announce("Link copied."), () => announce("Select the link in the card and copy it by hand."));
     }, "Copy link");
   }
+  // ================= course profile =================
+  // A small set of defaults an instructor shares (a file, or a link): the two-sample t-test (Welch or pooled), the quartile
+  // rule, decimal places, the alpha and confidence level offered first, and which menus show (Advanced alone has nineteen
+  // models a first course never meets). Data and Results always show. One app, one profile per course, no fork.
+  const MENU_NAMES = MENU.map((m) => m[0]);
+  const NOTE_FNS = new Set([shareLink, whichTest, profileUI]); // dialogs whose card is a note, not an analysis: never saved or shared
+  function cleanProfile(p) {
+    if (!p || typeof p !== "object") return null;
+    const o = { name: String(p.name == null ? "" : p.name).replace(/\s+/g, " ").trim().slice(0, 60), welch: p.welch !== false, qm: p.qm === "type7" ? "type7" : "halves" };
+    o.dec = [2, 3, 4, 6].includes(Number(p.dec)) ? Number(p.dec) : 4;
+    o.alpha = ["0.05", "0.01", "0.10"].includes(String(p.alpha)) ? String(p.alpha) : "0.05";
+    o.conf = ["0.90", "0.95", "0.99"].includes(String(p.conf)) ? String(p.conf) : "0.95";
+    o.menus = Array.isArray(p.menus) ? p.menus.filter((m) => typeof m === "string" && MENU_NAMES.includes(m) && m !== "Data" && m !== "Results") : null;
+    return o;
+  }
+  let PROF = null; try { PROF = cleanProfile(JSON.parse(localStorage.getItem("sww_profile") || "null")); } catch (e) { }
+  const profileName = (p) => (p && p.name ? String(p.name) : "unnamed");
+  function showMenus() { document.querySelectorAll("#menu .dd").forEach((d) => { const m = d.dataset.name; d.style.display = !PROF || !PROF.menus || m === "Data" || m === "Results" || PROF.menus.includes(m) ? "" : "none"; }); }
+  function applyProfile(p, store) {
+    PROF = cleanProfile(p); if (!PROF) return clearProfile();
+    DEC = PROF.dec; alphaField.value = PROF.alpha; confField.value = PROF.conf; showMenus();
+    const pn = $("#profName"); if (pn) pn.textContent = PROF.name ? "Profile: " + PROF.name : "Course profile set";
+    if (store) { try { localStorage.setItem("sww_profile", JSON.stringify(PROF)); } catch (e) { } }
+  }
+  function clearProfile() {
+    PROF = null; try { localStorage.removeItem("sww_profile"); } catch (e) { }
+    let d = 4; try { d = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { } DEC = d;
+    alphaField.value = "0.05"; confField.value = "0.95"; showMenus(); const pn = $("#profName"); if (pn) pn.textContent = "";
+  }
+  const profileWords = (p) => `${p.welch ? "Welch's" : "Student's pooled"} t for two samples; ${p.qm === "type7" ? "R (type 7)" : "textbook"} quartiles; ${p.dec} decimals; alpha ${p.alpha} and ${Math.round(Number(p.conf) * 100)} percent offered first; menus: ${p.menus ? "Data, " + p.menus.join(", ") + ", Results" : "all"}.`;
+  function profileUI() {
+    const p = PROF || cleanProfile({}), menuOpts = MENU_NAMES.filter((m) => m !== "Data" && m !== "Results");
+    dialog("Results: Course profile", [
+      { name: "name", label: "Profile name (shown above the table)", type: "text", value: p.name, placeholder: "STAT C1000, Fall 2026" },
+      sel("welch", "Two-sample t-test offered first", [["welch", "Welch's (unequal variances)"], ["pooled", "Student's (pooled)"]], p.welch ? "welch" : "pooled"),
+      sel("qm", "Quartile rule in Descriptives", [["halves", "Textbook rule (median of each half)"], ["type7", "R rule (type 7, interpolated)"]], p.qm),
+      sel("dec", "Decimal places", [["2", "2"], ["3", "3"], ["4", "4"], ["6", "6"]], String(p.dec)),
+      sel("alpha", "Alpha offered first", [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], p.alpha),
+      sel("conf", "Confidence level offered first", [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], p.conf),
+      { name: "menus", label: `Menus to show (${MULTI_HINT()}). Data and Results always show.`, type: "multi", options: menuOpts, value: p.menus || menuOpts },
+      sel("how", "Then", [["apply", "Use this profile on this computer"], ["file", "Use it here and download it as a file to share"], ["link", "Use it here and copy a link that sets it"], ["off", "Remove the profile from this computer"]], "apply")], (v) => {
+      if (v.how === "off") { clearProfile(); card("Course profile", "removed", say("The app's own defaults are back: Welch's t, the textbook quartile rule, 4 decimals, alpha 0.05, 95 percent, every menu."))._skip = true; return; }
+      const prof = cleanProfile({ name: v.name, welch: v.welch !== "pooled", qm: v.qm, dec: Number(v.dec), alpha: v.alpha, conf: v.conf, menus: v.menus.length === menuOpts.length ? null : v.menus });
+      applyProfile(prof, true);
+      let html = say("In use on this computer. " + profileWords(prof));
+      if (v.how === "file") { downloadText(JSON.stringify(Object.assign({ sww_profile: 1 }, prof), null, 2), ((prof.name || "course").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_") || "course") + ".sww-profile.json", "application/json"); html += say("The profile file was downloaded. A student opens it with Results, Open a profile file."); }
+      if (v.how === "link") { const url = location.origin + location.pathname + "#" + packState({ name: "", origin: "own", filter: "", cards: [], profile: prof }); html += `<div class="formula link">${esc(url)}</div>` + say("The link was put on the clipboard. Whoever opens it is offered the profile and presses Open to use it; a share link made while a profile is set carries the profile too."); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => announce("Link copied."), () => { }); }
+      card("Course profile", prof.name || "unnamed", html)._skip = true;
+    }, "Apply");
+  }
+  function loadProfile() {
+    const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
+    inp.onchange = () => { const file = inp.files[0]; if (!file) return; file.text().then((t) => {
+      let s = null; try { s = JSON.parse(t); } catch (e) { }
+      TARGET = "#out"; CUR_FN = null;
+      if (!s || typeof s !== "object" || !s.sww_profile) { card("Course profile", "not opened", warn("That file is not a course profile. Choose the .sww-profile.json file that Results, Course profile made."))._skip = true; TARGET = baseTarget(); return; }
+      applyProfile(s, true); card("Course profile", profileName(PROF), say("In use on this computer. " + profileWords(PROF)))._skip = true; TARGET = baseTarget();
+    }); };
+    inp.click();
+  }
   const hasTable = (s) => !!(s && s.data && Array.isArray(s.data.cols) && Array.isArray(s.data.rows) && s.data.rows.length);
   // the bar above the tabs: the last visit's results (Restore / No thanks), or a setup from a share link (Open / Not now)
   function offerLast(s, shared) {
     const bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object") { if (!shared) LAST = null; return; }
     const cards = Array.isArray(s.cards) ? s.cards : [], withData = hasTable(s);
-    if (!cards.length && !withData) { if (shared) dropHash(); else LAST = null; return; }
+    const prof = shared && s.profile && typeof s.profile === "object" ? cleanProfile(s.profile) : null;
+    if (!cards.length && !withData && !prof) { if (shared) dropHash(); else LAST = null; return; }
     const n = cards.length, when = !shared && Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
     const name = s.name == null ? "" : String(s.name), filt = typeof s.filter === "string" ? s.filter.trim() : "";
     const what = `${n} ${n === 1 ? "analysis" : "analyses"} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}`;
-    $("#restoreText").textContent = shared ? `Open the shared setup? ${what}${withData ? `, with the table (${s.data.rows.length} rows) inside the link` : ""}. Nothing runs until you press Open.`
+    $("#restoreText").textContent = shared ? (cards.length || withData ? `Open the shared setup? ${what}${withData ? `, with the table (${s.data.rows.length} rows) inside the link` : ""}${prof ? `, and the course profile ${profileName(prof)}` : ""}. Nothing runs until you press Open.` : `This link sets the course profile ${profileName(prof)}: ${profileWords(prof)} Press Open to use it on this computer.`)
       : `Restore your last session? ${what}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
     $("#restoreYes").textContent = shared ? "Open" : "Restore"; $("#restoreNo").textContent = shared ? "Not now" : "No thanks";
     bar.hidden = false;
@@ -2564,6 +2626,7 @@
   function restoreLast(s) {
     if (s === LAST) LAST = null; $("#restoreBar").hidden = true;
     const name = s.name == null ? "" : String(s.name), list = Array.isArray(s.cards) ? s.cards : [];
+    if (s !== LAST && s.profile && typeof s.profile === "object") { applyProfile(s.profile, true); if (!list.length && !hasTable(s)) { TARGET = "#out"; CUR_FN = null; card("Course profile", profileName(PROF), say("Set from a link and in use on this computer. " + profileWords(PROF)))._skip = true; TARGET = baseTarget(); counts(); return; } }
     const run = () => {
       const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); if (D.filter) changed();
       let made = 0, first = null;
@@ -2766,6 +2829,7 @@
   renderGrid();
   restore();
   setView(pageFromHash());
+  applyProfile(PROF, false);
   SHARED = unpackState(location.hash); if (SHARED) offerLast(SHARED, true); else offerLast(LAST, false);
   // draggable splitter between the data table and the results
   (function () {
