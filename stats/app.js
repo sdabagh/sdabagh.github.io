@@ -9,6 +9,7 @@
   let DEC = 4; try { DEC = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { }
   let LAST = null; try { LAST = JSON.parse(localStorage.getItem("sww_last") || "null"); } catch (e) { } // the last visit's results, offered back after a reload
   let AUTORUN = false; // restoring: a dialog is filled in and run without opening
+  let SHARED = null; // a setup carried in the address (#s=...), offered with an Open button
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const escA = (s) => esc(s).replace(/"/g, "&quot;"); // inside an attribute
@@ -2470,7 +2471,7 @@
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], ["Two-Way ANOVA", anova2UI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
-    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
@@ -2480,38 +2481,78 @@
   // the user's own data) unless Restore is chosen: an untouched sample dataset comes back only with its results.
   const FN_KEY = new Map(), KEY_FN = new Map();
   MENU.forEach(([m, items]) => items.forEach((it) => { if (it) { FN_KEY.set(it[1], m + " | " + it[0]); KEY_FN.set(m + " | " + it[0], it[1]); } }));
+  // the setup behind the page: the data's name and origin, the filter, and the choices behind each card on the Analyses and
+  // Graphs tabs (a card that is only a note, such as a share link, is skipped)
+  function stateNow() {
+    const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && !c._skip && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
+    return { name: D.name, origin: D.origin || "own", filter: D.filter, cards };
+  }
   function autosave() {
     try {
-      const cards = ["#out", "#outG"].flatMap((id) => [...$(id).children].reverse().filter((c) => c._redo && FN_KEY.has(c._redo.fn)).map((c) => ({ k: FN_KEY.get(c._redo.fn), v: c._redo.values, t: id })));
-      if (!cards.length) { if (!LAST) localStorage.removeItem("sww_last"); return; } // nothing yet this visit: the offer from the last one stands
-      localStorage.setItem("sww_last", JSON.stringify({ name: D.name, origin: D.origin || "own", filter: D.filter, cards, at: Date.now() }));
+      const s = stateNow();
+      if (!s.cards.length) { if (!LAST) localStorage.removeItem("sww_last"); return; } // nothing yet this visit: the offer from the last one stands
+      s.at = Date.now(); localStorage.setItem("sww_last", JSON.stringify(s));
     } catch (e) { }
   }
-  function offerLast() {
-    const s = LAST, bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object" || !Array.isArray(s.cards) || !s.cards.length) { LAST = null; return; }
-    const n = s.cards.length, when = Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
+  // ---- a link that carries the setup: the dataset (a sample's name, or a small table of the user's own, inside the link),
+  // the filter and the analyses, as JSON in the address after #s=. Nothing is sent anywhere; the receiver sees the setup and
+  // an Open button, and nothing runs until it is pressed. Read with the same checks as a session file.
+  const packState = (o) => { const b = new TextEncoder().encode(JSON.stringify(o)); let s = ""; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return "s=" + btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+  function unpackState(h) {
+    try {
+      const m = /^#?s=([A-Za-z0-9_-]+)$/.exec(String(h || "")); if (!m) return null;
+      const b = m[1].replace(/-/g, "+").replace(/_/g, "/"), s = atob(b + "=".repeat((4 - (b.length % 4)) % 4)), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+      const o = JSON.parse(new TextDecoder().decode(u)); return o && typeof o === "object" && !Array.isArray(o) ? o : null;
+    } catch (e) { return null; }
+  }
+  const dropHash = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { } };
+  function shareLink() {
+    const s = stateNow(); let note;
+    if (D.rows.length && s.origin === "sample" && sampleFileFor(s.name)) note = `The link names the sample dataset (${s.name}), which is loaded again when the link opens.`;
+    else if (D.rows.length) { const d = { cols: D.cols, rows: D.rows, manual: D.manual || {} }; if (JSON.stringify(d).length <= 60000) { s.data = d; note = `Your table (${D.rows.length} rows, ${D.cols.length} columns) travels inside the link, so it opens on any computer.`; } else note = `Your table is too big to travel inside a link (${D.rows.length} rows). The link carries the filter and the analyses; whoever opens it must first open the same file (Data, Open CSV file), then press Open.`; }
+    else note = "No data are loaded, so the link carries the analyses only.";
+    const url = location.origin + location.pathname + "#" + packState(s), n = s.cards.length;
+    const meta = `${n} ${n === 1 ? "analysis" : "analyses"}${D.filter.trim() ? ", filter " + D.filter.trim() : ""}, ${url.length} characters`;
+    dialog("Results: Share link", [{ name: "url", label: "The link", type: "textarea", rows: 4, value: url, hint: `${meta}. ${note} Paste it into Canvas, an email or a message: whoever opens it sees the setup and an Open button, and nothing runs until it is pressed. Nothing is sent anywhere; the whole setup is in the address.` }], () => {
+      const cd = card("Share link", meta, `<div class="formula link">${esc(url)}</div>` + say(note + " Whoever opens the link sees the setup and an Open button. The link was put on the clipboard; if that failed, select it above and copy it by hand."));
+      cd._skip = true; // a note, not an analysis: not kept for a restore, not part of the next link
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => announce("Link copied."), () => announce("Select the link in the card and copy it by hand."));
+    }, "Copy link");
+  }
+  const hasTable = (s) => !!(s && s.data && Array.isArray(s.data.cols) && Array.isArray(s.data.rows) && s.data.rows.length);
+  // the bar above the tabs: the last visit's results (Restore / No thanks), or a setup from a share link (Open / Not now)
+  function offerLast(s, shared) {
+    const bar = $("#restoreBar"); if (!bar || !s || typeof s !== "object") { if (!shared) LAST = null; return; }
+    const cards = Array.isArray(s.cards) ? s.cards : [], withData = hasTable(s);
+    if (!cards.length && !withData) { if (shared) dropHash(); else LAST = null; return; }
+    const n = cards.length, when = !shared && Number.isFinite(s.at) ? new Date(s.at) : null, today = when && when.toDateString() === new Date().toDateString();
     const name = s.name == null ? "" : String(s.name), filt = typeof s.filter === "string" ? s.filter.trim() : "";
-    $("#restoreText").textContent = `Restore your last session? ${n} result${n > 1 ? "s" : ""} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
+    const what = `${n} ${n === 1 ? "analysis" : "analyses"} on ${name || "your data"}${filt ? ` (filter: ${filt})` : ""}`;
+    $("#restoreText").textContent = shared ? `Open the shared setup? ${what}${withData ? `, with the table (${s.data.rows.length} rows) inside the link` : ""}. Nothing runs until you press Open.`
+      : `Restore your last session? ${what}${when ? `, from ${today ? "today at " + when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleDateString()}` : ""}. Results do not survive a reload unless you restore them.`;
+    $("#restoreYes").textContent = shared ? "Open" : "Restore"; $("#restoreNo").textContent = shared ? "Not now" : "No thanks";
     bar.hidden = false;
-    $("#restoreYes").onclick = () => restoreLast(s);
-    $("#restoreNo").onclick = () => { LAST = null; bar.hidden = true; try { localStorage.removeItem("sww_last"); } catch (e) { } focusTo(pageHeading()); };
+    $("#restoreYes").onclick = () => { if (shared) dropHash(); restoreLast(s); };
+    $("#restoreNo").onclick = () => { bar.hidden = true; if (shared) dropHash(); else { LAST = null; try { localStorage.removeItem("sww_last"); } catch (e) { } } focusTo(pageHeading()); };
   }
   function restoreLast(s) {
-    LAST = null; $("#restoreBar").hidden = true;
-    const name = s.name == null ? "" : String(s.name);
+    if (s === LAST) LAST = null; $("#restoreBar").hidden = true;
+    const name = s.name == null ? "" : String(s.name), list = Array.isArray(s.cards) ? s.cards : [];
     const run = () => {
       const keep = plainFormula(s.filter, D.cols, D.rows); D.filter = keep ? String(s.filter).trim() : ""; renderGrid(); if (D.filter) changed();
       let made = 0, first = null;
-      s.cards.forEach((c) => {
+      list.forEach((c) => {
         const fn = c && KEY_FN.get(c.k); if (!fn || !c.v || typeof c.v !== "object") return;
         CUR_FN = fn; PREFILL = Object.assign({}, c.v); REPLACE = null; TARGET = c.t === "#outG" ? "#outG" : "#out"; AUTORUN = true; const before = LASTCARD;
         try { fn(); if (LASTCARD && LASTCARD !== before && LASTCARD.isConnected) { made++; first = first || LASTCARD; } } catch (e) { } finally { AUTORUN = false; PREFILL = null; CUR_FN = null; TARGET = baseTarget(); }
       });
-      const miss = s.cards.length - made;
-      if (miss) { TARGET = "#out"; CUR_FN = null; card("Last session", `${made} of ${s.cards.length} results restored`, warn(`${miss} result${miss > 1 ? "s" : ""} could not be run again on these data (a column that is no longer there, or a choice that no longer fits). Run ${miss > 1 ? "them" : "it"} again from the menu.`)); TARGET = baseTarget(); }
+      const miss = list.length - made;
+      if (miss) { TARGET = "#out"; CUR_FN = null; card("Last session", `${made} of ${list.length} results restored`, warn(`${miss} result${miss > 1 ? "s" : ""} could not be run again on these data (a column that is no longer there, or a choice that no longer fits). Run ${miss > 1 ? "them" : "it"} again from the menu.`)); TARGET = baseTarget(); }
       counts(); announce(`${made} result${made === 1 ? "" : "s"} restored${miss ? `, ${miss} not` : ""}.`);
       if (first && first.isConnected) focusTo(first.querySelector("h2"), true); else focusTo(pageHeading());
     };
+    // a table carried inside a share link: read with the same care as a session file, and then the user's own data
+    if (hasTable(s)) { const d = normalizeData({ name, cols: s.data.cols, rows: s.data.rows, manual: s.data.manual, filter: "" }); if (d.cols.length) { D.origin = "own"; D.restored = false; D.name = name; D.cols = d.cols; D.rows = d.rows; D.manual = d.manual; D.filter = ""; D.sortCol = null; inferTypes(); renderGrid(); persist(); return run(); } }
     if (D.rows.length && D.name === name) return run();
     const f = s.origin === "sample" ? sampleFileFor(name) : null;
     if (f) { fetch("data/" + f).then((r) => (r.ok ? r.text() : Promise.reject(new Error("no file")))).then((t) => { loadTable(name, parseCSV(t), "sample"); run(); }).catch(() => { TARGET = "#out"; CUR_FN = null; card("Last session", "not restored", warn("The sample dataset could not be loaded, so the results were not run again. Open it from Data, Sample datasets and run the analyses from the menus.")); TARGET = baseTarget(); }); return; }
@@ -2698,7 +2739,7 @@
   renderGrid();
   restore();
   setView(pageFromHash());
-  offerLast();
+  SHARED = unpackState(location.hash); if (SHARED) offerLast(SHARED, true); else offerLast(LAST, false);
   // draggable splitter between the data table and the results
   (function () {
     const sp = document.getElementById("splitter"), main = document.querySelector("main"); if (!sp) return;
