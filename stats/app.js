@@ -446,8 +446,9 @@
       if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
       else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${escA(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
       else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
+      else if (fd.type === "note") ctl = `<div class="say note" id="${id}" aria-live="polite"></div>`; // a box of text that follows the other answers
       else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null || Number.isNaN(fd.value) ? "" : escA(fd.value)}" step="any" placeholder="${escA(fd.placeholder || "")}"${fd.list ? ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : ""}>`;
-      const lab = fd.type === "check" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
+      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
       // check(raw): a field that can be set to something that will not work (a grouping column with too many values) says so
       // right under itself as soon as it is chosen, and Run shows the same message there instead of an alert
       const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${esc(fd.hint)}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
@@ -468,6 +469,7 @@
       fields.filter(Boolean).forEach((fd) => {
         const el = f.querySelector("#" + pre + fd.name);
         if (fd.lab) { const l = f.querySelector(`label[for="${pre + fd.name}"]`); if (l) l.textContent = fd.lab(raw); }
+        if (fd.type === "note" && fd.text && el) { const t = fd.text(raw); if (el.textContent !== t) el.textContent = t; }
         if (fd.check) { const m = f.querySelector(`#${pre + fd.name}_msg`), t = fd.check(raw, !!ev) || ""; if (m && m.textContent !== t && !(t && el && el === typingIn)) { m.textContent = t; if (el) { if (t) el.setAttribute("aria-describedby", m.id); else el.removeAttribute("aria-describedby"); } } }
         if (!fd.vis) return; const box = el && el.closest(".fld"); if (box) box.style.display = fd.vis(raw) ? "" : "none";
       });
@@ -762,6 +764,30 @@
       for (let s = lo; s <= hi; s++) txt += String(s).padStart(5) + " | " + (stems[s] || []).sort((a, b) => a - b).join(" ") + "\n";
       const cd = card("Stem and Leaf: " + v.x, src(`leaf unit = ${unit}; ${v.x} = (stem times 10 + leaf) times ${unit}`), `<pre style="font-family:var(--mono);font-size:13px;line-height:1.35;margin:6px 0">${esc(txt)}</pre>` + say("A histogram that keeps every value. Read the shape sideways: a long tail of stems with few leaves is the skew."));
     });
+  }
+
+  // ================= Which test? =================
+  // The most common question in a first course, which twelve menu headings do not answer: three questions open the right
+  // dialog. Rows: what was measured; columns: one group against a value, two groups (independent or paired), three or more,
+  // or a relationship with a second variable (a number or a category).
+  const WIZ = {
+    num: { one: ["T-Tests", "One Sample T-Test", "One sample mean against a test value: t, because sigma is not known."], ind: ["T-Tests", "Independent Samples T-Test", "Two means from different people: Welch's t."], pair: ["T-Tests", "Paired Samples T-Test", "Each person measured twice: a t-test on the mean of the differences."], many: ["ANOVA", "One-Way ANOVA", "Three or more means at once; the Tukey table says which pairs differ."], relnum: ["Regression", "Linear Regression", "How one number predicts another: the slope, r and r squared (Correlation Matrix gives r alone)."], relcat: ["ANOVA", "One-Way ANOVA", "A number across the levels of a category is a comparison of group means: two levels, an independent t-test; more, ANOVA, which handles two as well."] },
+    two: { one: ["Frequencies", "2 Outcomes: Binomial test", "One proportion against a claimed value."], ind: ["Frequencies", "Two proportions: z test", "Two proportions from different people."], pair: ["Advanced", "McNemar test (paired yes or no)", "The same people answering yes or no twice."], many: ["Frequencies", "Contingency Tables: Independent Samples", "A yes-or-no outcome across several groups is a two-way table: the chi-square test of association."], relnum: ["Advanced", "Logistic Regression", "A yes-or-no outcome predicted by a number."], relcat: ["Frequencies", "Contingency Tables: Independent Samples", "Two categories: a two-way table and the chi-square test of association."] },
+    many: { one: ["Frequencies", "N Outcomes: chi-square Goodness of fit", "Counts in each category against claimed (or equal) proportions."], ind: ["Frequencies", "Contingency Tables: Independent Samples", "Categories by group: a two-way table and the chi-square test of association."], pair: ["Frequencies", "Contingency Tables: Independent Samples", "With more than two outcomes a first course has no paired test; the two-way table is the usual choice (say in the write-up that the samples are paired)."], many: ["Frequencies", "Contingency Tables: Independent Samples", "Categories by group: a two-way table and the chi-square test of association."], relnum: ["ANOVA", "One-Way ANOVA", "Turn it round: treat the number as the outcome and compare its mean across the categories."], relcat: ["Frequencies", "Contingency Tables: Independent Samples", "Two categories: a two-way table and the chi-square test of association."] }
+  };
+  const wizKey = (raw) => (raw.q === "two" ? (raw.pair === "pair" ? "pair" : "ind") : raw.q === "rel" ? (raw.x === "cat" ? "relcat" : "relnum") : raw.q === "many" ? "many" : "one");
+  function whichTest() {
+    const pick = (raw) => (WIZ[raw.y] && WIZ[raw.y][wizKey(raw)]) || WIZ.num.one;
+    dialog("Which test?", [
+      sel("y", "What did you measure on each person (or unit)?", [["num", "a number (a score, minutes, GPA, a height)"], ["two", "a yes or no (two outcomes: passed or not, owns a pet or not)"], ["many", "a category with more than two outcomes (major, commute method)"]], "num"),
+      sel("q", "What is the question?", [["one", "compare one group with a known or claimed value"], ["two", "compare two groups"], ["many", "compare three or more groups"], ["rel", "look for a relationship between two variables"]], "two"),
+      Object.assign(sel("pair", "The two groups are", [["ind", "different people (independent samples)"], ["pair", "the same people measured twice, or matched pairs"]], "ind"), { vis: (raw) => raw.q === "two" }),
+      Object.assign(sel("x", "The other variable is", [["num", "a number"], ["cat", "a category"]], "num"), { vis: (raw) => raw.q === "rel" }),
+      { name: "rec", type: "note", text: (raw) => { const r = pick(raw); return `${r[1]} (${r[0]} menu). ${r[2]}`; } }], (v) => {
+      const r = pick(v), it = findItem(r[0], r[1]);
+      if (!D.rows.length || !it) { const cd = card("Which test?", `${r[1]}, ${r[0]} menu`, say(`${r[2]} Open a data file (Data menu), then find ${r[1]} under ${r[0]}.`)); cd._skip = true; return; }
+      setTimeout(() => runItem(r[0], it), 0); // once this dialog has closed
+    }, D.rows.length ? "Open it" : "Note it");
   }
 
   // ================= T-Tests =================
@@ -2463,7 +2489,7 @@
     ["Data", [["Open CSV file", openFile], ["Paste data", pasteData], ["Sample datasets", sampleData], ["New data table", newBlank], null, ["Filters", filterUI], ["Compute", computeUI], ["Transform", transformUI], ["Add z-score column", zscoreColumn], ["Bin into classes", binUI], ["Stack columns", stackUI], null, ["Simulate random data", simulateUI], ["Random sample of rows", sampleRowsUI], null, ["Set variable type", typeUI], ["Rename or delete column", columnUI], null, ["Download data as CSV", downloadCSV]]],
     ["Exploration", [["Descriptives", descriptives], ["Scatterplot", scatterUI]]],
     ["Graph", [["Bar Plot", toGraphs(gBar)], ["Pie Chart", toGraphs(gPie)], null, ["Histogram", toGraphs(gHist)], ["Dotplot", toGraphs(gDot)], ["Boxplot", toGraphs(gBox)], ["Stem and Leaf", toGraphs(gStem)], null, ["Scatter Plot", toGraphs(gScatter)], ["QQ Plot", toGraphs(gQQ)]]],
-    ["T-Tests", [["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
+    ["T-Tests", [["Which test?", whichTest], null, ["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI]]],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["Two proportions: z test", twoPropsUI]]],
@@ -2562,6 +2588,7 @@
   // or the button again, brings the results back. The bar between the panels still drags.
   function setWide(on) { const pt = $("#paneToggle"); document.body.classList.toggle("tablewide", on); if (pt) { pt.textContent = on ? "Show results" : "Widen table"; pt.setAttribute("aria-pressed", String(on)); } if (!on) setTimeout(() => window.dispatchEvent(new Event("resize")), 0); }
   if ($("#paneToggle")) $("#paneToggle").onclick = () => setWide(!document.body.classList.contains("tablewide"));
+  if ($("#whichBtn")) $("#whichBtn").onclick = () => { const it = findItem("T-Tests", "Which test?"); if (it) runItem("T-Tests", it); };
 
   // ================= pages =================
   // Data page: the table and its results. distrACTION page (#distraction): inputs card and live results, no table.
