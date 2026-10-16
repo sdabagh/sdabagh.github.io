@@ -12,6 +12,32 @@
   let SHARED = null; // a setup carried in the address (#s=...), offered with an Open button
   const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Notation. The app composes its text in words (x bar, sigma, chi-square, H0) and this layer turns the words into the
+  // symbols the textbook uses (x̄, σ, χ², H₀) at the moment they are printed. Results, Notation switches it back to words,
+  // which read aloud better. Formula lines take every rule; sentences take only the symbol rules, so "3 times as likely"
+  // and "the sum of the ranks" stay English. A column of the user's data that happens to be called alpha or mu keeps its name.
+  let NOTE = "sym"; try { if (localStorage.getItem("sww_note") === "words") NOTE = "words"; } catch (e) { }
+  const SUB = { 0: "\u2080", 1: "\u2081", 2: "\u2082", 3: "\u2083" }, sub = (d) => SUB[d] || d;
+  const SYM_PROSE = [
+    [/\bchi-square\b/gi, "\u03c7\u00b2"], [/\bWilks' lambda\b/g, "Wilks' \u039b"], [/\bpartial eta squared\b/g, "partial \u03b7\u00b2"], [/\beta squared\b/g, "\u03b7\u00b2"], [/\bomega squared\b/g, "\u03c9\u00b2"],
+    [/\bR squared\b/g, "R\u00b2"], [/\br squared\b/g, "r\u00b2"], [/\bs squared\b/g, "s\u00b2"],
+    [/\bx([123]) bar\b/g, (m, d) => "x\u0304" + sub(d)], [/\bx bar\b/g, "x\u0304"], [/\by bar\b/g, "y\u0304"], [/\bd bar\b/g, "d\u0304"],
+    [/\bp([12]) hat\b/g, (m, d) => "p\u0302" + sub(d)], [/\bp hat\b/g, "p\u0302"], [/\by hat\b/g, "y\u0302"],
+    [/\bsigmas known\b/g, "\u03c3\u2081, \u03c3\u2082 known"], [/\bsigma([012])\b/g, (m, d) => "\u03c3" + sub(d)], [/\b[Ss]igma\b/g, "\u03c3"],
+    [/\bmu([012])\b/g, (m, d) => "\u03bc" + sub(d)], [/\b[Mm]u\b/g, "\u03bc"], [/\b[Aa]lpha\b/g, "\u03b1"],
+    [/\bbeta([012])\b/g, (m, d) => "\u03b2" + sub(d)], [/\bbeta\b/g, "\u03b2"], [/\blambda\b/g, "\u03bb"], [/\brho\b/g, "\u03c1"], [/\btheta\b/g, "\u03b8"], [/\bepsilon\b/g, "\u03b5"], [/\binfinity\b/g, "\u221e"],
+    [/\bH0\b/g, "H\u2080"], [/\bHa\b(?=[:\s])/g, "H\u2090"], [/\bH1\b(?=[:\s])/g, "H\u2081"],
+    [/\bplus or minus\b/g, "\u00b1"], [/\bnot equal to\b/g, "\u2260"], [/\bnot equal\b/g, "\u2260"], [/\bless than or equal to\b/g, "\u2264"], [/\bgreater than or equal to\b/g, "\u2265"],
+    [/\b([bpn])([012])\b(?=\s*[=\u2260<>+)(,.]|\s+(?:hat|bar)\b|$)/g, (m, l, d) => l + sub(d)], [/\^2\b/g, "\u00b2"], [/\^3\b/g, "\u00b3"], [/\bsqrt\(/g, "\u221a("]];
+  const SYM_FORMULA = SYM_PROSE.concat([[/\bSum of Squares\b/g, "SS"], [/\bMean Square\b/g, "MS"], [/ minus /g, " \u2212 "], [/ times /g, " \u00d7 "], [/\bsum of /g, "\u03a3 "], [/\bb([012])\b/g, (m, d) => "b" + sub(d)], [/\bn([12])\b/g, (m, d) => "n" + sub(d)]]);
+  const sym = (s, formula) => {
+    if (NOTE === "words" || s == null) return s;
+    let t = String(s); const keep = [];
+    D.cols.forEach((c) => { if (c && SYM_PROSE.some(([re]) => { re.lastIndex = 0; return re.test(c); })) { const k = "\u0000" + keep.length + "\u0000"; keep.push(c); t = t.split(c).join(k); } });
+    (formula ? SYM_FORMULA : SYM_PROSE).forEach(([re, to]) => { re.lastIndex = 0; t = t.replace(re, to); });
+    keep.forEach((c, i) => { t = t.split("\u0000" + i + "\u0000").join(c); });
+    return t;
+  };
   const escA = (s) => esc(s).replace(/"/g, "&quot;"); // inside an attribute
   // Column names, level labels, cells, file names and typed titles are the user's text: they go into the page through esc
   // (or textContent), never as markup. To read the plain text of a bit of HTML, it is parsed in a separate, inert document,
@@ -245,6 +271,7 @@
     autosave();
   }
   function card(title, meta, html) {
+    html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
     div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">edit</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">copy text</button><button type="button" data-act="close" aria-label="Remove: ${t}">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
@@ -281,8 +308,8 @@
     try { r.fn(); } catch (err) { alert(err.message || err); } finally { TARGET = prev; INLINE = false; }
   }
   function table(headers, rows, caption) {
-    return (caption ? `<div class="cap">${esc(caption)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
-      rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : esc(v)}</td>`).join("")}</tr>`).join("") + "</tbody></table>" +
+    return (caption ? `<div class="cap">${sym(esc(caption), true)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${sym(esc(h), true)}</th>`).join("")}</tr></thead><tbody>` +
+      rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : i ? esc(v) : sym(esc(v), true)}</td>`).join("")}</tr>`).join("") + "</tbody></table>" +
       `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">copy as CSV</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">copy as Markdown</button></div>`;
   }
   // a table copied as CSV (for a spreadsheet) or as Markdown (for a report or a slide); the buttons sit under every table
@@ -369,7 +396,7 @@
   const pWord = (p) => (p < 0.0001 ? "p < 0.0001" : `p = ${p.toFixed(4)}`);
   const decision = (p, alpha) => (!Number.isFinite(p) ? "The p-value could not be worked out for these numbers, so there is no decision yet. Check the inputs." : p <= alpha ? `${pWord(p)} is at or below alpha = ${alpha}: reject H0.` : `${pWord(p)} is above alpha = ${alpha}: fail to reject H0.`) + (p < 0.0001 ? " Write p < 0.001 in a report; a p-value is never exactly 0." : "");
   const altWord = (alt) => (alt === "two" ? "not equal to" : alt === "less" ? "less than" : "greater than");
-  const say = (t) => `<div class="say">${t}</div>`, warn = (t) => `<div class="warn">${t}</div>`, ok = (t) => `<div class="ok">${t}</div>`, formula = (t) => `<div class="formula">${esc(t)}</div>`;
+  const say = (t) => `<div class="say">${sym(t)}</div>`, warn = (t) => `<div class="warn">${sym(t)}</div>`, ok = (t) => `<div class="ok">${sym(t)}</div>`, formula = (t) => `<div class="formula">${sym(esc(t), true)}</div>`;
   const cond = (pass, yes, no) => (pass ? ok(yes) : warn(no));
   // the formula again with the actual numbers in it: the step a student cannot do alone, and the one that turns output into a
   // worked example. A toggle, closed by default, so the card stays short.
@@ -377,7 +404,7 @@
   // one sentence in APA style to paste into a write-up: p and r without a leading zero, a real minus sign
   const apaP = (p) => (!Number.isFinite(p) ? "p = n/a" : p < 0.001 ? "p < .001" : "p = " + p.toFixed(3).replace(/^0/, ""));
   const noZero = (x, d = 2) => (!Number.isFinite(x) ? "n/a" : (x < 0 ? "-" : "") + Math.abs(x).toFixed(d).replace(/^0(?=\.)/, ""));
-  const apa = (t) => `<div class="apa">Report it as (APA style): <code>${esc(String(t).replace(/(^|[\s(\[=,])-(?=\d|\.)/g, "$1\u2212"))}</code></div>`;
+  const apa = (t) => `<div class="apa">Report it as (APA style): <code>${sym(esc(String(t).replace(/(^|[\s(\[=,])-(?=\d|\.)/g, "$1\u2212")), true)}</code></div>`;
   const dfText = (df) => (Number.isInteger(df) ? String(df) : fmt(df, 2));
   const apaN = (x, d = 2) => (Number.isFinite(x) ? x.toFixed(d) : "n/a"); // APA keeps the trailing zeros: 1.10, not 1.1
   // fields that apply to one way of giving the data only: the column boxes for "from a column", the typed numbers for
@@ -448,17 +475,17 @@
       const id = pre + fd.name; let ctl = "";
       if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
       else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${escA(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
-      else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${esc(fd.label)}</label>`;
+      else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${sym(esc(fd.label))}</label>`;
       else if (fd.type === "note") ctl = `<div class="say note" id="${id}" aria-live="polite"></div>`; // a box of text that follows the other answers
       else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null || Number.isNaN(fd.value) ? "" : escA(fd.value)}" step="any" placeholder="${escA(fd.placeholder || "")}"${fd.list ? ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : ""}>`;
-      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${esc(fd.label)}</label>`;
+      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${sym(esc(fd.label))}</label>`;
       // check(raw): a field that can be set to something that will not work (a grouping column with too many values) says so
       // right under itself as soon as it is chosen, and Run shows the same message there instead of an alert
-      const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${esc(fd.hint)}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
+      const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${sym(esc(fd.hint))}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
       if (fd.group) { groups[fd.group] = (groups[fd.group] || "") + block; html += `<!--G:${fd.group}-->`; if (fd.list) wide.add(fd.group); } else html += block;
     });
     const seen = new Set();
-    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld"/g) || []).length; return `<fieldset><legend>${esc(g)}</legend><div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
+    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld"/g) || []).length; return `<fieldset><legend>${sym(esc(g))}</legend><div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
     f.innerHTML = html + (inline ? `<div id="distNow"></div><div class="actions"><button type="submit" class="go">${esc(goLabel)}</button></div><div class="hint">The result updates as you change anything. Run keeps this result; your next change then starts a new card, so you can compare.</div>`
       : `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">${esc(goLabel)}</button></div>`);
     PREFILL = null;
@@ -2648,7 +2675,8 @@
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
-    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+    ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")],
+      ["Notation: symbols or words", () => dialog("Notation", [sel("n", "Formulas and hypotheses are written with", [["sym", "symbols: x\u0304, \u03c3, \u03bc, \u03b1, \u03c7\u00b2, H\u2080 (default, matches the textbook)"], ["words", "words: x bar, sigma, mu, alpha, chi-square, H0 (reads aloud better)"]], NOTE)], (v) => { NOTE = v.n === "words" ? "words" : "sym"; try { localStorage.setItem("sww_note", NOTE); } catch (e) { } card("Notation", NOTE === "sym" ? "symbols" : "words", say(NOTE === "sym" ? "New results write formulas and hypotheses in symbols: x\u0304 for the sample mean, \u03c3 and \u03bc for the population SD and mean, \u03b1 for the significance level, \u03c7\u00b2 for chi-square, H\u2080 and H\u2090 for the hypotheses. Plain-English conclusions stay as they are." : "New results spell notation out in words (x bar, sigma, mu, alpha, chi-square, H0), the form a screen reader or Read Aloud handles best.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
