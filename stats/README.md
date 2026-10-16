@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-16: goodness of fit has an explicit Expected choice
+
+- **N Outcomes: chi-square Goodness of fit**: a new *Expected* selector, *Equally likely (every level the same)* by
+  default, or *Proportions or counts I type*. The text box for typed values appears only for the second choice, and
+  leaving it blank is an error instead of a silent fallback to equal. The formula line and the conclusion now say
+  which null was used (each level 1 / k, with E = n / k, or the stated proportions).
+  Service worker cache `sww-v56`, scripts `?v=59`.
+
 ### 2026-10-15 (late): the ANOVA menu holds the family; ANCOVA, MANOVA and Friedman added
 
 - **ANOVA menu**: One-Way ANOVA, Two-Way ANOVA, ANCOVA, Repeated Measures and Mixed ANOVA, MANOVA, then Kruskal-Wallis
