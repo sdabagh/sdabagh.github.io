@@ -46,6 +46,19 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-16 (later): notation in symbols
+
+- Formulas, worked numbers, APA lines, hypothesis sentences, table captions, headers and row labels, and dialog labels now
+  print the textbook's symbols: x̄, ȳ, d̄, p̂, ŷ, σ, μ, α, β, λ, ρ, θ, η², ω², R², χ², H₀, Hₐ, ±, ≠, ≤, ≥, −, ×, Σ, √,
+  squares as superscripts, subscripts on b₀, b₁, μ₁, σ₂, n₁, p₂. One layer (`sym`) does it at print time; the app's
+  source still composes text in words, so every existing string keeps working and `copy as CSV` carries the symbols.
+- Sentences take only the symbol rules; "3 times as likely" and "the sum of the ranks" stay English. A data column named
+  alpha, mu, beta or p1 keeps its name wherever it is printed.
+- **Results, Notation: symbols or words** switches back to words for Read Aloud and screen readers; the choice is
+  remembered and applies to new results. Menu names, dialog titles and card titles are unchanged, so course profiles and
+  the printed companion guides still match.
+  Service worker cache `sww-v57`, scripts `?v=60`.
+
 ### 2026-10-16: goodness of fit has an explicit Expected choice
 
 - **N Outcomes: chi-square Goodness of fit**: a new *Expected* selector, *Equally likely (every level the same)* by
