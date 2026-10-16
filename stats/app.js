@@ -39,6 +39,9 @@
     return t;
   };
   const escA = (s) => esc(s).replace(/"/g, "&quot;"); // inside an attribute
+  // Ha standing alone (a dialog label, a column header) has no colon or space after it, so the H0 and Ha rule above leaves it
+  // as is; a label or header that names it alone asks here, and follows Results, Notation the same way
+  const haWord = () => (NOTE === "words" ? "Ha" : "H\u2090");
   // Column names, level labels, cells, file names and typed titles are the user's text: they go into the page through esc
   // (or textContent), never as markup. To read the plain text of a bit of HTML, it is parsed in a separate, inert document,
   // never in this page, so nothing in it can load or run.
@@ -481,11 +484,11 @@
       const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${sym(esc(fd.label))}</label>`;
       // check(raw): a field that can be set to something that will not work (a grouping column with too many values) says so
       // right under itself as soon as it is chosen, and Run shows the same message there instead of an alert
-      const block = `<div class="fld">${lab}${ctl}${fd.hint ? `<div class="hint">${sym(esc(fd.hint))}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
+      const block = `<div class="fld${fd.full ? " full" : ""}">${lab}${ctl}${fd.hint ? `<div class="hint">${sym(esc(fd.hint))}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
       if (fd.group) { groups[fd.group] = (groups[fd.group] || "") + block; html += `<!--G:${fd.group}-->`; if (fd.list) wide.add(fd.group); } else html += block;
     });
     const seen = new Set();
-    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld"/g) || []).length; return `<fieldset><legend>${sym(esc(g))}</legend><div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
+    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld[ "]/g) || []).length; return `<fieldset><legend>${sym(esc(g))}</legend><div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
     f.innerHTML = html + (inline ? `<div id="distNow"></div><div class="actions"><button type="submit" class="go">${esc(goLabel)}</button></div><div class="hint">The result updates as you change anything. Run keeps this result; your next change then starts a new card, so you can compare.</div>`
       : `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">${esc(goLabel)}</button></div>`);
     PREFILL = null;
@@ -1202,11 +1205,12 @@
       hasData ? sel("mode", "Data", [["data", "from two columns"], ["summary", "from a table of counts"]], "data") : sel("mode", "Data", [["summary", "from a table of counts"]]),
       only(hasData ? selCat("r", "Rows") : null, onData), only(hasData ? selCat("c", "Columns") : null, onData),
       { name: "tbl", label: "Table of counts: first row = column names, first column = row names", type: "textarea", rows: 5, placeholder: "employment, Pet No, Pet Yes\nFull-time, 4, 6\nNot employed, 3, 6\nPart-time, 10, 11", group: "Counts (for the table option)", vis: onSummary },
-      { name: "chi", label: "chi-square", type: "check", value: true, group: "Tests" }, { name: "fisher", label: "Fisher's exact test (2 by 2)", type: "check", value: false, group: "Tests" }, { name: "orrr", label: "Odds ratio and relative risk (2 by 2)", type: "check", value: false, group: "Comparative Measures" }, { name: "obs", label: "Observed counts", type: "check", value: true, group: "Cells" }, { name: "exp", label: "Expected counts", type: "check", value: false, group: "Cells" },
+      { name: "chi", label: "chi-square", type: "check", value: true, group: "Tests" }, { name: "fisher", label: "Fisher's exact test (2 by 2)", type: "check", value: false, group: "Tests" }, Object.assign(sel("fisherAlt", `Fisher's ${haWord()}`, [["two", "two-sided: the two rows differ"], ["greater", "greater: row 1 has a larger share of the first column"], ["less", "less: row 1 has a smaller share of the first column"]], "two"), { group: "Tests", full: true, vis: (raw) => !!raw.fisher }), { name: "orrr", label: "Odds ratio and relative risk (2 by 2)", type: "check", value: false, group: "Comparative Measures" }, { name: "obs", label: "Observed counts", type: "check", value: true, group: "Cells" }, { name: "exp", label: "Expected counts", type: "check", value: false, group: "Cells" },
       { name: "pcRow", label: "Row percentages", type: "check", value: false, group: "Percentages" }, { name: "pcCol", label: "Column percentages", type: "check", value: false, group: "Percentages" }, { name: "pcTot", label: "Total percentages", type: "check", value: false, group: "Percentages" }, alphaField], (v) => {
       let t, from = "counts", rn = "rows", cn = "columns";
       if (v.mode === "data") { t = SW.twoWay(col(v.r), col(v.c)); rn = v.r; cn = v.c; from = src(`${v.r} by ${v.c}`); }
-      else { const rows = parseCSV(v.tbl); if (rows.length < 3) throw new Error("Need a header row and at least two rows of counts."); cn = rows[0][0] || "columns"; const rv = [], cv = []; rows.slice(1).forEach((r) => rows[0].slice(1).forEach((c, j) => { const n = Number(r[j + 1]); for (let k = 0; k < n; k++) { rv.push(r[0]); cv.push(c); } })); t = SW.twoWay(rv, cv); }
+      // a typed table: labels typed after ", " lose the space, and rows and columns keep the order typed
+      else { const rows = parseCSV(v.tbl).map((r) => r.map((x) => x.trim())); if (rows.length < 3) throw new Error("Need a header row and at least two rows of counts."); cn = rows[0][0] || "columns"; const rv = [], cv = []; rows.slice(1).forEach((r) => rows[0].slice(1).forEach((c, j) => { const n = Number(r[j + 1]); for (let k = 0; k < n; k++) { rv.push(r[0]); cv.push(c); } })); t = SW.twoWay(rv, cv, rows.slice(1).map((r) => r[0]), rows[0].slice(1)); }
       // With every box under Cells and Percentages unchecked the table used to come out with
       // empty cells and nothing but the totals, which reads as a broken table. Fall back to the
       // observed counts and say so.
@@ -1228,7 +1232,14 @@
       }
       if (t.rows.length === 2 && t.cols.length === 2 && (v.fisher || v.orrr)) {
         const [a, b] = t.O[0], [c, dd] = t.O[1];
-        if (v.fisher) { const pf = SW.fisher2x2(a, b, c, dd); html += table(["", "Value", "p"], [["Fisher's exact test", "", SW.fmtP(pf)]], "Fisher's exact test (2 by 2)") + say(`Exact p-value for the 2 by 2 table, no expected-count condition needed. ${decision(pf, +v.alpha)}`); }
+        if (v.fisher) {
+          // Ha from the Fisher's Ha choice: greater = row 1 has a larger share of the first column (P(X >= a)), less = smaller
+          const alt = v.fisherAlt === "greater" || v.fisherAlt === "less" ? v.fisherAlt : "two", pf = SW.fisher2x2(a, b, c, dd, alt);
+          const r1 = esc(t.rows[0]), r2 = esc(t.rows[1]), c1 = esc(t.cols[0]), tail = { two: "two-sided", greater: "right tailed", less: "left tailed" }[alt];
+          const ha = alt === "greater" ? `${r1} has a larger share of ${c1} than ${r2}` : alt === "less" ? `${r1} has a smaller share of ${c1} than ${r2}` : `${r1} and ${r2} differ in their share of ${c1}`;
+          html += table(["", "Value", haWord(), "p"], [["Fisher's exact test", "", alt === "two" ? "two-sided" : `${alt} (${tail})`, SW.fmtP(pf)]], "Fisher's exact test (2 by 2)");
+          html += say(`H0: ${r1} and ${r2} have the same share of ${c1}. Ha: ${ha} (${tail}). Exact p-value ${SW.fmtP(pf)}. No expected-count condition is needed. ${decision(pf, +v.alpha)} ${pf <= +v.alpha ? `There is evidence that ${ha}.` : `There is not enough evidence that ${ha}.`}`);
+        }
         if (v.orrr) { const m = SW.measures2x2(a, b, c, dd); html += table(["", "Value", "95% CI lower", "upper"], [[`Risk of ${t.cols[0]} in ${t.rows[0]}`, m.p1, "", ""], [`Risk of ${t.cols[0]} in ${t.rows[1]}`, m.p2, "", ""], ["Relative risk (row 1 over row 2)", m.rr, m.rrLower, m.rrUpper], ["Odds ratio", m.or, m.orLower, m.orUpper]], "Comparative Measures") + formula("RR = p1 / p2. Odds = p / (1 minus p); OR = (a d) / (b c). Intervals on the log scale. RR needs the rows to be groups whose risks were measured (cohort); OR is valid in case-control designs too.") + say(m.or > 1 ? `The odds of ${esc(t.cols[0])} are ${fmt(m.or, 2)} times higher in ${esc(t.rows[0])} than in ${esc(t.rows[1])}; a confidence interval that includes 1 means no clear association.` : `The odds of ${esc(t.cols[0])} are ${fmt(1 / m.or, 2)} times lower in ${esc(t.rows[0])} than in ${esc(t.rows[1])}; a confidence interval that includes 1 means no clear association.`); }
       }
       card("Contingency Tables (Independent Samples)", from, html);

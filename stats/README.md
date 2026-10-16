@@ -46,6 +46,22 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-16 (evening): Fisher's exact test takes a direction
+
+- **One-sided Fisher's exact test.** Frequencies, Contingency Tables: Independent Samples has a new Fisher's Hₐ choice
+  (Fisher's Ha under Notation: words) under Tests, shown when Fisher's exact test (2 by 2) is ticked: two-sided (the two
+  rows differ, as before), greater (row 1 has a larger share of the first column, P(X ≥ a), right tailed) or less (a
+  smaller share, P(X ≤ a), left tailed). The card names the rows and the column: Ana with 8 makes and 2 misses against
+  Ben with 3 makes and 7 misses gives "Hₐ: Ana has a larger share of make than Ben (right tailed). Exact p-value 0.0349."
+  (two-sided 0.0698, less 0.9973). The results table keeps its title, Fisher's exact test (2 by 2), and gains an Hₐ
+  column. A typed table of counts now keeps the rows and columns in the order typed; before, a 0 in the first cell moved
+  that column to the end, so "the first column" would have been the wrong one. A label typed after a comma and a space no
+  longer keeps the space. Checked against R's fisher.test on 4,200 cases, all three alternatives: every 2 by 2 table with
+  cells from 0, 1, 2, 3, 5 and 8 (zeros and empty rows included), large counts such as 120, 80, 95, 105 and up to 2,600 a
+  cell, unbalanced rows such as 1, 0, 500, 600, and 80 random tables. All agree to 4 decimals; the largest relative
+  difference is 2.0E-10.
+  Service worker cache `sww-v58`, scripts `?v=61`.
+
 ### 2026-10-16 (later): notation in symbols
 
 - Formulas, worked numbers, APA lines, hypothesis sentences, table captions, headers and row labels, and dialog labels now
