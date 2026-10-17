@@ -46,6 +46,19 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-17: student or researcher, and a field
+
+- **Who is using the app** (start screen, the button in the data bar, and Results): *Student* or *Researcher*, plus a
+  field: General, Health and nursing, Business and finance, Social science and education, Biology and life sciences,
+  Engineering and quality, Public safety and criminal justice. Remembered on the device (`sww_mode`).
+- **Researcher** keeps every card and every menu. The card is reordered at build time: tables, the APA line and the
+  conclusion first, the formula and worked numbers folded under *Method*; 3 decimals unless the user set decimals or a
+  course profile. Switching back to Student restores the full card for new results.
+- **Field**: the field's sample datasets come first in Data, Sample datasets (labelled with the field), and the start
+  screen lists the six analyses the field reaches for first, each a button that opens the dialog, with a one-line
+  pointer (for example, that relative risk and the odds ratio live on the Contingency Tables card).
+  Service worker cache `sww-v58`, scripts `?v=61`.
+
 ### 2026-10-16 (later): notation in symbols
 
 - Formulas, worked numbers, APA lines, hypothesis sentences, table captions, headers and row labels, and dialog labels now
