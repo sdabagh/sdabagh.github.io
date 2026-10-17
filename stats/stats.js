@@ -505,28 +505,32 @@
     let cov; try { const H = hess(x); cov = inv(H.map((r) => r.map((v) => -v))); } catch (e) { cov = x.map(() => x.map(() => NaN)); }
     return { x, ll: fx, se: cov.map((r, i) => Math.sqrt(Math.max(r[i], 0))) };
   };
-  S.poisson = (X, y, names, conf = 0.95) => { // IRLS, log link
-    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length; let b = new Array(p).fill(0); b[0] = Math.log(Math.max(S.mean(y), 1e-6)); let cov;
-    for (let it = 0; it < 50; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * mu[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
-    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = y.reduce((s, yi, i) => s + yi * Math.log(mu[i]) - mu[i] - lgam(yi + 1), 0);
+  // opts.offset: a known term added to the linear predictor, usually log(exposure), so the model is for a rate (R: offset(log(exposure)))
+  S.poisson = (X, y, names, conf = 0.95, opts = {}) => { // IRLS, log link
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, off = opts.offset || new Array(n).fill(0); let b = new Array(p).fill(0); let cov;
+    const sumY = y.reduce((s, v) => s + v, 0), sumE = off.reduce((s, o) => s + Math.exp(o), 0); b[0] = Math.log(Math.max(sumY / sumE, 1e-6));
+    const linpred = (bb) => Xd.map((r, i) => r.reduce((s, v, k) => s + v * bb[k], 0) + off[i]);
+    for (let it = 0; it < 50; it++) { const eta = linpred(b), mu = eta.map(Math.exp), z = eta.map((e, i) => e - off[i] + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * mu[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+    const mu = linpred(b).map(Math.exp), ll = y.reduce((s, yi, i) => s + yi * Math.log(mu[i]) - mu[i] - lgam(yi + 1), 0);
     const dev = 2 * y.reduce((s, yi, i) => s + (yi > 0 ? yi * Math.log(yi / mu[i]) : 0) - (yi - mu[i]), 0), pearson = y.reduce((s, yi, i) => s + (yi - mu[i]) ** 2 / mu[i], 0), df = n - p;
-    const ybar = S.mean(y), ll0 = y.reduce((s, yi) => s + yi * Math.log(ybar) - ybar - lgam(yi + 1), 0);
+    const mu0 = off.map((o) => Math.exp(o) * sumY / sumE), ll0 = y.reduce((s, yi, i) => s + yi * Math.log(mu0[i]) - mu0[i] - lgam(yi + 1), 0); // intercept-only model with the same offset
     const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
-    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll, ll0, dev, pearson, df, dispersion: pearson / df, aic: -2 * ll + 2 * p, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), n, fitted: mu, conf };
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll, ll0, dev, pearson, df, dispersion: pearson / df, aic: -2 * ll + 2 * p, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), n, fitted: mu, conf, offset: !!opts.offset };
   };
-  S.negbin = (X, y, names, conf = 0.95) => { // NB2: alternate IRLS for beta given theta with ML for theta
-    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;
-    const pois = S.poisson(X, y, names, conf); let b = pois.b.slice(), theta = Math.max(0.1, 1 / Math.max(pois.dispersion - 1, 0.05) * 1), cov;
+  S.negbin = (X, y, names, conf = 0.95, opts = {}) => { // NB2: alternate IRLS for beta given theta with ML for theta
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, off = opts.offset || new Array(n).fill(0);
+    const linpred = (bb) => Xd.map((r, i) => r.reduce((s, v, k) => s + v * bb[k], 0) + off[i]);
+    const pois = S.poisson(X, y, names, conf, opts); let b = pois.b.slice(), theta = Math.max(0.1, 1 / Math.max(pois.dispersion - 1, 0.05) * 1), cov;
     const llTheta = (th, mu) => y.reduce((s, yi, i) => s + lgam(yi + th) - lgam(th) - lgam(yi + 1) + th * Math.log(th / (th + mu[i])) + yi * Math.log(mu[i] / (th + mu[i])), 0);
     for (let outer = 0; outer < 30; outer++) {
-      for (let it = 0; it < 30; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), w = mu.map((m) => m / (1 + m / theta)), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * w[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
-      const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0)));
+      for (let it = 0; it < 30; it++) { const eta = linpred(b), mu = eta.map(Math.exp), w = mu.map((m) => m / (1 + m / theta)), z = eta.map((e, i) => e - off[i] + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * w[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+      const mu = linpred(b).map(Math.exp);
       const r = maximize((v) => llTheta(Math.exp(v[0]), mu), [Math.log(theta)], 40); const thn = Math.exp(r.x[0]); const done = Math.abs(thn - theta) < 1e-6 * theta; theta = thn; if (done) break;
     }
-    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = llTheta(theta, mu);
+    const mu = linpred(b).map(Math.exp), ll = llTheta(theta, mu);
     const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
     const lrt = Math.max(0, 2 * (ll - pois.ll)); // never below 0: at theta near infinity NB is the Poisson model, and a tiny negative is the search stopping short
-    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf };
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf, fitted: mu, offset: !!opts.offset };
   };
   S.multinom = (X, yLab, names, conf = 0.95) => { // baseline = first level (sorted)
     const levels = [...new Set(yLab)].sort(), K = levels.length, y = yLab.map((v) => levels.indexOf(v)), Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;

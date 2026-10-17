@@ -254,7 +254,7 @@
   function downloadText(txt, filename, type = "text/plain") { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type })); a.download = filename; a.click(); }
   function downloadCSV() { const q = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v); downloadText([D.cols.map(q).join(",")].concat(D.rows.map((r) => r.map(q).join(","))).join("\n"), (D.name || "data") + ".csv", "text/csv"); }
   const SAMPLES = [
-    ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"], ["sleepstudy.csv", "Sleep deprivation: reaction time by day within 18 subjects (lme4 sleepstudy, 180 rows)"],
+    ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"], ["sleepstudy.csv", "Sleep deprivation: reaction time by day within 18 subjects (lme4 sleepstudy, 180 rows)"], ["ships.csv", "Ship damage incidents by type, year built, period and months of service (MASS ships, 40 rows; a rate with an offset)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
     ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"], ["darfur.csv", "Darfur survey (Hazlett 2020): violence and support for peace, 1276 refugees (sensitivity to a lurking variable)"]];
@@ -1382,25 +1382,60 @@
   }
 
   // ================= Advanced =================
-  function designMatrix(numVars, catVars) {
-    const names = [], parts = [], notes = [];
-    numVars.forEach((v) => { names.push(v); parts.push(col(v).map((x) => [x])); });
-    catVars.forEach((v) => {
-      const raw = col(v), c = SW.counts(raw), rare = Object.keys(c).filter((l) => c[l] < 3);
-      const vals = raw.map((x) => (rare.includes(x) ? "" : x));
-      if (rare.length) notes.push(`${v}: level${rare.length > 1 ? "s" : ""} ${rare.join(", ")} (fewer than 3 rows) set to missing; a category that small cannot be estimated.`);
-      const d = SW.dummies(vals); d.cols.forEach((l) => names.push(`${v} = ${l} (vs ${d.levels[0]})`));
-      parts.push(d.rows.map((r, i) => (vals[i] === "" ? r.map(() => "") : r)));
-    });
+  // one categorical column as dummy columns: levels with fewer than 3 rows set to missing; the reference is the most frequent level, or the one asked for
+  function catTerm(v, ref, notes) {
+    const raw = col(v), c = SW.counts(raw), rare = Object.keys(c).filter((l) => c[l] < 3);
+    const vals = raw.map((x) => (rare.includes(x) ? "" : x));
+    if (rare.length && notes) notes.push(`${v}: level${rare.length > 1 ? "s" : ""} ${rare.join(", ")} (fewer than 3 rows) set to missing; a category that small cannot be estimated.`);
+    const d = SW.dummies(vals, ref), rows = d.rows.map((r, i) => (vals[i] === "" ? r.map(() => "") : r));
+    return { levels: d.levels, rows, cols: d.cols.map((l, j) => ({ name: `${v} = ${l} (vs ${d.levels[0]})`, vals: rows.map((r) => r[j]) })) };
+  }
+  function designMatrix(numVars, catVars, refs = {}) {
+    const names = [], parts = [], notes = [], terms = {};
+    numVars.forEach((v) => { names.push(v); parts.push(col(v).map((x) => [x])); terms[v] = [{ name: v, vals: col(v) }]; });
+    catVars.forEach((v) => { const d = catTerm(v, refs[v], notes); d.cols.forEach((t) => names.push(t.name)); parts.push(d.rows); terms[v] = d.cols; });
     const rows = D.rows.length ? activeIdx().map((_, i) => parts.flatMap((p) => p[i])) : [];
-    return { names, rows, notes };
+    return { names, rows, notes, terms, refs };
+  }
+  // Model terms, shared by the regression dialogs: squared terms, interactions typed as a * b (numeric or categorical), reference levels (R's relevel)
+  const termFields = () => [
+    { name: "sq", label: "Squared terms for (numeric, optional)", type: "multi", options: numCols(), group: "Model terms" },
+    { name: "ix", label: "Interactions, comma separated, e.g. Hours_Study * Hours_Sleep, Hours_Study * Year (numeric or categorical, optional)", type: "text", group: "Model terms", hint: "Put both main effects in the model as well, as R's a * b does. Numeric by categorical gives one slope difference per level; categorical by categorical gives one column per pair of levels." },
+    { name: "refs", label: "Reference levels, e.g. Year = Freshman, Employed = Yes (optional; the default is the most frequent level)", type: "text", group: "Model terms" }];
+  function parseRefs(txt) {
+    const refs = {};
+    String(txt || "").split(",").map((s) => s.trim()).filter(Boolean).forEach((pair) => {
+      const i = pair.indexOf("="); if (i < 0) throw new Error(`Reference levels: write column = level, for example Year = Freshman. Could not read "${pair}".`);
+      const v = pair.slice(0, i).trim(), l = pair.slice(i + 1).trim();
+      if (!catCols().includes(v)) throw new Error(`Reference levels: ${v} is not a categorical column. Categorical columns: ${catCols().join(", ") || "none"}.`);
+      const lv = Object.keys(SW.counts(col(v).filter((q) => q !== ""))).sort(); if (!lv.includes(l)) throw new Error(`Reference levels: ${v} has no level "${l}". Levels: ${lv.join(", ")}.`);
+      refs[v] = l;
+    });
+    return refs;
+  }
+  function addModelTerms(dm, v, mains) { // appends columns to dm.rows and dm.names; returns warnings as html
+    let html = "";
+    (v.sq || []).forEach((s) => { const c = col(s); dm.names.push(`${s} squared`); dm.rows.forEach((r, i) => r.push(c[i] === "" ? "" : Number(c[i]) ** 2)); if (!mains.includes(s)) html += warn(`${esc(s)} squared is in the model without ${esc(s)} itself; usually both belong.`); });
+    const termsOf = (name) => dm.terms[name] || (isNum(name) ? [{ name, vals: col(name) }] : catTerm(name, (dm.refs || {})[name], null).cols);
+    String(v.ix || "").split(",").map((s) => s.trim()).filter(Boolean).forEach((t) => {
+      const vars = t.split(/\s*[*:\u00d7]\s*/).map((s) => s.trim()).filter(Boolean);
+      if (vars.length !== 2) throw new Error(`Interaction "${t}": write two column names joined by *, for example Hours_Study * Year.`);
+      vars.forEach((nm) => { if (!D.cols.includes(nm) || D.types[nm] === "id") throw new Error(`Interaction "${t}": ${nm} is not a numeric or categorical column. Columns: ${numCols().concat(catCols()).join(", ")}.`); });
+      if (vars[0] === vars[1]) throw new Error(`Interaction "${t}": a column times itself is a squared term; pick it under Squared terms.`);
+      const [ta, tb] = vars.map(termsOf);
+      const short = (nm) => nm.replace(/ \(vs [^)]*\)$/, ""); ta.forEach((a) => tb.forEach((b) => { dm.names.push(`${short(a.name)} \u00d7 ${short(b.name)}`); dm.rows.forEach((r, i) => r.push(a.vals[i] === "" || b.vals[i] === "" ? "" : Number(a.vals[i]) * Number(b.vals[i]))); }));
+      const missing = vars.filter((nm) => !mains.includes(nm)); if (missing.length) html += warn(`${esc(t)} is in the model without the main effect${missing.length > 1 ? "s" : ""} ${esc(missing.join(" and "))}. R's a * b includes both; add ${missing.length > 1 ? "them" : "it"} as a predictor unless you have a reason not to.`);
+    });
+    return html;
   }
   const dmNotes = (dm) => (dm.notes || []).map((n) => warn(esc(n))).join("");
   function pruneEmpty(X, names, keep) { // dummy columns with fewer than 3 rows in the kept data: drop the column and those rows
-    const sums = names.map((_, j) => X.reduce((s, r) => s + (Number(r[j]) === 1 && names[j].includes(" = ") ? 1 : 0), 0));
-    const dropCol = names.map((nm, j) => nm.includes(" = ") && sums[j] < 3);
-    const rowOK = X.map((r) => !r.some((v, j) => dropCol[j] && Number(v) === 1));
-    return { X: X.filter((_, i) => rowOK[i]).map((r) => r.filter((_, j) => !dropCol[j])), names: names.filter((_, j) => !dropCol[j]), keep: keep.filter((_, i) => rowOK[i]), dropped: names.filter((_, j) => dropCol[j]) };
+    // interaction columns (a × b) are left alone, as in R, except one that is all zeros (no rows in that combination), which R would report as NA
+    const isDummy = (nm) => nm.includes(" = ") && !nm.includes(" \u00d7 "), isIx = (nm) => nm.includes(" \u00d7 ");
+    const sums = names.map((_, j) => X.reduce((s, r) => s + (Number(r[j]) === 1 && isDummy(names[j]) ? 1 : 0), 0));
+    const dropCol = names.map((nm, j) => isDummy(nm) && sums[j] < 3), emptyIx = names.map((nm, j) => isIx(nm) && X.every((r) => Number(r[j]) === 0));
+    const rowOK = X.map((r) => !r.some((v, j) => dropCol[j] && Number(v) === 1)), gone = (j) => dropCol[j] || emptyIx[j];
+    return { X: X.filter((_, i) => rowOK[i]).map((r) => r.filter((_, j) => !gone(j))), names: names.filter((_, j) => !gone(j)), keep: keep.filter((_, i) => rowOK[i]), dropped: names.filter((_, j) => dropCol[j]), emptyIx: names.filter((_, j) => emptyIx[j]) };
   }
   function keepComplete(X, y, extra = []) { const keep = []; for (let i = 0; i < y.length; i++) { const ok = y[i] !== "" && Number.isFinite(Number(y[i])) && X[i].every((v) => v !== "" && Number.isFinite(Number(v))) && extra.every((e) => e[i] !== ""); if (ok) keep.push(i); } return keep; }
   function mixedUI() {
@@ -1416,7 +1451,7 @@
       const si = v.slope ? pr.names.indexOf(v.slope) : -1; const Z = v.slope ? X.map((r) => [1, r[si + 1]]) : null;
       const g = new Set(groups).size; if (g < 3) throw new Error("The grouping factor needs at least 3 clusters."); if (X.length <= names.length + g) throw new Error("Not enough complete rows for this model.");
       const m = SW.lmm(y, X, groups, Z, { reml: v.method !== "ml" }); const k = m.k, n = m.n;
-      let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "");
+      let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + (pr.emptyIx.length ? warn(`No rows have ${esc(pr.emptyIx.join(" or "))}, so ${pr.emptyIx.length > 1 ? "those interaction columns were" : "that interaction column was"} left out (R would print NA for it).`) : "");
       const tstar = (df) => SW.qt(1 - (1 - +v.conf) / 2, Number.isFinite(df) ? df : 1e6), pOf = (t, df) => 2 * (1 - SW.pt(Math.abs(t), Number.isFinite(df) ? df : 1e6));
       const pv = m.t.map((t, i) => pOf(t, m.dfSat[i]));
       html += table(["Fixed effect", "Estimate", "SE", "t", "df (Satterthwaite)", "p", `${Math.round(+v.conf * 100)}% CI lower`, "upper"], names.map((nm, i) => [nm, m.beta[i], m.se[i], m.t[i], Number.isFinite(m.dfSat[i]) ? m.dfSat[i].toFixed(1) : "n/a", SW.fmtP(pv[i]), m.beta[i] - tstar(m.dfSat[i]) * m.se[i], m.beta[i] + tstar(m.dfSat[i]) * m.se[i]]), `Fixed Effects - ${v.y}`);
@@ -1447,16 +1482,15 @@
   function multRegUI() {
     needData(); let html0 = "";
     dialog("Advanced: Multiple Linear Regression", [selNum("y", "Dependent variable"), { name: "xs", label: `Numeric predictors (${MULTI_HINT()})`, type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors (dummy coded, the most frequent level is the reference)", type: "multi", options: catCols() },
-      { name: "sq", label: "Add squared terms for (numeric, optional)", type: "multi", options: numCols(), group: "Model terms" }, { name: "ix", label: "Interaction between two numeric predictors, e.g. Hours_Study * Hours_Sleep (optional)", type: "text", group: "Model terms" },
+      ...termFields(),
       { name: "resid", label: "Residual plot", type: "check", value: true, group: "Checks" }, { name: "vif", label: "VIF (collinearity)", type: "check", value: true, group: "Checks" }, { name: "diag", label: "Influence diagnostics (leverage, standardized residuals, Cook's distance)", type: "check", value: true, group: "Checks" }, { name: "qq", label: "Q-Q plot of residuals", type: "check", value: false, group: "Checks" },
       { name: "red", label: "Compare with a reduced model using only these numeric predictors (nested F test)", type: "multi", options: numCols(), group: "Model comparison" }, { name: "step", label: "Show backward elimination steps (teaching demo)", type: "check", value: false, group: "Model comparison" },
       confField, alphaField], (v) => {
       if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
-      const dm = designMatrix(v.xs, v.cs), yv = col(v.y);
-      (v.sq || []).forEach((s) => { const c = col(s); dm.names.push(`${s} squared`); dm.rows.forEach((r, i) => r.push(c[i] === "" ? "" : Number(c[i]) ** 2)); });
-      if (v.ix && v.ix.trim()) { const [a, b] = v.ix.split("*").map((s) => s.trim()); if (!numCols().includes(a) || !numCols().includes(b)) throw new Error("Interaction must be two numeric column names joined by *."); const ca = col(a), cb = col(b); dm.names.push(`${a} x ${b}`); dm.rows.forEach((r, i) => r.push(ca[i] === "" || cb[i] === "" ? "" : Number(ca[i]) * Number(cb[i]))); if (!v.xs.includes(a) || !v.xs.includes(b)) html0 = warn("An interaction is usually entered with both main effects also in the model."); }
+      const dm = designMatrix(v.xs, v.cs, parseRefs(v.refs)), yv = col(v.y);
+      html0 = addModelTerms(dm, v, v.xs.concat(v.cs));
       let keep = keepComplete(dm.rows, yv);
-      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => Number(yv[i])); dm.names = pr.names; html0 += dmNotes(dm); if (pr.dropped.length) html0 += warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category, which cannot be estimated.`);
+      const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => Number(yv[i])); dm.names = pr.names; html0 += dmNotes(dm); if (pr.dropped.length) html0 += warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category, which cannot be estimated.`); if (pr.emptyIx.length) html0 += warn(`No rows have ${esc(pr.emptyIx.join(" or "))}, so ${pr.emptyIx.length > 1 ? "those interaction columns were" : "that interaction column was"} left out (R would print NA for it).`);
       if (X.length <= dm.names.length + 1) throw new Error("Not enough complete rows for this many predictors.");
       const m = SW.ols(X, y, dm.names, +v.conf);
       let html = table(["Model", "R", "R squared", "Adjusted R squared", "F", "df1", "df2", "p"], [["1", Math.sqrt(m.r2), m.r2, m.adj, m.F, m.dfF[0], m.dfF[1], SW.fmtP(m.pF)]], "Model Fit Measures");
@@ -1485,13 +1519,13 @@
   }
   function logitUI() {
     needData(); const succCheck = levelCheck("y", "the level to model as 1");
-    dialog("Advanced: Logistic Regression (binary outcome)", [selCat("y", "Outcome variable (two levels)"), { name: "succ", label: "Level to model as 1 (exactly as in the data)", type: "text", check: succCheck }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, confField, alphaField], (v) => {
+    dialog("Advanced: Logistic Regression (binary outcome)", [selCat("y", "Outcome variable (two levels)"), { name: "succ", label: "Level to model as 1 (exactly as in the data)", type: "text", check: succCheck }, { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, ...termFields(), confField, alphaField], (v) => {
       if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
       const lm = succCheck(v, true); if (lm) throw fieldErr("succ", lm); const yv = col(v.y), lv = [...new Set(yv.filter((q) => q !== ""))];
-      const dm = designMatrix(v.xs, v.cs); let keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
+      const dm = designMatrix(v.xs, v.cs, parseRefs(v.refs)); const html0 = addModelTerms(dm, v, v.xs.concat(v.cs)); let keep = keepComplete(dm.rows, yv.map((q) => (q === "" ? "" : "0")));
       const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => (yv[i] === v.succ.trim() ? 1 : 0)); dm.names = pr.names;
       const m = SW.logistic(X, y, dm.names, +v.conf);
-      let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + table(["Model", "Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "Correctly classified"], [["1", -2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), fmt(100 * m.accuracy, 1) + " percent"]], "Model Fit Measures");
+      let html = html0 + dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + (pr.emptyIx.length ? warn(`No rows have ${esc(pr.emptyIx.join(" or "))}, so ${pr.emptyIx.length > 1 ? "those interaction columns were" : "that interaction column was"} left out (R would print NA for it).`) : "") + table(["Model", "Deviance", "AIC", "McFadden R squared", "chi-square (vs intercept only)", "df", "p", "Correctly classified"], [["1", -2 * m.ll, m.aic, m.mcfadden, m.chi, m.dfChi, SW.fmtP(m.pChi), fmt(100 * m.accuracy, 1) + " percent"]], "Model Fit Measures");
       html += table(["Predictor", "Estimate (log odds)", "SE", "z", "p", "Odds ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.or[i], m.orLower[i], m.orUpper[i]]), `Model Coefficients - ${v.y} = ${v.succ}`);
       html += formula(`log(odds of ${v.succ}) = b0 + b1 x1 + ... Each odds ratio is exp(b): the factor by which the odds of ${v.succ} multiply per unit of that predictor, others fixed. An odds ratio interval that includes 1 means no clear effect. n = ${m.n}, ${y.reduce((s, q) => s + q, 0)} are ${v.succ}.`);
       html += say(`${decision(m.pChi, +v.alpha)} ${m.pChi <= +v.alpha ? "The predictors together improve on guessing the base rate." : "The predictors together do not improve on guessing the base rate."}`);
@@ -1545,22 +1579,27 @@
 
   function countRegUI() {
     needData();
-    dialog("Advanced: Count Regression (Poisson and Negative Binomial)", [selNum("y", "Count outcome (non-negative whole numbers)"), { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, sel("fam", "Model", [["auto", "Poisson, then negative binomial if overdispersed (recommended)"], ["poisson", "Poisson only"], ["nb", "Negative binomial only"]], "auto"), confField, alphaField], (v) => {
+    dialog("Advanced: Count Regression (Poisson and Negative Binomial)", [selNum("y", "Count outcome (non-negative whole numbers)"), { name: "xs", label: "Numeric predictors", type: "multi", options: numCols() }, { name: "cs", label: "Categorical predictors", type: "multi", options: catCols() }, Object.assign(sel("exp", "Exposure (optional): time at risk, population, months of service. log(exposure) enters as an offset and the model is for the rate", [["", "(none)"]].concat(numCols()), ""), { hint: "R: offset(log(exposure)). Rows with an exposure of 0 or blank are left out." }), ...termFields(), sel("fam", "Model", [["auto", "Poisson, then negative binomial if overdispersed (recommended)"], ["poisson", "Poisson only"], ["nb", "Negative binomial only"]], "auto"), confField, alphaField], (v) => {
       if (!v.xs.length && !v.cs.length) throw new Error("Pick at least one predictor.");
-      const dm = designMatrix(v.xs, v.cs), yv = col(v.y); let keep = keepComplete(dm.rows, yv);
+      if (v.exp && (v.exp === v.y || v.xs.includes(v.exp))) throw new Error("The exposure cannot also be the outcome or a predictor.");
+      const dm = designMatrix(v.xs, v.cs, parseRefs(v.refs)), yv = col(v.y), ex = v.exp ? col(v.exp) : null; const html0 = addModelTerms(dm, v, v.xs.concat(v.cs)); let keep = keepComplete(dm.rows, yv, ex ? [ex] : []);
+      let dropExp = 0; if (ex) { const k2 = keep.filter((i) => Number(ex[i]) > 0); dropExp = keep.length - k2.length; keep = k2; }
       const pr = pruneEmpty(keep.map((i) => dm.rows[i].map(Number)), dm.names, keep); keep = pr.keep; const X = pr.X, y = keep.map((i) => Number(yv[i])); dm.names = pr.names;
       if (y.some((q) => q < 0 || !Number.isInteger(q))) throw new Error("The outcome must be counts: 0, 1, 2, ...");
-      const po = SW.poisson(X, y, dm.names, +v.conf); let html = dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "");
+      if (!y.length) throw new Error("No complete rows with a positive exposure.");
+      const opts = ex ? { offset: keep.map((i) => Math.log(Number(ex[i]))) } : {};
+      const po = SW.poisson(X, y, dm.names, +v.conf, opts); let html = html0 + dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + (pr.emptyIx.length ? warn(`No rows have ${esc(pr.emptyIx.join(" or "))}, so ${pr.emptyIx.length > 1 ? "those interaction columns were" : "that interaction column was"} left out (R would print NA for it).`) : "");
+      if (dropExp) html += warn(`${dropExp} row${dropExp > 1 ? "s" : ""} with ${esc(v.exp)} of 0 or blank left out: a rate needs a positive exposure (R's subset = ${esc(v.exp)} > 0 does the same).`);
       const coefTable = (m, label) => table(["Predictor", "Estimate (log rate)", "SE", "z", "p", "Rate ratio", `${Math.round(m.conf * 100)}% CI lower`, "upper"], m.names.map((nm, i) => [nm, m.b[i], m.se[i], m.z[i], SW.fmtP(m.p[i]), m.irr[i], m.irrLower[i], m.irrUpper[i]]), label);
       const useNB = v.fam === "nb" || (v.fam === "auto" && po.dispersion > 1.5);
       if (v.fam !== "nb") {
         html += table(["Deviance", "df", "Pearson dispersion", "AIC", "chi-square (vs intercept only)", "df", "p"], [[po.dev, po.df, po.dispersion, po.aic, po.chi, po.dfChi, SW.fmtP(po.pChi)]], "Poisson model fit") + coefTable(po, `Poisson coefficients - ${v.y}`);
         html += cond(po.dispersion <= 1.5, `Dispersion ${fmt(po.dispersion, 2)} is near 1: the Poisson assumption (variance equals mean) is reasonable.`, `Dispersion ${fmt(po.dispersion, 2)} is well above 1: the counts vary more than a Poisson allows (overdispersion). Poisson standard errors are too small and its p-values too optimistic. Use the negative binomial below.`);
       }
-      if (useNB) { const nb = SW.negbin(X, y, dm.names, +v.conf); html += table(["theta (dispersion parameter)", "Log-likelihood", "AIC", "Poisson AIC", "LR test NB vs Poisson", "p"], [[nb.theta, nb.ll, nb.aic, nb.poissonAic, nb.lrtVsPoisson, SW.fmtP(nb.pLrt)]], "Negative binomial model fit") + coefTable(nb, `Negative binomial coefficients - ${v.y}`) + say(`Negative binomial adds a dispersion parameter theta; smaller theta means more extra variation. ${nb.pLrt <= +v.alpha ? "The likelihood-ratio test prefers the negative binomial over Poisson." : "The two models fit about equally; Poisson is the simpler choice."}`); }
-      html += formula(`log(expected ${v.y}) = b0 + b1 x1 + ... A rate ratio exp(b) is the multiplicative change in the expected count per unit of the predictor, others fixed. n = ${po.n}.`);
+      if (useNB) { const nb = SW.negbin(X, y, dm.names, +v.conf, opts); html += table(["theta (dispersion parameter)", "Log-likelihood", "AIC", "Poisson AIC", "LR test NB vs Poisson", "p"], [[nb.theta, nb.ll, nb.aic, nb.poissonAic, nb.lrtVsPoisson, SW.fmtP(nb.pLrt)]], "Negative binomial model fit") + coefTable(nb, `Negative binomial coefficients - ${v.y}`) + say(`Negative binomial adds a dispersion parameter theta; smaller theta means more extra variation. ${nb.pLrt <= +v.alpha ? "The likelihood-ratio test prefers the negative binomial over Poisson." : "The two models fit about equally; Poisson is the simpler choice."}`); }
+      html += formula(ex ? `log(expected ${v.y}) = log(${v.exp}) + b0 + b1 x1 + ... The offset log(${v.exp}) has a fixed coefficient of 1, so the model is for the rate ${v.y} per unit of ${v.exp}; exp(b0) is the baseline rate and a rate ratio exp(b) is the multiplicative change in that rate per unit of the predictor, others fixed. n = ${po.n}.` : `log(expected ${v.y}) = b0 + b1 x1 + ... A rate ratio exp(b) is the multiplicative change in the expected count per unit of the predictor, others fixed. n = ${po.n}.`);
       html += say(`${decision(po.pChi, +v.alpha)} ${po.pChi <= +v.alpha ? "The predictors together explain variation in the count." : "No evidence the predictors explain the count."}`);
-      const cd = card(useNB ? "Count Regression (Poisson and Negative Binomial)" : "Poisson Regression", src(v.y), html);
+      const cd = card(useNB ? "Count Regression (Poisson and Negative Binomial)" : "Poisson Regression", src(ex ? `${v.y} per ${v.exp}` : v.y), html);
       plotDiv(cd, [{ x: y, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } }, name: "observed" }], { title: `Distribution of ${v.y} (mean ${fmt(SW.mean(y), 2)}, variance ${fmt(SW.sd(y) ** 2, 2)})`, xaxis: { title: v.y }, yaxis: { title: "Count" } }, 240);
     });
   }
@@ -1842,7 +1881,7 @@
         const pr = pruneEmpty(k2.map((i) => dm.rows[i].map(Number)), dm.names, k2); k2 = pr.keep;
         const m = SW.cox(k2.map((i) => Number(tv[i])), k2.map((i) => (ev[i] === v.succ.trim() ? 1 : 0)), pr.X, pr.names, conf);
         const pct = Math.round(conf * 100);
-        cd.insertAdjacentHTML("beforeend", dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + table(["Predictor", "Coefficient (log hazard ratio)", "SE", "z", "p", "Hazard ratio", `${pct}% CI lower`, `${pct}% CI upper`], m.names.map((nm, j) => [nm, m.b[j], m.se[j], m.z[j], SW.fmtP(m.p[j]), m.hr[j], m.hrLower[j], m.hrUpper[j]]), `Cox proportional hazards model (${m.n} rows, ${m.events} events)`) + table(["Likelihood ratio chi-square", "df", "p", "Log-likelihood (null)", "Log-likelihood (model)"], [[m.lrt, m.dfLrt, SW.fmtP(m.pLrt), m.ll0, m.ll]], "Model fit") + formula("h(t | x) = h0(t) times exp(b1 x1 + ... + bk xk). A hazard ratio of 1.5 means a 50 percent higher instantaneous risk of the event at every time, holding the other predictors fixed; below 1 means lower risk. No shape is assumed for the baseline hazard h0(t). Partial likelihood with Efron's correction for tied times (R's coxph default).") + say(m.names.map((nm, j) => `${esc(nm)}: HR ${fmt(m.hr[j], 3)} (${pct}% CI ${fmt(m.hrLower[j], 3)} to ${fmt(m.hrUpper[j], 3)}), ${m.p[j] <= +v.alpha ? "significant" : "not significant"} at alpha ${v.alpha}. ${nm.includes(" = ") ? (m.hr[j] > 1 ? `This group has a ${fmt(100 * (m.hr[j] - 1), 1)} percent higher hazard than the reference group.` : `This group has a ${fmt(100 * (1 - m.hr[j]), 1)} percent lower hazard than the reference group.`) : (m.hr[j] > 1 ? `Each one-unit increase raises the hazard by ${fmt(100 * (m.hr[j] - 1), 1)} percent.` : `Each one-unit increase lowers the hazard by ${fmt(100 * (1 - m.hr[j]), 1)} percent.`)}`).join(" ")) + warn("The model assumes proportional hazards: the curves should not cross. Check the Kaplan-Meier plot by group; crossing curves mean a hazard ratio is not a fair summary."));
+        cd.insertAdjacentHTML("beforeend", dmNotes(dm) + (pr.dropped.length ? warn(`Dropped ${esc(pr.dropped.join(", "))} and its rows: fewer than 3 usable rows in that category.`) : "") + (pr.emptyIx.length ? warn(`No rows have ${esc(pr.emptyIx.join(" or "))}, so ${pr.emptyIx.length > 1 ? "those interaction columns were" : "that interaction column was"} left out (R would print NA for it).`) : "") + table(["Predictor", "Coefficient (log hazard ratio)", "SE", "z", "p", "Hazard ratio", `${pct}% CI lower`, `${pct}% CI upper`], m.names.map((nm, j) => [nm, m.b[j], m.se[j], m.z[j], SW.fmtP(m.p[j]), m.hr[j], m.hrLower[j], m.hrUpper[j]]), `Cox proportional hazards model (${m.n} rows, ${m.events} events)`) + table(["Likelihood ratio chi-square", "df", "p", "Log-likelihood (null)", "Log-likelihood (model)"], [[m.lrt, m.dfLrt, SW.fmtP(m.pLrt), m.ll0, m.ll]], "Model fit") + formula("h(t | x) = h0(t) times exp(b1 x1 + ... + bk xk). A hazard ratio of 1.5 means a 50 percent higher instantaneous risk of the event at every time, holding the other predictors fixed; below 1 means lower risk. No shape is assumed for the baseline hazard h0(t). Partial likelihood with Efron's correction for tied times (R's coxph default).") + say(m.names.map((nm, j) => `${esc(nm)}: HR ${fmt(m.hr[j], 3)} (${pct}% CI ${fmt(m.hrLower[j], 3)} to ${fmt(m.hrUpper[j], 3)}), ${m.p[j] <= +v.alpha ? "significant" : "not significant"} at alpha ${v.alpha}. ${nm.includes(" = ") ? (m.hr[j] > 1 ? `This group has a ${fmt(100 * (m.hr[j] - 1), 1)} percent higher hazard than the reference group.` : `This group has a ${fmt(100 * (1 - m.hr[j]), 1)} percent lower hazard than the reference group.`) : (m.hr[j] > 1 ? `Each one-unit increase raises the hazard by ${fmt(100 * (m.hr[j] - 1), 1)} percent.` : `Each one-unit increase lowers the hazard by ${fmt(100 * (1 - m.hr[j]), 1)} percent.`)}`).join(" ")) + warn("The model assumes proportional hazards: the curves should not cross. Check the Kaplan-Meier plot by group; crossing curves mean a hazard ratio is not a fair summary."));
         plotDiv(cd, [{ x: m.hr, y: m.names, mode: "markers", type: "scatter", marker: { color: "#3A7CA5", size: 9 }, error_x: { type: "data", symmetric: false, array: m.hrUpper.map((u, j) => u - m.hr[j]), arrayminus: m.hr.map((h, j) => h - m.hrLower[j]), color: "#3A7CA5" }, name: "HR" }], { title: `Hazard ratios with ${pct}% confidence intervals`, xaxis: { title: "hazard ratio (log scale)", type: "log" }, yaxis: { automargin: true }, shapes: [{ type: "line", y0: 0, y1: 1, yref: "paper", x0: 1, x1: 1, line: { color: "#C0392B", dash: "dash" } }], margin: { l: 160 } }, 80 + 40 * m.names.length); }
     });
   }
@@ -2806,7 +2845,7 @@
     social: { label: "Social science and education", datasets: ["gss2018_beliefs_politics.csv", "gss2022_politics_wellbeing.csv", "big5_personality_1200.csv", "big5_items_500.csv", "sleepstudy.csv", "STATC1000_Class_Data.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Advanced", "Reliability (Cronbach's alpha)"], ["Advanced", "Exploratory Factor Analysis"], ["Advanced", "Mixed-Effects Model (nested or repeated data)"], ["Advanced", "Multiple Linear Regression"], ["Regression", "Sensitivity to a lurking variable"]], note: "Scale scores: Reliability for the alpha of an item set, Exploratory Factor Analysis for its structure." },
     bio: { label: "Biology and life sciences", datasets: ["Dataset1_Finch_Beaks.csv", "lung_cancer_survival.csv", "sleepstudy.csv", "cadet_mile_times.csv"], analyses: [["ANOVA", "One-Way ANOVA"], ["Nonparametric", "Kruskal-Wallis (three or more groups)"], ["Nonparametric", "Mann-Whitney U (two groups)"], ["Regression", "Linear Regression"], ["Advanced", "Mixed-Effects Model (nested or repeated data)"], ["Advanced", "Survival Analysis: Kaplan-Meier, log-rank, Cox"]], note: "Small samples and skewed measurements: the nonparametric tests sit next to their parametric versions." },
     engineering: { label: "Engineering and quality", datasets: ["mauna_loa_co2_monthly.csv", "cadet_mile_times.csv", "popp_calls_for_service.csv"], analyses: [["Exploration", "Descriptives"], ["Graph", "QQ Plot"], ["Advanced", "Variance tests (one SD or two SDs)"], ["Advanced", "Time Series"], ["Regression", "Linear Regression"], ["Advanced", "Power and Sample Size"]], note: "Process spread is a variance test; normality of a measurement is the QQ plot." },
-    safety: { label: "Public safety and criminal justice", datasets: ["popp_calls_for_service.csv", "popp_academy_fitness.csv", "popp_community_survey.csv", "gss2018_beliefs_politics.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Frequencies", "Two proportions: z test"], ["Advanced", "Count Regression: Poisson and Negative Binomial"], ["ANOVA", "One-Way ANOVA"], ["Advanced", "Time Series"], ["Advanced", "Cochran-Armitage trend test"]], note: "Counts of incidents per unit time or area are a count regression, not a linear one." },
+    safety: { label: "Public safety and criminal justice", datasets: ["popp_calls_for_service.csv", "ships.csv", "popp_academy_fitness.csv", "popp_community_survey.csv", "gss2018_beliefs_politics.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Frequencies", "Two proportions: z test"], ["Advanced", "Count Regression: Poisson and Negative Binomial"], ["ANOVA", "One-Way ANOVA"], ["Advanced", "Time Series"], ["Advanced", "Cochran-Armitage trend test"]], note: "Counts of incidents per unit time or area are a count regression, not a linear one." },
   };
   const MODE = { who: "student", field: "general" };
   try { const m = JSON.parse(localStorage.getItem("sww_mode") || "null"); if (m) { if (m.who === "researcher") MODE.who = "researcher"; if (FIELDS[m.field]) MODE.field = m.field; } } catch (e) { }
@@ -2949,6 +2988,7 @@
     { k: ["mixed model", "mixed-effects", "mixed effects", "multilevel", "hierarchical", "nested", "clustered", "random effects", "random intercept", "random slope", "students within classes", "within schools", "longitudinal", "repeated over time", "panel data", "lme4", "lmer"], t: "Nested or repeated data: mixed-effects model", a: "Rows that belong to clusters (students within classes, repeated measurements within people) are not independent. A mixed-effects model fits the predictors as fixed effects and lets each cluster have its own intercept (and optionally slope). Read the fixed effects with Satterthwaite df, the ICC, and the random-effect variances.", go: [["Advanced", "Mixed-Effects Model (nested or repeated data)"]], alt: [["ANOVA", "Repeated Measures and Mixed ANOVA"]], m: "mixed" },
     { k: ["logistic", "odds ratio", "predict yes", "predict whether", "binary outcome", "probability of", "pass or fail", "risk factors"], t: "Predict a yes or no: logistic regression", a: "A two-level outcome with numeric or categorical predictors; read the odds ratios with their intervals.", go: [["Advanced", "Logistic Regression"]], m: "predict-yn" },
     { k: ["count", "counts of events", "incidents", "poisson", "negative binomial", "events per", "rate"], t: "Predict a count of events: Poisson or negative binomial regression", a: "Counts of incidents, calls or infections: fit Poisson, read the dispersion check, switch to negative binomial if the variance is well above the mean.", go: [["Advanced", "Count Regression: Poisson and Negative Binomial"]], m: "predict-more" },
+    { k: ["interaction in regression", "interaction between", "interaction term in", "moderation analysis", "reference level", "reference category", "relevel", "change the reference", "set the reference", "baseline category", "offset", "exposure", "person-years", "person years", "rate per", "per 1000", "per 1,000", "months of service", "at risk", "squared term", "quadratic", "curved relationship", "curvilinear"], t: "Interactions, squared terms, reference levels and exposure offsets", a: "Every regression dialog (multiple linear, logistic, count) has a Model terms section: squared terms, interactions typed as a * b (numeric or categorical; keep both main effects, as R's a * b does), and the reference level for each categorical predictor (R's relevel). Count regression also takes an exposure column (time at risk, population, months of service): log(exposure) enters as an offset and the model is for the rate, as R's offset(log(exposure)). Checked against R on the ships data.", go: [["Advanced", "Multiple Linear Regression"], ["Advanced", "Logistic Regression"], ["Advanced", "Count Regression: Poisson and Negative Binomial"]], m: "predict-more" },
     { k: ["ordinal", "likert", "rating", "ordered", "1 to 5", "agree disagree", "satisfaction scale"], t: "An ordered rating as the outcome: ordinal logistic regression", a: "Ratings from low to high as the outcome: ordinal logistic regression. As a predictor or a comparison, treat a rating as a number for means or use the rank tests.", go: [["Advanced", "Ordinal Logistic Regression"]], m: "predict-more" },
     { k: ["multinomial", "several categories", "unordered categories", "which category", "choice between"], t: "Several unordered categories as the outcome: multinomial logistic regression", a: "One equation per level against a baseline; exp(b) is a relative risk ratio.", go: [["Advanced", "Multinomial Logistic Regression"]], m: "predict-more" },
     { k: ["trend", "over time", "time series", "monthly", "seasonal", "forecast", "years", "series"], t: "A series over time: Time Series", a: "Decomposition into trend, season and remainder, autocorrelation, a trend test with Durbin-Watson, and a Holt forecast with its band.", go: [["Advanced", "Time Series"]], m: "time" },

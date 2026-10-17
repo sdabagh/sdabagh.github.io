@@ -46,6 +46,23 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-18 (later): closing the gaps with R, 2 of 5: offsets, interactions, reference levels
+
+- **Model terms** on Multiple Linear Regression, Logistic Regression and Count Regression: squared terms; interactions typed
+  as `a * b` for any pair of columns (numeric by numeric gives one product column; numeric by categorical one slope
+  difference per level; categorical by categorical one column per pair of levels), any number of them, with a warning when
+  a main effect is missing, as R's `a * b` would include it; and **reference levels** for categorical predictors (R's
+  `relevel`), typed as `Year = Freshman`.
+- **Exposure offsets** in Count Regression: pick a time-at-risk or population column and log(exposure) enters the Poisson
+  and negative binomial models with a fixed coefficient of 1, so the model is for a rate (R's `offset(log(exposure))`).
+  Rows with a zero or blank exposure are left out and the card says how many.
+- Verified against R: on the `ships` data (MASS) the app reproduces `glm(incidents ~ type + year + period +
+  offset(log(service)), poisson)` to four decimals on every coefficient and standard error, with residual deviance 38.695 on
+  25 df and null deviance 146.328 on 33 df. Interactions were checked by identity: a numeric by categorical interaction
+  gives the same slopes as separate regressions in each group, and a saturated logistic model with a categorical by
+  categorical interaction reproduces the cell log odds. The ships data ship as a sample. Ask and both guides describe the
+  new options. Engine: `S.poisson` and `S.negbin` take `opts.offset`. Service worker cache `sww-v66`, scripts `?v=69`.
+
 ### 2026-10-18: one proportion z test on the menu
 
 - **Frequencies, One proportion: z test**: the z test for a single proportion now has its own menu item (it used to be a

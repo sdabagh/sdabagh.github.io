@@ -286,8 +286,8 @@ body.ed-pro .stu{display:none}
 
 <div class="method pro"><h3>A number from several variables: multiple linear regression</h3>
 <ol>
-<li>Data: a numeric outcome, numeric predictors, and categorical predictors (dummy coded by the app; the most frequent level is the reference).</li>
-<li><span class="path">Advanced › Multiple Linear Regression</span>. Tick <em>VIF (collinearity)</em>, <em>Influence diagnostics</em>, <em>Residual plot</em> and <em>Q-Q plot of residuals</em>. Add squared terms or an interaction only with a reason.</li>
+<li>Data: a numeric outcome, numeric predictors, and categorical predictors (dummy coded by the app; the most frequent level is the reference unless you name another under <em>Model terms</em>, R's relevel).</li>
+<li><span class="path">Advanced › Multiple Linear Regression</span>. Tick <em>VIF (collinearity)</em>, <em>Influence diagnostics</em>, <em>Residual plot</em> and <em>Q-Q plot of residuals</em>. Under <em>Model terms</em>, add squared terms, interactions typed as <code>a * b</code> (numeric or categorical, with both main effects, as R does) and reference levels only with a reason.</li>
 <li>Read each coefficient as "holding the others fixed", with its interval; adjusted R² for fit; VIF above 5 means two predictors say the same thing; Cook's distance flags cases that drive the fit.</li>
 <li>Compare nested models with the <em>nested F test</em> option when deciding whether a block of predictors earns its place. Backward elimination is shown as a teaching demo, not a recommendation.</li>
 </ol></div>
@@ -295,7 +295,7 @@ body.ed-pro .stu{display:none}
 <div class="method pro" id="predict-yn"><h3>A yes or no from predictors: logistic regression</h3>
 <ol>
 <li>Data: a two-level outcome column (say which level is modelled as 1), numeric and categorical predictors.</li>
-<li><span class="path">Advanced › Logistic Regression</span>.</li>
+<li><span class="path">Advanced › Logistic Regression</span>. <em>Model terms</em> (interactions, squared terms, reference levels) works as in multiple regression.</li>
 <li>Read the odds ratios (exp(b)) with intervals: an OR of 1.5 means the odds of the outcome multiply by 1.5 per unit of the predictor, others fixed. The model χ² against the intercept-only model tests the model as a whole; McFadden R² is a rough fit index; the classification table shows accuracy at the 0.5 cut.</li>
 </ol>
 <div class="say">Ten events per predictor is a working minimum. If a predictor separates the outcome perfectly, the coefficient runs away; the card warns, and a penalized method outside the app is the fix.</div></div>
@@ -314,10 +314,11 @@ body.ed-pro .stu{display:none}
 <div class="pro" id="predict-more">
 <div class="method"><h3>A count of events: Poisson and negative binomial regression</h3>
 <ol>
-<li>Data: a count outcome (calls per shift, infections per ward, citations per officer) and predictors. An exposure that varies (hours, population) belongs in the model as an offset; if the app's model has none, divide to a rate only for description and keep the counts for the test.</li>
-<li><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span>; run Poisson, then read the dispersion check. If the variance is well above the mean, switch <em>Model</em> to negative binomial.</li>
-<li>Read rate ratios exp(b): the multiplicative change in the expected count per unit of the predictor.</li>
-</ol></div>
+<li>Data: a count outcome (calls per shift, infections per ward, citations per officer) and predictors. An exposure that varies (hours, population, months of service) goes in the <em>Exposure</em> box: log(exposure) enters as an offset with a fixed coefficient of 1, so the model is for the rate, as R's <code>offset(log(exposure))</code>. Never divide the counts yourself before the test.</li>
+<li><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span>; run Poisson, then read the dispersion check. If the variance is well above the mean, switch <em>Model</em> to negative binomial. <em>Model terms</em> (interactions, squared terms, reference levels) works as in multiple regression.</li>
+<li>Read rate ratios exp(b): the multiplicative change in the expected count (or rate, with an exposure) per unit of the predictor.</li>
+</ol>
+<div class="say">Checked against R: on the <strong>ships</strong> sample (MASS), incidents by type, year and period with months of service as the exposure, the app reproduces glm's coefficients, standard errors and residual deviance (38.695 on 25 df) to four decimals.</div></div>
 <div class="method"><h3>An ordered rating: ordinal logistic regression</h3>
 <ol>
 <li>Data: an ordered outcome (poor, fair, good, excellent); type the levels from lowest to highest exactly as in the data.</li>

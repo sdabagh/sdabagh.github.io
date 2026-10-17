@@ -1,5 +1,14 @@
 # Real-world datasets added 2026-09-13
 
+## ships.csv (40 rows, added 2026-10-18)
+McCullagh and Nelder (1989), the ship damage data shipped with the R package MASS (Venables and Ripley, Modern Applied Statistics with S, 4th ed., section 7.3).
+Damage incidents to five types of cargo ship by year of construction (1960 to 1975 in five-year bands), period of operation and aggregate months of service.
+- type (A to E), year (60, 65, 70, 75), period (60, 75), service (months), incidents
+- Reference values (R): `glm(incidents ~ type + year + period + offset(log(service)), family = poisson, subset = service > 0)`:
+  intercept -6.40590 (SE 0.21744), typeB -0.54334 (0.17759), typeC -0.68740 (0.32904), typeD -0.07596 (0.29058), typeE 0.32558 (0.23588),
+  year65 0.69714 (0.14964), year70 0.81843 (0.16977), year75 0.45343 (0.23317), period75 0.38447 (0.11827); residual deviance 38.695 on 25 df, null deviance 146.328 on 33 df.
+  The app matches every value to four decimals (Advanced, Count Regression with service as the exposure; six rows with zero service are left out, as R's subset does).
+
 ## sleepstudy.csv (180 rows, added 2026-10-17)
 Belenky et al. (2003), the sleep-deprivation study shipped with the R package lme4 (Bates, Mächler, Bolker, Walker 2015).
 18 subjects restricted to 3 hours of sleep a night; average reaction time (ms) on a psychomotor vigilance task each day for 10 days.
