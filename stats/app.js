@@ -278,6 +278,10 @@
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
     div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">edit</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">copy text</button><button type="button" data-act="close" aria-label="Remove: ${t}">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
+    if (MODE.who === "researcher" && TARGET === "#out") { // same card, different order: tables, APA line, conclusion, then the method folded away
+      const kids = [...div.children], method = kids.filter((k) => k.matches(".formula, details.worked"));
+      if (method.length) { const det = document.createElement("details"); det.className = "method"; det.innerHTML = "<summary>Method: formula and worked numbers</summary>"; method.forEach((m) => det.appendChild(m)); const last = kids.filter((k) => k.matches(".say, .ok, .warn, .apa")).pop(); if (last) last.after(det); else div.appendChild(det); }
+    }
     div.querySelector('[data-act="close"]').onclick = () => removeCard(div);
     div.querySelector('[data-act="copy"]').onclick = (e) => copyCard(div, e.currentTarget);
     if (PENDING && PENDING.fn) { div._redo = { fn: PENDING.fn, values: Object.assign({}, PENDING.values), target: TARGET }; div.querySelector('[data-act="edit"]').onclick = () => editCard(div); }
@@ -2511,7 +2515,7 @@
   function openFile() { $("#fileInput").click(); }
   $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; f.text().then((t) => loadTable(f.name.replace(/\.[^.]+$/, ""), parseCSV(t))); e.target.value = ""; });
   function pasteData() { dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows); }, "Load"); }
-  function sampleData() { dialog("Sample datasets", [Object.assign(sel("f", "Dataset", SAMPLES), { hint: "A sample dataset is not remembered for your next visit until you change it (a new column, an edited cell). Then it is kept as your own. A filter alone does not count." })], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t), "sample")).catch(() => alert("Could not load the sample file.")), "Open"); }
+  function sampleData() { dialog("Sample datasets", [Object.assign(sel("f", "Dataset", fieldSamples()), { hint: "A sample dataset is not remembered for your next visit until you change it (a new column, an edited cell). Then it is kept as your own. A filter alone does not count." })], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t), "sample")).catch(() => alert("Could not load the sample file.")), "Open"); }
   function newBlank() { dialog("New data table", [{ name: "cols", label: "Column names, comma separated", type: "text", value: "x, y" }, { name: "n", label: "Rows", type: "number", value: 20 }], (v) => { const cols = v.cols.split(",").map((s) => s.trim()).filter(Boolean); loadTable("new", [cols].concat(Array.from({ length: v.n }, () => cols.map(() => "")))); }, "Create"); }
   function computeUI() {
     needData();
@@ -2687,7 +2691,7 @@
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Logistic Regression", logitUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")],
-      ["Notation: symbols or words", () => dialog("Notation", [sel("n", "Formulas and hypotheses are written with", [["sym", "symbols: x\u0304, \u03c3, \u03bc, \u03b1, \u03c7\u00b2, H\u2080 (default, matches the textbook)"], ["words", "words: x bar, sigma, mu, alpha, chi-square, H0 (reads aloud better)"]], NOTE)], (v) => { NOTE = v.n === "words" ? "words" : "sym"; try { localStorage.setItem("sww_note", NOTE); } catch (e) { } card("Notation", NOTE === "sym" ? "symbols" : "words", say(NOTE === "sym" ? "New results write formulas and hypotheses in symbols: x\u0304 for the sample mean, \u03c3 and \u03bc for the population SD and mean, \u03b1 for the significance level, \u03c7\u00b2 for chi-square, H\u2080 and H\u2090 for the hypotheses. Plain-English conclusions stay as they are." : "New results spell notation out in words (x bar, sigma, mu, alpha, chi-square, H0), the form a screen reader or Read Aloud handles best.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+      ["Notation: symbols or words", () => dialog("Notation", [sel("n", "Formulas and hypotheses are written with", [["sym", "symbols: x\u0304, \u03c3, \u03bc, \u03b1, \u03c7\u00b2, H\u2080 (default, matches the textbook)"], ["words", "words: x bar, sigma, mu, alpha, chi-square, H0 (reads aloud better)"]], NOTE)], (v) => { NOTE = v.n === "words" ? "words" : "sym"; try { localStorage.setItem("sww_note", NOTE); } catch (e) { } card("Notation", NOTE === "sym" ? "symbols" : "words", say(NOTE === "sym" ? "New results write formulas and hypotheses in symbols: x\u0304 for the sample mean, \u03c3 and \u03bc for the population SD and mean, \u03b1 for the significance level, \u03c7\u00b2 for chi-square, H\u2080 and H\u2090 for the hypotheses. Plain-English conclusions stay as they are." : "New results spell notation out in words (x bar, sigma, mu, alpha, chi-square, H0), the form a screen reader or Read Aloud handles best.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Who is using the app: student or researcher", modeUI], ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
@@ -2742,6 +2746,42 @@
   // models a first course never meets). Data and Results always show. One app, one profile per course, no fork.
   const MENU_NAMES = MENU.map((m) => m[0]);
   const NOTE_FNS = new Set([shareLink, whichTest, profileUI]); // dialogs whose card is a note, not an analysis: never saved or shared
+  // ================= who is using the app, and in what field =================
+  // Student (default): every card carries the formula, the worked numbers and a plain-English conclusion.
+  // Researcher: the same engine and the same cards, but the result and the conclusion come first and the formula and
+  // worked numbers fold away under "Method"; 3 decimals unless the user set their own. The field reorders the sample
+  // datasets and lists the analyses that field reaches for first; it never hides a menu.
+  const FIELDS = {
+    general: { label: "General", datasets: [], analyses: [["T-Tests", "Which test?"], ["Exploration", "Descriptives"], ["T-Tests", "Independent Samples T-Test"], ["ANOVA", "One-Way ANOVA"], ["Regression", "Linear Regression"], ["Frequencies", "Contingency Tables: Independent Samples"]] },
+    health: { label: "Health and nursing", datasets: ["lung_cancer_survival.csv", "Dataset4_Global_Health.csv", "yrbs2023_teens_1500.csv", "STATC1000_Sleep_Followup.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Advanced", "Logistic Regression"], ["Advanced", "Survival Analysis: Kaplan-Meier, log-rank, Cox"], ["T-Tests", "Paired Samples T-Test"], ["Advanced", "McNemar test (paired yes or no)"], ["Advanced", "Power and Sample Size"]], note: "Relative risk and the odds ratio with their intervals are on the Contingency Tables card (tick Odds ratio and relative risk)." },
+    business: { label: "Business and finance", datasets: ["mauna_loa_co2_monthly.csv", "popp_community_survey.csv", "gss2022_politics_wellbeing.csv"], analyses: [["Frequencies", "Two proportions: z test"], ["Advanced", "Multiple Linear Regression"], ["Advanced", "Time Series"], ["Regression", "Correlation Matrix"], ["Advanced", "Bootstrap confidence interval"], ["ANOVA", "One-Way ANOVA"]], note: "An A/B test is the two-proportions z test; the difference in conversion rates and its interval are on that card." },
+    social: { label: "Social science and education", datasets: ["gss2018_beliefs_politics.csv", "gss2022_politics_wellbeing.csv", "big5_personality_1200.csv", "big5_items_500.csv", "STATC1000_Class_Data.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Advanced", "Reliability (Cronbach's alpha)"], ["Advanced", "Exploratory Factor Analysis"], ["Advanced", "Ordinal Logistic Regression"], ["Advanced", "Multiple Linear Regression"], ["Regression", "Sensitivity to a lurking variable"]], note: "Scale scores: Reliability for the alpha of an item set, Exploratory Factor Analysis for its structure." },
+    bio: { label: "Biology and life sciences", datasets: ["Dataset1_Finch_Beaks.csv", "lung_cancer_survival.csv", "cadet_mile_times.csv"], analyses: [["ANOVA", "One-Way ANOVA"], ["Nonparametric", "Kruskal-Wallis (three or more groups)"], ["Nonparametric", "Mann-Whitney U (two groups)"], ["Regression", "Linear Regression"], ["ANOVA", "Repeated Measures and Mixed ANOVA"], ["Advanced", "Survival Analysis: Kaplan-Meier, log-rank, Cox"]], note: "Small samples and skewed measurements: the nonparametric tests sit next to their parametric versions." },
+    engineering: { label: "Engineering and quality", datasets: ["mauna_loa_co2_monthly.csv", "cadet_mile_times.csv", "popp_calls_for_service.csv"], analyses: [["Exploration", "Descriptives"], ["Graph", "QQ Plot"], ["Advanced", "Variance tests (one SD or two SDs)"], ["Advanced", "Time Series"], ["Regression", "Linear Regression"], ["Advanced", "Power and Sample Size"]], note: "Process spread is a variance test; normality of a measurement is the QQ plot." },
+    safety: { label: "Public safety and criminal justice", datasets: ["popp_calls_for_service.csv", "popp_academy_fitness.csv", "popp_community_survey.csv", "gss2018_beliefs_politics.csv"], analyses: [["Frequencies", "Contingency Tables: Independent Samples"], ["Frequencies", "Two proportions: z test"], ["Advanced", "Count Regression: Poisson and Negative Binomial"], ["ANOVA", "One-Way ANOVA"], ["Advanced", "Time Series"], ["Advanced", "Cochran-Armitage trend test"]], note: "Counts of incidents per unit time or area are a count regression, not a linear one." },
+  };
+  const MODE = { who: "student", field: "general" };
+  try { const m = JSON.parse(localStorage.getItem("sww_mode") || "null"); if (m) { if (m.who === "researcher") MODE.who = "researcher"; if (FIELDS[m.field]) MODE.field = m.field; } } catch (e) { }
+  const fieldSamples = () => { const fav = FIELDS[MODE.field].datasets, lab = FIELDS[MODE.field].label; return SAMPLES.map((s, i) => [s, fav.indexOf(s[0]), i]).sort((a, b) => (a[1] < 0 ? 99 : a[1]) - (b[1] < 0 ? 99 : b[1]) || a[2] - b[2]).map(([s, k]) => (k >= 0 ? [s[0], s[1] + " · " + lab] : s)); };
+  const modeLabel = () => (MODE.who === "researcher" ? "Researcher" : "Student") + (MODE.field === "general" ? "" : " · " + FIELDS[MODE.field].label);
+  function applyMode(who, field, store) {
+    MODE.who = who === "researcher" ? "researcher" : "student"; MODE.field = FIELDS[field] ? field : "general";
+    document.body.classList.toggle("who-researcher", MODE.who === "researcher");
+    let userDec = null; try { userDec = localStorage.getItem("sww_dec"); } catch (e) { }
+    if (!userDec && !PROF) DEC = MODE.who === "researcher" ? 3 : 4;
+    const mb = $("#modeBtn"); if (mb) mb.textContent = modeLabel();
+    const g = $("#grid"); if (g && g.querySelector(".empty")) { g.innerHTML = emptyState(); wireEmpty(g); }
+    if (store) { try { localStorage.setItem("sww_mode", JSON.stringify(MODE)); } catch (e) { } }
+  }
+  function modeUI() {
+    dialog("Who is using Stats Without Walls?", [
+      sel("who", "I am a", [["student", "student: formula, worked numbers and a plain-English conclusion on every card"], ["researcher", "researcher: result and conclusion first, formula and worked numbers folded under Method, 3 decimals"]], MODE.who),
+      sel("field", "My field", Object.keys(FIELDS).map((k) => [k, FIELDS[k].label]), MODE.field),
+      { name: "n", type: "note", label: "The field puts its sample datasets first and lists the analyses it reaches for most on the start screen. Every menu stays available in every mode. The choice is remembered on this device." }], (v) => {
+      applyMode(v.who, v.field, true);
+      card("Set up for " + modeLabel(), "", say(MODE.who === "researcher" ? "New cards lead with the result and the conclusion; the formula and worked numbers are one click away under Method." : "New cards carry the formula, the worked numbers and a plain-English conclusion.") + (MODE.field !== "general" && FIELDS[MODE.field].note ? say(FIELDS[MODE.field].note) : ""));
+    }, "Set");
+  }
   function cleanProfile(p) {
     if (!p || typeof p !== "object") return null;
     const o = { name: String(p.name == null ? "" : p.name).replace(/\s+/g, " ").trim().slice(0, 60), welch: p.welch !== false, qm: p.qm === "type7" ? "type7" : "halves" };
@@ -2762,7 +2802,7 @@
   }
   function clearProfile() {
     PROF = null; try { localStorage.removeItem("sww_profile"); } catch (e) { }
-    let d = 4; try { d = Number(localStorage.getItem("sww_dec")) || 4; } catch (e) { } DEC = d;
+    let d = 0; try { d = Number(localStorage.getItem("sww_dec")) || 0; } catch (e) { } DEC = d || (MODE.who === "researcher" ? 3 : 4);
     alphaField.value = "0.05"; confField.value = "0.95"; showMenus(); const pn = $("#profName"); if (pn) pn.textContent = "";
   }
   const profileWords = (p) => `${p.welch ? "Welch's" : "Student's pooled"} t for two samples; ${p.qm === "type7" ? "R (type 7)" : "textbook"} quartiles; ${p.dec} decimals; alpha ${p.alpha} and ${Math.round(Number(p.conf) * 100)} percent offered first; menus: ${p.menus ? "Data, " + p.menus.join(", ") + ", Results" : "all"}.`;
@@ -2842,6 +2882,8 @@
   function setWide(on) { const pt = $("#paneToggle"); document.body.classList.toggle("tablewide", on); if (pt) { pt.textContent = on ? "Show results" : "Widen table"; pt.setAttribute("aria-pressed", String(on)); } if (!on) setTimeout(() => window.dispatchEvent(new Event("resize")), 0); }
   if ($("#paneToggle")) $("#paneToggle").onclick = () => setWide(!document.body.classList.contains("tablewide"));
   if ($("#whichBtn")) $("#whichBtn").onclick = () => { const it = findItem("T-Tests", "Which test?"); if (it) runItem("T-Tests", it); };
+  if ($("#modeBtn")) $("#modeBtn").onclick = modeUI;
+  applyMode(MODE.who, MODE.field, false);
 
   // ================= pages =================
   // Data page: the table and its results. distrACTION page (#distraction): inputs card and live results, no table.
@@ -2908,13 +2950,23 @@
   const findItem = (menuName, label) => { const m = MENU.find((x) => x[0] === menuName); return m && m[1].find((it) => it && it[0] === label); };
   // first screen of the data page when nothing is loaded
   function emptyState() {
+    const F = FIELDS[MODE.field], typical = F.analyses.filter(([m, l]) => findItem(m, l));
     return `<div class="empty"><h2>No data yet</h2><p>Type or paste your data, or open a sample dataset from Data, Sample datasets.</p>
+      <div class="who"><span>Set up for</span><button type="button" data-who="student" class="${MODE.who === "student" ? "on" : ""}" aria-pressed="${MODE.who === "student"}">Student</button><button type="button" data-who="researcher" class="${MODE.who === "researcher" ? "on" : ""}" aria-pressed="${MODE.who === "researcher"}">Researcher</button><button type="button" data-field="1" title="Choose your field">${esc(F.label)} &#9662;</button></div>
       <div class="emptybtns"><button type="button" class="go" data-go="Sample datasets">Sample datasets</button><button type="button" data-go="Open CSV file">Open CSV file</button><button type="button" data-go="Paste data">Paste data</button><button type="button" data-go="New data table">New data table</button></div>
+      <p class="muted">${MODE.field === "general" ? "Analyses most people start with" : "Analyses " + esc(F.label).toLowerCase() + " reaches for first"} (each asks for data first):</p>
+      <div class="emptybtns typical">${typical.map(([m, l]) => `<button type="button" data-run="${escA(m)}|${escA(l)}">${esc(l)}</button>`).join("")}</div>${F.note ? `<p class="muted">${esc(F.note)}</p>` : ""}
+      <p class="muted">Not sure which method fits your question? <a href="methods.html${MODE.who === "researcher" ? "#pro" : ""}">Read the Methods Guide</a>: every method by research question, with the steps in this app.</p>
       <p class="muted">No data needed for these two. Each opens on its own page.</p>
       <div class="emptybtns"><a class="pagebtn" href="#distraction">distrACTION <span>probability calculators</span></a><a class="pagebtn" href="#learn">Learn <span>classroom demonstrations</span></a></div>
       <p class="muted">Means use t with degrees of freedom; decisions use the p-value. Your data stay on this computer, and the page works offline once loaded.</p></div>`;
   }
-  function wireEmpty(g) { g.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => { const it = findItem("Data", b.dataset.go); if (it) runItem("Data", it); })); }
+  function wireEmpty(g) {
+    g.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => { const it = findItem("Data", b.dataset.go); if (it) runItem("Data", it); }));
+    g.querySelectorAll("[data-who]").forEach((b) => (b.onclick = () => applyMode(b.dataset.who, MODE.field, true)));
+    g.querySelectorAll("[data-field]").forEach((b) => (b.onclick = modeUI));
+    g.querySelectorAll("[data-run]").forEach((b) => (b.onclick = () => { const [m, l] = b.dataset.run.split("|"); const it = findItem(m, l); if (it) runItem(m, it); }));
+  }
   // menu bar: dropdowns are placed on screen by hand so they never run off the right or bottom edge
   const nav = $("#menu");
   function closeMenus() { nav.querySelectorAll(".dd").forEach((d) => { d.classList.remove("open"); const t = d.querySelector(".top"); if (t) t.setAttribute("aria-expanded", "false"); }); }

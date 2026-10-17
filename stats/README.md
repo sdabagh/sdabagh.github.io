@@ -46,6 +46,26 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-17: student or researcher, and a field
+
+- **Who is using the app** (start screen, the button in the data bar, and Results): *Student* or *Researcher*, plus a
+  field: General, Health and nursing, Business and finance, Social science and education, Biology and life sciences,
+  Engineering and quality, Public safety and criminal justice. Remembered on the device (`sww_mode`).
+- **Researcher** keeps every card and every menu. The card is reordered at build time: tables, the APA line and the
+  conclusion first, the formula and worked numbers folded under *Method*; 3 decimals unless the user set decimals or a
+  course profile. Switching back to Student restores the full card for new results.
+- **Field**: the field's sample datasets come first in Data, Sample datasets (labelled with the field), and the start
+  screen lists the six analyses the field reaches for first, each a button that opens the dialog, with a one-line
+  pointer (for example, that relative risk and the odds ratio live on the Contingency Tables card).
+  Service worker cache `sww-v59`, scripts `?v=62`.
+- **Methods Guide** (`stats/methods.html`, linked from the app header, the start screen and the user guide): every
+  method by research question (describe, compare, relate, predict, change over time, scales, structure, time to event,
+  planning, causal questions), each with when to use it, the data layout, the exact menu path and options, what to read
+  on the card, how to report it, and the alternative when assumptions fail; a start-from-your-question table, a
+  by-study-design table, a reporting checklist and a glossary. Two editions on one page, Student and Professional,
+  switched at the top and remembered; the professional edition opens by default for the Researcher mode. Every menu
+  path is checked against the app's menu table. Service worker cache `sww-v60`, scripts `?v=63`.
+
 ### 2026-10-16 (evening): Fisher's exact test takes a direction
 
 - **One-sided Fisher's exact test.** Frequencies, Contingency Tables: Independent Samples has a new Fisher's Hₐ choice
