@@ -46,6 +46,17 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-18 (night): closing the gaps with R, 3 of 5: data wrangling
+
+- Five new Data items, each card ending with the tidyr or dplyr line that does the same in R: **Reshape: wide to long**
+  (pivot_longer, with ID columns kept), **Reshape: long to wide** (pivot_wider, duplicates reported or resolved by first,
+  mean or count), **Merge with another table (join)** (left, inner or full, keys with different names, a pasted table or a
+  sample; match counts reported; the class data join the Exam 1 file on Student_ID = StudentID), **Group by and summarize**
+  (n, mean, SD, median, min, max, sum, blanks by one or two grouping columns, optionally as the new table) and **Clean rows**
+  (NA codes to blanks, trimmed spaces, duplicates, blanks in chosen columns, empty rows, each counted). Ask routes the
+  vocabulary (gather, melt, spread, vlookup, aggregate, drop_na) and explains long against wide layouts; both guides
+  describe the items. Service worker cache `sww-v67`, scripts `?v=70`.
+
 ### 2026-10-18 (later): closing the gaps with R, 2 of 5: offsets, interactions, reference levels
 
 - **Model terms** on Multiple Linear Regression, Logistic Regression and Count Regression: squared terms; interactions typed
