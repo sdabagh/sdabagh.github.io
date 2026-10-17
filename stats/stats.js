@@ -505,28 +505,32 @@
     let cov; try { const H = hess(x); cov = inv(H.map((r) => r.map((v) => -v))); } catch (e) { cov = x.map(() => x.map(() => NaN)); }
     return { x, ll: fx, se: cov.map((r, i) => Math.sqrt(Math.max(r[i], 0))) };
   };
-  S.poisson = (X, y, names, conf = 0.95) => { // IRLS, log link
-    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length; let b = new Array(p).fill(0); b[0] = Math.log(Math.max(S.mean(y), 1e-6)); let cov;
-    for (let it = 0; it < 50; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * mu[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
-    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = y.reduce((s, yi, i) => s + yi * Math.log(mu[i]) - mu[i] - lgam(yi + 1), 0);
+  // opts.offset: a known term added to the linear predictor, usually log(exposure), so the model is for a rate (R: offset(log(exposure)))
+  S.poisson = (X, y, names, conf = 0.95, opts = {}) => { // IRLS, log link
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, off = opts.offset || new Array(n).fill(0); let b = new Array(p).fill(0); let cov;
+    const sumY = y.reduce((s, v) => s + v, 0), sumE = off.reduce((s, o) => s + Math.exp(o), 0); b[0] = Math.log(Math.max(sumY / sumE, 1e-6));
+    const linpred = (bb) => Xd.map((r, i) => r.reduce((s, v, k) => s + v * bb[k], 0) + off[i]);
+    for (let it = 0; it < 50; it++) { const eta = linpred(b), mu = eta.map(Math.exp), z = eta.map((e, i) => e - off[i] + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * mu[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+    const mu = linpred(b).map(Math.exp), ll = y.reduce((s, yi, i) => s + yi * Math.log(mu[i]) - mu[i] - lgam(yi + 1), 0);
     const dev = 2 * y.reduce((s, yi, i) => s + (yi > 0 ? yi * Math.log(yi / mu[i]) : 0) - (yi - mu[i]), 0), pearson = y.reduce((s, yi, i) => s + (yi - mu[i]) ** 2 / mu[i], 0), df = n - p;
-    const ybar = S.mean(y), ll0 = y.reduce((s, yi) => s + yi * Math.log(ybar) - ybar - lgam(yi + 1), 0);
+    const mu0 = off.map((o) => Math.exp(o) * sumY / sumE), ll0 = y.reduce((s, yi, i) => s + yi * Math.log(mu0[i]) - mu0[i] - lgam(yi + 1), 0); // intercept-only model with the same offset
     const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
-    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll, ll0, dev, pearson, df, dispersion: pearson / df, aic: -2 * ll + 2 * p, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), n, fitted: mu, conf };
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), ll, ll0, dev, pearson, df, dispersion: pearson / df, aic: -2 * ll + 2 * p, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), n, fitted: mu, conf, offset: !!opts.offset };
   };
-  S.negbin = (X, y, names, conf = 0.95) => { // NB2: alternate IRLS for beta given theta with ML for theta
-    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;
-    const pois = S.poisson(X, y, names, conf); let b = pois.b.slice(), theta = Math.max(0.1, 1 / Math.max(pois.dispersion - 1, 0.05) * 1), cov;
+  S.negbin = (X, y, names, conf = 0.95, opts = {}) => { // NB2: alternate IRLS for beta given theta with ML for theta
+    const n = y.length, Xd = X.map((r) => [1].concat(r)), p = Xd[0].length, off = opts.offset || new Array(n).fill(0);
+    const linpred = (bb) => Xd.map((r, i) => r.reduce((s, v, k) => s + v * bb[k], 0) + off[i]);
+    const pois = S.poisson(X, y, names, conf, opts); let b = pois.b.slice(), theta = Math.max(0.1, 1 / Math.max(pois.dispersion - 1, 0.05) * 1), cov;
     const llTheta = (th, mu) => y.reduce((s, yi, i) => s + lgam(yi + th) - lgam(th) - lgam(yi + 1) + th * Math.log(th / (th + mu[i])) + yi * Math.log(mu[i] / (th + mu[i])), 0);
     for (let outer = 0; outer < 30; outer++) {
-      for (let it = 0; it < 30; it++) { const eta = Xd.map((r) => r.reduce((s, v, k) => s + v * b[k], 0)), mu = eta.map(Math.exp), w = mu.map((m) => m / (1 + m / theta)), z = eta.map((e, i) => e + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * w[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
-      const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0)));
+      for (let it = 0; it < 30; it++) { const eta = linpred(b), mu = eta.map(Math.exp), w = mu.map((m) => m / (1 + m / theta)), z = eta.map((e, i) => e - off[i] + (y[i] - mu[i]) / mu[i]); const XtW = T(Xd).map((c) => c.map((v, i) => v * w[i])); cov = inv(mul(XtW, Xd)); const bn = mul(cov, mul(XtW, z.map((v) => [v]))).map((r) => r[0]); const done = Math.max(...bn.map((v, k) => Math.abs(v - b[k]))) < 1e-9; b = bn; if (done) break; }
+      const mu = linpred(b).map(Math.exp);
       const r = maximize((v) => llTheta(Math.exp(v[0]), mu), [Math.log(theta)], 40); const thn = Math.exp(r.x[0]); const done = Math.abs(thn - theta) < 1e-6 * theta; theta = thn; if (done) break;
     }
-    const mu = Xd.map((r) => Math.exp(r.reduce((s, v, k) => s + v * b[k], 0))), ll = llTheta(theta, mu);
+    const mu = linpred(b).map(Math.exp), ll = llTheta(theta, mu);
     const se = cov.map((r, i) => Math.sqrt(r[i])), z = b.map((v, i) => v / se[i]), zs = S.qnorm(1 - (1 - conf) / 2);
     const lrt = Math.max(0, 2 * (ll - pois.ll)); // never below 0: at theta near infinity NB is the Poisson model, and a tiny negative is the search stopping short
-    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf };
+    return { names: ["Intercept"].concat(names), b, se, z, p: z.map((v) => 2 * (1 - S.pnorm(Math.abs(v)))), irr: b.map(Math.exp), irrLower: b.map((v, i) => Math.exp(v - zs * se[i])), irrUpper: b.map((v, i) => Math.exp(v + zs * se[i])), theta, ll, aic: -2 * ll + 2 * (p + 1), lrtVsPoisson: lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), n, poissonAic: pois.aic, poissonDispersion: pois.dispersion, conf, fitted: mu, offset: !!opts.offset };
   };
   S.multinom = (X, yLab, names, conf = 0.95) => { // baseline = first level (sorted)
     const levels = [...new Set(yLab)].sort(), K = levels.length, y = yLab.map((v) => levels.indexOf(v)), Xd = X.map((r) => [1].concat(r)), p = Xd[0].length;
@@ -850,6 +854,92 @@
   };
   // Friedman: k related columns on n rows (each row one person or block), ranked within the row, with the tie correction;
   // Kendall's W; Holm-adjusted pairwise Wilcoxon signed-rank tests
+  // ---------- linear mixed model (lme4 style) ----------
+  // y = X b + Z Lambda(theta) u + e with u, e ~ N(0, sigma^2 I); one grouping factor, a random intercept and optional correlated
+  // random slopes. REML (default) or ML by the profiled deviance of Bates et al. (2015), Nelder-Mead over theta, the relative
+  // covariance factor. Satterthwaite df as in lmerTest: the asymptotic covariance of (theta, sigma) is twice the inverse Hessian
+  // of the deviance, the variance of each fixed effect is differentiated numerically. Checked against lme4 and lmerTest on the
+  // sleepstudy data (fixed effects, SEs, variances, correlation, REML criterion, ML deviance, df 22.81 / 161.0 and 17.0 / 17.0).
+  // X: rows WITH the intercept column; Zcols: per row the random-effect design [1, slope values...] or null for intercept only.
+S.lmm = (y, X, groups, Zcols, opts = {}) => {
+  const REML = opts.reml !== false, n = y.length, p = X[0].length, k = Zcols ? Zcols[0].length : 1;
+  const glev = [...new Set(groups)], gi = groups.map((g) => glev.indexOf(g)), g = glev.length, q = g * k;
+  const Zrow = (i) => (Zcols ? Zcols[i] : [1]); // k values per row: [1, slope var...]
+  const chol = (A) => { const m = A.length, L = A.map(() => new Array(m).fill(0)); for (let i = 0; i < m; i++) for (let j = 0; j <= i; j++) { let s = A[i][j]; for (let t = 0; t < j; t++) s -= L[i][t] * L[j][t]; if (i === j) { if (s <= 1e-12) throw new Error("not positive definite"); L[i][i] = Math.sqrt(s); } else L[i][j] = s / L[j][j]; } return L; };
+  const fwd = (L, b) => { const m = L.length, x = new Array(m).fill(0); for (let i = 0; i < m; i++) { let s = b[i]; for (let t = 0; t < i; t++) s -= L[i][t] * x[t]; x[i] = s / L[i][i]; } return x; };
+  const bwdT = (L, b) => { const m = L.length, x = new Array(m).fill(0); for (let i = m - 1; i >= 0; i--) { let s = b[i]; for (let t = i + 1; t < m; t++) s -= L[t][i] * x[t]; x[i] = s / L[i][i]; } return x; };
+  const logdet2 = (L) => 2 * L.reduce((s, r, i) => s + Math.log(r[i]), 0);
+  const Tof = (th) => { const T = Array.from({ length: k }, () => new Array(k).fill(0)); let c = 0; for (let j = 0; j < k; j++) for (let i = j; i < k; i++) T[i][j] = th[c++]; return T; };
+  const nth = (k * (k + 1)) / 2;
+  // precompute Z'Z blocks, Z'X, Z'y per group (dense within group; blocks across groups are zero)
+  const ZtZ = Array.from({ length: g }, () => Array.from({ length: k }, () => new Array(k).fill(0))), ZtX = Array.from({ length: g }, () => Array.from({ length: k }, () => new Array(p).fill(0))), Zty = Array.from({ length: g }, () => new Array(k).fill(0));
+  const XtX = Array.from({ length: p }, () => new Array(p).fill(0)), Xty = new Array(p).fill(0);
+  for (let i = 0; i < n; i++) { const z = Zrow(i), gg = gi[i], x = X[i]; for (let a = 0; a < k; a++) { for (let b = 0; b < k; b++) ZtZ[gg][a][b] += z[a] * z[b]; for (let b = 0; b < p; b++) ZtX[gg][a][b] += z[a] * x[b]; Zty[gg][a] += z[a] * y[i]; } for (let a = 0; a < p; a++) { for (let b = 0; b < p; b++) XtX[a][b] += x[a] * x[b]; Xty[a] += x[a] * y[i]; } }
+  const yty = y.reduce((s, v) => s + v * v, 0);
+  // the penalized least squares solve for a given theta; returns everything the deviance and the fit need
+  function pls(th) {
+    const T = Tof(th); // Lambda block
+    // per group: A_g = T' ZtZ_g T + I (k x k), L_g = chol(A_g); cu_g = L_g^-1 T' Zty_g; RZX_g = L_g^-1 T' ZtX_g
+    let ld = 0; const Lg = [], cu = [], RZX = [];
+    const Tt = T[0].map((_, j) => T.map((r) => r[j]));
+    const mm = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, t) => s + v * B[t][j], 0)));
+    for (let gg = 0; gg < g; gg++) {
+      const A = mm(mm(Tt, ZtZ[gg]), T); for (let a = 0; a < k; a++) A[a][a] += 1;
+      const L = chol(A); ld += logdet2(L); Lg.push(L);
+      const tz = Tt.map((r) => r.reduce((s, v, t) => s + v * Zty[gg][t], 0)); cu.push(fwd(L, tz));
+      const tx = mm(Tt, ZtX[gg]); const cols = []; for (let b = 0; b < p; b++) cols.push(fwd(L, tx.map((r) => r[b]))); RZX.push(cols); // RZX[gg][b] is a k-vector (column b)
+    }
+    // R_X' R_X = X'X - sum RZX_g' RZX_g ; rhs = X'y - sum RZX_g' cu_g
+    const M = XtX.map((r) => r.slice()), rhs = Xty.slice();
+    for (let gg = 0; gg < g; gg++) for (let a = 0; a < p; a++) { for (let b = 0; b < p; b++) M[a][b] -= RZX[gg][a].reduce((s, v, t) => s + v * RZX[gg][b][t], 0); rhs[a] -= RZX[gg][a].reduce((s, v, t) => s + v * cu[gg][t], 0); }
+    const RX = chol(M), beta = bwdT(RX, fwd(RX, rhs)), ldRX = logdet2(RX);
+    // u_g = L_g'^-1 (cu_g - RZX_g beta)
+    const u = []; for (let gg = 0; gg < g; gg++) { const v = cu[gg].map((c, t) => c - RZX[gg].reduce((s, col, b) => s + col[t] * beta[b], 0)); u.push(bwdT(Lg[gg], v)); }
+    // penalized RSS: ||y - Xb - Z T u||^2 + ||u||^2
+    let rss = 0; const fitted = new Array(n); for (let i = 0; i < n; i++) { const z = Zrow(i), gg = gi[i]; const bg = T.map((r) => r.reduce((s, v, t) => s + v * u[gg][t], 0)); let f = 0; for (let b = 0; b < p; b++) f += X[i][b] * beta[b]; for (let a = 0; a < k; a++) f += z[a] * bg[a]; fitted[i] = f; rss += (y[i] - f) ** 2; }
+    let uu = 0; u.forEach((v) => v.forEach((x) => (uu += x * x)));
+    const r2 = rss + uu;
+    const MinvFn = () => { const I = M.map((r, i) => r.map((_, j) => (i === j ? 1 : 0))); return I[0].map((_, j) => bwdT(RX, fwd(RX, I.map((r) => r[j])))).map((c) => c); }; // columns of (RX'RX)^-1
+    return { T, ld, ldRX, beta, u, fitted, r2, rss, M, RX, Minv: () => { const cols = MinvFn(); return cols[0].map((_, i) => cols.map((c) => c[i])); } };
+  }
+  const dev = (th, sig2) => { const f = pls(th); if (sig2 == null) return REML ? f.ld + f.ldRX + (n - p) * (1 + Math.log((2 * Math.PI * f.r2) / (n - p))) : f.ld + n * (1 + Math.log((2 * Math.PI * f.r2) / n)); return REML ? f.ld + f.ldRX + (n - p) * Math.log(2 * Math.PI * sig2) + f.r2 / sig2 : f.ld + n * Math.log(2 * Math.PI * sig2) + f.r2 / sig2; };
+  const diagIdx = []; { let c = 0; for (let j = 0; j < k; j++) for (let i = j; i < k; i++) { if (i === j) diagIdx.push(c); c++; } }
+  const obj = (th) => { for (const d of diagIdx) if (th[d] < 0) return 1e12 + th[d] * th[d] * 1e6; try { return dev(th); } catch (e) { return 1e12; } };
+  // Nelder-Mead
+  function nm(f, x0, step = 0.5, iters = 4000, tol = 1e-10) {
+    const d = x0.length; let simplex = [x0.slice()]; for (let i = 0; i < d; i++) { const x = x0.slice(); x[i] += step; simplex.push(x); }
+    let fx = simplex.map(f);
+    for (let it = 0; it < iters; it++) {
+      const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); simplex = ord.map((i) => simplex[i]); fx = ord.map((i) => fx[i]);
+      if (Math.abs(fx[d] - fx[0]) < tol && it > 50) break;
+      const cen = new Array(d).fill(0); for (let i = 0; i < d; i++) for (let j = 0; j < d; j++) cen[j] += simplex[i][j] / d;
+      const xr = cen.map((c, j) => c + (c - simplex[d][j])), fr = f(xr);
+      if (fr < fx[0]) { const xe = cen.map((c, j) => c + 2 * (c - simplex[d][j])), fe = f(xe); if (fe < fr) { simplex[d] = xe; fx[d] = fe; } else { simplex[d] = xr; fx[d] = fr; } }
+      else if (fr < fx[d - 1]) { simplex[d] = xr; fx[d] = fr; }
+      else { const xc = cen.map((c, j) => c + 0.5 * (simplex[d][j] - c)), fc = f(xc); if (fc < fx[d]) { simplex[d] = xc; fx[d] = fc; } else { for (let i = 1; i <= d; i++) { simplex[i] = simplex[i].map((v, j) => simplex[0][j] + 0.5 * (v - simplex[0][j])); fx[i] = f(simplex[i]); } } }
+    }
+    const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); return { x: simplex[ord[0]], f: fx[ord[0]] };
+  }
+  let th0 = new Array(nth).fill(0); diagIdx.forEach((d) => (th0[d] = 1));
+  let best = nm(obj, th0); best = nm(obj, best.x, 0.1); // restart to polish
+  const th = best.x, fit = pls(th), dfres = REML ? n - p : n, sig2 = fit.r2 / dfres, sigma = Math.sqrt(sig2);
+  const T = fit.T, Sigma = T.map((r) => T.map((r2) => sig2 * r.reduce((s, v, t) => s + v * r2[t], 0))); // k x k covariance of random effects
+  const Minv = fit.Minv(), vcov = Minv.map((r) => r.map((v) => v * sig2)), se = vcov.map((r, i) => Math.sqrt(r[i])), t = fit.beta.map((b, i) => b / se[i]);
+  // Satterthwaite: varpar = (theta..., sigma); A = 2 * H^-1 of the deviance in varpar; grad of var(beta_j) numerically
+  const vp = th.concat([sigma]);
+  const devvp = (v) => dev(v.slice(0, nth), v[nth] * v[nth]);
+  const varb = (v) => { const f = pls(v.slice(0, nth)); const Mi = f.Minv(); return Mi.map((r, i) => r[i] * v[nth] * v[nth]); };
+  const m = vp.length, H = Array.from({ length: m }, () => new Array(m).fill(0)), h = vp.map((v) => 1e-4 * Math.max(1, Math.abs(v)));
+  const f0 = devvp(vp);
+  for (let i = 0; i < m; i++) for (let j = i; j < m; j++) { const e = (si, sj) => { const v = vp.slice(); v[i] += si * h[i]; v[j] += sj * h[j]; return devvp(v); }; H[i][j] = H[j][i] = i === j ? (e(1, 0) - 2 * f0 + e(-1, 0)) / (h[i] * h[i]) : (e(1, 1) - e(1, -1) - e(-1, 1) + e(-1, -1)) / (4 * h[i] * h[j]); }
+  const inv = (M) => { const nn = M.length, A = M.map((r, i) => r.concat(Array.from({ length: nn }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < nn; c++) { let piv = c; for (let r = c + 1; r < nn; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r; [A[c], A[piv]] = [A[piv], A[c]]; const d = A[c][c]; if (Math.abs(d) < 1e-14) throw new Error("singular"); for (let j = 0; j < 2 * nn; j++) A[c][j] /= d; for (let r = 0; r < nn; r++) if (r !== c) { const fct = A[r][c]; for (let j = 0; j < 2 * nn; j++) A[r][j] -= fct * A[c][j]; } } return A.map((r) => r.slice(nn)); };
+  let A = null; try { A = inv(H).map((r) => r.map((v) => 2 * v)); } catch (e) { }
+  const dfSat = fit.beta.map((_, j) => { if (!A) return NaN; const grad = vp.map((_, i) => { const vp1 = vp.slice(), vp2 = vp.slice(); vp1[i] += h[i]; vp2[i] -= h[i]; return (varb(vp1)[j] - varb(vp2)[j]) / (2 * h[i]); }); let vv = 0; for (let a = 0; a < m; a++) for (let b = 0; b < m; b++) vv += grad[a] * A[a][b] * grad[b]; const v = vcov[j][j]; return vv > 0 ? (2 * v * v) / vv : Infinity; });
+  const ranef = fit.u.map((ug) => T.map((r) => r.reduce((s, v, tt) => s + v * ug[tt], 0)));
+  const resid = y.map((v, i) => v - fit.fitted[i]);
+  const crit = best.f, npar = p + nth + 1, aic = crit + 2 * npar, bic = crit + npar * Math.log(n);
+  return { reml: REML, beta: fit.beta, se, t, dfSat, vcov, sigma, sig2, Sigma, sd: Sigma.map((r, i) => Math.sqrt(r[i])), corr: Sigma.map((r, i) => r.map((v, j) => v / Math.sqrt(Sigma[i][i] * Sigma[j][j]))), theta: th, criterion: crit, aic, bic, n, p, g, k, groups: glev, ranef, fitted: fit.fitted, resid, npar };
+  };
   S.friedman = (Y) => {
     const n = Y.length, k = Y[0].length, R = new Array(k).fill(0); let ties = 0;
     Y.forEach((row) => { S.ranks(row).forEach((v, j) => (R[j] += v)); const c = {}; row.forEach((v) => (c[v] = (c[v] || 0) + 1)); ties += Object.values(c).reduce((s, t) => s + t ** 3 - t, 0); });
