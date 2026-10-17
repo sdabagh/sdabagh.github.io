@@ -46,6 +46,16 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-19 (later): closing the gaps with R, 5 of 5: the script view
+
+- **Results, Script: every step, with the R code**: every analysis and graph on the page, oldest first, with the choices made
+  in each dialog (labels, not field names), and for each the R call that does the same, from `t.test`, `aov`, `lm`, `glm`,
+  `MASS::glm.nb`, `lmerTest::lmer`, `chisq.test`, `prop.test`, `binom.test`, `wilcox.test`, `psych::fa`, `survival::coxph`
+  to `ggplot2` with `facet_wrap`, `pivot_longer`, `left_join` and `group_by`; packages are named in full. Downloads: the steps
+  as text and a ready-to-run `.R` file that begins by reading the data. Each card now remembers its dialog's title and field
+  labels for this. Ask routes "r code", "script", "what did I do", "methods section". Service worker cache `sww-v69`,
+  scripts `?v=72`.
+
 ### 2026-10-19: closing the gaps with R, 4 of 5: graphics control
 
 - The **Appearance** section of every graph dialog (bar, histogram, dotplot, boxplot, scatter) now gives what ggplot2's labs,
