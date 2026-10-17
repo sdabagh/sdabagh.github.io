@@ -72,6 +72,7 @@ body.ed-pro .stu{display:none}
 <a href="#predict">D. Predict an outcome</a>
 <a href="#predict-num" class="sub">a number</a>
 <a href="#predict-yn" class="sub">yes or no</a>
+<a href="#mixed" class="sub pro">nested or repeated data</a>
 <a href="#predict-more" class="sub pro">counts, ordered or several categories</a>
 <a href="#time">E. Change over time</a>
 <a href="#scales" class="pro">F. Scales and reliability</a>
@@ -117,6 +118,7 @@ body.ed-pro .stu{display:none}
 <tr><td>Are two categorical variables related?</td><td>two categories</td><td>Chi-square test of independence</td><td><span class="path">Frequencies › Contingency Tables: Independent Samples</span></td><td>Fisher's exact (2 by 2); combine categories</td></tr>
 <tr><td>Can I predict a number from one other number?</td><td>number from a number</td><td>Simple linear regression</td><td><span class="path">Regression › Linear Regression</span></td><td>residual plots on the card; transform</td></tr>
 <tr class="pro"><td>Can I predict a number from several variables?</td><td>number</td><td>Multiple linear regression</td><td><span class="path">Advanced › Multiple Linear Regression</span></td><td>VIF, influence and residual checks on the card</td></tr>
+<tr class="pro"><td>My rows are nested in clusters (students in classes, repeated measures of the same people) and I have predictors</td><td>number, predictors, a grouping factor</td><td>Mixed-effects model (random intercept, optional random slope)</td><td><span class="path">Advanced › Mixed-Effects Model (nested or repeated data)</span></td><td>repeated-measures ANOVA for balanced designs without covariates</td></tr>
 <tr class="pro"><td>Can I predict a yes or no?</td><td>yes or no</td><td>Logistic regression (odds ratios)</td><td><span class="path">Advanced › Logistic Regression</span></td><td>exact or penalized methods for separation (not in the app)</td></tr>
 <tr class="pro"><td>Can I predict a count of events?</td><td>count</td><td>Poisson or negative binomial regression</td><td><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span></td><td>negative binomial when overdispersed</td></tr>
 <tr class="pro"><td>Can I predict an ordered rating?</td><td>ordered category</td><td>Ordinal logistic regression</td><td><span class="path">Advanced › Ordinal Logistic Regression</span></td><td>multinomial if proportional odds fails</td></tr>
@@ -298,6 +300,17 @@ body.ed-pro .stu{display:none}
 </ol>
 <div class="say">Ten events per predictor is a working minimum. If a predictor separates the outcome perfectly, the coefficient runs away; the card warns, and a penalized method outside the app is the fix.</div></div>
 
+<div class="method pro" id="mixed"><h3>Rows nested in clusters: mixed-effects model</h3>
+<p><strong>Use it</strong> when observations are not independent: students within classes, patients within clinics, repeated measurements of the same people over days. An ordinary regression treats every row as independent and overstates its precision; a mixed model gives each cluster its own intercept (and optionally its own slope) and tests the predictors against the right amount of information.</p>
+<ol>
+<li>Data in long form: one row per observation, a numeric outcome, the predictors, and a column naming the cluster (subject, class, school). At least 3 clusters; 10 or more for a trustworthy between-cluster variance.</li>
+<li><span class="path">Advanced › Mixed-Effects Model (nested or repeated data)</span>: outcome, fixed-effect predictors, the grouping factor; add a random slope only for a predictor measured within clusters (day within subject) when its effect plausibly varies by cluster. Keep REML; switch to ML only to compare models that differ in fixed effects.</li>
+<li>Read the fixed effects with their Satterthwaite df and p, then the random effects table (between-cluster variance, residual variance, the intercept-slope correlation), the ICC (the share of variation that lies between clusters), marginal and conditional R², and the likelihood-ratio test that says whether the clusters matter.</li>
+<li>Look at the caterpillar plot: clusters far from zero are the ones that differ from the overall intercept.</li>
+</ol>
+<div class="say">The app's fit is lme4's (REML, profiled deviance) with lmerTest's Satterthwaite degrees of freedom; on the sleepstudy data it reproduces R's output to four decimals. Report as: b = 10.47, SE = 0.80, t(161.0) = 13.02, p &lt; .001; ICC = .40.</div>
+<p class="pro"><strong>Report:</strong> the fixed effect with its df and interval, the variance components, the ICC, both R² values, the number of clusters and observations, and the estimation method.</p>
+</div>
 <div class="pro" id="predict-more">
 <div class="method"><h3>A count of events: Poisson and negative binomial regression</h3>
 <ol>
@@ -406,7 +419,8 @@ body.ed-pro .stu{display:none}
 <tbody>
 <tr><td><strong>Cross-sectional survey</strong> (one time, one sample)</td><td>How common is X; is X associated with Y?</td><td>Descriptives and frequency tables with Wilson intervals (Binomial test) → Contingency Tables for category by category → Correlation Matrix for number by number → Multiple or Logistic Regression to adjust for covariates → Reliability for any scale you built.</td></tr>
 <tr><td><strong>Randomized experiment</strong> (two or more arms)</td><td>Does the treatment change the outcome?</td><td>Descriptives by arm as a balance check → Independent Samples T-Test or One-Way ANOVA with Tukey (numbers), Two proportions or Contingency Tables (yes or no) → ANCOVA with the baseline as covariate when there is a pre-test → Power and Sample Size before you start.</td></tr>
-<tr><td><strong>Pre-post, one group</strong></td><td>Did it change?</td><td>Paired Samples T-Test (or Wilcoxon; McNemar for yes or no) → Repeated Measures ANOVA for three or more time points. Without a control group, say "changed", not "caused".</td></tr>
+<tr><td><strong>Pre-post, one group</strong></td><td>Did it change?</td><td>Paired Samples T-Test (or Wilcoxon; McNemar for yes or no) → Repeated Measures ANOVA for three or more time points, or the Mixed-Effects Model when time points are uneven or covariates matter. Without a control group, say "changed", not "caused".</td></tr>
+<tr><td><strong>Clustered or longitudinal</strong> (students in classes; people measured many times)</td><td>What predicts the outcome, allowing for the clusters?</td><td>Descriptives by cluster → Mixed-Effects Model with the cluster as the grouping factor (random slope for a within-cluster predictor such as time) → ICC and the likelihood-ratio test to show the clustering matters → Sensitivity to a lurking variable for any causal reading.</td></tr>
 <tr><td><strong>Cohort</strong> (follow groups forward)</td><td>Does exposure raise the risk?</td><td>Contingency Tables with Odds ratio and relative risk (relative risk is valid here) → Logistic or Count Regression to adjust → Survival Analysis when time to event matters → Sensitivity to a lurking variable.</td></tr>
 <tr><td><strong>Case-control</strong> (sample by outcome, look back)</td><td>Were cases more exposed?</td><td>Contingency Tables with the odds ratio only (relative risk is not estimable) → Logistic Regression to adjust → Sensitivity to a lurking variable.</td></tr>
 <tr><td><strong>Quality and process</strong></td><td>Is the process on target and stable?</td><td>Descriptives and QQ Plot → Variance tests for spread against a specification → One Sample T-Test against the target → Time Series for drift and autocorrelation → Power and Sample Size for sampling plans.</td></tr>

@@ -46,6 +46,22 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-17 (night): mixed-effects models
+
+- **Advanced, Mixed-Effects Model (nested or repeated data)**: lme4's linear mixed model in the browser. A numeric outcome,
+  fixed-effect predictors (numeric and categorical), one grouping factor, an optional correlated random slope. REML (default)
+  or ML by the profiled deviance of Bates et al. (2015), Nelder-Mead over the relative covariance factor. Fixed effects with
+  Satterthwaite df and p (lmerTest's method: twice the inverse Hessian of the deviance in theta and sigma, the variance of each
+  coefficient differentiated numerically). Random-effect variances, SDs and correlation; ICC from the empty model; marginal and
+  conditional R² (Nakagawa); AIC, BIC; a boundary-corrected likelihood-ratio test against the model without random effects;
+  cluster effects (BLUPs) with a caterpillar plot; residual plot; formula, worked numbers, APA line, conclusion.
+- Verified against R: on `sleepstudy` the app matches lme4 and lmerTest to four decimals on both the random-intercept and the
+  random-slope model under REML and ML (estimates, SEs, df 22.81 / 161.0 and 17.0 / 17.0, variances, correlation, REML
+  criterion 1786.47 and 1743.63, ML deviance 1794.08 and 1751.94). The dataset ships as a sample.
+- Ask knows the vocabulary (nested, clustered, multilevel, hierarchical, longitudinal, random effects); the Methods Guide has a
+  section and a design row for clustered and longitudinal studies; the social-science and biology fields list the model.
+  Engine: `S.lmm`. Service worker cache `sww-v63`, scripts `?v=66`.
+
 ### 2026-10-17 (later): Ask, a helper in plain words
 
 - **Ask** (data bar) opens a small panel. A question in plain words ("compare two groups", "before and after", "is there

@@ -1,5 +1,14 @@
 # Real-world datasets added 2026-09-13
 
+## sleepstudy.csv (180 rows, added 2026-10-17)
+Belenky et al. (2003), the sleep-deprivation study shipped with the R package lme4 (Bates, Mächler, Bolker, Walker 2015).
+18 subjects restricted to 3 hours of sleep a night; average reaction time (ms) on a psychomotor vigilance task each day for 10 days.
+- subject (S308 to S372), day (0 to 9), reaction_ms
+The running example of Advanced, Mixed-Effects Model. lme4 and lmerTest give, for reaction_ms ~ day + (1 | subject), REML:
+intercept 251.405 (SE 9.747, df 22.81), day 10.467 (SE 0.804, t 13.02, df 161.0), subject variance 1378.2, residual 960.5,
+REML criterion 1786.5; with a random slope (day | subject): SEs 6.825 and 1.546, df 17.0, variances 612.10 and 35.07,
+correlation 0.066, residual 654.94, REML 1743.6. The app reproduces every one of these.
+
 All public, all cleaned to plain text labels, blank = missing. Sources are cited so students can trace them.
 
 ## yrbs2023_teens_1500.csv (and _full.csv, 13,478 rows)
