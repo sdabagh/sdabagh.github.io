@@ -2763,7 +2763,7 @@
   const MODE = { who: "student", field: "general" };
   try { const m = JSON.parse(localStorage.getItem("sww_mode") || "null"); if (m) { if (m.who === "researcher") MODE.who = "researcher"; if (FIELDS[m.field]) MODE.field = m.field; } } catch (e) { }
   const fieldSamples = () => { const fav = FIELDS[MODE.field].datasets, lab = FIELDS[MODE.field].label; return SAMPLES.map((s, i) => [s, fav.indexOf(s[0]), i]).sort((a, b) => (a[1] < 0 ? 99 : a[1]) - (b[1] < 0 ? 99 : b[1]) || a[2] - b[2]).map(([s, k]) => (k >= 0 ? [s[0], s[1] + " · " + lab] : s)); };
-  const modeLabel = () => (MODE.who === "researcher" ? "Researcher" : "Student") + (MODE.field === "general" ? "" : " · " + FIELDS[MODE.field].label);
+  const modeLabel = () => (MODE.who === "researcher" ? "Researcher" : "Student") + (MODE.field === "general" ? "" : " in " + FIELDS[MODE.field].label);
   function applyMode(who, field, store) {
     MODE.who = who === "researcher" ? "researcher" : "student"; MODE.field = FIELDS[field] ? field : "general";
     document.body.classList.toggle("who-researcher", MODE.who === "researcher");
@@ -2952,7 +2952,7 @@
   function emptyState() {
     const F = FIELDS[MODE.field], typical = F.analyses.filter(([m, l]) => findItem(m, l));
     return `<div class="empty"><h2>No data yet</h2><p>Type or paste your data, or open a sample dataset from Data, Sample datasets.</p>
-      <div class="who"><span>Set up for</span><button type="button" data-who="student" class="${MODE.who === "student" ? "on" : ""}" aria-pressed="${MODE.who === "student"}">Student</button><button type="button" data-who="researcher" class="${MODE.who === "researcher" ? "on" : ""}" aria-pressed="${MODE.who === "researcher"}">Researcher</button><button type="button" data-field="1" title="Choose your field">${esc(F.label)} &#9662;</button></div>
+      <div class="who"><span>Set up for</span><button type="button" data-who="student" class="${MODE.who === "student" ? "on" : ""}" aria-pressed="${MODE.who === "student"}">Student</button><button type="button" data-who="researcher" class="${MODE.who === "researcher" ? "on" : ""}" aria-pressed="${MODE.who === "researcher"}">Researcher</button><span>in</span><button type="button" data-field="1" title="Choose your field: it puts that field's sample datasets first and lists its usual analyses below">Field: ${esc(F.label)} &#9662;</button></div>
       <div class="emptybtns"><button type="button" class="go" data-go="Sample datasets">Sample datasets</button><button type="button" data-go="Open CSV file">Open CSV file</button><button type="button" data-go="Paste data">Paste data</button><button type="button" data-go="New data table">New data table</button></div>
       <p class="muted">${MODE.field === "general" ? "Analyses most people start with" : "Analyses " + esc(F.label).toLowerCase() + " reaches for first"} (each asks for data first):</p>
       <div class="emptybtns typical">${typical.map(([m, l]) => `<button type="button" data-run="${escA(m)}|${escA(l)}">${esc(l)}</button>`).join("")}</div>${F.note ? `<p class="muted">${esc(F.note)}</p>` : ""}
