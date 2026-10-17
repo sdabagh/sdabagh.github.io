@@ -144,9 +144,11 @@
   }
   // active rows: those passing the filter
   function activeIdx() {
-    if (!D.filter.trim()) return D.rows.map((_, i) => i);
-    let f; try { f = SW.compileFormula(D.filter, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); } catch (e) { throw new Error("Filter could not be read: " + e.message); }
-    const out = []; D.rows.forEach((r, i) => { try { if (f(r)) out.push(i); } catch (e) { } }); return out;
+    let idx;
+    if (!D.filter.trim()) idx = D.rows.map((_, i) => i);
+    else { let f; try { f = SW.compileFormula(D.filter, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); } catch (e) { throw new Error("Filter could not be read: " + e.message); } idx = []; D.rows.forEach((r, i) => { try { if (f(r)) idx.push(i); } catch (e) { } }); }
+    if (FACET) { const j = D.cols.indexOf(FACET.col); if (j >= 0) idx = idx.filter((i) => FACET.key(D.rows[i][j]) === FACET.level); } // one panel of a small-multiples graph
+    return idx;
   }
   function col(name) { const j = D.cols.indexOf(name); if (j < 0) throw new Error("Column not found: " + name); const idx = activeIdx(); return idx.map((i) => D.rows[i][j]); }
   const isNum = (c) => D.types[c] === "continuous" || D.types[c] === "ordinal";
@@ -274,6 +276,7 @@
     autosave();
   }
   function card(title, meta, html) {
+    if (CAPTURE) { const d = document.createElement("div"); d.innerHTML = `<h2>${esc(title)}</h2>`; return d; } // a small-multiples panel: no card, only the graph is kept
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
@@ -384,11 +387,13 @@
   // uses the inclusive rule, which for one value gives the value itself (the box is a line there)
   const oneValueBox = (t) => { if (t && t.type === "box" && t.quartilemethod === "exclusive" && (t.x || t.y || []).filter((q) => q !== "" && q != null && Number.isFinite(Number(q))).length < 2) t.quartilemethod = "inclusive"; return t; };
   function plotDiv(div, traces, layout, h = 320) {
+    if (CAPTURE) { CAPTURE.push({ traces, layout: layout || {}, h }); return document.createElement("div"); }
     traces = plotText(traces, "data").map(oneValueBox); layout = plotText(layout || {}, "layout");
     const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; p.setAttribute("role", "img"); p.setAttribute("aria-label", plotName(layout, div)); div.appendChild(p);
     const wh = layout && layout.xaxis && layout.xaxis.whole; if (layout && layout.xaxis && "whole" in layout.xaxis) { layout.xaxis = Object.assign({}, layout.xaxis); delete layout.xaxis.whole; }
     if (wh && Number.isFinite(wh.from) && Number.isFinite(wh.to)) { const st = wholeStep(wh, p); p._whole = wh; p._step = st; if (st) Object.assign(layout.xaxis, { dtick: st, tick0: 0 }); }
     const L = Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout);
+    const APP = L._app; delete L._app; traces = styleGraph(traces, L, APP);
     if (L.title) { // Plotly's own sizes: a title is 1.4 times the page font, and a margin object without t has t = 100
       if (typeof L.title === "string") L.title = { text: L.title };
       const f = L.font || {}; p._tt = { text: String(L.title.text || ""), size: (L.title.font && L.title.font.size) || (f.size || 12) * 1.4, family: (L.title.font && L.title.font.family) || f.family || "Segoe UI, Arial", mt: L.margin && L.margin.t != null ? L.margin.t : 100, h };
@@ -399,7 +404,10 @@
     // it as a PNG for a report or a slide, at twice the screen resolution.
     Plotly.newPlot(p, traces, L, { displaylogo: false, responsive: true, displayModeBar: false });
     const b = document.createElement("button"); b.type = "button"; b.className = "pngbtn"; b.dataset.act = "png"; b.textContent = "download PNG"; b.setAttribute("aria-label", "Download as PNG: " + plotName(layout, div)); div.appendChild(b);
-    b.onclick = () => { const name = plotName(layout, div).replace(/[^\w\- ]+/g, " ").trim().replace(/\s+/g, "_").slice(0, 60) || "graph"; try { Plotly.downloadImage(p, { format: "png", width: p.clientWidth || 800, height: h, scale: 2, filename: name }); } catch (e) { announce("The graph could not be saved. Take a screenshot instead."); } };
+    const fname = () => plotName(layout, div).replace(/[^\w\- ]+/g, " ").trim().replace(/\s+/g, "_").slice(0, 60) || "graph";
+    b.onclick = () => { try { Plotly.downloadImage(p, { format: "png", width: p.clientWidth || 800, height: h, scale: 2, filename: fname() }); } catch (e) { announce("The graph could not be saved. Take a screenshot instead."); } };
+    const b2 = document.createElement("button"); b2.type = "button"; b2.className = "svgbtn"; b2.dataset.act = "svg"; b2.textContent = "download SVG"; b2.setAttribute("aria-label", "Download as SVG (vector, for a paper): " + plotName(layout, div)); div.appendChild(b2);
+    b2.onclick = () => { try { Plotly.downloadImage(p, { format: "svg", width: p.clientWidth || 800, height: h, filename: fname() }); } catch (e) { announce("The graph could not be saved as SVG. Use the PNG button instead."); } };
   }
   const pWord = (p) => (p < 0.0001 ? "p < 0.0001" : `p = ${p.toFixed(4)}`);
   const decision = (p, alpha) => (!Number.isFinite(p) ? "The p-value could not be worked out for these numbers, so there is no decision yet. Check the inputs." : p <= alpha ? `${pWord(p)} is at or below alpha = ${alpha}: reject H0.` : `${pWord(p)} is above alpha = ${alpha}: fail to reject H0.`) + (p < 0.0001 ? " Write p < 0.001 in a report; a p-value is never exactly 0." : "");
@@ -518,7 +526,7 @@
     applyVis();
     const exec = (replace) => {
       const v = collect(); const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt; PENDING = { fn, values: v, title }; REPLACE = replace || null; LASTCARD = null;
-      try { onGo(v); if (replace && replace.isConnected && replace._last) { replace._last = null; replace.remove(); } return LASTCARD; }
+      try { if (v.facet && String(v.facet).trim() && fields.some((fd) => fd && fd.name === "facet")) facetRun(onGo, v); else onGo(v); if (replace && replace.isConnected && replace._last) { replace._last = null; replace.remove(); } return LASTCARD; }
       catch (err) { if (replace && LASTCARD && LASTCARD.isConnected) LASTCARD.remove(); throw err; }
       finally { TARGET = prev; PENDING = null; REPLACE = null; }
     };
@@ -675,9 +683,69 @@
 
   // ================= Graph (StatCrunch-style) =================
   const toGraphs = (fn) => () => { TARGET = "#outG"; try { fn(); } finally { setTimeout(() => (TARGET = baseTarget()), 0); } };
-  const appearanceFields = () => [{ name: "gtitle", label: "Graph title (optional)", type: "text", group: "Appearance" }, { name: "xlab", label: "X axis label (optional)", type: "text", group: "Appearance" }, { name: "ylab", label: "Y axis label (optional)", type: "text", group: "Appearance" }, { name: "gcolor", label: "Color", type: "color", value: "#3A7CA5", group: "Appearance" }];
+  // Appearance, on every graph dialog: what ggplot2's labs, scale_*, theme, facet_wrap and geom_hline give. plotDiv reads the choices
+  // from layout._app; small multiples run the dialog once per level of a column (facetRun) and tile the panels.
+  const PALETTES = { okabe: ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442", "#000000"], viridis: ["#440154", "#3B528B", "#21918C", "#5EC962", "#FDE725", "#31688E", "#35B779", "#90D743"], gray: ["#222222", "#666666", "#999999", "#BBBBBB", "#DDDDDD", "#444444", "#888888", "#AAAAAA"], pastel: ["#8FB8D0", "#F2B89B", "#A8D5BA", "#C9B6E4", "#F5E6A3", "#B8D8E8", "#F7C6D0", "#D4D4D4"] };
+  const appearanceFields = () => [{ name: "gtitle", label: "Graph title (optional)", type: "text", group: "Appearance" }, { name: "xlab", label: "X axis label (optional)", type: "text", group: "Appearance" }, { name: "ylab", label: "Y axis label (optional)", type: "text", group: "Appearance" }, { name: "gcolor", label: "Color", type: "color", value: "#3A7CA5", group: "Appearance" },
+    sel("palette", "Colors for groups", [["", "App colors"], ["okabe", "Okabe-Ito (colorblind safe)"], ["viridis", "Viridis"], ["gray", "Grayscale (print)"], ["pastel", "Pastel"]], ""), sel("facet", "Small multiples: one panel per level of (optional)", [["", "(none)"]].concat(catCols()), ""),
+    sel("legend", "Legend", [["", "Default (right)"], ["top", "Top"], ["bottom", "Bottom"], ["none", "Hidden"]], ""), sel("theme", "Theme", [["", "Default"], ["minimal", "Minimal (light grid, no frame)"], ["classic", "Classic (axis lines, no grid)"]], ""),
+    { name: "fsize", label: "Font size (points, blank = 12)", type: "number", value: "", group: "Appearance" },
+    { name: "xrange", label: "X axis range, e.g. 0, 100 (optional)", type: "text", group: "Appearance" }, { name: "yrange", label: "Y axis range, e.g. 0, 4 (optional)", type: "text", group: "Appearance" },
+    { name: "logx", label: "Log scale on the x axis", type: "check", value: false, group: "Appearance" }, { name: "logy", label: "Log scale on the y axis", type: "check", value: false, group: "Appearance" },
+    { name: "ref", label: "Reference lines, e.g. y = 3.0, x = 70 (comma separated, optional)", type: "text", group: "Appearance" }].map((f) => Object.assign(f, { group: "Appearance" }));
   const C = (v) => (v && v.gcolor) || "#3A7CA5";
-  function applyAppearance(layout, v) { if (v.gtitle) layout.title = v.gtitle; if (v.xlab) { layout.xaxis = Object.assign(layout.xaxis || {}, { title: v.xlab }); } if (v.ylab) { layout.yaxis = Object.assign(layout.yaxis || {}, { title: v.ylab }); } return layout; }
+  function applyAppearance(layout, v) { if (v.gtitle) layout.title = v.gtitle; if (v.xlab) { layout.xaxis = Object.assign(layout.xaxis || {}, { title: v.xlab }); } if (v.ylab) { layout.yaxis = Object.assign(layout.yaxis || {}, { title: v.ylab }); } layout._app = v; return layout; }
+  const parseRange = (t) => { const m = String(t || "").split(/[,\s]+/).filter(Boolean).map(Number); return m.length === 2 && m.every(Number.isFinite) && m[0] < m[1] ? m : null; };
+  // the Appearance choices applied to a Plotly layout and its traces (called from plotDiv)
+  function styleGraph(traces, L, A) {
+    if (!A) return traces;
+    const ax = (k) => (L[k] = Object.assign({}, L[k] || {}));
+    if (A.fsize && Number(A.fsize) >= 6 && Number(A.fsize) <= 40) L.font = Object.assign({}, L.font, { size: Number(A.fsize) });
+    if (A.palette && PALETTES[A.palette] && traces.length > 1) { const pal = PALETTES[A.palette]; traces = traces.map((t, i) => { const c = pal[i % pal.length], t2 = Object.assign({}, t); if (t2.marker && typeof t2.marker === "object" && !Array.isArray(t2.marker.color)) t2.marker = Object.assign({}, t2.marker, { color: c }); else if (!t2.marker && (t2.type === "bar" || t2.type === "box" || t2.type === "histogram" || t2.mode)) t2.marker = { color: c }; if (t2.line && typeof t2.line === "object") t2.line = Object.assign({}, t2.line, { color: c }); return t2; }); }
+    if (A.legend === "top") L.legend = Object.assign({}, L.legend, { orientation: "h", x: 0, y: 1.14, yanchor: "bottom" }); else if (A.legend === "bottom") { L.legend = Object.assign({}, L.legend, { orientation: "h", x: 0, y: -0.28, yanchor: "top" }); L.margin = Object.assign({}, L.margin, { b: 90 }); } else if (A.legend === "none") L.showlegend = false;
+    if (A.theme === "minimal") { ["xaxis", "yaxis"].forEach((k) => Object.assign(ax(k), { showline: false, zeroline: false, gridcolor: "#EEEEEE", ticks: "" })); } else if (A.theme === "classic") { ["xaxis", "yaxis"].forEach((k) => Object.assign(ax(k), { showline: true, linecolor: "#333333", linewidth: 1, showgrid: false, zeroline: false, ticks: "outside", mirror: false })); }
+    const xr = parseRange(A.xrange), yr = parseRange(A.yrange); const cat = (k) => (L[k] && L[k].type === "category") || traces.some((t) => { const a = t[k === "xaxis" ? "x" : "y"]; return Array.isArray(a) && a.some((q) => typeof q === "string" && q !== "" && !Number.isFinite(Number(q))); });
+    if (A.logx && !cat("xaxis")) ax("xaxis").type = "log"; if (A.logy && !cat("yaxis")) ax("yaxis").type = "log";
+    const lg = (k, r) => (L[k] && L[k].type === "log" ? r.map((q) => (q > 0 ? Math.log10(q) : null)) : r);
+    if (xr && !cat("xaxis")) ax("xaxis").range = lg("xaxis", xr); if (yr) ax("yaxis").range = lg("yaxis", yr);
+    const refs = String(A.ref || "").split(",").map((s) => s.trim()).filter(Boolean); if (refs.length) { L.shapes = (L.shapes || []).slice(); L.annotations = (L.annotations || []).slice(); refs.forEach((r) => { const m = r.match(/^([xy])\s*=\s*(-?[\d.]+)\s*(?:\((.*)\))?$/i); if (!m) return; const val = Number(m[2]), lab = m[3] || `${m[1].toLowerCase()} = ${m[2]}`; if (m[1].toLowerCase() === "y") { L.shapes.push({ type: "line", xref: "paper", x0: 0, x1: 1, y0: val, y1: val, line: { dash: "dash", color: "#B5476B", width: 1.5 } }); L.annotations.push({ xref: "paper", x: 1, y: val, text: lab, showarrow: false, xanchor: "right", yanchor: "bottom", font: { size: 11, color: "#B5476B" } }); } else { L.shapes.push({ type: "line", yref: "paper", y0: 0, y1: 1, x0: val, x1: val, line: { dash: "dash", color: "#B5476B", width: 1.5 } }); L.annotations.push({ yref: "paper", y: 1, x: val, text: lab, showarrow: false, xanchor: "left", yanchor: "top", font: { size: 11, color: "#B5476B" } }); } }); }
+    return traces;
+  }
+  // Small multiples (ggplot2's facet_wrap): the dialog runs once for the whole data (the card), then once per level with the rows
+  // restricted (activeIdx) and the drawing captured instead of shown; the captured graphs are tiled on the card.
+  let FACET = null, CAPTURE = null;
+  function facetRun(onGo, v) {
+    onGo(v); const cd = LASTCARD; if (!cd || !v.facet || !D.cols.includes(v.facet)) return;
+    const vals = col(v.facet), key = byKey(v.facet), levels = [...new Set(vals.filter((q) => q !== "").map(key))].sort((a, b) => (isNum(v.facet) ? Number(a) - Number(b) : a < b ? -1 : a > b ? 1 : 0));
+    const note = (t) => { const d = document.createElement("div"); d.className = "warn"; d.textContent = t; cd.appendChild(d); };
+    if (levels.length < 2) { note(`Small multiples by ${v.facet}: only one level, so there is nothing to split.`); return; }
+    const use = levels.slice(0, 12); if (levels.length > 12) note(`${v.facet} has ${levels.length} levels; the first 12 panels are shown.`);
+    const saveLast = LASTCARD, savePend = PENDING, panels = [];
+    use.forEach((l) => { FACET = { col: v.facet, level: l, key }; CAPTURE = []; try { onGo(Object.assign({}, v, { facet: "" })); panels.push({ level: l, plot: CAPTURE[0] || null, err: CAPTURE[0] ? null : "no graph" }); } catch (e) { panels.push({ level: l, plot: null, err: e.message || String(e) }); } });
+    FACET = null; CAPTURE = null; LASTCARD = saveLast; PENDING = savePend;
+    facetGrid(cd, panels, v);
+  }
+  function facetGrid(cd, panels, v) {
+    const k = panels.length, cols = Math.min(3, k), rows = Math.ceil(k / cols), base = panels.find((p) => p.plot); if (!base) { const d = document.createElement("div"); d.className = "warn"; d.textContent = `Small multiples by ${v.facet} could not be drawn: ${panels[0].err}`; cd.appendChild(d); return; }
+    const bl = base.plot.layout || {}, pick = (o, keys) => { const r = {}; (keys || []).forEach((q) => { if (o && o[q] !== undefined) r[q] = o[q]; }); return r; };
+    const ys = [], xs = [], xcats = []; let yIsCat = false;
+    panels.forEach((p) => p.plot && p.plot.traces.forEach((t) => { (t.y || []).forEach((q) => { if (typeof q === "number" && Number.isFinite(q)) ys.push(q); else if (typeof q === "string") yIsCat = true; }); (t.x || []).forEach((q) => { if (typeof q === "number" && Number.isFinite(q)) xs.push(q); else if (typeof q === "string" && !xcats.includes(q)) xcats.push(q); }); }));
+    const pad = (arr, zero) => { if (!arr.length) return undefined; const lo = Math.min(...arr), hi = Math.max(...arr), m = (hi - lo || Math.abs(hi) || 1) * 0.06; return [zero && lo >= 0 ? 0 : lo - m, hi + m]; };
+    const isBar = base.plot.traces.some((t) => t.type === "bar"), yr = yIsCat ? undefined : pad(ys, isBar), xr = xcats.length ? undefined : (base.plot.traces.some((t) => t.type === "box") ? undefined : pad(xs, false));
+    const traces = [], L = { showlegend: false, annotations: [], margin: { t: 40, l: 50, r: 20, b: 50 }, title: `${(bl.title && bl.title.text) || bl.title || "Small multiples"}: by ${v.facet}` }, padx = 0.07, pady = 0.16;
+    panels.forEach((p, i) => {
+      const r = Math.floor(i / cols), c = i % cols, sfx = i ? String(i + 1) : "", xa = "x" + sfx, ya = "y" + sfx;
+      const xd = [c / cols + padx / 2, (c + 1) / cols - padx / 2], yd = [1 - (r + 1) / rows + pady / 2, 1 - r / rows - pady / 2];
+      const xax = Object.assign(pick(bl.xaxis, ["title", "type", "tickvals", "tickangle", "dtick", "tick0", "range"]), { domain: xd, anchor: ya }), yax = Object.assign(pick(bl.yaxis, ["title", "type", "range"]), { domain: yd, anchor: xa });
+      if (r < rows - 1) delete xax.title; if (c > 0) delete yax.title; if (xcats.length) Object.assign(xax, { type: "category", categoryorder: "array", categoryarray: xcats }); if (xr && !xax.range) xax.range = xr; if (yr && !yax.range) yax.range = yr;
+      L["xaxis" + sfx] = xax; L["yaxis" + sfx] = yax;
+      if (p.plot) p.plot.traces.forEach((t) => traces.push(Object.assign({}, t, { xaxis: xa, yaxis: ya, showlegend: false })));
+      L.annotations.push({ text: `${v.facet} = ${p.level}${p.err ? " (not drawn)" : ""}`, xref: "paper", yref: "paper", x: (xd[0] + xd[1]) / 2, y: yd[1] + 0.005, xanchor: "center", yanchor: "bottom", showarrow: false, font: { size: 12 } });
+    });
+    if (bl._app) L._app = Object.assign({}, bl._app, { facet: "", legend: "none" });
+    plotDiv(cd, traces, L, Math.max(300, 230 * rows + 60));
+    const d = document.createElement("div"); d.className = "say"; d.textContent = `One panel per level of ${v.facet}, on shared axes${isBar ? "; a histogram's classes are worked out within each panel" : ""}. R: + facet_wrap(~ ${v.facet}).`; cd.appendChild(d);
+  }
   // Group by (Split by, Color by): each value of the grouping column is a group. A numeric column works when it has only a
   // few values (each one a group, in numeric order, 7.0 and 7 the same group); with more than MAXGROUPS values, or an ID
   // column, the dialog asks for a categorical grouping variable under the Group by box, so no graph is drawn from dozens of
@@ -3114,6 +3182,7 @@
     { k: ["which test", "what test", "which analysis", "what should i use", "not sure", "help me choose", "where do i start", "don't know"], t: "Not sure which test: the wizard and the Methods Guide", a: "Which test? asks three questions and opens the right dialog. The Methods Guide covers every method by research question, with the steps.", go: [["T-Tests", "Which test?"]], m: "map" },
     { k: ["load data", "open csv", "import", "paste", "my own data", "upload", "excel", "spreadsheet", "google sheets"], t: "Getting your data in", a: "Data, Open CSV file (export from Excel or Google Sheets as CSV), or Data, Paste data straight from a spreadsheet: one row per case, one column per variable, names in the first row.", go: [["Data", "Open CSV file"], ["Data", "Paste data"]], m: "first" },
     { k: ["filter", "subset", "only rows", "exclude", "where", "keep rows"], t: "Analyze a subset of rows", a: "The Filter box above the table keeps rows where a formula is true, for example Year == \"Freshman\" and GPA > 3. Every analysis then uses the kept rows.", go: [["Data", "Filters"]], m: "first" },
+    { k: ["small multiples", "facet", "facets", "one panel per", "panel per group", "separate graphs for each", "separate panels", "colorblind", "color blind", "colour blind", "palette", "axis range", "log scale", "logarithmic", "reference line", "horizontal line", "vertical line", "legend", "font size", "bigger font", "graph title", "axis label", "axis labels", "change the colors", "change the colours", "theme", "svg", "vector graphic", "publication quality", "ggplot", "customize the graph", "customise the graph", "edit the graph"], t: "Graph appearance: titles, labels, colors, panels", a: "Every graph dialog (bar, histogram, dotplot, boxplot, scatter) has an Appearance section: title and axis labels, a color, a palette for groups (Okabe-Ito is colorblind safe; grayscale prints), small multiples (one panel per level of a column, ggplot2's facet_wrap), legend position, a minimal or classic theme, font size, axis ranges, log scales and reference lines (y = 3.0, x = 70). Every graph downloads as PNG or SVG. The edit button on a card reopens the dialog with your choices.", go: [["Graph", "Histogram"], ["Graph", "Boxplot"], ["Graph", "Scatter Plot"], ["Graph", "Bar Plot"]], m: "describe" },
     { k: ["wide to long", "long format", "long form", "pivot longer", "pivot_longer", "gather", "melt", "one row per measurement", "reshape", "tidy data", "unpivot"], t: "Reshape wide to long (pivot_longer)", a: "When each time point or condition sits in its own column (week1, week4, week8), the long layout puts every value in its own row with a column saying which measurement it is. Pick the columns to gather and the ID columns to keep; the card shows the matching tidyr line. Stack columns is the simpler two-column version.", go: [["Data", "Reshape: wide to long"], ["Data", "Stack columns"]], m: "first" },
     { k: ["long to wide", "wide format", "wide form", "pivot wider", "pivot_wider", "spread", "one column per time", "one row per person", "one row per case", "unstack", "cast"], t: "Reshape long to wide (pivot_wider)", a: "When each row is one measurement (student, week, score), the wide layout gives one row per case and one column per week. Pick the ID columns, the column whose values become names and the column that fills the cells; duplicates are reported, as R does. Paired tests, repeated-measures ANOVA and reliability want this layout.", go: [["Data", "Reshape: long to wide"]], m: "first" },
     { k: ["merge", "join", "combine two tables", "combine two files", "two files", "two tables", "match by id", "lookup", "vlookup", "add columns from another", "another dataset", "second table", "left join", "inner join"], t: "Merge with another table (join)", a: "Match rows of this table with rows of another by a key such as a student ID, keeping every row here (left join), only matches (inner) or everything (full). Paste the other table or pick a sample; the card counts matches and shows the dplyr line. Try the class data with the Exam 1 file (Student_ID = StudentID).", go: [["Data", "Merge with another table (join)"]], m: "first" },

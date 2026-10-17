@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-19: closing the gaps with R, 4 of 5: graphics control
+
+- The **Appearance** section of every graph dialog (bar, histogram, dotplot, boxplot, scatter) now gives what ggplot2's labs,
+  scale_*, theme and facet_wrap give: a palette for groups (Okabe-Ito colorblind safe, viridis, grayscale, pastel), **small
+  multiples** (one panel per level of a categorical column on shared axes; the dialog is run once per level with the rows
+  restricted and the panels tiled), legend position, minimal or classic theme, font size, axis ranges, log scales and
+  reference lines (`y = 3.0`, `x = 70 (cutoff)`). Every graph downloads as **SVG** as well as PNG. Ask knows the vocabulary
+  (facet, colorblind, log scale, reference line, publication quality). Service worker cache `sww-v68`, scripts `?v=71`.
+
 ### 2026-10-18 (night): closing the gaps with R, 3 of 5: data wrangling
 
 - Five new Data items, each card ending with the tidyr or dplyr line that does the same in R: **Reshape: wide to long**
