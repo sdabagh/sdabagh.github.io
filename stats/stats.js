@@ -209,8 +209,10 @@
     const chi = rows.reduce((s, r) => s + r.contrib, 0), df = cats.length - 1;
     return { rows, n, chi, df, p: 1 - S.pchisq(chi, df), minE: Math.min(...rows.map((r) => r.e)) };
   };
-  S.twoWay = (rowVals, colVals) => {
-    const rows = [...new Set(rowVals.filter((v) => v !== ""))], cols = [...new Set(colVals.filter((v) => v !== ""))];
+  // rowOrder / colOrder (optional): the order the levels were typed in, so a zero first cell in a typed table cannot move a column
+  S.twoWay = (rowVals, colVals, rowOrder, colOrder) => {
+    const lv = (vals, order) => { const seen = [...new Set(vals.filter((v) => v !== ""))]; if (!order) return seen; const has = new Set(seen), first = [...new Set(order)].filter((l) => has.has(l)); return first.concat(seen.filter((l) => !first.includes(l))); };
+    const rows = lv(rowVals, rowOrder), cols = lv(colVals, colOrder);
     const O = rows.map(() => cols.map(() => 0));
     for (let i = 0; i < rowVals.length; i++) { const r = rows.indexOf(rowVals[i]), c = cols.indexOf(colVals[i]); if (r >= 0 && c >= 0) O[r][c]++; }
     const rt = O.map((r) => r.reduce((s, x) => s + x, 0)), ct = cols.map((_, j) => O.reduce((s, r) => s + r[j], 0)), n = rt.reduce((s, x) => s + x, 0);
@@ -302,9 +304,15 @@
 (function (S) {
   const lchoose = (n, k) => jStat.gammaln(n + 1) - jStat.gammaln(k + 1) - jStat.gammaln(n - k + 1);
   const dhyper = (x, m, n, k) => Math.exp(lchoose(m, x) + lchoose(n, k - x) - lchoose(m + n, k));
-  S.fisher2x2 = (a, b, c, d) => { // table [[a,b],[c,d]]; two-sided p = sum of probabilities <= observed
+  // table [[a,b],[c,d]]; X = the first cell, hypergeometric given row 1 total, row 2 total and column 1 total (R's fisher.test).
+  // alt "two": sum of probabilities <= observed; "greater": P(X >= a), row 1 has a larger share of column 1 (odds ratio > 1);
+  // "less": P(X <= a). Each tail is summed from its far end, so a tiny p keeps its digits.
+  S.fisher2x2 = (a, b, c, d, alt = "two") => {
     const m = a + b, n = c + d, k = a + c, lo = Math.max(0, k - n), hi = Math.min(k, m), pobs = dhyper(a, m, n, k);
-    let p = 0; for (let x = lo; x <= hi; x++) { const px = dhyper(x, m, n, k); if (px <= pobs * (1 + 1e-7)) p += px; }
+    let p = 0;
+    if (alt === "greater") for (let x = hi; x >= a; x--) p += dhyper(x, m, n, k);
+    else if (alt === "less") for (let x = lo; x <= a; x++) p += dhyper(x, m, n, k);
+    else for (let x = lo; x <= hi; x++) { const px = dhyper(x, m, n, k); if (px <= pobs * (1 + 1e-7)) p += px; }
     return Math.min(1, p);
   };
   S.measures2x2 = (a, b, c, d, conf = 0.95) => { // rows = groups, col 1 = event
