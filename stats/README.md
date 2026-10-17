@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-18: one proportion z test on the menu
+
+- **Frequencies, One proportion: z test**: the z test for a single proportion now has its own menu item (it used to be a
+  tick box inside the binomial test). The card leads with SE₀, z, the p-value and the worked numbers, checks the conditions
+  (n p₀ and n(1 − p₀) both at least 10) and says plainly when they fail, and shows the exact binomial p-value underneath as
+  a check. The binomial test item is unchanged. Ask, the Which-test wizard and both guides point to it. Service worker cache
+  `sww-v64`, scripts `?v=67`.
+
 ### 2026-10-17 (night): mixed-effects models
 
 - **Advanced, Mixed-Effects Model (nested or repeated data)**: lme4's linear mixed model in the browser. A numeric outcome,
