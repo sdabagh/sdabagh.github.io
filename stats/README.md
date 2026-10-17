@@ -46,6 +46,21 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-17 (later): Ask, a helper in plain words
+
+- **Ask** (data bar) opens a small panel. A question in plain words ("compare two groups", "before and after", "is there
+  a relationship", "predict a yes or no", "my counts are small", "how many people do I need", "what columns do I have")
+  is matched against a knowledge base of about 45 entries built from the Methods Guide: the answer names the method, says
+  why in two sentences, offers *Open* buttons that run the right dialog, a rank-based alternative where one exists, and a
+  link to the steps in the guide. "What columns do I have" lists the loaded data by type. A question that matches nothing
+  gets example chips, the Which test? wizard and the guide.
+- **Tips**: after a result lands, the card's warnings are read and the next step is suggested once per card (Fisher's
+  exact for an expected count under 5, the rank test for a small or skewed sample, the exact binomial when a count is
+  under 10, the extrapolation caveat, reverse-keyed items, negative binomial for overdispersion). With the panel closed
+  the button reads "Ask · 1 tip".
+- Rule based and offline: nothing typed leaves the browser, which keeps the app's promise. Escape closes the panel; it
+  never opens over a dialog. Service worker cache `sww-v62`, scripts `?v=65`.
+
 ### 2026-10-17: student or researcher, and a field
 
 - **Who is using the app** (start screen, the button in the data bar, and Results): *Student* or *Researcher*, plus a

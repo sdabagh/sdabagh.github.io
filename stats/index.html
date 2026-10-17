@@ -65,7 +65,7 @@ body:not(.view-data) main{display:none}
 /* a filter that cannot be read says so under the box (never a blocking dialog) */
 #filterMsg{flex-basis:100%;color:var(--rose);font-size:14px;line-height:1.35}#filterMsg:empty{display:none}
 /* Widen table folds the results away so all the columns show; the next result, or the button again, brings them back */
-#paneToggle,#whichBtn,#modeBtn{min-height:36px;padding:0 10px;border:1px solid var(--edge);border-radius:6px;background:#fff;color:var(--navy);font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap}#paneToggle:hover,#whichBtn:hover,#modeBtn:hover{border-color:var(--sky);background:#EAF2F7}
+#paneToggle,#whichBtn,#modeBtn,#askBtn{min-height:36px;padding:0 10px;border:1px solid var(--edge);border-radius:6px;background:#fff;color:var(--navy);font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap}#paneToggle:hover,#whichBtn:hover,#modeBtn:hover,#askBtn:hover{border-color:var(--sky);background:#EAF2F7}
 #datapane.nodata #whichBtn{margin-left:auto}
 .form .say.note{margin:12px 0 4px}
 #datapane.nodata #paneToggle{display:none}
@@ -145,6 +145,15 @@ body.view-distraction .card.editing.stale::before{content:"Editing this result. 
 .card .tblbtns{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}.card .tblbtns button,.card .pngbtn{min-height:32px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer}.card .tblbtns button:hover,.card .pngbtn:hover{background:var(--alt);color:var(--navy)}
 .card .pngbtn{display:block;margin:-6px 0 10px}
 /* the formula with the numbers in it (a toggle, closed by default) and the one-line APA report */
+#bot{position:fixed;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));max-height:min(70vh,560px);display:none;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.22);z-index:90}
+#bot.open{display:flex}
+#bot .bhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--alt);border-radius:12px 12px 0 0}#bot .bhead .bsub{color:var(--muted);font-size:12px;flex:1;min-width:0}#bot .bhead button{min-height:32px;width:32px;border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}
+#botLog{flex:1;overflow:auto;padding:10px 12px;font-size:14px}
+.bmsg{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:#EEF5F8}.bmsg.me{background:var(--alt);text-align:right}.bmsg.tip{background:#FFF6EC;border-left:3px solid var(--terra)}.bmsg p{margin:4px 0}.bmsg b{color:var(--navy)}.bmuted{color:var(--muted);font-size:13px}.balso{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.bgo,.bchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.bgo button,.bchips button,.bmsg .brun{min-height:32px;padding:0 10px;border:1px solid var(--edge);border-radius:16px;background:#fff;color:var(--navy);font-family:inherit;font-size:13px;cursor:pointer}.bgo button{background:var(--navy);color:#fff;border-color:var(--navy)}.bgo button:hover{background:var(--teal)}.bchips button:hover,.bmsg .brun:hover{background:var(--alt)}
+#botForm{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}#botForm input{flex:1;min-width:0;min-height:40px;padding:6px 10px;border:1px solid var(--edge);border-radius:8px;font-family:inherit;font-size:14px}#botForm button{min-height:40px;padding:0 14px;border-radius:8px;border:0;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;cursor:pointer}
+@media (max-width:600px){#bot{right:0;bottom:0;width:100vw;max-height:80vh;border-radius:12px 12px 0 0}}
+@media print{#bot,#askBtn{display:none!important}}
 .card details.method summary{font-size:14px;min-height:36px;padding:6px 0;color:var(--muted)}.card details.method .formula{margin:2px 0 6px 8px}
 .empty .who{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 4px;font-size:15px}.empty .who span{color:var(--muted)}.empty .who button{min-height:36px;padding:0 14px;border:1px solid var(--edge);border-radius:18px;background:#fff;color:var(--navy);font-family:inherit;font-size:14px;cursor:pointer}.empty .who button.on{background:var(--navy);color:#fff;border-color:var(--navy)}.empty .who button:hover:not(.on){background:var(--alt)}
 .emptybtns.typical button{font-size:14px;min-height:38px;padding:0 12px}
@@ -277,9 +286,10 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
   <nav class="hlinks" aria-label="Site links"><a href="guide.html">User guide</a><a href="methods.html" title="Which method for which question, with the steps">Methods guide</a><a href="download.html" title="The app is updated almost daily; the browser version is always current">Download the app</a><a href="https://learnwithoutwalls.com/" target="_blank" rel="noopener">learnwithoutwalls.com</a></nav>
 </header>
 <nav class="menu" id="menu" aria-label="Main menu"></nav>
+<aside id="bot" role="dialog" aria-label="Ask: which method should I use" aria-hidden="true"><div class="bhead"><b>Ask</b><span class="bsub">Which method, and why. Nothing leaves this browser.</span><button type="button" id="botClose" aria-label="Close">&times;</button></div><div id="botLog" aria-live="polite"></div><form id="botForm"><input id="botIn" type="text" autocomplete="off" placeholder="e.g. compare two groups, before and after, my counts are small" aria-label="Your question"><button type="submit">Ask</button></form></aside>
 <main>
   <section id="datapane" class="nodata">
-    <div class="bar"><b id="dsname" tabindex="-1">No data loaded</b><span id="dsinfo"></span><span id="profName" class="prof"></span><label class="filt">Filter: <input id="filterBox" type="text" placeholder='e.g. Year == "Freshman" and GPA > 3' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= and or. Blank = all rows."></label><button type="button" id="whichBtn" title="Three questions that open the right test">Which test?</button><button type="button" id="modeBtn" title="Student or researcher, and your field">Student</button><button type="button" id="paneToggle" aria-pressed="false" title="Give the table the whole width. The bar between the panels can also be dragged.">Widen table</button><div id="filterMsg" role="alert"></div></div>
+    <div class="bar"><b id="dsname" tabindex="-1">No data loaded</b><span id="dsinfo"></span><span id="profName" class="prof"></span><label class="filt">Filter: <input id="filterBox" type="text" placeholder='e.g. Year == "Freshman" and GPA > 3' title="Keep rows where this is true. Text in quotes; operators == != < <= > >= and or. Blank = all rows."></label><button type="button" id="whichBtn" title="Three questions that open the right test">Which test?</button><button type="button" id="modeBtn" title="Student or researcher, and your field">Student</button><button type="button" id="askBtn" aria-expanded="false" aria-controls="bot" title="Ask which method to use, in plain words">Ask</button><button type="button" id="paneToggle" aria-pressed="false" title="Give the table the whole width. The bar between the panels can also be dragged.">Widen table</button><div id="filterMsg" role="alert"></div></div>
     <div id="grid"></div>
   </section>
   <div id="splitter" title="Drag to resize the panels; double-click to reset"></div>
@@ -305,7 +315,7 @@ body.view-learn #distPanel,body.view-learn #outD,body.view-distraction #outL,bod
 <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display:none">
 <script src="vendor/jstat.min.js"></script>
 <script src="vendor/plotly-cartesian.min.js"></script>
-<script src="stats.js?v=64"></script>
-<script src="app.js?v=64"></script>
+<script src="stats.js?v=65"></script>
+<script src="app.js?v=65"></script>
 </body>
 </html>
