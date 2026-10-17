@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stats Without Walls: Methods Guide</title>
+<meta name="description" content="Which statistical method to use for which research question, with the exact steps in Stats Without Walls. Student edition and professional edition.">
+<link rel="icon" href="icon-192.png">
+<link rel="canonical" href="https://learnwithoutwalls.com/stats/methods.html">
+<style>
+:root{--navy:#1A3A4D;--teal:#2C5F7C;--sky:#3A7CA5;--terra:#D97D54;--rose:#B5476B;--green:#2E7D5B;--ink:#2D2D2D;--muted:#5A5A5A;--line:#E1E4E8;--alt:#F8F9FA;--mono:"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+header{background:var(--navy);color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{margin:0;font-size:20px}
+header h1 span{color:var(--terra);font-weight:500}
+header .links{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header a{color:#fff;font-size:14px}
+.ed{display:inline-flex;border:1px solid rgba(255,255,255,.5);border-radius:18px;overflow:hidden}
+.ed button{background:none;border:0;color:#fff;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;min-height:36px}
+.ed button[aria-pressed="true"]{background:var(--terra);color:#fff}
+.wrap{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);padding:16px 14px;font-size:13.5px;background:var(--alt)}
+nav.toc a{display:block;color:var(--teal);text-decoration:none;padding:3px 0}
+nav.toc a.sub{padding-left:14px;color:var(--muted)}
+nav.toc a:hover{text-decoration:underline}
+main{padding:22px 34px 60px;max-width:980px}
+h2{color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:4px;margin-top:38px;font-size:22px}
+h3{color:var(--teal);margin-top:28px;font-size:17px}
+h4{margin:16px 0 4px;font-size:15px;color:var(--navy)}
+p,li{font-size:15px}
+code,kbd{font-family:var(--mono);font-size:13px;background:var(--alt);border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+table{border-collapse:collapse;margin:10px 0;font-size:14px;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--alt)}
+.tablewrap{overflow-x:auto}
+.say{background:#EEF5F8;border-left:3px solid var(--sky);padding:8px 12px;margin:10px 0}
+.warn{background:#FBEEF2;border-left:3px solid var(--rose);padding:8px 12px;margin:10px 0}
+.ok{background:#EAF5EF;border-left:3px solid var(--green);padding:8px 12px;margin:10px 0}
+.path{font-weight:600;color:var(--navy);white-space:nowrap}
+.note{font-size:14px;color:var(--muted);margin:2px 0 16px}
+.badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;background:var(--alt);border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle}
+.method{border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}
+.method h3{margin-top:0}
+.method ol{padding-left:22px}
+.method ol li{margin:4px 0}
+.card-ex{font-family:var(--mono);font-size:13px;background:var(--alt);border:1px solid var(--line);padding:8px 10px;margin:6px 0;white-space:pre-wrap}
+body.ed-student .pro{display:none}
+body.ed-pro .stu{display:none}
+.toc .pro{display:block}
+.pill{display:inline-block;background:var(--navy);color:#fff;padding:1px 8px;border-radius:3px;font-size:12px;margin-left:4px;vertical-align:middle}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding:16px}.path{white-space:normal}}
+@media print{nav.toc,header .links{display:none}.wrap{display:block}main{max-width:none;padding:0}h2{page-break-before:always}h2:first-of-type{page-break-before:avoid}.method{page-break-inside:avoid}}
+</style>
+</head>
+<body class="ed-student">
+<header><h1>Stats Without Walls <span>Methods Guide</span></h1>
+<div class="links"><div class="ed" role="group" aria-label="Edition"><button type="button" id="edStu" aria-pressed="true">Student edition</button><button type="button" id="edPro" aria-pressed="false">Professional edition</button></div><a href="guide.html">User guide</a><a href="index.html">Open the app</a></div></header>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+<a href="#use">How to use this guide</a>
+<a href="#map">Start from your question</a>
+<a href="#first">Before any test</a>
+<a href="#describe">A. Describe one variable</a>
+<a href="#compare">B. Compare groups</a>
+<a href="#compare" class="sub">one group vs a value</a>
+<a href="#two" class="sub">two groups</a>
+<a href="#paired" class="sub">before and after</a>
+<a href="#three" class="sub">three or more groups</a>
+<a href="#factorial" class="sub pro">two factors, covariates, several outcomes</a>
+<a href="#relate">C. Relationships</a>
+<a href="#predict">D. Predict an outcome</a>
+<a href="#predict-num" class="sub">a number</a>
+<a href="#predict-yn" class="sub">yes or no</a>
+<a href="#predict-more" class="sub pro">counts, ordered or several categories</a>
+<a href="#time">E. Change over time</a>
+<a href="#scales" class="pro">F. Scales and reliability</a>
+<a href="#structure" class="pro">G. Structure in many variables</a>
+<a href="#survival" class="pro">H. Time to an event</a>
+<a href="#plan">I. Plan a study</a>
+<a href="#causal" class="pro">J. Causal questions with observational data</a>
+<a href="#designs" class="pro">By study design</a>
+<a href="#report">Reporting checklist</a>
+<a href="#glossary">Glossary</a>
+</nav>
+<main>
+<p class="note">Stats Without Walls Methods Guide. Student edition: the methods of an introductory course, in plain words. Professional edition: the full set, with effect sizes, diagnostics and study designs. Switch at the top right; the choice is remembered.</p>
+
+<h2 id="use">How to use this guide</h2>
+<p>Every method here answers a question about data. Start from the question, not from the name of a test.</p>
+<ol>
+<li><strong>Say the question in one sentence.</strong> "Do students who sleep more have higher GPAs?" "Did the training change mile times?" "Which patients survive longer?"</li>
+<li><strong>Name what you measured.</strong> A <em>number</em> (minutes, dollars, a score), a <em>yes or no</em>, a <em>category</em> with more than two levels, an <em>ordered rating</em> (1 to 5), a <em>count</em> of events, or a <em>time until something happened</em>.</li>
+<li><strong>Find the row in the table below</strong>, then follow the method's steps. Each method says what the data must look like, where it is in the app, what to tick, what to read on the card, and what to do if the assumptions fail.</li>
+</ol>
+<div class="say">In the app, <span class="path">T-Tests › Which test?</span> asks three questions and opens the right dialog for the most common cases. This guide covers everything the app can do, and explains why.</div>
+<p class="pro">Professional edition conventions: every result is reported with an effect size and an interval, not a p-value alone; assumptions are checked on the card, not assumed; multiple comparisons are adjusted (Tukey or Holm); and the design, not the software, decides whether a result can be called a cause.</p>
+
+<h2 id="map">Start from your question</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Your question</th><th>What you measured</th><th>Method</th><th>In the app</th><th>If assumptions fail</th></tr></thead>
+<tbody>
+<tr><td>What does one variable look like?</td><td>anything</td><td>Descriptives, frequency table, histogram or bar chart</td><td><span class="path">Exploration › Descriptives</span></td><td>n/a</td></tr>
+<tr><td>Is the mean of one group equal to a claimed value?</td><td>number</td><td>One-sample t test</td><td><span class="path">T-Tests › One Sample T-Test</span></td><td>Wilcoxon signed-rank against a constant; bootstrap interval</td></tr>
+<tr><td>Is the proportion in one group equal to a claimed value?</td><td>yes or no</td><td>Binomial test (exact) or one-proportion z</td><td><span class="path">Frequencies › 2 Outcomes: Binomial test</span></td><td>the exact test needs no assumption</td></tr>
+<tr><td>Do the category counts match a claimed split?</td><td>category</td><td>Chi-square goodness of fit</td><td><span class="path">Frequencies › N Outcomes: chi-square Goodness of fit</span></td><td>combine small categories</td></tr>
+<tr><td>Do two different groups differ on average?</td><td>number</td><td>Independent-samples t test (Welch)</td><td><span class="path">T-Tests › Independent Samples T-Test</span></td><td>Mann-Whitney U; permutation test</td></tr>
+<tr><td>Do two different groups differ in a proportion?</td><td>yes or no</td><td>Two-proportion z test, or a 2 by 2 table with Fisher's exact test</td><td><span class="path">Frequencies › Two proportions: z test</span></td><td>Fisher's exact test (small counts)</td></tr>
+<tr><td>Did the same people change between two measurements?</td><td>number</td><td>Paired t test</td><td><span class="path">T-Tests › Paired Samples T-Test</span></td><td>Wilcoxon signed-rank or sign test</td></tr>
+<tr><td>Did the same people change on a yes or no?</td><td>yes or no</td><td>McNemar test</td><td><span class="path">Advanced › McNemar test (paired yes or no)</span></td><td>exact version is on the card</td></tr>
+<tr><td>Do three or more groups differ on average?</td><td>number</td><td>One-way ANOVA with Tukey follow-up</td><td><span class="path">ANOVA › One-Way ANOVA</span></td><td>Welch's F; Kruskal-Wallis</td></tr>
+<tr><td>Do three or more measurements of the same people differ?</td><td>number</td><td>Repeated-measures ANOVA</td><td><span class="path">ANOVA › Repeated Measures and Mixed ANOVA</span></td><td>Friedman</td></tr>
+<tr class="pro"><td>Do two factors each matter, and do they interact?</td><td>number</td><td>Two-way ANOVA</td><td><span class="path">ANOVA › Two-Way ANOVA</span></td><td>transform, or rank-based</td></tr>
+<tr class="pro"><td>Do groups differ after adjusting for a covariate?</td><td>number</td><td>ANCOVA</td><td><span class="path">ANOVA › ANCOVA</span></td><td>check the slopes test on the card</td></tr>
+<tr class="pro"><td>Do groups differ on several outcomes at once?</td><td>several numbers</td><td>MANOVA</td><td><span class="path">ANOVA › MANOVA</span></td><td>one ANOVA per outcome with Holm</td></tr>
+<tr><td>Are two numeric variables related?</td><td>two numbers</td><td>Pearson correlation and scatterplot</td><td><span class="path">Regression › Correlation Matrix</span></td><td>Spearman (tick it on the same card)</td></tr>
+<tr><td>Are two categorical variables related?</td><td>two categories</td><td>Chi-square test of independence</td><td><span class="path">Frequencies › Contingency Tables: Independent Samples</span></td><td>Fisher's exact (2 by 2); combine categories</td></tr>
+<tr><td>Can I predict a number from one other number?</td><td>number from a number</td><td>Simple linear regression</td><td><span class="path">Regression › Linear Regression</span></td><td>residual plots on the card; transform</td></tr>
+<tr class="pro"><td>Can I predict a number from several variables?</td><td>number</td><td>Multiple linear regression</td><td><span class="path">Advanced › Multiple Linear Regression</span></td><td>VIF, influence and residual checks on the card</td></tr>
+<tr class="pro"><td>Can I predict a yes or no?</td><td>yes or no</td><td>Logistic regression (odds ratios)</td><td><span class="path">Advanced › Logistic Regression</span></td><td>exact or penalized methods for separation (not in the app)</td></tr>
+<tr class="pro"><td>Can I predict a count of events?</td><td>count</td><td>Poisson or negative binomial regression</td><td><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span></td><td>negative binomial when overdispersed</td></tr>
+<tr class="pro"><td>Can I predict an ordered rating?</td><td>ordered category</td><td>Ordinal logistic regression</td><td><span class="path">Advanced › Ordinal Logistic Regression</span></td><td>multinomial if proportional odds fails</td></tr>
+<tr class="pro"><td>Can I predict one of several unordered categories?</td><td>category</td><td>Multinomial logistic regression</td><td><span class="path">Advanced › Multinomial Logistic Regression</span></td><td>combine sparse levels</td></tr>
+<tr class="pro"><td>Does a proportion rise or fall across ordered groups?</td><td>yes or no by ordered group</td><td>Cochran-Armitage trend test</td><td><span class="path">Advanced › Cochran-Armitage trend test</span></td><td>chi-square for any difference</td></tr>
+<tr><td>Is there a trend or a season in a series over time?</td><td>number per time point</td><td>Time series: decomposition, trend, forecast</td><td><span class="path">Advanced › Time Series</span></td><td>n/a</td></tr>
+<tr class="pro"><td>Do my questionnaire items measure one thing?</td><td>several ratings</td><td>Cronbach's alpha; exploratory factor analysis</td><td><span class="path">Advanced › Reliability (Cronbach's alpha)</span></td><td>drop or reverse items; EFA</td></tr>
+<tr class="pro"><td>Can many variables be summarized by a few?</td><td>several numbers</td><td>Principal component analysis</td><td><span class="path">Advanced › Principal Component Analysis</span></td><td>EFA when the goal is latent traits</td></tr>
+<tr class="pro"><td>Are there natural groups of cases?</td><td>several numbers</td><td>k-means clustering</td><td><span class="path">Advanced › k-means Clustering</span></td><td>standardize; try several k with the elbow plot</td></tr>
+<tr class="pro"><td>How long until an event, and what changes it?</td><td>time and an event flag</td><td>Kaplan-Meier, log-rank, Cox regression</td><td><span class="path">Advanced › Survival Analysis: Kaplan-Meier, log-rank, Cox</span></td><td>check proportional hazards by eye on the curves</td></tr>
+<tr><td>How many people do I need?</td><td>planning</td><td>Power and sample size; margin of error</td><td><span class="path">Advanced › Power and Sample Size</span></td><td>n/a</td></tr>
+<tr class="pro"><td>Could a lurking variable explain my regression result?</td><td>observational data</td><td>Sensitivity analysis (Cinelli-Hazlett benchmark)</td><td><span class="path">Regression › Sensitivity to a lurking variable</span></td><td>n/a</td></tr>
+<tr class="pro"><td>I do not trust the formula's assumptions at all</td><td>any</td><td>Bootstrap interval; permutation test</td><td><span class="path">Advanced › Bootstrap confidence interval</span></td><td>n/a</td></tr>
+</tbody></table></div>
+
+<h2 id="first">Before any test</h2>
+<ol>
+<li><strong>One row per case, one column per variable.</strong> A group is a column of labels (Control, Treatment), not two columns of numbers. Repeated measurements of the same person are separate columns (week1, week4) in the same row.</li>
+<li><strong>Check the types.</strong> The app guesses whether a column is a number or a category; <span class="path">Data › Set variable type</span> fixes a wrong guess (a zip code is a category, a 1 to 5 rating is a number for means but a category for a bar chart).</li>
+<li><strong>Look first.</strong> <span class="path">Exploration › Descriptives</span> for every variable, then <span class="path">Graph › Histogram</span> or <span class="path">Graph › Boxplot</span> for numbers and <span class="path">Graph › Bar Plot</span> for categories. Outliers, skew and odd values show up here, not in a p-value.</li>
+<li><strong>Decide the comparison before you look at the test.</strong> One-sided or two-sided, which groups, which alpha (0.05 unless your field says otherwise). Changing these after seeing the result is how false findings are made.</li>
+<li class="pro"><strong>Know your design.</strong> Random assignment to groups (an experiment) supports "causes"; everything else supports "is associated with" until you argue otherwise (see <a href="#causal">section J</a>).</li>
+</ol>
+
+<h2 id="describe">A. Describe one variable</h2>
+<div class="method"><h3>Descriptives and graphs</h3>
+<p><strong>Use it</strong> for every variable before any test, and as the answer when the question is only "what does it look like".</p>
+<ol>
+<li><span class="path">Exploration › Descriptives</span>: pick the numeric columns; add a grouping column to describe each group separately. Tick <em>Frequency tables</em> for nominal and ordinal variables. Quartile method: the course's halves rule or R's type 7.</li>
+<li>Read mean and median together: far apart means skew. The SD is the typical distance from the mean; the IQR is the middle half.</li>
+<li><span class="path">Graph › Histogram</span> for shape, <span class="path">Graph › Boxplot</span> by group for comparisons, <span class="path">Graph › Bar Plot</span> or <span class="path">Graph › Pie Chart</span> for categories, <span class="path">Graph › QQ Plot</span> to judge normality.</li>
+</ol>
+<p class="pro"><strong>Report:</strong> n, mean (SD) or median [IQR] for skewed data, and counts (percent) for categories. One table per paper is normal: "Table 1".</p>
+</div>
+
+<h2 id="compare">B. Compare groups</h2>
+<div class="method"><h3>One group against a claimed value: one-sample t test</h3>
+<p><strong>Use it</strong> when one numeric variable is compared with a known or claimed value (the mean commute is 30 minutes; the mean GPA is 3.0).</p>
+<ol>
+<li><span class="path">T-Tests › One Sample T-Test</span>. Data: from a column, or type the mean, SD and n. Enter the <em>Test value</em>; choose the hypothesis direction.</li>
+<li>Tick <em>Confidence interval</em> and <em>Effect size (Cohen's d)</em>.</li>
+<li>Read: t, df and p; the interval for the mean; the conclusion line names H₀ and Hₐ and the decision at α.</li>
+</ol>
+<p><strong>Assumption:</strong> roughly normal data, or n of 30 or more. The card says which applies. Otherwise <span class="path">Nonparametric › Wilcoxon signed-rank and sign test (paired)</span> with "compare variable 1 with a constant".</p>
+<p class="pro"><strong>Report:</strong> <code>t(39) = 2.14, p = .039, d = 0.34, 95% CI [0.02, 0.61]</code> (the app writes this line).</p>
+</div>
+
+<div class="method"><h3>One proportion against a claimed value: binomial test</h3>
+<ol>
+<li><span class="path">Frequencies › 2 Outcomes: Binomial test</span>. Data: a yes or no column (name the level to test), or type the count of successes and n. Enter the <em>Test value</em> (the claimed proportion).</li>
+<li>Tick <em>Confidence intervals</em>; the <em>Interval method</em> offers Wilson (recommended) and the course's Wald. Tick the z test if the course uses it by hand.</li>
+<li>Read the exact p-value and the interval. The exact test needs no sample-size condition; the z test needs np₀ and n(1 − p₀) of at least 10 (the card checks).</li>
+</ol></div>
+
+<div class="method"><h3>Category counts against a claimed split: chi-square goodness of fit</h3>
+<ol>
+<li><span class="path">Frequencies › N Outcomes: chi-square Goodness of fit</span>. Data: a category column, or typed counts.</li>
+<li><em>Expected</em>: Equally likely, or type the proportions (or counts) in the level order shown.</li>
+<li>Read χ², df and p, and the check that every expected count is at least 5; combine small levels if not.</li>
+</ol></div>
+
+<div class="method" id="two"><h3>Two different groups, a number: independent-samples t test</h3>
+<p><strong>Use it</strong> when one numeric outcome is compared between two separate groups (treatment and control; men and women; two campuses).</p>
+<ol>
+<li>Data: one numeric column and one grouping column with exactly two levels (or two numeric columns, one per group; or typed means, SDs and n).</li>
+<li><span class="path">T-Tests › Independent Samples T-Test</span>. Welch's t (unequal variances) is the default and the right default; tick Student's pooled t only if the course asks for it.</li>
+<li>Tick <em>Mean difference</em>, <em>Confidence interval</em>, <em>Effect size</em> (Cohen's d) and <em>Descriptives plots</em>.</li>
+<li>Read: the difference and its interval first, then t, df and p, then the conclusion. The assumption lines report sample sizes and shape.</li>
+</ol>
+<p><strong>If the data are skewed with small groups:</strong> <span class="path">Nonparametric › Mann-Whitney U (two groups)</span>. <span class="pro">With no assumptions at all: <span class="path">Advanced › Permutation test</span> (design: two independent groups).</span></p>
+<p class="pro"><strong>Report:</strong> <code>t(37.2) = 2.46, p = .019, d = 0.78, 95% CI of the difference [0.9, 9.6]</code>. Welch's df is fractional; that is correct.</p>
+</div>
+
+<div class="method"><h3>Two different groups, a yes or no: two-proportion z test or a 2 by 2 table</h3>
+<ol>
+<li><span class="path">Frequencies › Two proportions: z test</span>. Data: a yes or no column and a two-level group column (name the success level), or type successes and n for each group.</li>
+<li>Read the difference in proportions with its interval, z and p. The card checks that each group has at least 10 successes and 10 failures.</li>
+<li><strong>Small counts:</strong> <span class="path">Frequencies › Contingency Tables: Independent Samples</span> with the same two columns; tick <em>Fisher's exact test (2 by 2)</em> and choose its direction. <span class="pro">Tick <em>Odds ratio and relative risk (2 by 2)</em> for the risk ratio and odds ratio with intervals; relative risk needs a cohort (groups defined before the outcome), the odds ratio is valid in case-control designs too.</span></li>
+</ol></div>
+
+<div class="method" id="paired"><h3>The same people measured twice: paired t test</h3>
+<p><strong>Use it</strong> for before and after, pre-test and post-test, or matched pairs. The analysis is of the differences.</p>
+<ol>
+<li>Data: two numeric columns, one row per person (before, after).</li>
+<li><span class="path">T-Tests › Paired Samples T-Test</span>; tick <em>Confidence interval</em>, <em>Effect size</em> and <em>Histogram of differences</em>.</li>
+<li>Read the mean difference and its interval, then t, df = n − 1 and p. The histogram of differences is the assumption check.</li>
+</ol>
+<p><strong>Skewed differences or ratings:</strong> <span class="path">Nonparametric › Wilcoxon signed-rank and sign test (paired)</span>. <strong>A yes or no measured twice:</strong> <span class="path">Advanced › McNemar test (paired yes or no)</span>, which uses only the people who changed.</p>
+<div class="warn">Running an independent-samples test on paired data throws away the pairing and usually hides a real change. If each row is one person measured twice, it is paired.</div>
+</div>
+
+<div class="method" id="three"><h3>Three or more different groups: one-way ANOVA</h3>
+<ol>
+<li>Data: one numeric column and one grouping column with three or more levels.</li>
+<li><span class="path">ANOVA › One-Way ANOVA</span>. Keep <em>Assume equal (Fisher's)</em> and add <em>Don't assume equal (Welch's)</em>; tick <em>Post-Hoc Tests: Tukey</em>, <em>Descriptives table</em>, <em>Descriptives plots</em> and <em>Levene's test of equal variances</em>.</li>
+<li>Read F, df and p for "any difference", then the Tukey table for which pairs differ (its p-values are already adjusted for the number of comparisons). η² on the APA line is the share of variance explained.</li>
+<li>If Levene's p is small or the largest SD is more than twice the smallest, read Welch's F instead.</li>
+</ol>
+<p><strong>Skewed data or ordinal ratings:</strong> <span class="path">ANOVA › Kruskal-Wallis (three or more groups)</span>.</p>
+<p class="pro"><strong>Report:</strong> <code>F(3, 36) = 4.21, p = .012, η² = .26</code>, then each Tukey pair that differs with its adjusted p and mean difference.</p>
+</div>
+
+<div class="method"><h3>The same people measured three or more times: repeated-measures ANOVA</h3>
+<ol>
+<li>Data in wide form: one column per time or condition (week1, week4, week8), one row per person. Optionally a between-subjects group column for a mixed design.</li>
+<li><span class="path">ANOVA › Repeated Measures and Mixed ANOVA</span>: list the <em>Repeated measures columns, in order</em>; tick <em>Pairwise paired t-tests with Holm correction</em>.</li>
+<li>Read the within-subjects F (with the sphericity note), the group and interaction rows in a mixed design, and the Holm-adjusted pairs.</li>
+</ol>
+<p><strong>Ratings or skewed data:</strong> <span class="path">ANOVA › Friedman (nonparametric repeated measures)</span>, with Kendall's W as the effect size.</p>
+</div>
+
+<div class="pro" id="factorial">
+<div class="method"><h3>Two factors at once: two-way ANOVA</h3>
+<ol>
+<li>Data: one numeric outcome and two categorical factors (teaching method by campus).</li>
+<li><span class="path">ANOVA › Two-Way ANOVA</span>; keep <em>Include the A x B interaction</em>.</li>
+<li>Read the interaction row first. If it is significant, the effect of one factor depends on the other: describe cell means, do not interpret the main effects alone. If not, read each main effect.</li>
+</ol></div>
+<div class="method"><h3>Groups after adjusting for a covariate: ANCOVA</h3>
+<ol>
+<li>Data: a numeric outcome, a group column, and one or more numeric covariates (a pre-test score, age).</li>
+<li><span class="path">ANOVA › ANCOVA</span>; tick <em>Pairwise comparisons of the adjusted means (Holm adjusted)</em> and the scatterplot with parallel lines.</li>
+<li>Read the homogeneity-of-slopes check first (a significant group by covariate interaction means ANCOVA's parallel-lines assumption fails; report the interaction model instead). Then the group F with partial η², the adjusted means and the Holm pairs.</li>
+</ol>
+<div class="say">A pre-test as covariate is the standard analysis of a pre-post experiment with a control group; it beats a t test on gain scores for power.</div></div>
+<div class="method"><h3>Several outcomes at once: MANOVA</h3>
+<ol>
+<li>Data: two or more numeric outcomes and one group column.</li>
+<li><span class="path">ANOVA › MANOVA</span>; tick <em>Follow-up: one-way ANOVA on each outcome</em>.</li>
+<li>Read Pillai's trace (most robust) with its F and p; then the follow-up ANOVAs to see which outcomes carry the difference.</li>
+</ol></div>
+</div>
+
+<h2 id="relate">C. Relationships between two variables</h2>
+<div class="method"><h3>Two numbers: correlation</h3>
+<ol>
+<li><span class="path">Graph › Scatter Plot</span> first. A relationship that is curved, or driven by one point, is not a correlation question.</li>
+<li><span class="path">Regression › Correlation Matrix</span>: pick the variables; tick <em>Pearson</em>, <em>Report significance</em> and <em>Scatter plots (pairs)</em>. Add <em>Spearman</em> for ratings, ranks or outliers.</li>
+<li>Read r (direction and strength, −1 to 1), its p for "different from zero", and the scatterplot. r² is the share of variance shared.</li>
+</ol>
+<div class="warn">Correlation is not causation. A third variable can produce a correlation between two others (ice cream and drowning share summer). <span class="pro">For an observational regression, section J quantifies how strong such a variable would have to be.</span></div>
+</div>
+
+<div class="method"><h3>Two categories: chi-square test of independence</h3>
+<ol>
+<li>Data: two category columns (major by employment), or a typed table of counts.</li>
+<li><span class="path">Frequencies › Contingency Tables: Independent Samples</span>; tick <em>chi-square</em>, <em>Observed counts</em>, <em>Expected counts</em> and <em>Row percentages</em> (the percentages are what you interpret).</li>
+<li>Read χ², df = (rows − 1)(columns − 1) and p; the card checks that every expected count is at least 5. For a 2 by 2 table with small counts tick <em>Fisher's exact test (2 by 2)</em>.</li>
+</ol>
+<p class="pro"><strong>Effect size:</strong> for a 2 by 2 table report the risk ratio or odds ratio with its interval (tick <em>Odds ratio and relative risk</em>); for larger tables describe the row percentages that differ most.</p>
+</div>
+
+<div class="method"><h3>A number across groups</h3>
+<p>That is a group comparison: see <a href="#two">two groups</a> or <a href="#three">three or more groups</a>. <span class="path">T-Tests › Which test?</span> routes it.</p></div>
+
+<h2 id="predict">D. Predict an outcome</h2>
+<div class="method" id="predict-num"><h3>A number from one number: simple linear regression</h3>
+<ol>
+<li><span class="path">Regression › Linear Regression</span>: outcome y and predictor x. Tick <em>Confidence interval for coefficients</em>, <em>R and R squared (Model Fit)</em>, <em>Residual plots</em> and <em>Q-Q plot of residuals</em>. Enter values under <em>Predict at x =</em> to get predictions with intervals; tick the bands on the graph.</li>
+<li>Read the equation ŷ = b₀ + b₁x, the slope's interval and p (H₀: β₁ = 0), and R². The residual plot should be a shapeless cloud; a curve or a fan means the line is the wrong model or the spread changes with x.</li>
+<li>Predict only inside the range of x you observed.</li>
+</ol>
+<p class="pro"><strong>Report:</strong> <code>b = 0.082, 95% CI [0.03, 0.13], t(38) = 3.21, p = .003, R² = .21</code>; say the units ("each extra hour of study predicts 0.08 GPA points").</p>
+</div>
+
+<div class="method pro"><h3>A number from several variables: multiple linear regression</h3>
+<ol>
+<li>Data: a numeric outcome, numeric predictors, and categorical predictors (dummy coded by the app; the most frequent level is the reference).</li>
+<li><span class="path">Advanced › Multiple Linear Regression</span>. Tick <em>VIF (collinearity)</em>, <em>Influence diagnostics</em>, <em>Residual plot</em> and <em>Q-Q plot of residuals</em>. Add squared terms or an interaction only with a reason.</li>
+<li>Read each coefficient as "holding the others fixed", with its interval; adjusted R² for fit; VIF above 5 means two predictors say the same thing; Cook's distance flags cases that drive the fit.</li>
+<li>Compare nested models with the <em>nested F test</em> option when deciding whether a block of predictors earns its place. Backward elimination is shown as a teaching demo, not a recommendation.</li>
+</ol></div>
+
+<div class="method pro" id="predict-yn"><h3>A yes or no from predictors: logistic regression</h3>
+<ol>
+<li>Data: a two-level outcome column (say which level is modelled as 1), numeric and categorical predictors.</li>
+<li><span class="path">Advanced › Logistic Regression</span>.</li>
+<li>Read the odds ratios (exp(b)) with intervals: an OR of 1.5 means the odds of the outcome multiply by 1.5 per unit of the predictor, others fixed. The model χ² against the intercept-only model tests the model as a whole; McFadden R² is a rough fit index; the classification table shows accuracy at the 0.5 cut.</li>
+</ol>
+<div class="say">Ten events per predictor is a working minimum. If a predictor separates the outcome perfectly, the coefficient runs away; the card warns, and a penalized method outside the app is the fix.</div></div>
+
+<div class="pro" id="predict-more">
+<div class="method"><h3>A count of events: Poisson and negative binomial regression</h3>
+<ol>
+<li>Data: a count outcome (calls per shift, infections per ward, citations per officer) and predictors. An exposure that varies (hours, population) belongs in the model as an offset; if the app's model has none, divide to a rate only for description and keep the counts for the test.</li>
+<li><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span>; run Poisson, then read the dispersion check. If the variance is well above the mean, switch <em>Model</em> to negative binomial.</li>
+<li>Read rate ratios exp(b): the multiplicative change in the expected count per unit of the predictor.</li>
+</ol></div>
+<div class="method"><h3>An ordered rating: ordinal logistic regression</h3>
+<ol>
+<li>Data: an ordered outcome (poor, fair, good, excellent); type the levels from lowest to highest exactly as in the data.</li>
+<li><span class="path">Advanced › Ordinal Logistic Regression</span>.</li>
+<li>Read one odds ratio per predictor (the proportional-odds assumption: the same effect at every cut). If that assumption is doubtful, fit the multinomial model and compare.</li>
+</ol></div>
+<div class="method"><h3>Several unordered categories: multinomial logistic regression</h3>
+<ol>
+<li><span class="path">Advanced › Multinomial Logistic Regression</span>; choose the baseline level.</li>
+<li>Read one equation per level against the baseline; exp(b) is a relative risk ratio for that level.</li>
+</ol></div>
+<div class="method"><h3>A proportion across ordered groups: Cochran-Armitage trend test</h3>
+<ol>
+<li>Data: a yes or no outcome and an ordered group (dose, age band, year).</li>
+<li><span class="path">Advanced › Cochran-Armitage trend test</span>; list the group levels in order.</li>
+<li>Read the trend z and p: a linear rise or fall in the proportion, which is more powerful than the chi-square for "any difference" when the order matters.</li>
+</ol></div>
+</div>
+
+<h2 id="time">E. Change over time</h2>
+<div class="method"><h3>Before and after</h3>
+<p>Two measurements of the same units: the <a href="#paired">paired t test</a> (numbers), Wilcoxon (ratings), McNemar (yes or no). Three or more measurements: <a href="#three">repeated-measures ANOVA</a> or Friedman. <span class="pro">With a control group, ANCOVA on the post-test with the pre-test as covariate.</span></p></div>
+<div class="method"><h3>A series over time: trend, season, forecast</h3>
+<ol>
+<li>Data: one row per time point in order, a numeric column; a date or period column is optional.</li>
+<li><span class="path">Advanced › Time Series</span>. Set the <em>Seasonal period</em> (12 monthly, 4 quarterly, 7 daily). Tick <em>Decomposition</em>, <em>Autocorrelation (ACF and PACF)</em>, <em>Linear trend and Durbin-Watson</em> and the Holt forecast with the steps ahead you need.</li>
+<li>Read the decomposition (trend, seasonal, remainder), the trend slope per period, and the forecast with its band. Durbin-Watson near 2 means the residuals are not autocorrelated; far from 2 means the simple trend line understates uncertainty.</li>
+</ol>
+<div class="warn">A t test comparing "the first half of the years with the second half" ignores that the points are not independent. Use the trend test on the Time Series card instead.</div></div>
+
+<div class="pro">
+<h2 id="scales">F. Scales and reliability</h2>
+<div class="method"><h3>Do the items of a questionnaire hang together: Cronbach's alpha</h3>
+<ol>
+<li>Data: one column per item of one scale (3 or more), same direction of scoring; list reverse-keyed items and the app flips them.</li>
+<li><span class="path">Advanced › Reliability (Cronbach's alpha)</span>.</li>
+<li>Read α (0.70 acceptable, 0.80 good for research, 0.90 for decisions about individuals), the item-total correlations, and alpha if each item is dropped: an item that raises alpha when removed does not belong.</li>
+</ol></div>
+<div class="method"><h3>How many things do the items measure: exploratory factor analysis</h3>
+<ol>
+<li><span class="path">Advanced › Exploratory Factor Analysis</span>: pick the items, set the number of factors (start from the eigenvalues above 1 that PCA shows), keep varimax, hide loadings below 0.30.</li>
+<li>Read the rotated loadings: each item should load on one factor. Name the factors from their items; compute alpha for each factor's items separately.</li>
+</ol></div>
+
+<h2 id="structure">G. Structure in many variables</h2>
+<div class="method"><h3>Summarize many measurements: principal component analysis</h3>
+<ol>
+<li><span class="path">Advanced › Principal Component Analysis</span> on 3 or more numeric variables (standardized internally).</li>
+<li>Read the eigenvalues and cumulative percent of variance; keep components above 1 or until about 70 to 80 percent; read loadings to name them. Varimax makes them easier to name.</li>
+</ol></div>
+<div class="method"><h3>Find natural groups of cases: k-means clustering</h3>
+<ol>
+<li><span class="path">Advanced › k-means Clustering</span>: numeric variables, standardized (keep the tick), a seed for a repeatable answer, and the <em>Elbow plot for k = 1 to 8</em>.</li>
+<li>Choose k at the elbow; read cluster sizes and centers; tick <em>Add the cluster labels to the data</em> to describe the clusters with Descriptives by group.</li>
+<li>Clusters are a description, not a test: different seeds or variables give different clusters.</li>
+</ol></div>
+
+<h2 id="survival">H. Time to an event</h2>
+<div class="method"><h3>Kaplan-Meier curves, the log-rank test and Cox regression</h3>
+<ol>
+<li>Data: one row per subject with the time observed, an event column (say which level means the event happened; the others are censored: still alive, still enrolled, lost to follow-up), an optional group, and predictors for the Cox model.</li>
+<li><span class="path">Advanced › Survival Analysis: Kaplan-Meier, log-rank, Cox</span>; tick the <em>Risk table</em> and the <em>Confidence band</em>.</li>
+<li>Read the median survival per group with its interval, the log-rank χ² and p for a difference between curves, and the Cox hazard ratios exp(b) with intervals: a hazard ratio of 0.6 means a 40 percent lower event rate at every moment, others fixed.</li>
+<li>Check proportional hazards by eye: the curves should not cross.</li>
+</ol>
+<div class="say">Censoring is why a t test on "days survived" is wrong: the patients still alive at the end of the study have no number to average.</div></div>
+</div>
+
+<h2 id="plan">I. Plan a study</h2>
+<div class="method"><h3>How many people do I need?</h3>
+<ol>
+<li>For a survey estimate: <span class="path">distrACTION › Sample size for a margin of error</span>. Pick a mean or a proportion, the margin of error you can accept, and a guess for p (0.5 is the safe guess) or s.</li>
+<li>For a test: <span class="path">Advanced › Power and Sample Size</span>. Pick the test, the effect size you want to detect (a difference that would matter, not the one you hope for), α, and a target power of 0.80 or 0.90; read n per group. Or enter n and read the power you have.</li>
+</ol>
+<p class="pro">Pilot data give the SD; the literature gives the smallest effect worth finding. Plan for drop-out by inflating n. A study that is underpowered cannot distinguish "no effect" from "too small to see", which is the most common reason a null result is uninformative.</p>
+</div>
+<div class="method pro"><h3>When the formula's assumptions are doubtful</h3>
+<ol>
+<li><span class="path">Advanced › Bootstrap confidence interval</span>: an interval for a mean, median, SD, proportion, correlation or difference from resampling, no normality needed. Set a seed so the answer repeats.</li>
+<li><span class="path">Advanced › Permutation test</span>: a p-value for a difference between groups, or a correlation, by reshuffling labels. The null distribution is built from your own data.</li>
+<li><span class="path">Advanced › Bayesian Inference (conjugate priors)</span>: a posterior interval for a proportion or a mean given a prior; useful when a prior is honest (a previous study) and when the question is "how probable is the effect larger than x".</li>
+</ol></div>
+
+<div class="pro">
+<h2 id="causal">J. Causal questions with observational data</h2>
+<div class="method"><h3>Could a lurking variable explain the result: sensitivity analysis</h3>
+<p>A regression on observational data adjusts for the variables you measured. The question a reviewer asks is how strong an unmeasured variable would have to be to overturn the result. The Cinelli-Hazlett benchmark answers it in the units of a variable you did measure.</p>
+<ol>
+<li>Fit the regression you report: outcome, the treatment or exposure of interest, and the covariates (categorical ones dummy coded).</li>
+<li><span class="path">Regression › Sensitivity to a lurking variable</span>: name the treatment and a benchmark covariate (the strongest one you have); try multiples of it.</li>
+<li>Read the robustness value: the share of residual variance a lurking variable would need to explain, of both treatment and outcome, to bring the estimate to zero (and, separately, to make it non-significant). Then the benchmark rows: a variable "as strong as female" moves the estimate to the value shown. The contour plot shows the same thing for every strength.</li>
+<li>Write the conclusion the card gives: "a confounder would need to be k times as strong as the strongest observed covariate to explain the result away".</li>
+</ol>
+<div class="say">This does not prove causation. It states exactly how much hidden confounding the finding can survive, which is the honest form of a causal claim from observational data.</div></div>
+
+<h2 id="designs">By study design</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Design</th><th>Typical question</th><th>Usual plan in the app</th></tr></thead>
+<tbody>
+<tr><td><strong>Cross-sectional survey</strong> (one time, one sample)</td><td>How common is X; is X associated with Y?</td><td>Descriptives and frequency tables with Wilson intervals (Binomial test) → Contingency Tables for category by category → Correlation Matrix for number by number → Multiple or Logistic Regression to adjust for covariates → Reliability for any scale you built.</td></tr>
+<tr><td><strong>Randomized experiment</strong> (two or more arms)</td><td>Does the treatment change the outcome?</td><td>Descriptives by arm as a balance check → Independent Samples T-Test or One-Way ANOVA with Tukey (numbers), Two proportions or Contingency Tables (yes or no) → ANCOVA with the baseline as covariate when there is a pre-test → Power and Sample Size before you start.</td></tr>
+<tr><td><strong>Pre-post, one group</strong></td><td>Did it change?</td><td>Paired Samples T-Test (or Wilcoxon; McNemar for yes or no) → Repeated Measures ANOVA for three or more time points. Without a control group, say "changed", not "caused".</td></tr>
+<tr><td><strong>Cohort</strong> (follow groups forward)</td><td>Does exposure raise the risk?</td><td>Contingency Tables with Odds ratio and relative risk (relative risk is valid here) → Logistic or Count Regression to adjust → Survival Analysis when time to event matters → Sensitivity to a lurking variable.</td></tr>
+<tr><td><strong>Case-control</strong> (sample by outcome, look back)</td><td>Were cases more exposed?</td><td>Contingency Tables with the odds ratio only (relative risk is not estimable) → Logistic Regression to adjust → Sensitivity to a lurking variable.</td></tr>
+<tr><td><strong>Quality and process</strong></td><td>Is the process on target and stable?</td><td>Descriptives and QQ Plot → Variance tests for spread against a specification → One Sample T-Test against the target → Time Series for drift and autocorrelation → Power and Sample Size for sampling plans.</td></tr>
+<tr><td><strong>Program evaluation, public safety</strong></td><td>Did the program reduce incidents?</td><td>Descriptives by period and area → Count Regression for incidents (negative binomial if overdispersed) → Time Series for trend and seasonality → Two proportions or Cochran-Armitage for rates across ordered periods → Sensitivity to a lurking variable for any causal reading.</td></tr>
+<tr><td><strong>Instrument development</strong></td><td>Does my questionnaire work?</td><td>Descriptives per item → Reliability (Cronbach's alpha) → Exploratory Factor Analysis → alpha per factor → Correlation Matrix of factor scores with criterion measures.</td></tr>
+</tbody></table></div>
+</div>
+
+<h2 id="report">Reporting checklist</h2>
+<ol class="stu">
+<li>The question in one sentence, and H₀ and Hₐ in symbols.</li>
+<li>The method and why it fits (what was measured, how many groups, paired or not).</li>
+<li>The descriptives: n, mean and SD, or counts and percents, for each group.</li>
+<li>The result line the app writes (APA style), with the test statistic, df, p and the effect size.</li>
+<li>The decision at α and a plain-English sentence about the data, not about the test.</li>
+<li>The assumption check and what you did about it.</li>
+</ol>
+<ol class="pro">
+<li>Design: how units were sampled or assigned, the time frame, and what was pre-registered or decided in advance.</li>
+<li>Variables: how each was measured, the levels of every categorical variable, how missing data were handled, and n at each stage.</li>
+<li>Descriptives: Table 1 by group with n, mean (SD) or median [IQR], counts (percent).</li>
+<li>Model or test: the exact method and software (Stats Without Walls, version from the About line), assumption checks and their result, and every alternative considered.</li>
+<li>Results: estimate, interval and p for every planned comparison; effect sizes; multiple-comparison adjustment named; exact p to three decimals (p &lt; .001 below that), never "p = 0.000".</li>
+<li>Limitations: power, confounding (with the sensitivity analysis if observational), generalizability.</li>
+<li>Reproducibility: <span class="path">Results › Save session (data + results)</span> or <span class="path">Results › Share link (data + analyses)</span> so a reader can rerun every card.</li>
+</ol>
+
+<h2 id="glossary">Glossary</h2>
+<div class="tablewrap"><table>
+<tbody>
+<tr><td><strong>α (alpha)</strong></td><td>The false-positive rate you accept, usually 0.05. Reject H₀ when p ≤ α.</td></tr>
+<tr><td><strong>Confidence interval</strong></td><td>The range of values for the population quantity that the data support at the stated level; width shows precision.</td></tr>
+<tr><td><strong>Effect size</strong></td><td>How big the difference or relationship is, in standard units (Cohen's d, r, η², odds ratio). A p-value says whether; an effect size says how much.</td></tr>
+<tr><td><strong>Independent vs paired</strong></td><td>Independent: different units in each group. Paired: the same units measured twice, or matched.</td></tr>
+<tr><td><strong>Nonparametric</strong></td><td>A test on ranks rather than values; no normality needed; less power when normality holds.</td></tr>
+<tr><td><strong>p-value</strong></td><td>The probability of data at least this extreme if H₀ were true. Not the probability that H₀ is true.</td></tr>
+<tr><td><strong>Power</strong></td><td>The probability of detecting an effect of a given size; 0.80 is the usual target.</td></tr>
+<tr class="pro"><td><strong>Overdispersion</strong></td><td>Counts whose variance exceeds their mean; the Poisson model understates uncertainty, the negative binomial fixes it.</td></tr>
+<tr class="pro"><td><strong>Proportional hazards</strong></td><td>The Cox model's assumption that the hazard ratio is constant over time; crossing survival curves violate it.</td></tr>
+<tr class="pro"><td><strong>Robustness value</strong></td><td>The strength an unmeasured confounder needs, as a share of residual variance in both treatment and outcome, to explain a result away.</td></tr>
+<tr><td><strong>Welch's t</strong></td><td>The two-sample t test that does not assume equal variances; the right default.</td></tr>
+</tbody></table></div>
+<p class="note">Every menu path in this guide names an item in the app as written. Open <a href="guide.html">the user guide</a> for the screen, data handling and each card's options.</p>
+</main>
+</div>
+<script>
+(function () {
+  var KEY = "sww_methods_ed", stu = document.getElementById("edStu"), pro = document.getElementById("edPro");
+  function set(ed, store) {
+    document.body.classList.toggle("ed-student", ed === "student"); document.body.classList.toggle("ed-pro", ed === "pro");
+    stu.setAttribute("aria-pressed", String(ed === "student")); pro.setAttribute("aria-pressed", String(ed === "pro"));
+    if (store) { try { localStorage.setItem(KEY, ed); } catch (e) { } }
+  }
+  var ed = null; try { ed = localStorage.getItem(KEY); if (!ed) { var m = JSON.parse(localStorage.getItem("sww_mode") || "null"); if (m && m.who === "researcher") ed = "pro"; } } catch (e) { }
+  if (location.hash === "#pro") ed = "pro"; if (location.hash === "#student") ed = "student";
+  set(ed === "pro" ? "pro" : "student", false);
+  stu.onclick = function () { set("student", true); }; pro.onclick = function () { set("pro", true); };
+  window.addEventListener("hashchange", function () { if (location.hash === "#pro") set("pro", true); if (location.hash === "#student") set("student", true); });
+})();
+</script>
+</body>
+</html>

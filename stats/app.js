@@ -2956,6 +2956,7 @@
       <div class="emptybtns"><button type="button" class="go" data-go="Sample datasets">Sample datasets</button><button type="button" data-go="Open CSV file">Open CSV file</button><button type="button" data-go="Paste data">Paste data</button><button type="button" data-go="New data table">New data table</button></div>
       <p class="muted">${MODE.field === "general" ? "Analyses most people start with" : "Analyses " + esc(F.label).toLowerCase() + " reaches for first"} (each asks for data first):</p>
       <div class="emptybtns typical">${typical.map(([m, l]) => `<button type="button" data-run="${escA(m)}|${escA(l)}">${esc(l)}</button>`).join("")}</div>${F.note ? `<p class="muted">${esc(F.note)}</p>` : ""}
+      <p class="muted">Not sure which method fits your question? <a href="methods.html${MODE.who === "researcher" ? "#pro" : ""}">Read the Methods Guide</a>: every method by research question, with the steps in this app.</p>
       <p class="muted">No data needed for these two. Each opens on its own page.</p>
       <div class="emptybtns"><a class="pagebtn" href="#distraction">distrACTION <span>probability calculators</span></a><a class="pagebtn" href="#learn">Learn <span>classroom demonstrations</span></a></div>
       <p class="muted">Means use t with degrees of freedom; decisions use the p-value. Your data stay on this computer, and the page works offline once loaded.</p></div>`;
