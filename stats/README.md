@@ -51,8 +51,20 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 - **Frequencies, One proportion: z test**: the z test for a single proportion now has its own menu item (it used to be a
   tick box inside the binomial test). The card leads with SE₀, z, the p-value and the worked numbers, checks the conditions
   (n p₀ and n(1 − p₀) both at least 10) and says plainly when they fail, and shows the exact binomial p-value underneath as
-  a check. The binomial test item is unchanged. Ask, the Which-test wizard and both guides point to it. Service worker cache
-  `sww-v64`, scripts `?v=67`.
+  a check. The binomial test item is unchanged. Ask, the Which-test wizard and both guides point to it.
+- **Ask answers questions.** Until now Ask only routed ("compare two groups" opens the t test). It now answers what things
+  mean, in plain words, with a Learn demo where one exists and a link into the Methods Guide: the p-value, α, H₀ and Hₐ,
+  Type I and II errors, power, confidence intervals, SD against SE, z-scores, mean against median, skew, IQR and boxplots,
+  outliers, which graph, sampling distributions and the CLT, parameters and statistics, degrees of freedom, t or z, tails,
+  significance against importance, d and η², R², r, correlation and causation, slope and intercept, residuals, assumptions,
+  VIF, dummy variables, interactions, odds ratios, rate ratios and overdispersion, AIC and BIC, likelihood-ratio tests, ML
+  and REML, fixed and random effects and the ICC, Satterthwaite df, F and post hoc tests, Levene and Welch, normality
+  checks, nonparametric tests, paired against independent, expected counts, bootstrap, permutation and Bayesian ideas,
+  probability rules, the binomial setting, the normal curve, percentiles, margin of error, sampling methods and bias,
+  experiments and confounding, variable types, survival terms, Cronbach's alpha, factors and loadings, choosing k, the
+  robustness value, and the app itself. **"Explain my result"** reads the newest card back: its APA line, conclusion and
+  warnings, with a note on what the p-value does and does not say. A question gets the answer first and then, at most, one
+  way to run it; a request still gets the method first. Service worker cache `sww-v65`, scripts `?v=68`.
 
 ### 2026-10-17 (night): mixed-effects models
 
