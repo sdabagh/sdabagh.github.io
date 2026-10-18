@@ -46,6 +46,18 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-21 (later): mediation, and marginal means after two-way ANOVA
+
+- **Regression, Mediation (indirect effect through a mediator)**: paths a, b, c′ and c by OLS with covariates, the indirect
+  effect a × b with Sobel's test and a percentile bootstrap interval (seeded, 2000 resamples by default, as the mediation
+  package's boot = TRUE), the share mediated, a histogram of the bootstrap distribution, and the causal assumptions stated.
+  Checked by identity (c = c′ + a × b exactly; Sobel by hand).
+- **Two-Way ANOVA** prints **estimated marginal means** for each factor (emmeans' equal-weights definition, SEs from the
+  model) with Tukey-adjusted pairwise comparisons, and says when the interaction makes them misleading. With balanced data
+  they equal the raw marginal means (checked). The Script view adds the emmeans and mediation::mediate lines; Ask routes
+  both; the Methods Guide has a mediation section and a marginal-means step. Engine: `S.emm2`, `S.mediation`. Service
+  worker cache `sww-v75`, scripts `?v=78`.
+
 ### 2026-10-21: survey weights
 
 - **Advanced, Survey estimates with weights (design-based)**: weighted means and proportions with Taylor-linearized standard

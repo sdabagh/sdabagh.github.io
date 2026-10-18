@@ -464,6 +464,30 @@
     const unw = S.mean(x), unwSE = Math.sqrt(x.reduce((s, q) => s + (q - unw) ** 2, 0) / (n - 1) / n);
     return { mean, se, n, sumW: W, deff, neff: Number.isFinite(deff) && deff > 0 ? n / deff : NaN, kish, unweighted: unw, unweightedSE: unwSE, strata: byH.size, clusters: [...new Set(clus)].length, singleStrata: single };
   };
+  // Estimated marginal means after a two-way ANOVA (emmeans: equal weights over the levels of the other factor; Tukey-adjusted
+  // pairwise comparisons for each factor). Fitted as the same dummy-coded model as S.anova2.
+  S.emm2 = (y, A, B, interaction = true, conf = 0.95) => {
+    const dA = S.dummies(A), dB = S.dummies(B), ka = dA.levels.length, kb = dB.levels.length;
+    const rowOf = (a, b) => { const ra = dA.levels.slice(1).map((l) => (l === a ? 1 : 0)), rb = dB.levels.slice(1).map((l) => (l === b ? 1 : 0)); return ra.concat(rb, interaction ? ra.flatMap((p) => rb.map((q) => p * q)) : []); };
+    const X = y.map((_, i) => rowOf(A[i], B[i])), m = S.ols(X, y, X[0].map((_, j) => "x" + j), conf, { light: true }), V = m.covb, df = m.df, tstar = S.qt(1 - (1 - conf) / 2, df);
+    const est = (L) => { const e = L.reduce((s, l, j) => s + l * m.b[j], 0); let v = 0; for (let i = 0; i < L.length; i++) for (let j = 0; j < L.length; j++) v += L[i] * V[i][j] * L[j]; return { est: e, se: Math.sqrt(Math.max(v, 0)) }; };
+    const Lcell = (a, b) => [1].concat(rowOf(a, b)), avg = (Ls) => Ls[0].map((_, j) => Ls.reduce((s, L) => s + L[j], 0) / Ls.length);
+    const factor = (levels, Lof, k) => { const Ls = levels.map(Lof), means = Ls.map((L) => { const r = est(L); return { est: r.est, se: r.se, lower: r.est - tstar * r.se, upper: r.est + tstar * r.se }; }), pairs = [];
+      for (let i = 0; i < levels.length; i++) for (let j = i + 1; j < levels.length; j++) { const d = Ls[i].map((v, q) => v - Ls[j][q]), r = est(d), t = r.est / r.se; let p; try { p = 1 - S.ptukey(Math.abs(t) * Math.SQRT2, k, df); } catch (e) { p = NaN; } pairs.push({ a: levels[i], b: levels[j], diff: r.est, se: r.se, t, df, p }); }
+      return { levels, means, pairs }; };
+    return { A: factor(dA.levels, (a) => avg(dB.levels.map((b) => Lcell(a, b))), ka), B: factor(dB.levels, (b) => avg(dA.levels.map((a) => Lcell(a, b))), kb), cells: dA.levels.flatMap((a) => dB.levels.map((b) => { const r = est(Lcell(a, b)); return { a, b, est: r.est, se: r.se }; })), df, mse: m.se_res * m.se_res };
+  };
+  // Simple mediation x -> m -> y with covariates: paths a (m on x), b and c' (y on m and x), c (y on x); indirect a*b with Sobel's
+  // SE and a percentile bootstrap interval (the mediation package's boot = TRUE); c = c' + a*b holds exactly for OLS.
+  S.mediation = (y, x, med, C, opts = {}) => {
+    const reps = opts.reps || 2000, conf = opts.conf || 0.95, r = S.rng(opts.seed == null || opts.seed === "" ? 12345 : Number(opts.seed)), n = y.length;
+    const fit = (yy, cols) => S.ols(yy.map((_, i) => cols.map((c) => c[i])), yy, cols.map((_, j) => "v" + j), conf, { light: true });
+    const paths = (yy, xx, mm, CC) => { const A = fit(mm, [xx].concat(CC)), Bf = fit(yy, [xx, mm].concat(CC)), Cf = fit(yy, [xx].concat(CC)); return { a: A.b[1], sa: A.se[1], pa: A.p[1], b: Bf.b[2], sb: Bf.se[2], pb: Bf.p[2], cp: Bf.b[1], scp: Bf.se[1], pcp: Bf.p[1], c: Cf.b[1], sc: Cf.se[1], pc: Cf.p[1], fitA: A, fitB: Bf, fitC: Cf }; };
+    const P = paths(y, x, med, C), ab = P.a * P.b, sobel = Math.sqrt(P.b * P.b * P.sa * P.sa + P.a * P.a * P.sb * P.sb), z = ab / sobel;
+    const boots = []; for (let k = 0; k < reps; k++) { const idx = Array.from({ length: n }, () => Math.floor(r() * n)); try { const Q = paths(idx.map((i) => y[i]), idx.map((i) => x[i]), idx.map((i) => med[i]), C.map((c) => idx.map((i) => c[i]))); boots.push(Q.a * Q.b); } catch (e) { } }
+    boots.sort((u, v) => u - v); const lo = S.quantile(boots, (1 - conf) / 2), hi = S.quantile(boots, 1 - (1 - conf) / 2);
+    return Object.assign(P, { ab, sobel, z, pSobel: 2 * (1 - S.pnorm(Math.abs(z))), bootLower: lo, bootUpper: hi, boots, reps: boots.length, propMediated: P.c !== 0 ? ab / P.c : NaN, n, conf });
+  };
   S.dummies = (vals, ref) => { // reference = the most frequent level unless given; a rare reference makes every coefficient unstable
     const c = S.counts(vals); let lv = Object.keys(c).sort(); const r = ref && lv.includes(ref) ? ref : lv.reduce((a, b) => (c[b] > c[a] ? b : a), lv[0]); lv = [r].concat(lv.filter((l) => l !== r));
     return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };

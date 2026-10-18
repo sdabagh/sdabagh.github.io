@@ -236,6 +236,7 @@ body.ed-pro .stu{display:none}
 <li>Data: one numeric outcome and two categorical factors (teaching method by campus).</li>
 <li><span class="path">ANOVA › Two-Way ANOVA</span>; keep <em>Include the A x B interaction</em>.</li>
 <li>Read the interaction row first. If it is significant, the effect of one factor depends on the other: describe cell means, do not interpret the main effects alone. If not, read each main effect.</li>
+<li>Then the <strong>estimated marginal means</strong> (emmeans): each level's model-based mean averaged over the other factor with equal weights, with Tukey-adjusted pairwise comparisons, which say which levels differ. With unequal cell sizes they are the means to report, not the raw ones.</li>
 </ol></div>
 <div class="method"><h3>Groups after adjusting for a covariate: ANCOVA</h3>
 <ol>
@@ -407,6 +408,14 @@ body.ed-pro .stu{display:none}
 
 <div class="pro">
 <h2 id="causal">J. Causal questions with observational data</h2>
+<div class="method"><h3>Does X work through M: mediation</h3>
+<ol>
+<li>Data: an outcome Y, a predictor or treatment X (a two-level group coded 0/1), a mediator M measured after X and before Y, and any covariates.</li>
+<li><span class="path">Regression › Mediation (indirect effect through a mediator)</span>; keep 2000 or more bootstrap resamples and set a seed for a report.</li>
+<li>Read path a (X to M), path b (M to Y holding X), the direct effect c′ and the indirect effect a × b with its percentile bootstrap interval; the Sobel test is given for completeness but the bootstrap interval is the one to report. The share mediated is a × b over the total effect c.</li>
+<li>State the assumptions the card names: temporal order, and no unmeasured variable driving both M and Y (sequential ignorability). The sensitivity analysis below is the honest companion.</li>
+</ol>
+<p class="pro"><strong>Report:</strong> <code>indirect effect = 0.12, 95% bootstrap CI [0.04, 0.23] (5000 resamples); direct effect c′ = 0.31, p = .004; 28% of the total effect mediated</code>.</p></div>
 <div class="method"><h3>Could a lurking variable explain the result: sensitivity analysis</h3>
 <p>A regression on observational data adjusts for the variables you measured. The question a reviewer asks is how strong an unmeasured variable would have to be to overturn the result. The Cinelli-Hazlett benchmark answers it in the units of a variable you did measure.</p>
 <ol>
