@@ -46,6 +46,19 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-23 (later): ready for the app stores; large files
+
+- **Large files.** Above 4,000 rows the data table renders its first 300 rows and pages the rest in on scroll, on a button and under the
+  arrow keys, with one delegated edit listener instead of one per cell. The kept-row index and column reads are cached
+  for the length of one task. A 50,000-row CSV now opens in 0.4 s (was 25 s), Descriptives takes 0.7 s (was 17 s) and the
+  independent t-test 0.5 s (was 161 s: `col(v.g)[i]` recomputed the filter for every row). Browser test `bigdata.js`.
+- **Error bar.** A script error or unhandled rejection shows above the results with the build number; benign
+  ResizeObserver notices are ignored.
+- **Stores.** `manifest.json` gains an id, language, categories, orientation, a maskable icon entry and three screenshots
+  (`store/`), plus a Play feature graphic. `privacy.html` is the policy page the stores ask for, linked from the header,
+  the guide and the download page, and precached. iOS home-screen metas and `viewport-fit=cover` with safe-area padding.
+  `LAUNCH.md` is the checklist for wrapping and submitting. Browser test `launch.js`. Cache `sww-v79`, scripts `?v=82`.
+
 ### 2026-10-23: Spanish interface
 
 - **Results › Language / Idioma**, or the **Español** button in the header, shows the menus, dialogs, field labels, groups,

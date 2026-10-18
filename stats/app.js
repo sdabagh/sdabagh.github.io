@@ -148,14 +148,26 @@
     });
   }
   // active rows: those passing the filter
+  // activeIdx and col are called from inside loops all over the app (col(v.g)[i] for every row): with fifty thousand rows
+  // that was fifty thousand filter passes, two and a half billion steps, nearly three minutes for one t-test. The results
+  // are kept for the rest of the current task (one click, one dialog run) and dropped on the next one, so nothing has to
+  // remember to clear them; the key also catches a table swapped, a column or row added or removed, a filter or a facet
+  // changed inside the same task. Callers get the cached arrays themselves and never change them in place.
+  let MEMO = null;
+  function memo() {
+    const key = [D.rows, D.rows.length, D.cols.length, D.filter, FACET];
+    if (MEMO && MEMO.key.every((k, i) => k === key[i])) return MEMO;
+    MEMO = { key, idx: null, cols: new Map() }; setTimeout(() => { MEMO = null; }, 0); return MEMO;
+  }
   function activeIdx() {
+    const m = memo(); if (m.idx) return m.idx;
     let idx;
     if (!D.filter.trim()) idx = D.rows.map((_, i) => i);
     else { let f; try { f = SW.compileFormula(D.filter, D.cols, (c) => D.rows.map((r) => r[D.cols.indexOf(c)])); } catch (e) { throw new Error("Filter could not be read: " + e.message); } idx = []; D.rows.forEach((r, i) => { try { if (f(r)) idx.push(i); } catch (e) { } }); }
     if (FACET) { const j = D.cols.indexOf(FACET.col); if (j >= 0) idx = idx.filter((i) => FACET.key(D.rows[i][j]) === FACET.level); } // one panel of a small-multiples graph
-    return idx;
+    m.idx = idx; return idx;
   }
-  function col(name) { const j = D.cols.indexOf(name); if (j < 0) throw new Error("Column not found: " + name); const idx = activeIdx(); return idx.map((i) => D.rows[i][j]); }
+  function col(name) { const j = D.cols.indexOf(name); if (j < 0) throw new Error("Column not found: " + name); const m = memo(); if (m.cols.has(name)) return m.cols.get(name); const idx = activeIdx(), out = idx.map((i) => D.rows[i][j]); m.cols.set(name, out); return out; }
   const isNum = (c) => D.types[c] === "continuous" || D.types[c] === "ordinal";
   function numCols() { return D.cols.filter(isNum); }
   function catCols() { return D.cols.filter((c) => D.types[c] === "nominal" || D.types[c] === "ordinal"); }
@@ -182,17 +194,47 @@
     // Keyboard: the table is one Tab stop; arrow keys and Enter move inside it (see gridKeys).
     const sorted = (c) => (D.sortCol === c && D.order0Of === D.rows ? (D.sortDir > 0 ? "ascending" : "descending") : null);
     let h = `<table class="grid" aria-label="${escA(D.name || "Data")}: ${D.rows.length} rows, ${D.cols.length} columns" aria-describedby="gridHelp"><thead><tr><th><span class="sr-only">Row</span></th>` + D.cols.map((c) => { const so = sorted(c), t = TYPE_LABEL[D.types[c]]; return `<th data-col="${escA(c)}"${so ? ` aria-sort="${so}"` : ""}><button type="button" class="sortbtn" tabindex="-1" data-col="${escA(c)}" title="Sort by ${escA(c)}. Click again to reverse; a third click puts the rows back in their first order.">${esc(c)}${so ? `<span class="arr" aria-hidden="true">${so === "ascending" ? "&#9650;" : "&#9660;"}</span>` : ""}</button><button type="button" class="tybtn" tabindex="-1" data-col="${escA(c)}" aria-haspopup="menu" aria-expanded="false" aria-label="${escA(c)} type: ${escA(t)}. Change the type" title="Change the type"><small class="ty" data-col="${escA(c)}">${t} &#9662;</small></button></th>`; }).join("") + "</tr></thead><tbody>";
-    let keep = null; try { keep = new Set(activeIdx()); } catch (e) { }
-    D.rows.forEach((r, i) => { h += `<tr class="${keep && !keep.has(i) ? "off" : ""}"><td class="rn">${i + 1}</td>` + r.map((v, j) => `<td contenteditable tabindex="-1" data-i="${i}" data-j="${j}">${esc(v)}</td>`).join("") + "</tr>"; });
-    g.innerHTML = h + '</tbody></table><div id="gridHelp" class="sr-only">Arrow keys and Enter move between cells; type to change a value, Escape puts it back. Tab moves on past the table, except right after you type in a cell, when it goes to the next cell. Arrow up from the first row reaches the column names: Enter on a name sorts by it, Enter on a type changes the type.</div>';
-    g.querySelectorAll("td[contenteditable]").forEach((td) => td.addEventListener("blur", () => { const v = td.textContent.trim(), r = D.rows[+td.dataset.i]; if (!r || r[+td.dataset.j] === v) return; r[+td.dataset.j] = v; inferTypes(); refreshGridMeta(); changed(); }));
+    // Rows come in chunks: the first GRID_CHUNK at once, more as the table is scrolled (or on the button, or when the
+    // keyboard walks past the end). Fifty thousand editable cells at once froze the page for twenty seconds and made
+    // every dialog afterwards take seconds to open; the analyses always use every row, only the table is paged.
+    GRID_SHOWN = D.rows.length <= GRID_ALL ? D.rows.length : GRID_CHUNK; // every sample dataset is under the limit and shows whole, as before
+    h += gridRowsHtml(0, GRID_SHOWN);
+    g.innerHTML = h + '</tbody></table>' + gridMoreHtml() + '<div id="gridHelp" class="sr-only">Arrow keys and Enter move between cells; type to change a value, Escape puts it back. Tab moves on past the table, except right after you type in a cell, when it goes to the next cell. Arrow up from the first row reaches the column names: Enter on a name sorts by it, Enter on a type changes the type.</div>';
+    wireGridMore(g);
+    if (!g._editWired) { g._editWired = true; g.addEventListener("focusout", (e) => { const td = e.target && e.target.closest ? e.target.closest("td[contenteditable]") : null; if (!td) return; const v = td.textContent.trim(), r = D.rows[+td.dataset.i]; if (!r || r[+td.dataset.j] === v) return; r[+td.dataset.j] = v; inferTypes(); refreshGridMeta(); changed(); }); }
     g.querySelectorAll(".sortbtn").forEach((b) => (b.onclick = () => sortBy(b.dataset.col)));
     g.querySelectorAll(".tybtn").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); typePicker(b, b.dataset.col); }));
     const home = gridAt(GRIDPOS[0], GRIDPOS[1]) || gridAt(0, 0); if (home) { home.setAttribute("tabindex", "0"); if (hadFocus) home.focus({ preventScroll: true }); }
   }
   // ---- the data table by keyboard: one Tab stop (roving tabindex), arrows and Enter inside, the spreadsheet Tab after typing
   let GRIDPOS = [0, 0]; // [row, column] of the table's one Tab stop; row -2 is the column name, -1 the type button
-  function gridAt(i, j) { const g = $("#grid"); if (i < 0) { const th = g.querySelectorAll("thead th[data-col]")[j]; return th ? th.querySelector(i === -2 ? ".sortbtn" : ".tybtn") : null; } return g.querySelector(`td[data-i="${i}"][data-j="${j}"]`); }
+  const GRID_CHUNK = 300, GRID_ALL = 4000; let GRID_SHOWN = 0;
+  function gridRowsHtml(from, to) {
+    let keep = null; if (D.filter.trim()) { try { keep = new Set(activeIdx()); } catch (e) { } }
+    let h = ""; for (let i = from; i < to; i++) { const r = D.rows[i]; h += `<tr class="${keep && !keep.has(i) ? "off" : ""}"><td class="rn">${i + 1}</td>` + r.map((v, j) => `<td contenteditable tabindex="-1" data-i="${i}" data-j="${j}">${esc(v)}</td>`).join("") + "</tr>"; }
+    return h;
+  }
+  function gridMoreHtml() {
+    if (GRID_SHOWN >= D.rows.length) return "";
+    const left = D.rows.length - GRID_SHOWN, step = Math.min(left, 2000);
+    return `<div class="gridmore" id="gridMore"><span>${esc(T("Showing the first {a} of {b} rows. Every analysis uses all {b}; scroll for more.").replace("{a}", GRID_SHOWN.toLocaleString()).replace(/\{b\}/g, D.rows.length.toLocaleString()))}</span><button type="button" id="gridMoreBtn">${esc(T("Show {n} more rows").replace("{n}", step.toLocaleString()))}</button></div>`;
+  }
+  // append up to n more rows; the note under the table says what is shown, and goes when every row is
+  function renderMore(n) {
+    const g = $("#grid"), tb = g.querySelector("table.grid tbody"); if (!tb || GRID_SHOWN >= D.rows.length) return;
+    const to = Math.min(D.rows.length, GRID_SHOWN + n); tb.insertAdjacentHTML("beforeend", gridRowsHtml(GRID_SHOWN, to)); GRID_SHOWN = to;
+    const old = g.querySelector("#gridMore"); if (old) old.remove(); const more = gridMoreHtml(); if (more) { tb.closest("table").insertAdjacentHTML("afterend", more); wireGridMore(g); }
+  }
+  let GRID_IO = null;
+  function wireGridMore(g) {
+    const more = g.querySelector("#gridMore"); if (!more) return;
+    const btn = more.querySelector("#gridMoreBtn"); btn.onclick = () => { const was = GRID_SHOWN; renderMore(Math.min(D.rows.length - GRID_SHOWN, 2000)); const cell = gridAt(was, 0); if (cell) { cell.setAttribute("tabindex", "0"); cell.focus({ preventScroll: true }); } };
+    if (!("IntersectionObserver" in window)) return;
+    if (GRID_IO) GRID_IO.disconnect();
+    GRID_IO = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) renderMore(GRID_CHUNK); }, { root: g, rootMargin: "200px 0px" });
+    GRID_IO.observe(more);
+  }
+  function gridAt(i, j) { const g = $("#grid"); if (i >= GRID_SHOWN && i < D.rows.length) renderMore(i - GRID_SHOWN + 1); if (i < 0) { const th = g.querySelectorAll("thead th[data-col]")[j]; return th ? th.querySelector(i === -2 ? ".sortbtn" : ".tybtn") : null; } return g.querySelector(`td[data-i="${i}"][data-j="${j}"]`); }
   function gridPos(el) { if (!el || !el.closest) return null; if (el.matches("td[data-i]")) return [+el.dataset.i, +el.dataset.j]; const th = el.closest("th[data-col]"); if (!th || !el.matches(".sortbtn,.tybtn")) return null; return [el.classList.contains("sortbtn") ? -2 : -1, [...th.parentNode.querySelectorAll("th[data-col]")].indexOf(th)]; }
   (function gridKeys() {
     const g = $("#grid"); let typed = null;
@@ -3957,6 +3999,14 @@
   })();
   // A new release: the service worker installs it in the background, but the page keeps running the old copy until it is
   // reloaded. Say so, with a button, instead of leaving people on a version that no longer matches what they were told.
+  // a script error shows on the page with the build stamp instead of a silent nothing (benign ResizeObserver notices aside)
+  function showErrBar(msg) {
+    const bar = $("#errBar"); if (!bar || /ResizeObserver loop/.test(msg)) return;
+    bar.innerHTML = `<span>${esc(`Something went wrong (build ${BOT_BUILD}): ${msg}. If it keeps happening, reload with Ctrl+Shift+R (Cmd+Shift+R on a Mac); your data table stays.`)}</span><button type="button" id="errNo">Dismiss</button>`;
+    bar.hidden = false; $("#errNo").onclick = () => { bar.hidden = true; };
+  }
+  window.addEventListener("error", (e) => { if (e && e.message) showErrBar(e.message); });
+  window.addEventListener("unhandledrejection", (e) => { const r = e && e.reason; showErrBar(r && r.message ? r.message : String(r)); });
   function showUpdateBar() {
     const bar = $("#updateBar"); if (!bar || !bar.hidden) return;
     bar.innerHTML = `<span>A new version of the app is ready. Reload to use it: your data table stays, and the results on the page can be restored afterwards.</span><button type="button" class="go" id="updateYes">Reload now</button><button type="button" id="updateNo">Later</button>`;
