@@ -421,6 +421,32 @@
     const acc = S.mean(fitted.map((f, i) => ((f >= 0.5 ? 1 : 0) === y[i] ? 1 : 0)));
     return { names: ["Intercept"].concat(names), b, se, z, p: pv, or: b.map(Math.exp), orLower: b.map((v, i) => Math.exp(v - zstar * se[i])), orUpper: b.map((v, i) => Math.exp(v + zstar * se[i])), ll, ll0, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), mcfadden: 1 - ll / ll0, aic: -2 * ll + 2 * p, n, accuracy: acc, fitted, conf };
   };
+  // Diagnostics for a fitted logistic model. p: fitted probabilities, y: 0/1.
+  // ROC: a point per distinct fitted value (predict 1 when p >= t); AUC by the Mann-Whitney count (pROC's definition, ties count half);
+  // SE by Hanley and McNeil (1982); the best cut by Youden's J = sensitivity + specificity - 1.
+  S.roc = (p, y) => {
+    const n1 = y.filter((q) => q === 1).length, n0 = y.length - n1; let u = 0;
+    for (let i = 0; i < p.length; i++) if (y[i] === 1) for (let j = 0; j < p.length; j++) if (y[j] === 0) u += p[i] > p[j] ? 1 : p[i] === p[j] ? 0.5 : 0;
+    const auc = n1 && n0 ? u / (n1 * n0) : NaN, q1 = auc / (2 - auc), q2 = (2 * auc * auc) / (1 + auc);
+    const se = n1 && n0 ? Math.sqrt((auc * (1 - auc) + (n1 - 1) * (q1 - auc * auc) + (n0 - 1) * (q2 - auc * auc)) / (n1 * n0)) : NaN;
+    const th = [...new Set(p)].sort((a, b) => b - a), pts = [{ t: Infinity, tpr: 0, fpr: 0 }]; let best = { t: 0.5, j: -1 };
+    th.forEach((t) => { let tp = 0, fp = 0; for (let i = 0; i < p.length; i++) if (p[i] >= t) { if (y[i] === 1) tp++; else fp++; } const tpr = n1 ? tp / n1 : 0, fpr = n0 ? fp / n0 : 0; pts.push({ t, tpr, fpr }); if (tpr - fpr > best.j) best = { t, j: tpr - fpr, tpr, fpr }; });
+    return { auc, se, lower: auc - 1.959964 * se, upper: auc + 1.959964 * se, points: pts, youden: best, n1, n0 };
+  };
+  // the 2 by 2 classification table at a cutoff
+  S.classify = (p, y, cut) => { let tp = 0, fp = 0, tn = 0, fn = 0; p.forEach((q, i) => { const yes = q >= cut; if (yes && y[i] === 1) tp++; else if (yes) fp++; else if (y[i] === 1) fn++; else tn++; }); return { cut, tp, fp, tn, fn, sens: tp / (tp + fn), spec: tn / (tn + fp), ppv: tp + fp ? tp / (tp + fp) : NaN, npv: tn + fn ? tn / (tn + fn) : NaN, acc: (tp + tn) / p.length }; };
+  // Hosmer-Lemeshow goodness of fit, as ResourceSelection::hoslem.test: g groups cut at the quantiles (type 7) of the fitted values,
+  // include.lowest = TRUE; chi-square over observed and expected 1s and 0s, df = g - 2. Duplicate quantiles merge groups.
+  S.hoslem = (p, y, g = 10) => {
+    const br = [...new Set(Array.from({ length: g + 1 }, (_, k) => S.quantile(p, k / g)))].sort((a, b) => a - b), G = br.length - 1;
+    const rows = Array.from({ length: G }, (_, k) => ({ lo: br[k], hi: br[k + 1], n: 0, o1: 0, e1: 0 }));
+    p.forEach((q, i) => { let k = 0; while (k < G - 1 && q > br[k + 1]) k++; const r = rows[k]; r.n++; r.o1 += y[i]; r.e1 += q; });
+    let chi = 0; rows.forEach((r) => { r.o0 = r.n - r.o1; r.e0 = r.n - r.e1; if (r.e1 > 0) chi += (r.o1 - r.e1) ** 2 / r.e1; if (r.e0 > 0) chi += (r.o0 - r.e0) ** 2 / r.e0; });
+    const df = G - 2; return { chi, df, p: df > 0 ? 1 - S.pchisq(chi, df) : NaN, rows, g: G };
+  };
+  // the pseudo R-squared family (DescTools::PseudoR2) and deviance residuals
+  S.pseudoR2 = (ll, ll0, n, p, y) => { const cs = 1 - Math.exp((2 * (ll0 - ll)) / n), nag = cs / (1 - Math.exp((2 * ll0) / n)); const p1 = p.filter((_, i) => y[i] === 1), p0 = p.filter((_, i) => y[i] === 0); return { mcfadden: 1 - ll / ll0, coxsnell: cs, nagelkerke: nag, tjur: p1.length && p0.length ? S.mean(p1) - S.mean(p0) : NaN }; };
+  S.devResid = (p, y) => p.map((q, i) => { const d = -2 * (y[i] ? Math.log(Math.max(q, 1e-12)) : Math.log(Math.max(1 - q, 1e-12))); return (y[i] - q >= 0 ? 1 : -1) * Math.sqrt(Math.max(d, 0)); });
   S.dummies = (vals, ref) => { // reference = the most frequent level unless given; a rare reference makes every coefficient unstable
     const c = S.counts(vals); let lv = Object.keys(c).sort(); const r = ref && lv.includes(ref) ? ref : lv.reduce((a, b) => (c[b] > c[a] ? b : a), lv[0]); lv = [r].concat(lv.filter((l) => l !== r));
     return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };

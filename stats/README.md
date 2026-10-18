@@ -46,6 +46,18 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-20 (later): logistic regression diagnostics
+
+- **Logistic Regression** now judges the model the way a reviewer does. Discrimination: the ROC curve, the AUC with a
+  Hanley-McNeil interval and a benchmark line, a classification table at the chosen cutoff and at Youden's best cut
+  (sensitivity, specificity, precision, NPV, accuracy). Calibration: the Hosmer-Lemeshow test (ResourceSelection's grouping:
+  deciles of the fitted values, df = g − 2) with a decile table and plot. The pseudo R² family (McFadden, Cox-Snell,
+  Nagelkerke, Tjur), an optional deviance-residuals plot, an events-per-predictor check and a separation warning. The APA
+  line carries χ², Nagelkerke R², AUC and the Hosmer-Lemeshow result; the Script view adds the pROC, ResourceSelection and
+  DescTools lines. Checked by identity (AUC equals the Mann-Whitney count; the classification counts add up; Nagelkerke from
+  its formula); an R comparison on the same data is the next step once R runs in the browser. Engine: `S.roc`,
+  `S.classify`, `S.hoslem`, `S.pseudoR2`, `S.devResid`. Service worker cache `sww-v72`, scripts `?v=75`.
+
 ### 2026-10-20: calmer dialogs, the accessibility panel, and an update bar
 
 - **Essentials first.** Dialog sections that most runs never touch (More appearance, Model terms, Checks, Model comparison,
