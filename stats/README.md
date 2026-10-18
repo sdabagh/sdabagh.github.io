@@ -46,6 +46,20 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-20: calmer dialogs, the accessibility panel, and an update bar
+
+- **Essentials first.** Dialog sections that most runs never touch (More appearance, Model terms, Checks, Model comparison,
+  Percentages, Cells, Comparative Measures, Prediction, Additional Options) are folded under a dashed
+  "more options" heading. A section opens by itself when a card is edited and one of its fields was changed from the default,
+  and stays open once opened (remembered per computer). The graph dialogs keep title, axis labels and color visible and fold
+  the rest.
+- **Accessibility panel in the app**: the course pages' toolbar (`accessibility.js`) now runs in the app too, bottom left:
+  dark mode (with a dark theme for cards, tables, dialogs, Ask and new graphs), larger text, the Lexend font (loaded only when
+  switched on), reading ruler, read aloud. Reading mode, which has no meaning in the app, is hidden.
+- **"A new version is ready" bar.** When the service worker installs a release while the app is open, a green bar offers
+  Reload now; a tab left open checks for a release every hour. Ask explains the panel. Service worker cache `sww-v71`,
+  scripts `?v=74`.
+
 ### 2026-10-19 (night): Ask never answers with silence
 
 - Ask opens its panel if a question arrives while it is closed, shows any error it hits while answering (with the build

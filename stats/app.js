@@ -392,7 +392,9 @@
     const p = document.createElement("div"); p.className = "plot"; p.style.height = h + "px"; p.setAttribute("role", "img"); p.setAttribute("aria-label", plotName(layout, div)); div.appendChild(p);
     const wh = layout && layout.xaxis && layout.xaxis.whole; if (layout && layout.xaxis && "whole" in layout.xaxis) { layout.xaxis = Object.assign({}, layout.xaxis); delete layout.xaxis.whole; }
     if (wh && Number.isFinite(wh.from) && Number.isFinite(wh.to)) { const st = wholeStep(wh, p); p._whole = wh; p._step = st; if (st) Object.assign(layout.xaxis, { dtick: st, tick0: 0 }); }
-    const L = Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12 }, paper_bgcolor: "#fff", plot_bgcolor: "#fff" }, layout);
+    const dark = document.body.classList.contains("dark-mode");
+    const L = Object.assign({ margin: { t: 36, l: 50, r: 20, b: 50 }, font: { family: "Segoe UI, Arial", size: 12, color: dark ? "#E6E9EE" : "#222" }, paper_bgcolor: dark ? "#1B2433" : "#fff", plot_bgcolor: dark ? "#1B2433" : "#fff" }, layout);
+    if (dark) ["xaxis", "yaxis"].forEach((k) => { L[k] = Object.assign({ gridcolor: "#2E3A48", zerolinecolor: "#4A5867", linecolor: "#4A5867" }, L[k] || {}); });
     const APP = L._app; delete L._app; traces = styleGraph(traces, L, APP);
     if (L.title) { // Plotly's own sizes: a title is 1.4 times the page font, and a margin object without t has t = 100
       if (typeof L.title === "string") L.title = { text: L.title };
@@ -466,6 +468,11 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && DLG.classList.contains("nomodal") && DLG.classList.contains("open")) closeDlg(); });
   DLG.addEventListener("pointerdown", (e) => { dlgDown = e.target === DLG; }); // a press that starts and ends on the dim area closes it
   DLG.addEventListener("click", (e) => { if (e.target === DLG && dlgDown) closeDlg(); dlgDown = false; });
+  const FOLD = new Set(["More appearance", "Model terms", "Checks", "Model comparison", "Additional Options", "Percentages", "Cells", "Comparative Measures", "Prediction"]);
+  const moreOpen = () => { try { return JSON.parse(localStorage.getItem("sww_more") || "[]"); } catch (e) { return []; } };
+  const rememberMore = (g, open) => { try { const s = new Set(moreOpen()); if (open) s.add(g); else s.delete(g); localStorage.setItem("sww_more", JSON.stringify([...s])); } catch (e) { } };
+  const changedFromDefault = (val, def, type) => { if (type === "check") return !!val !== !!def; if (Array.isArray(val)) return val.length > 0 && JSON.stringify(val) !== JSON.stringify(def || []); if (val == null || val === "" || (typeof val === "number" && Number.isNaN(val))) return false; return String(val) !== String(def == null ? "" : def); };
+  document.addEventListener("toggle", (e) => { const d = e.target; if (d && d.matches && d.matches("#dlgForm details.more, #distForm details.more")) rememberMore(d.dataset.group, d.open); }, true);
   function dialog(title, fields, onGo, goLabel = "Run") {
     const inline = INLINE; INLINE = false;
     const f = inline ? $("#distForm") : $("#dlgForm"), pre = inline ? "d_" : "f_";
@@ -485,7 +492,10 @@
     } else $("#dlgTitle").textContent = title;
     f.innerHTML = ""; f.dataset.target = TARGET;
     const groups = {}, wide = new Set(); let html = ""; // wide: a group with a typed list gets full-width boxes, one under the other
-    if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) fd = Object.assign(fd, { value: PREFILL[fd.name] }); });
+    // Groups that most runs never touch open folded ("More options"), so a dialog shows its essentials first. A group opens by
+    // itself when a card is edited and one of its fields was changed from the default, and stays open once the user opened it.
+    const openGroups = new Set(moreOpen());
+    if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) { const def = fd.value, val = PREFILL[fd.name]; if (fd.group && FOLD.has(fd.group) && changedFromDefault(val, def, fd.type)) openGroups.add(fd.group); fd = Object.assign(fd, { value: val }); } });
     const taken = []; fields.filter(Boolean).forEach((fd) => { if (!fd.distinct || fd.value != null) return; const opts = (fd.options || []).map((o) => (Array.isArray(o) ? o[0] : o)); const pick = opts.find((o) => !taken.includes(o)); if (pick != null) { fd.value = pick; taken.push(pick); } });
     fields.filter(Boolean).forEach((fd) => {
       const id = pre + fd.name; let ctl = "";
@@ -501,7 +511,7 @@
       if (fd.group) { groups[fd.group] = (groups[fd.group] || "") + block; html += `<!--G:${fd.group}-->`; if (fd.list) wide.add(fd.group); } else html += block;
     });
     const seen = new Set();
-    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld[ "]/g) || []).length; return `<fieldset><legend>${sym(esc(g))}</legend><div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div></fieldset>`; });
+    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld[ "]/g) || []).length, inner = `<div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div>`; return FOLD.has(g) ? `<details class="more" data-group="${escA(g)}"${openGroups.has(g) ? " open" : ""}><summary>${sym(esc(g))} <span class="mnote">more options</span></summary>${inner}</details>` : `<fieldset><legend>${sym(esc(g))}</legend>${inner}</fieldset>`; });
     f.innerHTML = html + (inline ? `<div id="distNow"></div><div class="actions"><button type="submit" class="go">${esc(goLabel)}</button></div><div class="hint">The result updates as you change anything. Run keeps this result; your next change then starts a new card, so you can compare.</div>`
       : `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">${esc(goLabel)}</button></div>`);
     PREFILL = null;
@@ -692,7 +702,7 @@
     { name: "fsize", label: "Font size (points, blank = 12)", type: "number", value: "", group: "Appearance" },
     { name: "xrange", label: "X axis range, e.g. 0, 100 (optional)", type: "text", group: "Appearance" }, { name: "yrange", label: "Y axis range, e.g. 0, 4 (optional)", type: "text", group: "Appearance" },
     { name: "logx", label: "Log scale on the x axis", type: "check", value: false, group: "Appearance" }, { name: "logy", label: "Log scale on the y axis", type: "check", value: false, group: "Appearance" },
-    { name: "ref", label: "Reference lines, e.g. y = 3.0, x = 70 (comma separated, optional)", type: "text", group: "Appearance" }].map((f) => Object.assign(f, { group: "Appearance" }));
+    { name: "ref", label: "Reference lines, e.g. y = 3.0, x = 70 (comma separated, optional)", type: "text", group: "Appearance" }].map((f, i) => Object.assign(f, { group: i < 4 ? "Appearance" : "More appearance" }));
   const C = (v) => (v && v.gcolor) || "#3A7CA5";
   function applyAppearance(layout, v) { if (v.gtitle) layout.title = v.gtitle; if (v.xlab) { layout.xaxis = Object.assign(layout.xaxis || {}, { title: v.xlab }); } if (v.ylab) { layout.yaxis = Object.assign(layout.yaxis || {}, { title: v.ylab }); } layout._app = v; return layout; }
   const parseRange = (t) => { const m = String(t || "").split(/[,\s]+/).filter(Boolean).map(Number); return m.length === 2 && m.every(Number.isFinite) && m[0] < m[1] ? m : null; };
@@ -3389,7 +3399,7 @@
     { k: ["what is this app", "what is stats without walls", "stats without walls", "who made", "who built", "who wrote", "is it free", "is this free", "is my data safe", "privacy", "data private", "leave the browser", "leave my computer", "does it work offline", "work offline", "offline", "like r", "instead of r", "same as r", "compared to r", "compared to spss", "vs spss", "jamovi", "jasp", "vs excel", "excel vs", "is it accurate", "how accurate", "checked against r", "verified against"], t: "About Stats Without Walls", a: "A free statistics app that runs entirely in your browser: nothing you type or load is sent anywhere, and after the first visit it works offline. It covers the introductory course (descriptives, graphs, t tests, ANOVA, chi-square, regression, probability calculators) and the methods researchers reach for in R (mixed-effects, logistic and count models, survival, factor analysis, bootstrap, Bayesian). Every result is checked against R's output (and scipy's) on the same data; the guide lists which functions. Every card shows the formula, the worked numbers, an APA line and a plain-words conclusion. Built by Safaa Dabagh for her statistics students at Santa Monica College, West Los Angeles College and Loyola Marymount University.", m: "use" },
     { k: ["what does this mean", "what does that mean", "what does this result", "what does my result", "explain my result", "explain this result", "explain the result", "explain my card", "explain the card", "interpret my result", "interpret this result", "interpret my", "interpret this", "my result", "my results", "what did i get", "what did i find", "is my result significant", "is it significant", "was it significant", "read my card", "summarize my result", "what does my p", "plain words", "in plain english", "in plain words", "what do my numbers", "what does the card say"], t: "Your last result, in plain words", a: null, special: "explain" },
     { k: ["how do i read a card", "how do i read the card", "read a card", "read the card", "what is the apa line", "apa line mean", "worked numbers", "show the numbers", "formula box", "what is on the card", "what is on a card", "parts of the card", "card layout", "what is the meta"], t: "How to read a result card", a: "Top to bottom: the tables (statistic, df, p, effect size, interval), the formula in symbols, 'Show the numbers in the formula' (your data in that formula, step by step), the APA line to paste into a paper, the condition checks (green passed, orange a warning), the conclusion in words, and the graph. 'copy text' copies the card; the buttons under a table copy it as CSV or Markdown; 'edit' reopens the dialog with your choices. Researcher mode puts the tables and APA line first and folds the formula away.", m: "report" },
-    { k: ["dark mode", "font size", "bigger text", "larger text", "dyslexia", "read aloud", "screen reader", "accessibility", "keyboard shortcuts", "keyboard only", "zoom in", "too small", "hard to read"], t: "Making the app easier to read", a: "Zoom the browser (Ctrl and +, or Cmd and + on a Mac): the layout reflows and nothing is cut off. Results, Notation switches formulas and hypotheses from symbols to words, which screen readers and read-aloud tools pronounce properly. Every control has a keyboard path (Tab, Enter, Escape closes a dialog or this panel), every table has a caption, and every button names its card for a screen reader. The course pages of this site carry the accessibility toolbar (dark mode, Lexend font, reading ruler, read aloud).", m: null },
+    { k: ["dark mode", "font size", "bigger text", "larger text", "dyslexia", "read aloud", "screen reader", "accessibility", "keyboard shortcuts", "keyboard only", "zoom in", "too small", "hard to read"], t: "Making the app easier to read", a: "The round button at the bottom left opens the accessibility panel: dark mode, larger text, the Lexend font (easier for many dyslexic readers), a reading ruler that follows the pointer, and read aloud for the selected text or the page. Choices are remembered. Every dialog shows its essentials first and folds the rest under 'more options'. Results, Notation switches formulas from symbols to words, which read-aloud tools pronounce properly. Every control has a keyboard path (Tab, Enter, Escape closes a dialog or this panel).", m: null },
   ];
   const botTok = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9%₀-₉²\s'-]/g, " ");
   const BOT_STOP = new Set(["what", "whats", "what's", "the", "this", "that", "does", "mean", "means", "meaning", "how", "why", "when", "with", "from", "for", "and", "you", "your", "can", "should", "about", "which", "where", "there", "are", "was", "were", "have", "has", "not", "tell", "explain", "define", "use", "used", "using", "between", "difference", "test", "tests", "data", "value", "values", "result", "results"]);
@@ -3690,5 +3700,25 @@
     window.addEventListener("touchmove", (e) => { if (!drag) return; const px = Math.max(240, Math.min(window.innerWidth - 360, e.touches[0].clientX)); main.style.setProperty("--leftw", px + "px"); }, { passive: true });
     window.addEventListener("touchend", () => { if (drag) { drag = false; try { localStorage.setItem("sww_leftw", main.style.getPropertyValue("--leftw")); } catch (e) { } window.dispatchEvent(new Event("resize")); } });
   })();
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => { });
+  // A new release: the service worker installs it in the background, but the page keeps running the old copy until it is
+  // reloaded. Say so, with a button, instead of leaving people on a version that no longer matches what they were told.
+  function showUpdateBar() {
+    const bar = $("#updateBar"); if (!bar || !bar.hidden) return;
+    bar.innerHTML = `<span>A new version of the app is ready. Reload to use it: your data table stays, and the results on the page can be restored afterwards.</span><button type="button" class="go" id="updateYes">Reload now</button><button type="button" id="updateNo">Later</button>`;
+    bar.hidden = false; $("#updateYes").onclick = () => { try { autosave(); } catch (e) { } location.reload(); }; $("#updateNo").onclick = () => { bar.hidden = true; };
+    announce("A new version of the app is ready. Reload to use it.");
+  }
+  document.addEventListener("sww:update", showUpdateBar);
+  // the accessibility toolbar (../accessibility.js, shared with the course pages) toggles body classes; the Lexend font is fetched only when someone asks for it
+  const lexend = () => { if (document.body.classList.contains("dyslexia-font") && !document.getElementById("lexendCss")) { const l = document.createElement("link"); l.id = "lexendCss"; l.rel = "stylesheet"; l.href = "https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap"; document.head.appendChild(l); } };
+  new MutationObserver(lexend).observe(document.body, { attributes: true, attributeFilter: ["class"] }); lexend();
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    const hadController = !!navigator.serviceWorker.controller; // false on the very first visit, when the install is not an update
+    navigator.serviceWorker.register("sw.js").then((reg) => {
+      const watch = (w) => { if (!w) return; w.addEventListener("statechange", () => { if (w.state === "activated" && hadController) showUpdateBar(); }); };
+      watch(reg.installing); reg.addEventListener("updatefound", () => watch(reg.installing));
+      if (reg.waiting && hadController) showUpdateBar();
+      setInterval(() => { reg.update().catch(() => { }); }, 60 * 60 * 1000); // a tab left open for hours still learns about a release
+    }).catch(() => { });
+  }
 })();
