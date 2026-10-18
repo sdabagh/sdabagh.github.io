@@ -3443,8 +3443,12 @@
     if (e.m) h += `<p class="bmuted"><a href="methods.html#${e.m}${MODE.who === "researcher" ? "" : ""}" target="_blank" rel="noopener">Read the steps in the Methods Guide</a></p>`;
     return h;
   }
+  const BOT_BUILD = (() => { const sc = document.querySelector('script[src^="app.js"]'); const m = sc && /v=(\d+)/.exec(sc.getAttribute("src") || ""); return m ? m[1] : "?"; })();
   function botAsk(q) {
-    q = String(q || "").trim(); if (!q) return; botSay(esc(q), "me");
+    q = String(q || "").trim(); if (!q) return; if (!BOT.open) botToggle(true); botSay(esc(q), "me");
+    try { botAnswerAll(q); } catch (err) { botSay(`<p>Something went wrong while answering (build ${esc(BOT_BUILD)}): ${esc((err && err.message) || String(err))}. Reload the page with Ctrl+Shift+R (Cmd+Shift+R on a Mac) and try again.</p>`); if (window.console) console.error(err); }
+  }
+  function botAnswerAll(q) {
     const scored = botScore(ASKKB, q), hits = scored.slice(0, 3).map((x) => x[1]), qa = botScore(ASKQA, q, false), isQ = botIsQuestion(q);
     // a question with a plain-words answer: the answer first, then (at most) one way to run it in the app
     if (qa.length && (isQ || !hits.length || qa[0][0] >= 5 || qa[0][0] > scored[0][0])) {
@@ -3478,7 +3482,7 @@
   function botToggle(on) {
     const p = $("#bot"); if (!p) return; BOT.open = on == null ? !BOT.open : !!on; p.classList.toggle("open", BOT.open); p.setAttribute("aria-hidden", String(!BOT.open));
     const b = $("#askBtn"); if (b) { b.setAttribute("aria-expanded", String(BOT.open)); if (BOT.open) { BOT.tips = 0; b.textContent = "Ask"; } }
-    if (BOT.open) { const log = $("#botLog"); if (log && !log.children.length) botSay(`<p>Ask in plain words: what you measured and what you want to know, and I name the method and open the dialog. Or ask what something means ("what is a p-value", "SE or SD", "what does this result mean").</p><div class="bchips">${["compare two groups", "before and after", "is there a relationship", "what is a p-value", "explain my result", "what columns do I have"].map((s) => `<button type="button" data-bask="${escA(s)}">${esc(s)}</button>`).join("")}</div>`); const inp = $("#botIn"); if (inp) inp.focus(); }
+    if (BOT.open) { const log = $("#botLog"); if (log && !log.children.length) botSay(`<p>Ask in plain words: what you measured and what you want to know, and I name the method and open the dialog. Or ask what something means ("what is a p-value", "SE or SD", "what does this result mean").</p><p class="bmuted">Ask, build ${esc(BOT_BUILD)}.</p><div class="bchips">${["compare two groups", "before and after", "is there a relationship", "what is a p-value", "explain my result", "what columns do I have"].map((s) => `<button type="button" data-bask="${escA(s)}">${esc(s)}</button>`).join("")}</div>`); const inp = $("#botIn"); if (inp) inp.focus(); }
     else if (b) b.focus();
   }
   if ($("#askBtn")) { $("#askBtn").onclick = () => botToggle(); $("#botClose").onclick = () => botToggle(false); $("#botForm").onsubmit = (e) => { e.preventDefault(); botAsk($("#botIn").value); }; document.addEventListener("keydown", (e) => { if (e.key === "Escape" && BOT.open && !$("#dlg").open) botToggle(false); }); }

@@ -46,6 +46,12 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-19 (night): Ask never answers with silence
+
+- Ask opens its panel if a question arrives while it is closed, shows any error it hits while answering (with the build
+  number) instead of saying nothing, and its welcome line names the build, so a stale cached copy is easy to spot.
+  Service worker cache `sww-v70`, scripts `?v=73`.
+
 ### 2026-10-19 (later): closing the gaps with R, 5 of 5: the script view
 
 - **Results, Script: every step, with the R code**: every analysis and graph on the page, oldest first, with the choices made
