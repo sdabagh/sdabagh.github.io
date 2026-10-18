@@ -46,6 +46,20 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-20 (night): mixed-effects logistic and Poisson regression (glmer)
+
+- **Advanced, Mixed-Effects Model for yes/no or counts (glmer)**: a random intercept per cluster for a yes/no outcome (one row
+  per case, or successes out of trials) or a count with an exposure offset. lme4's Laplace approximation (nAGQ = 1): the
+  conditional modes by Newton's method per cluster, the Laplace deviance, Nelder-Mead over (theta, beta), standard errors
+  from the Hessian of the deviance as lme4's vcov does. Odds or rate ratios with intervals, variance and SD, the ICC on the
+  latent scale, a boundary-corrected likelihood-ratio test for the random intercept, cluster effects with a caterpillar plot,
+  formula, worked numbers, APA line.
+- Verified against R on lme4's `cbpp` (ships as a sample, fetched from the Rdatasets mirror): estimates −1.3983, −0.9919,
+  −1.1282, −1.5797, herd variance 0.4123, deviance 184.1, AIC 194.1 and BIC 204.2 all reproduced to three decimals; the
+  standard errors come out 0.6 to 1.3 percent above glmer's. Ask routes the vocabulary (glmer, mixed logistic, patients within
+  hospitals); the Methods Guide and the user guide describe it; the Script view writes the glmer call. Engine: `S.glmm`.
+  Service worker cache `sww-v73`, scripts `?v=76`.
+
 ### 2026-10-20 (later): logistic regression diagnostics
 
 - **Logistic Regression** now judges the model the way a reviewer does. Discrimination: the ROC curve, the AUC with a

@@ -887,6 +887,69 @@
   // of the deviance, the variance of each fixed effect is differentiated numerically. Checked against lme4 and lmerTest on the
   // sleepstudy data (fixed effects, SEs, variances, correlation, REML criterion, ML deviance, df 22.81 / 161.0 and 17.0 / 17.0).
   // X: rows WITH the intercept column; Zcols: per row the random-effect design [1, slope values...] or null for intercept only.
+// Generalized linear mixed model with a random intercept (lme4's glmer, nAGQ = 1): binomial (0/1 or successes out of trials) or
+// Poisson (with an optional offset), logit or log link. The Laplace approximation: for each group the conditional mode of its
+// random effect u (standard normal, scaled by theta) is found by Newton's method, and the deviance is
+// -2 [sum of log-likelihoods at the modes - u'u / 2] + sum over groups of log(1 + theta^2 W_g), W_g the sum of the working
+// weights in the group (Bates et al. 2015, section 4). Nelder-Mead over (theta, beta). Standard errors from the Schur
+// complement of the Hessian at the modes, as lme4's vcov. Checked against glmer on lme4's cbpp data.
+S.glmm = (y, X, groups, opts = {}) => {
+  const fam = opts.family === "poisson" ? "poisson" : "binomial", n = y.length, p = X[0].length, tr = opts.trials || null, off = opts.offset || new Array(n).fill(0);
+  const glev = [...new Set(groups)], gi = groups.map((g) => glev.indexOf(g)), g = glev.length, rowsOf = Array.from({ length: g }, () => []); gi.forEach((k, i) => rowsOf[k].push(i));
+  const lgam = (x) => jStat.gammaln(x);
+  const konst = y.reduce((s, yi, i) => s + (fam === "poisson" ? -lgam(yi + 1) : lgam(tr ? tr[i] + 1 : 2) - lgam(yi + 1) - lgam((tr ? tr[i] : 1) - yi + 1)), 0); // the constant part of the log-likelihood (lme4's deviance keeps it)
+  const mu = (eta, i) => (fam === "poisson" ? Math.exp(eta) : (tr ? tr[i] : 1) / (1 + Math.exp(-eta)));
+  const ll1 = (eta, i) => { if (fam === "poisson") return y[i] * eta - Math.exp(eta); const m = tr ? tr[i] : 1, pr = 1 / (1 + Math.exp(-eta)); return y[i] * Math.log(Math.max(pr, 1e-300)) + (m - y[i]) * Math.log(Math.max(1 - pr, 1e-300)); };
+  const w1 = (eta, i) => { if (fam === "poisson") return Math.exp(eta); const m = tr ? tr[i] : 1, pr = 1 / (1 + Math.exp(-eta)); return m * pr * (1 - pr); };
+  const xb = (b) => X.map((r, i) => r.reduce((s, v, k) => s + v * b[k], 0) + off[i]);
+  // conditional modes for a given (theta, beta); returns the Laplace deviance and the modes
+  let uCache = new Array(g).fill(0);
+  const laplace = (theta, b, keepU) => {
+    const lin = xb(b); let dev = 0; const us = new Array(g);
+    for (let k = 0; k < g; k++) {
+      const idx = rowsOf[k]; let u = uCache[k] || 0;
+      for (let it = 0; it < 50; it++) { let gr = -u, H = -1; idx.forEach((i) => { const eta = lin[i] + theta * u; gr += theta * (y[i] - mu(eta, i)); H -= theta * theta * w1(eta, i); }); const step = gr / H; u -= step; if (Math.abs(step) < 1e-10) break; }
+      let L = -u * u / 2, W = 0; idx.forEach((i) => { const eta = lin[i] + theta * u; L += ll1(eta, i); W += w1(eta, i); });
+      dev += -2 * L + Math.log(1 + theta * theta * W); us[k] = u;
+    }
+    if (keepU) uCache = us;
+    return { dev: dev - 2 * konst, u: us };
+  };
+  // starting values: the fixed-effects GLM (theta = 0) by Newton on beta
+  const glmFit = () => { let b = new Array(p).fill(0); if (fam === "poisson") b[0] = Math.log(Math.max(S.mean(y.map((q, i) => q / Math.exp(off[i]))), 1e-6)); else { const ybar = y.reduce((s, q, i) => s + q, 0) / (tr ? tr.reduce((s, q) => s + q, 0) : n); b[0] = Math.log(Math.max(ybar, 1e-6) / Math.max(1 - ybar, 1e-6)); }
+    for (let it = 0; it < 100; it++) { const lin = xb(b); const grad = new Array(p).fill(0), H = Array.from({ length: p }, () => new Array(p).fill(0)); for (let i = 0; i < n; i++) { const r = y[i] - mu(lin[i], i), w = w1(lin[i], i); for (let a = 0; a < p; a++) { grad[a] += X[i][a] * r; for (let c = 0; c < p; c++) H[a][c] += w * X[i][a] * X[i][c]; } } let step; try { step = solve(H, grad); } catch (e) { break; } let mx = 0; for (let a = 0; a < p; a++) { b[a] += step[a]; mx = Math.max(mx, Math.abs(step[a])); } if (mx < 1e-9) break; } return b; };
+  const solve = (A, bvec) => { const m = A.length, M = A.map((r, i) => r.concat([bvec[i]])); for (let c = 0; c < m; c++) { let piv = c; for (let r = c + 1; r < m; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r; if (Math.abs(M[piv][c]) < 1e-14) throw new Error("singular"); [M[c], M[piv]] = [M[piv], M[c]]; for (let r = 0; r < m; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let j = c; j <= m; j++) M[r][j] -= f * M[c][j]; } } return M.map((r, i) => r[m] / r[i]); };
+  const inv = (A) => { const m = A.length; return Array.from({ length: m }, (_, j) => solve(A, A.map((_, i) => (i === j ? 1 : 0)))).reduce((acc, colv, j) => { colv.forEach((v, i) => (acc[i][j] = v)); return acc; }, Array.from({ length: m }, () => new Array(m).fill(0))); };
+  const b0 = glmFit(), dev0 = laplace(0, b0, false).dev; // the model without the random effect
+  // Nelder-Mead over (theta, beta), theta kept non-negative by using |theta|
+  const f = (x) => laplace(Math.abs(x[0]), x.slice(1), false).dev;
+  const nm = (x0, step) => { const d = x0.length; let simplex = [x0.slice()]; for (let i = 0; i < d; i++) { const x = x0.slice(); x[i] += step[i]; simplex.push(x); } let fx = simplex.map(f);
+    for (let it = 0; it < 4000; it++) { const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); simplex = ord.map((i) => simplex[i]); fx = ord.map((i) => fx[i]); if (Math.abs(fx[d] - fx[0]) < 1e-9 && it > 50) break;
+      const cen = new Array(d).fill(0); for (let i = 0; i < d; i++) for (let j = 0; j < d; j++) cen[j] += simplex[i][j] / d; const xr = cen.map((c, j) => 2 * c - simplex[d][j]), fr = f(xr);
+      if (fr < fx[0]) { const xe = cen.map((c, j) => 3 * c - 2 * simplex[d][j]), fe = f(xe); if (fe < fr) { simplex[d] = xe; fx[d] = fe; } else { simplex[d] = xr; fx[d] = fr; } }
+      else if (fr < fx[d - 1]) { simplex[d] = xr; fx[d] = fr; }
+      else { const xc = cen.map((c, j) => 0.5 * (c + simplex[d][j])), fc = f(xc); if (fc < fx[d]) { simplex[d] = xc; fx[d] = fc; } else { for (let i = 1; i <= d; i++) { simplex[i] = simplex[i].map((v, j) => 0.5 * (v + simplex[0][j])); fx[i] = f(simplex[i]); } } } }
+    const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); return { x: simplex[ord[0]], f: fx[ord[0]] }; };
+  let best = nm([0.5].concat(b0), [0.5].concat(b0.map(() => 0.3))); best = nm(best.x, [0.05].concat(b0.map(() => 0.05))); // a second, tighter pass
+  const theta = Math.abs(best.x[0]), beta = best.x.slice(1), fin = laplace(theta, beta, true), dev = fin.dev;
+  // standard errors: Schur complement of the penalized Hessian at the modes
+  const lin = xb(beta), eta = lin.map((e, i) => e + theta * fin.u[gi[i]]), w = eta.map((e, i) => w1(e, i));
+  const H = Array.from({ length: p }, () => new Array(p).fill(0)); for (let i = 0; i < n; i++) for (let a = 0; a < p; a++) for (let c = 0; c < p; c++) H[a][c] += w[i] * X[i][a] * X[i][c];
+  for (let k = 0; k < g; k++) { const idx = rowsOf[k]; const s = new Array(p).fill(0); let W = 0; idx.forEach((i) => { W += w[i]; for (let a = 0; a < p; a++) s[a] += w[i] * X[i][a]; }); const fac = (theta * theta) / (1 + theta * theta * W); for (let a = 0; a < p; a++) for (let c = 0; c < p; c++) H[a][c] -= fac * s[a] * s[c]; }
+  let cov; try { cov = inv(H); } catch (e) { cov = H.map(() => new Array(p).fill(NaN)); }
+  // lme4's vcov for a glmer fit (use.hessian = TRUE when beta is in the optimizer): twice the inverse of the finite-difference
+  // Hessian of the deviance in (theta, beta), beta block. The working-weights version above is the fallback.
+  try {
+    const x = [theta].concat(beta), d = x.length, h = x.map((v) => 1e-4 * (1 + Math.abs(v))), Hn = Array.from({ length: d }, () => new Array(d).fill(0)), f0 = f(x);
+    const at = (di, dj) => { const xx = x.slice(); if (di) xx[di[0]] += di[1]; if (dj) xx[dj[0]] += dj[1]; return f(xx); };
+    for (let i = 0; i < d; i++) { Hn[i][i] = (at([i, h[i]]) - 2 * f0 + at([i, -h[i]])) / (h[i] * h[i]); for (let j = i + 1; j < d; j++) { Hn[i][j] = Hn[j][i] = (at([i, h[i]], [j, h[j]]) - at([i, h[i]], [j, -h[j]]) - at([i, -h[i]], [j, h[j]]) + at([i, -h[i]], [j, -h[j]])) / (4 * h[i] * h[j]); } }
+    const full = inv(Hn).map((r) => r.map((v) => 2 * v)); const cb = beta.map((_, i) => beta.map((_, j) => full[i + 1][j + 1]));
+    if (cb.every((r, i) => Number.isFinite(r[i]) && r[i] > 0)) cov = cb;
+  } catch (e) { }
+  const se = cov.map((r, i) => Math.sqrt(Math.max(r[i], 0))), z = beta.map((b, i) => b / se[i]), pv = z.map((q) => 2 * (1 - S.pnorm(Math.abs(q))));
+  const ll = -dev / 2, npar = p + 1, lrt = Math.max(0, dev0 - dev);
+  return { family: fam, beta, se, z, p: pv, vcov: cov, theta, variance: theta * theta, sd: theta, dev, ll, aic: dev + 2 * npar, bic: dev + npar * Math.log(n), n, k: p, g, groups: glev, ranef: fin.u.map((u) => theta * u), fitted: eta.map((e, i) => mu(e, i)), eta, devGlm: dev0, betaGlm: b0, lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), dfResid: n - npar, icc: fam === "binomial" ? (theta * theta) / (theta * theta + Math.PI * Math.PI / 3) : NaN };
+};
 S.lmm = (y, X, groups, Zcols, opts = {}) => {
   const REML = opts.reml !== false, n = y.length, p = X[0].length, k = Zcols ? Zcols[0].length : 1;
   const glev = [...new Set(groups)], gi = groups.map((g) => glev.indexOf(g)), g = glev.length, q = g * k;
