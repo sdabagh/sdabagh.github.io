@@ -447,6 +447,23 @@
   // the pseudo R-squared family (DescTools::PseudoR2) and deviance residuals
   S.pseudoR2 = (ll, ll0, n, p, y) => { const cs = 1 - Math.exp((2 * (ll0 - ll)) / n), nag = cs / (1 - Math.exp((2 * ll0) / n)); const p1 = p.filter((_, i) => y[i] === 1), p0 = p.filter((_, i) => y[i] === 0); return { mcfadden: 1 - ll / ll0, coxsnell: cs, nagelkerke: nag, tjur: p1.length && p0.length ? S.mean(p1) - S.mean(p0) : NaN }; };
   S.devResid = (p, y) => p.map((q, i) => { const d = -2 * (y[i] ? Math.log(Math.max(q, 1e-12)) : Math.log(Math.max(1 - q, 1e-12))); return (y[i] - q >= 0 ? 1 : -1) * Math.sqrt(Math.max(d, 0)); });
+  // Design-based estimation for a complex survey (R's survey package: svydesign with weights, strata and clusters, then svymean).
+  // The weighted mean is a ratio estimator; its variance by Taylor linearization with the with-replacement approximation and no
+  // finite-population correction (survey's default): e_i = w_i (x_i - mean) / sum(w); z_hc = sum of e_i in cluster c of stratum h;
+  // Var = sum over strata of n_h / (n_h - 1) * sum over clusters of (z_hc - mean_h z)^2, n_h the number of clusters (rows, when
+  // there are no clusters) in the stratum. Design effect: the design variance over the variance a simple random sample of the
+  // same size would have (s^2 / n with the weighted s^2); Kish's weights-only approximation 1 + CV(w)^2 is given alongside.
+  S.svymean = (x, w, opts = {}) => {
+    const n = x.length, strata = opts.strata || x.map(() => "all"), clus = opts.cluster || x.map((_, i) => "r" + i);
+    const W = w.reduce((s, q) => s + q, 0), mean = x.reduce((s, q, i) => s + w[i] * q, 0) / W;
+    const e = x.map((q, i) => (w[i] * (q - mean)) / W), byH = new Map();
+    x.forEach((_, i) => { const h = strata[i]; if (!byH.has(h)) byH.set(h, new Map()); const m = byH.get(h); m.set(clus[i], (m.get(clus[i]) || 0) + e[i]); });
+    let v = 0, single = []; byH.forEach((m, h) => { const z = [...m.values()], nh = z.length; if (nh < 2) { single.push(h); return; } const zb = z.reduce((s, q) => s + q, 0) / nh; v += (nh / (nh - 1)) * z.reduce((s, q) => s + (q - zb) ** 2, 0); });
+    const se = Math.sqrt(v), s2w = x.reduce((s, q, i) => s + w[i] * (q - mean) ** 2, 0) / W * (n / (n - 1)), vSRS = s2w / n, deff = vSRS > 0 ? v / vSRS : NaN;
+    const wbar = W / n, cvw2 = w.reduce((s, q) => s + (q - wbar) ** 2, 0) / n / (wbar * wbar), kish = 1 + cvw2;
+    const unw = S.mean(x), unwSE = Math.sqrt(x.reduce((s, q) => s + (q - unw) ** 2, 0) / (n - 1) / n);
+    return { mean, se, n, sumW: W, deff, neff: Number.isFinite(deff) && deff > 0 ? n / deff : NaN, kish, unweighted: unw, unweightedSE: unwSE, strata: byH.size, clusters: [...new Set(clus)].length, singleStrata: single };
+  };
   S.dummies = (vals, ref) => { // reference = the most frequent level unless given; a rare reference makes every coefficient unstable
     const c = S.counts(vals); let lv = Object.keys(c).sort(); const r = ref && lv.includes(ref) ? ref : lv.reduce((a, b) => (c[b] > c[a] ? b : a), lv[0]); lv = [r].concat(lv.filter((l) => l !== r));
     return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };

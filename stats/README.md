@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-21: survey weights
+
+- **Advanced, Survey estimates with weights (design-based)**: weighted means and proportions with Taylor-linearized standard
+  errors under weights, strata and clusters (R's svydesign and svymean, with-replacement approximation, no finite-population
+  correction), the unweighted values beside them, the design effect and effective sample size, Kish's weights-only design
+  effect, a warning for single-cluster strata. Checked by hand against the textbook stratified-sample formula and the Kish
+  approximation. The Script view writes the svydesign and svymean lines; Ask routes the vocabulary; the Methods Guide has a
+  design row. Engine: `S.svymean`. Service worker cache `sww-v74`, scripts `?v=77`.
+
 ### 2026-10-20 (night): mixed-effects logistic and Poisson regression (glmer)
 
 - **Advanced, Mixed-Effects Model for yes/no or counts (glmer)**: a random intercept per cluster for a yes/no outcome (one row
