@@ -46,6 +46,53 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-21 (later): mediation, and marginal means after two-way ANOVA
+
+- **Regression, Mediation (indirect effect through a mediator)**: paths a, b, c′ and c by OLS with covariates, the indirect
+  effect a × b with Sobel's test and a percentile bootstrap interval (seeded, 2000 resamples by default, as the mediation
+  package's boot = TRUE), the share mediated, a histogram of the bootstrap distribution, and the causal assumptions stated.
+  Checked by identity (c = c′ + a × b exactly; Sobel by hand).
+- **Two-Way ANOVA** prints **estimated marginal means** for each factor (emmeans' equal-weights definition, SEs from the
+  model) with Tukey-adjusted pairwise comparisons, and says when the interaction makes them misleading. With balanced data
+  they equal the raw marginal means (checked). The Script view adds the emmeans and mediation::mediate lines; Ask routes
+  both; the Methods Guide has a mediation section and a marginal-means step. Engine: `S.emm2`, `S.mediation`. Service
+  worker cache `sww-v75`, scripts `?v=78`.
+
+### 2026-10-21: survey weights
+
+- **Advanced, Survey estimates with weights (design-based)**: weighted means and proportions with Taylor-linearized standard
+  errors under weights, strata and clusters (R's svydesign and svymean, with-replacement approximation, no finite-population
+  correction), the unweighted values beside them, the design effect and effective sample size, Kish's weights-only design
+  effect, a warning for single-cluster strata. Checked by hand against the textbook stratified-sample formula and the Kish
+  approximation. The Script view writes the svydesign and svymean lines; Ask routes the vocabulary; the Methods Guide has a
+  design row. Engine: `S.svymean`. Service worker cache `sww-v74`, scripts `?v=77`.
+
+### 2026-10-20 (night): mixed-effects logistic and Poisson regression (glmer)
+
+- **Advanced, Mixed-Effects Model for yes/no or counts (glmer)**: a random intercept per cluster for a yes/no outcome (one row
+  per case, or successes out of trials) or a count with an exposure offset. lme4's Laplace approximation (nAGQ = 1): the
+  conditional modes by Newton's method per cluster, the Laplace deviance, Nelder-Mead over (theta, beta), standard errors
+  from the Hessian of the deviance as lme4's vcov does. Odds or rate ratios with intervals, variance and SD, the ICC on the
+  latent scale, a boundary-corrected likelihood-ratio test for the random intercept, cluster effects with a caterpillar plot,
+  formula, worked numbers, APA line.
+- Verified against R on lme4's `cbpp` (ships as a sample, fetched from the Rdatasets mirror): estimates −1.3983, −0.9919,
+  −1.1282, −1.5797, herd variance 0.4123, deviance 184.1, AIC 194.1 and BIC 204.2 all reproduced to three decimals; the
+  standard errors come out 0.6 to 1.3 percent above glmer's. Ask routes the vocabulary (glmer, mixed logistic, patients within
+  hospitals); the Methods Guide and the user guide describe it; the Script view writes the glmer call. Engine: `S.glmm`.
+  Service worker cache `sww-v73`, scripts `?v=76`.
+
+### 2026-10-20 (later): logistic regression diagnostics
+
+- **Logistic Regression** now judges the model the way a reviewer does. Discrimination: the ROC curve, the AUC with a
+  Hanley-McNeil interval and a benchmark line, a classification table at the chosen cutoff and at Youden's best cut
+  (sensitivity, specificity, precision, NPV, accuracy). Calibration: the Hosmer-Lemeshow test (ResourceSelection's grouping:
+  deciles of the fitted values, df = g − 2) with a decile table and plot. The pseudo R² family (McFadden, Cox-Snell,
+  Nagelkerke, Tjur), an optional deviance-residuals plot, an events-per-predictor check and a separation warning. The APA
+  line carries χ², Nagelkerke R², AUC and the Hosmer-Lemeshow result; the Script view adds the pROC, ResourceSelection and
+  DescTools lines. Checked by identity (AUC equals the Mann-Whitney count; the classification counts add up; Nagelkerke from
+  its formula); an R comparison on the same data is the next step once R runs in the browser. Engine: `S.roc`,
+  `S.classify`, `S.hoslem`, `S.pseudoR2`, `S.devResid`. Service worker cache `sww-v72`, scripts `?v=75`.
+
 ### 2026-10-20: calmer dialogs, the accessibility panel, and an update bar
 
 - **Essentials first.** Dialog sections that most runs never touch (More appearance, Model terms, Checks, Model comparison,

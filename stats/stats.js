@@ -421,6 +421,73 @@
     const acc = S.mean(fitted.map((f, i) => ((f >= 0.5 ? 1 : 0) === y[i] ? 1 : 0)));
     return { names: ["Intercept"].concat(names), b, se, z, p: pv, or: b.map(Math.exp), orLower: b.map((v, i) => Math.exp(v - zstar * se[i])), orUpper: b.map((v, i) => Math.exp(v + zstar * se[i])), ll, ll0, chi: 2 * (ll - ll0), dfChi: p - 1, pChi: 1 - S.pchisq(2 * (ll - ll0), p - 1), mcfadden: 1 - ll / ll0, aic: -2 * ll + 2 * p, n, accuracy: acc, fitted, conf };
   };
+  // Diagnostics for a fitted logistic model. p: fitted probabilities, y: 0/1.
+  // ROC: a point per distinct fitted value (predict 1 when p >= t); AUC by the Mann-Whitney count (pROC's definition, ties count half);
+  // SE by Hanley and McNeil (1982); the best cut by Youden's J = sensitivity + specificity - 1.
+  S.roc = (p, y) => {
+    const n1 = y.filter((q) => q === 1).length, n0 = y.length - n1; let u = 0;
+    for (let i = 0; i < p.length; i++) if (y[i] === 1) for (let j = 0; j < p.length; j++) if (y[j] === 0) u += p[i] > p[j] ? 1 : p[i] === p[j] ? 0.5 : 0;
+    const auc = n1 && n0 ? u / (n1 * n0) : NaN, q1 = auc / (2 - auc), q2 = (2 * auc * auc) / (1 + auc);
+    const se = n1 && n0 ? Math.sqrt((auc * (1 - auc) + (n1 - 1) * (q1 - auc * auc) + (n0 - 1) * (q2 - auc * auc)) / (n1 * n0)) : NaN;
+    const th = [...new Set(p)].sort((a, b) => b - a), pts = [{ t: Infinity, tpr: 0, fpr: 0 }]; let best = { t: 0.5, j: -1 };
+    th.forEach((t) => { let tp = 0, fp = 0; for (let i = 0; i < p.length; i++) if (p[i] >= t) { if (y[i] === 1) tp++; else fp++; } const tpr = n1 ? tp / n1 : 0, fpr = n0 ? fp / n0 : 0; pts.push({ t, tpr, fpr }); if (tpr - fpr > best.j) best = { t, j: tpr - fpr, tpr, fpr }; });
+    return { auc, se, lower: auc - 1.959964 * se, upper: auc + 1.959964 * se, points: pts, youden: best, n1, n0 };
+  };
+  // the 2 by 2 classification table at a cutoff
+  S.classify = (p, y, cut) => { let tp = 0, fp = 0, tn = 0, fn = 0; p.forEach((q, i) => { const yes = q >= cut; if (yes && y[i] === 1) tp++; else if (yes) fp++; else if (y[i] === 1) fn++; else tn++; }); return { cut, tp, fp, tn, fn, sens: tp / (tp + fn), spec: tn / (tn + fp), ppv: tp + fp ? tp / (tp + fp) : NaN, npv: tn + fn ? tn / (tn + fn) : NaN, acc: (tp + tn) / p.length }; };
+  // Hosmer-Lemeshow goodness of fit, as ResourceSelection::hoslem.test: g groups cut at the quantiles (type 7) of the fitted values,
+  // include.lowest = TRUE; chi-square over observed and expected 1s and 0s, df = g - 2. Duplicate quantiles merge groups.
+  S.hoslem = (p, y, g = 10) => {
+    const br = [...new Set(Array.from({ length: g + 1 }, (_, k) => S.quantile(p, k / g)))].sort((a, b) => a - b), G = br.length - 1;
+    const rows = Array.from({ length: G }, (_, k) => ({ lo: br[k], hi: br[k + 1], n: 0, o1: 0, e1: 0 }));
+    p.forEach((q, i) => { let k = 0; while (k < G - 1 && q > br[k + 1]) k++; const r = rows[k]; r.n++; r.o1 += y[i]; r.e1 += q; });
+    let chi = 0; rows.forEach((r) => { r.o0 = r.n - r.o1; r.e0 = r.n - r.e1; if (r.e1 > 0) chi += (r.o1 - r.e1) ** 2 / r.e1; if (r.e0 > 0) chi += (r.o0 - r.e0) ** 2 / r.e0; });
+    const df = G - 2; return { chi, df, p: df > 0 ? 1 - S.pchisq(chi, df) : NaN, rows, g: G };
+  };
+  // the pseudo R-squared family (DescTools::PseudoR2) and deviance residuals
+  S.pseudoR2 = (ll, ll0, n, p, y) => { const cs = 1 - Math.exp((2 * (ll0 - ll)) / n), nag = cs / (1 - Math.exp((2 * ll0) / n)); const p1 = p.filter((_, i) => y[i] === 1), p0 = p.filter((_, i) => y[i] === 0); return { mcfadden: 1 - ll / ll0, coxsnell: cs, nagelkerke: nag, tjur: p1.length && p0.length ? S.mean(p1) - S.mean(p0) : NaN }; };
+  S.devResid = (p, y) => p.map((q, i) => { const d = -2 * (y[i] ? Math.log(Math.max(q, 1e-12)) : Math.log(Math.max(1 - q, 1e-12))); return (y[i] - q >= 0 ? 1 : -1) * Math.sqrt(Math.max(d, 0)); });
+  // Design-based estimation for a complex survey (R's survey package: svydesign with weights, strata and clusters, then svymean).
+  // The weighted mean is a ratio estimator; its variance by Taylor linearization with the with-replacement approximation and no
+  // finite-population correction (survey's default): e_i = w_i (x_i - mean) / sum(w); z_hc = sum of e_i in cluster c of stratum h;
+  // Var = sum over strata of n_h / (n_h - 1) * sum over clusters of (z_hc - mean_h z)^2, n_h the number of clusters (rows, when
+  // there are no clusters) in the stratum. Design effect: the design variance over the variance a simple random sample of the
+  // same size would have (s^2 / n with the weighted s^2); Kish's weights-only approximation 1 + CV(w)^2 is given alongside.
+  S.svymean = (x, w, opts = {}) => {
+    const n = x.length, strata = opts.strata || x.map(() => "all"), clus = opts.cluster || x.map((_, i) => "r" + i);
+    const W = w.reduce((s, q) => s + q, 0), mean = x.reduce((s, q, i) => s + w[i] * q, 0) / W;
+    const e = x.map((q, i) => (w[i] * (q - mean)) / W), byH = new Map();
+    x.forEach((_, i) => { const h = strata[i]; if (!byH.has(h)) byH.set(h, new Map()); const m = byH.get(h); m.set(clus[i], (m.get(clus[i]) || 0) + e[i]); });
+    let v = 0, single = []; byH.forEach((m, h) => { const z = [...m.values()], nh = z.length; if (nh < 2) { single.push(h); return; } const zb = z.reduce((s, q) => s + q, 0) / nh; v += (nh / (nh - 1)) * z.reduce((s, q) => s + (q - zb) ** 2, 0); });
+    const se = Math.sqrt(v), s2w = x.reduce((s, q, i) => s + w[i] * (q - mean) ** 2, 0) / W * (n / (n - 1)), vSRS = s2w / n, deff = vSRS > 0 ? v / vSRS : NaN;
+    const wbar = W / n, cvw2 = w.reduce((s, q) => s + (q - wbar) ** 2, 0) / n / (wbar * wbar), kish = 1 + cvw2;
+    const unw = S.mean(x), unwSE = Math.sqrt(x.reduce((s, q) => s + (q - unw) ** 2, 0) / (n - 1) / n);
+    return { mean, se, n, sumW: W, deff, neff: Number.isFinite(deff) && deff > 0 ? n / deff : NaN, kish, unweighted: unw, unweightedSE: unwSE, strata: byH.size, clusters: [...new Set(clus)].length, singleStrata: single };
+  };
+  // Estimated marginal means after a two-way ANOVA (emmeans: equal weights over the levels of the other factor; Tukey-adjusted
+  // pairwise comparisons for each factor). Fitted as the same dummy-coded model as S.anova2.
+  S.emm2 = (y, A, B, interaction = true, conf = 0.95) => {
+    const dA = S.dummies(A), dB = S.dummies(B), ka = dA.levels.length, kb = dB.levels.length;
+    const rowOf = (a, b) => { const ra = dA.levels.slice(1).map((l) => (l === a ? 1 : 0)), rb = dB.levels.slice(1).map((l) => (l === b ? 1 : 0)); return ra.concat(rb, interaction ? ra.flatMap((p) => rb.map((q) => p * q)) : []); };
+    const X = y.map((_, i) => rowOf(A[i], B[i])), m = S.ols(X, y, X[0].map((_, j) => "x" + j), conf, { light: true }), V = m.covb, df = m.df, tstar = S.qt(1 - (1 - conf) / 2, df);
+    const est = (L) => { const e = L.reduce((s, l, j) => s + l * m.b[j], 0); let v = 0; for (let i = 0; i < L.length; i++) for (let j = 0; j < L.length; j++) v += L[i] * V[i][j] * L[j]; return { est: e, se: Math.sqrt(Math.max(v, 0)) }; };
+    const Lcell = (a, b) => [1].concat(rowOf(a, b)), avg = (Ls) => Ls[0].map((_, j) => Ls.reduce((s, L) => s + L[j], 0) / Ls.length);
+    const factor = (levels, Lof, k) => { const Ls = levels.map(Lof), means = Ls.map((L) => { const r = est(L); return { est: r.est, se: r.se, lower: r.est - tstar * r.se, upper: r.est + tstar * r.se }; }), pairs = [];
+      for (let i = 0; i < levels.length; i++) for (let j = i + 1; j < levels.length; j++) { const d = Ls[i].map((v, q) => v - Ls[j][q]), r = est(d), t = r.est / r.se; let p; try { p = 1 - S.ptukey(Math.abs(t) * Math.SQRT2, k, df); } catch (e) { p = NaN; } pairs.push({ a: levels[i], b: levels[j], diff: r.est, se: r.se, t, df, p }); }
+      return { levels, means, pairs }; };
+    return { A: factor(dA.levels, (a) => avg(dB.levels.map((b) => Lcell(a, b))), ka), B: factor(dB.levels, (b) => avg(dA.levels.map((a) => Lcell(a, b))), kb), cells: dA.levels.flatMap((a) => dB.levels.map((b) => { const r = est(Lcell(a, b)); return { a, b, est: r.est, se: r.se }; })), df, mse: m.se_res * m.se_res };
+  };
+  // Simple mediation x -> m -> y with covariates: paths a (m on x), b and c' (y on m and x), c (y on x); indirect a*b with Sobel's
+  // SE and a percentile bootstrap interval (the mediation package's boot = TRUE); c = c' + a*b holds exactly for OLS.
+  S.mediation = (y, x, med, C, opts = {}) => {
+    const reps = opts.reps || 2000, conf = opts.conf || 0.95, r = S.rng(opts.seed == null || opts.seed === "" ? 12345 : Number(opts.seed)), n = y.length;
+    const fit = (yy, cols) => S.ols(yy.map((_, i) => cols.map((c) => c[i])), yy, cols.map((_, j) => "v" + j), conf, { light: true });
+    const paths = (yy, xx, mm, CC) => { const A = fit(mm, [xx].concat(CC)), Bf = fit(yy, [xx, mm].concat(CC)), Cf = fit(yy, [xx].concat(CC)); return { a: A.b[1], sa: A.se[1], pa: A.p[1], b: Bf.b[2], sb: Bf.se[2], pb: Bf.p[2], cp: Bf.b[1], scp: Bf.se[1], pcp: Bf.p[1], c: Cf.b[1], sc: Cf.se[1], pc: Cf.p[1], fitA: A, fitB: Bf, fitC: Cf }; };
+    const P = paths(y, x, med, C), ab = P.a * P.b, sobel = Math.sqrt(P.b * P.b * P.sa * P.sa + P.a * P.a * P.sb * P.sb), z = ab / sobel;
+    const boots = []; for (let k = 0; k < reps; k++) { const idx = Array.from({ length: n }, () => Math.floor(r() * n)); try { const Q = paths(idx.map((i) => y[i]), idx.map((i) => x[i]), idx.map((i) => med[i]), C.map((c) => idx.map((i) => c[i]))); boots.push(Q.a * Q.b); } catch (e) { } }
+    boots.sort((u, v) => u - v); const lo = S.quantile(boots, (1 - conf) / 2), hi = S.quantile(boots, 1 - (1 - conf) / 2);
+    return Object.assign(P, { ab, sobel, z, pSobel: 2 * (1 - S.pnorm(Math.abs(z))), bootLower: lo, bootUpper: hi, boots, reps: boots.length, propMediated: P.c !== 0 ? ab / P.c : NaN, n, conf });
+  };
   S.dummies = (vals, ref) => { // reference = the most frequent level unless given; a rare reference makes every coefficient unstable
     const c = S.counts(vals); let lv = Object.keys(c).sort(); const r = ref && lv.includes(ref) ? ref : lv.reduce((a, b) => (c[b] > c[a] ? b : a), lv[0]); lv = [r].concat(lv.filter((l) => l !== r));
     return { levels: lv, cols: lv.slice(1), rows: vals.map((v) => lv.slice(1).map((l) => (v === l ? 1 : 0))) }; };
@@ -861,6 +928,69 @@
   // of the deviance, the variance of each fixed effect is differentiated numerically. Checked against lme4 and lmerTest on the
   // sleepstudy data (fixed effects, SEs, variances, correlation, REML criterion, ML deviance, df 22.81 / 161.0 and 17.0 / 17.0).
   // X: rows WITH the intercept column; Zcols: per row the random-effect design [1, slope values...] or null for intercept only.
+// Generalized linear mixed model with a random intercept (lme4's glmer, nAGQ = 1): binomial (0/1 or successes out of trials) or
+// Poisson (with an optional offset), logit or log link. The Laplace approximation: for each group the conditional mode of its
+// random effect u (standard normal, scaled by theta) is found by Newton's method, and the deviance is
+// -2 [sum of log-likelihoods at the modes - u'u / 2] + sum over groups of log(1 + theta^2 W_g), W_g the sum of the working
+// weights in the group (Bates et al. 2015, section 4). Nelder-Mead over (theta, beta). Standard errors from the Schur
+// complement of the Hessian at the modes, as lme4's vcov. Checked against glmer on lme4's cbpp data.
+S.glmm = (y, X, groups, opts = {}) => {
+  const fam = opts.family === "poisson" ? "poisson" : "binomial", n = y.length, p = X[0].length, tr = opts.trials || null, off = opts.offset || new Array(n).fill(0);
+  const glev = [...new Set(groups)], gi = groups.map((g) => glev.indexOf(g)), g = glev.length, rowsOf = Array.from({ length: g }, () => []); gi.forEach((k, i) => rowsOf[k].push(i));
+  const lgam = (x) => jStat.gammaln(x);
+  const konst = y.reduce((s, yi, i) => s + (fam === "poisson" ? -lgam(yi + 1) : lgam(tr ? tr[i] + 1 : 2) - lgam(yi + 1) - lgam((tr ? tr[i] : 1) - yi + 1)), 0); // the constant part of the log-likelihood (lme4's deviance keeps it)
+  const mu = (eta, i) => (fam === "poisson" ? Math.exp(eta) : (tr ? tr[i] : 1) / (1 + Math.exp(-eta)));
+  const ll1 = (eta, i) => { if (fam === "poisson") return y[i] * eta - Math.exp(eta); const m = tr ? tr[i] : 1, pr = 1 / (1 + Math.exp(-eta)); return y[i] * Math.log(Math.max(pr, 1e-300)) + (m - y[i]) * Math.log(Math.max(1 - pr, 1e-300)); };
+  const w1 = (eta, i) => { if (fam === "poisson") return Math.exp(eta); const m = tr ? tr[i] : 1, pr = 1 / (1 + Math.exp(-eta)); return m * pr * (1 - pr); };
+  const xb = (b) => X.map((r, i) => r.reduce((s, v, k) => s + v * b[k], 0) + off[i]);
+  // conditional modes for a given (theta, beta); returns the Laplace deviance and the modes
+  let uCache = new Array(g).fill(0);
+  const laplace = (theta, b, keepU) => {
+    const lin = xb(b); let dev = 0; const us = new Array(g);
+    for (let k = 0; k < g; k++) {
+      const idx = rowsOf[k]; let u = uCache[k] || 0;
+      for (let it = 0; it < 50; it++) { let gr = -u, H = -1; idx.forEach((i) => { const eta = lin[i] + theta * u; gr += theta * (y[i] - mu(eta, i)); H -= theta * theta * w1(eta, i); }); const step = gr / H; u -= step; if (Math.abs(step) < 1e-10) break; }
+      let L = -u * u / 2, W = 0; idx.forEach((i) => { const eta = lin[i] + theta * u; L += ll1(eta, i); W += w1(eta, i); });
+      dev += -2 * L + Math.log(1 + theta * theta * W); us[k] = u;
+    }
+    if (keepU) uCache = us;
+    return { dev: dev - 2 * konst, u: us };
+  };
+  // starting values: the fixed-effects GLM (theta = 0) by Newton on beta
+  const glmFit = () => { let b = new Array(p).fill(0); if (fam === "poisson") b[0] = Math.log(Math.max(S.mean(y.map((q, i) => q / Math.exp(off[i]))), 1e-6)); else { const ybar = y.reduce((s, q, i) => s + q, 0) / (tr ? tr.reduce((s, q) => s + q, 0) : n); b[0] = Math.log(Math.max(ybar, 1e-6) / Math.max(1 - ybar, 1e-6)); }
+    for (let it = 0; it < 100; it++) { const lin = xb(b); const grad = new Array(p).fill(0), H = Array.from({ length: p }, () => new Array(p).fill(0)); for (let i = 0; i < n; i++) { const r = y[i] - mu(lin[i], i), w = w1(lin[i], i); for (let a = 0; a < p; a++) { grad[a] += X[i][a] * r; for (let c = 0; c < p; c++) H[a][c] += w * X[i][a] * X[i][c]; } } let step; try { step = solve(H, grad); } catch (e) { break; } let mx = 0; for (let a = 0; a < p; a++) { b[a] += step[a]; mx = Math.max(mx, Math.abs(step[a])); } if (mx < 1e-9) break; } return b; };
+  const solve = (A, bvec) => { const m = A.length, M = A.map((r, i) => r.concat([bvec[i]])); for (let c = 0; c < m; c++) { let piv = c; for (let r = c + 1; r < m; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r; if (Math.abs(M[piv][c]) < 1e-14) throw new Error("singular"); [M[c], M[piv]] = [M[piv], M[c]]; for (let r = 0; r < m; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let j = c; j <= m; j++) M[r][j] -= f * M[c][j]; } } return M.map((r, i) => r[m] / r[i]); };
+  const inv = (A) => { const m = A.length; return Array.from({ length: m }, (_, j) => solve(A, A.map((_, i) => (i === j ? 1 : 0)))).reduce((acc, colv, j) => { colv.forEach((v, i) => (acc[i][j] = v)); return acc; }, Array.from({ length: m }, () => new Array(m).fill(0))); };
+  const b0 = glmFit(), dev0 = laplace(0, b0, false).dev; // the model without the random effect
+  // Nelder-Mead over (theta, beta), theta kept non-negative by using |theta|
+  const f = (x) => laplace(Math.abs(x[0]), x.slice(1), false).dev;
+  const nm = (x0, step) => { const d = x0.length; let simplex = [x0.slice()]; for (let i = 0; i < d; i++) { const x = x0.slice(); x[i] += step[i]; simplex.push(x); } let fx = simplex.map(f);
+    for (let it = 0; it < 4000; it++) { const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); simplex = ord.map((i) => simplex[i]); fx = ord.map((i) => fx[i]); if (Math.abs(fx[d] - fx[0]) < 1e-9 && it > 50) break;
+      const cen = new Array(d).fill(0); for (let i = 0; i < d; i++) for (let j = 0; j < d; j++) cen[j] += simplex[i][j] / d; const xr = cen.map((c, j) => 2 * c - simplex[d][j]), fr = f(xr);
+      if (fr < fx[0]) { const xe = cen.map((c, j) => 3 * c - 2 * simplex[d][j]), fe = f(xe); if (fe < fr) { simplex[d] = xe; fx[d] = fe; } else { simplex[d] = xr; fx[d] = fr; } }
+      else if (fr < fx[d - 1]) { simplex[d] = xr; fx[d] = fr; }
+      else { const xc = cen.map((c, j) => 0.5 * (c + simplex[d][j])), fc = f(xc); if (fc < fx[d]) { simplex[d] = xc; fx[d] = fc; } else { for (let i = 1; i <= d; i++) { simplex[i] = simplex[i].map((v, j) => 0.5 * (v + simplex[0][j])); fx[i] = f(simplex[i]); } } } }
+    const ord = fx.map((v, i) => i).sort((a, b) => fx[a] - fx[b]); return { x: simplex[ord[0]], f: fx[ord[0]] }; };
+  let best = nm([0.5].concat(b0), [0.5].concat(b0.map(() => 0.3))); best = nm(best.x, [0.05].concat(b0.map(() => 0.05))); // a second, tighter pass
+  const theta = Math.abs(best.x[0]), beta = best.x.slice(1), fin = laplace(theta, beta, true), dev = fin.dev;
+  // standard errors: Schur complement of the penalized Hessian at the modes
+  const lin = xb(beta), eta = lin.map((e, i) => e + theta * fin.u[gi[i]]), w = eta.map((e, i) => w1(e, i));
+  const H = Array.from({ length: p }, () => new Array(p).fill(0)); for (let i = 0; i < n; i++) for (let a = 0; a < p; a++) for (let c = 0; c < p; c++) H[a][c] += w[i] * X[i][a] * X[i][c];
+  for (let k = 0; k < g; k++) { const idx = rowsOf[k]; const s = new Array(p).fill(0); let W = 0; idx.forEach((i) => { W += w[i]; for (let a = 0; a < p; a++) s[a] += w[i] * X[i][a]; }); const fac = (theta * theta) / (1 + theta * theta * W); for (let a = 0; a < p; a++) for (let c = 0; c < p; c++) H[a][c] -= fac * s[a] * s[c]; }
+  let cov; try { cov = inv(H); } catch (e) { cov = H.map(() => new Array(p).fill(NaN)); }
+  // lme4's vcov for a glmer fit (use.hessian = TRUE when beta is in the optimizer): twice the inverse of the finite-difference
+  // Hessian of the deviance in (theta, beta), beta block. The working-weights version above is the fallback.
+  try {
+    const x = [theta].concat(beta), d = x.length, h = x.map((v) => 1e-4 * (1 + Math.abs(v))), Hn = Array.from({ length: d }, () => new Array(d).fill(0)), f0 = f(x);
+    const at = (di, dj) => { const xx = x.slice(); if (di) xx[di[0]] += di[1]; if (dj) xx[dj[0]] += dj[1]; return f(xx); };
+    for (let i = 0; i < d; i++) { Hn[i][i] = (at([i, h[i]]) - 2 * f0 + at([i, -h[i]])) / (h[i] * h[i]); for (let j = i + 1; j < d; j++) { Hn[i][j] = Hn[j][i] = (at([i, h[i]], [j, h[j]]) - at([i, h[i]], [j, -h[j]]) - at([i, -h[i]], [j, h[j]]) + at([i, -h[i]], [j, -h[j]])) / (4 * h[i] * h[j]); } }
+    const full = inv(Hn).map((r) => r.map((v) => 2 * v)); const cb = beta.map((_, i) => beta.map((_, j) => full[i + 1][j + 1]));
+    if (cb.every((r, i) => Number.isFinite(r[i]) && r[i] > 0)) cov = cb;
+  } catch (e) { }
+  const se = cov.map((r, i) => Math.sqrt(Math.max(r[i], 0))), z = beta.map((b, i) => b / se[i]), pv = z.map((q) => 2 * (1 - S.pnorm(Math.abs(q))));
+  const ll = -dev / 2, npar = p + 1, lrt = Math.max(0, dev0 - dev);
+  return { family: fam, beta, se, z, p: pv, vcov: cov, theta, variance: theta * theta, sd: theta, dev, ll, aic: dev + 2 * npar, bic: dev + npar * Math.log(n), n, k: p, g, groups: glev, ranef: fin.u.map((u) => theta * u), fitted: eta.map((e, i) => mu(e, i)), eta, devGlm: dev0, betaGlm: b0, lrt, pLrt: 0.5 * (1 - S.pchisq(lrt, 1)), dfResid: n - npar, icc: fam === "binomial" ? (theta * theta) / (theta * theta + Math.PI * Math.PI / 3) : NaN };
+};
 S.lmm = (y, X, groups, Zcols, opts = {}) => {
   const REML = opts.reml !== false, n = y.length, p = X[0].length, k = Zcols ? Zcols[0].length : 1;
   const glev = [...new Set(groups)], gi = groups.map((g) => glev.indexOf(g)), g = glev.length, q = g * k;

@@ -1,5 +1,13 @@
 # Real-world datasets added 2026-09-13
 
+## cbpp.csv (56 rows, added 2026-10-20)
+Lesnoff et al. (2004), the contagious bovine pleuropneumonia data shipped with the R package lme4: serological incidence in 15 Ethiopian zebu herds over four periods.
+- herd (H01 to H15), period (1 to 4), incidence (new cases), size (animals at risk)
+- Reference values (R): `glmer(cbind(incidence, size - incidence) ~ period + (1 | herd), data = cbpp, family = binomial)` (Laplace):
+  intercept -1.3983 (SE 0.2312), period2 -0.9919 (0.3032), period3 -1.1282 (0.3228), period4 -1.5797 (0.4220); herd variance 0.4123
+  (SD 0.6421); AIC 194.1, BIC 204.2, logLik -92.0, deviance 184.1, 51 residual df.
+  The app matches the estimates, variance, deviance, AIC and BIC to three decimals; its standard errors are within 1.5 percent.
+
 ## ships.csv (40 rows, added 2026-10-18)
 McCullagh and Nelder (1989), the ship damage data shipped with the R package MASS (Venables and Ripley, Modern Applied Statistics with S, 4th ed., section 7.3).
 Damage incidents to five types of cargo ship by year of construction (1960 to 1975 in five-year bands), period of operation and aggregate months of service.
