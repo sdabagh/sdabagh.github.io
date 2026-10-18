@@ -46,6 +46,16 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-24: files as spreadsheets export them
+
+- The CSV reader detects the delimiter (comma, semicolon, tab, pipe) from the first line and drops a byte-order mark; a
+  semicolon file with decimal commas used to collapse into one column. On a file, a paste or an Excel sheet (never a
+  sample dataset or a table the app built) the load tidies and names on an "Opened" card: decimal commas to points,
+  currency signs, thousands separators and percent signs removed, duplicate column names suffixed `_2`. The type guess
+  looks past NA, N/A, NaN, null, None, ".", "-", "?" and Excel error tokens (the cells keep them), and counts only
+  decimal or scientific notation as numeric (`0x10` is text). Browser test `messy.js` with eight files. Cache
+  `sww-v80`, scripts `?v=83`.
+
 ### 2026-10-23 (later): ready for the app stores; large files
 
 - **Large files.** Above 4,000 rows the data table renders its first 300 rows and pages the rest in on scroll, on a button and under the
