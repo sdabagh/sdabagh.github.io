@@ -194,14 +194,14 @@ async function run(page) { await page.click("#dlg button.go"); await page.waitFo
   await phone.selectOption("#f_x", "GPA"); await phone.selectOption("#f_g", "Pet_Owner"); await phone.click("#dlg button.go"); await phone.waitForFunction(() => !document.querySelector("#dlg").open); await phone.waitForTimeout(500);
   const ov = await phone.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth, toggle: document.querySelector("#paneToggle").getClientRects().length, wide: Array.from(document.querySelectorAll("body *")).filter((el) => el.getBoundingClientRect().right > window.innerWidth + 1 && getComputedStyle(el).position !== "fixed" && !el.closest(".plot") && !el.closest("#grid")).slice(0, 5).map((el) => el.tagName + "." + el.className) }));
   ok(ov.sw <= ov.iw && ov.toggle === 0, "phone: no horizontal page overflow, no Widen button", ov);
-  await phone.screenshot({ path: "/tmp/claude-0/-home-user-sdabagh-github-io/d1f78727-976a-5563-9438-424a059d401d/scratchpad/pw/phone-data.png", fullPage: false });
+  await phone.screenshot({ path: require("os").tmpdir() + "/sww-phone-data.png", fullPage: false });
   await phone.evaluate(() => document.querySelector("#out .card").scrollIntoView());
-  await phone.screenshot({ path: "/tmp/claude-0/-home-user-sdabagh-github-io/d1f78727-976a-5563-9438-424a059d401d/scratchpad/pw/phone-card.png", fullPage: false });
+  await phone.screenshot({ path: require("os").tmpdir() + "/sww-phone-card.png", fullPage: false });
   await phone.goto(URL + "#distraction"); await phone.waitForTimeout(300);
   await phone.click("#distPick button"); await phone.waitForTimeout(500);
   const ov2 = await phone.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
   ok(ov2.sw <= ov2.iw, "phone: distrACTION page has no horizontal overflow", ov2);
-  await phone.screenshot({ path: "/tmp/claude-0/-home-user-sdabagh-github-io/d1f78727-976a-5563-9438-424a059d401d/scratchpad/pw/phone-dist.png", fullPage: false });
+  await phone.screenshot({ path: require("os").tmpdir() + "/sww-phone-dist.png", fullPage: false });
   ok(perr.length === 0, "phone: no page errors", perr);
 
   await page.screenshot({ path: "/tmp/claude-0/-home-user-sdabagh-github-io/d1f78727-976a-5563-9438-424a059d401d/scratchpad/pw/desktop.png" });
