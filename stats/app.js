@@ -17,6 +17,11 @@
   // which read aloud better. Formula lines take every rule; sentences take only the symbol rules, so "3 times as likely"
   // and "the sum of the ranks" stay English. A column of the user's data that happens to be called alpha or mu keeps its name.
   let NOTE = "sym"; try { if (localStorage.getItem("sww_note") === "words") NOTE = "words"; } catch (e) { }
+  // Interface language. Menus, dialogs, buttons and the page shell are shown in Spanish when LANG is "es" (lang-es.js);
+  // every internal key, card title and R line stays English. First visit: the browser's language; after that, the choice.
+  let LANG = "en"; try { LANG = localStorage.getItem("sww_lang") || (/^es\b/i.test(navigator.language || "") ? "es" : "en"); } catch (e) { }
+  if (LANG !== "es") LANG = "en";
+  const T = (s) => (LANG === "es" && typeof s === "string" && window.SWW_ES && window.SWW_ES[s]) || s;
   const SUB = { 0: "\u2080", 1: "\u2081", 2: "\u2082", 3: "\u2083" }, sub = (d) => SUB[d] || d;
   const SYM_PROSE = [
     [/\bchi-square\b/gi, "\u03c7\u00b2"], [/\bWilks' lambda\b/g, "Wilks' \u039b"], [/\bpartial eta squared\b/g, "partial \u03b7\u00b2"], [/\beta squared\b/g, "\u03b7\u00b2"], [/\bomega squared\b/g, "\u03c9\u00b2"],
@@ -280,13 +285,13 @@
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
-    div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">edit</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">copy text</button><button type="button" data-act="close" aria-label="Remove: ${t}">remove</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
+    div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">${T("edit")}</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">${T("copy text")}</button><button type="button" data-act="close" aria-label="Remove: ${t}">${T("remove")}</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
     if (MODE.who === "researcher" && TARGET === "#out") { // same card, different order: tables, APA line, conclusion, then the method folded away
       const kids = [...div.children], method = kids.filter((k) => k.matches(".formula, details.worked"));
       if (method.length) { const det = document.createElement("details"); det.className = "method"; det.innerHTML = "<summary>Method: formula and worked numbers</summary>"; method.forEach((m) => det.appendChild(m)); const last = kids.filter((k) => k.matches(".say, .ok, .warn, .apa")).pop(); if (last) last.after(det); else div.appendChild(det); }
     }
     div.querySelector('[data-act="close"]').onclick = () => removeCard(div);
-    if (!CAPTURE && TARGET === "#out" && div.querySelector("table.res td.num")) { const cb = document.createElement("button"); cb.type = "button"; cb.dataset.act = "check"; cb.textContent = "check my work"; cb.setAttribute("aria-label", "Check my work: " + t); cb.title = "Type the numbers you got by hand; the card marks each one and says what went wrong"; div.querySelector(".tools").insertBefore(cb, div.querySelector('[data-act="copy"]')); cb.onclick = () => checkWorkUI(div); }
+    if (!CAPTURE && TARGET === "#out" && div.querySelector("table.res td.num")) { const cb = document.createElement("button"); cb.type = "button"; cb.dataset.act = "check"; cb.textContent = T("check my work"); cb.setAttribute("aria-label", "Check my work: " + t); cb.title = "Type the numbers you got by hand; the card marks each one and says what went wrong"; div.querySelector(".tools").insertBefore(cb, div.querySelector('[data-act="copy"]')); cb.onclick = () => checkWorkUI(div); }
     if (TARGET === "#out" && typeof botTip === "function") setTimeout(() => botTip(div), 0);
     div.querySelector('[data-act="copy"]').onclick = (e) => copyCard(div, e.currentTarget);
     if (PENDING && PENDING.fn) { div._redo = { fn: PENDING.fn, values: Object.assign({}, PENDING.values), target: TARGET, title: PENDING.title, fields: PENDING.fields }; div.querySelector('[data-act="edit"]').onclick = () => editCard(div); }
@@ -322,7 +327,7 @@
   function table(headers, rows, caption) {
     return (caption ? `<div class="cap">${sym(esc(caption), true)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${sym(esc(h), true)}</th>`).join("")}</tr></thead><tbody>` +
       rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : i ? esc(v) : sym(esc(v), true)}</td>`).join("")}</tr>`).join("") + "</tbody></table>" +
-      `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">copy as CSV</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">copy as Markdown</button></div>`;
+      `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">${T("copy as CSV")}</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">${T("copy as Markdown")}</button></div>`;
   }
   // a table copied as CSV (for a spreadsheet) or as Markdown (for a report or a slide); the buttons sit under every table
   function tableCells(t) { return [...t.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => c.textContent.replace(/\s+/g, " ").trim())); }
@@ -484,13 +489,13 @@
       if (LIVE && LIVE._auto && LIVE.isConnected && LIVE !== editing) LIVE.remove();
       document.querySelectorAll("#outD .card.stale").forEach((c) => c.classList.remove("stale")); // right for its own inputs; only out of date against the old form
       dropUndo();
-      $("#toolTitle").textContent = f._title = title.replace(/^(distrACTION|Advanced):\s*/, ""); distMsg(""); $("#distPick").style.display = "none"; LIVE = editing || resume;
-      $("#toolNote").textContent = PLAN_ITEMS.has(CUR_FN) ? "Sample size and power. No data needed." : "Probability calculators. No data needed.";
+      $("#toolTitle").textContent = f._title = T(title).replace(/^(distrACTION|Advanced|Avanzado):\s*/, ""); distMsg(""); $("#distPick").style.display = "none"; LIVE = editing || resume;
+      $("#toolNote").textContent = T(PLAN_ITEMS.has(CUR_FN) ? "Sample size and power. No data needed." : "Probability calculators. No data needed.");
       const di = DIST_ITEMS.findIndex((it) => it[1] === CUR_FN); $("#distSel").value = di < 0 ? "" : String(di); $("#distSwitch").style.display = di < 0 ? "none" : "block"; // Change distribution
       document.querySelectorAll("#outD .card.editing").forEach((c) => c.classList.remove("editing")); if (editing) { editing.classList.add("editing"); editing._auto = false; }
       $("#distPanel").appendChild($("#distMsg")); // out of the form before the form is rebuilt; it goes back in just above Run
       document.body.classList.add("dist-open");
-    } else $("#dlgTitle").textContent = title;
+    } else $("#dlgTitle").textContent = T(title);
     f.innerHTML = ""; f.dataset.target = TARGET;
     const groups = {}, wide = new Set(); let html = ""; // wide: a group with a typed list gets full-width boxes, one under the other
     // Groups that most runs never touch open folded ("More options"), so a dialog shows its essentials first. A group opens by
@@ -500,21 +505,21 @@
     const taken = []; fields.filter(Boolean).forEach((fd) => { if (!fd.distinct || fd.value != null) return; const opts = (fd.options || []).map((o) => (Array.isArray(o) ? o[0] : o)); const pick = opts.find((o) => !taken.includes(o)); if (pick != null) { fd.value = pick; taken.push(pick); } });
     fields.filter(Boolean).forEach((fd) => {
       const id = pre + fd.name; let ctl = "";
-      if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
-      else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${escA(fd.placeholder || "")}">${esc(fd.value || "")}</textarea>`;
-      else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${sym(esc(fd.label))}</label>`;
+      if (fd.type === "select" || fd.type === "multi") ctl = `<select id="${id}" name="${fd.name}" ${fd.type === "multi" ? "multiple" : ""}>${(fd.options || []).map((o) => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; const on = Array.isArray(fd.value) ? fd.value.map(String).includes(String(v)) : String(fd.value) === String(v); return `<option value="${escA(v)}" ${on ? "selected" : ""}>${esc(T(l))}</option>`; }).join("")}</select>`;
+      else if (fd.type === "textarea") ctl = `<textarea id="${id}" name="${fd.name}" rows="${fd.rows || 6}" placeholder="${escA(T(fd.placeholder || ""))}">${esc(fd.value || "")}</textarea>`;
+      else if (fd.type === "check") ctl = `<label class="chk"><input type="checkbox" id="${id}" name="${fd.name}" ${fd.value ? "checked" : ""}> ${sym(esc(T(fd.label)))}</label>`;
       else if (fd.type === "note") ctl = `<div class="say note" id="${id}" aria-live="polite"></div>`; // a box of text that follows the other answers
-      else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null || Number.isNaN(fd.value) ? "" : escA(fd.value)}" step="any" placeholder="${escA(fd.placeholder || "")}"${fd.list ? ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : ""}>`;
-      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${sym(esc(fd.label))}</label>`;
+      else ctl = `<input type="${fd.type || "text"}" id="${id}" name="${fd.name}" value="${fd.value == null || Number.isNaN(fd.value) ? "" : escA(fd.value)}" step="any" placeholder="${escA(T(fd.placeholder || ""))}"${fd.list ? ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : ""}>`;
+      const lab = fd.type === "check" || fd.type === "note" ? "" : `<label for="${id}">${sym(esc(T(fd.label)))}</label>`;
       // check(raw): a field that can be set to something that will not work (a grouping column with too many values) says so
       // right under itself as soon as it is chosen, and Run shows the same message there instead of an alert
-      const block = `<div class="fld${fd.full ? " full" : ""}">${lab}${ctl}${fd.hint ? `<div class="hint">${sym(esc(fd.hint))}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
+      const block = `<div class="fld${fd.full ? " full" : ""}">${lab}${ctl}${fd.hint ? `<div class="hint">${sym(esc(T(fd.hint)))}</div>` : ""}${fd.check ? `<div class="fldmsg" id="${id}_msg" role="alert"></div>` : ""}</div>`;
       if (fd.group) { groups[fd.group] = (groups[fd.group] || "") + block; html += `<!--G:${fd.group}-->`; if (fd.list) wide.add(fd.group); } else html += block;
     });
     const seen = new Set();
-    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld[ "]/g) || []).length, inner = `<div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div>`; return FOLD.has(g) ? `<details class="more" data-group="${escA(g)}"${openGroups.has(g) ? " open" : ""}><summary>${sym(esc(g))} <span class="mnote">more options</span></summary>${inner}</details>` : `<fieldset><legend>${sym(esc(g))}</legend>${inner}</fieldset>`; });
-    f.innerHTML = html + (inline ? `<div id="distNow"></div><div class="actions"><button type="submit" class="go">${esc(goLabel)}</button></div><div class="hint">The result updates as you change anything. Run keeps this result; your next change then starts a new card, so you can compare.</div>`
-      : `<div class="actions"><button type="button" id="dlgCancel">Cancel</button><button type="submit" class="go">${esc(goLabel)}</button></div>`);
+    html = html.replace(/<!--G:([^>]+)-->/g, (m, g) => { if (seen.has(g)) return ""; seen.add(g); const n = (groups[g].match(/class="fld[ "]/g) || []).length, inner = `<div class="${g === "Find" ? "find" : wide.has(g) ? "" : n >= 3 ? "row3" : n === 2 ? "row" : ""}">${groups[g]}</div>`; return FOLD.has(g) ? `<details class="more" data-group="${escA(g)}"${openGroups.has(g) ? " open" : ""}><summary>${sym(esc(T(g)))} <span class="mnote">${T("more options")}</span></summary>${inner}</details>` : `<fieldset><legend>${sym(esc(T(g)))}</legend>${inner}</fieldset>`; });
+    f.innerHTML = html + (inline ? `<div id="distNow"></div><div class="actions"><button type="submit" class="go">${esc(T(goLabel))}</button></div><div class="hint">The result updates as you change anything. Run keeps this result; your next change then starts a new card, so you can compare.</div>`
+      : `<div class="actions"><button type="button" id="dlgCancel">${T("Cancel")}</button><button type="submit" class="go">${esc(T(goLabel))}</button></div>`);
     PREFILL = null;
     const fn = CUR_FN;
     const collect = () => { const v = {}; fields.filter(Boolean).forEach((fd) => { const el = f.elements[fd.name]; if (!el) return; if (fd.type === "multi") v[fd.name] = [...el.selectedOptions].map((o) => o.value); else if (fd.type === "check") v[fd.name] = el.checked; else if (fd.type === "number") v[fd.name] = el.value === "" ? NaN : Number(el.value); else v[fd.name] = el.value; }); return v; };
@@ -1669,7 +1674,7 @@
     const { fields, ns } = cardNumbers(div); if (!fields.length) { alert("This card has no numbers to check."); return; }
     const title = (div.querySelector("h2") || {}).textContent || "this card";
     CUR_FN = null; PREFILL = null; REPLACE = null;
-    dialog(`Check my work: ${title}`, [{ name: "note", type: "note" }].concat(fields.map((f, i) => ({ name: "q" + i, label: f.label + (f.pct ? " (percent)" : ""), type: "number" }))), (v) => {
+    dialog(`${T("Check my work")}: ${title}`, [{ name: "note", type: "note" }].concat(fields.map((f, i) => ({ name: "q" + i, label: f.label + (f.pct ? " (percent)" : ""), type: "number" }))), (v) => {
       const rows = []; let right = 0, tried = 0;
       fields.forEach((f, i) => { const y = v["q" + i]; if (!Number.isFinite(y)) return; tried++; const yStr = String(y), dec = (yStr.split(".")[1] || "").length, app = f.value;
         const tol = Math.max(0.5 * Math.pow(10, -dec), 0.006 * Math.abs(app), f.isP ? 0.0015 : 0), okv = f.less ? y <= app : Math.abs(y - app) <= tol;
@@ -3260,7 +3265,7 @@
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Mixed-Effects Model (nested or repeated data)", mixedUI], ["Mixed-Effects Model for yes/no or counts (glmer)", glmmUI], ["Survey estimates with weights (design-based)", surveyUI], ["Logistic Regression", logitUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Script: every step, with the R code", scriptUI], null, ["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")],
-      ["Notation: symbols or words", () => dialog("Notation", [sel("n", "Formulas and hypotheses are written with", [["sym", "symbols: x\u0304, \u03c3, \u03bc, \u03b1, \u03c7\u00b2, H\u2080 (default, matches the textbook)"], ["words", "words: x bar, sigma, mu, alpha, chi-square, H0 (reads aloud better)"]], NOTE)], (v) => { NOTE = v.n === "words" ? "words" : "sym"; try { localStorage.setItem("sww_note", NOTE); } catch (e) { } card("Notation", NOTE === "sym" ? "symbols" : "words", say(NOTE === "sym" ? "New results write formulas and hypotheses in symbols: x\u0304 for the sample mean, \u03c3 and \u03bc for the population SD and mean, \u03b1 for the significance level, \u03c7\u00b2 for chi-square, H\u2080 and H\u2090 for the hypotheses. Plain-English conclusions stay as they are." : "New results spell notation out in words (x bar, sigma, mu, alpha, chi-square, H0), the form a screen reader or Read Aloud handles best.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Who is using the app: student or researcher", modeUI], ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
+      ["Language / Idioma", langUI], ["Notation: symbols or words", () => dialog("Notation", [sel("n", "Formulas and hypotheses are written with", [["sym", "symbols: x\u0304, \u03c3, \u03bc, \u03b1, \u03c7\u00b2, H\u2080 (default, matches the textbook)"], ["words", "words: x bar, sigma, mu, alpha, chi-square, H0 (reads aloud better)"]], NOTE)], (v) => { NOTE = v.n === "words" ? "words" : "sym"; try { localStorage.setItem("sww_note", NOTE); } catch (e) { } card("Notation", NOTE === "sym" ? "symbols" : "words", say(NOTE === "sym" ? "New results write formulas and hypotheses in symbols: x\u0304 for the sample mean, \u03c3 and \u03bc for the population SD and mean, \u03b1 for the significance level, \u03c7\u00b2 for chi-square, H\u2080 and H\u2090 for the hypotheses. Plain-English conclusions stay as they are." : "New results spell notation out in words (x bar, sigma, mu, alpha, chi-square, H0), the form a screen reader or Read Aloud handles best.")); }, "Set")], null, ["Print or save as PDF", () => window.print()], ["Export results as HTML", exportResults], ["Save session (data + results)", saveSession], ["Open a saved session", loadSession], ["Share link (data + analyses)", shareLink], null, ["Who is using the app: student or researcher", modeUI], ["Course profile", profileUI], ["Open a profile file", loadProfile], null, ["Clear analyses", () => { if (VIEW !== "data") return clearToolPage(); $("#out").innerHTML = ""; counts(); }], ["Clear graphs", () => { if (VIEW !== "data") return clearToolPage(); $("#outG").innerHTML = ""; counts(); }]]], // on distrACTION and Learn both clear that page only, the same as Clear this page
   ];
 
   // ================= last visit's results =================
@@ -3341,6 +3346,56 @@
     const mb = $("#modeBtn"); if (mb) mb.textContent = modeLabel();
     const g = $("#grid"); if (g && g.querySelector(".empty")) { g.innerHTML = emptyState(); wireEmpty(g); }
     if (store) { try { localStorage.setItem("sww_mode", JSON.stringify(MODE)); } catch (e) { } }
+  }
+  // ================= interface language =================
+  // The shell (header, menu bar, data bar, tabs, tool pages, empty start screen) is translated in place: each text node
+  // keeps its English in a property and shows T() of it, so switching back needs no reload. Results are left alone.
+  const SHELL_ROOTS = "header, nav.menu, #bot .bhead, #botForm, #datapane .bar, #grid .empty, #restoreBar, .tabs, #toolpage .toolbar, #distSwitch, #learnSwitch, #dlg .actions";
+  let I18N_BUSY = false;
+  function i18nShell() {
+    if (I18N_BUSY) return; I18N_BUSY = true;
+    try {
+      document.querySelectorAll(SHELL_ROOTS).forEach((root) => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          const raw = n.nodeValue, t = raw.trim(); if (!t) continue;
+          if (n.__en == null || (n.__shown != null && n.__shown !== raw)) { n.__en = raw; } // set by the app since: the new English
+          const en = n.__en.trim(), out = T(en); const val = n.__en.replace(en, out);
+          if (val !== raw) n.nodeValue = val; n.__shown = n.nodeValue;
+        }
+        root.querySelectorAll("[placeholder], [aria-label], [title]").forEach((el) => ["placeholder", "aria-label", "title"].forEach((a) => {
+          if (!el.hasAttribute(a)) return; const k = "data-en-" + a.replace("aria-", ""), cur = el.getAttribute(a);
+          if (!el.hasAttribute(k) || (el.dataset["shown" + a.replace("aria-", "")] != null && el.dataset["shown" + a.replace("aria-", "")] !== cur)) el.setAttribute(k, cur);
+          const out = T(el.getAttribute(k)); if (cur !== out) el.setAttribute(a, out); el.dataset["shown" + a.replace("aria-", "")] = out;
+        }));
+      });
+      const lb = $("#langBtn"); if (lb) { lb.textContent = LANG === "es" ? "English" : "Español"; lb.setAttribute("lang", LANG === "es" ? "en" : "es"); lb.title = LANG === "es" ? "Switch the interface to English" : "Cambiar la interfaz al español"; }
+      document.documentElement.lang = LANG;
+    } finally { I18N_BUSY = false; }
+  }
+  let I18N_OBS = null, I18N_RAF = 0;
+  function watchShell() {
+    if (I18N_OBS || LANG !== "es") return;
+    I18N_OBS = new MutationObserver(() => { if (I18N_BUSY || I18N_RAF) return; I18N_RAF = requestAnimationFrame(() => { I18N_RAF = 0; i18nShell(); }); });
+    I18N_OBS.observe(document.body, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["placeholder", "aria-label", "title"] });
+  }
+  function setLang(l) {
+    LANG = l === "es" ? "es" : "en"; try { localStorage.setItem("sww_lang", LANG); } catch (e) { }
+    document.querySelectorAll("nav.menu .dd").forEach((dd) => { const m = MENU.find((x) => x[0] === dd.dataset.name); if (!m) return; dd.querySelector(".top").textContent = T(m[0]); const btns = dd.querySelectorAll(".items button"); let k = 0; m[1].forEach((it) => { if (it) btns[k++].textContent = T(it[0]); }); });
+    i18nShell(); watchShell(); announce(LANG === "es" ? "Interfaz en español." : "Interface in English.");
+  }
+  function langUI() {
+    dialog("Language / Idioma", [sel("l", "Interface language", [["en", "English"], ["es", "Español"]], LANG), { name: "n", type: "note", label: "Menus, dialogs and buttons change language. Result cards, formulas and the R script stay in English, the record you and your instructor compare. / Cambian los menús, los diálogos y los botones. Las tarjetas de resultados, las fórmulas y el guion de R siguen en inglés, el registro que tú y tu profesor comparan." }], (v) => {
+      setLang(v.l);
+      card("Language", LANG === "es" ? "Español" : "English", say(LANG === "es" ? "La interfaz está en español. Los resultados siguen en inglés. Escribe tus preguntas en Ask en español o en inglés." : "The interface is in English."));
+    }, "Set");
+  }
+  // Ask in Spanish: the words its routing knows, swapped in before the question is read. Longest phrases first.
+  function botSpanish(q) {
+    const M = window.SWW_ES_ASK || {}; const keys = Object.keys(M).sort((a, b) => b.length - a.length); let out = " " + q.toLowerCase().replace(/[¿¡]/g, "") + " ", hit = false;
+    keys.forEach((k) => { const re = new RegExp("(^|[^a-záéíóúñü])" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?=$|[^a-záéíóúñü])", "g"); if (re.test(out)) { hit = true; out = out.replace(re, "$1" + M[k]); } });
+    out = out.trim(); if (hit && out !== q.toLowerCase()) botSay(`<p class="bmuted" lang="es">Leído como: "${esc(out)}". Las respuestas están en inglés por ahora.</p>`);
+    return hit ? out : q;
   }
   function modeUI() {
     dialog("Who is using Stats Without Walls?", [
@@ -3651,6 +3706,7 @@
   const BOT_BUILD = (() => { const sc = document.querySelector('script[src^="app.js"]'); const m = sc && /v=(\d+)/.exec(sc.getAttribute("src") || ""); return m ? m[1] : "?"; })();
   function botAsk(q) {
     q = String(q || "").trim(); if (!q) return; if (!BOT.open) botToggle(true); botSay(esc(q), "me");
+    if (LANG === "es") q = botSpanish(q);
     try { botAnswerAll(q); } catch (err) { botSay(`<p>Something went wrong while answering (build ${esc(BOT_BUILD)}): ${esc((err && err.message) || String(err))}. Reload the page with Ctrl+Shift+R (Cmd+Shift+R on a Mac) and try again.</p>`); if (window.console) console.error(err); }
   }
   function botAnswerAll(q) {
@@ -3666,7 +3722,7 @@
       if (run && scored[0][0] >= 3) botSay(`<span class="balso">To run it</span>` + botAnswer(run));
       const inp0 = $("#botIn"); if (inp0) { inp0.value = ""; inp0.focus(); } return;
     }
-    if (!hits.length) { botSay(`<p>I did not catch that. Say what you measured and what you want to know, or ask what a term means, for example:</p><div class="bchips">${["compare two groups", "before and after", "is there a relationship", "predict a yes or no", "how many people do I need", "what columns do I have", "what is a p-value", "explain my result"].map((s) => `<button type="button" data-bask="${escA(s)}">${esc(s)}</button>`).join("")}</div><p class="bmuted">Or open ${botBtn("T-Tests", "Which test?", "Which test?")} or the <a href="methods.html" target="_blank" rel="noopener">Methods Guide</a> (its glossary is at the end).</p>`); return; }
+    if (!hits.length) { botSay(`<p>${esc(T("I did not catch that. Say what you measured and what you want to know, or ask what a term means, for example:"))}</p><div class="bchips">${["compare two groups", "before and after", "is there a relationship", "predict a yes or no", "how many people do I need", "what columns do I have", "what is a p-value", "explain my result"].map((s) => `<button type="button" data-bask="${escA(s)}">${esc(s)}</button>`).join("")}</div><p class="bmuted">Or open ${botBtn("T-Tests", "Which test?", "Which test?")} or the <a href="methods.html" target="_blank" rel="noopener">Methods Guide</a> (its glossary is at the end).</p>`); return; }
     hits.forEach((e, i) => botSay((i ? `<span class="balso">Also possible</span>` : "") + botAnswer(e)));
     if (qa.length && qa[0][0] >= 3) botSay(`<span class="balso">In plain words</span>` + botQA(qa[0][1]));
     if (!D.rows.length && hits.some((e) => e.go && e.go.some(([m]) => m !== "Data" && m !== "distrACTION" && m !== "Learn" && m !== "Results"))) botSay(`<p class="bmuted">These need data on the table first: ${botBtn("Data", "Sample datasets", "Sample datasets")} ${botBtn("Data", "Open CSV or Excel file", "Open CSV or Excel file")}</p>`);
@@ -3796,7 +3852,7 @@
   // name; Tab still walks the items; a menu closes when focus leaves it
   MENU.forEach(([name, items], mi) => {
     const dd = document.createElement("div"); dd.className = "dd"; dd.dataset.name = name;
-    dd.innerHTML = `<button type="button" class="top" id="mtop${mi}" aria-haspopup="true" aria-expanded="false" aria-controls="mitems${mi}">${name}</button><div class="items" id="mitems${mi}" role="menu" aria-labelledby="mtop${mi}">${items.map((it) => (it ? `<button type="button" role="menuitem">${esc(it[0])}</button>` : '<div class="sep" role="separator"></div>')).join("")}</div>`;
+    dd.innerHTML = `<button type="button" class="top" id="mtop${mi}" aria-haspopup="true" aria-expanded="false" aria-controls="mitems${mi}">${esc(T(name))}</button><div class="items" id="mitems${mi}" role="menu" aria-labelledby="mtop${mi}">${items.map((it) => (it ? `<button type="button" role="menuitem">${esc(T(it[0]))}</button>` : '<div class="sep" role="separator"></div>')).join("")}</div>`;
     const top = dd.querySelector(".top");
     top.onclick = (e) => { e.stopPropagation(); const open = dd.classList.contains("open"); closeMenus(); if (!open) openDD(dd, e.detail === 0 ? "first" : null); };
     const btns = dd.querySelectorAll(".items button"); let k = 0;
@@ -3881,6 +3937,7 @@
     if (window.ResizeObserver) new ResizeObserver(fit).observe(sc); window.addEventListener("resize", fit); fit();
   })();
   renderGrid();
+  i18nShell(); watchShell(); { const lb = $("#langBtn"); if (lb) lb.onclick = () => setLang(LANG === "es" ? "en" : "es"); }
   restore();
   setView(pageFromHash());
   applyProfile(PROF, false);

@@ -46,6 +46,16 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-23: Spanish interface
+
+- **Results › Language / Idioma**, or the **Español** button in the header, shows the menus, dialogs, field labels, groups,
+  hints, buttons and the page shell in Spanish (`lang-es.js`, about 840 strings). Every internal key stays English:
+  result cards, formulas, APA lines, the R script, saved sessions, share links and course profiles are identical in both
+  languages. Ask maps Spanish words and phrases to the English its routing knows ("comparar dos grupos", "antes y
+  después", "¿qué es un valor p?") and says how it read the question; answers stay English for now. A browser set to
+  Spanish opens in Spanish on the first visit; the choice is kept on the device. Service worker cache `sww-v78`, scripts
+  `?v=81`. Browser test `lang.js`.
+
 ### 2026-10-22 (later): check my work
 
 - Every result card has a **check my work** button: it lists the card's numbers, the student types the ones they worked out
