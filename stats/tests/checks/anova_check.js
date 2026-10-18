@@ -7,7 +7,7 @@ let fails = 0; const ok = (c, m, x) => { console.log((c ? "PASS " : "FAIL ") + m
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 const csv = (p) => { const L = fs.readFileSync(p, "utf8").trim().split(/\r?\n/).map((l) => l.split(",").map((s) => s.replace(/^"|"$/g, ""))); const h = L[0]; return L.slice(1).map((r) => Object.fromEntries(h.map((k, i) => [k, r[i]]))); };
 // MANOVA on iris
-const iris = csv("/tmp/claude-0/-home-user-sdabagh-github-io/d1f78727-976a-5563-9438-424a059d401d/scratchpad/iris/iris.csv");
+const iris = csv(require("path").join(__dirname, "data", "iris.csv"));
 const Y = iris.map((r) => ["sepal_length", "sepal_width", "petal_length", "petal_width"].map((c) => Number(r[c]))), g = iris.map((r) => r.species);
 const m = S.manova(Y, g); const st = Object.fromEntries(m.stats.map((s) => [s.name, s]));
 ok(near(m.eig[0], 32.19193, 0.0001) && near(m.eig[1], 0.28539, 0.0001), "iris eigenvalues 32.1919, 0.2854", m.eig.map((e) => +e.toFixed(5)));

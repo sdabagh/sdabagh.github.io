@@ -11,9 +11,9 @@ run_one() { local f="$1"; local out; out="$(timeout 600 node "$f" 2>&1)"; local 
 if [ $DO_CHECKS -eq 1 ]; then echo "== engine checks"; for f in "$HERE"/checks/*.js; do run_one "$f"; done; fi
 if [ $DO_BROWSER -eq 1 ]; then
   echo "== browser suites (http://127.0.0.1:$PORT/stats/index.html)"
-  if ! curl -s -o /dev/null "http://127.0.0.1:$PORT/stats/index.html"; then (cd "$ROOT" && python3 -m http.server "$PORT" --bind 127.0.0.1 >/dev/null 2>&1 &) ; SRV=1; for i in 1 2 3 4 5 6 7 8 9 10; do curl -s -o /dev/null "http://127.0.0.1:$PORT/stats/index.html" && break; sleep 1; done; fi
+  SRV_PID=""; if ! curl -s -o /dev/null "http://127.0.0.1:$PORT/stats/index.html"; then (cd "$ROOT" && exec python3 -m http.server "$PORT" --bind 127.0.0.1 >/dev/null 2>&1) & SRV_PID=$!; for i in 1 2 3 4 5 6 7 8 9 10; do curl -s -o /dev/null "http://127.0.0.1:$PORT/stats/index.html" && break; sleep 1; done; fi
   for f in "$HERE"/browser/*.js; do SWW_PORT=$PORT run_one "$f"; done
-  if [ "${SRV:-0}" = 1 ]; then pkill -f "http.server $PORT --bind 127.0.0.1" >/dev/null 2>&1 || true; fi
+  if [ -n "$SRV_PID" ]; then kill "$SRV_PID" >/dev/null 2>&1 || true; fi
 fi
 echo; echo "$pass passed, $fail failed${fail:+: ${failed[*]:-}}"
 [ $fail -eq 0 ]
