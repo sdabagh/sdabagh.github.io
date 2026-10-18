@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-22 (later): check my work
+
+- Every result card has a **check my work** button: it lists the card's numbers, the student types the ones they worked out
+  by hand, and each is marked as a match within the rounding typed or a miss with the most likely reason (flipped sign, one
+  tail instead of two, SD over n instead of n − 1, SE without √n, percent against proportion, squared or square-rooted,
+  rounding too early, or simply far off). The verdict table sits on the card and is replaced on a second check. Ask
+  explains it; the user guide describes it. Service worker cache `sww-v77`, scripts `?v=80`.
+
 ### 2026-10-22: Excel files open directly; Ask forgives typos
 
 - **Data, Open CSV or Excel file** now takes .xlsx workbooks and reads them in the browser with no library: shared, inline and
