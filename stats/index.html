@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stats Without Walls</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1A3A4D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Stats">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="Stats Without Walls: a free statistical tool for all levels, from first descriptives to regression, factor analysis and time series. Load a CSV, summarize, graph, infer. No install, no account.">
@@ -17,7 +21,7 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:var(--font);color:var(--ink);background:#fff;font-size:16px;line-height:1.45;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 a{color:var(--teal)}
 /* header and menu bar */
-header{background:var(--navy);color:#fff;padding:2px 16px;display:flex;align-items:center;gap:4px 18px;flex-wrap:wrap;flex:none}
+header{background:var(--navy);color:#fff;padding:2px 16px;padding-top:max(2px,env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));display:flex;align-items:center;gap:4px 18px;flex-wrap:wrap;flex:none}
 header h1{font-size:19px;margin:0;font-weight:600;letter-spacing:.2px}
 header h1 span{color:#F2BFA6;font-weight:400;font-size:15px;margin-left:6px}
 header .sub{font-size:13px;opacity:.85}
@@ -76,6 +80,7 @@ body.tablewide main{grid-template-columns:minmax(0,1fr) 0 0}body.tablewide #spli
 #restoreBar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 14px;background:#FFF6E5;border-bottom:1px solid #E8D2A8;font-size:15px;color:var(--ink)}#restoreBar[hidden]{display:none}
 #restoreBar button{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);font-family:inherit;font-size:15px;cursor:pointer}#restoreBar button.go{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
 #updateBar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 14px;background:#EAF5EF;border-bottom:1px solid #B9DCC9;font-size:15px;color:var(--ink)}#updateBar[hidden]{display:none}
+#errBar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 14px;background:#FBECEF;border-bottom:1px solid #E6B8C3;font-size:15px;color:var(--ink)}#errBar[hidden]{display:none}#errBar button{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);font-family:inherit;font-size:15px;cursor:pointer}body.dark-mode #errBar{background:#3A1F26;border-color:#5A2F3A}
 #updateBar button{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);font-family:inherit;font-size:15px;cursor:pointer}#updateBar button.go{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
 #grid{overflow:auto;flex:1;min-height:0}
 table.grid{border-collapse:collapse;font-size:14px;font-family:var(--mono)}
@@ -93,6 +98,7 @@ table.grid td.rn{position:sticky;left:0;z-index:1;background:var(--alt);color:va
 table.grid tr.off td{color:#9a9a9a;background:#fafafa}
 table.grid td[contenteditable]:focus{outline:3px solid var(--navy);outline-offset:-3px;background:#fffbe6}
 #grid{scroll-padding:72px 0 0 48px}
+.gridmore{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:12px 14px 16px;font-size:14px;color:var(--muted)}.gridmore button{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--edge);background:#fff;color:var(--navy);font-family:inherit;font-size:14px;cursor:pointer}body.dark-mode .gridmore button{background:#223;color:#dfe6ee}
 .typemenu{position:fixed;z-index:60;background:#fff;border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.18);border-radius:8px;min-width:280px;max-width:calc(100vw - 16px);font-size:15px}.typemenu .tm-title{padding:9px 14px;font-weight:600;color:var(--navy);border-bottom:1px solid var(--line)}.typemenu .tm-opt{display:block;width:100%;text-align:left;background:none;border:0;font:inherit;color:var(--ink);min-height:44px;padding:10px 14px;cursor:pointer}.typemenu .tm-opt:focus-visible{background:#CFE1EC;outline:3px solid var(--navy);outline-offset:-3px}.typemenu .tm-opt:hover{background:var(--alt)}.typemenu .tm-opt.on{background:#EEF5F8;font-weight:600}.typemenu .tm-auto{color:var(--muted);border-top:1px solid var(--line)}
 .empty{padding:28px 24px;max-width:560px}
 .empty h2{font-size:22px;color:var(--navy);margin:0 0 6px}
@@ -313,7 +319,7 @@ body.dark-mode .a11y-toggle{background:#4A5867}body.dark-mode .a11y-btn,body.dar
 <header>
   <h1>Stats Without Walls <span>free statistical tool for all levels</span></h1>
   <div class="sub">Load a file, summarize, graph, infer. Nothing leaves your browser.</div>
-  <nav class="hlinks" aria-label="Site links"><a href="guide.html">User guide</a><a href="methods.html" title="Which method for which question, with the steps">Methods guide</a><a href="download.html" title="The app is updated almost daily; the browser version is always current">Download the app</a><a href="https://learnwithoutwalls.com/" target="_blank" rel="noopener">learnwithoutwalls.com</a><button type="button" id="langBtn" lang="es" title="Cambiar la interfaz al español">Español</button></nav>
+  <nav class="hlinks" aria-label="Site links"><a href="guide.html">User guide</a><a href="methods.html" title="Which method for which question, with the steps">Methods guide</a><a href="download.html" title="The app is updated almost daily; the browser version is always current">Download the app</a><a href="privacy.html">Privacy</a><a href="https://learnwithoutwalls.com/" target="_blank" rel="noopener">learnwithoutwalls.com</a><button type="button" id="langBtn" lang="es" title="Cambiar la interfaz al español">Español</button></nav>
 </header>
 <nav class="menu" id="menu" aria-label="Main menu"></nav>
 <aside id="bot" role="dialog" aria-label="Ask: which method should I use" aria-hidden="true"><div class="bhead"><b>Ask</b><span class="bsub">Which method, and why. Nothing leaves this browser.</span><button type="button" id="botClose" aria-label="Close">&times;</button></div><div id="botLog" aria-live="polite"></div><form id="botForm"><input id="botIn" type="text" autocomplete="off" placeholder="e.g. compare two groups, before and after, my counts are small" aria-label="Your question"><button type="submit">Ask</button></form></aside>
@@ -326,6 +332,7 @@ body.dark-mode .a11y-toggle{background:#4A5867}body.dark-mode .a11y-btn,body.dar
   <section id="outwrap">
     <div id="restoreBar" hidden><span id="restoreText"></span><button type="button" class="go" id="restoreYes">Restore</button><button type="button" id="restoreNo">No thanks</button></div>
     <div id="updateBar" hidden role="status"></div>
+    <div id="errBar" hidden role="alert"></div>
     <div class="tabs" role="tablist" aria-label="Results"><button class="tab active" type="button" role="tab" id="tabA" aria-selected="true" aria-controls="out" data-tab="analyses">Analyses <span class="cnt" id="cntA"></span></button><button class="tab" type="button" role="tab" id="tabG" aria-selected="false" aria-controls="outG" data-tab="graphs">Graphs <span class="cnt" id="cntG"></span></button></div>
     <div id="out" class="pane active" role="tabpanel" aria-labelledby="tabA"></div>
     <div id="outG" class="pane" role="tabpanel" aria-labelledby="tabG"></div>
@@ -346,9 +353,9 @@ body.dark-mode .a11y-toggle{background:#4A5867}body.dark-mode .a11y-btn,body.dar
 <input type="file" id="fileInput" accept=".csv,.txt,.tsv,.xlsx,.xlsm" style="display:none">
 <script src="vendor/jstat.min.js"></script>
 <script src="vendor/plotly-cartesian.min.js"></script>
-<script src="stats.js?v=81"></script>
-<script src="lang-es.js?v=81"></script>
-<script src="app.js?v=81"></script>
+<script src="stats.js?v=82"></script>
+<script src="lang-es.js?v=82"></script>
+<script src="app.js?v=82"></script>
 <script src="../accessibility.js"></script>
 </body>
 </html>
