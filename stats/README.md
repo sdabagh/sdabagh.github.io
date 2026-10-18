@@ -46,6 +46,24 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-22 (later): check my work
+
+- Every result card has a **check my work** button: it lists the card's numbers, the student types the ones they worked out
+  by hand, and each is marked as a match within the rounding typed or a miss with the most likely reason (flipped sign, one
+  tail instead of two, SD over n instead of n − 1, SE without √n, percent against proportion, squared or square-rooted,
+  rounding too early, or simply far off). The verdict table sits on the card and is replaced on a second check. Ask
+  explains it; the user guide describes it. Service worker cache `sww-v77`, scripts `?v=80`.
+
+### 2026-10-22: Excel files open directly; Ask forgives typos
+
+- **Data, Open CSV or Excel file** now takes .xlsx workbooks and reads them in the browser with no library: shared, inline and
+  rich-text strings, cached formula values, TRUE/FALSE, dates by the cell's number format (serial numbers become YYYY-MM-DD,
+  1904 date system respected), and a sheet picker when a workbook has several sheets with data. Nothing is uploaded. The old
+  .xls format gets a message to save as .xlsx or CSV.
+- **Ask forgives typos**: a word it does not know is replaced by the closest word in its own vocabulary (one edit for short
+  words, two for long ones, a swapped pair counts as one) and the answer starts with "I read that as ...". "befor and after",
+  "annova", "corelation" and "logisitc regresion" now land. Service worker cache `sww-v76`, scripts `?v=79`.
+
 ### 2026-10-21 (later): mediation, and marginal means after two-way ANOVA
 
 - **Regression, Mediation (indirect effect through a mediator)**: paths a, b, c′ and c by OLS with covariates, the indirect
@@ -417,7 +435,7 @@ restored after a reload in their order with six plots; no console errors.
   before, all of these were lost on reload. Sorting alone does not count. An old remembered copy (or an old session file)
   under a sample's name is forgotten only when it is exactly the untouched sample; a copy the student changed is kept.
   Save session also stores the hand-set column types. The empty table shows "No data yet" with four buttons (Sample
-  datasets, Open CSV file, Paste data, New data table) that run the Data menu items of the same name, and two buttons
+  datasets, Open CSV or Excel file, Paste data, New data table) that run the Data menu items of the same name, and two buttons
   that open distrACTION and Learn.
 - **distrACTION page.** Every distrACTION item opens a page without the data table (`#distraction`): inputs card left
   (top on narrow screens), result cards right. A calculator opens with its answer worked out from the starting values.
