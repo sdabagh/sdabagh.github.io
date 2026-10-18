@@ -72,6 +72,7 @@ body.ed-pro .stu{display:none}
 <a href="#predict">D. Predict an outcome</a>
 <a href="#predict-num" class="sub">a number</a>
 <a href="#predict-yn" class="sub">yes or no</a>
+<a href="#mixed" class="sub pro">nested or repeated data</a>
 <a href="#predict-more" class="sub pro">counts, ordered or several categories</a>
 <a href="#time">E. Change over time</a>
 <a href="#scales" class="pro">F. Scales and reliability</a>
@@ -102,7 +103,7 @@ body.ed-pro .stu{display:none}
 <tbody>
 <tr><td>What does one variable look like?</td><td>anything</td><td>Descriptives, frequency table, histogram or bar chart</td><td><span class="path">Exploration › Descriptives</span></td><td>n/a</td></tr>
 <tr><td>Is the mean of one group equal to a claimed value?</td><td>number</td><td>One-sample t test</td><td><span class="path">T-Tests › One Sample T-Test</span></td><td>Wilcoxon signed-rank against a constant; bootstrap interval</td></tr>
-<tr><td>Is the proportion in one group equal to a claimed value?</td><td>yes or no</td><td>Binomial test (exact) or one-proportion z</td><td><span class="path">Frequencies › 2 Outcomes: Binomial test</span></td><td>the exact test needs no assumption</td></tr>
+<tr><td>Is the proportion in one group equal to a claimed value?</td><td>yes or no</td><td>One-proportion z test, or the binomial test (exact)</td><td><span class="path">Frequencies › One proportion: z test</span></td><td>z needs np₀ and n(1 − p₀) ≥ 10; the exact test needs no assumption</td></tr>
 <tr><td>Do the category counts match a claimed split?</td><td>category</td><td>Chi-square goodness of fit</td><td><span class="path">Frequencies › N Outcomes: chi-square Goodness of fit</span></td><td>combine small categories</td></tr>
 <tr><td>Do two different groups differ on average?</td><td>number</td><td>Independent-samples t test (Welch)</td><td><span class="path">T-Tests › Independent Samples T-Test</span></td><td>Mann-Whitney U; permutation test</td></tr>
 <tr><td>Do two different groups differ in a proportion?</td><td>yes or no</td><td>Two-proportion z test, or a 2 by 2 table with Fisher's exact test</td><td><span class="path">Frequencies › Two proportions: z test</span></td><td>Fisher's exact test (small counts)</td></tr>
@@ -117,6 +118,7 @@ body.ed-pro .stu{display:none}
 <tr><td>Are two categorical variables related?</td><td>two categories</td><td>Chi-square test of independence</td><td><span class="path">Frequencies › Contingency Tables: Independent Samples</span></td><td>Fisher's exact (2 by 2); combine categories</td></tr>
 <tr><td>Can I predict a number from one other number?</td><td>number from a number</td><td>Simple linear regression</td><td><span class="path">Regression › Linear Regression</span></td><td>residual plots on the card; transform</td></tr>
 <tr class="pro"><td>Can I predict a number from several variables?</td><td>number</td><td>Multiple linear regression</td><td><span class="path">Advanced › Multiple Linear Regression</span></td><td>VIF, influence and residual checks on the card</td></tr>
+<tr class="pro"><td>My rows are nested in clusters (students in classes, repeated measures of the same people) and I have predictors</td><td>number, predictors, a grouping factor</td><td>Mixed-effects model (random intercept, optional random slope)</td><td><span class="path">Advanced › Mixed-Effects Model (nested or repeated data)</span></td><td>repeated-measures ANOVA for balanced designs without covariates</td></tr>
 <tr class="pro"><td>Can I predict a yes or no?</td><td>yes or no</td><td>Logistic regression (odds ratios)</td><td><span class="path">Advanced › Logistic Regression</span></td><td>exact or penalized methods for separation (not in the app)</td></tr>
 <tr class="pro"><td>Can I predict a count of events?</td><td>count</td><td>Poisson or negative binomial regression</td><td><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span></td><td>negative binomial when overdispersed</td></tr>
 <tr class="pro"><td>Can I predict an ordered rating?</td><td>ordered category</td><td>Ordinal logistic regression</td><td><span class="path">Advanced › Ordinal Logistic Regression</span></td><td>multinomial if proportional odds fails</td></tr>
@@ -134,9 +136,9 @@ body.ed-pro .stu{display:none}
 
 <h2 id="first">Before any test</h2>
 <ol>
-<li><strong>One row per case, one column per variable.</strong> A group is a column of labels (Control, Treatment), not two columns of numbers. Repeated measurements of the same person are separate columns (week1, week4) in the same row.</li>
+<li><strong>One row per case, one column per variable.</strong> A group is a column of labels (Control, Treatment), not two columns of numbers. Repeated measurements of the same person are separate columns (week1, week4) in the same row for paired and repeated-measures methods, and one row per measurement for mixed models and grouped graphs; <span class="path">Data › Reshape: wide to long</span> and <span class="path">Data › Reshape: long to wide</span> convert between the two. <span class="path">Data › Merge with another table (join)</span> brings in columns from a second file by an ID; <span class="path">Data › Group by and summarize</span> makes a table of group means; <span class="path">Data › Clean rows (blanks, duplicates)</span> turns NA codes into blanks and drops duplicates. Each card shows the R line that does the same.</li>
 <li><strong>Check the types.</strong> The app guesses whether a column is a number or a category; <span class="path">Data › Set variable type</span> fixes a wrong guess (a zip code is a category, a 1 to 5 rating is a number for means but a category for a bar chart).</li>
-<li><strong>Look first.</strong> <span class="path">Exploration › Descriptives</span> for every variable, then <span class="path">Graph › Histogram</span> or <span class="path">Graph › Boxplot</span> for numbers and <span class="path">Graph › Bar Plot</span> for categories. Outliers, skew and odd values show up here, not in a p-value.</li>
+<li><strong>Look first.</strong> <span class="path">Exploration › Descriptives</span> for every variable (every graph dialog's <em>Appearance</em> section gives titles, labels, a colorblind-safe palette, small multiples by a grouping column, axis ranges, reference lines and SVG export for a paper), then <span class="path">Graph › Histogram</span> or <span class="path">Graph › Boxplot</span> for numbers and <span class="path">Graph › Bar Plot</span> for categories. Outliers, skew and odd values show up here, not in a p-value.</li>
 <li><strong>Decide the comparison before you look at the test.</strong> One-sided or two-sided, which groups, which alpha (0.05 unless your field says otherwise). Changing these after seeing the result is how false findings are made.</li>
 <li class="pro"><strong>Know your design.</strong> Random assignment to groups (an experiment) supports "causes"; everything else supports "is associated with" until you argue otherwise (see <a href="#causal">section J</a>).</li>
 </ol>
@@ -164,11 +166,11 @@ body.ed-pro .stu{display:none}
 <p class="pro"><strong>Report:</strong> <code>t(39) = 2.14, p = .039, d = 0.34, 95% CI [0.02, 0.61]</code> (the app writes this line).</p>
 </div>
 
-<div class="method"><h3>One proportion against a claimed value: binomial test</h3>
+<div class="method" id="oneprop"><h3>One proportion against a claimed value: z test, or the exact binomial test</h3>
 <ol>
-<li><span class="path">Frequencies › 2 Outcomes: Binomial test</span>. Data: a yes or no column (name the level to test), or type the count of successes and n. Enter the <em>Test value</em> (the claimed proportion).</li>
-<li>Tick <em>Confidence intervals</em>; the <em>Interval method</em> offers Wilson (recommended) and the course's Wald. Tick the z test if the course uses it by hand.</li>
-<li>Read the exact p-value and the interval. The exact test needs no sample-size condition; the z test needs np₀ and n(1 − p₀) of at least 10 (the card checks).</li>
+<li><span class="path">Frequencies › One proportion: z test</span> when the conditions hold: np₀ and n(1 − p₀) both at least 10. The card checks them, shows SE₀ = √(p₀(1 − p₀)/n), z = (p̂ − p₀)/SE₀, the p-value, and the exact binomial p-value underneath as a check. Data: a yes or no column (name the level to test), or type the count of successes and n. Enter the <em>Test value</em> (the claimed proportion).</li>
+<li><span class="path">Frequencies › 2 Outcomes: Binomial test</span> when the conditions fail, or whenever you want the exact answer first: the exact test needs no sample-size condition. The same dialog can show the z test underneath.</li>
+<li>Tick <em>Confidence intervals</em>; the <em>Interval method</em> offers Wilson (recommended) and the course's Wald. Read the p-value and the interval.</li>
 </ol></div>
 
 <div class="method"><h3>Category counts against a claimed split: chi-square goodness of fit</h3>
@@ -284,8 +286,8 @@ body.ed-pro .stu{display:none}
 
 <div class="method pro"><h3>A number from several variables: multiple linear regression</h3>
 <ol>
-<li>Data: a numeric outcome, numeric predictors, and categorical predictors (dummy coded by the app; the most frequent level is the reference).</li>
-<li><span class="path">Advanced › Multiple Linear Regression</span>. Tick <em>VIF (collinearity)</em>, <em>Influence diagnostics</em>, <em>Residual plot</em> and <em>Q-Q plot of residuals</em>. Add squared terms or an interaction only with a reason.</li>
+<li>Data: a numeric outcome, numeric predictors, and categorical predictors (dummy coded by the app; the most frequent level is the reference unless you name another under <em>Model terms</em>, R's relevel).</li>
+<li><span class="path">Advanced › Multiple Linear Regression</span>. Tick <em>VIF (collinearity)</em>, <em>Influence diagnostics</em>, <em>Residual plot</em> and <em>Q-Q plot of residuals</em>. Under <em>Model terms</em>, add squared terms, interactions typed as <code>a * b</code> (numeric or categorical, with both main effects, as R does) and reference levels only with a reason.</li>
 <li>Read each coefficient as "holding the others fixed", with its interval; adjusted R² for fit; VIF above 5 means two predictors say the same thing; Cook's distance flags cases that drive the fit.</li>
 <li>Compare nested models with the <em>nested F test</em> option when deciding whether a block of predictors earns its place. Backward elimination is shown as a teaching demo, not a recommendation.</li>
 </ol></div>
@@ -293,18 +295,30 @@ body.ed-pro .stu{display:none}
 <div class="method pro" id="predict-yn"><h3>A yes or no from predictors: logistic regression</h3>
 <ol>
 <li>Data: a two-level outcome column (say which level is modelled as 1), numeric and categorical predictors.</li>
-<li><span class="path">Advanced › Logistic Regression</span>.</li>
+<li><span class="path">Advanced › Logistic Regression</span>. <em>Model terms</em> (interactions, squared terms, reference levels) works as in multiple regression.</li>
 <li>Read the odds ratios (exp(b)) with intervals: an OR of 1.5 means the odds of the outcome multiply by 1.5 per unit of the predictor, others fixed. The model χ² against the intercept-only model tests the model as a whole; McFadden R² is a rough fit index; the classification table shows accuracy at the 0.5 cut.</li>
 </ol>
 <div class="say">Ten events per predictor is a working minimum. If a predictor separates the outcome perfectly, the coefficient runs away; the card warns, and a penalized method outside the app is the fix.</div></div>
 
+<div class="method pro" id="mixed"><h3>Rows nested in clusters: mixed-effects model</h3>
+<p><strong>Use it</strong> when observations are not independent: students within classes, patients within clinics, repeated measurements of the same people over days. An ordinary regression treats every row as independent and overstates its precision; a mixed model gives each cluster its own intercept (and optionally its own slope) and tests the predictors against the right amount of information.</p>
+<ol>
+<li>Data in long form: one row per observation, a numeric outcome, the predictors, and a column naming the cluster (subject, class, school). At least 3 clusters; 10 or more for a trustworthy between-cluster variance.</li>
+<li><span class="path">Advanced › Mixed-Effects Model (nested or repeated data)</span>: outcome, fixed-effect predictors, the grouping factor; add a random slope only for a predictor measured within clusters (day within subject) when its effect plausibly varies by cluster. Keep REML; switch to ML only to compare models that differ in fixed effects.</li>
+<li>Read the fixed effects with their Satterthwaite df and p, then the random effects table (between-cluster variance, residual variance, the intercept-slope correlation), the ICC (the share of variation that lies between clusters), marginal and conditional R², and the likelihood-ratio test that says whether the clusters matter.</li>
+<li>Look at the caterpillar plot: clusters far from zero are the ones that differ from the overall intercept.</li>
+</ol>
+<div class="say">The app's fit is lme4's (REML, profiled deviance) with lmerTest's Satterthwaite degrees of freedom; on the sleepstudy data it reproduces R's output to four decimals. Report as: b = 10.47, SE = 0.80, t(161.0) = 13.02, p &lt; .001; ICC = .40.</div>
+<p class="pro"><strong>Report:</strong> the fixed effect with its df and interval, the variance components, the ICC, both R² values, the number of clusters and observations, and the estimation method.</p>
+</div>
 <div class="pro" id="predict-more">
 <div class="method"><h3>A count of events: Poisson and negative binomial regression</h3>
 <ol>
-<li>Data: a count outcome (calls per shift, infections per ward, citations per officer) and predictors. An exposure that varies (hours, population) belongs in the model as an offset; if the app's model has none, divide to a rate only for description and keep the counts for the test.</li>
-<li><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span>; run Poisson, then read the dispersion check. If the variance is well above the mean, switch <em>Model</em> to negative binomial.</li>
-<li>Read rate ratios exp(b): the multiplicative change in the expected count per unit of the predictor.</li>
-</ol></div>
+<li>Data: a count outcome (calls per shift, infections per ward, citations per officer) and predictors. An exposure that varies (hours, population, months of service) goes in the <em>Exposure</em> box: log(exposure) enters as an offset with a fixed coefficient of 1, so the model is for the rate, as R's <code>offset(log(exposure))</code>. Never divide the counts yourself before the test.</li>
+<li><span class="path">Advanced › Count Regression: Poisson and Negative Binomial</span>; run Poisson, then read the dispersion check. If the variance is well above the mean, switch <em>Model</em> to negative binomial. <em>Model terms</em> (interactions, squared terms, reference levels) works as in multiple regression.</li>
+<li>Read rate ratios exp(b): the multiplicative change in the expected count (or rate, with an exposure) per unit of the predictor.</li>
+</ol>
+<div class="say">Checked against R: on the <strong>ships</strong> sample (MASS), incidents by type, year and period with months of service as the exposure, the app reproduces glm's coefficients, standard errors and residual deviance (38.695 on 25 df) to four decimals.</div></div>
 <div class="method"><h3>An ordered rating: ordinal logistic regression</h3>
 <ol>
 <li>Data: an ordered outcome (poor, fair, good, excellent); type the levels from lowest to highest exactly as in the data.</li>
@@ -406,7 +420,8 @@ body.ed-pro .stu{display:none}
 <tbody>
 <tr><td><strong>Cross-sectional survey</strong> (one time, one sample)</td><td>How common is X; is X associated with Y?</td><td>Descriptives and frequency tables with Wilson intervals (Binomial test) → Contingency Tables for category by category → Correlation Matrix for number by number → Multiple or Logistic Regression to adjust for covariates → Reliability for any scale you built.</td></tr>
 <tr><td><strong>Randomized experiment</strong> (two or more arms)</td><td>Does the treatment change the outcome?</td><td>Descriptives by arm as a balance check → Independent Samples T-Test or One-Way ANOVA with Tukey (numbers), Two proportions or Contingency Tables (yes or no) → ANCOVA with the baseline as covariate when there is a pre-test → Power and Sample Size before you start.</td></tr>
-<tr><td><strong>Pre-post, one group</strong></td><td>Did it change?</td><td>Paired Samples T-Test (or Wilcoxon; McNemar for yes or no) → Repeated Measures ANOVA for three or more time points. Without a control group, say "changed", not "caused".</td></tr>
+<tr><td><strong>Pre-post, one group</strong></td><td>Did it change?</td><td>Paired Samples T-Test (or Wilcoxon; McNemar for yes or no) → Repeated Measures ANOVA for three or more time points, or the Mixed-Effects Model when time points are uneven or covariates matter. Without a control group, say "changed", not "caused".</td></tr>
+<tr><td><strong>Clustered or longitudinal</strong> (students in classes; people measured many times)</td><td>What predicts the outcome, allowing for the clusters?</td><td>Descriptives by cluster → Mixed-Effects Model with the cluster as the grouping factor (random slope for a within-cluster predictor such as time) → ICC and the likelihood-ratio test to show the clustering matters → Sensitivity to a lurking variable for any causal reading.</td></tr>
 <tr><td><strong>Cohort</strong> (follow groups forward)</td><td>Does exposure raise the risk?</td><td>Contingency Tables with Odds ratio and relative risk (relative risk is valid here) → Logistic or Count Regression to adjust → Survival Analysis when time to event matters → Sensitivity to a lurking variable.</td></tr>
 <tr><td><strong>Case-control</strong> (sample by outcome, look back)</td><td>Were cases more exposed?</td><td>Contingency Tables with the odds ratio only (relative risk is not estimable) → Logistic Regression to adjust → Sensitivity to a lurking variable.</td></tr>
 <tr><td><strong>Quality and process</strong></td><td>Is the process on target and stable?</td><td>Descriptives and QQ Plot → Variance tests for spread against a specification → One Sample T-Test against the target → Time Series for drift and autocorrelation → Power and Sample Size for sampling plans.</td></tr>
@@ -416,6 +431,7 @@ body.ed-pro .stu{display:none}
 </div>
 
 <h2 id="report">Reporting checklist</h2>
+<p><span class="path">Results › Script: every step, with the R code</span> lists every analysis on the page with the choices behind it and the R call that does the same, for the methods section or for moving the work to R.</p>
 <ol class="stu">
 <li>The question in one sentence, and H₀ and Hₐ in symbols.</li>
 <li>The method and why it fits (what was measured, how many groups, paired or not).</li>
@@ -435,6 +451,8 @@ body.ed-pro .stu{display:none}
 </ol>
 
 <h2 id="glossary">Glossary</h2>
+<p>Short definitions. In the app, the <strong>Ask</strong> button answers these and many more in plain words ("what is a p-value", "SE or SD", "what is an odds ratio", "explain my result"), with a Learn demo where one exists.</p>
+
 <div class="tablewrap"><table>
 <tbody>
 <tr><td><strong>α (alpha)</strong></td><td>The false-positive rate you accept, usually 0.05. Reject H₀ when p ≤ α.</td></tr>

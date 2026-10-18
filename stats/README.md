@@ -46,6 +46,89 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-19 (later): closing the gaps with R, 5 of 5: the script view
+
+- **Results, Script: every step, with the R code**: every analysis and graph on the page, oldest first, with the choices made
+  in each dialog (labels, not field names), and for each the R call that does the same, from `t.test`, `aov`, `lm`, `glm`,
+  `MASS::glm.nb`, `lmerTest::lmer`, `chisq.test`, `prop.test`, `binom.test`, `wilcox.test`, `psych::fa`, `survival::coxph`
+  to `ggplot2` with `facet_wrap`, `pivot_longer`, `left_join` and `group_by`; packages are named in full. Downloads: the steps
+  as text and a ready-to-run `.R` file that begins by reading the data. Each card now remembers its dialog's title and field
+  labels for this. Ask routes "r code", "script", "what did I do", "methods section". Service worker cache `sww-v69`,
+  scripts `?v=72`.
+
+### 2026-10-19: closing the gaps with R, 4 of 5: graphics control
+
+- The **Appearance** section of every graph dialog (bar, histogram, dotplot, boxplot, scatter) now gives what ggplot2's labs,
+  scale_*, theme and facet_wrap give: a palette for groups (Okabe-Ito colorblind safe, viridis, grayscale, pastel), **small
+  multiples** (one panel per level of a categorical column on shared axes; the dialog is run once per level with the rows
+  restricted and the panels tiled), legend position, minimal or classic theme, font size, axis ranges, log scales and
+  reference lines (`y = 3.0`, `x = 70 (cutoff)`). Every graph downloads as **SVG** as well as PNG. Ask knows the vocabulary
+  (facet, colorblind, log scale, reference line, publication quality). Service worker cache `sww-v68`, scripts `?v=71`.
+
+### 2026-10-18 (night): closing the gaps with R, 3 of 5: data wrangling
+
+- Five new Data items, each card ending with the tidyr or dplyr line that does the same in R: **Reshape: wide to long**
+  (pivot_longer, with ID columns kept), **Reshape: long to wide** (pivot_wider, duplicates reported or resolved by first,
+  mean or count), **Merge with another table (join)** (left, inner or full, keys with different names, a pasted table or a
+  sample; match counts reported; the class data join the Exam 1 file on Student_ID = StudentID), **Group by and summarize**
+  (n, mean, SD, median, min, max, sum, blanks by one or two grouping columns, optionally as the new table) and **Clean rows**
+  (NA codes to blanks, trimmed spaces, duplicates, blanks in chosen columns, empty rows, each counted). Ask routes the
+  vocabulary (gather, melt, spread, vlookup, aggregate, drop_na) and explains long against wide layouts; both guides
+  describe the items. Service worker cache `sww-v67`, scripts `?v=70`.
+
+### 2026-10-18 (later): closing the gaps with R, 2 of 5: offsets, interactions, reference levels
+
+- **Model terms** on Multiple Linear Regression, Logistic Regression and Count Regression: squared terms; interactions typed
+  as `a * b` for any pair of columns (numeric by numeric gives one product column; numeric by categorical one slope
+  difference per level; categorical by categorical one column per pair of levels), any number of them, with a warning when
+  a main effect is missing, as R's `a * b` would include it; and **reference levels** for categorical predictors (R's
+  `relevel`), typed as `Year = Freshman`.
+- **Exposure offsets** in Count Regression: pick a time-at-risk or population column and log(exposure) enters the Poisson
+  and negative binomial models with a fixed coefficient of 1, so the model is for a rate (R's `offset(log(exposure))`).
+  Rows with a zero or blank exposure are left out and the card says how many.
+- Verified against R: on the `ships` data (MASS) the app reproduces `glm(incidents ~ type + year + period +
+  offset(log(service)), poisson)` to four decimals on every coefficient and standard error, with residual deviance 38.695 on
+  25 df and null deviance 146.328 on 33 df. Interactions were checked by identity: a numeric by categorical interaction
+  gives the same slopes as separate regressions in each group, and a saturated logistic model with a categorical by
+  categorical interaction reproduces the cell log odds. The ships data ship as a sample. Ask and both guides describe the
+  new options. Engine: `S.poisson` and `S.negbin` take `opts.offset`. Service worker cache `sww-v66`, scripts `?v=69`.
+
+### 2026-10-18: one proportion z test on the menu
+
+- **Frequencies, One proportion: z test**: the z test for a single proportion now has its own menu item (it used to be a
+  tick box inside the binomial test). The card leads with SE₀, z, the p-value and the worked numbers, checks the conditions
+  (n p₀ and n(1 − p₀) both at least 10) and says plainly when they fail, and shows the exact binomial p-value underneath as
+  a check. The binomial test item is unchanged. Ask, the Which-test wizard and both guides point to it.
+- **Ask answers questions.** Until now Ask only routed ("compare two groups" opens the t test). It now answers what things
+  mean, in plain words, with a Learn demo where one exists and a link into the Methods Guide: the p-value, α, H₀ and Hₐ,
+  Type I and II errors, power, confidence intervals, SD against SE, z-scores, mean against median, skew, IQR and boxplots,
+  outliers, which graph, sampling distributions and the CLT, parameters and statistics, degrees of freedom, t or z, tails,
+  significance against importance, d and η², R², r, correlation and causation, slope and intercept, residuals, assumptions,
+  VIF, dummy variables, interactions, odds ratios, rate ratios and overdispersion, AIC and BIC, likelihood-ratio tests, ML
+  and REML, fixed and random effects and the ICC, Satterthwaite df, F and post hoc tests, Levene and Welch, normality
+  checks, nonparametric tests, paired against independent, expected counts, bootstrap, permutation and Bayesian ideas,
+  probability rules, the binomial setting, the normal curve, percentiles, margin of error, sampling methods and bias,
+  experiments and confounding, variable types, survival terms, Cronbach's alpha, factors and loadings, choosing k, the
+  robustness value, and the app itself. **"Explain my result"** reads the newest card back: its APA line, conclusion and
+  warnings, with a note on what the p-value does and does not say. A question gets the answer first and then, at most, one
+  way to run it; a request still gets the method first. Service worker cache `sww-v65`, scripts `?v=68`.
+
+### 2026-10-17 (night): mixed-effects models
+
+- **Advanced, Mixed-Effects Model (nested or repeated data)**: lme4's linear mixed model in the browser. A numeric outcome,
+  fixed-effect predictors (numeric and categorical), one grouping factor, an optional correlated random slope. REML (default)
+  or ML by the profiled deviance of Bates et al. (2015), Nelder-Mead over the relative covariance factor. Fixed effects with
+  Satterthwaite df and p (lmerTest's method: twice the inverse Hessian of the deviance in theta and sigma, the variance of each
+  coefficient differentiated numerically). Random-effect variances, SDs and correlation; ICC from the empty model; marginal and
+  conditional R² (Nakagawa); AIC, BIC; a boundary-corrected likelihood-ratio test against the model without random effects;
+  cluster effects (BLUPs) with a caterpillar plot; residual plot; formula, worked numbers, APA line, conclusion.
+- Verified against R: on `sleepstudy` the app matches lme4 and lmerTest to four decimals on both the random-intercept and the
+  random-slope model under REML and ML (estimates, SEs, df 22.81 / 161.0 and 17.0 / 17.0, variances, correlation, REML
+  criterion 1786.47 and 1743.63, ML deviance 1794.08 and 1751.94). The dataset ships as a sample.
+- Ask knows the vocabulary (nested, clustered, multilevel, hierarchical, longitudinal, random effects); the Methods Guide has a
+  section and a design row for clustered and longitudinal studies; the social-science and biology fields list the model.
+  Engine: `S.lmm`. Service worker cache `sww-v63`, scripts `?v=66`.
+
 ### 2026-10-17 (later): Ask, a helper in plain words
 
 - **Ask** (data bar) opens a small panel. A question in plain words ("compare two groups", "before and after", "is there
