@@ -93,3 +93,10 @@ Audit: 82 study-guide and quick-reference pages (Calculus I, Linear Algebra, Tri
 3. Formula rendering (KaTeX) and sticky formula boxes across the math courses.
 4. Migrate the 82 orphan study-guide pages to the shared stylesheet.
 5. Glossary tooltips and focus mode.
+
+## Update, 2026-10-20: the statistics app
+
+Stats Without Walls (`stats/`) now carries the same accessibility panel as the course pages (dark mode, larger text, Lexend,
+reading ruler, read aloud), bottom left so it stays clear of the Ask helper. Its dialogs show the essentials first and fold
+the sections most runs never touch under a "more options" heading that stays open once opened, which cuts the longest dialogs
+from a wall of fields to a handful. A green bar announces a new version instead of leaving people on a stale copy.
