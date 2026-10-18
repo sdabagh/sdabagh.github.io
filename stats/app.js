@@ -63,13 +63,21 @@
   function focusTo(el, scroll) { if (!el || !el.isConnected) return false; if (!el.matches("a[href],button,input,select,textarea,[tabindex]")) el.setAttribute("tabindex", "-1"); if (!el.matches("a[href],button,input,select,textarea")) el.classList.toggle("quietfocus", !KB); el.focus({ preventScroll: !scroll }); return document.activeElement === el; }
 
   // ================= data =================
+  // The delimiter is whichever of comma, semicolon, tab and pipe is most frequent outside quotes on the first line: Excel in
+  // a Spanish, French or German locale writes semicolons (with decimal commas), a spreadsheet paste is tab separated.
+  function csvDelimiter(text) {
+    const end = text.indexOf("\n"), line = end < 0 ? text : text.slice(0, end); const n = { ",": 0, ";": 0, "\t": 0, "|": 0 }; let q = false;
+    for (const c of line) { if (c === '"') q = !q; else if (!q && c in n) n[c]++; }
+    return Object.keys(n).reduce((a, b) => (n[b] > n[a] ? b : a), ",");
+  }
   function parseCSV(text) {
+    text = text.replace(/^\uFEFF/, ""); const sep = csvDelimiter(text);
     const rows = []; let row = [], field = "", q = false;
     for (let i = 0; i < text.length; i++) {
       const c = text[i];
       if (q) { if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; } else field += c; }
       else if (c === '"') q = true;
-      else if (c === "," || c === "\t") { row.push(field); field = ""; }
+      else if (c === sep) { row.push(field); field = ""; }
       else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(field); rows.push(row); row = []; field = ""; }
       else field += c;
     }
@@ -83,8 +91,8 @@
     D.manual = D.manual && Object.getPrototypeOf(D.manual) === null ? D.manual : Object.assign(Object.create(null), D.manual || {});
     D.cols.forEach((c, j) => {
       if (D.manual[c]) { D.types[c] = D.manual[c]; return; } // a type the user set by hand is kept
-      const vals = D.rows.map((r) => r[j]).filter((v) => v !== "" && v != null);
-      const nums = vals.filter((v) => Number.isFinite(Number(v)));
+      const vals = D.rows.map((r) => r[j]).filter((v) => v != null && !isNA(v)); // NA, N/A, ., - and the like do not make a number column nominal
+      const nums = vals.filter((v) => /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(String(v).trim())); // decimal or scientific only: Number("0x10") is 16, but a hex code is text
       const distinct = new Set(vals).size;
       if (!vals.length) D.types[c] = "nominal";
       else if (/(^|_)(zip|zipcode|postal|phone|ssn|id|code|number|num|no)$|^(zip|id)/i.test(String(c).replace(/\s+/g, "_"))) D.types[c] = distinct === vals.length ? "id" : "nominal";
@@ -92,10 +100,34 @@
       else D.types[c] = distinct === vals.length && vals.length > 12 ? "id" : "nominal";
     });
   }
-  function loadTable(name, rows, origin = "own") {
+  function loadTable(name, rows, origin = "own", tidy = false) {
     D.origin = origin; D.name = name; D.cols = rows[0].map((h, i) => (h.trim() || "col" + (i + 1)));
     D.rows = rows.slice(1).map((r) => D.cols.map((_, j) => (r[j] == null ? "" : String(r[j]).trim())));
-    D.filter = ""; D.sortCol = null; D.restored = false; inferTypes(); renderGrid(); persist();
+    D.filter = ""; D.sortCol = null; D.restored = false;
+    const notes = tidy ? tidyTable() : []; inferTypes(); renderGrid(); persist();
+    if (notes.length) { const cd = card("Opened " + name, `${D.rows.length} rows, ${D.cols.length} columns`, say("Tidied on the way in, so the numbers count as numbers: " + notes.join(" ") + " The values in the table are the cleaned ones; nothing else was changed.")); cd._skip = true; }
+  }
+  // A file from a spreadsheet, as people actually export them. Done only for a file, a paste or an Excel sheet (never for a
+  // sample dataset or a table the app built), and each change is named on a card so nothing happens in silence.
+  // Missing-value tokens stay as they are (Data > Clean rows blanks them); the type guess just looks past them.
+  const NA_TOKENS = new Set(["na", "n/a", "nan", "null", "none", ".", "-", "?", "#n/a", "#value!", "#div/0!", "#ref!"]);
+  const isNA = (v) => v === "" || NA_TOKENS.has(String(v).trim().toLowerCase());
+  function tidyTable() {
+    const notes = [];
+    // duplicate column names: the second "score" was unreachable (every lookup found the first)
+    const seen = new Map(); D.cols = D.cols.map((c) => { const n = (seen.get(c) || 0) + 1; seen.set(c, n); if (n === 1) return c; let k = n, nm = `${c}_${k}`; while (seen.has(nm)) { k++; nm = `${c}_${k}`; } seen.set(nm, 1); notes.push(`"${c}" appeared twice, so the second is "${nm}".`); return nm; });
+    const eu = /^[-+]?(\d{1,3}(\.\d{3})+|\d+),\d+$/, plain = /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/;
+    const money = /^[-+]?\$\s?\d{1,3}(,\d{3})*(\.\d+)?$|^[-+]?\$\s?\d+(\.\d+)?$|^\(\$?\d{1,3}(,\d{3})*(\.\d+)?\)$/, thousands = /^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/, pct = /^[-+]?(\d+\.?\d*|\.\d+)%$/;
+    D.cols.forEach((c, j) => {
+      const vals = D.rows.map((r) => r[j]).filter((v) => !isNA(v)); if (!vals.length) return;
+      if (vals.every((v) => eu.test(v)) && vals.some((v) => /,/.test(v))) { D.rows.forEach((r) => { if (!isNA(r[j])) r[j] = r[j].replace(/\./g, "").replace(",", "."); }); notes.push(`${c}: decimal commas became decimal points (3,5 is 3.5).`); return; }
+      if (vals.every((v) => plain.test(v) || money.test(v) || thousands.test(v) || pct.test(v)) && vals.some((v) => !plain.test(v))) {
+        const what = []; if (vals.some((v) => money.test(v))) what.push("$"); if (vals.some((v) => thousands.test(v) || /\d,\d{3}/.test(v))) what.push("thousands separators"); if (vals.some((v) => pct.test(v))) what.push("% (45% is kept as 45)");
+        D.rows.forEach((r) => { if (isNA(r[j])) return; let v = r[j]; const neg = /^\(.*\)$/.test(v); v = v.replace(/[$,%()\s]/g, ""); if (neg) v = "-" + v; r[j] = v; });
+        notes.push(`${c}: ${what.join(" and ")} removed.`);
+      }
+    });
+    return notes;
   }
   // The browser remembers the user's own data (a file, pasted or typed data, simulated data) between visits.
   // A sample dataset is never remembered, so the app always opens with an empty table unless the data are yours.
@@ -2870,7 +2902,7 @@
   // ================= Data menu =================
   function openFile() { $("#fileInput").click(); }
   $("#fileInput").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; const name = f.name.replace(/\.[^.]+$/, "");
-    if (/\.xls[xm]$/i.test(f.name)) openXlsx(f, name); else if (/\.xls$/i.test(f.name)) alert("This is the old Excel format (.xls). In Excel choose File, Save As, Excel Workbook (.xlsx) or CSV, then open that."); else f.text().then((t) => loadTable(name, parseCSV(t)));
+    if (/\.xls[xm]$/i.test(f.name)) openXlsx(f, name); else if (/\.xls$/i.test(f.name)) alert("This is the old Excel format (.xls). In Excel choose File, Save As, Excel Workbook (.xlsx) or CSV, then open that."); else f.text().then((t) => loadTable(name, parseCSV(t), "own", true));
     e.target.value = ""; });
   // An .xlsx file is a zip of XML files; this reads it in the browser with no library, so the file never leaves the computer.
   // Shared strings, inline and rich text, cached formula values, booleans, dates by the cell's number format (serial numbers to
@@ -2890,7 +2922,7 @@
       const readSheet = (path) => { const sx = xml(path), rows = []; sx.querySelectorAll("sheetData > row").forEach((row) => { const r = []; row.querySelectorAll("c").forEach((c) => { const j = colIndex(c.getAttribute("r") || ""), t = c.getAttribute("t") || "", s = Number(c.getAttribute("s") || 0), v = c.querySelector("v"), is = c.querySelector("is"); let val = ""; if (t === "s") val = sst[Number(v ? v.textContent : -1)] ?? ""; else if (t === "inlineStr") val = is ? [...is.querySelectorAll("t")].map((q) => q.textContent).join("") : ""; else if (t === "b") val = v && v.textContent === "1" ? "TRUE" : v ? "FALSE" : ""; else if (t === "str" || t === "e") val = v ? v.textContent : ""; else if (t === "d") val = v ? v.textContent : ""; else if (v) { const num = Number(v.textContent); val = Number.isFinite(num) && dateStyle.has(s) ? serialToDate(num) : v.textContent; } while (r.length < j) r.push(""); r[j] = val; }); rows.push(r); }); while (rows.length && rows[0].every((q) => q === "")) rows.shift(); const w = Math.max(0, ...rows.map((r) => r.length)); return rows.filter((r) => r.some((q) => q !== "")).map((r) => { while (r.length < w) r.push(""); return r; }); };
       const withData = sheets.map((s) => ({ s, rows: readSheet(s.path) })).filter((q) => q.rows.length >= 2);
       if (!withData.length) throw new Error("No sheet has a header row and at least one row of data.");
-      const finish = (q) => { loadTable(withData.length > 1 ? `${name} (${q.s.name})` : name, q.rows); card("Excel file opened", `${q.s.name}: ${q.rows.length - 1} rows, ${q.rows[0].length} columns`, say(`Read in the browser; nothing was uploaded. Dates were converted to YYYY-MM-DD, formulas to their last calculated value, TRUE/FALSE kept as text. Check the column types in the table header.`))._skip = true; };
+      const finish = (q) => { loadTable(withData.length > 1 ? `${name} (${q.s.name})` : name, q.rows, "own", true); card("Excel file opened", `${q.s.name}: ${q.rows.length - 1} rows, ${q.rows[0].length} columns`, say(`Read in the browser; nothing was uploaded. Dates were converted to YYYY-MM-DD, formulas to their last calculated value, TRUE/FALSE kept as text. Check the column types in the table header.`))._skip = true; };
       if (withData.length === 1) finish(withData[0]); else { CUR_FN = null; dialog("Which sheet?", [sel("sheet", "Sheet", withData.map((q, i) => [String(i), `${q.s.name} (${q.rows.length - 1} rows, ${q.rows[0].length} columns)`]), "0")], (v) => finish(withData[Number(v.sheet)]), "Open"); }
     } catch (err) { alert("Could not read the Excel file: " + (err.message || err) + " Save it as CSV in Excel and open that instead."); }
   }
@@ -2902,7 +2934,7 @@
     return out;
   }
   async function inflate(data) { if (typeof DecompressionStream === "undefined") throw new Error("this browser cannot unpack .xlsx files (DecompressionStream missing); save as CSV instead"); const ds = new DecompressionStream("deflate-raw"); const w = ds.writable.getWriter(); w.write(data); w.close(); return new Response(ds.readable).text(); }
-  function pasteData() { dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows); }, "Load"); }
+  function pasteData() { dialog("Paste data", [{ name: "txt", label: "Paste from a spreadsheet or CSV (first row = column names)", type: "textarea", rows: 10 }, { name: "nm", label: "Name", type: "text", value: "pasted" }], (v) => { const rows = parseCSV(v.txt); if (rows.length < 2) throw new Error("Need a header row and at least one data row."); loadTable(v.nm || "pasted", rows, "own", true); }, "Load"); }
   function sampleData() { dialog("Sample datasets", [Object.assign(sel("f", "Dataset", fieldSamples()), { hint: "A sample dataset is not remembered for your next visit until you change it (a new column, an edited cell). Then it is kept as your own. A filter alone does not count." })], (v) => fetch("data/" + v.f).then((r) => r.text()).then((t) => loadTable(v.f.replace(/\.csv$/, ""), parseCSV(t), "sample")).catch(() => alert("Could not load the sample file.")), "Open"); }
   function newBlank() { dialog("New data table", [{ name: "cols", label: "Column names, comma separated", type: "text", value: "x, y" }, { name: "n", label: "Rows", type: "number", value: 20 }], (v) => { const cols = v.cols.split(",").map((s) => s.trim()).filter(Boolean); loadTable("new", [cols].concat(Array.from({ length: v.n }, () => cols.map(() => "")))); }, "Create"); }
   function computeUI() {
