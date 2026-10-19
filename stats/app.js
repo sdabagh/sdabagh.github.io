@@ -369,7 +369,7 @@
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
-    div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">${T("edit")}</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">${T("copy text")}</button><button type="button" data-act="close" aria-label="Remove: ${t}">${T("remove")}</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
+    div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">${T("edit")}</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">${T("copy text")}</button><button type="button" data-act="doc" aria-label="Copy for Word: ${t}" title="The whole card as real tables, the APA line, the conclusion and the graph as a picture: paste into Word, Google Docs or Pages">${T("copy for Word")}</button><button type="button" data-act="close" aria-label="Remove: ${t}">${T("remove")}</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
     if ([...div.querySelectorAll("table.res td.num")].some((td) => td.textContent.trim() === "n/a")) { const w = document.createElement("div"); w.className = "warn"; w.textContent = "Some numbers could not be computed (shown as n/a): usually a variable with no variation, a group with too few values, or a perfect fit. Check the descriptives first."; div.querySelector(".meta").after(w); }
     if (MODE.who === "researcher" && TARGET === "#out") { // same card, different order: tables, APA line, conclusion, then the method folded away
       const kids = [...div.children], method = kids.filter((k) => k.matches(".formula, details.worked"));
@@ -379,6 +379,7 @@
     if (!CAPTURE && TARGET === "#out" && div.querySelector("table.res td.num")) { const cb = document.createElement("button"); cb.type = "button"; cb.dataset.act = "check"; cb.textContent = T("check my work"); cb.setAttribute("aria-label", "Check my work: " + t); cb.title = "Type the numbers you got by hand; the card marks each one and says what went wrong"; div.querySelector(".tools").insertBefore(cb, div.querySelector('[data-act="copy"]')); cb.onclick = () => checkWorkUI(div); }
     if (TARGET === "#out" && typeof botTip === "function") setTimeout(() => botTip(div), 0);
     div.querySelector('[data-act="copy"]').onclick = (e) => copyCard(div, e.currentTarget);
+    div.querySelector('[data-act="doc"]').onclick = (e) => copyCardDoc(div, e.currentTarget);
     if (PENDING && PENDING.fn) { div._redo = { fn: PENDING.fn, values: Object.assign({}, PENDING.values), target: TARGET, title: PENDING.title, fields: PENDING.fields }; div.querySelector('[data-act="edit"]').onclick = () => editCard(div); }
     LASTCARD = div; const onData = TARGET === "#out" || TARGET === "#outG";
     if (UNDO && UNDO.pane === TARGET) UNDO = null;
@@ -412,7 +413,7 @@
   function table(headers, rows, caption) {
     return (caption ? `<div class="cap">${sym(esc(caption), true)}</div>` : "") + `<table class="res"><thead><tr>${headers.map((h) => `<th>${sym(esc(h), true)}</th>`).join("")}</tr></thead><tbody>` +
       rows.map((r) => `<tr>${r.map((v, i) => `<td class="${i ? "num" : ""}">${typeof v === "number" ? fmt(v) : i ? esc(v) : sym(esc(v), true)}</td>`).join("")}</tr>`).join("") + "</tbody></table>" +
-      `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">${T("copy as CSV")}</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">${T("copy as Markdown")}</button></div>`;
+      `<div class="tblbtns"><button type="button" data-act="csv" aria-label="Copy ${escA(caption || "this table")} as CSV">${T("copy as CSV")}</button><button type="button" data-act="md" aria-label="Copy ${escA(caption || "this table")} as Markdown">${T("copy as Markdown")}</button><button type="button" data-act="doc" aria-label="Copy ${escA(caption || "this table")} for Word" title="A real table on the clipboard, APA style: paste into Word, Google Docs or Pages">${T("copy for Word")}</button></div>`;
   }
   // a table copied as CSV (for a spreadsheet) or as Markdown (for a report or a slide); the buttons sit under every table
   function tableCells(t) { return [...t.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => c.textContent.replace(/\s+/g, " ").trim())); }
@@ -422,7 +423,41 @@
     const txt = how === "md" ? [rows[0], rows[0].map((_, j) => (j ? "---:" : "---"))].concat(rows.slice(1)).map((r) => "| " + r.map((s) => s.replace(/\|/g, "\\|")).join(" | ") + " |").join("\n") : rows.map((r) => r.map(csvCell).join(",")).join("\n");
     clipText(txt, b, how === "md" ? "copy as Markdown" : "copy as CSV", "the table");
   }
-  document.addEventListener("click", (e) => { const b = e.target.closest ? e.target.closest('button[data-act="csv"], button[data-act="md"]') : null; if (!b) return; const t = b.parentNode && b.parentNode.previousElementSibling; if (t && t.tagName === "TABLE") copyTable(t, b, b.dataset.act); });
+  document.addEventListener("click", (e) => { const b = e.target.closest ? e.target.closest('button[data-act="csv"], button[data-act="md"], button[data-act="doc"]') : null; if (!b) return; const t = b.parentNode && b.parentNode.previousElementSibling; if (t && t.tagName === "TABLE") { if (b.dataset.act === "doc") copyTableDoc(t, b); else copyTable(t, b, b.dataset.act); } });
+  // ---- copy for Word: a real table (and a whole card) as HTML on the clipboard, in APA table style (rules above and
+  // below, one under the header, numbers right aligned, no vertical lines), so a paste into Word, Google Docs or Pages
+  // gives a table to edit, not lines of text. A graph goes along as a picture. Plain text rides on the clipboard too.
+  const DOC_FONT = "font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000";
+  function tableDocHtml(t) {
+    const rows = tableCells(t); if (!rows.length) return "";
+    const cap = t.previousElementSibling && t.previousElementSibling.classList.contains("cap") ? t.previousElementSibling.textContent.trim() : "";
+    const cell = (v, j, head, last) => `<${head ? "th" : "td"} style="${DOC_FONT};padding:3pt 8pt;text-align:${j ? "right" : "left"};font-weight:normal;border:0;${head ? "border-top:1.5pt solid #000;border-bottom:1pt solid #000;" : last ? "border-bottom:1.5pt solid #000;" : ""}">${esc(v)}</${head ? "th" : "td"}>`;
+    return (cap ? `<p style="${DOC_FONT};margin:0 0 4pt"><i>${esc(cap)}</i></p>` : "") + `<table style="border-collapse:collapse;border:0;margin:0 0 10pt"><thead><tr>${rows[0].map((v, j) => cell(v, j, true, false)).join("")}</tr></thead><tbody>${rows.slice(1).map((r, i) => `<tr>${r.map((v, j) => cell(v, j, false, i === rows.length - 2)).join("")}</tr>`).join("")}</tbody></table>`;
+  }
+  function tableDocText(t) { return tableCells(t).map((r) => r.join("\t")).join("\n"); }
+  function copyTableDoc(t, b) { clipHtml(tableDocHtml(t), tableDocText(t), b, T("copy for Word"), "the table for Word"); }
+  async function copyCardDoc(div, b) {
+    const parts = [], texts = []; const title = (div.querySelector("h2") || {}).textContent || "", meta = (div.querySelector(".meta") || {}).textContent || "";
+    parts.push(`<p style="${DOC_FONT};margin:0 0 2pt"><b>${esc(title)}</b></p>` + (meta ? `<p style="${DOC_FONT};margin:0 0 8pt">${esc(meta)}</p>` : "")); texts.push(title, meta);
+    for (const el of div.children) {
+      if (el.matches(".tools, .meta, h2, .tblbtns, .mycheck")) continue;
+      if (el.matches("table.res")) { parts.push(tableDocHtml(el)); texts.push(tableDocText(el)); continue; }
+      if (el.matches(".cap")) continue; // the caption goes with its table
+      if (el.matches(".js-plotly-plot, .plot") || el.querySelector(".js-plotly-plot")) { const gd = el.matches(".js-plotly-plot") ? el : el.querySelector(".js-plotly-plot"); if (gd && window.Plotly) { try { const url = await Plotly.toImage(gd, { format: "png", width: gd.clientWidth || 700, height: gd.clientHeight || 400, scale: 2 }); parts.push(`<p style="margin:6pt 0"><img src="${url}" width="${Math.min(600, gd.clientWidth || 600)}" alt="${escA(title)} graph"></p>`); texts.push("[graph]"); } catch (e) { } } continue; }
+      if (el.matches("details")) { const sum = el.querySelector("summary"); if (sum && /Method/.test(sum.textContent)) { for (const m of el.children) { if (m.tagName === "SUMMARY") continue; if (m.matches("table.res")) { parts.push(tableDocHtml(m)); texts.push(tableDocText(m)); } else { const tx = m.innerText.trim(); if (tx) { parts.push(`<p style="${DOC_FONT};margin:0 0 6pt">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx); } } } } continue; }
+      if (el.matches("button, .svgbtn, pre.script")) continue;
+      const tx = el.innerText.trim(); if (!tx) continue;
+      const style = el.matches(".apa") ? `${DOC_FONT};margin:0 0 6pt` : el.matches(".formula") ? `font-family:Consolas,'Courier New',monospace;font-size:10.5pt;color:#000;margin:0 0 6pt` : `${DOC_FONT};margin:0 0 6pt`;
+      parts.push(`<p style="${style}">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx);
+    }
+    clipHtml(`<div style="${DOC_FONT}">${parts.join("")}</div>`, texts.filter(Boolean).join("\n"), b, T("copy for Word"), "the card for Word");
+  }
+  function clipHtml(html, text, b, label, what) {
+    const done = (ok) => { b.textContent = ok ? "Copied" : "Copy failed"; announce(ok ? "Copied " + what + ". Paste it into Word, Google Docs or Pages." : "Copy failed. Use copy text, or select the card and copy it by hand."); clearTimeout(b._t); b._t = setTimeout(() => { b.textContent = label; }, ok ? 1500 : 3000); };
+    // selection copy: the browser puts the selected markup on the clipboard as HTML and as text, everywhere execCommand lives
+    const bySelection = () => { let ok = false; try { const box = document.createElement("div"); box.setAttribute("contenteditable", "true"); box.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;max-height:1px;overflow:hidden"; box.innerHTML = html; document.body.appendChild(box); const r = document.createRange(); r.selectNodeContents(box); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); ok = document.execCommand("copy"); sel.removeAllRanges(); box.remove(); } catch (e) { } b.focus({ preventScroll: true }); done(ok); };
+    if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(() => done(true), bySelection); else bySelection();
+  }
   // whole-number x axis (the discrete distributions): a label on every value only when each label has room, otherwise one every
   // 2, 5, 10, ... values, so a phone shows a readable axis. Worked out from the plot's width, and again when the window resizes.
   function wholeStep(wh, p) {
