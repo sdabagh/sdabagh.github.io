@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-24 (later): degenerate data says so in words
+
+- Every engine function was probed with degenerate inputs (constant data, single values, one level, all ties, perfect
+  fits, zero cells, empty weights): nothing hangs, but the cards printed NaN and one case crashed. Now the t-tests,
+  ANOVA, regression, correlation, Mann-Whitney, Kruskal-Wallis, the chi-square table, PCA, EFA and Cronbach's alpha
+  check first and say which column, group or value is the problem. `fmt` prints a NaN as n/a and an infinity as ∞,
+  `fmtP` prints n/a, and a card with an n/a cell carries one line explaining the usual causes. Browser test
+  `degenerate.js`. Cache `sww-v81`, scripts `?v=84`.
+
 ### 2026-10-24: files as spreadsheets export them
 
 - The CSV reader detects the delimiter (comma, semicolon, tab, pipe) from the first line and drops a byte-order mark; a

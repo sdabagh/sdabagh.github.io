@@ -23,7 +23,7 @@
   };
   S.mode = (a) => { const r = S.modes(a); return r.modes.length === 0 ? "none (no repeats)" : r.modes.length === 1 ? r.modes[0] : r.modes.join(" and ") + " (tie, " + r.count + " each)"; };
   S.round = (x, d = 4) => (Number.isFinite(x) ? Number(x.toFixed(d)) : x);
-  S.fmtP = (p) => (p < 0.0001 ? "< 0.0001" : p.toFixed(4));
+  S.fmtP = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
   S.counts = (a) => { const c = {}; a.forEach((x) => { if (x !== "" && x != null) c[x] = (c[x] || 0) + 1; }); return c; };
 
   // ---------- distributions ----------
