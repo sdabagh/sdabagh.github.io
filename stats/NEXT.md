@@ -11,6 +11,14 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   (survival), "before and after the intervention" (paired t), "risk of the outcome" (relative risk on the
   contingency-table card). The same pattern then applies to the other fields.
 
+## First thing Tuesday: a walkthrough for Safaa
+- Safaa needs to know the app well enough to help others with it. Plan: a hands-on tour, one hour, in this order:
+  the start screen and the student/researcher switch and the field; the Data menu with one messy file; Which test?
+  and Ask; a t-test, an ANOVA and a regression on the class data, reading the card top to bottom (table, formula,
+  worked numbers, APA line, conclusion); check my work; copy for Word and the R script; the Learn pages; the
+  course profile and the share link. Then a two-page "helping someone with Stats Without Walls" sheet: the ten
+  questions students ask most and where in the app each answer is.
+
 ## Already lined up
 - Ask answering in Spanish (the interface is Spanish; the answers are still English).
 - The pricing decision for the store listings: see `LAUNCH.md`, section "Pricing".
