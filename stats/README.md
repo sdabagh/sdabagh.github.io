@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-25: copy for Word
+
+- **copy for Word** under every table and in every card's tools puts HTML on the clipboard (with a plain-text twin):
+  a table in APA style (rules above, below and under the header, numbers right aligned, italic title), or the whole
+  card (title, tables, formula, APA line, conclusion, the worked numbers under Method, a graph as a PNG picture via
+  Plotly.toImage). Uses the async clipboard with ClipboardItem and falls back to a selection copy. Browser test
+  `word.js` reads the clipboard back. Cache `sww-v82`, scripts `?v=85`.
+
 ### 2026-10-24 (later): degenerate data says so in words
 
 - Every engine function was probed with degenerate inputs (constant data, single values, one level, all ties, perfect
