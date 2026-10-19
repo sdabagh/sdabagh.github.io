@@ -10,7 +10,9 @@
   let LAST = null; try { LAST = JSON.parse(localStorage.getItem("sww_last") || "null"); } catch (e) { } // the last visit's results, offered back after a reload
   let AUTORUN = false; // restoring: a dialog is filled in and run without opening
   let SHARED = null; // a setup carried in the address (#s=...), offered with an Open button
-  const fmt = (x, d) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : x == null ? "" : String(x));
+  // a number that could not be computed prints as n/a (and the card says why, in one line) instead of NaN; an infinite
+  // statistic, as in a perfect fit, prints as the infinity sign
+  const fmt = (x, d) => (typeof x === "number" ? (Number.isFinite(x) ? Number(x.toFixed(d == null ? DEC : d)).toString() : Number.isNaN(x) ? "n/a" : x > 0 ? "\u221E" : "\u2212\u221E") : x == null ? "" : String(x));
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   // Notation. The app composes its text in words (x bar, sigma, chi-square, H0) and this layer turns the words into the
   // symbols the textbook uses (x̄, σ, χ², H₀) at the moment they are printed. Results, Notation switches it back to words,
@@ -200,6 +202,14 @@
     m.idx = idx; return idx;
   }
   function col(name) { const j = D.cols.indexOf(name); if (j < 0) throw new Error("Column not found: " + name); const m = memo(); if (m.cols.has(name)) return m.cols.get(name); const idx = activeIdx(), out = idx.map((i) => D.rows[i][j]); m.cols.set(name, out); return out; }
+  // Degenerate data says so in words, before a card of n/a: a variable with no variation, a group with one value.
+  function needVar(vals, name, what = "test") {
+    const x = SW.num(vals);
+    if (x.length < 2) throw new Error(`${name} has ${x.length === 1 ? "only one numeric value" : "no numeric values"} in the rows in use; a ${what} needs at least two.`);
+    if (x.every((q) => q === x[0])) throw new Error(`${name} has no variation: every value is ${x[0]}, so there is nothing to ${what}. Check the column (or the filter).`);
+    return x;
+  }
+  const flatCols = (names, cols) => names.filter((c, j) => cols[j].length < 2 || cols[j].every((q) => q === cols[j][0]));
   const isNum = (c) => D.types[c] === "continuous" || D.types[c] === "ordinal";
   function numCols() { return D.cols.filter(isNum); }
   function catCols() { return D.cols.filter((c) => D.types[c] === "nominal" || D.types[c] === "ordinal"); }
@@ -360,6 +370,7 @@
     const div = document.createElement("div"); div.className = "card"; div.id = "card" + ++cardN;
     const t = escA(title); // each button names its card, so a screen reader's list of buttons is not a row of "edit, copy text, remove"
     div.innerHTML = `<div class="tools">${PENDING && PENDING.fn ? `<button type="button" data-act="edit" aria-label="Edit: ${t}" title="Reopen this analysis with the same choices, change anything, run again">${T("edit")}</button>` : ""}<button type="button" data-act="copy" aria-label="Copy text: ${t}">${T("copy text")}</button><button type="button" data-act="close" aria-label="Remove: ${t}">${T("remove")}</button></div><h2>${esc(title)}</h2><div class="meta">${esc(meta)}</div>${html}`;
+    if ([...div.querySelectorAll("table.res td.num")].some((td) => td.textContent.trim() === "n/a")) { const w = document.createElement("div"); w.className = "warn"; w.textContent = "Some numbers could not be computed (shown as n/a): usually a variable with no variation, a group with too few values, or a perfect fit. Check the descriptives first."; div.querySelector(".meta").after(w); }
     if (MODE.who === "researcher" && TARGET === "#out") { // same card, different order: tables, APA line, conclusion, then the method folded away
       const kids = [...div.children], method = kids.filter((k) => k.matches(".formula, details.worked"));
       if (method.length) { const det = document.createElement("details"); det.className = "method"; det.innerHTML = "<summary>Method: formula and worked numbers</summary>"; method.forEach((m) => det.appendChild(m)); const last = kids.filter((k) => k.matches(".say, .ok, .warn, .apa")).pop(); if (last) last.after(det); else div.appendChild(det); }
@@ -996,7 +1007,7 @@
       { name: "sigma", label: "Population standard deviation sigma (given in the problem)", type: "number" },
       { name: "mu0", label: "Test value", type: "number", value: 0 }, hypField("Mean"), confField, alphaField], (v) => {
       let xbar = v.xbar, n = v.n, label = "value", from = "summary statistics";
-      if (v.mode === "data") { const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; n = d.n; label = v.x; from = src(); }
+      if (v.mode === "data") { needVar(col(v.x), v.x); const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; n = d.n; label = v.x; from = src(); }
       if (!(v.sigma > 0)) throw new Error("Type the population standard deviation sigma. If the problem gives only the sample SD s, use the One Sample T-Test instead.");
       if (!(n >= 1) || !Number.isFinite(xbar)) throw new Error("Type the sample mean and N.");
       const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: v.mu0, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
@@ -1075,7 +1086,7 @@
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size (Cohen's d)", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
       let xbar = v.xbar, s = v.s, n = v.n, label = "value", from = "summary statistics";
-      if (v.mode === "data") { const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; s = d.sd; n = d.n; label = v.x; from = src(); }
+      if (v.mode === "data") { needVar(col(v.x), v.x); const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; s = d.sd; n = d.n; label = v.x; from = src(); }
       else if (!Number.isFinite(xbar) || !(s > 0) || !(n >= 2)) throw new Error("Type the mean, the standard deviation and N (the SD above 0, N at least 2).");
       if (!Number.isFinite(v.mu0)) throw new Error("Type a test value.");
       const r = SW.oneMean({ xbar, s, n, mu0: v.mu0, alt: v.alt, conf: +v.conf });
@@ -1105,7 +1116,7 @@
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
       let a, b, names = ["Group 1", "Group 2"], from = "summary statistics", ga = [], gb = [];
-      if (v.mode === "data") { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) { const pick = v.lv.split(",").map((s) => s.trim()); const bad = pick.filter((s) => !lv.includes(s)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${v.g}: ${lv.join(", ")}. Name exactly two of them.`); lv = pick; } else if (lv.length > 2) lv = lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} level.`); names = lv; ga = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]); gb = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); a = SW.describe(ga); b = SW.describe(gb); from = src(`${v.x} by ${v.g}`); }
+      if (v.mode === "data") { let lv = [...new Set(col(v.g).filter((q) => q !== ""))]; if (v.lv && v.lv.trim()) { const pick = v.lv.split(",").map((s) => s.trim()); const bad = pick.filter((s) => !lv.includes(s)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${v.g}: ${lv.join(", ")}. Name exactly two of them.`); lv = pick; } else if (lv.length > 2) lv = lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${v.g} has ${lv.length} level.`); names = lv; ga = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]); gb = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); [[ga, lv[0]], [gb, lv[1]]].forEach(([g, l]) => { if (SW.num(g).length < 2) throw new Error(`Group ${l} has ${SW.num(g).length === 1 ? "only one numeric value" : "no numeric values"} of ${v.x}; each group needs at least two.`); }); a = SW.describe(ga); b = SW.describe(gb); if (a.sd === 0 && b.sd === 0) throw new Error(`${v.x} has no variation in either group (every value is ${a.mean} in ${lv[0]} and ${b.mean} in ${lv[1]}), so t is not defined.`); from = src(`${v.x} by ${v.g}`); }
       else { a = { mean: v.m1, sd: v.s1, n: v.n1 }; b = { mean: v.m2, sd: v.s2, n: v.n2 }; if (![a.mean, b.mean].every(Number.isFinite) || !(a.sd > 0 && b.sd > 0) || !(a.n >= 2 && b.n >= 2)) throw new Error("Type the mean, SD and N for both groups (each SD above 0, each N at least 2)."); }
       const r = SW.twoMeans({ m1: a.mean, s1: a.sd, n1: a.n, m2: b.mean, s2: b.sd, n2: b.n, alt: v.alt, conf: +v.conf, pooled: !v.welch });
       const hdr = ["", "", "Statistic", "df", "p"], row = [v.mode === "data" ? v.x : "value", v.welch ? "Welch's t" : "Student's t", r.t, r.df, SW.fmtP(r.p)];
@@ -1134,6 +1145,7 @@
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Histogram of differences", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
       if (v.a === v.b) throw new Error("Pick two different variables: the two measurements on the same people.");
+      { const xa = col(v.a), xb = col(v.b), d = []; for (let i = 0; i < xa.length; i++) { const p = Number(xa[i]), q = Number(xb[i]); if (xa[i] !== "" && xb[i] !== "" && Number.isFinite(p) && Number.isFinite(q)) d.push(p - q); } if (d.length < 2) throw new Error("Need at least two complete pairs."); if (d.every((q) => q === d[0])) throw new Error(`Every pair differs by the same amount (${d[0]}), so the SD of the differences is 0 and t is not defined.`); }
       const r = SW.paired(col(v.a), col(v.b), { alt: v.alt, conf: +v.conf });
       if (!r || !(r.n > 1)) throw new Error(`Need at least 2 rows where both ${v.a} and ${v.b} are numbers.`);
       const hdr = ["", "", "", "Statistic", "df", "p"], row = [v.a, v.b, "Student's t", r.t, r.df, SW.fmtP(r.p)];
@@ -1160,8 +1172,11 @@
       { name: "desc", label: "Descriptives table", type: "check", value: true, group: "Additional statistics" }, { name: "plot", label: "Descriptives plots", type: "check", value: true, group: "Additional statistics" },
       { name: "tukey", label: "Post-Hoc Tests: Tukey", type: "check", value: true, group: "Post-Hoc" }, { name: "homo", label: "Homogeneity test (largest SD over smallest)", type: "check", value: true, group: "Assumption Checks" }, { name: "levene", label: "Levene's test of equal variances", type: "check", value: false, group: "Assumption Checks" }, alphaField], (v) => {
       const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); });
+      const thin = Object.keys(groups).filter((g) => SW.num(groups[g]).length < 2), fat = Object.keys(groups).filter((g) => SW.num(groups[g]).length >= 2);
+      if (fat.length < 2) throw new Error(`${v.g} needs at least two groups with two or more values of ${v.x}; it has ${fat.length}${thin.length ? ` (${thin.join(", ")} ${thin.length > 1 ? "have" : "has"} fewer than two)` : ""}.`);
       const r = SW.anova(groups);
-      let html = "";
+      if (r.msw === 0) throw new Error(`${v.x} has no variation within any group, so F is not defined.`);
+      let html = thin.length ? warn(`${thin.join(", ")} ${thin.length > 1 ? "have" : "has"} fewer than two values of ${v.x} and ${thin.length > 1 ? "are" : "is"} left out of the test.`) : "";
       if (v.fisher) html += table(["", "", "F", "df1", "df2", "p"], [[v.x, "Fisher's", r.F, r.df1, r.df2, SW.fmtP(r.p)]], "One-Way ANOVA");
       if (v.welch) { const w = welchAnova(r); html += table(["", "", "F", "df1", "df2", "p"], [[v.x, "Welch's", w.F, w.df1, w.df2, SW.fmtP(w.p)]], "One-Way ANOVA (Welch's)"); }
       html += table(["Source", "Sum of Squares", "df", "Mean Square", "F", "p"], [[v.g, r.ssb, r.df1, r.msb, r.F, SW.fmtP(r.p)], ["Residuals", r.ssw, r.df2, r.msw, "", ""]], `ANOVA - ${v.x}`);
@@ -1193,6 +1208,7 @@
     dialog("Regression: Correlation Matrix", [{ name: "vars", label: "Variables (two or more)", type: "multi", options: numCols() }, { name: "pear", label: "Pearson", type: "check", value: true, group: "Correlation Coefficients" }, { name: "spear", label: "Spearman", type: "check", value: false, group: "Correlation Coefficients" }, { name: "sig", label: "Report significance", type: "check", value: true, group: "Additional Options" }, { name: "plot", label: "Scatter plots (pairs)", type: "check", value: true, group: "Plot" }], (v) => {
       if (v.vars.length < 2) throw new Error("Pick at least two variables.");
       const rows = [];
+      { const flat = v.vars.filter((c) => { const x = SW.num(col(c)); return x.length < 2 || x.every((q) => q === x[0]); }); if (flat.length) throw new Error(`No variation in ${flat.join(", ")}: a correlation needs values that differ. Leave ${flat.length > 1 ? "them" : "it"} out.`); }
       v.vars.forEach((a) => { const row = [a]; v.vars.forEach((b) => { if (a === b) { row.push("1"); return; } const r = SW.regress(col(a), col(b)); let s = v.pear ? fmt(r.r) + (v.sig ? ` (p = ${SW.fmtP(r.pr)})` : "") : ""; if (v.spear) { const sp = SW.spearman(col(a), col(b)); s += (s ? "; " : "") + `rho ${fmt(sp.rs)}` + (v.sig ? ` (p = ${SW.fmtP(sp.p)})` : ""); } row.push(s); }); rows.push(row); });
       const cd = card("Correlation Matrix", src(), table([""].concat(v.vars), rows, "Correlation Matrix" + (v.pear ? " (Pearson's r" + (v.spear ? ", Spearman's rho)" : ")") : " (Spearman's rho)")) + formula("Test of each r: H0 rho = 0, t = r sqrt(n minus 2) / sqrt(1 minus r^2), df = n minus 2") + say("r measures linear association, from minus 1 to 1, and is pulled by outliers. Look at the scatterplot before believing any r. Correlation is not causation."));
       if (v.plot) for (let i = 0; i < v.vars.length; i++) for (let j = i + 1; j < v.vars.length; j++) { const r = SW.regress(col(v.vars[i]), col(v.vars[j])); plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", marker: { color: "#3A7CA5" } }], { title: `${v.vars[j]} against ${v.vars[i]}, r = ${fmt(r.r, 3)}`, xaxis: { title: v.vars[i] }, yaxis: { title: v.vars[j] } }, 280); }
@@ -1202,6 +1218,7 @@
     needData();
     dialog("Regression: Linear Regression", [selNum("y", "Dependent variable"), selNum("x", "Covariate (explanatory)"), { name: "ci", label: "Confidence interval for coefficients", type: "check", value: true, group: "Model Coefficients" }, { name: "r2", label: "R and R squared (Model Fit)", type: "check", value: true, group: "Model Fit" }, { name: "resid", label: "Residual plots", type: "check", value: true, group: "Assumption Checks" }, { name: "qq", label: "Q-Q plot of residuals", type: "check", value: false, group: "Assumption Checks" }, { name: "pred", label: "Predict at x = (optional; several, comma separated)", type: "text", value: "", group: "Prediction" }, { name: "bands", label: "Show confidence and prediction bands on the graph", type: "check", value: false, group: "Prediction" }, confField, alphaField], (v) => {
       if (v.x === v.y) throw new Error("Pick two different variables: the dependent variable and the covariate are the same column.");
+      needVar(col(v.x), v.x, "fit"); needVar(col(v.y), v.y, "fit");
       const r = SW.regress(col(v.x), col(v.y), +v.conf);
       const sxx = (r.n - 1) * r.sx * r.sx, seMean = (x0) => r.se_res * Math.sqrt(1 / r.n + (x0 - r.mx) ** 2 / sxx), sePred = (x0) => r.se_res * Math.sqrt(1 + 1 / r.n + (x0 - r.mx) ** 2 / sxx);
       const preds = String(v.pred == null || Number.isNaN(v.pred) ? "" : v.pred).split(",").map((q) => q.trim()).filter(Boolean).map(Number);
@@ -1377,7 +1394,7 @@
       { name: "chi", label: "chi-square", type: "check", value: true, group: "Tests" }, { name: "fisher", label: "Fisher's exact test (2 by 2)", type: "check", value: false, group: "Tests" }, Object.assign(sel("fisherAlt", `Fisher's ${haWord()}`, [["two", "two-sided: the two rows differ"], ["greater", "greater: row 1 has a larger share of the first column"], ["less", "less: row 1 has a smaller share of the first column"]], "two"), { group: "Tests", full: true, vis: (raw) => !!raw.fisher }), { name: "orrr", label: "Odds ratio and relative risk (2 by 2)", type: "check", value: false, group: "Comparative Measures" }, { name: "obs", label: "Observed counts", type: "check", value: true, group: "Cells" }, { name: "exp", label: "Expected counts", type: "check", value: false, group: "Cells" },
       { name: "pcRow", label: "Row percentages", type: "check", value: false, group: "Percentages" }, { name: "pcCol", label: "Column percentages", type: "check", value: false, group: "Percentages" }, { name: "pcTot", label: "Total percentages", type: "check", value: false, group: "Percentages" }, alphaField], (v) => {
       let t, from = "counts", rn = "rows", cn = "columns";
-      if (v.mode === "data") { t = SW.twoWay(col(v.r), col(v.c)); rn = v.r; cn = v.c; from = src(`${v.r} by ${v.c}`); }
+      if (v.mode === "data") { t = SW.twoWay(col(v.r), col(v.c)); rn = v.r; cn = v.c; from = src(`${v.r} by ${v.c}`); [[v.r, t.rows], [v.c, t.cols]].forEach(([nm, lv]) => { if (lv.length < 2) throw new Error(`${nm} has only one level (${lv[0]}), so there is no association to test.`); }); }
       // a typed table: labels typed after ", " lose the space, and rows and columns keep the order typed
       else { const rows = parseCSV(v.tbl).map((r) => r.map((x) => x.trim())); if (rows.length < 3) throw new Error("Need a header row and at least two rows of counts."); cn = rows[0][0] || "columns"; const rv = [], cv = []; rows.slice(1).forEach((r) => rows[0].slice(1).forEach((c, j) => { const n = Number(r[j + 1]); for (let k = 0; k < n; k++) { rv.push(r[0]); cv.push(c); } })); t = SW.twoWay(rv, cv, rows.slice(1).map((r) => r[0]), rows[0].slice(1)); }
       // With every box under Cells and Percentages unchecked the table used to come out with
@@ -1447,7 +1464,7 @@
     needData();
     dialog("Nonparametric: Mann-Whitney U (two independent groups)", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable (two levels)"), lvField, sel("alt", "Hypothesis", [["two", "Group 1 not equal to Group 2"], ["greater", "Group 1 greater than Group 2"], ["less", "Group 1 less than Group 2"]], "two"), alphaField], (v) => {
       const lv = pickTwo(v.g, v.lv);
-      const a = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]), b = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); const r = SW.mannWhitney(a, b, v.alt);
+      const a = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]), b = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); { const all = SW.num(a.concat(b)); if (all.length && all.every((q) => q === all[0])) throw new Error(`${v.x} has no variation: every value is ${all[0]}, so the ranks are all tied and there is nothing to test.`); } const r = SW.mannWhitney(a, b, v.alt);
       const html = table(["", "", "Statistic", "z", "p"], [[v.x, "Mann-Whitney U", r.U, r.z, SW.fmtP(r.p)]], "Independent Samples T-Test (nonparametric)") + table(["Group", "N", "Median"], [[lv[0], r.n1, r.med1], [lv[1], r.n2, r.med2]], "Group Descriptives") + formula("Ranks all values together and compares the rank sums; no normality assumption. Normal approximation with tie correction, as in R.") + say(`H0: the two distributions are the same. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that ${esc(v.x)} tends to be ${altWord(v.alt) === "not equal to" ? "different" : altWord(v.alt)} in ${esc(lv[0])} compared with ${esc(lv[1])}.` : `There is not enough evidence of a difference in ${esc(v.x)} between ${esc(lv[0])} and ${esc(lv[1])}.`} Use this when the groups are small and clearly skewed, or when the data are ranks.`);
       const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); plotDiv(cd, [{ y: SW.num(a), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
     });
@@ -1467,7 +1484,7 @@
   function kruskalUI() {
     needData();
     dialog("Nonparametric: Kruskal-Wallis (three or more groups)", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable"), alphaField], (v) => {
-      const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); }); const r = SW.kruskal(groups);
+      const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); }); { const all = SW.num(Object.values(groups).flat()); if (Object.keys(groups).length < 2) throw new Error(`${v.g} has only one level.`); if (all.length && all.every((q) => q === all[0])) throw new Error(`${v.x} has no variation: every value is ${all[0]}, so the ranks are all tied and there is nothing to test.`); } const r = SW.kruskal(groups);
       card("Kruskal-Wallis", src(`${v.x} by ${v.g}`), table(["", "chi-square (H)", "df", "p"], [[v.x, r.H, r.df, SW.fmtP(r.p)]], "One-Way ANOVA (Non-parametric)") + table(["Group", "N", "Median"], r.groups.map((q) => [q.name, q.n, q.median]), "Group Descriptives") + formula("Rank-based version of one-way ANOVA; H is compared with chi-square on k minus 1 df.") + say(`H0: all groups have the same distribution. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? "At least one group tends to differ." : "There is not enough evidence that the groups differ."} Use when spreads differ badly or the data are skewed with small groups.`));
     });
   }
@@ -2105,7 +2122,7 @@
     needData();
     dialog("Advanced: Principal Component Analysis", [{ name: "vars", label: "Variables (3 or more numeric)", type: "multi", options: numCols() }, { name: "m", label: "Components to show loadings for (blank = eigenvalues above 1)", type: "number", value: "" }, { name: "rot", label: "Varimax rotation of the shown components", type: "check", value: false }, selAny("by", "Colour the score plot by (optional)")], (v) => {
       if (v.vars.length < 3) throw new Error("Pick at least three variables.");
-      const { cols, keep } = numMatrix(v.vars); const r = SW.pca(cols, v.vars); const p = v.vars.length;
+      const { cols, keep } = numMatrix(v.vars); { const flat = flatCols(v.vars, cols); if (flat.length) throw new Error(`${flat.join(", ")} ${flat.length > 1 ? "have" : "has"} no variation; leave ${flat.length > 1 ? "them" : "it"} out.`); } const r = SW.pca(cols, v.vars); const p = v.vars.length;
       const m = Number.isFinite(v.m) && v.m >= 1 ? Math.min(p, Math.round(v.m)) : Math.max(1, r.values.filter((e) => e > 1).length);
       let L = r.loadings.map((row) => row.slice(0, m)); let rotNote = ""; if (v.rot && m > 1) { L = SW.varimax(L).loadings; rotNote = " (varimax rotated)"; }
       let html = table(["Component"].concat(r.values.slice(0, Math.min(p, 10)).map((_, k) => "PC" + (k + 1))), [["Eigenvalue"].concat(r.values.slice(0, 10)), ["Proportion of variance"].concat(r.prop.slice(0, 10)), ["Cumulative"].concat(r.cum.slice(0, 10))], "Eigenvalues (on the correlation matrix, variables standardized)");
@@ -2126,7 +2143,7 @@
     needData();
     dialog("Advanced: Exploratory Factor Analysis (principal axis, varimax)", [{ name: "vars", label: "Items (3 or more numeric)", type: "multi", options: numCols() }, { name: "m", label: "Number of factors", type: "number", value: 2 }, { name: "rot", label: "Varimax rotation", type: "check", value: true }, { name: "cut", label: "Hide loadings below (absolute)", type: "number", value: 0.3 }], (v) => {
       if (v.vars.length < 3) throw new Error("Pick at least three items.");
-      const { cols, keep } = numMatrix(v.vars); const m = Math.max(1, Math.min(Math.round(v.m), Math.floor(v.vars.length / 2))); const r = SW.efa(cols, v.vars, m, v.rot);
+      const { cols, keep } = numMatrix(v.vars); { const flat = flatCols(v.vars, cols); if (flat.length) throw new Error(`${flat.join(", ")} ${flat.length > 1 ? "have" : "has"} no variation; leave ${flat.length > 1 ? "them" : "it"} out.`); } const m = Math.max(1, Math.min(Math.round(v.m), Math.floor(v.vars.length / 2))); const r = SW.efa(cols, v.vars, m, v.rot);
       let html = table(["Factor"].concat(r.ss.map((_, k) => "F" + (k + 1))), [["Sum of squared loadings"].concat(r.ss), ["Proportion of variance"].concat(r.prop), ["Cumulative"].concat(r.cum)], `Variance explained${r.rotated ? " (after varimax)" : ""}`);
       html += table(["Item"].concat(r.ss.map((_, k) => "F" + (k + 1)), ["Communality", "Uniqueness"]), v.vars.map((nm, i) => [nm].concat(r.loadings[i].map((l) => (Math.abs(l) < v.cut ? "" : fmt(l))), [r.communality[i], r.uniqueness[i]])), `Factor loadings (blank = below ${v.cut})`);
       html += table(["Eigenvalue of the correlation matrix"].concat(r.eigen.slice(0, Math.min(10, r.eigen.length)).map((_, k) => String(k + 1))), [["value"].concat(r.eigen.slice(0, 10))], "Eigenvalues, for choosing the number of factors");
@@ -2145,6 +2162,7 @@
       let { cols } = numMatrix(v.vars); const rev = v.rev.split(",").map((s) => s.trim()).filter(Boolean); const bad = rev.filter((s) => !v.vars.includes(s)); if (bad.length) throw new Error(`Not among the items: ${bad.join(", ")}`);
       const allv = cols.flat(), lo = Math.min(...allv), hi = Math.max(...allv);
       cols = cols.map((c, j) => (rev.includes(v.vars[j]) ? c.map((x) => hi + lo - x) : c));
+      { const flat = flatCols(v.vars, cols); if (flat.length) throw new Error(`${flat.join(", ")} ${flat.length > 1 ? "have" : "has"} no variation; an item everyone answers the same way cannot belong to a scale. Leave ${flat.length > 1 ? "them" : "it"} out.`); }
       const r = SW.alpha(cols);
       let html = table(["Cronbach's alpha", "Standardized alpha", "Items", "n", "Mean inter-item correlation"], [[r.alpha, r.standardized, r.k, r.n, r.meanR]], "Scale reliability");
       html += table(["Item", "Mean", "SD", "Item-rest correlation", "Alpha if item dropped"], v.vars.map((nm, i) => [nm + (rev.includes(nm) ? " (reversed)" : ""), r.items[i].mean, r.items[i].sd, r.items[i].itemTotal, r.items[i].alphaIfDropped]), "Item statistics");
