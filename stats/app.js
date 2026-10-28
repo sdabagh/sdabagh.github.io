@@ -621,7 +621,7 @@
     // Groups that most runs never touch open folded ("More options"), so a dialog shows its essentials first. A group opens by
     // itself when a card is edited and one of its fields was changed from the default, and stays open once the user opened it.
     const openGroups = new Set(moreOpen());
-    if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) { const def = fd.value, val = PREFILL[fd.name]; if (fd.group && FOLD.has(fd.group) && changedFromDefault(val, def, fd.type)) openGroups.add(fd.group); fd = Object.assign(fd, { value: val }); } });
+    if (PREFILL) fields.filter(Boolean).forEach((fd) => { if (fd.name in PREFILL) { const def = fd.value; let val = PREFILL[fd.name]; if (fd.name === "conf" && fd.type === "number" && Number(val) > 0 && Number(val) <= 1) val = Math.round(Number(val) * 10000) / 100; if (fd.group && FOLD.has(fd.group) && changedFromDefault(val, def, fd.type)) openGroups.add(fd.group); fd = Object.assign(fd, { value: val }); } });
     const taken = []; fields.filter(Boolean).forEach((fd) => { if (!fd.distinct || fd.value != null) return; const opts = (fd.options || []).map((o) => (Array.isArray(o) ? o[0] : o)); const pick = opts.find((o) => !taken.includes(o)); if (pick != null) { fd.value = pick; taken.push(pick); } });
     fields.filter(Boolean).forEach((fd) => {
       const id = pre + fd.name; let ctl = "";
@@ -661,7 +661,7 @@
     if (inline) { f.insertBefore($("#distMsg"), f.querySelector("#distNow")); f._fn = fn; f._collect = collect; } // the message sits under the inputs, just above Run
     applyVis();
     const exec = (replace) => {
-      const v = collect(); const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt; PENDING = { fn, values: v, title, fields: fields.filter(Boolean).map((fd) => ({ name: fd.name, label: fd.label, type: fd.type, options: fd.options, group: fd.group })) }; REPLACE = replace || null; LASTCARD = null;
+      const v = collect(); if ("conf" in v) v.conf = normConf(v.conf); const tgt = f.dataset.target || "#out"; const prev = TARGET; TARGET = tgt; PENDING = { fn, values: v, title, fields: fields.filter(Boolean).map((fd) => ({ name: fd.name, label: fd.label, type: fd.type, options: fd.options, group: fd.group })) }; REPLACE = replace || null; LASTCARD = null;
       try { if (v.facet && String(v.facet).trim() && fields.some((fd) => fd && fd.name === "facet")) facetRun(onGo, v); else onGo(v); if (replace && replace.isConnected && replace._last) { replace._last = null; replace.remove(); } return LASTCARD; }
       catch (err) { if (replace && LASTCARD && LASTCARD.isConnected) LASTCARD.remove(); throw err; }
       finally { TARGET = prev; PENDING = null; REPLACE = null; }
@@ -759,7 +759,17 @@
   const pickTwo = (g, lvText) => { let lv = [...new Set(col(g).filter((q) => q !== ""))]; if (lvText && lvText.trim()) { const pick = lvText.split(",").map((t) => t.trim()); const bad = pick.filter((t) => !lv.includes(t)); if (pick.length !== 2 || bad.length) throw new Error(`Levels of ${g}: ${lv.join(", ")}. Name exactly two of them.`); return pick; } if (lv.length > 2) return lv.slice(0, 2); if (lv.length !== 2) throw new Error(`${g} has ${lv.length} level.`); return lv; };
   const selAny = (name, label, none = true) => sel(name, label, (none ? [["", "(none)"]] : []).concat(D.cols));
   const hypField = (what) => sel("alt", "Hypothesis", [["two", what + " is not equal to Test value"], ["greater", what + " is greater than Test value"], ["less", what + " is less than Test value"]], "two");
-  const confField = { name: "conf", label: "Confidence interval", type: "select", options: [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], value: "0.95" };
+  // The confidence level is typed, as a percent (95, 98, 80) or as a proportion (0.95): a course uses whatever level the
+  // exercise says, not only 90, 95 and 99. normConf turns what was typed into the proportion the engine takes.
+  const confCheck = (raw) => { if (raw.conf === "" || raw.conf == null) return ""; try { normConf(raw.conf); return ""; } catch (e) { return e.message; } };
+  const confField = { name: "conf", label: "Confidence level (percent)", type: "number", value: 95, placeholder: "95", hint: "Any level: 95, 98, 90, 80. A proportion such as 0.95 works too.", check: confCheck };
+  function normConf(raw) {
+    let c = Number(String(raw == null ? "" : raw).replace("%", "").trim());
+    if (!Number.isFinite(c)) { const e = new Error("Type the confidence level as a percent, for example 95."); e.field = "conf"; throw e; }
+    if (c > 1) c = c / 100;
+    if (!(c >= 0.5 && c < 1)) { const e = new Error("The confidence level must be between 50 and 99.99 percent (95 is the usual)."); e.field = "conf"; throw e; }
+    return c;
+  }
   const alphaField = { name: "alpha", label: "Alpha (decision level)", type: "select", options: [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], value: "0.05" };
   const src = (extra) => `${D.name}${D.filter.trim() ? " [filter: " + D.filter + "]" : ""}${extra ? ", " + extra : ""}`;
 
@@ -2607,7 +2617,7 @@
   function tCalc() {
     const notT = (raw) => raw.kind !== "tstar" && raw.kind !== "p";
     dialog("distrACTION: T-Distribution", [{ name: "df", label: "df", type: "number", value: 20, group: "Parameters" }, Object.assign(sel("kind", "Compute", [["tstar", "quantile t* for a confidence level"], ["p", "p-value for a t statistic"]].concat(CONT_OPTS), "tstar"), { group: "Find" }),
-      { name: "conf", label: "Confidence level (proportion)", type: "number", value: 0.95, group: "Find", vis: (raw) => raw.kind === "tstar" }, { name: "t", label: "t statistic", type: "number", value: 2, group: "Find", vis: (raw) => raw.kind === "p" }, Object.assign(sel("alt", "Tail", [["two", "two-sided"], ["greater", "upper tail"], ["less", "lower tail"]], "two"), { group: "Find", vis: (raw) => raw.kind === "p" }),
+      { name: "conf", label: "Confidence level (percent, or a proportion)", type: "number", value: 95, group: "Find", vis: (raw) => raw.kind === "tstar" }, { name: "t", label: "t statistic", type: "number", value: 2, group: "Find", vis: (raw) => raw.kind === "p" }, Object.assign(sel("alt", "Tail", [["two", "two-sided"], ["greater", "upper tail"], ["less", "lower tail"]], "two"), { group: "Find", vis: (raw) => raw.kind === "p" }),
       { name: "a", label: "x1 (or p for a quantile)", type: "number", value: "", group: "Find", vis: notT }, { name: "b", label: "x2", type: "number", value: "", group: "Find", vis: isBetween }], (v) => {
       let html;
       if (!(v.df > 0)) throw new Error("df must be a positive number.");
@@ -3284,7 +3294,7 @@
   };
   function powerR(v) { const sig = v.alpha ? `, sig.level = ${v.alpha}` : "", alt = v.alt && v.alt !== "two" ? `, alternative = ${rStr(v.alt === "greater" || v.alt === "less" ? "greater" : "two.sided")}` : "", want = v.mode === "n" || !v.n ? `power = ${v.pow || 0.8}` : `n = ${v.n}`; const t = v.test || "t2"; if (t === "t1") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}, type = "one.sample"${alt})`]; if (t === "t2") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}${alt})`]; if (t === "prop1") return [`pwr::pwr.p.test(h = pwr::ES.h(${v.p1}, ${v.p0}), ${want}${sig}${alt})`]; if (t === "prop2") return [`pwr::pwr.2p.test(h = pwr::ES.h(${v.p0}, ${v.p1}), ${want}${sig}${alt})`]; if (t === "anova") return [`pwr::pwr.anova.test(k = ${v.k}, f = ${v.d}, ${want}${sig})`]; if (t === "corr") return [`pwr::pwr.r.test(r = ${v.d}, ${want}${sig}${alt})`]; if (t === "chisq") return [`pwr::pwr.chisq.test(w = ${v.d}, df = ${v.k}, ${want}${sig})`]; return ["# see the pwr package"]; }
   const optionLines = (redo) => {
-    const out = []; (redo.fields || []).forEach((fd) => { if (!fd || fd.type === "note") return; let val = redo.values[fd.name]; if (val === undefined || val === null || val === "" || val === false || (Array.isArray(val) && !val.length)) return;
+    const out = []; (redo.fields || []).forEach((fd) => { if (!fd || fd.type === "note") return; let val = redo.values[fd.name]; if (fd.name === "conf" && Number(val) > 0 && Number(val) <= 1) val = Math.round(Number(val) * 10000) / 100; // stored as a proportion, listed as the percent typed if (val === undefined || val === null || val === "" || val === false || (Array.isArray(val) && !val.length)) return;
       if (fd.type === "check") val = "yes"; else if (Array.isArray(val)) val = val.join(", "); else if ((fd.type === "select" || fd.type === "multi") && Array.isArray(fd.options)) { const o = fd.options.find((q) => (Array.isArray(q) ? q[0] : q) === String(val)); if (o && Array.isArray(o)) val = o[1]; }
       out.push(`${String(fd.label || fd.name).replace(/\s*\(optional\)$/i, "").replace(/\s*\(.*hold Cmd.*\)$/i, "")}: ${val}`); }); return out;
   };
@@ -3538,7 +3548,7 @@
     const o = { name: String(p.name == null ? "" : p.name).replace(/\s+/g, " ").trim().slice(0, 60), welch: p.welch !== false, qm: p.qm === "type7" ? "type7" : "halves" };
     o.dec = [2, 3, 4, 6].includes(Number(p.dec)) ? Number(p.dec) : 4;
     o.alpha = ["0.05", "0.01", "0.10"].includes(String(p.alpha)) ? String(p.alpha) : "0.05";
-    o.conf = ["0.90", "0.95", "0.99"].includes(String(p.conf)) ? String(p.conf) : "0.95";
+    o.conf = (() => { let c = Number(p.conf); if (c > 1) c = c / 100; return c >= 0.5 && c < 1 ? String(Math.round(c * 10000) / 10000) : "0.95"; })();
     o.menus = Array.isArray(p.menus) ? p.menus.filter((m) => typeof m === "string" && MENU_NAMES.includes(m) && m !== "Data" && m !== "Results") : null;
     return o;
   }
@@ -3547,14 +3557,14 @@
   function showMenus() { document.querySelectorAll("#menu .dd").forEach((d) => { const m = d.dataset.name; d.style.display = !PROF || !PROF.menus || m === "Data" || m === "Results" || PROF.menus.includes(m) ? "" : "none"; }); }
   function applyProfile(p, store) {
     PROF = cleanProfile(p); if (!PROF) return clearProfile();
-    DEC = PROF.dec; alphaField.value = PROF.alpha; confField.value = PROF.conf; showMenus();
+    DEC = PROF.dec; alphaField.value = PROF.alpha; confField.value = Math.round(Number(PROF.conf) * 10000) / 100; showMenus();
     const pn = $("#profName"); if (pn) pn.textContent = PROF.name ? "Profile: " + PROF.name : "Course profile set";
     if (store) { try { localStorage.setItem("sww_profile", JSON.stringify(PROF)); } catch (e) { } }
   }
   function clearProfile() {
     PROF = null; try { localStorage.removeItem("sww_profile"); } catch (e) { }
     let d = 0; try { d = Number(localStorage.getItem("sww_dec")) || 0; } catch (e) { } DEC = d || (MODE.who === "researcher" ? 3 : 4);
-    alphaField.value = "0.05"; confField.value = "0.95"; showMenus(); const pn = $("#profName"); if (pn) pn.textContent = "";
+    alphaField.value = "0.05"; confField.value = 95; showMenus(); const pn = $("#profName"); if (pn) pn.textContent = "";
   }
   const profileWords = (p) => `${p.welch ? "Welch's" : "Student's pooled"} t for two samples; ${p.qm === "type7" ? "R (type 7)" : "textbook"} quartiles; ${p.dec} decimals; alpha ${p.alpha} and ${Math.round(Number(p.conf) * 100)} percent offered first; menus: ${p.menus ? "Data, " + p.menus.join(", ") + ", Results" : "all"}.`;
   function profileUI() {
@@ -3565,7 +3575,7 @@
       sel("qm", "Quartile rule in Descriptives", [["halves", "Textbook rule (median of each half)"], ["type7", "R rule (type 7, interpolated)"]], p.qm),
       sel("dec", "Decimal places", [["2", "2"], ["3", "3"], ["4", "4"], ["6", "6"]], String(p.dec)),
       sel("alpha", "Alpha offered first", [["0.05", "0.05"], ["0.01", "0.01"], ["0.10", "0.10"]], p.alpha),
-      sel("conf", "Confidence level offered first", [["0.90", "90 percent"], ["0.95", "95 percent"], ["0.99", "99 percent"]], p.conf),
+      { name: "conf", label: "Confidence level offered first (percent)", type: "number", value: Math.round(Number(p.conf) * 10000) / 100, check: confCheck },
       { name: "menus", label: `Menus to show (${MULTI_HINT()}). Data and Results always show.`, type: "multi", options: menuOpts, value: p.menus || menuOpts },
       sel("how", "Then", [["apply", "Use this profile on this computer"], ["file", "Use it here and download it as a file to share"], ["link", "Use it here and copy a link that sets it"], ["off", "Remove the profile from this computer"]], "apply")], (v) => {
       if (v.how === "off") { clearProfile(); card("Course profile", "removed", say("The app's own defaults are back: Welch's t, the textbook quartile rule, 4 decimals, alpha 0.05, 95 percent, every menu."))._skip = true; return; }

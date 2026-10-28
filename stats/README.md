@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-28: any confidence level
+
+- The confidence level is typed, not picked from 90, 95 and 99: a **Confidence level (percent)** box in every dialog that
+  gives an interval (a proportion such as 0.95 works too; 50 to 99.99 accepted, a message under the box otherwise). The
+  value is turned into a proportion once, when the dialog runs, so the engine, the R script, the restore and the share
+  link see 0.98; the edit dialog shows 98 again. The course profile takes any level. The distrACTION t* calculator takes
+  a percent too. Browser test `conflevel.js`. Cache `sww-v83`, scripts `?v=86`.
+
 ### 2026-10-25: copy for Word
 
 - **copy for Word** under every table and in every card's tools puts HTML on the clipboard (with a plain-text twin):
