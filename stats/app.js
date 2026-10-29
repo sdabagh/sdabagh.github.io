@@ -439,17 +439,19 @@
   async function copyCardDoc(div, b) {
     const parts = [], texts = []; const title = (div.querySelector("h2") || {}).textContent || "", meta = (div.querySelector(".meta") || {}).textContent || "";
     parts.push(`<p style="${DOC_FONT};margin:0 0 2pt"><b>${esc(title)}</b></p>` + (meta ? `<p style="${DOC_FONT};margin:0 0 8pt">${esc(meta)}</p>` : "")); texts.push(title, meta);
-    for (const el of div.children) {
-      if (el.matches(".tools, .meta, h2, .tblbtns, .mycheck")) continue;
-      if (el.matches("table.res")) { parts.push(tableDocHtml(el)); texts.push(tableDocText(el)); continue; }
-      if (el.matches(".cap")) continue; // the caption goes with its table
-      if (el.matches(".js-plotly-plot, .plot") || el.querySelector(".js-plotly-plot")) { const gd = el.matches(".js-plotly-plot") ? el : el.querySelector(".js-plotly-plot"); if (gd && window.Plotly) { try { const url = await Plotly.toImage(gd, { format: "png", width: gd.clientWidth || 700, height: gd.clientHeight || 400, scale: 2 }); parts.push(`<p style="margin:6pt 0"><img src="${url}" width="${Math.min(600, gd.clientWidth || 600)}" alt="${escA(title)} graph"></p>`); texts.push("[graph]"); } catch (e) { } } continue; }
-      if (el.matches("details")) { const sum = el.querySelector("summary"); if (sum && /Method/.test(sum.textContent)) { for (const m of el.children) { if (m.tagName === "SUMMARY") continue; if (m.matches("table.res")) { parts.push(tableDocHtml(m)); texts.push(tableDocText(m)); } else { const tx = m.innerText.trim(); if (tx) { parts.push(`<p style="${DOC_FONT};margin:0 0 6pt">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx); } } } } continue; }
-      if (el.matches("button, .svgbtn, pre.script")) continue;
-      const tx = el.innerText.trim(); if (!tx) continue;
+    const handle = async (el) => {
+      if (el.matches(".simroute")) { const head = el.querySelector(".simhead"); if (head) { parts.push(`<p style="${DOC_FONT};margin:8pt 0 4pt"><b>${esc(head.textContent)}</b></p>`); texts.push(head.textContent); } for (const m of el.children) if (!m.matches(".simhead")) await handle(m); return; } // the simulation block: its table, formula and sentence, not the block as flat text
+      if (el.matches(".tools, .meta, h2, .tblbtns, .mycheck")) return;
+      if (el.matches("table.res")) { parts.push(tableDocHtml(el)); texts.push(tableDocText(el)); return; }
+      if (el.matches(".cap")) return; // the caption goes with its table
+      if (el.matches(".js-plotly-plot, .plot") || el.querySelector(".js-plotly-plot")) { const gd = el.matches(".js-plotly-plot") ? el : el.querySelector(".js-plotly-plot"); if (gd && window.Plotly) { try { const url = await Plotly.toImage(gd, { format: "png", width: gd.clientWidth || 700, height: gd.clientHeight || 400, scale: 2 }); parts.push(`<p style="margin:6pt 0"><img src="${url}" width="${Math.min(600, gd.clientWidth || 600)}" alt="${escA(title)} graph"></p>`); texts.push("[graph]"); } catch (e) { } } return; }
+      if (el.matches("details")) { const sum = el.querySelector("summary"); if (sum && /Method/.test(sum.textContent)) { for (const m of el.children) { if (m.tagName === "SUMMARY") continue; if (m.matches("table.res")) { parts.push(tableDocHtml(m)); texts.push(tableDocText(m)); } else { const tx = m.innerText.trim(); if (tx) { parts.push(`<p style="${DOC_FONT};margin:0 0 6pt">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx); } } } } return; }
+      if (el.matches("button, .svgbtn, pre.script")) return;
+      const tx = el.innerText.trim(); if (!tx) return;
       const style = el.matches(".apa") ? `${DOC_FONT};margin:0 0 6pt` : el.matches(".formula") ? `font-family:Consolas,'Courier New',monospace;font-size:10.5pt;color:#000;margin:0 0 6pt` : `${DOC_FONT};margin:0 0 6pt`;
       parts.push(`<p style="${style}">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx);
-    }
+    };
+    for (const el of div.children) await handle(el);
     clipHtml(`<div style="${DOC_FONT}">${parts.join("")}</div>`, texts.filter(Boolean).join("\n"), b, T("copy for Word"), "the card for Word");
   }
   function clipHtml(html, text, b, label, what) {
@@ -1184,7 +1186,7 @@
         html += apa(`M = ${apaN(xbar, 2)}, SD = ${apaN(s, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean of ${esc(label)} is between ${fmt(r.lower)} and ${fmt(r.upper)}. The confidence is in the method: ${pc} percent of intervals built this way capture the true mean.`);
         html += cond(n >= 30, "n is at least 30: the t interval is fine whatever the population shape.", "n is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
-        ciPlot(card("One Sample T Interval", from, html), xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); return;
+        { const cd = card("One Sample T Interval", from, html); ciPlot(cd, xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); if (v.mode === "data" && n < 30) simMean1(cd, col(v.x), null, "two", +v.conf, [r.lower, r.upper], null, null); } return;
       }
       if (!Number.isFinite(v.mu0)) throw new Error("Type a test value.");
       const r = SW.oneMean({ xbar, s, n, mu0: v.mu0, alt: v.alt, conf: +v.conf });
@@ -1200,6 +1202,7 @@
       html += say(`H0: mu = ${v.mu0}. Ha: mu ${altWord(v.alt)} ${v.mu0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population mean of ${esc(label)} is ${altWord(v.alt)} ${v.mu0}.` : `There is not enough evidence that the population mean of ${esc(label)} is ${altWord(v.alt)} ${v.mu0}.`} The sample mean is ${fmt(xbar)}, ${fmt(Math.abs(r.d), 2)} standard deviations from ${v.mu0}.`);
       html += cond(n >= 30, "n is at least 30: the t procedure is fine whatever the population shape.", "n is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
       const cd = card("One Sample T-Test", from, html); tPlot(cd, r.t, r.df, v.alt);
+      if (v.mode === "data" && n < 30) simMean1(cd, col(v.x), v.mu0, v.alt, +v.conf, [r.lower, r.upper], r.p, +v.alpha);
     });
   }
   function tIndependent() {
@@ -1227,6 +1230,7 @@
         html += say(`We are ${pc} percent confident that the population mean of ${esc(names[0])} minus the population mean of ${esc(names[1])} is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no difference, and a difference in either direction, are all plausible at this confidence level." : `The interval does not include 0: every plausible value says the mean of ${esc(names[0])} is ${r.lower > 0 ? "higher" : "lower"}.`}`);
         html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have n at least 30.", "A group has n under 30: needs roughly normal populations (check box plots); state that the assumptions are met.");
         const cd = card("Independent Samples T Interval", from, html); ciPlot(cd, r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in means (dashed line = 0, no difference)`);
+        if (v.mode === "data" && (a.n < 30 || b.n < 30)) simMean2(cd, ga, gb, names, "two", +v.conf, [r.lower, r.upper], null, null);
         if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: Object.assign({ title: v.x }, coverAxis(SW.num(ga).concat(SW.num(gb)))), showlegend: false });
         return;
       }
@@ -1246,6 +1250,7 @@
       if (v.mode === "data") { const all = [...new Set(col(v.g).filter((q) => q !== ""))]; if (all.length > 2) html += say(`${esc(v.g)} has ${all.length} levels (${esc(all.join(", "))}); this test compares ${esc(names[0])} with ${esc(names[1])} only. Choosing which two is your decision to defend; for all groups at once use One-Way ANOVA.`); }
       html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have n at least 30.", "A group has n under 30: needs roughly normal populations (check box plots); state that the assumptions are met.") + say("Independent samples: different individuals in each group. If the same individuals were measured twice, use the Paired Samples T-Test.");
       const cd = card("Independent Samples T-Test", from, html);
+      if (v.mode === "data" && (a.n < 30 || b.n < 30)) simMean2(cd, ga, gb, names, v.alt, +v.conf, [r.lower, r.upper], r.p, +v.alpha);
       if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: Object.assign({ title: v.x }, coverAxis(SW.num(ga).concat(SW.num(gb)))), showlegend: false });
       tPlot(cd, r.t, r.df, v.alt);
     });
@@ -1268,6 +1273,7 @@
         html += apa(`M difference = ${apaN(r.dbar, 2)}, SD = ${apaN(r.sd, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean difference (${esc(v.a)} minus ${esc(v.b)}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no change is among the plausible values." : "The interval does not include 0: every plausible value is a change in the same direction."}`) + say("Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.");
         const cd = card("Paired Samples T Interval", src(), html); ciPlot(cd, r.dbar, r.lower, r.upper, "mean difference", 0, `${pc}% confidence interval for the mean difference (dashed line = 0, no change)`);
+        if (r.n < 30) simPaired(cd, r.differences, "two", +v.conf, [r.lower, r.upper], null, null);
         if (v.plot) plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: `difference: ${v.a} minus ${v.b}` }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
         return;
       }
@@ -1282,6 +1288,7 @@
       html += apa(`t(${r.df}) = ${apaN(r.t, 2)}, ${apaP(r.p)}, d = ${apaN(r.d, 2)}, ${Math.round(r.conf * 100)}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
       html += say(`H0: the mean difference is 0. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the mean of ${esc(v.a)} is ${altWord(v.alt)} the mean of ${esc(v.b)} for the same individuals.` : `There is not enough evidence of a difference between ${esc(v.a)} and ${esc(v.b)}.`} Mean difference ${fmt(r.dbar)}, ${Math.round(r.conf * 100)} percent interval ${fmt(r.lower)} to ${fmt(r.upper)}.`) + say("Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.");
       const cd = card("Paired Samples T-Test", src(), html);
+      if (r.n < 30) simPaired(cd, r.differences, v.alt, +v.conf, [r.lower, r.upper], r.p, +v.alpha);
       if (v.plot) plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: `difference: ${v.a} minus ${v.b}` }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
       tPlot(cd, r.t, r.df, v.alt);
     });
@@ -1310,9 +1317,11 @@
       html += say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `At least one group mean of ${esc(v.x)} differs across ${esc(v.g)}; the F test does not say which. Read the post-hoc table.` : `There is not enough evidence that the mean of ${esc(v.x)} differs across ${esc(v.g)}.`}`);
       html += smallGroups(r.groups.map((q) => [q.n, q.name]));
       if (v.levene) { const L = SW.levene(Object.values(groups)); html += table(["F", "df1", "df2", "p"], [[L.F, L.d1, L.d2, SW.fmtP(L.p)]], "Levene's test (deviations from the median, Brown-Forsythe)") + say(L.p <= +v.alpha ? `Levene p = ${fmt(L.p, 4)}: the group variances differ, so read Welch's ANOVA.` : `Levene p = ${fmt(L.p, 4)}: no evidence the group variances differ.`); }
+      { const small = Object.keys(groups).filter((g) => SW.num(groups[g]).length < 30); html += cond(!small.length, "Every group has n at least 30: the F test is fine whatever the population shape.", `${small.length === Object.keys(groups).length ? "Every group" : "A group"} has n under 30 (${small.map((g) => `${g}: ${SW.num(groups[g]).length}`).join(", ")}): the F test needs roughly normal groups; the simulation route below does not.`); }
       if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
       if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
       const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
+      if (Object.keys(groups).some((g) => SW.num(groups[g]).length < 30)) simAnova(cd, groups, r, +v.alpha);
       if (v.fisher || !v.welch) fPlot(cd, r.F, r.df1, r.df2); else { const w = welchAnova(r); fPlot(cd, w.F, w.df1, w.df2, `F distribution with Welch's df = ${fmt(w.df1, 2)} and ${fmt(w.df2, 2)}; shaded area is the p-value`); }
       if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: Object.assign({ title: v.x }, coverAxis(r.groups.flatMap((q) => q.x))), showlegend: false });
     });
@@ -1360,7 +1369,9 @@
       if (preds.length) { const pc = Math.round(r.conf * 100); html += table([v.x, `Predicted ${v.y}`, `${pc}% CI for the mean: lower`, "upper", `${pc}% PI for one new value: lower`, "upper"], preds.map((x0) => { const yh = r.predict(x0); return [x0, yh, yh - r.tstar * seMean(x0), yh + r.tstar * seMean(x0), yh - r.tstar * sePred(x0), yh + r.tstar * sePred(x0)]; }), "Prediction");
         html += formula(`CI for the mean response: y hat plus or minus t* s_e sqrt(1/n + (x minus x bar)^2 / Sxx). PI for one new value: y hat plus or minus t* s_e sqrt(1 + 1/n + (x minus x bar)^2 / Sxx). s_e = ${fmt(r.se_res)}, t* = ${fmt(r.tstar)} on ${r.df} df.`) + say(`The confidence interval is for the average ${esc(v.y)} of everyone with that ${esc(v.x)}; the prediction interval is for one new individual, so it is always wider.`);
         const out = preds.filter((x0) => x0 < Math.min(...r.x) || x0 > Math.max(...r.x)); if (out.length) html += warn(`x = ${out.join(", ")} is outside the data range (${fmt(Math.min(...r.x))} to ${fmt(Math.max(...r.x))}): extrapolation, do not trust it.`); }
+      html += cond(r.n >= 30, "n is at least 30: the slope test and interval are fine whatever the shape of the residuals.", `n = ${r.n} is under 30: the slope test and interval need roughly normal residuals (check the Q-Q plot); the simulation route below does not.`);
       const cd = card("Linear Regression", src(`${v.y} on ${v.x}`), html); tPlot(cd, r.t, r.df, "two", `slope test: t distribution, df = ${r.df}; shaded area is the p-value`);
+      if (r.n < 30) simSlope(cd, r, +v.conf, +v.alpha);
       const xs = [Math.min(...r.x), Math.max(...r.x)];
       const bandTr = []; if (v.bands) { const g = Array.from({ length: 81 }, (_, i) => xs[0] + ((xs[1] - xs[0]) * i) / 80); [[seMean, "confidence band (mean)", "#C0392B", "dash"], [sePred, "prediction band (one value)", "#7F8C8D", "dot"]].forEach(([f, nm, c, dsh]) => { bandTr.push({ x: g, y: g.map((q) => r.predict(q) + r.tstar * f(q)), mode: "lines", name: nm, line: { color: c, dash: dsh, width: 1.5 } }, { x: g, y: g.map((q) => r.predict(q) - r.tstar * f(q)), mode: "lines", name: nm, showlegend: false, line: { color: c, dash: dsh, width: 1.5 } }); }); }
       plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }].concat(bandTr), { xaxis: { title: v.x }, yaxis: { title: v.y } });
@@ -1477,7 +1488,7 @@
         html += apa(`p hat = ${apaN(ph, 2)}, ${pc}% CI [${apaN(ci.lower, 2)}, ${apaN(ci.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population proportion${levels.length > 1 ? ` of ${esc(L.level)}` : ""} is between ${fmt(ci.lower)} and ${fmt(ci.upper)}.`);
         if (cim === "wald") html += cond(L.x >= 10 && L.n - L.x >= 10, `Successes and failures (${L.x} and ${L.n - L.x}) are both at least 10, so the normal approximation is appropriate.`, `A count is below 10 (${L.x} successes, ${L.n - L.x} failures): the standard interval is unreliable here; use the plus four or Wilson method.`);
-        ciPlot(card("One Proportion Interval", from, html), ph, ci.lower, ci.upper, "proportion", null, `${pc}% confidence interval for the proportion (dot = p hat)`); return;
+        { const cd = card("One Proportion Interval", from, html); ciPlot(cd, ph, ci.lower, ci.upper, "proportion", null, `${pc}% confidence interval for the proportion (dot = p hat)`); if (L.x < 10 || L.n - L.x < 10) simProp1(cd, L.x, L.n, null, "two", +v.conf, [ci.lower, ci.upper], null, null); } return;
       }
       if (!(v.p0 > 0 && v.p0 < 1)) throw new Error("The test value is a proportion between 0 and 1, such as 0.5.");
       const rows = [], zrows = []; let last;
@@ -1494,6 +1505,7 @@
       html += say(`H0: p = ${v.p0}. ${decision(v.z ? r.p : r.exact, +v.alpha)} ${(v.z ? r.p : r.exact) <= +v.alpha ? `There is evidence that the population proportion of ${esc(L.level)} is ${altWord(v.alt)} ${v.p0}.` : `There is not enough evidence that the population proportion of ${esc(L.level)} is ${altWord(v.alt)} ${v.p0}.`}${v.ci ? ` We are ${Math.round(+v.conf * 100)} percent confident the population proportion is between ${fmt(lastCI.lower)} and ${fmt(lastCI.upper)}.` : ""}`);
       if (v.ci && cim !== "wald") html += r.condCI ? ok(`Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`) : say(`Only ${Math.min(L.x, L.n - L.x)} ${L.x < L.n - L.x ? "successes" : "failures"}, so the standard interval would be unreliable; the ${cimName} interval is designed for this case.`); else html += cond(r.condCI, `Success-failure check: ${L.x} successes and ${L.n - L.x} failures, both at least 10.`, `Success-failure check fails (${L.x} and ${L.n - L.x}): this course does not build a z interval here. Report the proportion descriptively.`);
       const cd = card(zFirst ? "One Proportion z Test" : "Binomial Test (2 Outcomes)", from, html); zPlot(cd, r.z, v.alt);
+      if (Lz.x < 10 || Lz.n - Lz.x < 10) simProp1(cd, Lz.x, Lz.n, v.p0, v.alt, +v.conf, lastCI ? [lastCI.lower, lastCI.upper] : null, v.z || zFirst ? rz.p : rz.exact, +v.alpha);
     });
   }
   function gofUI() {
@@ -1566,6 +1578,7 @@
       }
       const cd = card("Contingency Tables (Independent Samples)", from, html);
       if (v.chi !== false && t.df > 0) chiPlot(cd, t.chi, t.df);
+      if (v.chi !== false && t.df > 0 && t.minE < 5 && v.mode === "data") simChi(cd, col(v.r), col(v.c), t, +v.alpha, v.c);
       plotDiv(cd, t.cols.map((c, j) => ({ x: t.rows.map(String), y: t.O.map((row, i) => (t.rt[i] ? (100 * row[j]) / t.rt[i] : 0)), type: "bar", name: String(c) })), { barmode: "group", title: `row percentages: ${cn} within each ${rn} (independence = the same profile in every row)`, xaxis: { title: rn }, yaxis: { title: "percent of row" } }, 260);
     });
   }
@@ -1594,7 +1607,7 @@
         html += apa(`p1 hat minus p2 hat = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the difference in population proportions (${esc(names[0])} minus ${esc(names[1])}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no difference is among the plausible values." : "The interval does not include 0."}`);
         html += cond(x1 >= 10 && n1 - x1 >= 10 && x2 >= 10 && n2 - x2 >= 10, `Success-failure check: ${x1}/${n1 - x1} and ${x2}/${n2 - x2}, all at least 10.`, `A count is below 10 (${x1}/${n1 - x1} and ${x2}/${n2 - x2}): the normal interval is unreliable here; report the two proportions and say the sample is small.`);
-        ciPlot(card("Two Proportions Interval", from, html), r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in proportions (dashed line = 0, no difference)`); return;
+        { const cd = card("Two Proportions Interval", from, html); ciPlot(cd, r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in proportions (dashed line = 0, no difference)`); if (!(x1 >= 10 && n1 - x1 >= 10 && x2 >= 10 && n2 - x2 >= 10)) simProp2(cd, x1, n1, x2, n2, names, "two", +v.conf, [r.lower, r.upper], null, null); } return;
       }
       if (x1 + x2 === 0 || x1 + x2 === n1 + n2) throw new Error(`${x1 + x2 === 0 ? "Both groups have 0 successes" : "Every one in both groups is a success"}, so the pooled standard error is 0 and there is no z to work out. Report the two proportions instead.`);
       const r = SW.twoProps({ x1, n1, x2, n2, alt: v.alt, conf: +v.conf });
@@ -1604,6 +1617,7 @@
       html += cond(r.cond, `Success-failure check: ${x1}/${n1 - x1} and ${x2}/${n2 - x2}, all at least 10.`, `A count is below 10 (${x1}/${n1 - x1} and ${x2}/${n2 - x2}): this course does not run the z procedure here. Report the two proportions and say the sample is too small.`);
       html += say(`H0: p1 = p2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the proportion in ${esc(names[0])} is ${altWord(v.alt)} the proportion in ${esc(names[1])}.` : `There is not enough evidence of a difference between the two population proportions.`} We are ${Math.round(r.conf * 100)} percent confident the difference is between ${fmt(r.lower)} and ${fmt(r.upper)}.`);
       const cd = card("Two proportions (z)", from, html); zPlot(cd, r.z, v.alt);
+      if (!r.cond) simProp2(cd, x1, n1, x2, n2, names, v.alt, +v.conf, [r.lower, r.upper], r.p, +v.alpha);
     });
   }
 
@@ -2412,6 +2426,77 @@
       plotDiv(cd, traces, { title: v.vars.length > 2 ? "Clusters on the first two principal components" : `Clusters: ${v.vars[1]} against ${v.vars[0]} (standardized)`, xaxis: { title: v.vars.length > 2 ? "PC1" : v.vars[0] }, yaxis: { title: v.vars.length > 2 ? "PC2" : v.vars[1] } }, 340);
       if (v.add) { const labels = D.rows.map(() => ""); keep.forEach((i, s) => (labels[activeIdx()[i]] = "C" + (r.labels[s] + 1))); addColumn("cluster_k" + k, labels); }
     });
+  }
+
+  // ================= simulation route when a condition is not met =================
+  // When a card's condition check fails (n under 30 for a mean, a count under 10 for a proportion, an expected count
+  // under 5, a group under 30 in ANOVA or regression), the card also runs the simulation route from the same data and
+  // choices: a bootstrap percentile interval for the estimate and a permutation (or binomial simulation) p-value for
+  // the test, with a sentence comparing them to the formula answer. Seeded, so the same data give the same numbers.
+  const SIM_REPS = 2000, SIM_SEED = 1;
+  const simAgreeP = (a, b, alpha) => Number.isFinite(a) && Number.isFinite(b) && ((a <= alpha) === (b <= alpha)) && (Math.abs(a - b) <= 0.02 || (a < 0.001 && b < 0.001));
+  const simAgreeCI = (f, b) => { const w = Math.abs(f[1] - f[0]) || 1; return Math.abs(f[0] - b[0]) <= 0.15 * w && Math.abs(f[1] - b[1]) <= 0.15 * w; };
+  function simRoute(cd, o) {
+    const pc = Math.round((o.conf || 0.95) * 100), rows = [], alpha = o.alpha == null ? 0.05 : +o.alpha;
+    const hasCI = o.formulaCI && o.bootCI && o.formulaCI.every(Number.isFinite) && o.bootCI.every(Number.isFinite), hasP = Number.isFinite(o.formulaP) && Number.isFinite(o.simP);
+    if (!hasCI && !hasP) return;
+    if (hasCI) rows.push([`${pc}% interval for the ${o.label}`, `${fmt(o.formulaCI[0])} to ${fmt(o.formulaCI[1])}`, `${fmt(o.bootCI[0])} to ${fmt(o.bootCI[1])}`]);
+    if (hasP) rows.push(["p-value", SW.fmtP(o.formulaP), SW.fmtP(o.simP)]);
+    const agreeCI = hasCI ? simAgreeCI(o.formulaCI, o.bootCI) : null, agreeP = hasP ? simAgreeP(o.formulaP, o.simP, alpha) : null;
+    const parts = [];
+    if (hasP) parts.push(agreeP ? `The permutation p-value (${SW.fmtP(o.simP)}) agrees with the formula's (${SW.fmtP(o.formulaP)}): ${o.simP <= alpha ? "reject H0" : "fail to reject H0"} either way, so the conclusion does not depend on the condition.` : `The simulation p-value (${SW.fmtP(o.simP)}) and the formula's (${SW.fmtP(o.formulaP)}) ${(o.simP <= alpha) !== (o.formulaP <= alpha) ? "fall on opposite sides of alpha = " + alpha : "differ noticeably"}: report the simulation answer, which needs no distributional condition, and say why.`);
+    if (hasCI) parts.push(agreeCI ? `The bootstrap interval (${fmt(o.bootCI[0])} to ${fmt(o.bootCI[1])}) is close to the formula's, so the formula interval stands.` : `The bootstrap interval (${fmt(o.bootCI[0])} to ${fmt(o.bootCI[1])}) differs from the formula's (${fmt(o.formulaCI[0])} to ${fmt(o.formulaCI[1])}): report the bootstrap interval, which needs no distributional condition, and say why.`);
+    let html = `<div class="simroute"><div class="simhead">Simulation route: ${esc(o.why)}</div>`;
+    html += table(["", "Formula (needs the condition)", "Simulation (does not)"], rows, `Formula against simulation, ${o.reps || SIM_REPS} resamples, seed ${SIM_SEED}`);
+    html += formula(o.how || `Bootstrap: resample the data with replacement ${SIM_REPS} times, recompute the ${o.label}, and take the middle ${pc} percent of those values as the interval. Permutation: if H0 is true the labels (or the signs) are interchangeable, so shuffle them ${SIM_REPS} times, recompute the statistic, and count how often the shuffled result is at least as extreme as the observed one.`);
+    html += say(parts.join(" ") + " The same two methods are under Advanced (Bootstrap confidence interval, Permutation test) with their own settings, and under Learn with the picture of how they work.") + "</div>";
+    cd.insertAdjacentHTML("beforeend", html);
+    if (o.dist && o.dist.length) plotDiv(cd, [{ x: o.dist, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 0.5 } }, name: o.distName || "simulated" }], { title: o.distTitle || `${o.dist.length} ${o.distName || "simulated values"}; observed value in red`, xaxis: { title: o.xlab || o.label }, yaxis: { title: "Count" }, shapes: Number.isFinite(o.observed) ? [{ type: "line", x0: o.observed, x1: o.observed, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", width: 2 } }] : [] }, 240);
+  }
+  function simMean1(cd, x, mu0, alt, conf, formulaCI, formulaP, alpha) {
+    x = SW.num(x); if (x.length < 3 || x.length > 20000) return; const b = SW.bootstrap({ x, stat: SW.mean, reps: SIM_REPS, conf, seed: SIM_SEED });
+    const pm = Number.isFinite(mu0) ? SW.permutation({ x, y: x.map(() => mu0), stat: SW.mean, reps: SIM_REPS, seed: SIM_SEED, kind: "paired", alt: alt || "two" }) : null;
+    simRoute(cd, { why: `n = ${x.length} is under 30, and the t procedure needs a roughly normal population`, label: "mean", conf, alpha, formulaCI, bootCI: [b.lower, b.upper], formulaP, simP: pm ? pm.p : null, dist: pm ? pm.dist : b.dist, observed: pm ? pm.observed : b.observed, distName: pm ? "sign-flipped means" : "bootstrap means", xlab: pm ? "mean minus test value (signs flipped under H0)" : "bootstrap mean", how: pm ? `Bootstrap: resample the ${x.length} values with replacement ${SIM_REPS} times and take the middle ${Math.round(conf * 100)} percent of the means. Permutation: under H0 (mu = ${mu0}) each deviation from ${mu0} is as likely to be positive as negative, so flip the signs at random ${SIM_REPS} times and count how often the mean lands at least as far from ${mu0} as the observed one.` : null });
+  }
+  function simMean2(cd, xa, xb, names, alt, conf, formulaCI, formulaP, alpha) {
+    xa = SW.num(xa); xb = SW.num(xb); if (xa.length < 2 || xb.length < 2 || xa.length + xb.length > 20000) return;
+    const b = SW.bootstrap({ x: xa, y: xb, stat: (p, q) => SW.mean(p) - SW.mean(q), reps: SIM_REPS, conf, seed: SIM_SEED });
+    const pm = Number.isFinite(formulaP) ? SW.permutation({ x: xa.concat(xb), y: xa.map(() => "A").concat(xb.map(() => "B")), stat: (p, q) => SW.mean(p) - SW.mean(q), reps: SIM_REPS, seed: SIM_SEED, kind: "twoGroup", alt: alt || "two" }) : null;
+    simRoute(cd, { why: `a group has n under 30 (${xa.length} and ${xb.length}), and the t procedure needs roughly normal populations`, label: "difference in means", conf, alpha, formulaCI, bootCI: [b.lower, b.upper], formulaP, simP: pm ? pm.p : null, dist: pm ? pm.dist : b.dist, observed: pm ? pm.observed : b.observed, distName: pm ? "shuffled differences" : "bootstrap differences", xlab: `${names[0]} minus ${names[1]}` });
+  }
+  function simPaired(cd, d, alt, conf, formulaCI, formulaP, alpha) {
+    d = SW.num(d); if (d.length < 3 || d.length > 20000) return; const b = SW.bootstrap({ x: d, stat: SW.mean, reps: SIM_REPS, conf, seed: SIM_SEED });
+    const pm = Number.isFinite(formulaP) ? SW.permutation({ x: d, y: d.map(() => 0), stat: SW.mean, reps: SIM_REPS, seed: SIM_SEED, kind: "paired", alt: alt || "two" }) : null;
+    simRoute(cd, { why: `n = ${d.length} pairs is under 30, and the paired t procedure needs roughly normal differences`, label: "mean difference", conf, alpha, formulaCI, bootCI: [b.lower, b.upper], formulaP, simP: pm ? pm.p : null, dist: pm ? pm.dist : b.dist, observed: pm ? pm.observed : b.observed, distName: pm ? "sign-flipped mean differences" : "bootstrap mean differences", xlab: "mean difference" });
+  }
+  function simProp1(cd, x, n, p0, alt, conf, formulaCI, formulaP, alpha) {
+    if (!(n >= 2) || n > 20000) return; const data = Array.from({ length: n }, (_, i) => (i < x ? 1 : 0)), b = SW.bootstrap({ x: data, stat: SW.mean, reps: SIM_REPS, conf, seed: SIM_SEED });
+    let simP = null, dist = null, ph = x / n; if (Number.isFinite(p0) && p0 > 0 && p0 < 1) { const r = SW.rng(SIM_SEED); dist = new Array(SIM_REPS); for (let k = 0; k < SIM_REPS; k++) { let c = 0; for (let i = 0; i < n; i++) if (r() < p0) c++; dist[k] = c / n; } const d = Math.abs(ph - p0) - 1e-12; const cnt = alt === "greater" ? dist.filter((q) => q >= ph - 1e-12).length : alt === "less" ? dist.filter((q) => q <= ph + 1e-12).length : dist.filter((q) => Math.abs(q - p0) >= d).length; simP = (cnt + 1) / (SIM_REPS + 1); }
+    simRoute(cd, { why: `a count is under 10 (${x} successes, ${n - x} failures), and the z procedure needs both at least 10`, label: "proportion", conf, alpha, formulaCI, bootCI: [b.lower, b.upper], formulaP, simP, dist: dist || b.dist, observed: ph, distName: dist ? `sample proportions simulated at p0 = ${p0}` : "bootstrap proportions", xlab: "proportion", how: dist ? `Bootstrap: resample the ${n} outcomes with replacement ${SIM_REPS} times and take the middle ${Math.round(conf * 100)} percent of the proportions. Simulation under H0: draw ${n} outcomes with probability ${p0} each, ${SIM_REPS} times, and count how often the simulated proportion lands at least as far from ${p0} as the observed ${fmt(ph)}.` : null });
+  }
+  function simProp2(cd, x1, n1, x2, n2, names, alt, conf, formulaCI, formulaP, alpha) {
+    if (!(n1 >= 1 && n2 >= 1) || n1 + n2 > 20000) return; const a = Array.from({ length: n1 }, (_, i) => (i < x1 ? 1 : 0)), c = Array.from({ length: n2 }, (_, i) => (i < x2 ? 1 : 0));
+    const b = SW.bootstrap({ x: a, y: c, stat: (p, q) => SW.mean(p) - SW.mean(q), reps: SIM_REPS, conf, seed: SIM_SEED });
+    const pm = Number.isFinite(formulaP) ? SW.permutation({ x: a.concat(c), y: a.map(() => "A").concat(c.map(() => "B")), stat: (p, q) => SW.mean(p) - SW.mean(q), reps: SIM_REPS, seed: SIM_SEED, kind: "twoGroup", alt: alt || "two" }) : null;
+    simRoute(cd, { why: `a count is under 10 (${x1}/${n1 - x1} and ${x2}/${n2 - x2}), and the z procedure needs all four at least 10`, label: "difference in proportions", conf, alpha, formulaCI, bootCI: [b.lower, b.upper], formulaP, simP: pm ? pm.p : null, dist: pm ? pm.dist : b.dist, observed: pm ? pm.observed : b.observed, distName: pm ? "shuffled differences" : "bootstrap differences", xlab: `${names[0]} minus ${names[1]}` });
+  }
+  function simChi(cd, rv, cv, t, alpha, cname) {
+    const idx = rv.map((_, i) => i).filter((i) => rv[i] !== "" && cv[i] !== ""); if (idx.length < 2 || idx.length > 5000) return; const R = idx.map((i) => rv[i]), C = idx.map((i) => cv[i]), rng = SW.rng(SIM_SEED), dist = new Array(SIM_REPS), sh = C.slice();
+    for (let k = 0; k < SIM_REPS; k++) { for (let i = sh.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const tmp = sh[i]; sh[i] = sh[j]; sh[j] = tmp; } dist[k] = SW.twoWay(R, sh, t.rows, t.cols).chi; }
+    const cnt = dist.filter((q) => q >= t.chi - 1e-12).length, simP = (cnt + 1) / (SIM_REPS + 1);
+    simRoute(cd, { why: `the smallest expected count is ${fmt(t.minE, 2)}, under 5, and the chi-square approximation needs 5`, label: "chi-square", alpha, formulaP: t.p, simP, dist, observed: t.chi, distName: "chi-square values with the second column shuffled", xlab: "chi-square", how: `Permutation: if the two variables are independent, pairing each row's ${esc(String(cname || "second value"))} with any other row's is just as likely, so shuffle the second column ${SIM_REPS} times, recompute chi-square each time, and count how often it is at least the observed ${fmt(t.chi)}. No expected-count condition.` });
+  }
+  function simAnova(cd, groups, r, alpha) {
+    const names = Object.keys(groups), vals = [], labs = []; names.forEach((g) => SW.num(groups[g]).forEach((x) => { vals.push(x); labs.push(g); })); if (vals.length > 5000) return;
+    const rng = SW.rng(SIM_SEED), dist = new Array(SIM_REPS), sh = labs.slice();
+    for (let k = 0; k < SIM_REPS; k++) { for (let i = sh.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const tmp = sh[i]; sh[i] = sh[j]; sh[j] = tmp; } const G = {}; sh.forEach((g, i) => (G[g] = G[g] || []).push(vals[i])); dist[k] = SW.anova(G).F; }
+    const cnt = dist.filter((q) => q >= r.F - 1e-12).length, simP = (cnt + 1) / (SIM_REPS + 1), small = names.filter((g) => SW.num(groups[g]).length < 30);
+    simRoute(cd, { why: `${small.length === names.length ? "every group" : small.join(", ")} has n under 30, and the F test needs roughly normal groups`, label: "F", alpha, formulaP: r.p, simP, dist, observed: r.F, distName: "F values with the group labels shuffled", xlab: "F", how: `Permutation: if the groups do not differ, any value could have carried any label, so shuffle the labels ${SIM_REPS} times, recompute F each time, and count how often it is at least the observed ${fmt(r.F)}. No normality condition (it still assumes similar spreads, which the Levene line checks).` });
+  }
+  function simSlope(cd, r, conf, alpha) {
+    if (!(r.n >= 4) || r.n > 20000) return; const b = SW.bootstrap({ x: r.x, y: r.y, stat: (p, q) => SW.regress(p, q).b1, reps: SIM_REPS, conf, seed: SIM_SEED, paired: true });
+    const pm = SW.permutation({ x: r.x, y: r.y, stat: (p, q) => SW.regress(p, q).b1, reps: SIM_REPS, seed: SIM_SEED, kind: "corr", alt: "two" });
+    simRoute(cd, { why: `n = ${r.n} is under 30, and the slope test needs roughly normal residuals`, label: "slope", conf, alpha, formulaCI: [r.b1 - r.tstar * r.seb1, r.b1 + r.tstar * r.seb1], bootCI: [b.lower, b.upper], formulaP: r.p, simP: pm.p, dist: pm.dist, observed: pm.observed, distName: "slopes with y shuffled", xlab: "slope", how: `Bootstrap: resample the ${r.n} (x, y) pairs with replacement ${SIM_REPS} times and take the middle ${Math.round(conf * 100)} percent of the slopes. Permutation: if x and y are unrelated, any y could sit with any x, so shuffle y ${SIM_REPS} times, refit the line, and count how often the slope is at least as far from 0 as the observed ${fmt(r.b1)}.` });
   }
 
   // ================= pictures of test statistics =================
@@ -4006,7 +4091,7 @@
   // tips from a card's own warnings: the next step, offered once per card
   const ASKTIPS = [
     [/below 5|expected count is .* under 5|not trustworthy\. Combine/i, (c) => /2 by 2|Fisher/.test(c.textContent) ? null : "An expected count is under 5. For a 2 by 2 table rerun with Fisher's exact test ticked; for a larger table combine small categories.", ["Frequencies", "Contingency Tables: Independent Samples"]],
-    [/fewer than 30|small sample|n is under 30|skew/i, () => "A small or skewed sample: the rank-based test is the safe companion to this result.", ["Nonparametric", "Mann-Whitney U (two groups)"]],
+    [/fewer than 30|small sample|n is under 30|n under 30|skew/i, (c) => (c.querySelector(".simroute") ? "A small sample: the card already ran the simulation route (bootstrap interval, permutation p-value) under the pink box; read whether it agrees with the formula. The rank-based test is the other safe companion." : "A small or skewed sample: the rank-based test is the safe companion to this result."), ["Nonparametric", "Mann-Whitney U (two groups)"]],
     [/under 10, so the normal/i, () => "A count under 10: the normal approximation is shaky. The binomial test on the same dialog is exact.", ["Frequencies", "2 Outcomes: Binomial test"]],
     [/outside the data range|extrapolat/i, () => "A prediction outside the observed range of x is extrapolation; report it with that caveat or not at all.", null],
     [/reverse-keyed/i, () => "Items with a negative item-rest correlation are probably reverse-keyed: list them in the dialog and rerun.", ["Advanced", "Reliability (Cronbach's alpha)"]],

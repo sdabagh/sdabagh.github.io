@@ -36,7 +36,8 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   statistic and the shaded p-value or the interval drawn on it, plus the data graph that fits (box plots by group,
   histogram of differences, bar chart of observed against expected). Some cards already have one (tPlot, zPlot,
   box plots); the rest need theirs. Next batch.
-- **Simulation when the conditions are not met.** Later: when a card's condition check fails (n small and skewed,
+- **Simulation when the conditions are not met: done on October 29** (`simroute.js`; the eight intro-course cards). The
+  original note: when a card's condition check fails (n small and skewed,
   counts under 10, an expected count under 5), the pink box offers the simulation route on the spot: a bootstrap
   interval for the estimate and a permutation test for the p-value, built from the same data and choices, with a
   sentence comparing the two answers. Bootstrap and Permutation already exist under Learn and Advanced; this wires
