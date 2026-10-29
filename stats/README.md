@@ -46,6 +46,16 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: confidence interval without a test
+
+- A **Perform** choice at the top of every test dialog that gives an interval (one sample t and z, independent and paired
+  t, two sample z, one and two proportions, one and two variances): **Hypothesis test** (the interval is reported with
+  it, as before) or **Confidence interval only**. The second hides the test value, the hypothesis and alpha, needs no
+  value to test against, and gives an interval card: n, estimate, SE, t* or z*, margin of error, the interval at the
+  level typed, formula, worked numbers, APA line, a reading sentence. The R script then carries no `mu =` or `p =`.
+- Sample size is **n** everywhere (labels, result headers, messages); population size N stays N. Browser test
+  `perform.js`. Cache `sww-v84`, scripts `?v=87`.
+
 ### 2026-10-28: any confidence level
 
 - The confidence level is typed, not picked from 90, 95 and 99: a **Confidence level (percent)** box in every dialog that
