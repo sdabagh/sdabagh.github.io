@@ -46,6 +46,16 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: the simulation route when a condition fails
+
+- When a condition check comes out pink, the card runs a bootstrap percentile interval and a permutation p-value
+  (binomial simulation for one proportion) from the same data and choices, puts them next to the formula answer, says
+  whether they agree, and draws the simulated values with the observed one: one-sample, independent and paired t
+  (test and interval), one and two proportions, contingency tables (permutation chi-square), one-way ANOVA
+  (permutation F, with a new group-size condition) and linear regression (bootstrap slope, with a new n condition).
+  Seeded (2,000 resamples), raw data only. The Ask tip on a small-sample card points to it. Browser test
+  `simroute.js`. Cache `sww-v89`, scripts `?v=91`.
+
 ### 2026-10-29: a graph on every inferential card
 
 - Chi-square and F curves (`chiPlot`, `fPlot`) join the t and z curves: contingency tables (plus row-percentage
