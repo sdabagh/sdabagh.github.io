@@ -2,6 +2,9 @@
 
 Written at the end of the session of October 18 to 19, 2026. Everything built in that session is merged and live.
 
+## Done on October 29: nursing-flavored examples and Ask routes (every field got one example per main dialog;
+## Ask understands rate, readmission, intervention and risk phrasing). Left for later: the same inside the card wording.
+
 ## Idea to take up
 - **Nursing-flavored examples and Ask routes.** The field setting already reorders the sample datasets and the six
   start-screen analyses (health and nursing: contingency table, logistic regression, survival analysis, paired t-test,

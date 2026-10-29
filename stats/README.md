@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: examples from the field, Ask in nursing words
+
+- Each field (health and nursing, business, social science, biology, engineering, public safety) carries one example
+  sentence per main test dialog, shown under the first box when that field is chosen; the general field shows none.
+- Ask routes for clinical phrasing: a rate that dropped or differed (two proportions), time until readmission
+  (survival), before and after the intervention (paired t), the risk of the outcome in the exposed group (relative
+  risk and odds ratio on the contingency-table card), intervention group versus usual care (independent t); a
+  glossary entry on relative risk versus the odds ratio. Browser test `field.js`. Cache `sww-v86`, scripts `?v=88`.
+
 ### 2026-10-29: helping sheet
 
 - The site link **Download the app** is now **App: coming soon**: `download.html` no longer offers the browser
