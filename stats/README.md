@@ -46,6 +46,23 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: a graph on every inferential card
+
+- Chi-square and F curves (`chiPlot`, `fPlot`) join the t and z curves: contingency tables (plus row-percentage
+  bars), goodness of fit, one-way ANOVA (Fisher's or Welch's df), two-way and repeated-measures ANOVA (one curve per
+  F row), Kruskal-Wallis (plus box plots), Friedman, McNemar (plus the discordant pairs), the variance tests, the
+  Cochran-Armitage trend test (z), Mann-Whitney and Wilcoxon (z), and the slope's t curve on the regression card.
+  Every interval-only card draws its interval (`ciPlot`): the bar, the estimate as a dot, the reference value as a
+  dashed line. Browser test `infplots.js`; `verify.js` expects three regression plots. Cache `sww-v88`, scripts `?v=90`.
+
+### 2026-10-29: Ask answers in Spanish
+
+- `lang-es-ask.js`: the Spanish title and answer of every Ask route and glossary entry (127), used when the
+  interface is Spanish; the connectives (Also possible, To run it, In plain words, the Methods Guide links), the
+  Open buttons and the needs-data line are Spanish too, and the "Leído como" note no longer says the answers are in
+  English. The query map learned clinical Spanish (tasa de infección, reingreso, intervención, riesgo relativo, razón
+  de momios, grupo de control, atención habitual). Browser test `askes.js`. Cache `sww-v87`, scripts `?v=89`.
+
 ### 2026-10-29: examples from the field, Ask in nursing words
 
 - Each field (health and nursing, business, social science, biology, engineering, public safety) carries one example

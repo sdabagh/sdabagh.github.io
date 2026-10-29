@@ -109,7 +109,7 @@ async function run(page) { await page.click("#dlg button.go"); await page.waitFo
   const regCard = await page.evaluate(() => { const c = document.querySelector("#out .card"); const t = c.querySelector("table.res"); const row = t.querySelectorAll("tbody td"); return { hdr: Array.from(t.querySelectorAll("th")).map((x) => x.textContent), r: row[1].textContent, r2: row[2].textContent, slope: c.querySelectorAll("table.res")[1].querySelectorAll("tbody tr")[1].children[1].textContent, worked: !!c.querySelector("details.worked"), apa: (c.querySelector(".apa") || {}).textContent, modebars: c.querySelectorAll(".modebar").length, plots: c.querySelectorAll(".plot").length }; });
   ok(regCard.hdr[1] === "r" && Math.sign(Number(regCard.r)) === Math.sign(Number(regCard.slope)) && Number(regCard.slope) < 0, "regression reports signed r matching the slope", regCard);
   ok(regCard.worked && /Report it as/.test(regCard.apa || ""), "regression has worked numbers and an APA line", regCard.apa);
-  ok(regCard.modebars === 0 && regCard.plots === 2, "regression plots: two plots, no modebar");
+  ok(regCard.modebars === 0 && regCard.plots === 3, "regression plots: three plots (scatter, residuals, the slope t curve), no modebar", regCard);
 
   // ---- t-test card: worked numbers equal SciPy-style recomputation, APA line
   await menu(page, "T-Tests", "Independent Samples T-Test");

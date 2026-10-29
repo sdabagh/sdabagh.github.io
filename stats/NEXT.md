@@ -29,8 +29,21 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   desktop installers are unlinked (release v1.3.0 stays on GitHub). Safaa wants the app fully working first; pricing (free, or free
   for students and a fee for researchers) is a later decision.
 
+## Asked for on October 29 (Safaa)
+- **Graphs for all inferential work: done on October 29** (chi-square and F curves, data graphs, interval plots on every
+  interval-only card; `infplots.js`). The original note: Every inferential card (t tests, z tests, proportions, chi-square, ANOVA,
+  regression, nonparametric, variance tests) should carry its related graph: the sampling distribution with the
+  statistic and the shaded p-value or the interval drawn on it, plus the data graph that fits (box plots by group,
+  histogram of differences, bar chart of observed against expected). Some cards already have one (tPlot, zPlot,
+  box plots); the rest need theirs. Next batch.
+- **Simulation when the conditions are not met.** Later: when a card's condition check fails (n small and skewed,
+  counts under 10, an expected count under 5), the pink box offers the simulation route on the spot: a bootstrap
+  interval for the estimate and a permutation test for the p-value, built from the same data and choices, with a
+  sentence comparing the two answers. Bootstrap and Permutation already exist under Learn and Advanced; this wires
+  them into the test cards as the fallback.
+
 ## Already lined up
-- Ask answering in Spanish (the interface is Spanish; the answers are still English).
+- Ask answering in Spanish: done on October 29 (`lang-es-ask.js`, every route and glossary entry).
 - The pricing decision for the store listings: see `LAUNCH.md`, section "Pricing".
 - Store submissions themselves (Play via PWABuilder, iOS via PWABuilder or Capacitor): `LAUNCH.md`.
 

@@ -43,7 +43,7 @@ const cardInfo = (page) => page.evaluate(() => { const c = document.querySelecto
   c = await cardInfo(page);
   const fr = c.rows[0][0];
   ok(c.title === "Friedman" && Number(fr[1]) > 0 && fr[2] === String(weeks.length - 1) && Number(fr[4]) >= 0 && Number(fr[4]) <= 1, "Friedman: chi-square, df, p, W", fr);
-  ok(c.rows[1].length === weeks.length && c.rows[2].length === (weeks.length * (weeks.length - 1)) / 2 && c.plots === 1 && /Kendall's W/.test(c.apa), "Friedman: per-condition rows, pairwise rows, box plot, APA", c.apa);
+  ok(c.rows[1].length === weeks.length && c.rows[2].length === (weeks.length * (weeks.length - 1)) / 2 && c.plots === 2 && /Kendall's W/.test(c.apa), "Friedman: per-condition rows, pairwise rows, box plot and chi-square curve, APA", c.apa);
   // Two-Way ANOVA still runs from its new home, with the new title
   await sample(page, "STATC1000_Class_Data.csv", 40);
   await menu(page, "ANOVA", "Two-Way ANOVA");
