@@ -2,6 +2,9 @@
 
 Written at the end of the session of October 18 to 19, 2026. Everything built in that session is merged and live.
 
+## Done on October 29: nursing-flavored examples and Ask routes (every field got one example per main dialog;
+## Ask understands rate, readmission, intervention and risk phrasing). Left for later: the same inside the card wording.
+
 ## Idea to take up
 - **Nursing-flavored examples and Ask routes.** The field setting already reorders the sample datasets and the six
   start-screen analyses (health and nursing: contingency table, logistic regression, survival analysis, paired t-test,
@@ -11,6 +14,8 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   (survival), "before and after the intervention" (paired t), "risk of the outcome" (relative risk on the
   contingency-table card). The same pattern then applies to the other fields.
 
+## Done on October 29: the walkthrough sheet (`helping.html`, linked as Helping others). Still to do together: the hands-on hour itself.
+
 ## First thing Tuesday: a walkthrough for Safaa
 - Safaa needs to know the app well enough to help others with it. Plan: a hands-on tour, one hour, in this order:
   the start screen and the student/researcher switch and the field; the Data menu with one messy file; Which test?
@@ -18,6 +23,11 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   worked numbers, APA line, conclusion); check my work; copy for Word and the R script; the Learn pages; the
   course profile and the share link. Then a two-page "helping someone with Stats Without Walls" sheet: the ten
   questions students ask most and where in the app each answer is.
+
+## Decided on October 29
+- The installable app is **coming soon**, not offered: `download.html` says so, the site link reads "App: coming soon", and the
+  desktop installers are unlinked (release v1.3.0 stays on GitHub). Safaa wants the app fully working first; pricing (free, or free
+  for students and a fee for researchers) is a later decision.
 
 ## Already lined up
 - Ask answering in Spanish (the interface is Spanish; the answers are still English).
