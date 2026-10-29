@@ -30,7 +30,8 @@ Written at the end of the session of October 18 to 19, 2026. Everything built in
   for students and a fee for researchers) is a later decision.
 
 ## Asked for on October 29 (Safaa)
-- **Graphs for all inferential work.** Every inferential card (t tests, z tests, proportions, chi-square, ANOVA,
+- **Graphs for all inferential work: done on October 29** (chi-square and F curves, data graphs, interval plots on every
+  interval-only card; `infplots.js`). The original note: Every inferential card (t tests, z tests, proportions, chi-square, ANOVA,
   regression, nonparametric, variance tests) should carry its related graph: the sampling distribution with the
   statistic and the shaded p-value or the interval drawn on it, plus the data graph that fits (box plots by group,
   histogram of differences, bar chart of observed against expected). Some cards already have one (tPlot, zPlot,

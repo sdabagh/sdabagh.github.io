@@ -1068,7 +1068,7 @@
         html += apa(`M = ${apaN(xbar, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean of ${esc(label)} is between ${fmt(r.lower)} and ${fmt(r.upper)}. The confidence is in the method: ${pc} percent of intervals built this way capture the true mean.`);
         html += cond(n >= 30, "n is at least 30: the z interval is fine whatever the population shape.", "n is under 30: this needs a roughly normal population; state that the assumptions are met.");
-        card("One Sample Z Interval", from, html); return;
+        ciPlot(card("One Sample Z Interval", from, html), xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); return;
       }
       const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: v.mu0, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
       let html = table(["", "n", "Mean", "sigma", "SE = sigma / sqrt(n)", "z", "p", `${pc}% CI lower`, "upper"], [[label, n, xbar, v.sigma, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "One Sample Z-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. z* = ${fmt(r.zstar)}.</div>`;
@@ -1100,7 +1100,7 @@
         html += worked([`SE = sqrt(${v.s1}^2 / ${n1} + ${v.s2}^2 / ${n2}) = ${fmt(r.se)}`, `margin of error = ${fmt(zs)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.diff)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
         html += apa(`M difference = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the difference in population means (${esc(names[0])} minus ${esc(names[1])}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no difference is among the plausible values." : "The interval does not include 0."}`);
-        card("Two Sample Z Interval", from, html); return;
+        ciPlot(card("Two Sample Z Interval", from, html), r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in means (dashed line = 0, no difference)`); return;
       }
       const r = SW.twoZ({ m1, s1: v.s1, n1, m2, s2: v.s2, n2, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
       let html = table(["Group", "n", "Mean", "sigma"], [[names[0], n1, m1, v.s1], [names[1], n2, m2, v.s2]], "Groups") + table(["Difference (1 minus 2)", "SE", "z", "p", `${pc}% CI lower`, "upper"], [[r.diff, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "Two Sample Z-Test");
@@ -1134,7 +1134,7 @@
           html += formula("interval for sigma squared: (n minus 1) s^2 / chi-square upper critical value to (n minus 1) s^2 / chi-square lower critical value, on n minus 1 df; take square roots for sigma.");
           html += say(`We are ${pc} percent confident that the population SD of ${esc(names[0])} is between ${fmt(r.sdLower)} and ${fmt(r.sdUpper)}.`);
           html += warn("This interval needs a normal population, whatever the sample size. Unlike the t interval, it does not become safe for large n; check a Q-Q plot.");
-          cd = card("One Sample Variance Interval", from, html);
+          cd = card("One Sample Variance Interval", from, html); ciPlot(cd, s1, r.sdLower, r.sdUpper, "sigma", null, `${pc}% confidence interval for the population SD (dot = s)`);
         } else {
         if (!(v.sigma0 > 0)) throw new Error("Type the claimed population SD.");
         const r = SW.oneVar({ s: s1, n: n1, sigma0: v.sigma0, alt: v.alt, conf: +v.conf });
@@ -1142,7 +1142,7 @@
         html += formula("chi-square = (n minus 1) s^2 / sigma0^2 on n minus 1 df. Interval for sigma squared: (n minus 1) s^2 / chi-square upper and lower critical values; take square roots for sigma.");
         html += say(`H0: sigma = ${v.sigma0}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the population SD is ${dirWord} ${v.sigma0}.` : `There is not enough evidence that the population SD is ${dirWord} ${v.sigma0}.`}`);
         html += warn("This test needs a normal population, whatever the sample size. Unlike the t test, it does not become safe for large n; check a Q-Q plot.");
-        cd = card("One Sample Variance Test", from, html);
+        cd = card("One Sample Variance Test", from, html); chiPlot(cd, r.chi, r.df, null, v.alt);
         }
       } else {
         if (!(s2 > 0 && n2 >= 2)) throw new Error("Type the SD and n of sample 2 (n at least 2).");
@@ -1152,13 +1152,13 @@
           html += formula("interval for sigma1^2 / sigma2^2: (s1^2 / s2^2) / F upper to (s1^2 / s2^2) / F lower, with F on (n1 minus 1, n2 minus 1) df.");
           html += say(`We are ${pc} percent confident that the ratio of population variances (${esc(names[0])} over ${esc(names[1])}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 1 && r.upper >= 1 ? "The interval includes 1, so equal spread is among the plausible values." : "The interval does not include 1."}`);
           html += warn("The F interval is very sensitive to non-normal data.");
-          cd = card("Two Sample Variance Interval", from, html);
+          cd = card("Two Sample Variance Interval", from, html); ciPlot(cd, r.F, r.lower, r.upper, "variance ratio", 1, `${pc}% confidence interval for the ratio of variances (dashed line = 1, equal spread)`);
         } else {
         const r = SW.twoVar({ s1, n1, s2, n2, alt: v.alt, conf: +v.conf });
         html = table(["Sample", "n", "SD", "Variance"], [[names[0], n1, s1, s1 * s1], [names[1], n2, s2, s2 * s2]], "Samples") + table(["F = s1^2 / s2^2", "df1", "df2", "p", `${pc}% CI for sigma1^2 / sigma2^2: lower`, "upper"], [[r.F, r.d1, r.d2, SW.fmtP(r.p), r.lower, r.upper]], "Two sample variance test (F)");
         html += say(`H0: sigma1 = sigma2. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the SD of ${esc(names[0])} is ${dirWord} the SD of ${esc(names[1])}.` : "There is not enough evidence of a difference in spread."}`);
         html += warn("The F test is very sensitive to non-normal data. To check equal spread before ANOVA, Levene's test (in One-Way ANOVA) is safer.");
-        cd = card("Two Sample Variance Test", from, html);
+        cd = card("Two Sample Variance Test", from, html); fPlot(cd, r.F, r.d1, r.d2, null, v.alt);
         }
       }
     });
@@ -1184,7 +1184,7 @@
         html += apa(`M = ${apaN(xbar, 2)}, SD = ${apaN(s, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean of ${esc(label)} is between ${fmt(r.lower)} and ${fmt(r.upper)}. The confidence is in the method: ${pc} percent of intervals built this way capture the true mean.`);
         html += cond(n >= 30, "n is at least 30: the t interval is fine whatever the population shape.", "n is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
-        card("One Sample T Interval", from, html); return;
+        ciPlot(card("One Sample T Interval", from, html), xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); return;
       }
       if (!Number.isFinite(v.mu0)) throw new Error("Type a test value.");
       const r = SW.oneMean({ xbar, s, n, mu0: v.mu0, alt: v.alt, conf: +v.conf });
@@ -1226,7 +1226,7 @@
         html += apa(`M difference = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean of ${esc(names[0])} minus the population mean of ${esc(names[1])} is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no difference, and a difference in either direction, are all plausible at this confidence level." : `The interval does not include 0: every plausible value says the mean of ${esc(names[0])} is ${r.lower > 0 ? "higher" : "lower"}.`}`);
         html += smallGroups([[a.n, names[0]], [b.n, names[1]]]) + cond(a.n >= 30 && b.n >= 30, "Both groups have n at least 30.", "A group has n under 30: needs roughly normal populations (check box plots); state that the assumptions are met.");
-        const cd = card("Independent Samples T Interval", from, html);
+        const cd = card("Independent Samples T Interval", from, html); ciPlot(cd, r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in means (dashed line = 0, no difference)`);
         if (v.plot && v.mode === "data") plotDiv(cd, [{ y: SW.num(ga), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(gb), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(names[1]), marker: { color: "#D97D54" } }], { yaxis: Object.assign({ title: v.x }, coverAxis(SW.num(ga).concat(SW.num(gb)))), showlegend: false });
         return;
       }
@@ -1267,7 +1267,7 @@
         html += worked([`d bar = ${fmt(r.dbar)}, s_d = ${fmt(r.sd)}, n = ${r.n}, SE = ${fmt(r.sd)} / sqrt(${r.n}) = ${fmt(r.se)}`, `t* (${pc} percent, df = ${r.df}) = ${fmt(r.tstar)}; margin of error = ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.dbar)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
         html += apa(`M difference = ${apaN(r.dbar, 2)}, SD = ${apaN(r.sd, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population mean difference (${esc(v.a)} minus ${esc(v.b)}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no change is among the plausible values." : "The interval does not include 0: every plausible value is a change in the same direction."}`) + say("Paired because each row is one unit measured twice. Pairing removes unit-to-unit variability, which is why the SE is small.");
-        const cd = card("Paired Samples T Interval", src(), html);
+        const cd = card("Paired Samples T Interval", src(), html); ciPlot(cd, r.dbar, r.lower, r.upper, "mean difference", 0, `${pc}% confidence interval for the mean difference (dashed line = 0, no change)`);
         if (v.plot) plotDiv(cd, [{ x: r.differences, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: `difference: ${v.a} minus ${v.b}` }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash", width: 2 } }] });
         return;
       }
@@ -1313,6 +1313,7 @@
       if (v.homo) html += cond(r.sdRatio <= 2, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, under 2: equal-spread condition holds.`, `Largest SD over smallest SD = ${fmt(r.sdRatio, 2)}, above 2: equal-spread condition fails; use Welch's and read with caution.`);
       if (v.tukey) html += table([v.g, "", v.g, "Mean Difference", "SE", "df", "t", "p-tukey"], r.tukey.map((t) => [t.a, "-", t.b, t.diff, t.se, r.df2, t.diff / t.se, Number.isFinite(t.p) ? SW.fmtP(t.p) : "n/a"]), `Post Hoc Comparisons - ${v.g}`) + `<div class="note">Note. p-tukey is adjusted for all ${r.tukey.length} pairwise comparisons.</div>`;
       const cd = card("One-Way ANOVA", src(`${v.x} by ${v.g}`), html);
+      if (v.fisher || !v.welch) fPlot(cd, r.F, r.df1, r.df2); else { const w = welchAnova(r); fPlot(cd, w.F, w.df1, w.df2, `F distribution with Welch's df = ${fmt(w.df1, 2)} and ${fmt(w.df2, 2)}; shaded area is the p-value`); }
       if (v.plot) plotDiv(cd, r.groups.map((q) => ({ y: q.x, type: "box", hoveron: "points", hoverinfo: "y+name", quartilemethod: "exclusive", name: String(q.name), boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: Object.assign({ title: v.x }, coverAxis(r.groups.flatMap((q) => q.x))), showlegend: false });
     });
   }
@@ -1359,7 +1360,7 @@
       if (preds.length) { const pc = Math.round(r.conf * 100); html += table([v.x, `Predicted ${v.y}`, `${pc}% CI for the mean: lower`, "upper", `${pc}% PI for one new value: lower`, "upper"], preds.map((x0) => { const yh = r.predict(x0); return [x0, yh, yh - r.tstar * seMean(x0), yh + r.tstar * seMean(x0), yh - r.tstar * sePred(x0), yh + r.tstar * sePred(x0)]; }), "Prediction");
         html += formula(`CI for the mean response: y hat plus or minus t* s_e sqrt(1/n + (x minus x bar)^2 / Sxx). PI for one new value: y hat plus or minus t* s_e sqrt(1 + 1/n + (x minus x bar)^2 / Sxx). s_e = ${fmt(r.se_res)}, t* = ${fmt(r.tstar)} on ${r.df} df.`) + say(`The confidence interval is for the average ${esc(v.y)} of everyone with that ${esc(v.x)}; the prediction interval is for one new individual, so it is always wider.`);
         const out = preds.filter((x0) => x0 < Math.min(...r.x) || x0 > Math.max(...r.x)); if (out.length) html += warn(`x = ${out.join(", ")} is outside the data range (${fmt(Math.min(...r.x))} to ${fmt(Math.max(...r.x))}): extrapolation, do not trust it.`); }
-      const cd = card("Linear Regression", src(`${v.y} on ${v.x}`), html);
+      const cd = card("Linear Regression", src(`${v.y} on ${v.x}`), html); tPlot(cd, r.t, r.df, "two", `slope test: t distribution, df = ${r.df}; shaded area is the p-value`);
       const xs = [Math.min(...r.x), Math.max(...r.x)];
       const bandTr = []; if (v.bands) { const g = Array.from({ length: 81 }, (_, i) => xs[0] + ((xs[1] - xs[0]) * i) / 80); [[seMean, "confidence band (mean)", "#C0392B", "dash"], [sePred, "prediction band (one value)", "#7F8C8D", "dot"]].forEach(([f, nm, c, dsh]) => { bandTr.push({ x: g, y: g.map((q) => r.predict(q) + r.tstar * f(q)), mode: "lines", name: nm, line: { color: c, dash: dsh, width: 1.5 } }, { x: g, y: g.map((q) => r.predict(q) - r.tstar * f(q)), mode: "lines", name: nm, showlegend: false, line: { color: c, dash: dsh, width: 1.5 } }); }); }
       plotDiv(cd, [{ x: r.x, y: r.y, mode: "markers", type: "scatter", name: "data", marker: { color: "#3A7CA5" } }, { x: xs, y: xs.map(r.predict), mode: "lines", name: "least squares", line: { color: "#C0392B" } }].concat(bandTr), { xaxis: { title: v.x }, yaxis: { title: v.y } });
@@ -1476,7 +1477,7 @@
         html += apa(`p hat = ${apaN(ph, 2)}, ${pc}% CI [${apaN(ci.lower, 2)}, ${apaN(ci.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the population proportion${levels.length > 1 ? ` of ${esc(L.level)}` : ""} is between ${fmt(ci.lower)} and ${fmt(ci.upper)}.`);
         if (cim === "wald") html += cond(L.x >= 10 && L.n - L.x >= 10, `Successes and failures (${L.x} and ${L.n - L.x}) are both at least 10, so the normal approximation is appropriate.`, `A count is below 10 (${L.x} successes, ${L.n - L.x} failures): the standard interval is unreliable here; use the plus four or Wilson method.`);
-        card("One Proportion Interval", from, html); return;
+        ciPlot(card("One Proportion Interval", from, html), ph, ci.lower, ci.upper, "proportion", null, `${pc}% confidence interval for the proportion (dot = p hat)`); return;
       }
       if (!(v.p0 > 0 && v.p0 < 1)) throw new Error("The test value is a proportion between 0 and 1, such as 0.5.");
       const rows = [], zrows = []; let last;
@@ -1516,7 +1517,7 @@
       html += apa(`chi-square(${r.df}, N = ${r.n}) = ${apaN(r.chi, 2)}, ${apaP(r.p)}`);
       html += cond(r.minE >= 5, "Every expected count is at least 5.", `Smallest expected count is ${fmt(r.minE, 2)}, below 5: the test is not trustworthy.`);
       html += say(`H0: ${props ? "the population follows the stated proportions" : `all ${keys.length} levels are equally likely (each 1 / ${keys.length})`}. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that the distribution differs from the stated one.` : `There is not enough evidence that the distribution departs from the stated one; that is not proof that it matches.`}`);
-      const cd = card("Chi-square Goodness of Fit (N Outcomes)", from, html);
+      const cd = card("Chi-square Goodness of Fit (N Outcomes)", from, html); chiPlot(cd, r.chi, r.df);
       plotDiv(cd, [{ x: keys, y: r.rows.map((q) => q.o), type: "bar", name: "Observed", marker: { color: "#3A7CA5" } }, { x: keys, y: r.rows.map((q) => q.e), type: "bar", name: "Expected", marker: { color: "#D97D54" } }], { barmode: "group", yaxis: { title: "Count" } });
     });
   }
@@ -1563,7 +1564,9 @@
         }
         if (v.orrr) { const m = SW.measures2x2(a, b, c, dd); html += table(["", "Value", "95% CI lower", "upper"], [[`Risk of ${t.cols[0]} in ${t.rows[0]}`, m.p1, "", ""], [`Risk of ${t.cols[0]} in ${t.rows[1]}`, m.p2, "", ""], ["Relative risk (row 1 over row 2)", m.rr, m.rrLower, m.rrUpper], ["Odds ratio", m.or, m.orLower, m.orUpper]], "Comparative Measures") + formula("RR = p1 / p2. Odds = p / (1 minus p); OR = (a d) / (b c). Intervals on the log scale. RR needs the rows to be groups whose risks were measured (cohort); OR is valid in case-control designs too.") + say(m.or > 1 ? `The odds of ${esc(t.cols[0])} are ${fmt(m.or, 2)} times higher in ${esc(t.rows[0])} than in ${esc(t.rows[1])}; a confidence interval that includes 1 means no clear association.` : `The odds of ${esc(t.cols[0])} are ${fmt(1 / m.or, 2)} times lower in ${esc(t.rows[0])} than in ${esc(t.rows[1])}; a confidence interval that includes 1 means no clear association.`); }
       }
-      card("Contingency Tables (Independent Samples)", from, html);
+      const cd = card("Contingency Tables (Independent Samples)", from, html);
+      if (v.chi !== false && t.df > 0) chiPlot(cd, t.chi, t.df);
+      plotDiv(cd, t.cols.map((c, j) => ({ x: t.rows.map(String), y: t.O.map((row, i) => (t.rt[i] ? (100 * row[j]) / t.rt[i] : 0)), type: "bar", name: String(c) })), { barmode: "group", title: `row percentages: ${cn} within each ${rn} (independence = the same profile in every row)`, xaxis: { title: rn }, yaxis: { title: "percent of row" } }, 260);
     });
   }
   function twoPropsUI() {
@@ -1591,7 +1594,7 @@
         html += apa(`p1 hat minus p2 hat = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
         html += say(`We are ${pc} percent confident that the difference in population proportions (${esc(names[0])} minus ${esc(names[1])}) is between ${fmt(r.lower)} and ${fmt(r.upper)}. ${r.lower <= 0 && r.upper >= 0 ? "The interval includes 0, so no difference is among the plausible values." : "The interval does not include 0."}`);
         html += cond(x1 >= 10 && n1 - x1 >= 10 && x2 >= 10 && n2 - x2 >= 10, `Success-failure check: ${x1}/${n1 - x1} and ${x2}/${n2 - x2}, all at least 10.`, `A count is below 10 (${x1}/${n1 - x1} and ${x2}/${n2 - x2}): the normal interval is unreliable here; report the two proportions and say the sample is small.`);
-        card("Two Proportions Interval", from, html); return;
+        ciPlot(card("Two Proportions Interval", from, html), r.diff, r.lower, r.upper, "difference", 0, `${pc}% confidence interval for the difference in proportions (dashed line = 0, no difference)`); return;
       }
       if (x1 + x2 === 0 || x1 + x2 === n1 + n2) throw new Error(`${x1 + x2 === 0 ? "Both groups have 0 successes" : "Every one in both groups is a success"}, so the pooled standard error is 0 and there is no z to work out. Report the two proportions instead.`);
       const r = SW.twoProps({ x1, n1, x2, n2, alt: v.alt, conf: +v.conf });
@@ -1612,7 +1615,7 @@
       const lv = pickTwo(v.g, v.lv);
       const a = col(v.x).filter((_, i) => col(v.g)[i] === lv[0]), b = col(v.x).filter((_, i) => col(v.g)[i] === lv[1]); { const all = SW.num(a.concat(b)); if (all.length && all.every((q) => q === all[0])) throw new Error(`${v.x} has no variation: every value is ${all[0]}, so the ranks are all tied and there is nothing to test.`); } const r = SW.mannWhitney(a, b, v.alt);
       const html = table(["", "", "Statistic", "z", "p"], [[v.x, "Mann-Whitney U", r.U, r.z, SW.fmtP(r.p)]], "Independent Samples T-Test (nonparametric)") + table(["Group", "n", "Median"], [[lv[0], r.n1, r.med1], [lv[1], r.n2, r.med2]], "Group Descriptives") + formula("Ranks all values together and compares the rank sums; no normality assumption. Normal approximation with tie correction, as in R.") + say(`H0: the two distributions are the same. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence that ${esc(v.x)} tends to be ${altWord(v.alt) === "not equal to" ? "different" : altWord(v.alt)} in ${esc(lv[0])} compared with ${esc(lv[1])}.` : `There is not enough evidence of a difference in ${esc(v.x)} between ${esc(lv[0])} and ${esc(lv[1])}.`} Use this when the groups are small and clearly skewed, or when the data are ranks.`);
-      const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); plotDiv(cd, [{ y: SW.num(a), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
+      const cd = card("Mann-Whitney U", src(`${v.x} by ${v.g}`), html); if (Number.isFinite(r.z)) zPlot(cd, r.z, v.alt || "two"); plotDiv(cd, [{ y: SW.num(a), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[0]), marker: { color: "#3A7CA5" } }, { y: SW.num(b), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(lv[1]), marker: { color: "#D97D54" } }], { yaxis: { title: v.x }, showlegend: false }, 260);
     });
   }
   function wilcoxonUI() {
@@ -1622,7 +1625,7 @@
       const a = col(v.a), b = Number.isFinite(v.const) ? a.map(() => v.const) : col(v.b), lab = Number.isFinite(v.const) ? `${v.a} minus ${v.const}` : `${v.a} minus ${v.b}`;
       const w = SW.wilcoxonSigned(a, b, v.alt), s = SW.signTest(a, b, v.alt);
       const html = table(["", "", "Statistic", "z", "p"], [[lab, "Wilcoxon W", w.Wplus, w.z, SW.fmtP(w.p)], [lab, "Sign test (exact binomial)", `${s.pos} positive, ${s.neg} negative`, "", SW.fmtP(s.p)]], "Paired Samples T-Test (nonparametric)") + formula("Wilcoxon: rank the absolute differences, sum the ranks of the positive ones; zeros dropped. Sign test: count positive against negative differences, binomial with p = 0.5.") + say(`H0: the differences are centred at 0 (median difference ${fmt(w.medianDiff)}). Wilcoxon: ${decision(w.p, +v.alpha)} Sign test: ${decision(s.p, +v.alpha)} The sign test uses only directions, so it is the weaker of the two but needs the fewest assumptions.`);
-      const cd = card("Wilcoxon signed-rank and sign test", src(lab), html);
+      const cd = card("Wilcoxon signed-rank and sign test", src(lab), html); if (Number.isFinite(w.z)) zPlot(cd, w.z, v.alt || "two");
       const diffs = []; for (let i = 0; i < a.length; i++) { const x = Number(a[i]), y = Number(b[i]); if (a[i] !== "" && b[i] !== "" && Number.isFinite(x) && Number.isFinite(y)) diffs.push(x - y); }
       plotDiv(cd, [{ x: diffs, type: "histogram", marker: { color: "#3A7CA5", line: { color: "#fff", width: 1 } } }], { xaxis: { title: "difference" }, yaxis: { title: "Count" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#1A3A4D", dash: "dash" } }] }, 240);
     });
@@ -1631,7 +1634,8 @@
     needData();
     dialog("Nonparametric: Kruskal-Wallis (three or more groups)", [selNum("x", "Dependent variable"), selCat("g", "Grouping variable"), alphaField], (v) => {
       const groups = {}; col(v.g).forEach((g, i) => { if (g !== "") (groups[g] = groups[g] || []).push(col(v.x)[i]); }); { const all = SW.num(Object.values(groups).flat()); if (Object.keys(groups).length < 2) throw new Error(`${v.g} has only one level.`); if (all.length && all.every((q) => q === all[0])) throw new Error(`${v.x} has no variation: every value is ${all[0]}, so the ranks are all tied and there is nothing to test.`); } const r = SW.kruskal(groups);
-      card("Kruskal-Wallis", src(`${v.x} by ${v.g}`), table(["", "chi-square (H)", "df", "p"], [[v.x, r.H, r.df, SW.fmtP(r.p)]], "One-Way ANOVA (Non-parametric)") + table(["Group", "n", "Median"], r.groups.map((q) => [q.name, q.n, q.median]), "Group Descriptives") + formula("Rank-based version of one-way ANOVA; H is compared with chi-square on k minus 1 df.") + say(`H0: all groups have the same distribution. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? "At least one group tends to differ." : "There is not enough evidence that the groups differ."} Use when spreads differ badly or the data are skewed with small groups.`));
+      const cd = card("Kruskal-Wallis", src(`${v.x} by ${v.g}`), table(["", "chi-square (H)", "df", "p"], [[v.x, r.H, r.df, SW.fmtP(r.p)]], "One-Way ANOVA (Non-parametric)") + table(["Group", "n", "Median"], r.groups.map((q) => [q.name, q.n, q.median]), "Group Descriptives") + formula("Rank-based version of one-way ANOVA; H is compared with chi-square on k minus 1 df.") + say(`H0: all groups have the same distribution. ${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? "At least one group tends to differ." : "There is not enough evidence that the groups differ."} Use when spreads differ badly or the data are skewed with small groups.`));
+      chiPlot(cd, r.H, r.df, `chi-square distribution (H), df = ${r.df}; shaded area is the p-value`); plotDiv(cd, Object.keys(groups).map((g) => ({ y: SW.num(groups[g]), type: "box", hoveron: "points", hoverinfo: "y+name", name: String(g) })), { yaxis: { title: v.x }, showlegend: false });
     });
   }
 
@@ -1697,7 +1701,7 @@
       html += say(`H0: the conditions have the same distribution. ${decision(r.p, alpha)} ${r.p <= alpha ? "At least one condition tends to be higher or lower than another; the pairwise table says which." : "There is not enough evidence that the conditions differ."} Use this instead of Repeated Measures ANOVA when the measurements are ordinal, skewed, or few; it only needs the order within each row.`);
       if (v.post) html += table(["Comparison", "Median difference", "z", "p", "p (Holm)", `differs at ${alpha}?`], r.pairs.map((q) => [`${v.cols[q.a]} vs ${v.cols[q.b]}`, q.medianDiff, q.z, SW.fmtP(q.p), SW.fmtP(q.pHolm), q.pHolm <= alpha ? "yes" : "no"]), "Post hoc: pairwise Wilcoxon signed-rank (Holm adjusted)");
       html += apa(`Friedman test: chi-square(${r.df}) = ${apaN(r.Fr)}, ${apaP(r.p)}, Kendall's W = ${noZero(r.W)}, N = ${r.n}.`);
-      const cd = card("Friedman", src(v.cols.join(", ")), html);
+      const cd = card("Friedman", src(v.cols.join(", ")), html); chiPlot(cd, r.Fr, r.df);
       plotDiv(cd, v.cols.map((c, j) => ({ y: Y.map((rw) => rw[j]), type: "box", name: c, quartilemethod: "exclusive", boxpoints: "outliers", marker: { color: "#3A7CA5" } })), { yaxis: Object.assign({ title: "value" }, coverAxis(Y.flat())), showlegend: false }, 300);
     });
   }
@@ -2009,6 +2013,7 @@
       html += say(inter && inter.p <= +v.alpha ? `Interaction ${pWord(inter.p)}: the effect of ${esc(v.a)} depends on the level of ${esc(v.b)}. Read the cell means, not the main effects.` : `${inter ? "No evidence of interaction (" + pWord(inter.p) + "), so the main effects can be read on their own. " : ""}${esc(v.a)}: ${decision(r.rows[0].p, +v.alpha)} ${esc(v.b)}: ${decision(r.rows[1].p, +v.alpha)}`);
       html += smallGroups(r.cells.map((c) => [c.n, c.cell]));
       const cd = card("Two-Way ANOVA", src(`${v.y} by ${v.a} and ${v.b}`), html);
+      { const res = r.rows.find((q) => q.source === "Residuals"); if (res) r.rows.filter((q) => q.F != null && q.df > 0).forEach((q) => fPlot(cd, q.F, q.df, res.df, `${q.source === "A" ? v.a : q.source === "B" ? v.b : q.source === "A x B" ? `${v.a} x ${v.b}` : q.source}: F distribution, df = ${q.df} and ${res.df}; shaded area is the p-value`)); }
       const la = r.levelsA, lb = r.levelsB;
       plotDiv(cd, lb.map((b) => ({ x: la, y: la.map((a) => { const c = r.cells.find((q) => q.cell === a + " | " + b); return c ? c.mean : null; }), mode: "lines+markers", name: `${v.b} = ${b}` })), { title: "Cell means (parallel lines = no interaction)", xaxis: { title: v.a }, yaxis: { title: `mean ${v.y}` } }, 280);
     });
@@ -2034,6 +2039,7 @@
       html += table(["Subject variance", "Residual variance", "ICC (share of variance between subjects)"], [[r.varSubject, r.varResid, r.icc]], "Random-intercept view (variance components, REML-equivalent for balanced data)") + say(`ICC ${fmt(r.icc, 3)}: ${fmt(100 * r.icc, 0)} percent of the variation is stable differences between subjects. That is the correlation between any two measurements on the same subject, and the reason pairing pays.`);
       if (v.post) html += table(["Comparison", "Mean difference", "t", "df", "p", "p (Holm)", `differs at ${v.alpha}?`], r.pairs.map((q) => [`${v.cols[q.a]} vs ${v.cols[q.b]}`, q.diff, q.t, q.df, SW.fmtP(q.p), SW.fmtP(q.pHolm), q.pHolm <= +v.alpha ? "yes" : "no"]), "Post hoc: paired comparisons (Holm adjusted)");
       const cd = card(G ? "Mixed ANOVA" : "Repeated Measures ANOVA", src(v.cols.join(", ") + (G ? " by " + v.g : "")), html);
+      r.rows.forEach((q, k) => { if (q.F == null || !(q.df > 0)) return; const err = r.rows.slice(k + 1).find((e) => e.F == null && e.df > 0 && /^(Error|Residual)/.test(e.source)); if (err) fPlot(cd, q.F, q.df, err.df, `${q.source}: F distribution, df = ${q.df} and ${err.df}; shaded area is the p-value (uncorrected)`); });
       const traces = G ? r.groups.map((g, j) => ({ x: v.cols, y: r.cellMean[j], mode: "lines+markers", name: `${v.g} = ${g}` })) : [{ x: v.cols, y: r.condMean, mode: "lines+markers", name: "mean", line: { color: "#3A7CA5" } }];
       plotDiv(cd, traces, { title: "Mean by condition" + (G ? " (parallel lines = no interaction)" : ""), yaxis: { title: "mean" } }, 280);
       plotDiv(cd, keep.map((i, s) => ({ x: v.cols, y: Y[s], mode: "lines", line: { width: 1, color: G ? (r.groups.indexOf(G[s]) ? "#D97D54" : "#3A7CA5") : "#3A7CA5" }, opacity: 0.35, showlegend: false, hoverinfo: "y" })), { title: "Every subject's own line (spaghetti plot)", yaxis: { title: "value" } }, 280);
@@ -2113,7 +2119,8 @@
       html += formula("Only the discordant pairs matter: H0 says changes in each direction are equally likely. chi-square = (|b minus c| minus 1)^2 / (b + c) on 1 df; the exact version is a binomial test of b against b + c at p = 0.5.");
       const pUse = b + c < 25 ? r.exact : r.p;
       html += say(`${decision(pUse, +v.alpha)} ${pUse <= +v.alpha ? "The proportion saying yes changed between the two measurements." : "No evidence that the proportion saying yes changed."}${b + c < 25 ? " (Fewer than 25 discordant pairs, so the exact p is used.)" : ""}`);
-      card("McNemar test", from, html);
+      const cd = card("McNemar test", from, html); chiPlot(cd, r.chi, 1);
+      plotDiv(cd, [{ x: ["changed yes to no", "changed no to yes"], y: [b, c], type: "bar", marker: { color: ["#3A7CA5", "#D97D54"] } }], { title: "the discordant pairs (H0: the two directions equally likely)", yaxis: { title: "count" } }, 240);
     });
   }
   function trendUI() {
@@ -2136,7 +2143,7 @@
       const r = SW.trendTest(succ, tot);
       let html = table(["Group", "Successes", "Total", "Proportion"], labels.map((l, i) => [l, succ[i], tot[i], r.props[i]]), "Proportions by ordered group") + table(["z", "chi-square", "df", "p"], [[r.z, r.chi, 1, SW.fmtP(r.p)]], "Cochran-Armitage trend test (scores 1, 2, 3, ...)");
       html += formula("Tests whether the proportion rises or falls steadily across the ordered groups, which is more powerful than the general chi-square when a trend is the question.") + say(`${decision(r.p, +v.alpha)} ${r.p <= +v.alpha ? `There is evidence of a ${r.z > 0 ? "rising" : "falling"} trend in the proportion across the groups.` : "No evidence of a linear trend across the groups."}`);
-      const cd = card("Cochran-Armitage trend test", from, html);
+      const cd = card("Cochran-Armitage trend test", from, html); zPlot(cd, r.z, "two");
       plotDiv(cd, [{ x: labels, y: r.props, mode: "lines+markers", line: { color: "#3A7CA5" } }], { yaxis: { title: "proportion", rangemode: "tozero" } }, 240);
     });
   }
@@ -2415,6 +2422,24 @@
     plotDiv(cd, traces, { title, xaxis: { title: "test statistic" }, yaxis: { visible: false }, shapes: [{ type: "line", x0: stat, x1: stat, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", dash: "dash" } }] }, 240);
   }
   function tPlot(cd, t, df, alt, title) { const lim = Math.max(4, Math.abs(t) + 1), xs = []; for (let x = -lim; x <= lim; x += lim / 150) xs.push(x); curvePlot(cd, xs, xs.map((x) => jStat.studentt.pdf(x, df)), t, alt, title || `t distribution, df = ${fmt(df, 2)}; shaded area is the p-value`); }
+  // chi-square and F are one-tailed to the right; for a two-sided test (variance tests) the tail that holds the statistic is shaded and the title says it is half the p-value
+  function chiPlot(cd, chi, df, title, alt) {
+    if (!(df > 0) || !Number.isFinite(chi)) return; const two = alt === "two", side = alt === "less" ? "less" : two ? (chi > jStat.chisquare.inv(0.5, df) ? "greater" : "less") : "greater";
+    const lim = Math.max(jStat.chisquare.inv(0.995, df), chi * 1.15, df + 1), xs = []; for (let x = df <= 2 ? 0.02 : 0.0001; x <= lim; x += lim / 200) xs.push(x);
+    curvePlot(cd, xs, xs.map((x) => jStat.chisquare.pdf(x, df)), chi, side, title || `chi-square distribution, df = ${fmt(df, 2)}; shaded area is ${two ? "half the two-sided p-value" : "the p-value"}`);
+  }
+  function fPlot(cd, F, d1, d2, title, alt) {
+    if (!(d1 > 0 && d2 > 0) || !Number.isFinite(F)) return; const two = alt === "two", side = alt === "less" ? "less" : two ? (F > jStat.centralF.inv(0.5, d1, d2) ? "greater" : "less") : "greater";
+    const lim = Math.max(jStat.centralF.inv(0.995, d1, d2), F * 1.15, 3), xs = []; for (let x = d1 <= 2 ? 0.02 : 0.0001; x <= lim; x += lim / 200) xs.push(x);
+    curvePlot(cd, xs, xs.map((x) => jStat.centralF.pdf(x, d1, d2)), F, side, title || `F distribution, df = ${fmt(d1, 2)} and ${fmt(d2, 2)}; shaded area is ${two ? "half the two-sided p-value" : "the p-value"}`);
+  }
+  // the confidence interval drawn: a bar from lower to upper, the estimate as a dot, and the reference value (0, or 1 for a ratio) as a dashed line
+  function ciPlot(cd, est, lower, upper, label, ref, title) {
+    if (![est, lower, upper].every(Number.isFinite)) return;
+    const traces = [{ x: [lower, upper], y: [label, label], mode: "lines", line: { color: "#1A3A4D", width: 5 }, showlegend: false, hoverinfo: "x" }, { x: [est], y: [label], mode: "markers", marker: { color: "#D97D54", size: 13 }, showlegend: false, hoverinfo: "x" }];
+    const shapes = ref == null ? [] : [{ type: "line", x0: ref, x1: ref, y0: 0, y1: 1, yref: "paper", line: { color: "#C0392B", dash: "dash" } }];
+    plotDiv(cd, traces, { title: title || `the interval: dot = estimate, bar = the interval${ref == null ? "" : `, dashed line = ${ref}`}`, xaxis: { zeroline: false }, yaxis: { type: "category" }, shapes, margin: { l: 130, r: 20, t: 40, b: 40 } }, 190);
+  }
   function zPlot(cd, z, alt) { const lim = Math.max(4, Math.abs(z) + 1), xs = []; for (let x = -lim; x <= lim; x += lim / 150) xs.push(x); curvePlot(cd, xs, xs.map((x) => jStat.normal.pdf(x, 0, 1)), z, alt, "standard normal; shaded area is the p-value"); }
 
   // ================= distrACTION =================
