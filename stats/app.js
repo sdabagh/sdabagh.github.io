@@ -3638,7 +3638,7 @@
   function botSpanish(q) {
     const M = window.SWW_ES_ASK || {}; const keys = Object.keys(M).sort((a, b) => b.length - a.length); let out = " " + q.toLowerCase().replace(/[¿¡]/g, "") + " ", hit = false;
     keys.forEach((k) => { const re = new RegExp("(^|[^a-záéíóúñü])" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?=$|[^a-záéíóúñü])", "g"); if (re.test(out)) { hit = true; out = out.replace(re, "$1" + M[k]); } });
-    out = out.trim(); if (hit && out !== q.toLowerCase()) botSay(`<p class="bmuted" lang="es">Leído como: "${esc(out)}". Las respuestas están en inglés por ahora.</p>`);
+    out = out.trim(); if (hit && out !== q.toLowerCase()) botSay(`<p class="bmuted" lang="es">Leído como: "${esc(out)}".${window.SWW_ES_ANSWERS ? "" : " Las respuestas están en inglés por ahora."}</p>`);
     return hit ? out : q;
   }
   function modeUI() {
@@ -3910,12 +3910,12 @@
   // the newest card, read back in plain words: title, APA line, conclusion, warnings
   function botExplain() {
     const cards = Array.from(document.querySelectorAll("#out .card, #outG .card")); const c = LASTCARD && document.body.contains(LASTCARD) ? LASTCARD : cards[cards.length - 1];
-    if (!c) return `<p>No result yet. Run an analysis (or ask me which one), then ask again and I will read the card back in plain words.</p>`;
+    if (!c) return `<p>${esc(T("No result yet. Run an analysis (or ask me which one), then ask again and I will read the card back in plain words."))}</p>`;
     const tx = (sel) => Array.from(c.querySelectorAll(sel)).map((x) => x.textContent.trim()).filter(Boolean);
     const title = (c.querySelector("h2") || {}).textContent || "the last result", apa = tx(".apa code")[0], says = tx(".say"), warns = tx(".warn"), oks = tx(".ok");
     const clip = (arr, n) => { const s = arr.join(" "); return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + " ..." : s; };
-    let h = `<b>${esc(title)}, in plain words</b>`;
-    if (apa) h += `<p>In one line: <code>${esc(apa)}</code></p>`;
+    let h = `<b>${esc(title)}, ${esc(T("in plain words"))}</b>`;
+    if (apa) h += `<p>${esc(T("In one line:"))} <code>${esc(apa)}</code></p>`;
     if (says.length) h += `<p>${esc(clip(says, 700))}</p>`;
     if (warns.length) h += `<p><b>Watch out:</b> ${esc(clip(warns, 500))}</p>`; else if (oks.length) h += `<p class="bmuted">Checks passed: ${esc(clip(oks, 300))}</p>`;
     if (!apa && !says.length && !warns.length) h += `<p>This card is a table or a graph without a test, so there is no conclusion to read back. Ask me about any number on it, for example "what is the IQR" or "what does the slope mean".</p>`;
@@ -3924,11 +3924,11 @@
     return h;
   }
   function botQA(e) {
-    let h = `<b>${esc(e.t)}</b>`;
+    let h = `<b>${esc(botT(e))}</b>`;
     if (e.special === "explain") return botExplain();
-    h += `<p>${esc(e.a)}</p>`;
-    if (e.go && e.go.length) h += `<div class="bgo">${e.go.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l, (m === "Learn" ? "See it: " : "Open ") + l)).join("")}</div>`;
-    if (e.m) h += `<p class="bmuted"><a href="methods.html#${e.m}" target="_blank" rel="noopener">${e.m === "glossary" ? "Glossary in the Methods Guide" : "More in the Methods Guide"}</a></p>`;
+    h += `<p>${esc(botA(e))}</p>`;
+    if (e.go && e.go.length) h += `<div class="bgo">${e.go.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l, (m === "Learn" ? T("See it:") : T("Open")) + " " + T(l))).join("")}</div>`;
+    if (e.m) h += `<p class="bmuted"><a href="methods.html#${e.m}" target="_blank" rel="noopener">${esc(T(e.m === "glossary" ? "Glossary in the Methods Guide" : "More in the Methods Guide"))}</a></p>`;
     return h;
   }
   function botColumns() {
@@ -3942,12 +3942,15 @@
     root.querySelectorAll("[data-bask]").forEach((b) => (b.onclick = () => botAsk(b.dataset.bask)));
   }
   const botBtn = (m, l, label) => `<button type="button" class="brun" data-brun="${escA(m)}|${escA(l)}">${esc(label || l)}</button>`;
+  // the answer in the interface language: lang-es-ask.js maps the English title of an entry to [title, answer] in Spanish
+  const botES = (e) => (LANG === "es" && window.SWW_ES_ANSWERS && window.SWW_ES_ANSWERS[e.t]) || null;
+  const botT = (e) => { const x = botES(e); return x ? x[0] : e.t; }, botA = (e) => { const x = botES(e); return x ? x[1] : e.a; };
   function botAnswer(e) {
-    let h = `<b>${esc(e.t)}</b>`;
-    if (e.special === "columns") h += `<p>${esc(botColumns())}</p>`; else if (e.a) h += `<p>${esc(e.a)}</p>`;
-    if (e.go && e.go.length) h += `<div class="bgo">${e.go.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l, "Open " + l)).join("")}</div>`;
-    if (e.alt && e.alt.length) h += `<p class="bmuted">If the data are skewed or small: ${e.alt.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l)).join("")}</p>`;
-    if (e.m) h += `<p class="bmuted"><a href="methods.html#${e.m}${MODE.who === "researcher" ? "" : ""}" target="_blank" rel="noopener">Read the steps in the Methods Guide</a></p>`;
+    let h = `<b>${esc(botT(e))}</b>`;
+    if (e.special === "columns") h += `<p>${esc(botColumns())}</p>`; else if (botA(e)) h += `<p>${esc(botA(e))}</p>`;
+    if (e.go && e.go.length) h += `<div class="bgo">${e.go.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l, T("Open") + " " + T(l))).join("")}</div>`;
+    if (e.alt && e.alt.length) h += `<p class="bmuted">${esc(T("If the data are skewed or small:"))} ${e.alt.filter(([m, l]) => findItem(m, l)).map(([m, l]) => botBtn(m, l, T(l))).join("")}</p>`;
+    if (e.m) h += `<p class="bmuted"><a href="methods.html#${e.m}" target="_blank" rel="noopener">${esc(T("Read the steps in the Methods Guide"))}</a></p>`;
     return h;
   }
   const BOT_BUILD = (() => { const sc = document.querySelector('script[src^="app.js"]'); const m = sc && /v=(\d+)/.exec(sc.getAttribute("src") || ""); return m ? m[1] : "?"; })();
@@ -3959,20 +3962,20 @@
   function botAnswerAll(q) {
     let scored = botScore(ASKKB, q), qa = botScore(ASKQA, q, false);
     const weak = (scored.length ? scored[0][0] : 0) < 2 && !qa.length; // nothing but stray title words matched
-    if (weak) { const fx = botFix(q); if (fx.changed) { const s2 = botScore(ASKKB, fx.text), q2 = botScore(ASKQA, fx.text, false); if ((s2.length && s2[0][0] >= 2) || q2.length) { scored = s2; qa = q2; botSay(`<p class="bmuted">I read that as "${esc(fx.text)}".</p>`); } } }
+    if (weak) { const fx = botFix(q); if (fx.changed) { const s2 = botScore(ASKKB, fx.text), q2 = botScore(ASKQA, fx.text, false); if ((s2.length && s2[0][0] >= 2) || q2.length) { scored = s2; qa = q2; botSay(`<p class="bmuted">${esc(T("I read that as"))} "${esc(fx.text)}".</p>`); } } }
     const hits = scored.slice(0, 3).map((x) => x[1]), isQ = botIsQuestion(q);
     // a question with a plain-words answer: the answer first, then (at most) one way to run it in the app
     if (qa.length && (isQ || !hits.length || qa[0][0] >= 5 || qa[0][0] > scored[0][0])) {
       const top = qa[0][0]; const show = qa.filter((x) => x[0] >= top - 1).slice(0, 2).map((x) => x[1]);
-      show.forEach((e, i) => botSay((i ? `<span class="balso">Also</span>` : "") + botQA(e)));
+      show.forEach((e, i) => botSay((i ? `<span class="balso">${esc(T("Also"))}</span>` : "") + botQA(e)));
       const run = hits.find((e) => e.go && e.go.length && !show.some((s) => s.go && s.go.some(([m, l]) => e.go.some(([m2, l2]) => m === m2 && l === l2))));
-      if (run && scored[0][0] >= 3) botSay(`<span class="balso">To run it</span>` + botAnswer(run));
+      if (run && scored[0][0] >= 3) botSay(`<span class="balso">${esc(T("To run it"))}</span>` + botAnswer(run));
       const inp0 = $("#botIn"); if (inp0) { inp0.value = ""; inp0.focus(); } return;
     }
     if (!hits.length) { botSay(`<p>${esc(T("I did not catch that. Say what you measured and what you want to know, or ask what a term means, for example:"))}</p><div class="bchips">${["compare two groups", "before and after", "is there a relationship", "predict a yes or no", "how many people do I need", "what columns do I have", "what is a p-value", "explain my result"].map((s) => `<button type="button" data-bask="${escA(s)}">${esc(s)}</button>`).join("")}</div><p class="bmuted">Or open ${botBtn("T-Tests", "Which test?", "Which test?")} or the <a href="methods.html" target="_blank" rel="noopener">Methods Guide</a> (its glossary is at the end).</p>`); return; }
-    hits.forEach((e, i) => botSay((i ? `<span class="balso">Also possible</span>` : "") + botAnswer(e)));
-    if (qa.length && qa[0][0] >= 3) botSay(`<span class="balso">In plain words</span>` + botQA(qa[0][1]));
-    if (!D.rows.length && hits.some((e) => e.go && e.go.some(([m]) => m !== "Data" && m !== "distrACTION" && m !== "Learn" && m !== "Results"))) botSay(`<p class="bmuted">These need data on the table first: ${botBtn("Data", "Sample datasets", "Sample datasets")} ${botBtn("Data", "Open CSV or Excel file", "Open CSV or Excel file")}</p>`);
+    hits.forEach((e, i) => botSay((i ? `<span class="balso">${esc(T("Also possible"))}</span>` : "") + botAnswer(e)));
+    if (qa.length && qa[0][0] >= 3) botSay(`<span class="balso">${esc(T("In plain words"))}</span>` + botQA(qa[0][1]));
+    if (!D.rows.length && hits.some((e) => e.go && e.go.some(([m]) => m !== "Data" && m !== "distrACTION" && m !== "Learn" && m !== "Results"))) botSay(`<p class="bmuted">${esc(T("These need data on the table first:"))} ${botBtn("Data", "Sample datasets", T("Sample datasets"))} ${botBtn("Data", "Open CSV or Excel file", T("Open CSV or Excel file"))}</p>`);
     const inp = $("#botIn"); if (inp) { inp.value = ""; inp.focus(); }
   }
   // tips from a card's own warnings: the next step, offered once per card

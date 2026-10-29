@@ -46,10 +46,10 @@ const tops = (page) => page.evaluate(() => Array.from(document.querySelectorAll(
   // Ask in Spanish
   await page.click("#askBtn"); await page.fill("#botIn", "quiero comparar dos grupos de personas distintas"); await page.click("#botForm button[type=submit]"); await page.waitForTimeout(400);
   const bot = await page.evaluate(() => document.querySelector("#botLog").textContent);
-  ok(/Leído como: "I want compare two groups of different people"/.test(bot) && /Independent Samples T-Test/.test(bot), "Ask reads the Spanish question and routes to the independent t-test", bot.slice(-400));
+  ok(/Leído como: "I want compare two groups of different people"/.test(bot) && /Prueba t para muestras independientes/.test(bot) && /Dos grupos distintos, un número/.test(bot), "Ask reads the Spanish question and routes to the independent t-test, answered in Spanish", bot.slice(-400));
   await page.fill("#botIn", "antes y después"); await page.click("#botForm button[type=submit]"); await page.waitForTimeout(400);
   const bot2 = await page.evaluate(() => document.querySelector("#botLog").textContent);
-  ok(/Paired Samples T-Test/.test(bot2), "'antes y después' routes to the paired t-test", bot2.slice(-300));
+  ok(/Prueba t para muestras pareadas|Prueba t pareada|Las mismas personas medidas dos veces/.test(bot2), "'antes y después' routes to the paired t-test, in Spanish", bot2.slice(-300));
   // Persists across a reload
   await page.reload(); await page.waitForSelector("nav.menu .dd");
   t = await tops(page); ok(t[3] === "Pruebas t" && (await page.evaluate(() => document.documentElement.lang)) === "es", "Spanish persists after a reload", t);

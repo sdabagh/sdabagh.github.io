@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: Ask answers in Spanish
+
+- `lang-es-ask.js`: the Spanish title and answer of every Ask route and glossary entry (127), used when the
+  interface is Spanish; the connectives (Also possible, To run it, In plain words, the Methods Guide links), the
+  Open buttons and the needs-data line are Spanish too, and the "Leído como" note no longer says the answers are in
+  English. The query map learned clinical Spanish (tasa de infección, reingreso, intervención, riesgo relativo, razón
+  de momios, grupo de control, atención habitual). Browser test `askes.js`. Cache `sww-v87`, scripts `?v=89`.
+
 ### 2026-10-29: examples from the field, Ask in nursing words
 
 - Each field (health and nursing, business, social science, biology, engineering, public safety) carries one example
