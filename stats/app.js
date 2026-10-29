@@ -439,17 +439,19 @@
   async function copyCardDoc(div, b) {
     const parts = [], texts = []; const title = (div.querySelector("h2") || {}).textContent || "", meta = (div.querySelector(".meta") || {}).textContent || "";
     parts.push(`<p style="${DOC_FONT};margin:0 0 2pt"><b>${esc(title)}</b></p>` + (meta ? `<p style="${DOC_FONT};margin:0 0 8pt">${esc(meta)}</p>` : "")); texts.push(title, meta);
-    for (const el of div.children) {
-      if (el.matches(".tools, .meta, h2, .tblbtns, .mycheck")) continue;
-      if (el.matches("table.res")) { parts.push(tableDocHtml(el)); texts.push(tableDocText(el)); continue; }
-      if (el.matches(".cap")) continue; // the caption goes with its table
-      if (el.matches(".js-plotly-plot, .plot") || el.querySelector(".js-plotly-plot")) { const gd = el.matches(".js-plotly-plot") ? el : el.querySelector(".js-plotly-plot"); if (gd && window.Plotly) { try { const url = await Plotly.toImage(gd, { format: "png", width: gd.clientWidth || 700, height: gd.clientHeight || 400, scale: 2 }); parts.push(`<p style="margin:6pt 0"><img src="${url}" width="${Math.min(600, gd.clientWidth || 600)}" alt="${escA(title)} graph"></p>`); texts.push("[graph]"); } catch (e) { } } continue; }
-      if (el.matches("details")) { const sum = el.querySelector("summary"); if (sum && /Method/.test(sum.textContent)) { for (const m of el.children) { if (m.tagName === "SUMMARY") continue; if (m.matches("table.res")) { parts.push(tableDocHtml(m)); texts.push(tableDocText(m)); } else { const tx = m.innerText.trim(); if (tx) { parts.push(`<p style="${DOC_FONT};margin:0 0 6pt">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx); } } } } continue; }
-      if (el.matches("button, .svgbtn, pre.script")) continue;
-      const tx = el.innerText.trim(); if (!tx) continue;
+    const handle = async (el) => {
+      if (el.matches(".simroute")) { const head = el.querySelector(".simhead"); if (head) { parts.push(`<p style="${DOC_FONT};margin:8pt 0 4pt"><b>${esc(head.textContent)}</b></p>`); texts.push(head.textContent); } for (const m of el.children) if (!m.matches(".simhead")) await handle(m); return; } // the simulation block: its table, formula and sentence, not the block as flat text
+      if (el.matches(".tools, .meta, h2, .tblbtns, .mycheck")) return;
+      if (el.matches("table.res")) { parts.push(tableDocHtml(el)); texts.push(tableDocText(el)); return; }
+      if (el.matches(".cap")) return; // the caption goes with its table
+      if (el.matches(".js-plotly-plot, .plot") || el.querySelector(".js-plotly-plot")) { const gd = el.matches(".js-plotly-plot") ? el : el.querySelector(".js-plotly-plot"); if (gd && window.Plotly) { try { const url = await Plotly.toImage(gd, { format: "png", width: gd.clientWidth || 700, height: gd.clientHeight || 400, scale: 2 }); parts.push(`<p style="margin:6pt 0"><img src="${url}" width="${Math.min(600, gd.clientWidth || 600)}" alt="${escA(title)} graph"></p>`); texts.push("[graph]"); } catch (e) { } } return; }
+      if (el.matches("details")) { const sum = el.querySelector("summary"); if (sum && /Method/.test(sum.textContent)) { for (const m of el.children) { if (m.tagName === "SUMMARY") continue; if (m.matches("table.res")) { parts.push(tableDocHtml(m)); texts.push(tableDocText(m)); } else { const tx = m.innerText.trim(); if (tx) { parts.push(`<p style="${DOC_FONT};margin:0 0 6pt">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx); } } } } return; }
+      if (el.matches("button, .svgbtn, pre.script")) return;
+      const tx = el.innerText.trim(); if (!tx) return;
       const style = el.matches(".apa") ? `${DOC_FONT};margin:0 0 6pt` : el.matches(".formula") ? `font-family:Consolas,'Courier New',monospace;font-size:10.5pt;color:#000;margin:0 0 6pt` : `${DOC_FONT};margin:0 0 6pt`;
       parts.push(`<p style="${style}">${esc(tx).replace(/\n/g, "<br>")}</p>`); texts.push(tx);
-    }
+    };
+    for (const el of div.children) await handle(el);
     clipHtml(`<div style="${DOC_FONT}">${parts.join("")}</div>`, texts.filter(Boolean).join("\n"), b, T("copy for Word"), "the card for Word");
   }
   function clipHtml(html, text, b, label, what) {
