@@ -29,7 +29,7 @@ const filter = process.argv[2] || "";
         try {
           await page.click(`nav.menu .dd[data-name="${m}"] .top`); await page.getByRole("menuitem", { name: it, exact: true }).click();
           const opened = await page.waitForSelector("#dlg.open", { timeout: 4000 }).then(() => true).catch(() => false);
-          if (!opened) { const after = await page.evaluate(() => document.querySelectorAll(".card").length); outcome = after > before ? "card (no dialog)" : alerts.length ? "alert" : "nothing"; detail = alerts.join(" | "); }
+          if (!opened) { const live = await page.evaluate(() => Array.from(document.querySelectorAll(".card")).filter((c) => c.offsetParent).length); outcome = live > 0 ? "live card" : alerts.length ? "alert" : "nothing"; detail = alerts.join(" | "); } // a live calculator or applet replaces its previous card, so any visible card counts
           else {
             await page.evaluate(() => document.querySelectorAll("#dlgForm details").forEach((d) => (d.open = true)));
             const hasGo = await page.evaluate(() => !!document.querySelector("#dlg button.go"));
