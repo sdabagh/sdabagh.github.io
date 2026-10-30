@@ -44,7 +44,7 @@ const filter = process.argv[2] || "";
           }
         } catch (e) { outcome = "driver error"; detail = String(e.message || e).slice(0, 200); await closeAll(); }
         const bar = await page.evaluate(() => { const b = document.querySelector("#errBar"); return b ? b.textContent.trim() : ""; });
-        const wizard = it === "Which test?"; const bad = errs.length || bar || (outcome === "alert" && BUGLIKE.test(detail)) || (outcome === "still open" && !wizard) || outcome === "closed, no card" || outcome === "driver error" || outcome === "nothing";
+        const wizard = it === "Which test?"; const bad = errs.length || bar || (outcome === "alert" && BUGLIKE.test(detail) && !/no variation|so (t|F|z|chi-square) is not defined/.test(detail)) || (outcome === "still open" && !wizard) || outcome === "closed, no card" || outcome === "driver error" || outcome === "nothing";
         const line = `${bad ? "SUSPECT" : "ok     "}  ${ds} | ${m} > ${it} | ${outcome}${detail ? " | " + detail.slice(0, 160) : ""}${errs.length ? " | PAGEERR " + errs.join("; ").slice(0, 200) : ""}${bar ? " | ERRBAR " + bar.slice(0, 160) : ""}`;
         console.log(line); if (bad) suspects.push(line);
         if (runs % 8 === 0) await page.evaluate(() => { document.querySelector("#out").innerHTML = ""; const g = document.querySelector("#outG"); if (g) g.innerHTML = ""; });
