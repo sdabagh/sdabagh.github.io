@@ -557,7 +557,7 @@
   // "from summary statistics". A dialog without a Data box shows everything.
   const onData = (raw) => raw.mode === "data", onSummary = (raw) => raw.mode !== "data";
   const only = (fd, vis) => (fd ? Object.assign({}, fd, { vis }) : null);
-  const smallGroups = (pairs, min = 5) => { const s = pairs.filter(([n]) => n < min); return s.length ? warn(`Small group: ${s.map(([n, g]) => `${esc(g)} has N = ${n}`).join("; ")}. A mean, SD or test from fewer than ${min} people is fragile and any normality check on it is meaningless. Say so in the write-up.`) : ""; };
+  const smallGroups = (pairs, min = 5) => { const s = pairs.filter(([n]) => n < min); return s.length ? warn(`Small group: ${s.map(([n, g]) => `${esc(g)} has n = ${n}`).join("; ")}. A mean, SD or test from fewer than ${min} people is fragile and any normality check on it is meaningless. Say so in the write-up.`) : ""; };
 
   // ================= dialog =================
   // Modal by default. On the distrACTION page the same fields render in the inputs card instead, and every change
@@ -2888,7 +2888,7 @@
       if (v.kind !== "mean" && !(v.p >= 0 && v.p <= 1)) throw new Error("The guess for p is between 0 and 1 (use 0.5 if unknown).");
       if (!(+v.conf > 0 && +v.conf < 1)) throw new Error("Choose a confidence level.");
       const n = v.kind === "prop" ? SW.sampleSizeProp(v.me, v.p, +v.conf) : SW.sampleSizeMean(v.me, v.s, +v.conf);
-      card("Sample size", `${v.kind === "prop" ? "proportion" : "mean"}, margin ${v.me}, ${Math.round(+v.conf * 100)} percent`, `<div class="big">N = ${fmt(n)} <span class="pct">needed</span></div><div class="words">A sample of ${fmt(n)} keeps the margin of error for a ${v.kind === "prop" ? "proportion" : "mean"} at ${v.me} or less, at ${Math.round(+v.conf * 100)} percent confidence. Always round up.</div>` + table(["Needed N"], [[n]]) + formula(v.kind === "prop" ? "N = (z* / m)^2 p (1 minus p), rounded up" : "N = (z* s / m)^2, rounded up (z* as a planning value)") + say("Halving the margin needs four times the sample."));
+      card("Sample size", `${v.kind === "prop" ? "proportion" : "mean"}, margin ${v.me}, ${Math.round(+v.conf * 100)} percent`, `<div class="big">n = ${fmt(n)} <span class="pct">needed</span></div><div class="words">A sample of ${fmt(n)} keeps the margin of error for a ${v.kind === "prop" ? "proportion" : "mean"} at ${v.me} or less, at ${Math.round(+v.conf * 100)} percent confidence. Always round up.</div>` + table(["Needed n"], [[n]]) + formula(v.kind === "prop" ? "n = (z* / m)^2 p (1 minus p), rounded up" : "n = (z* s / m)^2, rounded up (z* as a planning value)") + say("Halving the margin needs four times the sample."));
     });
   }
 

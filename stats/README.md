@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-30: crash sweep before release; the sample-size card says n
+
+- `stats/tests/sweep/sweep.js` opens every menu item on every sample dataset with the dialog's default choices and
+  lists anything that looks like a crash. First full run (20 datasets, about 1,500 runs): no page errors, no error
+  bars, no stuck dialogs; every refusal was the app's own validation message. Run it by hand before a release; it is
+  not part of `run.sh`.
+- The sample-size calculator says n ("n = 385 needed", "Needed n"); APA lines keep N, APA's own convention.
+  Cache `sww-v91`, scripts `?v=93`.
+
 ### 2026-10-29: the four steps on the interval-only cards
 
 - The worked box of a one-sample interval (mean with t or z, proportion) follows the course's four steps (parameter,
