@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-10-29: the four steps on the interval-only cards
+
+- The worked box of a one-sample interval (mean with t or z, proportion) follows the course's four steps (parameter,
+  statistic and level; conditions and SE; critical value and margin of error; the interval and the sentence). The
+  proportion sentence is given as a percent, with a line on whether the whole interval is above 0.5. Browser test
+  `lab83.js` pins the numbers printed in the 8.3 lab handout (54 of 240: 0.1722 to 0.2778; 56 of 320 at 99 percent:
+  0.1203 to 0.2297; the Team Work mean and proportion intervals). Cache `sww-v90`, scripts `?v=92`.
+
 ### 2026-10-29: the simulation route when a condition fails
 
 - When a condition check comes out pink, the card runs a bootstrap percentile interval and a permutation p-value
