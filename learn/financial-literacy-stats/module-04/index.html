@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Module 04 of Financial Literacy for Statisticians: Why Pearson correlation is problematic and what to use instead">
-  <title>Correlation in Finance — Financial Literacy for Statisticians</title>
+  <title>Correlation in Finance | Financial Literacy for Statisticians</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .module-header {
@@ -94,7 +94,7 @@
         Correlation is the foundation of modern portfolio theory. Harry Markowitz won the
         Nobel Prize in Economics for showing that the risk of a portfolio depends not just on
         the risk of individual assets, but on the <em>correlations between them</em>.
-        Diversification &mdash; the only &ldquo;free lunch&rdquo; in finance &mdash; works
+        Diversification, the only &ldquo;free lunch&rdquo; in finance, works
         because correlations between assets are less than 1.
       </p>
 
@@ -109,8 +109,8 @@
         <div class="cb-title">Stats Bridge</div>
         In a standard statistics course, correlation is typically estimated from a single
         sample and treated as a fixed parameter. In finance, correlation is best thought
-        of as a <strong>time-varying latent process</strong> &mdash; something that must
-        be estimated with rolling windows or dynamic models (like DCC-GARCH). The
+        of as a <strong>time varying latent process</strong>: something that must
+        be estimated with rolling windows or dynamic models (like DCC GARCH). The
         &ldquo;true&rdquo; correlation between two assets today may be very different from
         what it was five years ago.
       </div>
@@ -132,15 +132,15 @@
       </p>
 
       <ul>
-        <li><strong>Non-normality:</strong> As we saw in Module 03, returns have heavy tails. Pearson&rsquo;s r is not robust to outliers &mdash; a single extreme co-movement can dramatically inflate or deflate the estimated correlation.</li>
+        <li><strong>Nonnormality:</strong> As we saw in Module 03, returns have heavy tails. Pearson&rsquo;s r is not robust to outliers, a single extreme comovement can dramatically inflate or deflate the estimated correlation.</li>
         <li><strong>Nonlinear dependence:</strong> Two assets may have zero Pearson correlation but strong dependence in the tails (both crash together during crises).</li>
-        <li><strong>Non-constant relationship:</strong> The strength of association changes over time, so a single number is misleading.</li>
+        <li><strong>Nonconstant relationship:</strong> The strength of association changes over time, so a single number is misleading.</li>
       </ul>
 
       <div class="common-pitfall">
         <div class="cb-title">Common Pitfall</div>
-        Pearson correlation = 0 does <strong>not</strong> mean independence for non-normal
-        data. Two assets can have zero linear correlation but strong tail dependence &mdash;
+        Pearson correlation = 0 does <strong>not</strong> mean independence for nonnormal
+        data. Two assets can have zero linear correlation but strong tail dependence, 
         they move independently in normal times but crash together in crises. This is
         precisely the pattern that destroyed portfolios in 2008: assets that appeared
         uncorrelated suddenly moved in lockstep during the crisis.
@@ -176,7 +176,7 @@ pearson_trimmed = ret_trimmed[<span class="st">"AAPL"</span>].corr(ret_trimmed[<
         <div class="cb-title">Key Insight</div>
         The fact that removing 5% of observations substantially changes the correlation
         estimate tells you that <strong>a few extreme days drive a large part of the
-        measured correlation</strong>. This is a direct consequence of the heavy-tailed
+        measured correlation</strong>. This is a direct consequence of the heavy tailed
         distribution: the squared deviations from the mean that enter the Pearson formula
         are dominated by extreme observations.
       </div>
@@ -207,10 +207,10 @@ pearson_trimmed = ret_trimmed[<span class="st">"AAPL"</span>].corr(ret_trimmed[<
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         Spearman&rsquo;s &rho; is Pearson&rsquo;s r computed on the copula of the data
-        (the rank-transformed observations). It measures the degree to which the
+        (the rank transformed observations). It measures the degree to which the
         <em>concordance</em> between two variables is monotonic, regardless of the
         marginal distributions. For financial data with heavy tails, this is often a more
-        honest measure of co-movement than Pearson&rsquo;s r.
+        honest measure of comovement than Pearson&rsquo;s r.
       </div>
 
       <h3>3.2 Kendall&rsquo;s Tau</h3>
@@ -309,7 +309,7 @@ plt.show()</pre>
             <td>Yes</td>
             <td>Monotonic</td>
             <td>O(n log n)</td>
-            <td>Robust analysis, rank-based strategies</td>
+            <td>Robust analysis, rank based strategies</td>
           </tr>
           <tr>
             <td>Kendall</td>
@@ -326,14 +326,14 @@ plt.show()</pre>
       <!-- SECTION 4: ROLLING CORRELATIONS                              -->
       <!-- ============================================================ -->
 
-      <h2>4. Rolling Correlations: Time-Varying Dependence</h2>
+      <h2>4. Rolling Correlations: Time Varying Dependence</h2>
 
       <h3>4.1 Why Static Correlation Is Misleading</h3>
 
       <p>
         Computing a single correlation over ten years of data assumes the relationship
         between two assets has been constant the entire time. In practice, correlations
-        change &mdash; sometimes gradually (due to shifting economic regimes) and sometimes
+        change, sometimes gradually (due to shifting economic regimes) and sometimes
         abruptly (due to crises or policy changes).
       </p>
 
@@ -406,14 +406,14 @@ fig.colorbar(im, ax=ax, label=<span class="st">'Correlation'</span>)
 plt.tight_layout()
 plt.show()
 
-<span class="cm"># Look for vertical bands of high correlation — those are crises</span></pre>
+<span class="cm"># Look for vertical bands of high correlation: those are crises</span></pre>
 
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         Rolling correlation is a <strong>kernel estimator</strong> with a rectangular kernel.
         The window size is the bandwidth parameter. A shorter window (21 days) is more
         responsive but noisier; a longer window (252 days) is smoother but lags behind
-        structural changes. This is the classic bias-variance tradeoff. Exponentially
+        structural changes. This is the classic bias variance tradeoff. Exponentially
         weighted moving correlation (EWMA) uses an exponential kernel, which gives more
         weight to recent observations and is the standard in industry risk management
         (RiskMetrics methodology).
@@ -426,12 +426,12 @@ plt.show()
 
       <h2>5. Correlation Breakdown During Crises</h2>
 
-      <h3>5.1 The Worst-Case Scenario for Diversification</h3>
+      <h3>5.1 The Worst Case Scenario for Diversification</h3>
 
       <p>
         One of the most dangerous properties of financial correlation is that it
         <strong>increases during crises</strong>. Precisely when you need diversification
-        most &mdash; when markets are crashing &mdash; correlations spike toward 1 and the
+        most, when markets are crashing, correlations spike toward 1 and the
         diversification benefit evaporates.
       </p>
 
@@ -440,7 +440,7 @@ plt.show()
         The correlation between asset classes during the 2008 crisis and the 2020 COVID
         crash rose dramatically. Stocks, commodities, corporate bonds, and even some
         &ldquo;safe haven&rdquo; assets fell together. This means that a portfolio
-        constructed using normal-period correlations will appear well-diversified but will
+        constructed using normal period correlations will appear well diversified but will
         actually be exposed to much higher risk during exactly the scenarios where risk
         management matters most.
       </div>
@@ -491,7 +491,7 @@ regimes = {
       <div class="common-pitfall">
         <div class="cb-title">Common Pitfall</div>
         <strong>Be careful interpreting conditional correlations.</strong> Forbes and Rigobon
-        (2002) showed that conditioning on high-volatility periods <em>mechanically</em>
+        (2002) showed that conditioning on high volatility periods <em>mechanically</em>
         inflates the measured correlation, even if the underlying dependence structure has
         not changed. The formula is: &rho;<sub>conditional</sub> = &rho; /
         &radic;(1 + &delta;(1 &minus; &rho;<sup>2</sup>)), where &delta; reflects the
@@ -499,7 +499,7 @@ regimes = {
         &ldquo;correlations increase during crises.&rdquo;
       </div>
 
-      <h3>5.3 The Forbes-Rigobon Correction</h3>
+      <h3>5.3 The Forbes Rigobon Correction</h3>
 
       <pre class="code-block"><span class="code-label">Python</span><span class="kw">def</span> <span class="fn">forbes_rigobon_correction</span>(rho_conditional, var_ratio):
     <span class="st">"""
@@ -555,8 +555,8 @@ rw2 = np.cumsum(np.random.normal(<span class="nu">0</span>, <span class="nu">1</
 corr_levels = np.corrcoef(rw1, rw2)[<span class="nu">0</span>, <span class="nu">1</span>]
 corr_changes = np.corrcoef(np.diff(rw1), np.diff(rw2))[<span class="nu">0</span>, <span class="nu">1</span>]
 
-<span class="fn">print</span>(f<span class="st">"Correlation of LEVELS:  {corr_levels:.4f}  (SPURIOUS — they are independent!)"</span>)
-<span class="fn">print</span>(f<span class="st">"Correlation of CHANGES: {corr_changes:.4f}  (correct — near zero)"</span>)
+<span class="fn">print</span>(f<span class="st">"Correlation of LEVELS:  {corr_levels:.4f}  (SPURIOUS, they are independent!)"</span>)
+<span class="fn">print</span>(f<span class="st">"Correlation of CHANGES: {corr_changes:.4f}  (correct: near zero)"</span>)
 
 <span class="cm"># Monte Carlo: repeat 1000 times to show the distribution of spurious correlations</span>
 spurious_corrs = []
@@ -571,13 +571,13 @@ spurious_corrs = np.array(spurious_corrs)
 <span class="fn">print</span>(f<span class="st">"  Fraction with |r| > 0.5: {(np.abs(spurious_corrs) > 0.5).mean():.1%}"</span>)
 <span class="fn">print</span>(f<span class="st">"  Fraction with |r| > 0.8: {(np.abs(spurious_corrs) > 0.8).mean():.1%}"</span>)</pre>
 
-      <h3>6.2 The Third-Variable Problem</h3>
+      <h3>6.2 The Third Variable Problem</h3>
 
       <p>
         Even with returns, observed correlations may be driven by a <strong>common factor</strong>
         rather than a direct relationship. The most common confound in finance is
         <strong>market risk</strong>: most stocks are positively correlated because they
-        all respond to the overall market. The &ldquo;true&rdquo; stock-specific correlation
+        all respond to the overall market. The &ldquo;true&rdquo; stock specific correlation
         is the residual after removing the market factor.
       </p>
 
@@ -585,13 +585,12 @@ spurious_corrs = np.array(spurious_corrs)
         <div class="cb-title">Stats Bridge</div>
         This is a textbook <strong>confounding variable</strong> problem. The market return
         is a confounder that drives both stocks. To estimate the &ldquo;direct&rdquo;
-        relationship, you need to condition on (or partial out) the market factor &mdash;
+        relationship, you need to condition on (or partial out) the market factor: 
         exactly as you would use partial correlation or include a control variable in a
         regression. In finance, this is formalized as the <strong>factor model</strong>:
         r<sub>i,t</sub> = &alpha;<sub>i</sub> + &beta;<sub>i</sub> r<sub>m,t</sub> +
-        &epsilon;<sub>i,t</sub>. The residual correlations &mdash;
-        Corr(&epsilon;<sub>i</sub>, &epsilon;<sub>j</sub>) &mdash; measure true
-        stock-specific co-movement.
+        &epsilon;<sub>i,t</sub>. The residual correlations (Corr(&epsilon;<sub>i</sub>, &epsilon;<sub>j</sub>)) measure true
+        stock specific comovement.
       </div>
 
       <h3>6.3 Correlation Does Not Imply Prediction</h3>
@@ -626,7 +625,7 @@ reverse = ret[<span class="st">"MSFT"</span>].corr(ret[<span class="st">"AAPL"</
       <p>
         Correlation captures only <em>one number</em> about the joint distribution of two
         variables. Two joint distributions can have the same Pearson correlation but
-        completely different dependence structures &mdash; especially in the tails.
+        completely different dependence structures, especially in the tails.
       </p>
 
       <div class="finance-term">
@@ -652,7 +651,7 @@ reverse = ret[<span class="st">"MSFT"</span>].corr(ret[<span class="st">"AAPL"</
       </div>
 
       <p>
-        The <strong>Gaussian copula</strong> has zero tail dependence: extreme co-movements
+        The <strong>Gaussian copula</strong> has zero tail dependence: extreme comovements
         are infinitely unlikely. The <strong>Clayton copula</strong> has lower tail dependence
         (joint crashes are more likely). The <strong>Gumbel copula</strong> has upper tail
         dependence (joint booms).
@@ -675,7 +674,7 @@ reverse = ret[<span class="st">"MSFT"</span>].corr(ret[<span class="st">"AAPL"</
             <td>Baseline model; often inadequate for finance</td>
           </tr>
           <tr>
-            <td>Student-t</td>
+            <td>Student t</td>
             <td>Symmetric > 0</td>
             <td>Symmetric > 0</td>
             <td>Symmetric tail dependence; a good default for finance</td>
@@ -791,23 +790,23 @@ upper_tail = np.mean((u >= <span class="nu">1</span> - threshold) &amp; (v >= <s
           </tr>
           <tr>
             <td>Rolling correlation</td>
-            <td>Financial correlations are time-varying</td>
+            <td>Financial correlations are time varying</td>
             <td>Always check stability before using a static estimate</td>
           </tr>
           <tr>
             <td>Crisis correlation</td>
             <td>Correlations increase during market stress</td>
-            <td>Stress-test portfolios with crisis-period correlations</td>
+            <td>Stress test portfolios with crisis period correlations</td>
           </tr>
           <tr>
-            <td>Forbes-Rigobon</td>
+            <td>Forbes Rigobon</td>
             <td>Conditioning on volatility inflates correlation mechanically</td>
             <td>Correct for variance inflation before concluding contagion</td>
           </tr>
           <tr>
             <td>Copulas</td>
             <td>Correlation is one number; dependence structure is richer</td>
-            <td>Use t-copulas or Clayton copulas for tail risk</td>
+            <td>Use t copulas or Clayton copulas for tail risk</td>
           </tr>
         </tbody>
       </table>

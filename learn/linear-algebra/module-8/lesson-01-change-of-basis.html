@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lesson 1: Change of Basis and Similar Matrices – Linear Algebra</title>
+  <title>Lesson 1: Change of Basis and Similar Matrices | Linear Algebra</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>.lesson-nav{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-md);margin-bottom:var(--spacing-lg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm)}.lesson-objectives{background:linear-gradient(135deg,#2E7D32 0%,#66BB6A 100%);color:white;padding:var(--spacing-lg);border-radius:var(--radius-lg);margin-bottom:var(--spacing-xl)}.lesson-objectives h3{color:white;margin-top:0}.lesson-objectives ul{margin:0;padding-left:var(--spacing-lg)}.content-section{margin-bottom:var(--spacing-xl)}.example-box{background:var(--accent-light);border-left:4px solid var(--accent-color);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.example-box h4{margin-top:0;color:var(--primary-dark)}.definition-box{background:var(--info-light);border:2px solid var(--info);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-md) 0}.definition-box strong{color:var(--info);font-size:1.1rem}.check-understanding{background:white;border:2px solid #2E7D32;border-radius:var(--radius-lg);padding:var(--spacing-lg);margin:var(--spacing-xl) 0}.check-understanding h3{color:#2E7D32;margin-top:0}.question{background:var(--background-alt);padding:var(--spacing-md);border-radius:var(--radius-sm);margin-bottom:var(--spacing-md)}.question p{font-weight:600;margin-bottom:var(--spacing-sm)}.reveal-btn{background:#2E7D32;color:white;border:none;padding:var(--spacing-sm) var(--spacing-md);border-radius:var(--radius-sm);cursor:pointer;font-size:0.875rem}.reveal-btn:hover{background:#1B5E20}.answer{display:none;margin-top:var(--spacing-sm);padding:var(--spacing-sm);background:white;border-left:3px solid var(--success);border-radius:var(--radius-sm)}.key-takeaways{background:var(--success-light);border-left:4px solid var(--success);padding:var(--spacing-lg);border-radius:var(--radius-md);margin:var(--spacing-xl) 0}.key-takeaways h3{margin-top:0;color:var(--success)}.matrix-display{text-align:center;margin:1rem 0;font-size:1.1rem;font-family:monospace}</style>
   <style>@media print{header,footer,nav,.btn,button,.lesson-nav{display:none!important}body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#000!important;background:white!important}.container,main{max-width:100%!important;width:100%!important;margin:0!important;padding:1cm!important}}</style>
@@ -21,10 +21,10 @@
 <div class="print-bar" style="background:#f5f5f5;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span style="font-size:0.9rem;color:#555;"> Save or print this lesson:</span><button onclick="window.print()" style="background:#1565C0;color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;"> Print / Save as PDF</button></div>
     <div class="lesson-nav"><a href="index.html" class="back-link">&larr; Module 8 Home</a><span class="text-muted">Lesson 1 of 4</span><a href="lesson-02-svd-introduction.html" class="btn btn-outline">Next Lesson &rarr;</a></div>
     <h1>Lesson 1: Change of Basis and Similar Matrices</h1>
-    <p class="text-muted">Estimated time: 40-50 minutes</p>
+    <p class="text-muted">Estimated time: 40 to 50 minutes</p>
     <div class="lesson-objectives"><h3>Learning Objectives</h3><ul>
       <li>Understand coordinates relative to different bases</li>
-      <li>Compute the change-of-basis (transition) matrix</li>
+      <li>Compute the change of basis (transition) matrix</li>
       <li>Define similar matrices and explain their shared properties</li>
       <li>Connect change of basis to diagonalization</li>
     </ul></div>
@@ -32,23 +32,23 @@
     <section class="content-section">
       <h2>Coordinates Relative to a Basis</h2>
       <p>A basis B = {b1, b2, ..., bn} provides a coordinate system for R^n. Every vector x can be uniquely written as x = c1*b1 + c2*b2 + ... + cn*bn, and the coordinate vector is [x]_B = (c1, c2, ..., cn).</p>
-      <div class="definition-box"><p><strong>Coordinate Vector:</strong> If B = {b1, ..., bn} is a basis for R^n and x = c1*b1 + ... + cn*bn, then [x]_B = (c1, ..., cn) is the B-coordinate vector of x.</p></div>
+      <div class="definition-box"><p><strong>Coordinate Vector:</strong> If B = {b1, ..., bn} is a basis for R^n and x = c1*b1 + ... + cn*bn, then [x]_B = (c1, ..., cn) is the B coordinate vector of x.</p></div>
       <div class="example-box"><h4>Worked Example 1</h4>
-        <p>B = {(1, 1), (1, -1)}. Express x = (5, 3) in B-coordinates.</p>
+        <p>B = {(1, 1), (1, -1)}. Express x = (5, 3) in B coordinates.</p>
         <p>Solve c1(1,1) + c2(1,-1) = (5, 3). System: c1 + c2 = 5 and c1 - c2 = 3. Adding: 2c1 = 8, c1 = 4. c2 = 1.</p>
         <p>[x]_B = <strong>(4, 1)</strong>. Check: 4(1,1) + 1(1,-1) = (4,4) + (1,-1) = (5,3).</p>
       </div>
     </section>
 
     <section class="content-section">
-      <h2>The Change-of-Basis Matrix</h2>
-      <div class="definition-box"><p><strong>Change-of-Basis Matrix:</strong> The matrix P_B = [b1 | b2 | ... | bn] converts B-coordinates to standard coordinates: x = P_B * [x]_B.</p>
+      <h2>The Change of Basis Matrix</h2>
+      <div class="definition-box"><p><strong>Change of Basis Matrix:</strong> The matrix P_B = [b1 | b2 | ... | bn] converts B coordinates to standard coordinates: x = P_B * [x]_B.</p>
       <p>To go the other direction: [x]_B = P_B^{-1} * x.</p></div>
       <div class="example-box"><h4>Worked Example 2</h4>
         <p>B = {(1, 1), (1, -1)}. P_B = [1 1; 1 -1]. P_B^{-1} = (1/2)[1 1; 1 -1] = [1/2 1/2; 1/2 -1/2].</p>
         <p>For x = (5, 3): [x]_B = P_B^{-1} * (5,3)^T = (4, 1)^T. Matches Example 1.</p>
       </div>
-      <div class="definition-box"><p><strong>Transition between two bases:</strong> To convert from B-coordinates to C-coordinates:</p>
+      <div class="definition-box"><p><strong>Transition between two bases:</strong> To convert from B coordinates to C coordinates:</p>
       <p>[x]_C = P_C^{-1} * P_B * [x]_B. The matrix P_C^{-1} * P_B is the transition matrix from B to C.</p></div>
       <div class="example-box"><h4>Worked Example 3</h4>
         <p>B = {(1,0), (0,1)}, C = {(1,1), (1,-1)}. Find the transition matrix from B to C.</p>
@@ -84,7 +84,7 @@
       <div class="matrix-display">[T]_B = P_B^{-1} * A * P_B</div>
       <div class="definition-box"><p><strong>Key Insight:</strong> Diagonalization IS change of basis. When A = PDP^{-1}, the matrix D = P^{-1}AP is the matrix of the same transformation in the eigenvector basis. In the eigenvector basis, the transformation is just scaling along each axis.</p></div>
       <div class="example-box"><h4>Worked Example 5</h4>
-        <p>T(x,y) = (4x-2y, x+y). Standard matrix A = [4 -2; 1 1]. In the eigenvector basis B = {(1,1), (2,1)}:</p>
+        <p>T(x,y) = (4x 2y, x+y). Standard matrix A = [4 -2; 1 1]. In the eigenvector basis B = {(1,1), (2,1)}:</p>
         <p>[T]_B = P^{-1}AP = [2 0; 0 3]. In this basis, T just scales the first coordinate by 2 and the second by 3.</p>
       </div>
     </section>
@@ -108,7 +108,7 @@
 
     <div class="key-takeaways"><h3>Key Takeaways</h3><ul>
       <li><strong>Coordinate vector</strong> [x]_B expresses x relative to basis B</li>
-      <li><strong>Change-of-basis matrix</strong> P_B converts B-coords to standard: x = P_B [x]_B</li>
+      <li><strong>Change of basis matrix</strong> P_B converts B coords to standard: x = P_B [x]_B</li>
       <li><strong>Similar matrices</strong> B = P^{-1}AP share eigenvalues, det, trace, rank</li>
       <li>Diagonalization is change of basis to the eigenvector basis</li>
       <li>Choosing the right basis can dramatically simplify a problem</li>

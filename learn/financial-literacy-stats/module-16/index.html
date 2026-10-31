@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Module 16 of Financial Literacy for Statisticians: Feature engineering, walk-forward validation, overfitting landmines, and why most ML papers fail in live trading">
-  <title>Machine Learning in Finance — Financial Literacy for Statisticians</title>
+  <meta name="description" content="Module 16 of Financial Literacy for Statisticians: Feature engineering, walk forward validation, overfitting landmines, and why most ML papers fail in live trading">
+  <title>Machine Learning in Finance | Financial Literacy for Statisticians</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .module-header {
@@ -71,7 +71,7 @@
 
     <div class="module-header">
       <h1>Module 16: Machine Learning in Finance</h1>
-      <p class="tagline">Feature engineering, walk-forward validation, overfitting landmines, and why most ML papers fail in live trading</p>
+      <p class="tagline">Feature engineering, walk forward validation, overfitting landmines, and why most ML papers fail in live trading</p>
       <div class="module-meta">
         <span class="meta-item">Part 4 of 5</span>
         <span class="meta-item">Module 16 of 22</span>
@@ -87,9 +87,9 @@
 
 <h2>Introduction: Where Statistics Meets Silicon</h2>
       <p>
-        Machine learning in finance is not a revolution &mdash; it is an extension of the statistical
-        methods you already know, applied to a domain where the signal-to-noise ratio is brutally
-        low and the data-generating process is non-stationary. This module will equip you with the
+        Machine learning in finance is not a revolution, it is an extension of the statistical
+        methods you already know, applied to a domain where the signal to noise ratio is brutally
+        low and the data generating process is nonstationary. This module will equip you with the
         practical knowledge to apply ML to financial data without falling into the traps that have
         claimed countless quantitative strategies. The central theme: <strong>what works in Kaggle
         competitions fails in financial markets</strong>, and understanding why is essential.
@@ -133,7 +133,7 @@
             <td>Fundamental</td>
             <td>Earnings, P/E, book value</td>
             <td>Quarterly</td>
-            <td>Ratios, growth rates, sector-relative ranks</td>
+            <td>Ratios, growth rates, sector relative ranks</td>
           </tr>
           <tr>
             <td>Macroeconomic</td>
@@ -160,7 +160,7 @@
       <div class="common-pitfall">
       <div class="cb-title">Common Pitfall</div>
         <p>
-          <strong>Look-ahead bias</strong>: When constructing features, you must use only information
+          <strong>Look ahead bias</strong>: When constructing features, you must use only information
           available at the time of prediction. If you use today&rsquo;s closing price to predict
           today&rsquo;s return, you have a perfect but useless predictor. Always shift features
           by at least one period: <code>X_t = f(data_{t-1}, data_{t-2}, ...)</code>.
@@ -169,17 +169,17 @@
 
       <h3>1.3 Rolling Statistics</h3>
       <p>
-        Rolling windows capture time-varying properties of the return distribution:
+        Rolling windows capture time varying properties of the return distribution:
       </p>
       <ul>
         <li><strong>Rolling mean</strong> (momentum): moving average of returns over 5, 20, 60, 252 days.</li>
         <li><strong>Rolling volatility</strong>: standard deviation of returns over a lookback window.</li>
-        <li><strong>Rolling skewness and kurtosis</strong>: higher-order moments that capture tail behavior.</li>
-        <li><strong>Rolling correlation</strong>: time-varying co-movement between assets.</li>
-        <li><strong>Rolling z-score</strong>: (current value &minus; rolling mean) / rolling std &mdash; mean-reversion signal.</li>
+        <li><strong>Rolling skewness and kurtosis</strong>: higher order moments that capture tail behavior.</li>
+        <li><strong>Rolling correlation</strong>: time varying comovement between assets.</li>
+        <li><strong>Rolling z score</strong>: (current value &minus; rolling mean) / rolling std, mean reversion signal.</li>
       </ul>
 
-      <h3>1.4 Cross-Asset Features</h3>
+      <h3>1.4 Cross Asset Features</h3>
       <p>
         Financial markets are interconnected. Features from related assets often contain more
         predictive information than the target asset&rsquo;s own history:
@@ -244,11 +244,11 @@ features = create_features(<span class="st">"SPY"</span>)
 
       <!-- ───────────────── SECTION 2: WALK-FORWARD VALIDATION ───────────────── -->
 
-      <h2>2. Walk-Forward Validation: The Only Valid Approach</h2>
+      <h2>2. Walk Forward Validation: The Only Valid Approach</h2>
 
-      <h3>2.1 Why K-Fold Cross-Validation Is Wrong for Time Series</h3>
+      <h3>2.1 Why K Fold Cross Validation Is Wrong for Time Series</h3>
       <p>
-        Standard k-fold cross-validation randomly shuffles data into folds. This is catastrophic
+        Standard k fold cross validation randomly shuffles data into folds. This is catastrophic
         for time series because:
       </p>
       <ul>
@@ -261,14 +261,14 @@ features = create_features(<span class="st">"SPY"</span>)
       <div class="cb-title">Stats Bridge</div>
         <p>
           In statistics, IID assumptions justify random splitting. Time series violate IID in
-          multiple ways: autocorrelation, heteroscedasticity, and non-stationarity. The correct
+          multiple ways: autocorrelation, heteroscedasticity, and nonstationarity. The correct
           approach preserves temporal ordering: always train on the past, test on the future.
-          This is <strong>walk-forward validation</strong> (also called time series cross-validation
+          This is <strong>walk forward validation</strong> (also called time series cross validation
           or expanding/rolling window validation).
         </p>
       </div>
 
-      <h3>2.2 Walk-Forward Schemes</h3>
+      <h3>2.2 Walk Forward Schemes</h3>
       <table>
         <thead>
           <tr>
@@ -287,7 +287,7 @@ features = create_features(<span class="st">"SPY"</span>)
           </tr>
           <tr>
             <td>Rolling window</td>
-            <td>Fixed-size window ending at t</td>
+            <td>Fixed size window ending at t</td>
             <td>Adapts to regime changes</td>
             <td>Less data; window size is a hyperparameter</td>
           </tr>
@@ -302,8 +302,8 @@ features = create_features(<span class="st">"SPY"</span>)
 
       <h3>2.3 Embargo and Purging</h3>
       <p>
-        Even with walk-forward splitting, information can leak through features that span the
-        train/test boundary. If you use a 20-day rolling mean as a feature, the last training
+        Even with walk forward splitting, information can leak through features that span the
+        train/test boundary. If you use a 20 day rolling mean as a feature, the last training
         observation&rsquo;s feature overlaps with the first test observation&rsquo;s feature.
       </p>
       <ul>
@@ -315,13 +315,13 @@ features = create_features(<span class="st">"SPY"</span>)
       <div class="cb-title">Key Insight</div>
         <p>
           The embargo period should be at least as long as your longest lookback feature. If your
-          features use 60-day rolling windows, embargo at least 60 trading days between the end
+          features use 60 day rolling windows, embargo at least 60 trading days between the end
           of training and the start of testing. This is conservative but prevents insidious leakage
-          that inflates out-of-sample metrics.
+          that inflates out of sample metrics.
         </p>
       </div>
 
-      <h3>2.4 Python: Walk-Forward Framework</h3>
+      <h3>2.4 Python: Walk Forward Framework</h3>
       <pre class="code-block"><span class="code-label">Python</span><span class="kw">import</span> numpy <span class="kw">as</span> np
 <span class="kw">import</span> pandas <span class="kw">as</span> pd
 <span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error, r2_score
@@ -415,7 +415,7 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
         </thead>
         <tbody>
           <tr>
-            <td>Signal-to-noise ratio</td>
+            <td>Signal to noise ratio</td>
             <td>High (R<sup>2</sup> &gt; 90%)</td>
             <td>Extremely low (R<sup>2</sup> &lt; 1%)</td>
           </tr>
@@ -427,7 +427,7 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
           <tr>
             <td>Sample size (effective)</td>
             <td>Millions of IID images</td>
-            <td>~20-50 years of non-IID daily data</td>
+            <td>~20 to 50 years of non IID daily data</td>
           </tr>
           <tr>
             <td>Adversarial environment</td>
@@ -447,12 +447,12 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
         <p>
           With an R<sup>2</sup> of 0.5% (a respectable number in financial prediction), 99.5% of
           the variation in returns is noise. A model that overfits even slightly will learn the
-          noise and produce negative out-of-sample R<sup>2</sup>. The practical implication: you
+          noise and produce negative out of sample R<sup>2</sup>. The practical implication: you
           need <strong>extreme regularization</strong> and <strong>radical simplicity</strong>.
         </p>
       </div>
 
-      <h3>3.2 The Signal-to-Noise Problem Quantified</h3>
+      <h3>3.2 The Signal to Noise Problem Quantified</h3>
       <div class="formula-box">
         R<sup>2</sup> = 1 &minus; Var(&epsilon;) / Var(y) &nbsp;&nbsp;&rArr;&nbsp;&nbsp; SNR = R<sup>2</sup> / (1 &minus; R<sup>2</sup>)
       </div>
@@ -480,13 +480,13 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
 
       <h2>4. Random Forests and Gradient Boosting</h2>
 
-      <h3>4.1 Why Tree-Based Models for Finance?</h3>
+      <h3>4.1 Why Tree Based Models for Finance?</h3>
       <p>
-        Tree-based ensemble methods have several properties that make them well-suited for financial
+        Tree based ensemble methods have several properties that make them well suited for financial
         data:
       </p>
       <ul>
-        <li><strong>Non-linear interactions</strong>: Financial relationships are often non-linear (e.g., volatility regimes).</li>
+        <li><strong>Nonlinear interactions</strong>: Financial relationships are often nonlinear (e.g., volatility regimes).</li>
         <li><strong>Feature selection built in</strong>: Trees naturally ignore irrelevant features.</li>
         <li><strong>Robust to outliers</strong>: Splits are based on ranks, not magnitudes.</li>
         <li><strong>No scaling required</strong>: Unlike linear models, trees don&rsquo;t need standardized inputs.</li>
@@ -508,7 +508,7 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
             <td>Sequential (boosting)</td>
           </tr>
           <tr>
-            <td>Bias-variance tradeoff</td>
+            <td>Bias variance tradeoff</td>
             <td>Low bias, reduced variance</td>
             <td>Progressively reduces bias</td>
           </tr>
@@ -535,19 +535,19 @@ cv_results = walk_forward_cv(X, y, ridge_model, expanding=<span class="kw">True<
         In finance, you must tune aggressively toward simplicity:
       </p>
       <ul>
-        <li><strong>max_depth</strong>: Use 3&ndash;5. Deep trees memorize noise.</li>
+        <li><strong>max_depth</strong>: Use 3 to 5. Deep trees memorize noise.</li>
         <li><strong>n_estimators</strong>: Use early stopping on a temporal validation set.</li>
-        <li><strong>learning_rate</strong> (boosting): Low values (0.01&ndash;0.05) with many rounds.</li>
+        <li><strong>learning_rate</strong> (boosting): Low values (0.01 to 0.05) with many rounds.</li>
         <li><strong>min_samples_leaf</strong>: High values (50+) prevent fitting to small pockets of noise.</li>
         <li><strong>max_features</strong>: Use sqrt(n_features) for random forests (the default is correct).</li>
-        <li><strong>subsample</strong>: 0.7&ndash;0.8 reduces overfitting in boosting.</li>
+        <li><strong>subsample</strong>: 0.7 to 0.8 reduces overfitting in boosting.</li>
       </ul>
 
       <div class="common-pitfall">
       <div class="cb-title">Common Pitfall</div>
         <p>
-          Do NOT tune hyperparameters using the same walk-forward test set you use to evaluate
-          final performance. This creates a meta-overfitting problem. Use a three-way split:
+          Do NOT tune hyperparameters using the same walk forward test set you use to evaluate
+          final performance. This creates a meta overfitting problem. Use a three way split:
           train / validation (for hyperparameter tuning) / test (for final evaluation). The
           validation set must also respect temporal ordering.
         </p>
@@ -625,25 +625,25 @@ comparison_df = pd.DataFrame(comparison).T
         </thead>
         <tbody>
           <tr>
-            <td>Impurity-based (MDI)</td>
+            <td>Impurity based (MDI)</td>
             <td>Total reduction in node impurity</td>
             <td>Fast, built into trees</td>
-            <td>Biased toward high-cardinality features</td>
+            <td>Biased toward high cardinality features</td>
           </tr>
           <tr>
             <td>Permutation importance</td>
             <td>Shuffle one feature, measure performance drop</td>
-            <td>Model-agnostic, unbiased</td>
+            <td>Model agnostic, unbiased</td>
             <td>Slow; correlated features share importance</td>
           </tr>
           <tr>
             <td>SHAP values</td>
-            <td>Game-theoretic marginal contributions</td>
+            <td>Game theoretic marginal contributions</td>
             <td>Additive, local + global</td>
             <td>Computationally expensive</td>
           </tr>
           <tr>
-            <td>Drop-column importance</td>
+            <td>Drop column importance</td>
             <td>Retrain without each feature</td>
             <td>Most reliable</td>
             <td>Extremely slow (retrain N times)</td>
@@ -655,10 +655,10 @@ comparison_df = pd.DataFrame(comparison).T
       <div class="cb-title">Stats Bridge</div>
         <p>
           Feature importance in ML is analogous to <strong>partial R<sup>2</sup></strong> or
-          <strong>t-statistics</strong> in regression. But unlike t-statistics, tree-based
-          importance measures do not come with p-values or confidence intervals. To assess
+          <strong>t statistics</strong> in regression. But unlike t statistics, tree based
+          importance measures do not come with p values or confidence intervals. To assess
           whether a feature&rsquo;s importance is statistically significant, you need either
-          permutation-based tests or the multiple-testing corrections discussed in Section 7.
+          permutation based tests or the multiple testing corrections discussed in Section 7.
         </p>
       </div>
 
@@ -702,7 +702,7 @@ plt.show()</pre>
       <h3>6.1 The Danger of Strategy Mining</h3>
       <p>
         Suppose you test 1,000 trading strategies and find that 50 have statistically significant
-        out-of-sample Sharpe ratios (p &lt; 0.05). How many are true discoveries? If none of the
+        out of sample Sharpe ratios (p &lt; 0.05). How many are true discoveries? If none of the
         strategies have real alpha, you would expect 1000 &times; 0.05 = 50 false positives. The
         significant strategies could all be false discoveries.
       </p>
@@ -712,7 +712,7 @@ plt.show()</pre>
         <p>
           This is exactly the <strong>multiple comparisons problem</strong> from hypothesis testing.
           In genomics, it is called the &ldquo;multiple testing correction.&rdquo; In finance,
-          it is called &ldquo;data snooping&rdquo; or &ldquo;p-hacking.&rdquo; The statistics
+          it is called &ldquo;data snooping&rdquo; or &ldquo;p hacking.&rdquo; The statistics
           is identical; only the application differs.
         </p>
       </div>
@@ -730,24 +730,24 @@ plt.show()</pre>
         <tbody>
           <tr>
             <td>Bonferroni</td>
-            <td>FWER (family-wise error rate)</td>
+            <td>FWER (family wise error rate)</td>
             <td>Reject if p<sub>i</sub> &lt; &alpha;/m</td>
             <td>Very conservative</td>
           </tr>
           <tr>
-            <td>Holm-Bonferroni</td>
+            <td>Holm Bonferroni</td>
             <td>FWER</td>
-            <td>Step-down procedure</td>
+            <td>Step down procedure</td>
             <td>Less conservative than Bonferroni</td>
           </tr>
           <tr>
-            <td>Benjamini-Hochberg</td>
+            <td>Benjamini Hochberg</td>
             <td>FDR (false discovery rate)</td>
             <td>p<sub>(i)</sub> &lt; i &times; &alpha;/m</td>
             <td>Moderate (controls proportion of false discoveries)</td>
           </tr>
           <tr>
-            <td>Storey&rsquo;s q-value</td>
+            <td>Storey&rsquo;s q value</td>
             <td>FDR</td>
             <td>Estimates &pi;<sub>0</sub> (proportion of true nulls)</td>
             <td>Adaptive, more powerful</td>
@@ -793,12 +793,12 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
 
       <!-- ───────────────── SECTION 7: NON-STATIONARITY ───────────────── -->
 
-      <h2>7. Non-Stationarity: The Fundamental Enemy</h2>
+      <h2>7. Non Stationarity: The Fundamental Enemy</h2>
 
       <h3>7.1 Why Models Decay</h3>
       <p>
-        Even a well-validated ML model will degrade over time because the data-generating process
-        in finance is <strong>non-stationary</strong>. The relationships between features and
+        Even a well validated ML model will degrade over time because the data generating process
+        in finance is <strong>nonstationary</strong>. The relationships between features and
         returns change as:
       </p>
       <ul>
@@ -811,13 +811,13 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
       <div class="finance-term">
       <div class="cb-title">Finance Term</div>
         <p>
-          <strong>Alpha decay</strong> &mdash; The phenomenon where a trading strategy&rsquo;s
+          <strong>Alpha decay</strong>: The phenomenon where a trading strategy&rsquo;s
           excess returns diminish over time as the exploited inefficiency gets arbitraged away
           by other market participants who discover the same signal.
         </p>
       </div>
 
-      <h3>7.2 Strategies for Handling Non-Stationarity</h3>
+      <h3>7.2 Strategies for Handling Non Stationarity</h3>
       <table>
         <thead>
           <tr>
@@ -834,7 +834,7 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
           </tr>
           <tr>
             <td>Feature stationarization</td>
-            <td>Transform features to be stationary (z-scores, ranks)</td>
+            <td>Transform features to be stationary (z scores, ranks)</td>
             <td>May lose information</td>
           </tr>
           <tr>
@@ -871,11 +871,11 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
             they will.</li>
         <li><strong>Limited data</strong>: 20 years of daily data is ~5,000 observations. Neural networks
             need orders of magnitude more.</li>
-        <li><strong>Non-stationarity</strong>: Deep learning assumes the training distribution matches the
+        <li><strong>Nonstationarity</strong>: Deep learning assumes the training distribution matches the
             test distribution. In finance, it does not.</li>
         <li><strong>Tabular data</strong>: Neural networks lack the inductive biases (spatial locality for CNNs,
             sequential structure for RNNs) that make them powerful on images and text. Financial
-            features are tabular, where tree-based models dominate.</li>
+            features are tabular, where tree based models dominate.</li>
         <li><strong>Hyperparameter sensitivity</strong>: The architecture and training choices dwarf the signal
             in the data.</li>
       </ol>
@@ -885,8 +885,8 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
         <p>
           The rule of thumb in financial ML: <strong>start with the simplest model</strong> (Ridge
           regression), then try random forests. Only escalate to gradient boosting or neural networks
-          if simpler models are clearly leaving performance on the table &mdash; and validate this
-          rigorously out-of-sample. Complexity must earn its place through demonstrated improvement.
+          if simpler models are clearly leaving performance on the table, and validate this
+          rigorously out of sample. Complexity must earn its place through demonstrated improvement.
         </p>
       </div>
 
@@ -897,7 +897,7 @@ bh_reject, bh_pval, _, _ = multipletests(p_values, method=<span class="st">"fdr_
       </p>
       <ul>
         <li><strong>NLP on financial text</strong>: Sentiment analysis of earnings calls, news, SEC filings. Transformer models excel here because the data is genuinely textual.</li>
-        <li><strong>High-frequency data</strong>: Limit order book modeling, where the data is truly massive (millions of events per day) and has spatial structure.</li>
+        <li><strong>High frequency data</strong>: Limit order book modeling, where the data is truly massive (millions of events per day) and has spatial structure.</li>
         <li><strong>Generative models</strong>: Simulating realistic market scenarios for stress testing (GANs, VAEs).</li>
         <li><strong>Reinforcement learning</strong>: Optimal execution (minimizing market impact of large trades).</li>
       </ul>
@@ -957,7 +957,7 @@ comparison = full_model_comparison(X, y)</pre>
       <div class="cb-title">Common Pitfall</div>
         <p>
           Notice in the comparison above that more complex models (deeper trees, aggressive boosting)
-          often have <strong>worse</strong> out-of-sample R<sup>2</sup> than simpler models. This is the
+          often have <strong>worse</strong> out of sample R<sup>2</sup> than simpler models. This is the
           overfitting phenomenon in action. In finance, the winning model is almost always the
           simplest one that captures any signal at all. If Ridge regression achieves R<sup>2</sup> =
           0.2% and a neural network achieves R<sup>2</sup> = &minus;1.5%, the Ridge model is the
@@ -982,13 +982,13 @@ comparison = full_model_comparison(X, y)</pre>
         </thead>
         <tbody>
           <tr>
-            <td>Cross-validation</td>
-            <td>Walk-forward validation</td>
+            <td>Cross validation</td>
+            <td>Walk forward validation</td>
             <td>Must preserve temporal order; add embargo</td>
           </tr>
           <tr>
             <td>R<sup>2</sup></td>
-            <td>Out-of-sample R<sup>2</sup></td>
+            <td>Out of sample R<sup>2</sup></td>
             <td>Expect R<sup>2</sup> &lt; 1%; often negative</td>
           </tr>
           <tr>
@@ -997,13 +997,13 @@ comparison = full_model_comparison(X, y)</pre>
             <td>Most features are noise; correct for data mining</td>
           </tr>
           <tr>
-            <td>Bias-variance tradeoff</td>
+            <td>Bias variance tradeoff</td>
             <td>Aggressively favor bias (regularize hard)</td>
-            <td>Variance dominates in low-SNR regime</td>
+            <td>Variance dominates in low SNR regime</td>
           </tr>
           <tr>
             <td>IID assumption</td>
-            <td>Non-stationarity</td>
+            <td>Nonstationarity</td>
             <td>Models decay; retrain regularly</td>
           </tr>
           <tr>
@@ -1023,8 +1023,8 @@ comparison = full_model_comparison(X, y)</pre>
       <div class="cb-title">Key Insight</div>
         <p>
           The most important skill in financial ML is <strong>knowing when your model is lying to
-          you</strong>. A model that shows 2% R<sup>2</sup> in-sample and &minus;0.5% out-of-sample
-          has learned nothing but noise. The discipline of rigorous walk-forward validation with
+          you</strong>. A model that shows 2% R<sup>2</sup> in sample and &minus;0.5% out of sample
+          has learned nothing but noise. The discipline of rigorous walk forward validation with
           proper embargo, combined with multiple testing corrections, is what separates quantitative
           research from expensive numerology.
         </p>

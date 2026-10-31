@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Module 22 of Financial Literacy for Statisticians: Capstone project: pull live data, compute risk metrics, visualize portfolio performance, and tie everything together">
-  <title>Building Your Own Financial Dashboard — Financial Literacy for Statisticians</title>
+  <title>Building Your Own Financial Dashboard | Financial Literacy for Statisticians</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .module-header {
@@ -109,12 +109,12 @@
           <tr>
             <td>1. Portfolio Tracker</td>
             <td>Track holdings, compute values, returns, weights</td>
-            <td>Modules 1&ndash;4 (data, returns, correlation)</td>
+            <td>Modules 1 to 4 (data, returns, correlation)</td>
           </tr>
           <tr>
             <td>2. Risk Metrics</td>
             <td>VaR, CVaR, max drawdown, Sharpe ratio</td>
-            <td>Modules 5&ndash;8 (risk, volatility, tail risk)</td>
+            <td>Modules 5 to 8 (risk, volatility, tail risk)</td>
           </tr>
           <tr>
             <td>3. Correlation Monitor</td>
@@ -123,8 +123,8 @@
           </tr>
           <tr>
             <td>4. Factor Exposure</td>
-            <td>CAPM and Fama-French regressions</td>
-            <td>Modules 10&ndash;12 (factor models, regression)</td>
+            <td>CAPM and Fama French regressions</td>
+            <td>Modules 10 to 12 (factor models, regression)</td>
           </tr>
           <tr>
             <td>5. Macro Context</td>
@@ -142,7 +142,7 @@
       <div class="key-insight">
       <div class="cb-title">Key Insight</div>
         <p>
-          A financial dashboard is not just a software project &mdash; it is a <strong>statistical
+          A financial dashboard is not just a software project, it is a <strong>statistical
           monitoring system</strong>. Each component is a summary statistic, a hypothesis test,
           or a model output that helps you make decisions. Building it forces you to operationalize
           everything you have learned.
@@ -151,7 +151,7 @@
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.1 &mdash; Component 1: Portfolio Tracker</h2>
+      <h2>22.1, Component 1: Portfolio Tracker</h2>
 
       <p>
         The foundation of any financial dashboard is knowing what you own. The portfolio tracker
@@ -180,7 +180,7 @@
         <p>
           A portfolio is a <strong>weighted mixture distribution</strong>. The portfolio return
           is a weighted sum of individual asset returns: R<sub>p</sub> = &sum; w<sub>i</sub> R<sub>i</sub>.
-          The weights are not fixed &mdash; they drift as prices change, which means the portfolio's
+          The weights are not fixed, they drift as prices change, which means the portfolio's
           statistical properties (mean, variance, skewness) evolve over time even without trading.
           This is why periodic rebalancing is necessary to maintain a target allocation.
         </p>
@@ -275,7 +275,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.2 &mdash; Component 2: Risk Metrics</h2>
+      <h2>22.2, Component 2: Risk Metrics</h2>
 
       <p>
         Knowing your portfolio's value is necessary but not sufficient. You must also know
@@ -315,19 +315,19 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
           </tr>
           <tr>
             <td>Maximum Drawdown</td>
-            <td>Largest peak-to-trough decline</td>
+            <td>Largest peak to trough decline</td>
             <td>MDD = max<sub>t</sub> (Peak<sub>t</sub> &minus; Trough<sub>t</sub>) / Peak<sub>t</sub></td>
             <td>Worst cumulative loss experienced</td>
           </tr>
           <tr>
             <td>Sharpe Ratio</td>
-            <td>Risk-adjusted return</td>
+            <td>Risk adjusted return</td>
             <td>SR = (R<sub>p</sub> &minus; R<sub>f</sub>) / &sigma;<sub>p</sub></td>
             <td>Excess return per unit of risk; > 1 is good</td>
           </tr>
           <tr>
             <td>Sortino Ratio</td>
-            <td>Downside risk-adjusted return</td>
+            <td>Downside risk adjusted return</td>
             <td>SoR = (R<sub>p</sub> &minus; R<sub>f</sub>) / &sigma;<sub>downside</sub></td>
             <td>Like Sharpe but only penalizes downside volatility</td>
           </tr>
@@ -339,8 +339,8 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
         <p>
           VaR is the <strong>&alpha;-quantile</strong> of the loss distribution. CVaR is the
           <strong>conditional expectation beyond that quantile</strong> (tail conditional
-          expectation). The Sharpe ratio is a <strong>signal-to-noise ratio</strong>. Max drawdown
-          is the <strong>running maximum of cumulative losses</strong> &mdash; a path-dependent
+          expectation). The Sharpe ratio is a <strong>signal to noise ratio</strong>. Max drawdown
+          is the <strong>running maximum of cumulative losses</strong>, a path dependent
           order statistic. Each of these maps directly to a concept from your statistics courses.
         </p>
       </div>
@@ -459,19 +459,19 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.3 &mdash; Component 3: Correlation Monitor</h2>
+      <h2>22.3, Component 3: Correlation Monitor</h2>
 
       <p>
         Portfolio diversification depends on correlations between assets. But correlations are
-        not constant &mdash; they shift over time and spike during crises (exactly when you
+        not constant, they shift over time and spike during crises (exactly when you
         need diversification most). The correlation monitor tracks this instability.
       </p>
 
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          A rolling correlation matrix is a <strong>time-varying parameter estimate</strong>.
-          The window length controls the bias-variance tradeoff: a short window (30 days)
+          A rolling correlation matrix is a <strong>time varying parameter estimate</strong>.
+          The window length controls the bias variance tradeoff: a short window (30 days)
           is responsive but noisy; a long window (252 days) is smooth but may miss regime
           changes. This is the same tradeoff you encounter in kernel density estimation (bandwidth
           selection) or in exponential smoothing (the decay parameter &lambda;).
@@ -487,7 +487,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
             diversification.</li>
         <li><strong>Correlation regime changes:</strong> Sudden jumps in correlation often signal
             a market stress event.</li>
-        <li><strong>Stock-bond correlation:</strong> Historically negative (bonds diversify stocks),
+        <li><strong>Stock bond correlation:</strong> Historically negative (bonds diversify stocks),
             but it can turn positive during inflation episodes.</li>
       </ul>
 
@@ -586,14 +586,14 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
           The "effective number of independent bets" is a powerful diversification diagnostic.
           If you hold 5 assets but the effective number is only 2.1, your portfolio is really
           just two independent bets wearing five different labels. This happens commonly with
-          portfolios heavy in US equities: large-cap, mid-cap, and small-cap are highly
+          portfolios heavy in US equities: large cap, midcap, and small cap are highly
           correlated, so they count as roughly one bet.
         </p>
       </div>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.4 &mdash; Component 4: Factor Exposure Analysis</h2>
+      <h2>22.4, Component 4: Factor Exposure Analysis</h2>
 
       <p>
         Understanding <em>why</em> your portfolio moves requires factor analysis. Are your
@@ -601,7 +601,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
         by momentum? Factor regression answers this question.
       </p>
 
-      <h3>CAPM: Single-Factor Model</h3>
+      <h3>CAPM: Single Factor Model</h3>
 
       <div class="formula-box">
         R<sub>p,t</sub> &minus; R<sub>f,t</sub> = &alpha; + &beta; (R<sub>m,t</sub> &minus; R<sub>f,t</sub>) + &epsilon;<sub>t</sub>
@@ -612,7 +612,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
         the market sensitivity, and &epsilon; is the idiosyncratic residual.
       </p>
 
-      <h3>Fama-French Three-Factor Model</h3>
+      <h3>Fama French Three Factor Model</h3>
 
       <div class="formula-box">
         R<sub>p,t</sub> &minus; R<sub>f,t</sub> = &alpha; + &beta;<sub>1</sub>(R<sub>m,t</sub> &minus; R<sub>f,t</sub>)
@@ -639,30 +639,30 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
             <td>SMB</td>
             <td>Small Minus Big</td>
             <td>Size premium (small caps vs large caps)</td>
-            <td>Long-short portfolio sorted on market cap</td>
+            <td>Long short portfolio sorted on market cap</td>
           </tr>
           <tr>
             <td>HML</td>
             <td>High Minus Low</td>
             <td>Value premium (value stocks vs growth stocks)</td>
-            <td>Long-short portfolio sorted on book-to-market</td>
+            <td>Long short portfolio sorted on book to market</td>
           </tr>
           <tr>
             <td>RMW</td>
             <td>Robust Minus Weak</td>
             <td>Profitability premium</td>
-            <td>Long-short portfolio sorted on operating profitability</td>
+            <td>Long short portfolio sorted on operating profitability</td>
           </tr>
           <tr>
             <td>CMA</td>
             <td>Conservative Minus Aggressive</td>
             <td>Investment premium</td>
-            <td>Long-short portfolio sorted on asset growth</td>
+            <td>Long short portfolio sorted on asset growth</td>
           </tr>
           <tr>
             <td>MOM</td>
             <td>Momentum</td>
-            <td>Trend-following premium</td>
+            <td>Trend following premium</td>
             <td>Long recent winners, short recent losers</td>
           </tr>
         </tbody>
@@ -671,11 +671,11 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          Factor regressions are <strong>multiple linear regressions</strong>. The R-squared
+          Factor regressions are <strong>multiple linear regressions</strong>. The R squared
           tells you how much of your portfolio's variance is explained by systematic factors.
-          The alpha (&alpha;) is the intercept &mdash; the return not attributable to any
+          The alpha (&alpha;) is the intercept, the return not attributable to any
           factor. A statistically significant positive alpha would imply genuine skill (or an
-          omitted factor). The t-statistic on alpha is the key test: if |t| > 2, the alpha
+          omitted factor). The t statistic on alpha is the key test: if |t| > 2, the alpha
           is significant at approximately 5%. Most portfolios have alphas indistinguishable
           from zero.
         </p>
@@ -771,7 +771,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
         <p>
           A positive alpha in a CAPM regression does <em>not</em> necessarily mean skill.
           It might mean you have exposure to omitted factors (size, value, momentum). Always
-          run the Fama-French model as a robustness check. If the CAPM alpha disappears
+          run the Fama French model as a robustness check. If the CAPM alpha disappears
           when you add SMB and HML, your "alpha" was just disguised factor exposure. True alpha
           should survive the inclusion of all known factors.
         </p>
@@ -779,7 +779,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.5 &mdash; Component 5: Macro Context</h2>
+      <h2>22.5, Component 5: Macro Context</h2>
 
       <p>
         No portfolio exists in a vacuum. The macroeconomic environment determines the backdrop
@@ -879,13 +879,13 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
             spread = (self.data[<span class="st">"10Y Treasury"</span>].dropna().iloc[-<span class="nu">1</span>] -
                       self.data[<span class="st">"2Y Treasury"</span>].dropna().iloc[-<span class="nu">1</span>])
             <span class="kw">if</span> spread < -<span class="nu">0.5</span>:
-                <span class="kw">return</span> spread, <span class="st">"DEEPLY INVERTED — Strong recession signal"</span>
+                <span class="kw">return</span> spread, <span class="st">"DEEPLY INVERTED: Strong recession signal"</span>
             <span class="kw">elif</span> spread < <span class="nu">0</span>:
-                <span class="kw">return</span> spread, <span class="st">"INVERTED — Recession warning"</span>
+                <span class="kw">return</span> spread, <span class="st">"INVERTED: Recession warning"</span>
             <span class="kw">elif</span> spread < <span class="nu">0.5</span>:
-                <span class="kw">return</span> spread, <span class="st">"FLAT — Late cycle, watch closely"</span>
+                <span class="kw">return</span> spread, <span class="st">"FLAT: Late cycle, watch closely"</span>
             <span class="kw">else</span>:
-                <span class="kw">return</span> spread, <span class="st">"NORMAL — No immediate recession signal"</span>
+                <span class="kw">return</span> spread, <span class="st">"NORMAL: No immediate recession signal"</span>
         <span class="kw">return</span> <span class="kw">None</span>, <span class="st">"Data unavailable"</span>
 
     <span class="kw">def</span> <span class="fn">inflation_status</span>(self):
@@ -933,7 +933,7 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.6 &mdash; Component 6: News Sentiment Monitor</h2>
+      <h2>22.6, Component 6: News Sentiment Monitor</h2>
 
       <p>
         The final component applies the critical reading skills from Module 20. Rather than
@@ -941,12 +941,12 @@ tracker.fetch_history(period=<span class="st">"1y"</span>)</pre>
         stream of financial news.
       </p>
 
-      <h3>Approach: Loughran-McDonald Financial Sentiment</h3>
+      <h3>Approach: Loughran McDonald Financial Sentiment</h3>
 
       <p>
-        General-purpose sentiment lexicons (like VADER) perform poorly on financial text because
-        many financial-specific words have different sentiment connotations. The
-        <strong>Loughran-McDonald dictionary</strong> was developed specifically for financial
+        General purpose sentiment lexicons (like VADER) perform poorly on financial text because
+        many financial specific words have different sentiment connotations. The
+        <strong>Loughran McDonald dictionary</strong> was developed specifically for financial
         text analysis.
       </p>
 
@@ -1095,7 +1095,7 @@ agg = monitor.aggregate_sentiment(results)
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.7 &mdash; Putting It All Together: The Complete Dashboard</h2>
+      <h2>22.7, Putting It All Together: The Complete Dashboard</h2>
 
       <p>
         Now we assemble all six components into a single script that generates a comprehensive
@@ -1433,7 +1433,7 @@ html += <span class="st">f"""&lt;tr style="font-weight:700; border-top:2px solid
   &lt;div class="chart"&gt;{dist_chart}&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Jarque-Bera: {jb_stat:.1f} (p = {jb_p:.4f}) — Normality
+&lt;p&gt;Jarque-Bera: {jb_stat:.1f} (p = {jb_p:.4f}): Normality
 {'REJECTED' if jb_p < 0.05 else 'not rejected'} at 5%&lt;/p&gt;
 
 &lt;h2&gt;3. Correlation Analysis&lt;/h2&gt;
@@ -1513,7 +1513,7 @@ output_file = <span class="st">"financial_dashboard_report.html"</span>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.8 &mdash; Deploying as a Web Application</h2>
+      <h2>22.8: Deploying as a Web Application</h2>
 
       <p>
         The script above generates a static HTML report. For a more interactive experience,
@@ -1568,7 +1568,7 @@ holdings = []
 
       <p>
         Dash by Plotly provides more control over layout and interactivity. It uses a
-        callback-based architecture similar to reactive programming.
+        callback based architecture similar to reactive programming.
       </p>
 
       <pre class="code-block"><span class="code-label">Python</span><span class="cm"># dashboard_dash.py</span>
@@ -1653,7 +1653,7 @@ app.layout = html.Div([
             <td>Live data</td>
             <td>Snapshot at generation time</td>
             <td>Refreshes on interaction</td>
-            <td>Periodic auto-refresh</td>
+            <td>Periodic auto refresh</td>
           </tr>
           <tr>
             <td>Best for</td>
@@ -1666,7 +1666,7 @@ app.layout = html.Div([
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.9 &mdash; Course Summary: What You Have Learned</h2>
+      <h2>22.9, Course Summary: What You Have Learned</h2>
 
       <p>
         Over 22 modules, you have built a comprehensive framework for understanding finance
@@ -1685,24 +1685,24 @@ app.layout = html.Div([
       <ul>
         <li><strong>Module 5:</strong> Volatility as a measure of risk; GARCH models</li>
         <li><strong>Module 6:</strong> Value at Risk and Expected Shortfall; quantile regression</li>
-        <li><strong>Module 7:</strong> The risk-return tradeoff; Sharpe ratio; efficient frontiers</li>
+        <li><strong>Module 7:</strong> The risk return tradeoff; Sharpe ratio; efficient frontiers</li>
         <li><strong>Module 8:</strong> Extreme value theory; tail risk; Black Swan events</li>
       </ul>
 
       <h3>Part III: Portfolio Construction and Factor Models</h3>
       <ul>
-        <li><strong>Module 9:</strong> Modern Portfolio Theory; mean-variance optimization</li>
+        <li><strong>Module 9:</strong> Modern Portfolio Theory; mean variance optimization</li>
         <li><strong>Module 10:</strong> CAPM; beta; the security market line</li>
-        <li><strong>Module 11:</strong> Fama-French factors; multi-factor models</li>
+        <li><strong>Module 11:</strong> Fama French factors; multifactor models</li>
         <li><strong>Module 12:</strong> Factor investing; smart beta; portfolio tilts</li>
       </ul>
 
       <h3>Part IV: Advanced Topics</h3>
       <ul>
         <li><strong>Module 13:</strong> Fixed income; bond math; duration and convexity</li>
-        <li><strong>Module 14:</strong> Options and derivatives; Black-Scholes; the Greeks</li>
-        <li><strong>Module 15:</strong> Time series models for finance (ARIMA, GARCH, regime-switching)</li>
-        <li><strong>Module 16:</strong> Machine learning in finance; overfitting; cross-validation</li>
+        <li><strong>Module 14:</strong> Options and derivatives; Black Scholes; the Greeks</li>
+        <li><strong>Module 15:</strong> Time series models for finance (ARIMA, GARCH, regime switching)</li>
+        <li><strong>Module 16:</strong> Machine learning in finance; overfitting; cross validation</li>
         <li><strong>Module 17:</strong> Behavioral finance; cognitive biases; prospect theory</li>
         <li><strong>Module 18:</strong> Performance evaluation; attribution analysis</li>
         <li><strong>Module 19:</strong> Personal finance; tax optimization; retirement planning</li>
@@ -1712,7 +1712,7 @@ app.layout = html.Div([
       <ul>
         <li><strong>Module 20:</strong> Reading financial news statistically; debunking headlines</li>
         <li><strong>Module 21:</strong> Macroeconomics; GDP, inflation, yield curves, business cycles</li>
-        <li><strong>Module 22:</strong> This capstone &mdash; building your own financial dashboard</li>
+        <li><strong>Module 22:</strong> This capstone, building your own financial dashboard</li>
       </ul>
 
       <div class="stats-bridge">
@@ -1724,13 +1724,13 @@ app.layout = html.Div([
           <strong>regression</strong> becomes factor modeling, <strong>time series</strong>
           becomes forecasting, <strong>Bayesian inference</strong> becomes belief updating,
           and <strong>causal inference</strong> becomes policy analysis. You already had the
-          tools &mdash; now you have the financial vocabulary to apply them.
+          tools: now you have the financial vocabulary to apply them.
         </p>
       </div>
 
 
       <!-- ════════════════════════════════════════════ -->
-      <h2>22.10 &mdash; Where to Go from Here</h2>
+      <h2>22.10: Where to Go from Here</h2>
 
       <p>
         This course has given you the foundation. Here are pathways for deeper exploration:
@@ -1749,17 +1749,17 @@ app.layout = html.Div([
           <tr>
             <td>Quantitative finance</td>
             <td>Hull, <em>Options, Futures, and Other Derivatives</em></td>
-            <td>Modules 13&ndash;14</td>
+            <td>Modules 13 to 14</td>
           </tr>
           <tr>
             <td>Financial econometrics</td>
             <td>Campbell, Lo &amp; MacKinlay, <em>The Econometrics of Financial Markets</em></td>
-            <td>Modules 1&ndash;8, 15</td>
+            <td>Modules 1 to 8, 15</td>
           </tr>
           <tr>
             <td>Factor investing</td>
             <td>Ang, <em>Asset Management</em></td>
-            <td>Modules 9&ndash;12</td>
+            <td>Modules 9 to 12</td>
           </tr>
           <tr>
             <td>Behavioral finance</td>
@@ -1774,7 +1774,7 @@ app.layout = html.Div([
         </tbody>
       </table>
 
-      <h3>For Hands-On Practice</h3>
+      <h3>For Hands On Practice</h3>
       <ul>
         <li><strong>Build a real dashboard:</strong> Take the capstone script, customize it for
             your actual portfolio, and deploy it with Streamlit.</li>
@@ -1796,7 +1796,7 @@ app.layout = html.Div([
         <li><strong>Correlations are not constant.</strong> They spike during crises, exactly
             when you need diversification most.</li>
         <li><strong>Past performance is not predictive.</strong> Most patterns in financial data
-            are noise, not signal. Demand out-of-sample validation.</li>
+            are noise, not signal. Demand out of sample validation.</li>
         <li><strong>Costs matter.</strong> Fees, taxes, and transaction costs erode returns.
             The cheapest portfolio often wins.</li>
         <li><strong>Risk is not just volatility.</strong> It is also tail risk, drawdown risk,
@@ -1823,8 +1823,8 @@ app.layout = html.Div([
       <div class="cb-title">Stats Bridge</div>
         <p>
           Finance is one of the richest applied domains for statistics. Every tool you have
-          learned &mdash; from the t-test to Markov chains, from maximum likelihood to
-          bootstrapping, from linear regression to Bayesian updating &mdash; has a direct
+          learned (from the t test to Markov chains, from maximum likelihood to
+          bootstrapping, from linear regression to Bayesian updating) has a direct
           application in understanding financial markets. The mapping is complete. Now go
           build something with it.
         </p>

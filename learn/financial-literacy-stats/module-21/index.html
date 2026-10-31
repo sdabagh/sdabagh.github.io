@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Module 21: Macroeconomics for Statisticians — GDP decomposition, CPI construction, unemployment as a ratio estimator, the Phillips Curve, yield curve recession prediction, and business cycle dating.">
-  <title>Macroeconomics for Statisticians — Financial Literacy for Statisticians</title>
+  <meta name="description" content="Module 21: Macroeconomics for Statisticians, GDP decomposition, CPI construction, unemployment as a ratio estimator, the Phillips Curve, yield curve recession prediction, and business cycle dating.">
+  <title>Macroeconomics for Statisticians | Financial Literacy for Statisticians</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .module-header { background: linear-gradient(135deg, #1a365d 0%, #2c5282 60%, #3182ce 100%); color: white; padding: var(--spacing-xl) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl); }
@@ -63,14 +63,14 @@
     </div>
 
       <p>
-        Macroeconomics studies the economy as a whole &mdash; aggregate output, price levels,
+        Macroeconomics studies the economy as a whole: aggregate output, price levels,
         employment, and the policy levers that influence them. For a statistician, macroeconomics
         is a treasure trove of time series, ratio estimators, index numbers, structural breaks,
         and causal inference challenges. This module translates the core macro concepts into
         the statistical language you already speak.
       </p>
 
-      <h2>21.1 &mdash; GDP as a Time Series</h2>
+      <h2>21.1: GDP as a Time Series</h2>
 
       <p>
         Gross Domestic Product (GDP) is the single most important macroeconomic indicator. It
@@ -84,12 +84,12 @@
         <p>
           <strong>Nominal GDP:</strong> GDP measured in current prices. <strong>Real GDP:</strong>
           GDP adjusted for inflation (measured in constant prices of a base year). The difference
-          matters enormously &mdash; nominal GDP can grow 5% while real GDP grows only 2% if
+          matters enormously: nominal GDP can grow 5% while real GDP grows only 2% if
           inflation is 3%.
         </p>
       </div>
 
-      <h3>The GDP Deflator and Chain-Weighting</h3>
+      <h3>The GDP Deflator and Chain Weighting</h3>
 
       <p>
         The conversion from nominal to real GDP requires a price index. The GDP deflator is
@@ -103,39 +103,39 @@
       </div>
 
       <p>
-        Modern GDP calculations use <strong>chain-weighting</strong>, which updates the base-year
+        Modern GDP calculations use <strong>chain weighting</strong>, which updates the base year
         weights every period rather than fixing them. This avoids the substitution bias inherent
-        in fixed-weight indices (Laspeyres bias).
+        in fixed weight indices (Laspeyres bias).
       </p>
 
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         <p>
-          The chain-weighted GDP is analogous to a <strong>Fisher ideal index</strong> &mdash;
-          the geometric mean of a Laspeyres (base-period weights) and Paasche (current-period
-          weights) index. This is a well-known result in index number theory: the Fisher index
-          satisfies the time-reversal test and the factor-reversal test, making it "ideal" in
+          The chain weighted GDP is analogous to a <strong>Fisher ideal index</strong>, 
+          the geometric mean of a Laspeyres (base period weights) and Paasche (current period
+          weights) index. This is a well known result in index number theory: the Fisher index
+          satisfies the time reversal test and the factor reversal test, making it "ideal" in
           the axiomatic approach to index numbers.
         </p>
       </div>
 
-      <h3>Seasonal Adjustment: The X-13 ARIMA-SEATS Filter</h3>
+      <h3>Seasonal Adjustment: The X-13 ARIMA SEATS Filter</h3>
 
       <p>
         Raw GDP data has strong seasonal patterns (e.g., holiday spending in Q4). The Bureau of
-        Economic Analysis (BEA) uses the Census Bureau's <strong>X-13 ARIMA-SEATS</strong> method
+        Economic Analysis (BEA) uses the Census Bureau's <strong>X-13 ARIMA SEATS</strong> method
         to remove seasonal components. This is a sophisticated decomposition:
       </p>
 
       <div class="formula-box">
         Y<sub>t</sub> = T<sub>t</sub> &times; S<sub>t</sub> &times; I<sub>t</sub>
         <br><br>
-        where T = trend-cycle, S = seasonal, I = irregular component
+        where T = trend cycle, S = seasonal, I = irregular component
       </div>
 
       <p>
-        The seasonally adjusted series removes S<sub>t</sub>, leaving the trend-cycle and
-        irregular components. The annualized quarter-over-quarter growth rate that gets reported
+        The seasonally adjusted series removes S<sub>t</sub>, leaving the trend cycle and
+        irregular components. The annualized quarter over quarter growth rate that gets reported
         in the news is:
       </p>
 
@@ -154,12 +154,12 @@
         </p>
       </div>
 
-      <h3>Trend vs. Cycle: The Hodrick-Prescott Filter</h3>
+      <h3>Trend vs. Cycle: The Hodrick Prescott Filter</h3>
 
       <p>
-        Separating the long-run trend from the business cycle is a fundamental problem in
+        Separating the long run trend from the business cycle is a fundamental problem in
         macroeconometrics. The most widely used (and most criticized) method is the
-        <strong>Hodrick-Prescott (HP) filter</strong>.
+        <strong>Hodrick Prescott (HP) filter</strong>.
       </p>
 
       <p>The HP filter solves the optimization problem:</p>
@@ -178,11 +178,11 @@
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         <p>
-          The HP filter is a <strong>penalized regression</strong> (ridge-like regularization on
+          The HP filter is a <strong>penalized regression</strong> (ridge like regularization on
           the second differences of the trend). The penalty term penalizes changes in the
           <em>slope</em> of the trend, forcing it to be smooth. This is identical in spirit to
           a cubic smoothing spline. Hamilton (2018) has argued that the HP filter produces
-          spurious cycles and recommends a simple regression-based alternative: regress
+          spurious cycles and recommends a simple regression based alternative: regress
           y<sub>t</sub> on y<sub>t-8</sub> (for quarterly data) and use the residual as the
           cycle component.
         </p>
@@ -228,7 +228,7 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
 <span class="fn">print</span>(<span class="st">f"Hamilton cycle std: {hamilton_cycle.std():.4f}"</span>)</pre>
 
 
-      <h2>21.2 &mdash; Inflation: The CPI as a Weighted Price Index</h2>
+      <h2>21.2, Inflation: The CPI as a Weighted Price Index</h2>
 
       <p>
         Inflation measures the rate of change of the general price level. The Consumer Price
@@ -243,7 +243,7 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
           of consumer goods and services, measured by the Bureau of Labor Statistics (BLS).
           <strong>Core CPI:</strong> CPI excluding food and energy (volatile components).
           <strong>PCE (Personal Consumption Expenditures):</strong> The Fed's preferred inflation
-          measure, broader than CPI and chain-weighted.
+          measure, broader than CPI and chain weighted.
         </p>
       </div>
 
@@ -256,7 +256,7 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
       </div>
 
       <p>
-        where w<sub>i,0</sub> are base-period expenditure weights and p<sub>i,t</sub> / p<sub>i,0</sub>
+        where w<sub>i,0</sub> are base period expenditure weights and p<sub>i,t</sub> / p<sub>i,0</sub>
         are the price relatives. The weights come from the Consumer Expenditure Survey (CE survey)
         and are updated approximately every two years.
       </p>
@@ -280,11 +280,11 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
         <div class="cb-title">Stats Bridge</div>
         <p>
           The CPI is a <strong>weighted composite estimator</strong> with known biases:
-          <strong>(1) Substitution bias</strong> &mdash; consumers switch to cheaper alternatives,
-          but fixed weights do not adjust; <strong>(2) Quality bias</strong> &mdash; if a computer
-          costs the same but is twice as fast, the quality-adjusted price fell;
-          <strong>(3) New goods bias</strong> &mdash; new products enter the basket with a lag;
-          <strong>(4) Outlet substitution bias</strong> &mdash; consumers shift to discount
+          <strong>(1) Substitution bias</strong> (consumers switch to cheaper alternatives,
+          but fixed weights do not adjust; <strong>(2) Quality bias</strong>) if a computer
+          costs the same but is twice as fast, the quality adjusted price fell;
+          <strong>(3) New goods bias</strong>, new products enter the basket with a lag;
+          <strong>(4) Outlet substitution bias</strong>, consumers shift to discount
           retailers. The Boskin Commission (1996) estimated total CPI bias at ~1.1 percentage
           points per year.
         </p>
@@ -301,9 +301,9 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
 
       <p>
         Even more aggressive filtering exists: the <strong>Cleveland Fed Median CPI</strong>
-        (the median component price change) and the <strong>Cleveland Fed 16% Trimmed-Mean CPI</strong>
+        (the median component price change) and the <strong>Cleveland Fed 16% Trimmed Mean CPI</strong>
         (excludes the top and bottom 8% of component price changes). These are robust estimators
-        of central tendency applied to the cross-section of price changes.
+        of central tendency applied to the cross section of price changes.
       </p>
 
       <div class="formula-box">
@@ -313,7 +313,7 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
         <br><br>
         Median CPI: &pi;<sub>t</sub><sup>med</sup> = median({&Delta;p<sub>i,t</sub>})
         <br><br>
-        Trimmed-Mean CPI: &pi;<sub>t</sub><sup>trim</sup> = weighted mean of middle 68% of &Delta;p<sub>i,t</sub>
+        Trimmed Mean CPI: &pi;<sub>t</sub><sup>trim</sup> = weighted mean of middle 68% of &Delta;p<sub>i,t</sub>
       </div>
 
       <h3>CPI vs. PCE: Why the Fed Prefers PCE</h3>
@@ -323,10 +323,10 @@ gdp[<span class="st">"growth_annual"</span>] = ((<span class="nu">1</span> + gdp
           <tr><th>Feature</th><th>CPI</th><th>PCE</th></tr>
         </thead>
         <tbody>
-          <tr><td>Source</td><td>BLS (survey-based)</td><td>BEA (national accounts)</td></tr>
-          <tr><td>Weighting</td><td>Fixed (Laspeyres)</td><td>Chain-weighted (Fisher-like)</td></tr>
-          <tr><td>Coverage</td><td>Out-of-pocket consumer spending</td><td>All consumption, including employer-paid health care</td></tr>
-          <tr><td>Substitution bias</td><td>Higher (fixed weights)</td><td>Lower (chain-weighted)</td></tr>
+          <tr><td>Source</td><td>BLS (survey based)</td><td>BEA (national accounts)</td></tr>
+          <tr><td>Weighting</td><td>Fixed (Laspeyres)</td><td>Chain weighted (Fisher like)</td></tr>
+          <tr><td>Coverage</td><td>Out of pocket consumer spending</td><td>All consumption, including employer paid health care</td></tr>
+          <tr><td>Substitution bias</td><td>Higher (fixed weights)</td><td>Lower (chain weighted)</td></tr>
           <tr><td>Typical level</td><td>~0.3pp higher than PCE</td><td>Slightly lower</td></tr>
           <tr><td>Fed's target</td><td>Not the official target</td><td>2% PCE inflation is the official target</td></tr>
         </tbody>
@@ -367,11 +367,11 @@ inflation = inflation.dropna()
 <span class="fn">print</span>(<span class="st">f"Mean Core CPI - Core PCE gap: {(inflation['Core CPI'] - inflation['Core PCE']).mean():.2f}pp"</span>)</pre>
 
 
-      <h2>21.3 &mdash; The Unemployment Rate: A Ratio Estimator</h2>
+      <h2>21.3, The Unemployment Rate: A Ratio Estimator</h2>
 
       <p>
         The unemployment rate is one of the most politically sensitive and widely reported
-        macroeconomic indicators. But few people understand that it is a <em>survey-based
+        macroeconomic indicators. But few people understand that it is a <em>survey based
         ratio estimator</em> with a specific sampling design, definitions, and margin of error.
       </p>
 
@@ -394,13 +394,13 @@ inflation = inflation.dropna()
       </p>
 
       <ul>
-        <li><strong>Sampling design:</strong> Stratified multi-stage probability sample with a
+        <li><strong>Sampling design:</strong> Stratified multistage probability sample with a
             4-8-4 rotation scheme (interviewed for 4 months, out for 8, back for 4).</li>
         <li><strong>Sample size:</strong> ~60,000 households, yielding ~100,000 individuals 16+.</li>
         <li><strong>Standard error:</strong> The 90% confidence interval for the unemployment
             rate is approximately &plusmn;0.2 percentage points.</li>
-        <li><strong>Non-response:</strong> The CPS has a response rate of ~80%, with potential
-            non-response bias.</li>
+        <li><strong>Nonresponse:</strong> The CPS has a response rate of ~80%, with potential
+            nonresponse bias.</li>
       </ul>
 
       <div class="formula-box">
@@ -431,12 +431,12 @@ inflation = inflation.dropna()
           <tr><th>Measure</th><th>Definition</th><th>Typical Level (relative to U-3)</th></tr>
         </thead>
         <tbody>
-          <tr><td>U-1</td><td>Persons unemployed 15 weeks or longer</td><td>Much lower (long-term only)</td></tr>
+          <tr><td>U-1</td><td>Persons unemployed 15 weeks or longer</td><td>Much lower (long term only)</td></tr>
           <tr><td>U-2</td><td>Job losers and completers of temporary jobs</td><td>Lower</td></tr>
           <tr><td><strong>U-3</strong></td><td><strong>Official unemployment rate</strong></td><td><strong>The headline number</strong></td></tr>
           <tr><td>U-4</td><td>U-3 + discouraged workers</td><td>Slightly higher</td></tr>
           <tr><td>U-5</td><td>U-4 + all marginally attached workers</td><td>Higher</td></tr>
-          <tr><td>U-6</td><td>U-5 + part-time for economic reasons</td><td>Roughly double U-3</td></tr>
+          <tr><td>U-6</td><td>U-5 + part time for economic reasons</td><td>Roughly double U-3</td></tr>
         </tbody>
       </table>
 
@@ -445,7 +445,7 @@ inflation = inflation.dropna()
         <p>
           The headline unemployment rate (U-3) excludes <strong>discouraged workers</strong>
           (people who have stopped looking for work) and <strong>underemployed</strong> (people
-          working part-time who want full-time). The U-6 "real" unemployment rate can be nearly
+          working part time who want full time). The U-6 "real" unemployment rate can be nearly
           double the U-3. When politicians cite "record low unemployment," ask which measure
           they are using and what is happening to the labor force participation rate.
         </p>
@@ -489,7 +489,7 @@ labor[<span class="st">"U6_U3_ratio"</span>] = labor[<span class="st">"U-6 (Broa
 <span class="fn">print</span>(<span class="st">f"The broad measure is typically ~{labor['U6_U3_ratio'].mean():.1f}x the headline rate."</span>)</pre>
 
 
-      <h2>21.4 &mdash; The Phillips Curve: A Scatterplot with History</h2>
+      <h2>21.4, The Phillips Curve: A Scatterplot with History</h2>
 
       <p>
         The Phillips Curve posits an inverse relationship between inflation and unemployment:
@@ -508,11 +508,11 @@ labor[<span class="st">"U6_U3_ratio"</span>] = labor[<span class="st">"U-6 (Broa
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         <p>
-          The Phillips Curve is a <strong>bivariate regression with a time-varying parameter</strong>.
+          The Phillips Curve is a <strong>bivariate regression with a time varying parameter</strong>.
           The slope &beta; has varied dramatically across decades: steep in the 1960s, nearly
           flat in the 2010s. This is a textbook case of <strong>parameter instability</strong>
           and the danger of treating a historical correlation as a stable structural relationship.
-          The Lucas Critique (1976) formalizes this: policy changes alter the reduced-form
+          The Lucas Critique (1976) formalizes this: policy changes alter the reduced form
           relationships.
         </p>
       </div>
@@ -568,15 +568,15 @@ decades = [
     s, i, r, p, se = stats.linregress(subset[<span class="st">"unemployment"</span>], subset[<span class="st">"inflation"</span>])
     <span class="fn">print</span>(<span class="st">f"{label:>8}  {s:>8.3f}  {r**2:>6.3f}  {p:>8.4f}"</span>)
 
-<span class="fn">print</span>(<span class="st">"\nThe slope changes dramatically by decade — parameter instability!"</span>)</pre>
+<span class="fn">print</span>(<span class="st">"\nThe slope changes dramatically by decade: parameter instability!"</span>)</pre>
 
 
-      <h2>21.5 &mdash; Central Bank Policy as Intervention Analysis</h2>
+      <h2>21.5: Central Bank Policy as Intervention Analysis</h2>
 
       <p>
         Central banks (the Federal Reserve in the US, ECB in Europe, Bank of Japan, etc.)
         are the most powerful economic actors. Their primary tool is the <strong>policy interest
-        rate</strong> &mdash; the rate at which banks borrow overnight from each other. Changes
+        rate</strong>, the rate at which banks borrow overnight from each other. Changes
         in this rate ripple through the entire economy.
       </p>
 
@@ -585,7 +585,7 @@ decades = [
         <p>
           <strong>Federal Funds Rate:</strong> The interest rate at which depository institutions
           lend reserve balances to each other overnight. The Fed sets a target range (e.g.,
-          5.25&ndash;5.50%) and uses open market operations to keep the effective rate within
+          5.25 to 5.50%) and uses open market operations to keep the effective rate within
           that range. <strong>Monetary policy transmission:</strong> Fed rate &rarr; bank lending
           rates &rarr; consumer/business borrowing costs &rarr; spending &rarr; GDP &amp; inflation.
         </p>
@@ -596,10 +596,10 @@ decades = [
         <p>
           A rate change is a <strong>treatment intervention</strong> in a time series. In the
           interrupted time series (ITS) framework, you model the outcome before and after the
-          intervention, controlling for pre-existing trends. The challenge: monetary policy
+          intervention, controlling for preexisting trends. The challenge: monetary policy
           is endogenous (the Fed cuts rates <em>because</em> the economy is weakening), creating
           a classic <strong>simultaneity bias</strong>. This is why Romer &amp; Romer (2004)
-          used narrative identification &mdash; reading FOMC minutes to isolate "exogenous"
+          used narrative identification: reading FOMC minutes to isolate "exogenous"
           rate changes from systematic responses.
         </p>
       </div>
@@ -607,7 +607,7 @@ decades = [
       <h3>The Taylor Rule: A Predictive Model for Policy</h3>
 
       <p>
-        The Taylor Rule (1993) is a simple regression-based prescription for setting the
+        The Taylor Rule (1993) is a simple regression based prescription for setting the
         federal funds rate:
       </p>
 
@@ -629,7 +629,7 @@ decades = [
       <p>
         When the policy rate reaches zero (the "zero lower bound"), the conventional tool is
         exhausted. Central banks then turn to <strong>Quantitative Easing (QE)</strong>:
-        purchasing large quantities of bonds to directly lower long-term interest rates and
+        purchasing large quantities of bonds to directly lower long term interest rates and
         increase the money supply.
       </p>
 
@@ -638,10 +638,10 @@ decades = [
           <tr><th>QE Mechanism</th><th>Channel</th><th>Statistical Evidence</th></tr>
         </thead>
         <tbody>
-          <tr><td>Buy government bonds</td><td>Lowers long-term yields (portfolio balance)</td><td>Event studies show 50-100bp drop in 10Y yield per $1T purchase</td></tr>
+          <tr><td>Buy government bonds</td><td>Lowers long term yields (portfolio balance)</td><td>Event studies show 50 100bp drop in 10Y yield per $1T purchase</td></tr>
           <tr><td>Signal commitment</td><td>Signals rates will stay low (forward guidance)</td><td>Term premium decomposition models capture this</td></tr>
           <tr><td>Increase bank reserves</td><td>More reserves &rarr; more lending capacity</td><td>Money multiplier has been unstable; less clear evidence</td></tr>
-          <tr><td>Wealth effect</td><td>Rising asset prices &rarr; consumer confidence &rarr; spending</td><td>Marginal propensity to consume out of wealth is ~3-5 cents per dollar</td></tr>
+          <tr><td>Wealth effect</td><td>Rising asset prices &rarr; consumer confidence &rarr; spending</td><td>Marginal propensity to consume out of wealth is ~3 to 5 cents per dollar</td></tr>
         </tbody>
       </table>
 
@@ -694,11 +694,11 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
 <span class="fn">print</span>(<span class="st">f"Correlation: {taylor['fed_funds'].corr(taylor['taylor_rule_clamped']):.3f}"</span>)</pre>
 
 
-      <h2>21.6 &mdash; Leading, Coincident, and Lagging Indicators</h2>
+      <h2>21.6: Leading, Coincident, and Lagging Indicators</h2>
 
       <p>
         Macroeconomic indicators can be classified by their timing relative to the business
-        cycle. This classification is fundamentally about the <strong>cross-correlation
+        cycle. This classification is fundamentally about the <strong>cross correlation
         function</strong> between each indicator and aggregate economic activity.
       </p>
 
@@ -707,9 +707,9 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
           <tr><th>Type</th><th>Definition</th><th>Examples</th><th>Statistical Analogue</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Leading</strong></td><td>Turns before the business cycle</td><td>Building permits, stock prices, yield curve, new orders, consumer expectations</td><td>Predictive variables (Granger-cause GDP)</td></tr>
+          <tr><td><strong>Leading</strong></td><td>Turns before the business cycle</td><td>Building permits, stock prices, yield curve, new orders, consumer expectations</td><td>Predictive variables (Granger cause GDP)</td></tr>
           <tr><td><strong>Coincident</strong></td><td>Moves with the business cycle</td><td>GDP, industrial production, employment, personal income</td><td>Concurrent measures (proxy variables for the latent "state")</td></tr>
-          <tr><td><strong>Lagging</strong></td><td>Turns after the business cycle</td><td>Unemployment rate, CPI, bank lending, labor costs</td><td>Retrospective confirmation (backward-looking moving averages)</td></tr>
+          <tr><td><strong>Lagging</strong></td><td>Turns after the business cycle</td><td>Unemployment rate, CPI, bank lending, labor costs</td><td>Retrospective confirmation (backward looking moving averages)</td></tr>
         </tbody>
       </table>
 
@@ -736,21 +736,21 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
       </div>
 
 
-      <h2>21.7 &mdash; The Yield Curve as a Recession Predictor</h2>
+      <h2>21.7: The Yield Curve as a Recession Predictor</h2>
 
       <p>
         The yield curve is a plot of interest rates (yields) on government bonds of different
-        maturities. Normally, longer-maturity bonds have higher yields (compensation for
-        duration risk). When the curve <em>inverts</em> &mdash; short-term rates exceed
-        long-term rates &mdash; it has historically preceded recessions with remarkable accuracy.
+        maturities. Normally, longer maturity bonds have higher yields (compensation for
+        duration risk). When the curve <em>inverts</em>, short term rates exceed
+        long term rates, it has historically preceded recessions with remarkable accuracy.
       </p>
 
       <div class="finance-term">
         <div class="cb-title">Finance Term</div>
         <p>
           <strong>Yield curve:</strong> The relationship between bond yields and their maturities.
-          <strong>Term spread:</strong> The difference between long-term and short-term yields
-          (e.g., 10-year minus 2-year Treasury yield). <strong>Inversion:</strong> When the
+          <strong>Term spread:</strong> The difference between long term and short term yields
+          (e.g., 10 year minus 2 year Treasury yield). <strong>Inversion:</strong> When the
           term spread goes negative. An inverted yield curve has preceded every US recession
           since the 1960s, with only one false signal (1966).
         </p>
@@ -759,9 +759,9 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
       <div class="formula-box">
         Term Spread = y<sub>10Y</sub> &minus; y<sub>2Y</sub>
         <br><br>
-        P(Recession within 12 months | Spread < 0) &approx; 0.60 &ndash; 0.80 (historical average)
+        P(Recession within 12 months | Spread < 0) &approx; 0.60 to 0.80 (historical average)
         <br><br>
-        P(Recession within 12 months | Spread > 0) &approx; 0.10 &ndash; 0.15
+        P(Recession within 12 months | Spread > 0) &approx; 0.10 to 0.15
       </div>
 
       <div class="stats-bridge">
@@ -769,8 +769,8 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
         <p>
           The yield curve inversion is a <strong>binary classifier</strong> for recession.
           You can evaluate it with standard classification metrics: sensitivity (the fraction
-          of recessions that were preceded by inversion &mdash; very high), specificity (the
-          fraction of non-recessions where the curve was not inverted), precision, and the
+          of recessions that were preceded by inversion, very high), specificity (the
+          fraction of nonrecessions where the curve was not inverted), precision, and the
           area under the ROC curve. Estrella &amp; Mishkin (1998) showed the term spread has
           superior predictive power compared to other leading indicators in a probit model.
         </p>
@@ -779,10 +779,10 @@ gap = taylor[<span class="st">"fed_funds"</span>] - taylor[<span class="st">"tay
       <h3>Why Does the Yield Curve Predict Recessions?</h3>
 
       <ul>
-        <li><strong>Expectations hypothesis:</strong> Long-term rates reflect expectations of
-            future short-term rates. If investors expect the Fed to cut rates (because of
-            recession), long-term rates fall below current short-term rates.</li>
-        <li><strong>Term premium:</strong> The extra yield for holding longer-duration bonds.
+        <li><strong>Expectations hypothesis:</strong> Long term rates reflect expectations of
+            future short term rates. If investors expect the Fed to cut rates (because of
+            recession), long term rates fall below current short term rates.</li>
+        <li><strong>Term premium:</strong> The extra yield for holding longer duration bonds.
             When uncertainty is high, the term premium can compress or turn negative.</li>
         <li><strong>Bank profitability channel:</strong> Banks borrow short and lend long. An
             inverted curve squeezes bank margins, reducing lending, which slows the economy.
@@ -836,30 +836,30 @@ auc = roc_auc_score(y_target, y_prob)
 <span class="fn">print</span>(<span class="st">f"ROC AUC (probit model): {auc:.3f}"</span>)</pre>
 
 
-      <h2>21.8 &mdash; Business Cycle Dating: Change-Point Detection</h2>
+      <h2>21.8, Business Cycle Dating: Change Point Detection</h2>
 
       <p>
         In the US, the official arbiter of business cycle dates is the <strong>National Bureau
         of Economic Research (NBER) Business Cycle Dating Committee</strong>. They determine
         when recessions begin (peaks) and end (troughs). From a statistical perspective, this
-        is a <strong>change-point detection</strong> problem.
+        is a <strong>change point detection</strong> problem.
       </p>
 
       <div class="stats-bridge">
         <div class="cb-title">Stats Bridge</div>
         <p>
-          NBER business cycle dating is formally equivalent to <strong>multiple change-point
+          NBER business cycle dating is formally equivalent to <strong>multiple change point
           detection</strong> in a multivariate time series. The committee examines several
           coincident indicators (employment, industrial production, real income, real sales)
           and identifies structural breaks. Algorithmic approaches include:
-          <strong>(1)</strong> Markov-switching models (Hamilton, 1989) &mdash; a hidden
+          <strong>(1)</strong> Markov switching models (Hamilton, 1989), a hidden
           Markov model with two states (expansion/recession);
-          <strong>(2)</strong> Bai-Perron structural break tests;
+          <strong>(2)</strong> Bai Perron structural break tests;
           <strong>(3)</strong> CUSUM tests for parameter stability.
         </p>
       </div>
 
-      <h3>Hamilton's Markov-Switching Model</h3>
+      <h3>Hamilton's Markov Switching Model</h3>
 
       <p>
         Hamilton's (1989) seminal model treats the business cycle as a latent state variable
@@ -918,7 +918,7 @@ recession_prob = res.smoothed_marginal_probabilities[<span class="nu">1</span>]
 <span class="fn">print</span>(<span class="st">f"\nRecession probability > 50% in {(recession_prob > 0.5).sum()} quarters"</span>)</pre>
 
 
-      <h2>21.9 &mdash; Fiscal vs. Monetary Policy: Two Levers</h2>
+      <h2>21.9: Fiscal vs. Monetary Policy: Two Levers</h2>
 
       <p>
         Macroeconomic stabilization has two main policy levers: <strong>monetary policy</strong>
@@ -935,7 +935,7 @@ recession_prob = res.smoothed_marginal_probabilities[<span class="nu">1</span>]
           <tr><td>Decision maker</td><td>Central bank (Fed, ECB, BoJ)</td><td>Government (Congress + President)</td></tr>
           <tr><td>Primary tool</td><td>Interest rates, money supply</td><td>Government spending, taxes</td></tr>
           <tr><td>Speed of implementation</td><td>Fast (FOMC meets 8x/year)</td><td>Slow (legislative process)</td></tr>
-          <tr><td>Transmission lag</td><td>6-18 months to full effect</td><td>Variable; direct spending is faster</td></tr>
+          <tr><td>Transmission lag</td><td>6 to 18 months to full effect</td><td>Variable; direct spending is faster</td></tr>
           <tr><td>Political independence</td><td>Designed to be independent</td><td>Inherently political</td></tr>
           <tr><td>Effectiveness at zero lower bound</td><td>Limited (hence QE)</td><td>Potentially more effective</td></tr>
           <tr><td>Key multiplier</td><td>Money multiplier</td><td>Fiscal multiplier (&Delta;GDP / &Delta;G)</td></tr>
@@ -958,7 +958,7 @@ recession_prob = res.smoothed_marginal_probabilities[<span class="nu">1</span>]
       <div class="key-insight">
         <div class="cb-title">Key Insight</div>
         <p>
-          The fiscal multiplier is <strong>state-dependent</strong>: it is larger during
+          The fiscal multiplier is <strong>state dependent</strong>: it is larger during
           recessions (when there is slack in the economy) and smaller during expansions (when
           the economy is near capacity). Estimates range from 0.5 to 2.5 depending on the
           state of the economy, the type of spending, and the monetary policy regime. This
@@ -967,7 +967,7 @@ recession_prob = res.smoothed_marginal_probabilities[<span class="nu">1</span>]
       </div>
 
 
-      <h2>21.10 &mdash; Putting It All Together: A Macro Dashboard</h2>
+      <h2>21.10, Putting It All Together: A Macro Dashboard</h2>
 
       <pre class="code-block"><span class="code-label">Python</span>
 <span class="cm"># Comprehensive macro data download and summary</span>
@@ -1012,7 +1012,7 @@ data_dict = {}
 
 <span class="fn">print</span>(<span class="st">"\nThis data forms the macro context for any investment decision."</span>)</pre>
 
-      <h2>21.11 &mdash; Summary</h2>
+      <h2>21.11: Summary</h2>
 
       <p>
         This module has translated the core concepts of macroeconomics into statistical language:
@@ -1025,16 +1025,16 @@ data_dict = {}
             biases. Core measures are robust estimators of underlying price trends.</li>
         <li><strong>Unemployment</strong> is a ratio estimator from a survey (CPS) with a
             margin of error that most people ignore.</li>
-        <li><strong>The Phillips Curve</strong> is an unstable regression with time-varying
-            coefficients &mdash; a cautionary tale about structural change.</li>
+        <li><strong>The Phillips Curve</strong> is an unstable regression with time varying
+            coefficients, a cautionary tale about structural change.</li>
         <li><strong>Central bank policy</strong> is an intervention in a time series, with
             the Taylor Rule as a predictive model and QE as an unconventional treatment.</li>
         <li><strong>Leading indicators</strong> are predictive variables; coincident indicators
             are concurrent measures; lagging indicators are retrospective.</li>
         <li><strong>The yield curve</strong> is a binary classifier for recession with
             impressive historical ROC performance.</li>
-        <li><strong>Business cycle dating</strong> is a change-point detection problem, solvable
-            with Markov-switching models.</li>
+        <li><strong>Business cycle dating</strong> is a change point detection problem, solvable
+            with Markov switching models.</li>
         <li><strong>Fiscal multipliers</strong> are heterogeneous treatment effects estimated
             with IV, local projections, or SVARs.</li>
       </ol>
@@ -1043,9 +1043,9 @@ data_dict = {}
         <div class="cb-title">Stats Bridge</div>
         <p>
           Macroeconomics is applied time series analysis, causal inference, and signal extraction
-          &mdash; all areas where your statistical training gives you a substantial advantage.
+, all areas where your statistical training gives you a substantial advantage.
           The key difference from laboratory statistics is that macro data is observational,
-          non-stationary, subject to structural breaks, and revised after initial release.
+          nonstationary, subject to structural breaks, and revised after initial release.
           Treat every macro number with the same rigor you would apply to any other data source.
         </p>
       </div>

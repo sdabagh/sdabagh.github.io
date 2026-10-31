@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Module 15 of Financial Literacy for Statisticians: ARIMA for prices, GARCH for volatility, regime-switching models, and cointegration for pairs trading">
-  <title>Time Series Models for Finance — Financial Literacy for Statisticians</title>
+  <meta name="description" content="Module 15 of Financial Literacy for Statisticians: ARIMA for prices, GARCH for volatility, regime switching models, and cointegration for pairs trading">
+  <title>Time Series Models for Finance | Financial Literacy for Statisticians</title>
   <link rel="stylesheet" href="../../../style.css">
   <style>
     .module-header {
@@ -71,7 +71,7 @@
 
     <div class="module-header">
       <h1>Module 15: Time Series Models for Finance</h1>
-      <p class="tagline">ARIMA for prices, GARCH for volatility, regime-switching models, and cointegration for pairs trading</p>
+      <p class="tagline">ARIMA for prices, GARCH for volatility, regime switching models, and cointegration for pairs trading</p>
       <div class="module-meta">
         <span class="meta-item">Part 4 of 5</span>
         <span class="meta-item">Module 15 of 22</span>
@@ -88,17 +88,17 @@
 <h2>Introduction: From Statistics Lab to Trading Floor</h2>
       <p>
         If you have studied time series analysis in a statistics program, you already know most of
-        what quantitative finance uses daily. The difference is context: in finance, the data-generating
-        process is non-stationary, high-frequency, fat-tailed, and contaminated with regime changes.
+        what quantitative finance uses daily. The difference is context: in finance, the data generating
+        process is nonstationary, high frequency, fat tailed, and contaminated with regime changes.
         This module maps the classical time series toolkit onto its financial applications, starting
         with ARIMA, escalating through GARCH and its asymmetric extensions, and finishing with
-        cointegration-based trading strategies.
+        cointegration based trading strategies.
       </p>
 
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          In a statistics course, you model time series to understand the data-generating process.
+          In a statistics course, you model time series to understand the data generating process.
           In finance, the same models serve a dual purpose: <strong>forecasting</strong> future
           values and <strong>quantifying uncertainty</strong> (volatility). The forecast is the
           signal; the volatility is the noise envelope around it. Both matter for trading decisions.
@@ -109,19 +109,19 @@
 
       <h2>1. ARIMA for Price Forecasting</h2>
 
-      <h3>1.1 Why Prices Are Non-Stationary</h3>
+      <h3>1.1 Why Prices Are Non Stationary</h3>
       <p>
-        Raw stock prices are almost always non-stationary. They wander without a fixed mean,
+        Raw stock prices are almost always nonstationary. They wander without a fixed mean,
         exhibiting what statisticians call a <strong>unit root</strong>. Formally, if
         P<sub>t</sub> = P<sub>t-1</sub> + &epsilon;<sub>t</sub>, the series is a random walk.
-        The Augmented Dickey-Fuller (ADF) test virtually never rejects the unit root null for
+        The Augmented Dickey Fuller (ADF) test virtually never rejects the unit root null for
         price levels.
       </p>
 
       <div class="finance-term">
       <div class="cb-title">Finance Term</div>
         <p>
-          <strong>Unit Root</strong> &mdash; A characteristic root of the autoregressive polynomial
+          <strong>Unit Root</strong>: A characteristic root of the autoregressive polynomial
           equal to 1. In finance, this means prices have no tendency to revert to a mean. First
           differencing (computing returns) typically removes the unit root.
         </p>
@@ -134,7 +134,7 @@
       </p>
       <ul>
         <li>Price levels fail the ADF test (unit root present).</li>
-        <li>Log-returns (first differences of log prices) are approximately stationary.</li>
+        <li>Log returns (first differences of log prices) are approximately stationary.</li>
         <li>d = 2 would imply returns themselves have a unit root, which is economically implausible for liquid assets.</li>
       </ul>
 
@@ -183,7 +183,7 @@
         <p>
           In practice, stock returns show <strong>very weak</strong> autocorrelation. The ACF
           and PACF of daily returns are typically not significantly different from zero at
-          conventional lags. This means ARIMA models for returns have near-zero predictive
+          conventional lags. This means ARIMA models for returns have near zero predictive
           power for returns themselves. Where time series models shine in finance is in modeling
           <strong>volatility</strong>, not returns.
         </p>
@@ -200,7 +200,7 @@
       <p>
         where <em>L</em> is the maximized likelihood, <em>k</em> is the number of parameters, and
         <em>n</em> is the sample size. BIC penalizes complexity more heavily and tends to select
-        more parsimonious models, which often generalize better out-of-sample.
+        more parsimonious models, which often generalize better out of sample.
       </p>
 
       <h3>1.5 Python: ARIMA on Stock Prices</h3>
@@ -259,7 +259,7 @@ comparison = pd.DataFrame(results).T
       <div class="cb-title">Stats Bridge</div>
         <p>
           In statistics terms, the return series is uncorrelated but <strong>not independent</strong>.
-          The conditional variance is time-varying, even though the conditional mean may be
+          The conditional variance is time varying, even though the conditional mean may be
           approximately constant. GARCH models capture exactly this: they are models for the
           <strong>second moment</strong> of the conditional distribution.
         </p>
@@ -288,23 +288,23 @@ comparison = pd.DataFrame(results).T
         <tbody>
           <tr>
             <td>&omega;</td>
-            <td>Long-run variance floor (intercept)</td>
+            <td>Long run variance floor (intercept)</td>
             <td>Small positive</td>
           </tr>
           <tr>
             <td>&alpha;</td>
-            <td>Shock impact &mdash; how much yesterday&rsquo;s surprise moves today&rsquo;s volatility</td>
-            <td>0.03 &ndash; 0.15</td>
+            <td>Shock impact: how much yesterday&rsquo;s surprise moves today&rsquo;s volatility</td>
+            <td>0.03 to 0.15</td>
           </tr>
           <tr>
             <td>&beta;</td>
-            <td>Persistence &mdash; how much yesterday&rsquo;s variance carries over</td>
-            <td>0.80 &ndash; 0.97</td>
+            <td>Persistence: how much yesterday&rsquo;s variance carries over</td>
+            <td>0.80 to 0.97</td>
           </tr>
           <tr>
             <td>&alpha; + &beta;</td>
             <td>Total persistence; must be &lt; 1 for stationarity</td>
-            <td>0.90 &ndash; 0.99</td>
+            <td>0.90 to 0.99</td>
           </tr>
         </tbody>
       </table>
@@ -312,8 +312,8 @@ comparison = pd.DataFrame(results).T
       <div class="key-insight">
       <div class="cb-title">Key Insight</div>
         <p>
-          The unconditional (long-run) variance is &omega; / (1 &minus; &alpha; &minus; &beta;).
-          When &alpha; + &beta; is close to 1, the long-run variance is large and volatility
+          The unconditional (long run) variance is &omega; / (1 &minus; &alpha; &minus; &beta;).
+          When &alpha; + &beta; is close to 1, the long run variance is large and volatility
           shocks are extremely persistent. This is the norm for equity markets: &alpha; + &beta;
           typically exceeds 0.95.
         </p>
@@ -343,7 +343,7 @@ beta = params[<span class="st">"beta[1]"</span>]
 
       <!-- ───────────────── SECTION 3: ASYMMETRIC GARCH ───────────────── -->
 
-      <h2>3. Asymmetric Volatility: EGARCH and GJR-GARCH</h2>
+      <h2>3. Asymmetric Volatility: EGARCH and GJR GARCH</h2>
 
       <h3>3.1 The Leverage Effect</h3>
       <p>
@@ -351,7 +351,7 @@ beta = params[<span class="st">"beta[1]"</span>]
         return increase tomorrow&rsquo;s volatility by the same amount. But empirically, negative
         returns increase volatility more than positive returns of the same magnitude. This is
         the <strong>leverage effect</strong>, named because a stock price decline raises the
-        firm&rsquo;s debt-to-equity ratio (leverage), making the stock riskier.
+        firm&rsquo;s debt to equity ratio (leverage), making the stock riskier.
       </p>
 
       <div class="stats-bridge">
@@ -377,7 +377,7 @@ beta = params[<span class="st">"beta[1]"</span>]
         increase volatility more than positive shocks of the same magnitude.
       </p>
 
-      <h3>3.3 GJR-GARCH (Glosten, Jagannathan, Runkle, 1993)</h3>
+      <h3>3.3 GJR GARCH (Glosten, Jagannathan, Runkle, 1993)</h3>
       <div class="formula-box">
         &sigma;<sub>t</sub><sup>2</sup> = &omega; + (&alpha; + &gamma; I<sub>t&minus;1</sub>) &epsilon;<sub>t&minus;1</sub><sup>2</sup> + &beta; &sigma;<sub>t&minus;1</sub><sup>2</sup>
         <br><br>
@@ -413,7 +413,7 @@ beta = params[<span class="st">"beta[1]"</span>]
             <td>Asymmetric, no constraints needed</td>
           </tr>
           <tr>
-            <td>GJR-GARCH(1,1)</td>
+            <td>GJR GARCH(1,1)</td>
             <td>&gamma; indicator term</td>
             <td>&omega; &ge; 0, &alpha;, &beta; &ge; 0</td>
             <td>Asymmetric, intuitive indicator</td>
@@ -434,29 +434,29 @@ models = {
 
       <!-- ───────────────── SECTION 4: REGIME SWITCHING ───────────────── -->
 
-      <h2>4. Regime-Switching Models</h2>
+      <h2>4. Regime Switching Models</h2>
 
       <h3>4.1 The Intuition: Markets Have Moods</h3>
       <p>
         Financial markets alternate between qualitatively different regimes: calm bull markets
         with low volatility and crisis periods with high volatility and negative expected returns.
         A single set of ARIMA/GARCH parameters cannot capture both regimes simultaneously. Hamilton&rsquo;s
-        (1989) Markov-switching model addresses this by allowing parameters to shift between
+        (1989) Markov switching model addresses this by allowing parameters to shift between
         discrete states.
       </p>
 
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          A regime-switching model is a <strong>hidden Markov model (HMM)</strong> applied to
+          A regime switching model is a <strong>hidden Markov model (HMM)</strong> applied to
           financial time series. The hidden state (regime) follows a Markov chain with transition
-          matrix <strong>P</strong>, and the observed returns have regime-dependent parameters.
-          If you have studied mixture models, think of this as a <strong>time-varying mixture</strong>
+          matrix <strong>P</strong>, and the observed returns have regime dependent parameters.
+          If you have studied mixture models, think of this as a <strong>time varying mixture</strong>
           where the mixing weights evolve as a Markov chain.
         </p>
       </div>
 
-      <h3>4.2 Two-Regime Model Specification</h3>
+      <h3>4.2 Two Regime Model Specification</h3>
       <div class="formula-box">
         r<sub>t</sub> | S<sub>t</sub> = j &sim; N(&mu;<sub>j</sub>, &sigma;<sub>j</sub><sup>2</sup>), &nbsp;&nbsp; j &isin; {1, 2}
         <br><br>
@@ -530,7 +530,7 @@ plt.show()</pre>
 
       <!-- ───────────────── SECTION 5: COINTEGRATION ───────────────── -->
 
-      <h2>5. Cointegration: When Non-Stationary Series Walk Together</h2>
+      <h2>5. Cointegration: When Non Stationary Series Walk Together</h2>
 
       <h3>5.1 The Core Idea</h3>
       <p>
@@ -543,7 +543,7 @@ plt.show()</pre>
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          Cointegration is a <strong>long-run equilibrium relationship</strong>. Statistically,
+          Cointegration is a <strong>long run equilibrium relationship</strong>. Statistically,
           if X<sub>t</sub> ~ I(1) and Y<sub>t</sub> ~ I(1) but Y<sub>t</sub> &minus; &beta;X<sub>t</sub> ~ I(0),
           then X and Y are cointegrated with cointegrating vector (1, &minus;&beta;). Think of it as
           two random walks tied together by a rubber band: they can diverge temporarily, but
@@ -553,15 +553,15 @@ plt.show()</pre>
 
       <h3>5.2 Financial Examples of Cointegration</h3>
       <ul>
-        <li><strong>Spot and futures prices</strong> of the same commodity &mdash; tied by cost-of-carry arbitrage.</li>
-        <li><strong>Stocks in the same sector</strong> &mdash; Coca-Cola and PepsiCo may be cointegrated due to common demand drivers.</li>
-        <li><strong>ETF and its NAV</strong> &mdash; the ETF price tracks the underlying portfolio.</li>
-        <li><strong>Cross-listed stocks</strong> &mdash; the same company listed in two exchanges.</li>
+        <li><strong>Spot and futures prices</strong> of the same commodity: tied by cost of carry arbitrage.</li>
+        <li><strong>Stocks in the same sector</strong>: Coca Cola and PepsiCo may be cointegrated due to common demand drivers.</li>
+        <li><strong>ETF and its NAV</strong>: the ETF price tracks the underlying portfolio.</li>
+        <li><strong>Cross listed stocks</strong>: the same company listed in two exchanges.</li>
       </ul>
 
-      <h3>5.3 The Engle-Granger Test</h3>
+      <h3>5.3 The Engle Granger Test</h3>
       <p>
-        The Engle-Granger two-step procedure is the simplest test for cointegration:
+        The Engle Granger two step procedure is the simplest test for cointegration:
       </p>
       <ol>
         <li>Regress Y<sub>t</sub> on X<sub>t</sub> using OLS to estimate &beta;.</li>
@@ -572,9 +572,9 @@ plt.show()</pre>
       <div class="common-pitfall">
       <div class="cb-title">Common Pitfall</div>
         <p>
-          The critical values for the ADF test on the Engle-Granger residuals are NOT the standard
+          The critical values for the ADF test on the Engle Granger residuals are NOT the standard
           ADF critical values. Because the residuals are estimated (not observed), the test
-          statistic has a non-standard distribution. Use the Engle-Granger specific critical
+          statistic has a nonstandard distribution. Use the Engle Granger specific critical
           values (available in <code>statsmodels</code>).
         </p>
       </div>
@@ -601,11 +601,11 @@ plt.show()</pre>
         <tbody>
           <tr>
             <td>0</td>
-            <td>No cointegration &mdash; all series are I(1) independently</td>
+            <td>No cointegration: all series are I(1) independently</td>
           </tr>
           <tr>
             <td>1 to n&minus;1</td>
-            <td>Cointegration &mdash; there are r cointegrating relationships</td>
+            <td>Cointegration: there are r cointegrating relationships</td>
           </tr>
           <tr>
             <td>n</td>
@@ -632,8 +632,8 @@ plt.show()</pre>
       <div class="finance-term">
       <div class="cb-title">Finance Term</div>
         <p>
-          <strong>Spread</strong> &mdash; In pairs trading, the spread is the residual from the
-          cointegrating regression. It represents the deviation from the long-run equilibrium.
+          <strong>Spread</strong>: In pairs trading, the spread is the residual from the
+          cointegrating regression. It represents the deviation from the long run equilibrium.
           A widening spread means one stock is temporarily rich relative to the other.
         </p>
       </div>
@@ -687,7 +687,7 @@ adf_spread = adfuller(spread.dropna())
         <p>
           Cointegration can <strong>break down</strong>. Two stocks that were cointegrated in the
           past may diverge permanently due to structural changes (mergers, regulation, new competitors).
-          Always use a rolling-window test and be prepared to exit if the cointegration relationship
+          Always use a rolling window test and be prepared to exit if the cointegration relationship
           weakens. A pairs trade on a broken cointegration is just a bet that keeps bleeding.
         </p>
       </div>
@@ -704,18 +704,18 @@ adf_spread = adfuller(spread.dropna())
       </p>
       <ul>
         <li>How shocks to one market propagate to others (spillover effects).</li>
-        <li>Lead-lag relationships between asset classes (do bonds predict stock returns?).</li>
+        <li>Lead lag relationships between asset classes (do bonds predict stock returns?).</li>
         <li>Dynamic relationships between macroeconomic variables and asset prices.</li>
       </ul>
 
       <div class="stats-bridge">
       <div class="cb-title">Stats Bridge</div>
         <p>
-          The VAR(p) model is a multivariate generalization of the AR(p) model. For an n-variable
+          The VAR(p) model is a multivariate generalization of the AR(p) model. For an n variable
           system, each equation has np + 1 parameters (p lags of n variables plus an intercept).
           The number of parameters grows quadratically with the number of variables, making
-          high-dimensional VAR models prone to overfitting. This is where regularization
-          (shrinkage, LASSO-VAR, Bayesian VAR) becomes essential.
+          high dimensional VAR models prone to overfitting. This is where regularization
+          (shrinkage, LASSO VAR, Bayesian VAR) becomes essential.
         </p>
       </div>
 
@@ -729,14 +729,14 @@ adf_spread = adfuller(spread.dropna())
       <h3>7.3 Granger Causality</h3>
       <p>
         Within a VAR framework, you can test whether the lags of variable X improve the prediction
-        of variable Y beyond Y&rsquo;s own lags. This is <strong>Granger causality</strong> &mdash;
-        not true causality, but predictive precedence. The test uses an F-statistic comparing
+        of variable Y beyond Y&rsquo;s own lags. This is <strong>Granger causality</strong>, 
+        not true causality, but predictive precedence. The test uses an F statistic comparing
         the restricted model (without X lags) to the unrestricted model (with X lags).
       </p>
 
       <h3>7.4 Impulse Response Functions (IRFs)</h3>
       <p>
-        IRFs trace the effect of a one-standard-deviation shock to one variable on all variables
+        IRFs trace the effect of a one standard deviation shock to one variable on all variables
         in the system over time. In finance, this answers questions like: &ldquo;If the Fed
         unexpectedly raises rates by 25 basis points, how do stock prices, bond yields, and
         the dollar respond over the next 20 days?&rdquo;
@@ -799,7 +799,7 @@ plt.show()</pre>
           <tr>
             <td>2</td>
             <td>Compute returns (difference once)</td>
-            <td>Log-differencing</td>
+            <td>Log differencing</td>
           </tr>
           <tr>
             <td>3</td>
@@ -814,7 +814,7 @@ plt.show()</pre>
           <tr>
             <td>5</td>
             <td>Test for ARCH effects in residuals</td>
-            <td>Ljung-Box on squared residuals</td>
+            <td>Ljung Box on squared residuals</td>
           </tr>
           <tr>
             <td>6</td>
@@ -824,7 +824,7 @@ plt.show()</pre>
           <tr>
             <td>7</td>
             <td>Test for cointegration with related assets</td>
-            <td>Engle-Granger / Johansen</td>
+            <td>Engle Granger / Johansen</td>
           </tr>
           <tr>
             <td>8</td>
@@ -834,12 +834,12 @@ plt.show()</pre>
           <tr>
             <td>9</td>
             <td>Check for regime changes</td>
-            <td>Markov-switching model</td>
+            <td>Markov switching model</td>
           </tr>
           <tr>
             <td>10</td>
-            <td>Validate out-of-sample</td>
-            <td>Walk-forward evaluation</td>
+            <td>Validate out of sample</td>
+            <td>Walk forward evaluation</td>
           </tr>
         </tbody>
       </table>
@@ -921,7 +921,7 @@ analysis = pd.DataFrame({t: full_ts_analysis(t) <span class="kw">for</span> t <s
         <tbody>
           <tr>
             <td>Unit root / I(1) process</td>
-            <td>Price levels are non-stationary</td>
+            <td>Price levels are nonstationary</td>
             <td>Always model returns, not prices</td>
           </tr>
           <tr>
@@ -937,12 +937,12 @@ analysis = pd.DataFrame({t: full_ts_analysis(t) <span class="kw">for</span> t <s
           <tr>
             <td>GARCH(1,1)</td>
             <td>Volatility forecasting</td>
-            <td>Use t-distribution innovations</td>
+            <td>Use t distribution innovations</td>
           </tr>
           <tr>
             <td>Asymmetric response</td>
             <td>Leverage effect</td>
-            <td>EGARCH or GJR-GARCH preferred</td>
+            <td>EGARCH or GJR GARCH preferred</td>
           </tr>
           <tr>
             <td>Hidden Markov model</td>
@@ -956,7 +956,7 @@ analysis = pd.DataFrame({t: full_ts_analysis(t) <span class="kw">for</span> t <s
           </tr>
           <tr>
             <td>VAR / Granger causality</td>
-            <td>Cross-asset dynamics</td>
+            <td>Cross asset dynamics</td>
             <td>Beware of overfitting in high dimensions</td>
           </tr>
         </tbody>
