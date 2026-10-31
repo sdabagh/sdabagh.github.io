@@ -1008,7 +1008,7 @@ FOOTER = '''<footer>
     <a href="/about.html">About</a>
     <a href="/books.html">Books</a>
     <a href="/free-courses.html">Courses</a>
-    <a href="mailto:dabagh_safaa@smc.edu">Contact</a>
+    <a href="mailto:learnwithoutwalls26@gmail.com">Contact</a>
   </div>
   <p>&copy; 2026 Learn Without Walls. All rights reserved.</p>
 </footer>

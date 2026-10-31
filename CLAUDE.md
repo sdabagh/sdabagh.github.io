@@ -655,7 +655,7 @@ Each semester:
 ## Contact Information
 
 **Repository Owner**: Safaa Dabagh
-**Email**: dabagh_safaa@smc.edu
+**Email**: learnwithoutwalls26@gmail.com
 **Institutions**:
 - UCLA Department of Statistics (PhD candidate)
 - Santa Monica College (Instructor)
@@ -719,7 +719,7 @@ Info Blue: #17A2B8
 ### Key URLs
 - **Live Site**: https://sdabagh.github.io
 - **Repository**: https://github.com/sdabagh/sdabagh.github.io
-- **Contact**: dabagh_safaa@smc.edu
+- **Contact**: learnwithoutwalls26@gmail.com
 
 ---
 

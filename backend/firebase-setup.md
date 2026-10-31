@@ -683,4 +683,4 @@ Before going to production:
 
 **Setup Guide Version**: 1.0
 **Last Updated**: November 17, 2025
-**Contact**: dabagh_safaa@smc.edu
+**Contact**: learnwithoutwalls26@gmail.com

@@ -361,7 +361,7 @@ This AI tutor system is designed to investigate:
 ## Contact
 
 **Researcher**: Safaa Dabagh
-**Email**: dabagh_safaa@smc.edu
+**Email**: learnwithoutwalls26@gmail.com
 **Affiliation**: UCLA Department of Statistics (PhD Candidate)
 **Advisors**: Prof. Mark Handcock & Prof. Guang Cheng
 
