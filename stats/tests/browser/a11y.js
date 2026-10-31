@@ -3,7 +3,7 @@ const { chromium } = require("playwright");
   const b = await chromium.launch(); let fails = 0; const ok = (c, m, x) => { console.log((c ? "PASS " : "FAIL ") + m + (x !== undefined ? "  [" + JSON.stringify(x) + "]" : "")); if (!c) fails++; };
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error" && !/fonts.googleapis|ERR_|net::/i.test(m.text())) errs.push(m.text()); });
   await p.goto("http://127.0.0.1:8765/learn/intro-stats/module-01/index.html");
-  ok(await p.evaluate(() => { const ss = Array.from(document.styleSheets).find(s => (s.href || "").endsWith("style.css")); return ss && ss.cssRules[0] instanceof CSSImportRule; }), "style.css: @import is the first rule");
+  ok(await p.evaluate(() => { const ss = Array.from(document.styleSheets).find(s => /style\.css(\?[^/]*)?$/.test(s.href || "")); return ss && ss.cssRules[0] instanceof CSSImportRule; }), "style.css: @import is the first rule");
   ok(await p.evaluate(() => { const s = document.querySelector(".skip-link"); return s && s.getAttribute("href") === "#" + document.querySelector("main").id && getComputedStyle(s).top === "-60px"; }), "skip link present, hidden until focused");
   await p.keyboard.press("Tab"); await p.waitForFunction(() => getComputedStyle(document.activeElement).top === "8px"); ok(await p.evaluate(() => document.activeElement.classList.contains("skip-link")), "first Tab lands on the skip link and reveals it");
   await p.keyboard.press("Enter"); ok(await p.evaluate(() => document.activeElement === document.querySelector("main")), "activating it focuses main");
