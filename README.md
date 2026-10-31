@@ -2,7 +2,7 @@
 
 Source of [learnwithoutwalls.com](https://learnwithoutwalls.com): free, open courses in mathematics, statistics, Python,
 data science, AI and financial literacy, built by Safaa Dabagh (mathematics and statistics instructor at Santa Monica
-College, West Los Angeles College and Loyola Marymount University; MA in Statistics, UCLA). Plain HTML, CSS and JavaScript on GitHub Pages; no accounts, no tracking.
+College, West Los Angeles College and Loyola Marymount University; MS in Statistics, UCLA). Plain HTML, CSS and JavaScript on GitHub Pages; no accounts, no tracking.
 
 - **Courses**: `learn/` holds every course (college algebra, statistics, calculus, linear algebra, differential equations,
   Python and SQL labs, financial literacy, AI certificates, research methods, courses for young learners and more).
