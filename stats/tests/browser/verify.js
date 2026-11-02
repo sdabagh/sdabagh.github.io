@@ -116,7 +116,7 @@ async function run(page) { await page.click("#dlg button.go"); await page.waitFo
   await page.selectOption("#f_x", "GPA"); await page.selectOption("#f_g", "Pet_Owner");
   await run(page);
   await page.waitForTimeout(200);
-  const tt = await page.evaluate(() => { const c = document.querySelector("#out .card"); return { worked: Array.from(c.querySelectorAll("details.worked .formula")).map((f) => f.textContent), apa: c.querySelector(".apa code").textContent, row: Array.from(c.querySelector("table.res").querySelectorAll("tbody td")).map((x) => x.textContent) }; });
+  const tt = await page.evaluate(() => { const c = document.querySelector("#out .card"); return { worked: Array.from(c.querySelectorAll("details.worked .formula")).map((f) => f.textContent), apa: c.querySelector(".apa code").textContent, row: Array.from(Array.from(c.querySelectorAll(".cap")).find((k) => /Independent Samples T-Test/.test(k.textContent)).nextElementSibling.querySelectorAll("tbody td")).map((x) => x.textContent) }; });
   ok(tt.worked.length === 4 && tt.worked[0].includes("= " + tt.row[2]), "t-test worked line ends with the t in the table", tt.worked[0]);
   ok(/^t\(\d+(\.\d+)?\) = [−-]?\d+\.\d\d, p (= \.\d{3}|< \.001), d = /.test(tt.apa), "t-test APA line format", tt.apa);
 

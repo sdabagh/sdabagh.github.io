@@ -13,6 +13,11 @@ learnwithoutwalls.com/stats.
 - The simulation route when a condition is not met (bootstrap interval, permutation p-value, side by side with the
   formula answer) on the eight intro-course cards.
 
+## Done on November 2
+- StatCrunch-style block on every test and interval card, the sample mean first (Safaa's fix after the push-up
+  class). Course materials that picture the old One Sample T-Test card layout are not edited; none were found in
+  this repository beyond the module 7 lesson text, which describes t in general terms.
+
 ## Release readiness (October 30)
 - Crash sweep (`stats/tests/sweep/sweep.js`): every menu item on all 20 sample datasets, about 1,500 runs, no crash.
   Rerun it before a store submission: `node stats/tests/sweep/sweep.js` (one dataset: add its file name).

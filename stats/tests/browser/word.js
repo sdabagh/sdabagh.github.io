@@ -14,11 +14,11 @@ const clip = (page) => page.evaluate(async () => { const items = await navigator
   const btns = await page.evaluate(() => ({ tools: Array.from(document.querySelectorAll("#out .card .tools button")).map((b) => b.textContent), tbl: Array.from(document.querySelectorAll("#out .card .tblbtns")[0].querySelectorAll("button")).map((b) => b.textContent) }));
   ok(btns.tools.includes("copy for Word") && btns.tbl.includes("copy for Word"), "card tools and every table offer copy for Word", btns);
   // a table
-  await page.click('#out .card .tblbtns button[data-act="doc"]'); await page.waitForTimeout(300);
+  await page.evaluate(() => Array.from(document.querySelectorAll("#out .card .cap")).find((k) => /Independent Samples T-Test/.test(k.textContent)).nextElementSibling.nextElementSibling.querySelector('button[data-act="doc"]').click()); await page.waitForTimeout(300);
   let c = await clip(page);
   ok(/<table style="border-collapse:collapse/.test(c["text/html"] || "") && /<i>Independent Samples T-Test<\/i>/.test(c["text/html"]) && /border-top:1\.5pt solid #000;border-bottom:1pt solid #000/.test(c["text/html"]) && /text-align:right/.test(c["text/html"]), "table: HTML with an italic title, header rules and right-aligned numbers", Object.keys(c));
   ok(/Statistic\tdf\tp/.test(c["text/plain"] || ""), "table: plain-text twin is tab separated", (c["text/plain"] || "").slice(0, 80));
-  ok(await page.evaluate(() => document.querySelector('#out .card .tblbtns button[data-act="doc"]').textContent) === "Copied", "the button says Copied");
+  ok(await page.evaluate(() => Array.from(document.querySelectorAll("#out .card .cap")).find((k) => /Independent Samples T-Test/.test(k.textContent)).nextElementSibling.nextElementSibling.querySelector('button[data-act="doc"]').textContent) === "Copied", "the button says Copied");
   // the whole card
   await page.click('#out .card .tools button[data-act="doc"]'); await page.waitForTimeout(500);
   c = await clip(page); const h = c["text/html"] || "";

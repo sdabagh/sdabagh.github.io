@@ -10,9 +10,9 @@ async function menu(page, top, item) { await page.click(`nav.menu .dd[data-name=
 async function run(page) { await page.evaluate(() => document.querySelector("#dlg button.go").click()); await page.waitForFunction(() => !document.querySelector("#dlg").open, null, { timeout: 30000 }); await page.waitForTimeout(250); }
 async function cancel(page) { await page.click("#dlgCancel"); await page.waitForFunction(() => !document.querySelector("#dlg").open); }
 const clear = (page) => page.evaluate(() => (document.querySelector("#out").innerHTML = ""));
-const firstCard = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); const t = c.querySelector("table.res"); return { title: c.querySelector("h3, .title") ? c.querySelector("h3, .title").textContent : "", heads: Array.from(t.querySelectorAll("thead th")).map((h) => h.textContent), cells: Array.from(t.querySelector("tbody tr").children).map((td) => td.textContent), text: c.textContent }; });
+const firstCard = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); const ts = Array.from(c.querySelectorAll("table.res")).filter((x) => !x.closest(".scblock")).map((t) => ({ heads: Array.from(t.querySelectorAll("thead th")).map((h) => h.textContent), cells: Array.from(t.querySelector("tbody tr").children).map((td) => td.textContent) })); return { title: c.querySelector("h3, .title") ? c.querySelector("h3, .title").textContent : "", heads: ts[0].heads, cells: ts[0].cells, tables: ts, text: c.textContent }; });
 const visible = (page, id) => page.evaluate((id) => { const el = document.getElementById(id); if (!el) return null; const row = el.closest(".field, .row, label, div"); return !!(el.offsetParent || (row && row.offsetParent)); }, id);
-const ciEnds = (r, pc) => { const i = r.heads.findIndex((h) => new RegExp(pc + "% CI lower").test(h)); return i < 0 ? null : [Number(r.cells[i]), Number(r.cells[i + 1])]; };
+const ciEnds = (r, pc) => { for (const t of r.tables) { const i = t.heads.findIndex((h) => new RegExp(pc + "% CI lower").test(h)); if (i >= 0) return [Number(t.cells[i]), Number(t.cells[i + 1])]; } return null; };
 (async () => {
   const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errs = []; page.on("pageerror", (e) => errs.push(e.message)); const alerts = []; page.on("dialog", async (d) => { alerts.push(d.message()); await d.dismiss(); });
@@ -40,7 +40,8 @@ const ciEnds = (r, pc) => { const i = r.heads.findIndex((h) => new RegExp(pc + "
   await clear(page); await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_mode", "summary");
   await page.fill("#f_xbar", "52"); await page.fill("#f_s", "10"); await page.fill("#f_n", "25"); await page.fill("#f_mu0", "50"); await run(page);
   r = await firstCard(page);
-  ok(/One Sample T-Test/.test(r.text) && r.heads.includes("Statistic") && r.heads.includes("p") && /H₀|H0|fail to reject|reject H/.test(r.text), "test mode still gives the full test card", r.heads);
+  const allHeads = await page.evaluate(() => Array.from(document.querySelectorAll("#out .card table.res thead th")).map((h) => h.textContent));
+  ok(/One Sample T-Test/.test(r.text) && allHeads.includes("Statistic") && allHeads.includes("p") && /H₀|H0|fail to reject|reject H/.test(r.text), "test mode still gives the full test card", allHeads);
   // a missing test value in test mode is still refused
   await clear(page); await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_mode", "summary");
   await page.fill("#f_xbar", "52"); await page.fill("#f_s", "10"); await page.fill("#f_n", "25"); await page.fill("#f_mu0", "");
