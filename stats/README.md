@@ -46,6 +46,27 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-11-02: StatCrunch-style block on the test and interval cards; the sample mean first
+
+- Safaa's fix: the One Sample T-Test card led with Statistic, and in class the t value against the default test value 0
+  (41.39 for pushups_week12) was read as the sample mean (44.85). Every one-sample, two-sample, paired and
+  proportion card, in both modes, now opens with a StatCrunch-style block: the parameter in words, H0 and HA for a
+  test, then one results table in StatCrunch's column order (Sample Mean, Std. Err., DF, Critical t, L. Limit,
+  U. Limit; or T-Stat or Z-Stat and P-value). The course-named tables, formula, worked numbers and APA line follow.
+  The independent card shows the group means before the test table and the paired card the two measures and their
+  difference. With the default test value 0 the note says so and points to Confidence interval only. Browser test
+  `meanfirst.js` pins pushups_week12: mean 44.85, s 8.3925, SE 1.0835, 42.682 to 47.018, T-Stat 41.39, matching R's
+  t.test. Cache `sww-v92`, scripts `?v=94`.
+
+### 2026-10-30: crash sweep before release; the sample-size card says n
+
+- `stats/tests/sweep/sweep.js` opens every menu item on every sample dataset with the dialog's default choices and
+  lists anything that looks like a crash. First full run (20 datasets, about 1,500 runs): no page errors, no error
+  bars, no stuck dialogs; every refusal was the app's own validation message. Run it by hand before a release; it is
+  not part of `run.sh`.
+- The sample-size calculator says n ("n = 385 needed", "Needed n"); APA lines keep N, APA's own convention.
+  Cache `sww-v91`, scripts `?v=93`.
+
 ### 2026-10-29: the four steps on the interval-only cards
 
 - The worked box of a one-sample interval (mean with t or z, proportion) follows the course's four steps (parameter,
