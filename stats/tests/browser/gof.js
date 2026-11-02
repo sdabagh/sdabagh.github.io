@@ -4,7 +4,7 @@ let fails = 0; const ok = (c, m, x) => { console.log((c ? "PASS " : "FAIL ") + m
 const near = (a, b, t) => Math.abs(Number(a) - b) <= t;
 async function menu(page, top, item) { await page.click(`nav.menu .dd[data-name="${top}"] .top`); await page.getByRole("menuitem", { name: item, exact: true }).click(); await page.waitForSelector("#dlg.open"); await page.evaluate(() => document.querySelectorAll("#dlgForm details").forEach((d) => (d.open = true))); }
 async function run(page) { await page.click("#dlg button.go"); await page.waitForFunction(() => !document.querySelector("#dlg").open, null, { timeout: 30000 }); await page.waitForTimeout(200); }
-const cardInfo = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); return { title: c.querySelector("h2").textContent, rows: Array.from(c.querySelectorAll("table.res")).map((t) => Array.from(t.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.children).map((td) => td.textContent))), text: c.textContent }; });
+const cardInfo = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); return { title: c.querySelector("h2").textContent, rows: Array.from(c.querySelectorAll("table.res")).filter((t) => !t.closest(".scblock")).map((t) => Array.from(t.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.children).map((td) => td.textContent))), text: c.textContent }; });
 (async () => {
   const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errs = [], dialogs = []; page.on("pageerror", (e) => errs.push(e.message)); page.on("dialog", async (d) => { dialogs.push(d.message()); await d.dismiss(); });
