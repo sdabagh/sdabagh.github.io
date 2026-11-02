@@ -35,7 +35,7 @@ const tops = (page) => page.evaluate(() => Array.from(document.querySelectorAll(
   ok(dlg.go === "Ejecutar" && dlg.cancel === "Cancelar", "Run and Cancel in Spanish", [dlg.go, dlg.cancel]);
   ok(dlg.hyp[0] === "La media es distinta del valor de prueba", "hypothesis options in Spanish", dlg.hyp);
   await page.selectOption("#f_mode", "summary"); await page.fill("#f_xbar", "52"); await page.fill("#f_s", "10"); await page.fill("#f_n", "25"); await page.fill("#f_mu0", "50"); await run(page);
-  const c = await page.evaluate(() => { const c = document.querySelector("#out .card"); return { title: c.querySelector("h2").textContent, tools: Array.from(c.querySelectorAll(".tools button")).map((b) => b.textContent), stat: c.querySelector("table.res tbody tr").children[2].textContent }; });
+  const c = await page.evaluate(() => { const c = document.querySelector("#out .card"); return { title: c.querySelector("h2").textContent, tools: Array.from(c.querySelectorAll(".tools button")).map((b) => b.textContent), stat: Array.from(c.querySelectorAll(".cap")).find((k) => /One Sample T-Test/.test(k.textContent)).nextElementSibling.querySelector("tbody tr").children[2].textContent }; });
   ok(c.title === "One Sample T-Test" && Number(c.stat) === 1, "the card is the same English card with the same numbers", c);
   ok(c.tools.includes("editar") && c.tools.includes("revisar mi trabajo") && c.tools.includes("quitar"), "card tool buttons in Spanish", c.tools);
   // A folded group reads "más opciones"
