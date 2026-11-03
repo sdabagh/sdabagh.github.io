@@ -768,6 +768,7 @@
   const hypField = (what) => sel("alt", "Hypothesis", [["two", what + " is not equal to Test value"], ["greater", what + " is greater than Test value"], ["less", what + " is less than Test value"]], "two");
   // The confidence level is typed, as a percent (95, 98, 80) or as a proportion (0.95): a course uses whatever level the
   // exercise says, not only 90, 95 and 99. normConf turns what was typed into the proportion the engine takes.
+  const mu0Check = (raw) => (raw.perform === "ci" || (raw.mu0 !== "" && raw.mu0 != null && Number.isFinite(Number(raw.mu0))) ? "" : "Type the test value: the mean the problem claims (H0). For the interval alone, choose Perform: Confidence interval only.");
   const confCheck = (raw) => { if (raw.conf === "" || raw.conf == null) return ""; try { normConf(raw.conf); return ""; } catch (e) { return e.message; } };
   const confField = { name: "conf", label: "Confidence level (percent)", type: "number", value: 95, placeholder: "95", hint: "Any level: 95, 98, 90, 80. A proportion such as 0.95 works too.", check: confCheck };
   function normConf(raw) {
@@ -1062,7 +1063,7 @@
       only(hasData ? selNum("x", "Variable") : null, onData),
       { name: "xbar", label: "Sample mean", type: "number", group: "Summary statistics", vis: onSummary }, { name: "n", label: "n", type: "number", group: "Summary statistics", vis: onSummary },
       { name: "sigma", label: "Population standard deviation sigma (given in the problem)", type: "number" },
-      performField(), { name: "mu0", label: "Test value", type: "number", value: 0, vis: onTest }, Object.assign(hypField("Mean"), { vis: onTest }), confField, alphaField], (v) => {
+      performField(), { name: "mu0", label: "Test value: the mean the problem claims (H0)", type: "number", value: "", vis: onTest, check: mu0Check, hint: "A hypothesis test needs the claimed mean, for example 40. For the interval alone, choose Perform: Confidence interval only." }, Object.assign(hypField("Mean"), { vis: onTest }), confField, alphaField], (v) => {
       let xbar = v.xbar, n = v.n, label = "value", from = "summary statistics";
       if (v.mode === "data") { needVar(col(v.x), v.x); const d = SW.describe(col(v.x)); if (!d) throw new Error("Need at least two numeric values."); xbar = d.mean; n = d.n; label = v.x; from = src(); }
       if (!(v.sigma > 0)) throw new Error("Type the population standard deviation sigma. If the problem gives only the sample SD s, use the One Sample T-Test instead.");
@@ -1070,7 +1071,6 @@
       if (v.perform === "ci") {
         const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: 0, alt: "two", conf: +v.conf }), pc = Math.round(r.conf * 100), me = r.zstar * r.se;
         let html = scBlock(v.mode === "data" ? "One sample Z confidence interval:" : "One sample Z summary confidence interval:", [`mu : Mean of population (${label})`, `sigma = ${v.sigma}, given`], `${pc}% confidence interval results:`, ["Mean", "Sample Mean", "sigma", "n", "Std. Err.", "Critical z", "L. Limit", "U. Limit"], [["mu", xbar, v.sigma, n, r.se, r.zstar, r.lower, r.upper]]);
-        html += table(["", "n", "Mean", "sigma", "SE = sigma / sqrt(n)", "z*", "Margin of error", `${pc}% CI lower`, "upper"], [[label, n, xbar, v.sigma, r.se, r.zstar, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Mean (sigma known)`);
         html += formula("interval = x bar plus or minus z* times sigma / sqrt(n). Use z only when the population sigma is actually given; with the sample SD s, use the t interval.");
         html += worked([`Step 1: parameter mu = the mean of all ${label} (fixed, unknown); statistic x bar = ${fmt(xbar)}; confidence level ${pc} percent`, `Step 2: conditions: a random sample; n = ${n} ${n >= 30 ? "is at least 30 (met)" : "is under 30, so the population must be roughly normal"}; sigma = ${v.sigma} is given, so SE = sigma / sqrt(n) = ${v.sigma} / sqrt(${n}) = ${fmt(r.se)}`, `Step 3: sigma given, so z* with no df: z* (${pc} percent) = ${fmt(r.zstar)}; margin of error = z* times SE = ${fmt(r.zstar)} times ${fmt(r.se)} = ${fmt(me)}`, `Step 4: interval = x bar plus or minus ME = ${fmt(xbar)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
         html += apa(`M = ${apaN(xbar, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
@@ -1078,6 +1078,7 @@
         html += cond(n >= 30, "n is at least 30: the z interval is fine whatever the population shape.", "n is under 30: this needs a roughly normal population; state that the assumptions are met.");
         ciPlot(card("One Sample Z Interval", from, html), xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); return;
       }
+      if (!Number.isFinite(v.mu0)) throw fieldErr("mu0", "Type the test value: the mean the problem claims (H0). For the interval alone, choose Perform: Confidence interval only.");
       const r = SW.oneZ({ xbar, sigma: v.sigma, n, mu0: v.mu0, alt: v.alt, conf: +v.conf }), pc = Math.round(r.conf * 100);
       let html = scBlock(v.mode === "data" ? "One sample Z hypothesis test:" : "One sample Z summary hypothesis test:", [`mu : Mean of population (${label})`, `sigma = ${v.sigma}, given`, `H0 : mu = ${v.mu0}`, `HA : mu ${altWord(v.alt)} ${v.mu0}`], "Hypothesis test results:", ["Mean", "Sample Mean", "sigma", "n", "Std. Err.", "Z-Stat", "P-value"], [["mu", xbar, v.sigma, n, r.se, r.z, SW.fmtP(r.p)]]) + table(["", "n", "Mean", "sigma", "SE = sigma / sqrt(n)", "z", "p", `${pc}% CI lower`, "upper"], [[label, n, xbar, v.sigma, r.se, r.z, SW.fmtP(r.p), r.lower, r.upper]], "One Sample Z-Test") + `<div class="note">Note. H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. z* = ${fmt(r.zstar)}.</div>`;
       html += formula("z = (x bar minus test value) / (sigma / sqrt(n)); interval x bar plus or minus z* sigma / sqrt(n). Use z only when the population sigma is actually given; with the sample SD s, use t.");
@@ -1104,7 +1105,7 @@
       if (v.perform === "ci") {
         const r = SW.twoZ({ m1, s1: v.s1, n1, m2, s2: v.s2, n2, alt: "two", conf: +v.conf }), pc = Math.round(r.conf * 100), zs = zStar(r.conf), me = zs * r.se;
         let html = scBlock("Two sample Z summary confidence interval:", [`mu1 : Mean of population 1 (${names[0]}), sigma1 = ${v.s1}`, `mu2 : Mean of population 2 (${names[1]}), sigma2 = ${v.s2}`, "mu1 minus mu2 : Difference between two means"], `${pc}% confidence interval results:`, ["Difference", "Sample Diff.", "Std. Err.", "Critical z", "L. Limit", "U. Limit"], [["mu1 minus mu2", r.diff, r.se, zs, r.lower, r.upper]]);
-        html += table(["Group", "n", "Mean", "sigma"], [[names[0], n1, m1, v.s1], [names[1], n2, m2, v.s2]], "Groups") + table(["Difference (1 minus 2)", "SE", "z*", "Margin of error", `${pc}% CI lower`, "upper"], [[r.diff, r.se, zs, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Difference in Means (sigmas known)`);
+        html += table(["Group", "n", "Mean", "sigma"], [[names[0], n1, m1, v.s1], [names[1], n2, m2, v.s2]], "Groups");
         html += formula("interval = (x bar 1 minus x bar 2) plus or minus z* sqrt(sigma1^2/n1 + sigma2^2/n2). Only when both population SDs are given; otherwise use the t interval.");
         html += worked([`SE = sqrt(${v.s1}^2 / ${n1} + ${v.s2}^2 / ${n2}) = ${fmt(r.se)}`, `margin of error = ${fmt(zs)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.diff)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
         html += apa(`M difference = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);
@@ -1179,7 +1180,7 @@
       hasData ? sel("mode", "Data", [["data", "from a column"], ["summary", "from summary statistics"]], "data") : sel("mode", "Data", [["summary", "from summary statistics"]]),
       only(hasData ? selNum("x", "Dependent variable") : null, onData),
       { name: "xbar", label: "Mean", type: "number", group: "Summary statistics", vis: onSummary }, { name: "s", label: "Std. deviation", type: "number", group: "Summary statistics", vis: onSummary }, { name: "n", label: "n", type: "number", group: "Summary statistics", vis: onSummary },
-      performField(), { name: "mu0", label: "Test value", type: "number", value: 0, vis: onTest }, Object.assign(hypField("Mean"), { vis: onTest }),
+      performField(), { name: "mu0", label: "Test value: the mean the problem claims (H0)", type: "number", value: "", vis: onTest, check: mu0Check, hint: "A hypothesis test needs the claimed mean, for example 40. For the interval alone, choose Perform: Confidence interval only." }, Object.assign(hypField("Mean"), { vis: onTest }),
       { name: "meanDiff", label: "Mean difference", type: "check", value: true, group: "Additional statistics" }, { name: "ci", label: "Confidence interval", type: "check", value: true, group: "Additional statistics" }, { name: "es", label: "Effect size (Cohen's d)", type: "check", value: true, group: "Additional statistics" }, { name: "desc", label: "Descriptives", type: "check", value: true, group: "Additional statistics" },
       confField, alphaField], (v) => {
       let xbar = v.xbar, s = v.s, n = v.n, label = "value", from = "summary statistics";
@@ -1188,7 +1189,6 @@
       if (v.perform === "ci") {
         const r = SW.oneMean({ xbar, s, n, mu0: 0, alt: "two", conf: +v.conf }), pc = Math.round(r.conf * 100), me = r.tstar * r.se;
         let html = scBlock(v.mode === "data" ? "One sample T confidence interval:" : "One sample T summary confidence interval:", [`mu : Mean of population (${label})`], `${pc}% confidence interval results:`, ["Mean", "Sample Mean", "Std. Dev.", "n", "Std. Err.", "DF", "Critical t", "L. Limit", "U. Limit"], [["mu", xbar, s, n, r.se, r.df, r.tstar, r.lower, r.upper]]);
-        html += table(["", "n", "Mean", "SD", "SE", "df", "t*", "Margin of error", `${pc}% CI lower`, "upper"], [[label, n, xbar, s, r.se, r.df, r.tstar, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Mean`);
         if (v.desc) html += table(["", "n", "Mean", "Median", "SD", "SE"], [[label, n, xbar, v.mode === "data" ? SW.describe(col(v.x)).median : "", s, r.se]], "Descriptives");
         html += formula("interval = x bar plus or minus t* times s / sqrt(n), with t* from the t distribution on n minus 1 df. Sigma is not given, so t, never z.");
         html += worked([`Step 1: parameter mu = the mean of all ${label} (fixed, unknown); statistic x bar = ${fmt(xbar)}; confidence level ${pc} percent`, `Step 2: conditions: a random sample; n = ${n} ${n >= 30 ? "is at least 30 (met)" : "is under 30, so the population must be roughly normal (check a dot plot or Q-Q plot)"}; SE = s / sqrt(n) = ${fmt(s)} / sqrt(${n}) = ${fmt(r.se)}`, `Step 3: sigma not given, so t* with df = n minus 1 = ${r.df}: t* (${pc} percent, df = ${r.df}) = ${fmt(r.tstar)}; margin of error = t* times SE = ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(me)}`, `Step 4: interval = x bar plus or minus ME = ${fmt(xbar)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
@@ -1197,7 +1197,7 @@
         html += cond(n >= 30, "n is at least 30: the t interval is fine whatever the population shape.", "n is under 30: this needs a roughly normal population (check the Q-Q plot in Descriptives); state that the assumptions are met.");
         { const cd = card("One Sample T Interval", from, html); ciPlot(cd, xbar, r.lower, r.upper, "mean", null, `${pc}% confidence interval for the mean (dot = sample mean)`); if (v.mode === "data" && n < 30) simMean1(cd, col(v.x), null, "two", +v.conf, [r.lower, r.upper], null, null); } return;
       }
-      if (!Number.isFinite(v.mu0)) throw new Error("Type a test value.");
+      if (!Number.isFinite(v.mu0)) throw fieldErr("mu0", "Type the test value: the mean the problem claims (H0). For the interval alone, choose Perform: Confidence interval only.");
       const r = SW.oneMean({ xbar, s, n, mu0: v.mu0, alt: v.alt, conf: +v.conf });
       const hdr = ["", "", "Statistic", "df", "p"], row = [label, "Student's t", r.t, r.df, SW.fmtP(r.p)];
       if (v.meanDiff) { hdr.push("Mean difference"); row.push(xbar - v.mu0); }
@@ -1205,7 +1205,7 @@
       if (v.es) { hdr.push("Cohen's d"); row.push(r.d); }
       const pcT = Math.round(r.conf * 100);
       let html = scBlock(v.mode === "data" ? "One sample T hypothesis test:" : "One sample T summary hypothesis test:", [`mu : Mean of population (${label})`, `H0 : mu = ${v.mu0}`, `HA : mu ${altWord(v.alt)} ${v.mu0}`], "Hypothesis test results:", ["Mean", "Sample Mean", "Std. Dev.", "n", "Std. Err.", "DF", "T-Stat", "P-value"], [["mu", xbar, s, n, r.se, r.df, r.t, SW.fmtP(r.p)]]);
-      html += table(hdr, [row], "One Sample T-Test") + `<div class="note">Note. ${v.mu0 === 0 ? "Test value 0 is the dialog's default: T-Stat and P-value test whether the population mean is 0, which is rarely the question. For the interval alone, set Perform to Confidence interval only." : `H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. The confidence interval in the One Sample T-Test table is for the mean difference (mean minus ${v.mu0}).`} The ${pcT}% interval for the mean itself is ${fmt(r.lower)} to ${fmt(r.upper)}.</div>`;
+      html += table(hdr, [row], "One Sample T-Test") + `<div class="note">Note. ${v.mu0 === 0 ? "Test value 0: T-Stat and P-value test whether the population mean is 0, so the statistic is the mean divided by its standard error and is large whenever the mean is far from 0. If 0 is not the claim in the problem, type the claimed mean; for the interval alone, set Perform to Confidence interval only." : `H<sub>a</sub> mu ${altWord(v.alt)} ${v.mu0}. The confidence interval in the One Sample T-Test table is for the mean difference (mean minus ${v.mu0}).`} The ${pcT}% interval for the mean itself is ${fmt(r.lower)} to ${fmt(r.upper)}.</div>`;
       if (v.desc) html += table(["", "n", "Mean", "Median", "SD", "SE"], [[label, n, xbar, v.mode === "data" ? SW.describe(col(v.x)).median : "", s, r.se]], "Descriptives");
       html += formula(`t = (x bar minus test value) / (s / sqrt(n)), df = n minus 1. Sigma is not given, so t, never z.`);
       html += worked([`t = (${fmt(xbar)} minus ${v.mu0}) / (${fmt(s)} / sqrt(${n})) = ${fmt(xbar - v.mu0)} / ${fmt(r.se)} = ${fmt(r.t)}, df = ${n} minus 1 = ${r.df}`, `interval: ${fmt(xbar)} plus or minus ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(r.lower)} to ${fmt(r.upper)}`, `d = (${fmt(xbar)} minus ${v.mu0}) / ${fmt(s)} = ${fmt(r.d)}`]);
@@ -1234,7 +1234,6 @@
       if (v.perform === "ci") {
         const pc = Math.round(r.conf * 100), me = r.tstar * r.se, sp = Math.sqrt(((a.n - 1) * a.sd * a.sd + (b.n - 1) * b.sd * b.sd) / (a.n + b.n - 2));
         let html = scBlock(v.mode === "data" ? "Two sample T confidence interval:" : "Two sample T summary confidence interval:", [`mu1 : Mean of population 1 (${names[0]})`, `mu2 : Mean of population 2 (${names[1]})`, "mu1 minus mu2 : Difference between two means"], `${pc}% confidence interval results:`, ["Difference", "Sample Diff.", "Std. Err.", "DF", "Critical t", "L. Limit", "U. Limit"], [["mu1 minus mu2", r.diff, r.se, r.df, r.tstar, r.lower, r.upper]]);
-        html += table(["", "Mean difference", "SE difference", "df", "t*", "Margin of error", `${pc}% CI lower`, "upper"], [[`${names[0]} minus ${names[1]}`, r.diff, r.se, r.df, r.tstar, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Difference in Means`);
         if (v.desc) html += table(["", "Group", "n", "Mean", "SD", "SE"], [[v.mode === "data" ? v.x : "", names[0], a.n, a.mean, a.sd, a.sd / Math.sqrt(a.n)], ["", names[1], b.n, b.mean, b.sd, b.sd / Math.sqrt(b.n)]], "Group Descriptives");
         html += formula(v.welch ? "interval = (x bar 1 minus x bar 2) plus or minus t* sqrt(s1^2 / n1 + s2^2 / n2), with Welch's df" : "interval = (x bar 1 minus x bar 2) plus or minus t* sp sqrt(1/n1 + 1/n2), sp^2 = ((n1 minus 1) s1^2 + (n2 minus 1) s2^2) / (n1 + n2 minus 2), df = n1 + n2 minus 2");
         html += worked([(v.welch ? `SE = sqrt(${fmt(a.sd)}^2 / ${a.n} + ${fmt(b.sd)}^2 / ${b.n}) = ${fmt(r.se)}, df = ${fmt(r.df)}` : `sp = ${fmt(sp)}, SE = ${fmt(sp)} sqrt(1/${a.n} + 1/${b.n}) = ${fmt(r.se)}, df = ${r.df}`), `t* (${pc} percent) = ${fmt(r.tstar)}; margin of error = ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.diff)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
@@ -1280,7 +1279,8 @@
       if (v.perform === "ci") {
         const pc = Math.round(r.conf * 100), me = r.tstar * r.se;
         let html = scBlock("Paired T confidence interval:", [`muD = mu1 minus mu2 : Mean of the difference between ${v.a} and ${v.b}`], `${pc}% confidence interval results:`, ["Difference", "Mean", "Std. Err.", "DF", "Critical t", "L. Limit", "U. Limit"], [[`${v.a} minus ${v.b}`, r.dbar, r.se, r.df, r.tstar, r.lower, r.upper]]);
-        html += table(["", "", "n", "Mean difference", "SD of differences", "SE", "df", "t*", "Margin of error", `${pc}% CI lower`, "upper"], [[v.a, v.b, r.n, r.dbar, r.sd, r.se, r.df, r.tstar, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Mean Difference`) + `<div class="note">Note. Difference = ${esc(v.a)} minus ${esc(v.b)} for each pair.</div>`;
+        { const da = SW.describe(col(v.a)), db = SW.describe(col(v.b)); html += table(["", "n", "Mean", "SD", "SE"], [[v.a, da.n, da.mean, da.sd, da.se], [v.b, db.n, db.mean, db.sd, db.se], [`difference (${v.a} minus ${v.b})`, r.n, r.dbar, r.sd, r.se]], "The two measures and their difference"); }
+        html += "" + `<div class="note">Note. Difference = ${esc(v.a)} minus ${esc(v.b)} for each pair.</div>`;
         if (v.desc) { const da = SW.describe(col(v.a)), db = SW.describe(col(v.b)); html += table(["", "n", "Mean", "Median", "SD", "SE"], [[v.a, da.n, da.mean, da.median, da.sd, da.se], [v.b, db.n, db.mean, db.median, db.sd, db.se]], "Descriptives"); }
         html += formula(`d = ${v.a} minus ${v.b} for each pair; interval = d bar plus or minus t* times s_d / sqrt(n), df = n minus 1`);
         html += worked([`d bar = ${fmt(r.dbar)}, s_d = ${fmt(r.sd)}, n = ${r.n}, SE = ${fmt(r.sd)} / sqrt(${r.n}) = ${fmt(r.se)}`, `t* (${pc} percent, df = ${r.df}) = ${fmt(r.tstar)}; margin of error = ${fmt(r.tstar)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.dbar)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
@@ -1498,7 +1498,6 @@
         const pc = Math.round(+v.conf * 100), zs = zStar(+v.conf);
         const cis = levels.map((L) => SW.propCI(L.x, L.n, +v.conf, cim));
         let html = scBlock(v.mode === "data" ? "One sample proportion confidence interval:" : "One sample proportion summary confidence interval:", [`p : Proportion of successes${v.mode === "data" ? ` (${v.x}${levels.length === 1 ? " = " + levels[0].level : ""})` : ""}`].concat(cim !== "wald" ? [`Interval method: ${cimName}`] : []), `${pc}% confidence interval results:`, ["Proportion", "Count", "Total", "Sample Prop.", "Std. Err.", "L. Limit", "U. Limit"], levels.map((L, i) => [levels.length > 1 ? `p (${L.level})` : "p", L.x, L.n, L.x / L.n, cis[i].se, cis[i].lower, cis[i].upper]));
-        html += table(["", "Level", "Count", "n", "Proportion", "SE", `${pc}% CI lower`, "upper"], levels.map((L, i) => [i ? "" : v.mode === "data" ? v.x : "", L.level, L.x, L.n, L.x / L.n, cis[i].se, cis[i].lower, cis[i].upper]), `${pc}% Confidence Interval for a Proportion (${cimName})`);
         html += cim === "wald" ? formula("interval = p hat plus or minus z* sqrt(p hat (1 minus p hat) / n)") : formula({ plus4: "Plus four: add 2 successes and 2 failures, p tilde = (x + 2)/(n + 4), interval p tilde plus or minus z* sqrt(p tilde (1 minus p tilde)/(n + 4)). Works well even for small samples.", ac: "Agresti-Coull: n tilde = n + z*^2, p tilde = (x + z*^2/2)/n tilde, interval p tilde plus or minus z* sqrt(p tilde (1 minus p tilde)/n tilde). At 95 percent this is almost the plus four interval.", wilson: "Wilson score: the set of p0 values that a two-sided z test would not reject. Stays inside 0 to 1 and works for small samples.", exact: "Clopper-Pearson: built from the binomial distribution itself (beta quantiles), so coverage is at least the stated level. Conservative, so a little wider." }[cim]);
         const L = levels[levels.length - 1], ci = cis[cis.length - 1], ph = L.x / L.n;
         const what = v.mode === "data" ? `${v.x} = ${L.level}` : "successes", pctOf = (q) => fmt(100 * q, 1);
@@ -1623,7 +1622,6 @@
         const r = SW.twoProps({ x1, n1, x2, n2, alt: "two", conf: +v.conf }), pc = Math.round(r.conf * 100), zs = zStar(r.conf), me = zs * r.se;
         let html = scBlock(v.mode === "data" ? "Two sample proportion confidence interval:" : "Two sample proportion summary confidence interval:", [`p1 : Proportion of successes for ${names[0]}`, `p2 : Proportion of successes for ${names[1]}`, "p1 minus p2 : Difference in proportions"], `${pc}% confidence interval results:`, ["Difference", "Count1", "Total1", "Count2", "Total2", "Sample Diff.", "Std. Err.", "L. Limit", "U. Limit"], [["p1 minus p2", x1, n1, x2, n2, r.diff, r.se, r.lower, r.upper]]);
         html += table(["Group", "Successes", "n", "Proportion"], [[names[0], x1, n1, r.p1], [names[1], x2, n2, r.p2]], "Proportions");
-        html += table(["Difference (1 minus 2)", "SE (unpooled)", "z*", "Margin of error", `${pc}% CI lower`, "upper"], [[r.diff, r.se, zs, me, r.lower, r.upper]], `${pc}% Confidence Interval for the Difference in Proportions`);
         html += formula("interval = (p1 hat minus p2 hat) plus or minus z* sqrt(p1 hat (1 minus p1 hat)/n1 + p2 hat (1 minus p2 hat)/n2). The interval uses the unpooled SE; the test uses the pooled one.");
         html += worked([`p1 hat = ${x1}/${n1} = ${fmt(r.p1)}, p2 hat = ${x2}/${n2} = ${fmt(r.p2)}, difference = ${fmt(r.diff)}`, `SE = sqrt(${fmt(r.p1)} times ${fmt(1 - r.p1)} / ${n1} + ${fmt(r.p2)} times ${fmt(1 - r.p2)} / ${n2}) = ${fmt(r.se)}`, `margin of error = ${fmt(zs)} times ${fmt(r.se)} = ${fmt(me)}`, `interval: ${fmt(r.diff)} plus or minus ${fmt(me)} = ${fmt(r.lower)} to ${fmt(r.upper)}`]);
         html += apa(`p1 hat minus p2 hat = ${apaN(r.diff, 2)}, ${pc}% CI [${apaN(r.lower, 2)}, ${apaN(r.upper, 2)}]`);

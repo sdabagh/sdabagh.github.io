@@ -10,9 +10,9 @@ async function menu(page, top, item) { await page.click(`nav.menu .dd[data-name=
 async function run(page) { await page.evaluate(() => document.querySelector("#dlg button.go").click()); await page.waitForFunction(() => !document.querySelector("#dlg").open, null, { timeout: 30000 }); await page.waitForTimeout(250); }
 async function cancel(page) { await page.click("#dlgCancel"); await page.waitForFunction(() => !document.querySelector("#dlg").open); }
 const clear = (page) => page.evaluate(() => (document.querySelector("#out").innerHTML = ""));
-const firstCard = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); const ts = Array.from(c.querySelectorAll("table.res")).filter((x) => !x.closest(".scblock")).map((t) => ({ heads: Array.from(t.querySelectorAll("thead th")).map((h) => h.textContent), cells: Array.from(t.querySelector("tbody tr").children).map((td) => td.textContent) })); return { title: c.querySelector("h3, .title") ? c.querySelector("h3, .title").textContent : "", heads: ts[0].heads, cells: ts[0].cells, tables: ts, text: c.textContent }; });
+const firstCard = (page) => page.evaluate(() => { const c = document.querySelector("#out .card"); const ts = Array.from(c.querySelectorAll("table.res")).map((t) => ({ sc: !!t.closest(".scblock"), heads: Array.from(t.querySelectorAll("thead th")).map((h) => h.textContent), cells: Array.from(t.querySelector("tbody tr").children).map((td) => td.textContent) })); const course = ts.filter((t) => !t.sc); return { title: c.querySelector("h3, .title") ? c.querySelector("h3, .title").textContent : "", heads: (course[0] || ts[0]).heads, cells: (course[0] || ts[0]).cells, tables: ts, text: c.textContent }; });
 const visible = (page, id) => page.evaluate((id) => { const el = document.getElementById(id); if (!el) return null; const row = el.closest(".field, .row, label, div"); return !!(el.offsetParent || (row && row.offsetParent)); }, id);
-const ciEnds = (r, pc) => { for (const t of r.tables) { const i = t.heads.findIndex((h) => new RegExp(pc + "% CI lower").test(h)); if (i >= 0) return [Number(t.cells[i]), Number(t.cells[i + 1])]; } return null; };
+const ciEnds = (r, pc) => { for (const t of r.tables) { let i = t.heads.findIndex((h) => new RegExp(pc + "% CI lower").test(h)); if (i < 0 && t.sc && new RegExp(pc + "% confidence interval results").test(r.text)) i = t.heads.indexOf("L. Limit"); if (i >= 0) return [Number(t.cells[i]), Number(t.cells[i + 1])]; } return null; };
 (async () => {
   const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errs = []; page.on("pageerror", (e) => errs.push(e.message)); const alerts = []; page.on("dialog", async (d) => { alerts.push(d.message()); await d.dismiss(); });
@@ -30,7 +30,7 @@ const ciEnds = (r, pc) => { for (const t of r.tables) { const i = t.heads.findIn
   ok(alerts.length === 0, "no 'type a test value' complaint in interval mode", alerts);
   let r = await firstCard(page); let e = ciEnds(r, 95);
   ok(/One Sample T Interval/.test(r.text) && e && near(e[0], 47.872, 0.002) && near(e[1], 56.128, 0.002), "one-sample t interval card: 47.87 to 56.13 at 95 percent", { heads: r.heads, cells: r.cells });
-  ok(r.heads.includes("n") && !r.heads.includes("N") && r.heads.includes("Margin of error") && r.heads.includes("t*"), "the card lists n, t* and the margin of error", r.heads);
+  ok(r.tables[0].sc && r.tables[0].heads.includes("n") && !r.tables[0].heads.includes("N") && r.tables[0].heads.includes("Critical t") && /margin of error = /.test(r.text) && r.tables.filter((t) => !t.sc).every((t) => t.heads.includes("Median")), "one results table (plus Descriptives): n, Critical t and the limits, with the margin of error in the worked box", r.tables.map((t) => t.heads));
   ok(/95% CI \[47\.87, 56\.13\]/.test(r.text) && /We are 95 percent confident/.test(r.text) && !/p-value|H0/.test(r.text), "APA line and a reading sentence; no p-value, no H0", r.text.slice(0, 200));
   // the R script has no mu = in interval mode
   await page.click('nav.menu .dd[data-name="Results"] .top'); await page.getByRole("menuitem", { name: "Script: every step, with the R code", exact: true }).click(); await page.waitForTimeout(400);
@@ -54,7 +54,7 @@ const ciEnds = (r, pc) => { for (const t of r.tables) { const i = t.heads.findIn
   const ti = await indep("ci"), tt = await indep("test");
   const ei = ciEnds(ti, 95), et = ciEnds(tt, 95);
   ok(/Independent Samples T Interval/.test(ti.text) && ei && et && near(ei[0], et[0], 1e-6) && near(ei[1], et[1], 1e-6) && /does not include 0/.test(ti.text), "independent t: the interval-only card matches the test's interval and reads whether 0 is inside", { ci: ei, test: et });
-  ok(ti.heads.includes("Margin of error") && /Group Descriptives/.test(ti.text) && ti.text.includes(" n") && !/\bN\b/.test(ti.heads.join(" ")), "independent t interval card has the margin of error and n in the descriptives", ti.heads);
+  ok(/Group Descriptives/.test(ti.text) && /margin of error = /.test(ti.text) && ti.tables.filter((t) => !t.sc).length === 1, "independent t interval card: the results once, then the group descriptives", ti.tables.map((t) => t.heads));
   // ---- one proportion interval (Wald) with no test value
   await clear(page); await menu(page, "Frequencies", "One proportion: z test"); await page.selectOption("#f_mode", "summary"); await page.selectOption("#f_perform", "ci");
   ok(!(await visible(page, "f_p0")) && (await visible(page, "f_cim")), "proportion dialog: interval only hides the test value and keeps the interval method");

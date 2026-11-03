@@ -46,6 +46,15 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-11-03: the test value starts blank
+
+- Safaa saw a very large test statistic: t against the dialog's default test value 0 (the mean over its standard
+  error, 41.39 for the push-up data). The arithmetic was right and the question was wrong. The one-sample t and z
+  dialogs now start with a blank test value, labelled "Test value: the mean the problem claims (H0)", with a hint and
+  a live message under the box; Run without one is refused with the same message. A typed 0 still works and its note
+  explains why the statistic is large. Spanish keys. `meanfirst.js` covers the refusal, the test against 44 (T-Stat
+  0.78) and the typed 0 (T-Stat 41.39). Cache `sww-v94`, scripts `?v=96`.
+
 ### 2026-11-02: the StatCrunch-style block on the Chapter 9 to 11 cards
 
 - Goodness of fit (n, DF, Chi-Square Stat, P-value), contingency table (Chi-Square test: Statistic, DF, Value,
