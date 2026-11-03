@@ -46,6 +46,14 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-11-02: the StatCrunch-style block on the Chapter 9 to 11 cards
+
+- Goodness of fit (n, DF, Chi-Square Stat, P-value), contingency table (Chi-Square test: Statistic, DF, Value,
+  P-value), one-way ANOVA (ANOVA table: Source, DF, SS, MS, F-Stat, P-value with Error and Total rows) and simple
+  linear regression (the equation, sample size, R, R-sq, the error SD, then Parameter estimates with Intercept and
+  Slope) open with the same block as the t, z and proportion cards. Browser test `scmore.js`. Cache `sww-v93`,
+  scripts `?v=95`.
+
 ### 2026-11-02: StatCrunch-style block on the test and interval cards; the sample mean first
 
 - Safaa's fix: the One Sample T-Test card led with Statistic, and in class the t value against the default test value 0
