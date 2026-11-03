@@ -1,7 +1,7 @@
 // The sample mean comes first. In class the One Sample T-Test card's first number, the t statistic against the default
 // test value 0, was read as the sample mean (41.39 for the push-up data, whose mean is 44.85). The card now leads with
 // n, the mean, SD, SE, df and the interval for the mean; the test table with Statistic, df and p follows, with a note
-// when the test value is the default 0. Reference (popp_academy_fitness, pushups_week12, n 60): mean 44.85, s 8.3925,
+// the test value starts blank, so a test needs the claimed mean typed. Reference (popp_academy_fitness, pushups_week12, n 60): mean 44.85, s 8.3925,
 // SE 1.0835, 95% CI 42.682 to 47.018 (t* on 59 df = 2.0010), t against 0 = 41.39. R: t.test(x) gives the same.
 const { chromium } = require("playwright");
 const URL = "http://127.0.0.1:" + (process.env.SWW_PORT || 8765) + "/stats/index.html";
@@ -16,15 +16,24 @@ const tables = (page) => page.evaluate(() => { const c = document.querySelector(
   const errs = []; page.on("pageerror", (e) => errs.push(e.message));
   await page.goto(URL);
   await menu(page, "Data", "Sample datasets"); await page.selectOption("#f_f", "popp_academy_fitness.csv"); await run(page);
-  // the class case: One Sample T-Test on pushups_week12 with the default test value 0
-  await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_x", "pushups_week12"); await run(page); let r = await tables(page);
-  ok(r.sc && r.sc.first && r.sc.title === "One sample T hypothesis test:" && /^(μ|mu) : Mean of population \(pushups_week12\)$/.test(r.sc.lines[0]) && /^H[0₀] : (μ|mu) = 0$/.test(r.sc.lines[1]) && /^HA : (μ|mu) (≠|not equal to) 0$/.test(r.sc.lines[2]) && r.sc.res === "Hypothesis test results:", "the card opens StatCrunch-style: the parameter in words, H0 and HA, then the results", r.sc && { title: r.sc.title, lines: r.sc.lines, res: r.sc.res });
+  // the class case: One Sample T-Test on pushups_week12 with no test value typed: the dialog refuses and says what to type
+  await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_x", "pushups_week12");
+  ok(await page.evaluate(() => document.querySelector("#f_mu0").value) === "", "the test value starts blank, not 0");
+  await page.evaluate(() => document.querySelector("#dlg button.go").click()); await page.waitForTimeout(300);
+  const refused = await page.evaluate(() => ({ open: document.querySelector("#dlg").open, msg: (document.querySelector("#f_mu0_msg") || {}).textContent || "" }));
+  ok(refused.open && /Type the test value: the mean the problem claims \(H0\)/.test(refused.msg) && /Confidence interval only/.test(refused.msg), "without a test value the dialog stays open and says what to type, under the field", refused);
+  // with the claimed mean 44: a sensible t
+  await page.fill("#f_mu0", "44"); await run(page); let r = await tables(page);
+  ok(r.sc && r.sc.first && r.sc.title === "One sample T hypothesis test:" && /^(μ|mu) : Mean of population \(pushups_week12\)$/.test(r.sc.lines[0]) && /^H[0₀] : (μ|mu) = 44$/.test(r.sc.lines[1]) && /^HA : (μ|mu) (≠|not equal to) 44$/.test(r.sc.lines[2]) && r.sc.res === "Hypothesis test results:", "the card opens StatCrunch-style: the parameter in words, H0 and HA, then the results", r.sc && { title: r.sc.title, lines: r.sc.lines, res: r.sc.res });
   ok(r.sc && r.sc.heads.join("|") === "Mean|Sample Mean|Std. Dev.|n|Std. Err.|DF|T-Stat|P-value", "results columns in StatCrunch order, the sample mean second", r.sc && r.sc.heads);
   const c = r.sc ? r.sc.rows[0] : [];
-  ok(/^(μ|mu)$/.test(c[0]) && near(c[1], 44.85, 1e-9) && near(c[2], 8.3925, 0.00005) && Number(c[3]) === 60 && near(c[4], 1.0835, 0.00005) && Number(c[5]) === 59 && near(c[6], 41.3947, 0.0005) && /< 0\.0001/.test(c[7]), "pushups_week12: mean 44.85, s 8.3925, n 60, SE 1.0835, df 59, T-Stat 41.39", c);
+  ok(/^(μ|mu)$/.test(c[0]) && near(c[1], 44.85, 1e-9) && near(c[2], 8.3925, 0.00005) && Number(c[3]) === 60 && near(c[4], 1.0835, 0.00005) && Number(c[5]) === 59 && near(c[6], 0.7845, 0.0005) && near(Number(String(c[7]).replace(/[<>= ]/g, "")), 0.436, 0.01), "pushups_week12 against 44: mean 44.85, s 8.3925, n 60, SE 1.0835, df 59, T-Stat 0.78, p about 0.44", c);
   const t2 = r.tables[0];
   ok(t2 && /One Sample T-Test/.test(t2.cap) && t2.heads.includes("Statistic"), "the course-named One Sample T-Test table follows, so instructions and check my work still match", t2 && { cap: t2.cap, heads: t2.heads });
-  ok(r.notes.some((n) => /Test value 0 is the dialog's default/.test(n) && /Confidence interval only/.test(n) && /95% interval for the mean itself is 42\.682 to 47\.018/.test(n)), "the note explains the default test value, points to Confidence interval only and gives the interval for the mean", r.notes);
+  ok(r.notes.some((n) => /mean difference \(mean minus 44\)/.test(n) && /95% interval for the mean itself is 42\.682 to 47\.018/.test(n)), "the note names the difference interval and gives the interval for the mean", r.notes);
+  // a test value of 0 typed on purpose: the statistic is the mean over its SE, and the note says so
+  await clear(page); await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_x", "pushups_week12"); await page.fill("#f_mu0", "0"); await run(page); r = await tables(page);
+  ok(r.sc && near(r.sc.rows[0][6], 41.3947, 0.0005) && r.notes.some((n) => /Test value 0: T-Stat and P-value test whether the population mean is 0/.test(n) && /large whenever the mean is far from 0/.test(n)), "test value 0 on purpose: T-Stat 41.39 with a note explaining why it is so large", { row: r.sc && r.sc.rows[0], notes: r.notes });
   // interval only: the StatCrunch confidence interval block with Critical t and the limits
   await clear(page); await menu(page, "T-Tests", "One Sample T-Test"); await page.selectOption("#f_x", "pushups_week12"); await page.selectOption("#f_perform", "ci"); await run(page); r = await tables(page);
   ok(r.sc && r.sc.title === "One sample T confidence interval:" && r.sc.res === "95% confidence interval results:" && r.sc.heads.join("|") === "Mean|Sample Mean|Std. Dev.|n|Std. Err.|DF|Critical t|L. Limit|U. Limit", "interval only: the StatCrunch confidence interval block", r.sc && { title: r.sc.title, heads: r.sc.heads });

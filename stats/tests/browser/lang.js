@@ -30,7 +30,7 @@ const tops = (page) => page.evaluate(() => Array.from(document.querySelectorAll(
   await page.evaluate(() => document.querySelectorAll("#dlgForm details").forEach((d) => (d.open = true)));
   const dlg = await page.evaluate(() => ({ title: document.querySelector("#dlgTitle").textContent, labels: Array.from(document.querySelectorAll("#dlgForm label")).map((l) => l.textContent.trim()), legends: Array.from(document.querySelectorAll("#dlgForm legend, #dlgForm summary")).map((l) => l.textContent.trim()), go: document.querySelector("#dlg button.go").textContent.trim(), cancel: document.querySelector("#dlgCancel").textContent.trim(), hyp: Array.from(document.querySelectorAll("#f_alt option")).map((o) => o.textContent) }));
   ok(dlg.title === "Pruebas t: Prueba t para una muestra", "dialog title in Spanish", dlg.title);
-  ok(dlg.labels.includes("Valor de prueba") && dlg.labels.includes("Intervalo de confianza") && dlg.labels.includes("Hipótesis"), "field labels in Spanish", dlg.labels);
+  ok(dlg.labels.some((l) => /^Valor de prueba/.test(l)) && dlg.labels.includes("Intervalo de confianza") && dlg.labels.includes("Hipótesis"), "field labels in Spanish", dlg.labels);
   ok(dlg.legends.some((l) => /^Estadísticos de resumen/.test(l)), "group legends in Spanish", dlg.legends);
   ok(dlg.go === "Ejecutar" && dlg.cancel === "Cancelar", "Run and Cancel in Spanish", [dlg.go, dlg.cancel]);
   ok(dlg.hyp[0] === "La media es distinta del valor de prueba", "hypothesis options in Spanish", dlg.hyp);
