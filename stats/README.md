@@ -46,6 +46,13 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-11-03: Chapter 9 pinned
+
+- Browser test `lab9.js` pins the course's hypothesis-test examples on the StatCrunch-style block: the calls log
+  against the dispatch plan's 20 percent (54 of 240: SE0 0.0258 from the claimed p, Z-Stat 0.968, two-sided P-value
+  0.333, one-sided 0.1665), overtime from counts (39 of 200 against 0.18: Z-Stat 0.55, P-value 0.58), and the push-up
+  mean against a claimed 44 (T-Stat 0.78, P-value 0.44).
+
 ### 2026-11-03: the test value starts blank
 
 - Safaa saw a very large test statistic: t against the dialog's default test value 0 (the mean over its standard
