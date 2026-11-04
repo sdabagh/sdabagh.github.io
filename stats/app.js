@@ -364,6 +364,10 @@
     if (tu) tu.style.display = undo ? "" : "none";
     autosave();
   }
+  // On a phone each result table scrolls sideways on its own (CSS, under 640px). A table wider than the screen gets the
+  // class wide and a one-line hint under it, so the P-value column is never silently off the edge. Checked when the card
+  // is made (so after it is in the page, see below) and again when the window is resized or turned.
+  function markWide(root) { root.querySelectorAll("table.res").forEach((t) => { const wide = t.clientWidth > 0 && t.scrollWidth > t.clientWidth + 1; t.classList.toggle("wide", wide); if (wide) t.dataset.swipe = T("swipe sideways for the remaining columns"); }); }
   function card(title, meta, html) {
     if (CAPTURE) { const d = document.createElement("div"); d.innerHTML = `<h2>${esc(title)}</h2>`; return d; } // a small-multiples panel: no card, only the graph is kept
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
@@ -385,8 +389,8 @@
     if (UNDO && UNDO.pane === TARGET) UNDO = null;
     const reveal = TARGET !== "#outD" && narrow(); // the distrACTION inputs card shows its own live answer instead
     if (onData && document.body.classList.contains("tablewide")) setWide(false); // the results come back for a new result
-    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div; }
-    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div;
+    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div; }
+    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div;
   }
   // remove a card; keyboard focus goes to the next card's heading (or the page), not lost to the top of the page
   function removeCard(div) {
@@ -4174,7 +4178,7 @@
       try { Plotly.relayout(p, st ? { "xaxis.dtick": st, "xaxis.tick0": 0 } : { "xaxis.dtick": null, "xaxis.tick0": null }); } catch (e) { }
     });
   }
-  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
+  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); markWide(document); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
   // opts.keep: leave focus where it is (the Change distribution and Choose another demonstration lists)
   function runItem(menuName, it, opts = {}) {
     const from = document.activeElement, dd = from && from.closest ? from.closest("nav.menu .dd") : null, kb = !!(from && from !== document.body && from.matches(":focus-visible"));
