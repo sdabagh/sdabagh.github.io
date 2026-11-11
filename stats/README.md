@@ -46,6 +46,20 @@ Service worker cache bumped to sww-v36 so installed copies pick the new version 
 
 ## Changelog
 
+### 2026-11-11: the QQ correlation r on the QQ Plot card
+
+- The QQ Plot prints the QQ correlation r (3 decimals, top left of each plot, one per group) and repeats it in the card
+  text with n, with the line: compare r with the critical value for n in the QQ critical r table; r below it suggests
+  the data are not normal. r is R's cor(qqnorm(x)$x, qqnorm(x)$y).
+- The plotting positions now match R's ppoints (a = 3/8 for n of 10 or fewer, else 1/2; quantile at (i - a)/(n + 1 - 2a)).
+  Before, the app used (i - 0.5)/n for every n, so small-sample QQ plots and r differed slightly from R. The same positions
+  feed the QQ plots under Descriptives and the residual QQ plots.
+- Engine check `qqr_check.js` (ppoints, qqnorm quantiles and r on two hand samples and the push-ups data: 0.991974 for
+  all 60, 0.962001 for women, 0.991317 for men) and browser test `qqr.js` (the label on the plot, the card line, one r
+  per group). The reference values were computed by hand with the same positions and the standard normal inverse CDF;
+  R itself is not installable in this environment.
+- Cache sww-v96, scripts ?v=98.
+
 ### 2026-11-04: result tables on a phone
 
 - On a phone (under 640 px) each result table scrolls sideways on its own, and a table wider than the screen carries a
