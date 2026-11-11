@@ -19,7 +19,9 @@ jobs:
         working-directory: stats/tests
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # --with-deps also apt-installs fonts; when the runner cannot reach the Ubuntu mirror (it happened on
+          # November 11), fall back to the browser alone: the shared libraries Chromium needs are on the image already.
+          npx playwright install --with-deps chromium || npx playwright install chromium
       - name: Engine checks and browser suites
         working-directory: stats/tests
         run: bash run.sh

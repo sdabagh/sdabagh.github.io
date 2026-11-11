@@ -245,7 +245,12 @@
 })(window);
 /* ---- additions: QQ, simulation, expression evaluation ---- */
 (function (S) {
-  S.qq = (a) => { const x = [...S.num(a)].sort((p, q) => p - q), n = x.length; return x.map((v, i) => ({ theo: S.qnorm((i + 0.5) / n), obs: v })); };
+  // Plotting positions the way R's ppoints and qqnorm place them: a = 3/8 for n <= 10, else 1/2; p_i = (i - a) / (n + 1 - 2a).
+  S.ppoints = (n) => { const a = n <= 10 ? 3 / 8 : 1 / 2; return Array.from({ length: n }, (_, i) => (i + 1 - a) / (n + 1 - 2 * a)); };
+  S.qq = (a) => { const x = [...S.num(a)].sort((p, q) => p - q), pp = S.ppoints(x.length); return x.map((v, i) => ({ theo: S.qnorm(pp[i]), obs: v })); };
+  // The QQ correlation: Pearson r between the sorted data and the normal quantiles, R's cor(qqnorm(x)$x, qqnorm(x)$y).
+  // 1 is a perfectly straight plot; a value under the critical r for n (the Ryan-Joiner or Filliben table) suggests not normal.
+  S.qqr = (a) => { const q = S.qq(a), n = q.length; if (n < 3) return NaN; const mx = q.reduce((s, p) => s + p.theo, 0) / n, my = q.reduce((s, p) => s + p.obs, 0) / n; let sxy = 0, sxx = 0, syy = 0; q.forEach((p) => { sxy += (p.theo - mx) * (p.obs - my); sxx += (p.theo - mx) ** 2; syy += (p.obs - my) ** 2; }); return sxy / Math.sqrt(sxx * syy); };
   S.qchisq = (p, df) => jStat.chisquare.inv(p, df);
   S.qf = (p, d1, d2) => jStat.centralF.inv(p, d1, d2);
   S.rnorm = (m, s) => jStat.normal.sample(m, s);

@@ -21,6 +21,8 @@ learnwithoutwalls.com/stats.
 ## Release readiness (October 30)
 - Crash sweep (`stats/tests/sweep/sweep.js`): every menu item on all 20 sample datasets, about 1,500 runs, no crash.
   Rerun it before a store submission: `node stats/tests/sweep/sweep.js` (one dataset: add its file name).
+  Rerun on November 4 after the StatCrunch-style block and the blank test value: 1,677 runs, no crash (the only
+  suspects are the three distrACTION distributions that wait for typed parameters, by design).
 - The regular suite: 47 browser and engine suites, `stats/tests/run.sh`, all green and run by GitHub on every PR.
 
 ## Safaa's decisions, pending

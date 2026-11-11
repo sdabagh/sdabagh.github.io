@@ -364,6 +364,10 @@
     if (tu) tu.style.display = undo ? "" : "none";
     autosave();
   }
+  // On a phone each result table scrolls sideways on its own (CSS, under 640px). A table wider than the screen gets the
+  // class wide and a one-line hint under it, so the P-value column is never silently off the edge. Checked when the card
+  // is made (so after it is in the page, see below) and again when the window is resized or turned.
+  function markWide(root) { root.querySelectorAll("table.res").forEach((t) => { const wide = t.clientWidth > 0 && t.scrollWidth > t.clientWidth + 1; t.classList.toggle("wide", wide); if (wide) t.dataset.swipe = T("swipe sideways for the remaining columns"); }); }
   function card(title, meta, html) {
     if (CAPTURE) { const d = document.createElement("div"); d.innerHTML = `<h2>${esc(title)}</h2>`; return d; } // a small-multiples panel: no card, only the graph is kept
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
@@ -385,8 +389,8 @@
     if (UNDO && UNDO.pane === TARGET) UNDO = null;
     const reveal = TARGET !== "#outD" && narrow(); // the distrACTION inputs card shows its own live answer instead
     if (onData && document.body.classList.contains("tablewide")) setWide(false); // the results come back for a new result
-    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div; }
-    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div;
+    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div; }
+    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div;
   }
   // remove a card; keyboard focus goes to the next card's heading (or the page), not lost to the top of the page
   function removeCard(div) {
@@ -1015,8 +1019,12 @@
     dialog("Graph: QQ Plot (normality check)", [selNum("x", "Numeric variable"), selBy("by", "Group by")], (v) => {
       // a group with fewer than 3 values gets no Q-Q plot; the card says which, just under its description
       const parts = groupsOf(v).map((g) => { const vals = subset(v.x, v, g); return { g, vals, d: SW.describe(vals) }; }), big = (q) => q.d && q.d.n >= 3, few = parts.filter((q) => !big(q)).map((q) => (q.g == null ? v.x : q.g));
-      const cd = card("QQ Plot: " + v.x, src(), say("Points along the line: roughly normal. A curve at one end: skew. Points peeling off at both ends: heavy tails or outliers. Use this to justify a t procedure when n is under 30.") + (few.length ? warn(`No Q-Q plot for ${esc(few.join(", "))}: ${few.length > 1 ? "each has" : "it has"} fewer than 3 numeric values, too few to check normality.`) : ""));
-      parts.filter(big).forEach(({ g, vals, d }) => { const q = SW.qq(vals), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: g == null ? v.x : `${v.x} (${g})`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: v.x }, showlegend: false }, 280); });
+      // the QQ correlation r, the way R computes it (cor(qqnorm(x)$x, qqnorm(x)$y)): printed on each plot, top left, and in
+      // the card text, so a student can compare it with the critical r for n in the course's table (r below it: not normal)
+      const rs = parts.filter(big).map(({ g, vals }) => ({ g, n: vals.length, r: SW.qqr(vals) }));
+      const rline = rs.length ? say(`QQ correlation ${rs.map((o) => `r = ${o.r.toFixed(3)} (${o.g == null ? "" : esc(String(o.g)) + ", "}n = ${o.n})`).join("; ")}: the correlation between the sorted data and the normal quantiles, as R's qqnorm places them (plotting positions ppoints). Compare r with the critical value for n in the QQ critical r table: r below the critical value suggests the data are not normal.`) : "";
+      const cd = card("QQ Plot: " + v.x, src(), say("Points along the line: roughly normal. A curve at one end: skew. Points peeling off at both ends: heavy tails or outliers. Use this to justify a t procedure when n is under 30.") + rline + (few.length ? warn(`No Q-Q plot for ${esc(few.join(", "))}: ${few.length > 1 ? "each has" : "it has"} fewer than 3 numeric values, too few to check normality.`) : ""));
+      parts.filter(big).forEach(({ g, vals, d }) => { const q = SW.qq(vals), r = SW.qqr(vals), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: g == null ? v.x : `${v.x} (${g})`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: v.x }, showlegend: false, annotations: [{ xref: "paper", yref: "paper", x: 0.03, y: 0.97, xanchor: "left", yanchor: "top", text: `r = ${r.toFixed(3)}`, showarrow: false, bgcolor: "#fff", bordercolor: "#C9D3DA", borderpad: 4, font: { size: 15, color: "#1A3A4D" } }] }, 280); });
     });
   }
   function gStem() {
@@ -4174,7 +4182,7 @@
       try { Plotly.relayout(p, st ? { "xaxis.dtick": st, "xaxis.tick0": 0 } : { "xaxis.dtick": null, "xaxis.tick0": null }); } catch (e) { }
     });
   }
-  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
+  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); markWide(document); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
   // opts.keep: leave focus where it is (the Change distribution and Choose another demonstration lists)
   function runItem(menuName, it, opts = {}) {
     const from = document.activeElement, dd = from && from.closest ? from.closest("nav.menu .dd") : null, kb = !!(from && from !== document.body && from.matches(":focus-visible"));
