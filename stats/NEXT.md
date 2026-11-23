@@ -22,9 +22,10 @@ learnwithoutwalls.com/stats.
 - The Causal menu (eight tools, `causal.js`), the companion to the causal inference book; verified against statsmodels,
   numpy and networkx (R is not installable here); guide, methods guide and README updated. On the branch, not merged:
   Safaa decides when it goes live.
-- Open from that work: link the Ask routes and the Which test? wizard to the Causal menu; Spanish for the causal
-  dialogs and card text (menu names are done); synthetic control, mediation inside this menu and causal discovery
-  were left out on purpose.
+- Ask knows the Causal menu (nine routes and four glossary entries, English and Spanish).
+- Open from that work: the Which test? wizard does not point at the Causal menu; Spanish for the causal dialogs and
+  card text (menu names and Ask are done); synthetic control, mediation inside this menu and causal discovery were
+  left out on purpose.
 
 ## Release readiness (October 30)
 - Crash sweep (`stats/tests/sweep/sweep.js`): every menu item on all 20 sample datasets, about 1,500 runs, no crash.
