@@ -348,7 +348,8 @@
     ["STATC1000_Class_Data.csv", "Our class data (40 students)"], ["STATC1000_Sleep_Followup.csv", "Sleep follow-up (paired)"], ["sleepstudy.csv", "Sleep deprivation: reaction time by day within 18 subjects (lme4 sleepstudy, 180 rows)"], ["ships.csv", "Ship damage incidents by type, year built, period and months of service (MASS ships, 40 rows; a rate with an offset)"], ["cbpp.csv", "Contagious bovine pleuropneumonia: cases out of herd size by period within 15 herds (lme4 cbpp, 56 rows; a mixed logistic model)"],
     ["Dataset1_Finch_Beaks.csv", "Galapagos finches (300 birds)"], ["Dataset4_Global_Health.csv", "Global health (50 countries)"],
     ["popp_calls_for_service.csv", "Calls for service (240 calls)"], ["popp_academy_fitness.csv", "Academy fitness (60 cadets)"], ["popp_community_survey.csv", "Community survey (180 residents)"], ["STATC1000_Class_Data_Exam1.csv", "Class data with Exam 1 scores (lab M8)"],
-    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"], ["darfur.csv", "Darfur survey (Hazlett 2020): violence and support for peace, 1276 refugees (sensitivity to a lurking variable)"]];
+    ["yrbs2023_teens_1500.csv", "CDC teen survey 2023: marijuana, sleep, grades, mood (1500 students)"], ["gss2018_beliefs_politics.csv", "General Social Survey 2018: astrology, science, politics (2348 adults)"], ["gss2022_politics_wellbeing.csv", "General Social Survey 2022: politics and wellbeing (3544 adults)"], ["big5_personality_1200.csv", "Big Five personality (1200 respondents)"], ["cadet_mile_times.csv", "Cadet mile times at weeks 1, 4, 8, 12, two groups (repeated measures)"], ["mauna_loa_co2_monthly.csv", "NOAA Mauna Loa monthly CO2, 2000 to 2026 (time series)"], ["big5_items_500.csv", "Big Five, 50 raw items, 500 respondents (reliability, factor analysis)"], ["lung_cancer_survival.csv", "Lung cancer survival, 227 patients (survival analysis)"], ["darfur.csv", "Darfur survey (Hazlett 2020): violence and support for peace, 1276 refugees (sensitivity to a lurking variable)"],
+    ["causal_bike_lanes.csv", "Bike lanes on busy and quiet streets, 40 streets (causal: adjust by groups)"], ["causal_tutoring.csv", "Tutoring offered by lottery, family income, prior GPA, test score, 120 students (causal: propensity scores, matching, instrument, bounds)"], ["causal_scholarship_rd.csv", "Scholarship at a GPA cutoff of 3.0, credits completed, 200 students (causal: regression discontinuity)"], ["causal_bus_routes.csv", "Bus routes before and after a new schedule on half of them, 20 routes (causal: difference in differences)"]];
 
   // ================= output =================
   let cardN = 0;
@@ -364,6 +365,10 @@
     if (tu) tu.style.display = undo ? "" : "none";
     autosave();
   }
+  // On a phone each result table scrolls sideways on its own (CSS, under 640px). A table wider than the screen gets the
+  // class wide and a one-line hint under it, so the P-value column is never silently off the edge. Checked when the card
+  // is made (so after it is in the page, see below) and again when the window is resized or turned.
+  function markWide(root) { root.querySelectorAll("table.res").forEach((t) => { const wide = t.clientWidth > 0 && t.scrollWidth > t.clientWidth + 1; t.classList.toggle("wide", wide); if (wide) t.dataset.swipe = T("swipe sideways for the remaining columns"); }); }
   function card(title, meta, html) {
     if (CAPTURE) { const d = document.createElement("div"); d.innerHTML = `<h2>${esc(title)}</h2>`; return d; } // a small-multiples panel: no card, only the graph is kept
     html = String(html).replace(/(<div class="note">)([\s\S]*?)(<\/div>)/g, (m, a, b, c) => a + sym(b) + c);
@@ -385,8 +390,8 @@
     if (UNDO && UNDO.pane === TARGET) UNDO = null;
     const reveal = TARGET !== "#outD" && narrow(); // the distrACTION inputs card shows its own live answer instead
     if (onData && document.body.classList.contains("tablewide")) setWide(false); // the results come back for a new result
-    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div; }
-    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); if (reveal) toView(div); return div;
+    if (REPLACE && REPLACE.isConnected) { REPLACE.before(div); REPLACE._last = div; if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div; }
+    const out = $(TARGET); out.prepend(div); out.scrollTop = 0; if (!onData) { const sc = out.closest(".toolscroll"); if (sc) sc.scrollTop = 0; } if (onData) showTab(TARGET === "#outG" ? "graphs" : "analyses"); counts(); markWide(div); if (reveal) toView(div); return div;
   }
   // remove a card; keyboard focus goes to the next card's heading (or the page), not lost to the top of the page
   function removeCard(div) {
@@ -1015,8 +1020,12 @@
     dialog("Graph: QQ Plot (normality check)", [selNum("x", "Numeric variable"), selBy("by", "Group by")], (v) => {
       // a group with fewer than 3 values gets no Q-Q plot; the card says which, just under its description
       const parts = groupsOf(v).map((g) => { const vals = subset(v.x, v, g); return { g, vals, d: SW.describe(vals) }; }), big = (q) => q.d && q.d.n >= 3, few = parts.filter((q) => !big(q)).map((q) => (q.g == null ? v.x : q.g));
-      const cd = card("QQ Plot: " + v.x, src(), say("Points along the line: roughly normal. A curve at one end: skew. Points peeling off at both ends: heavy tails or outliers. Use this to justify a t procedure when n is under 30.") + (few.length ? warn(`No Q-Q plot for ${esc(few.join(", "))}: ${few.length > 1 ? "each has" : "it has"} fewer than 3 numeric values, too few to check normality.`) : ""));
-      parts.filter(big).forEach(({ g, vals, d }) => { const q = SW.qq(vals), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: g == null ? v.x : `${v.x} (${g})`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: v.x }, showlegend: false }, 280); });
+      // the QQ correlation r, the way R computes it (cor(qqnorm(x)$x, qqnorm(x)$y)): printed on each plot, top left, and in
+      // the card text, so a student can compare it with the critical r for n in the course's table (r below it: not normal)
+      const rs = parts.filter(big).map(({ g, vals }) => ({ g, n: vals.length, r: SW.qqr(vals) }));
+      const rline = rs.length ? say(`QQ correlation ${rs.map((o) => `r = ${o.r.toFixed(3)} (${o.g == null ? "" : esc(String(o.g)) + ", "}n = ${o.n})`).join("; ")}: the correlation between the sorted data and the normal quantiles, as R's qqnorm places them (plotting positions ppoints). Compare r with the critical value for n in the QQ critical r table: r below the critical value suggests the data are not normal.`) : "";
+      const cd = card("QQ Plot: " + v.x, src(), say("Points along the line: roughly normal. A curve at one end: skew. Points peeling off at both ends: heavy tails or outliers. Use this to justify a t procedure when n is under 30.") + rline + (few.length ? warn(`No Q-Q plot for ${esc(few.join(", "))}: ${few.length > 1 ? "each has" : "it has"} fewer than 3 numeric values, too few to check normality.`) : ""));
+      parts.filter(big).forEach(({ g, vals, d }) => { const q = SW.qq(vals), r = SW.qqr(vals), lo = Math.min(...q.map((p) => p.theo)), hi = Math.max(...q.map((p) => p.theo)); plotDiv(cd, [{ x: q.map((p) => p.theo), y: q.map((p) => p.obs), mode: "markers", type: "scatter", marker: { color: "#3A7CA5" }, name: "data" }, { x: [lo, hi], y: [d.mean + lo * d.sd, d.mean + hi * d.sd], mode: "lines", line: { color: "#C0392B" }, name: "normal" }], { title: g == null ? v.x : `${v.x} (${g})`, xaxis: { title: "theoretical quantiles" }, yaxis: { title: v.x }, showlegend: false, annotations: [{ xref: "paper", yref: "paper", x: 0.03, y: 0.97, xanchor: "left", yanchor: "top", text: `r = ${r.toFixed(3)}`, showarrow: false, bgcolor: "#fff", bordercolor: "#C9D3DA", borderpad: 4, font: { size: 15, color: "#1A3A4D" } }] }, 280); });
     });
   }
   function gStem() {
@@ -3525,6 +3534,11 @@
     "Advanced | Bayesian Inference (conjugate priors)": (v) => (v.kind === "prop" || v.kind === "p" ? [`# posterior for a proportion: Beta(${v.a} + successes, ${v.b} + failures); qbeta(c(0.025, 0.975), a, b)`] : [`# normal mean with known sigma: posterior mean = weighted average of prior mean and x bar; see the card's formula`]),
     "Learn | Bayesian: prior, data, posterior": (v) => R_OF["Advanced | Bayesian Inference (conjugate priors)"](v),
   };
+  // ================= Causal menu (causal.js) =================
+  // The companion to the causal inference book lives in causal.js, loaded before this file. It gets the helpers it needs
+  // and gives back its menu items and the R lines for the Script tool.
+  const CAUSAL = window.SWW_CAUSAL ? window.SWW_CAUSAL.install({ dialog, card, table, say, warn, ok, formula, worked, plotDiv, col, D: () => D, needData, src, esc, escA, fmt, sel, selNum, selCat, selAny, levelProblem, fieldErr, addColumn, numCols, catCols, designMatrix, keepComplete, dmNotes, SW, T, downloadText, cond, confField, isNum, activeIdx, announce }) : { items: [], r: {} };
+  Object.assign(R_OF, CAUSAL.r);
   function powerR(v) { const sig = v.alpha ? `, sig.level = ${v.alpha}` : "", alt = v.alt && v.alt !== "two" ? `, alternative = ${rStr(v.alt === "greater" || v.alt === "less" ? "greater" : "two.sided")}` : "", want = v.mode === "n" || !v.n ? `power = ${v.pow || 0.8}` : `n = ${v.n}`; const t = v.test || "t2"; if (t === "t1") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}, type = "one.sample"${alt})`]; if (t === "t2") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}${alt})`]; if (t === "prop1") return [`pwr::pwr.p.test(h = pwr::ES.h(${v.p1}, ${v.p0}), ${want}${sig}${alt})`]; if (t === "prop2") return [`pwr::pwr.2p.test(h = pwr::ES.h(${v.p0}, ${v.p1}), ${want}${sig}${alt})`]; if (t === "anova") return [`pwr::pwr.anova.test(k = ${v.k}, f = ${v.d}, ${want}${sig})`]; if (t === "corr") return [`pwr::pwr.r.test(r = ${v.d}, ${want}${sig}${alt})`]; if (t === "chisq") return [`pwr::pwr.chisq.test(w = ${v.d}, df = ${v.k}, ${want}${sig})`]; return ["# see the pwr package"]; }
   const optionLines = (redo) => {
     const out = []; (redo.fields || []).forEach((fd) => { if (!fd || fd.type === "note") return;
@@ -3632,6 +3646,7 @@
     ["T-Tests", [["Which test?", whichTest], null, ["Independent Samples T-Test", tIndependent], ["Paired Samples T-Test", tPaired], ["One Sample T-Test", tOneSample], null, ["One Sample Z-Test (sigma known)", zOneSample], ["Two Sample Z-Test (sigmas known)", zTwoSample]]],
     ["ANOVA", [["One-Way ANOVA", anovaUI], ["Two-Way ANOVA", anova2UI], ["ANCOVA", ancovaUI], ["Repeated Measures and Mixed ANOVA", rmAnovaUI], ["MANOVA", manovaUI], null, ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
     ["Regression", [["Correlation Matrix", corrUI], ["Linear Regression", linRegUI], null, ["Mediation (indirect effect through a mediator)", mediationUI], ["Sensitivity to a lurking variable", sensitivityUI]]],
+    ["Causal", CAUSAL.items],
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["One proportion: z test", onePropZ], ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
@@ -4174,7 +4189,7 @@
       try { Plotly.relayout(p, st ? { "xaxis.dtick": st, "xaxis.tick0": 0 } : { "xaxis.dtick": null, "xaxis.tick0": null }); } catch (e) { }
     });
   }
-  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
+  let rtT = null; window.addEventListener("resize", () => { clearTimeout(rtT); rtT = setTimeout(() => { retick(); markWide(document); const df = $("#distForm"); if (df.children.length) fitSelects(df); }, 200); });
   // opts.keep: leave focus where it is (the Change distribution and Choose another demonstration lists)
   function runItem(menuName, it, opts = {}) {
     const from = document.activeElement, dd = from && from.closest ? from.closest("nav.menu .dd") : null, kb = !!(from && from !== document.body && from.matches(":focus-visible"));

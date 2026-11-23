@@ -100,7 +100,7 @@ const watch = (p) => { p.on("pageerror", (e) => errs.push(e.message)); p.on("con
   await page.evaluate(() => { const s = document.querySelector("#f_menus"); [...s.options].forEach((o) => (o.selected = o.value !== "Advanced" && o.value !== "Nonparametric")); });
   await page.selectOption("#f_how", "link"); await run(page); await page.waitForTimeout(200);
   const prof = await page.evaluate(() => ({ name: document.querySelector("#profName").textContent, adv: document.querySelector('nav.menu .dd[data-name="Advanced"]').style.display, learn: document.querySelector('nav.menu .dd[data-name="Learn"]').style.display, card: document.querySelector("#out .card h2").textContent, stored: JSON.parse(localStorage.getItem("sww_profile")) }));
-  ok(prof.name === "Profile: STAT C1000" && prof.adv === "none" && prof.learn === "" && prof.card === "Course profile" && prof.stored.welch === false && prof.stored.dec === 3 && prof.stored.menus.length === 8, "profile applied: name shown, Advanced hidden, stored", prof);
+  ok(prof.name === "Profile: STAT C1000" && prof.adv === "none" && prof.learn === "" && prof.card === "Course profile" && prof.stored.welch === false && prof.stored.dec === 3 && prof.stored.menus.length === 9 && !prof.stored.menus.includes("Advanced") && prof.stored.menus.includes("Causal"), "profile applied: name shown, Advanced hidden, stored", prof);
   const plink = await page.evaluate(() => navigator.clipboard.readText());
   ok(/#s=/.test(plink), "profile link copied", plink.length);
   await menu(page, "T-Tests", "Independent Samples T-Test");

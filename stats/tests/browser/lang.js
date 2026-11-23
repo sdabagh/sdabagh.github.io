@@ -19,7 +19,7 @@ const tops = (page) => page.evaluate(() => Array.from(document.querySelectorAll(
   ok(opts.join("|") === "English|Español", "language dialog lists English and Español", opts);
   await page.selectOption("#f_l", "es"); await run(page);
   let t = await tops(page);
-  ok(t[0] === "Datos" && t[3] === "Pruebas t" && t[8] === "No paramétricas" && t[10] === "Avanzado" && t[11] === "Resultados", "menu bar in Spanish", t);
+  ok(t[0] === "Datos" && t[3] === "Pruebas t" && t.includes("Causal") && t.includes("No paramétricas") && t.includes("Avanzado") && t[t.length - 1] === "Resultados", "menu bar in Spanish", t);
   const items = await page.evaluate(() => Array.from(document.querySelectorAll('nav.menu .dd[data-name="T-Tests"] [role=menuitem]')).map((e) => e.textContent.trim()));
   ok(items.includes("Prueba t para una muestra") && items.includes("¿Qué prueba?"), "menu items in Spanish, data-name key still English", items);
   const shell = await page.evaluate(() => ({ lang: document.documentElement.lang, h1: document.querySelector("header h1 span").textContent, tabA: document.querySelector("#tabA").textContent.trim(), dsname: document.querySelector("#dsname").textContent, widen: document.querySelector("#paneToggle").textContent, ask: document.querySelector("#askBtn").textContent, ph: document.querySelector("#botIn").placeholder, guide: document.querySelector('header .hlinks a[href="guide.html"]').textContent, btn: document.querySelector("#langBtn").textContent, empty: (document.querySelector("#grid .empty h2") || {}).textContent, card: document.querySelector("#out .card h2").textContent }));
