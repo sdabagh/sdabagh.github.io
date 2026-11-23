@@ -84,6 +84,23 @@ runs the engine on the same data and compares; `tests/browser/causal.js` runs ev
 
 ## Changelog
 
+### 2026-11-23 (night): the R page, real R in the browser
+
+- A new R menu and page: webR 0.6.1 (R 4.6.0 compiled to WebAssembly) loaded from the jsDelivr CDN at that pinned
+  version only when the page is opened, with a "Starting R, a few seconds the first time" status. A code box, Run
+  (or Ctrl+Enter, Cmd+Enter on a Mac), Clear output, and a block per run with the code, the printed output and any
+  plots as pictures; errors, warnings and messages print as text. Every sample dataset is in R by its name as a data
+  frame, listed beside the code box with its columns and an insert button; the open table is `data`, resent before a
+  run when it changed. Seven editable examples: one-sample, paired and Welch t tests, chi-square and Fisher exact
+  tests, simple linear regression with its line, a histogram with a QQ plot. New file `r.js`; nothing is sent
+  anywhere.
+- Accessibility: labeled code box, a status region, the output as a live region, each plot an image with a name.
+- Tests: `tests/browser/rtab.js` (13 checks) runs webR from the `webr` npm package installed in `tests/`
+  (`?webr=` points the page at a local copy; the live page uses the CDN). Checked in Chromium; the CDN hosts are
+  not reachable from the build environment, so the CDN load itself and Safari are to be tried by hand (Safari and
+  iPadOS need 16.4 or later for the plots).
+- Guide: an R section in Menu by menu, a task-table row, the menu-bar line. Cache sww-v99, scripts ?v=101.
+
 ### 2026-11-23 (later): Ask knows the Causal menu
 
 - Nine Ask routes for causal questions (a confounder, the diagram, standardization, propensity weighting, matching,

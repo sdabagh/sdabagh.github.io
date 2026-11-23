@@ -46,5 +46,10 @@ learnwithoutwalls.com/stats.
 - Nursing wording inside the card text itself (the dialogs and Ask have it; the cards still speak in general terms).
 - The simulation route on more cards (two-way ANOVA, correlation, the rank tests) if students reach for it.
 
+## Done on November 23 (night)
+- The R page (webR 0.6.1 in the browser, `r.js`): the CDN hosts are still refused here, but the `webr` npm package
+  carries the same files, so the tests run it from `tests/node_modules`. To try by hand: the CDN load on a laptop,
+  Safari and an iPad (16.4 or later for the plots), and a Chromebook.
+
 ## Blocked here
-- R in the browser (WebR): the cloud environment's network policy refuses the WebR and CRAN hosts.
+- CRAN and the webR CDN hosts are refused by the cloud environment's network policy (R itself cannot be installed).
