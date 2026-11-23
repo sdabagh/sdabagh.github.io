@@ -84,6 +84,15 @@ runs the engine on the same data and compares; `tests/browser/causal.js` runs ev
 
 ## Changelog
 
+### 2026-11-23 (later): Ask knows the Causal menu
+
+- Nine Ask routes for causal questions (a confounder, the diagram, standardization, propensity weighting, matching,
+  an instrument, difference in differences, a cutoff, the bounds) and four glossary entries (chains, forks and
+  colliders; propensity scores, ATE and ATT, balance; instruments, the exclusion restriction, compliers;
+  counterfactuals, parallel trends, running variables), in English and Spanish. A plain "confounder" lands on the
+  diagram and standardization first; the sensitivity analysis is still offered after them.
+- Browser test `askcausal.js` (14 checks). Cache sww-v98, scripts ?v=100.
+
 ### 2026-11-23: the Causal menu
 
 - A new Causal menu between Regression and Frequencies: Draw a DAG (paths, d-separation, backdoor), Adjust by groups
