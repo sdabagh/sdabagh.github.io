@@ -6,7 +6,7 @@ Three pages, one menu bar: the data page (table on the left, Analyses and Graphs
 
 Menus, option names and result tables (Exploration, T-Tests, ANOVA, Regression, Frequencies, distrACTION) match the course instructions as written. On top of that, StatCrunch-style conveniences: Filters, Compute, Transform, sort by clicking a header, summary-statistic input on the t, z, proportion and chi-square tests, a two-proportion z test, chi-square and F calculators, a sampling distribution simulator, session save and load, and offline use as an installable app (PWA).
 
-What it does: load a CSV (or paste, or a sample dataset), edit cells in place; descriptives, frequency and two-way tables; bar, pie, histogram, dotplot, boxplot, scatterplot; one mean (t, or z when sigma is given), one proportion (z with exact binomial; Wald, plus four, Agresti-Coull, Wilson or exact interval), two means (Welch), paired, two proportions, one-way ANOVA with Tukey, chi-square goodness of fit and independence, correlation and regression with residual plot, confidence and prediction intervals; one and two variance tests; Levene's test; binomial, Poisson, geometric, hypergeometric, discrete uniform, custom discrete (mean, SD and probabilities from x and P(x)), normal, uniform, exponential, t, chi-square and F calculators, each with the events at most, less than, at least, more than, equal to, between (inclusive or strict) and quantile, plus t*, p-value and critical-value choices for t, chi-square and F, all updating live as inputs change; sample size for a margin of error and power; data tools to bin, stack, simulate and sample; Learn applets for mean versus median, regression influence and guessing r (each value or point can be typed as well as clicked). Every inference card gives the formula, the statistic, the p-value, a decision at alpha, a written conclusion, and a condition check.
+What it does: load a CSV (or paste, or a sample dataset), edit cells in place; causal inference from a drawn DAG to propensity scores, instruments, difference in differences and regression discontinuity (the Causal menu, see below); descriptives, frequency and two-way tables; bar, pie, histogram, dotplot, boxplot, scatterplot; one mean (t, or z when sigma is given), one proportion (z with exact binomial; Wald, plus four, Agresti-Coull, Wilson or exact interval), two means (Welch), paired, two proportions, one-way ANOVA with Tukey, chi-square goodness of fit and independence, correlation and regression with residual plot, confidence and prediction intervals; one and two variance tests; Levene's test; binomial, Poisson, geometric, hypergeometric, discrete uniform, custom discrete (mean, SD and probabilities from x and P(x)), normal, uniform, exponential, t, chi-square and F calculators, each with the events at most, less than, at least, more than, equal to, between (inclusive or strict) and quantile, plus t*, p-value and critical-value choices for t, chi-square and F, all updating live as inputs change; sample size for a margin of error and power; data tools to bin, stack, simulate and sample; Learn applets for mean versus median, regression influence and guessing r (each value or point can be typed as well as clicked). Every inference card gives the formula, the statistic, the p-value, a decision at alpha, a written conclusion, and a condition check.
 
 House rules baked in: means use t with df (the z test is there only for problems that give sigma, and its card says so); p-value approach; tests for a standard deviation live under Advanced, not in the first-course menus; z procedures for proportions require the success-failure check.
 
@@ -44,7 +44,57 @@ and z 0.0027 (the app says the approximation is fine there).
 
 Service worker cache bumped to sww-v36 so installed copies pick the new version up.
 
+## Causal menu, the companion to the causal inference book (added 2026-11-23)
+
+Built for Safaa's OER book "You're Smarter Than You Think: Causal Inference". One menu, eight tools, plain JavaScript
+in `causal.js` (the dialogs, cards and pictures) and `stats.js` (the arithmetic), no new library, cached for offline use.
+
+- Draw a DAG: arrows typed as lines, a two-dimensional layered picture (conditioned on: shaded; unobserved: dashed),
+  every path between two variables with open or blocked, where and why; the backdoor helper lists the backdoor paths
+  and every valid adjustment set from the measured variables, minimal ones marked, or says that none exists. The
+  graph downloads as text lines and loads by pasting them back.
+- Adjust by groups (standardization), propensity score with inverse probability weighting (score saved as a column,
+  overlap plot, bootstrap interval, balance table), 1 to 1 matching with replacement (effect on the treated, balance),
+  instrumental variables (Wald ratio, two-stage least squares, first-stage F with the weak-instrument warning),
+  difference in differences 2 by 2 (four means, the estimate, the parallel-trends picture), sharp regression
+  discontinuity (local linear fit each side, the jump, a picture), and Manski's no-assumption bounds.
+- Four sample datasets with real names, made by `tests/checks/causal_data.py`: bike lanes on busy and quiet streets
+  (the crude difference reverses once standardized), tutoring offered by lottery with family income and prior GPA
+  (propensity scores, matching, the instrument, the bounds), a scholarship at a GPA cutoff of 3.0, and bus routes
+  before and after a new schedule.
+- Not in this menu, by decision: synthetic control, mediation and causal discovery (not yet); nothing from Safaa's own
+  research methods.
+
+Verification (R is not installable in the build environment; `tests/checks/causal_reference.py` computes the references
+with statsmodels, numpy and networkx and writes `tests/checks/data/causal_reference.json`; `tests/checks/causal_check.js`
+runs the engine on the same data and compares; `tests/browser/causal.js` runs every tool through the dialogs):
+
+| Tool | Checked against | Result |
+| --- | --- | --- |
+| d-separation | networkx `is_d_separator`, 6 graphs (confounding, M-bias, collider, chain, mediator with a descendant, front door), 18 queries | all agree |
+| Backdoor adjustment sets | brute force over every subset of the measured non-descendants with networkx on the graph with the treatment's outgoing arrows removed | the same lists of valid and minimal sets on 6 graphs, including "none" with an unobserved confounder |
+| Standardization | hand computation (numpy) on the bike lanes | crude 2.8104, standardized -2.2144, to 1e-9 |
+| Propensity model | statsmodels GLM binomial, tutoring ~ family_income + prior_gpa | coefficients, SEs and fitted scores to 1e-6 |
+| IPW ATE and ATT, balance | weighted means (Hajek) and SMDs in numpy | 5.8620 and 6.0446, SMDs before and after, to 1e-8 |
+| Matching | an independent nearest-neighbour-with-replacement loop | ATT 6.6126, paired SE 0.9680, 87 matches, 27 distinct controls, balance to 1e-8 |
+| Wald ratio and 2SLS | arithmetic; numpy 2SLS with the ivreg standard errors; first-stage F = t squared from statsmodels OLS | 4.8624 (equal to the 2SLS slope), with covariates 5.8939, SEs and F to 1e-6 |
+| Difference in differences | statsmodels OLS riders ~ group * period | 83.6, SE 40.7205, p 0.0474, to 1e-8 |
+| Regression discontinuity | statsmodels OLS on each side (bandwidth 0.5, and the whole range) | jump 5.8814, SE 1.0088, to 1e-8 |
+| Manski bounds | arithmetic | effect between -0.2667 and 0.7333, width 1 |
+
 ## Changelog
+
+### 2026-11-23: the Causal menu
+
+- A new Causal menu between Regression and Frequencies: Draw a DAG (paths, d-separation, backdoor), Adjust by groups
+  (standardization), Propensity score and inverse probability weighting, Matching on the propensity score,
+  Instrumental variables (Wald ratio, 2SLS), Difference in differences (2 by 2), Regression discontinuity (sharp),
+  Bounds with no assumptions (Manski). New file `causal.js`; the arithmetic in `stats.js`; four sample datasets.
+  Spanish menu names. R lines for the Script tool (dagitty, glm, MatchIt, ivreg, lm).
+- Verification against statsmodels, numpy and networkx (the build record above has the table): engine check
+  `causal_check.js` (24 checks) and browser test `causal.js` (20 checks).
+- Guide: a Causal section in Menu by menu, six rows in the task table, a verification paragraph. The methods guide's
+  causal section points to the menu. Cache sww-v97, scripts ?v=99.
 
 ### 2026-11-11: the QQ correlation r on the QQ Plot card
 

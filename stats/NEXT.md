@@ -18,6 +18,14 @@ learnwithoutwalls.com/stats.
   class). Course materials that picture the old One Sample T-Test card layout are not edited; none were found in
   this repository beyond the module 7 lesson text, which describes t in general terms.
 
+## Done on November 23
+- The Causal menu (eight tools, `causal.js`), the companion to the causal inference book; verified against statsmodels,
+  numpy and networkx (R is not installable here); guide, methods guide and README updated. On the branch, not merged:
+  Safaa decides when it goes live.
+- Open from that work: link the Ask routes and the Which test? wizard to the Causal menu; Spanish for the causal
+  dialogs and card text (menu names are done); synthetic control, mediation inside this menu and causal discovery
+  were left out on purpose.
+
 ## Release readiness (October 30)
 - Crash sweep (`stats/tests/sweep/sweep.js`): every menu item on all 20 sample datasets, about 1,500 runs, no crash.
   Rerun it before a store submission: `node stats/tests/sweep/sweep.js` (one dataset: add its file name).

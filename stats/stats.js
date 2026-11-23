@@ -1085,4 +1085,174 @@ S.lmm = (y, X, groups, Zcols, opts = {}) => {
     S.holm(pairs.map((q) => (Number.isFinite(q.p) ? q.p : 1))).forEach((pp, i) => (pairs[i].pHolm = pp));
     return { n, k, Fr, df, p, W, rankTotals: R, meanRank: R.map((r) => r / n), medians: Y[0].map((_, j) => S.median(Y.map((r) => r[j]))), pairs };
   };
+  // ================= Causal: the companion to the causal inference book =================
+  // DAGs: lines like "A -> B" are parsed into nodes and arrows; d-separation is decided by listing every path between
+  // two variables and saying where each one is open or blocked; the backdoor criterion is applied by trying adjustment
+  // sets from the measured variables, smallest first; a layered layout places the picture in two dimensions.
+  // Effects: standardization by groups, propensity scores with inverse probability weights, 1 to 1 matching, the Wald
+  // ratio and two-stage least squares, difference in differences, sharp regression discontinuity and Manski's bounds.
+  // The least-squares and logistic fits above do the fitting; everything here is plain arithmetic on top of them.
+  {
+    const T = (M) => M[0].map((_, j) => M.map((r) => r[j]));
+    const mul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+    const inv = (M) => { const n = M.length, A = M.map((r, i) => r.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; [A[c], A[p]] = [A[p], A[c]]; const d = A[c][c]; if (Math.abs(d) < 1e-12) throw new Error("The design is singular: a predictor is constant or a copy of another."); for (let j = 0; j < 2 * n; j++) A[c][j] /= d; for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; } } return A.map((r) => r.slice(n)); };
+    const vari = (a) => { const m = S.mean(a); return a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1); };
+    const qtl = (a, p) => { const s = [...a].sort((x, y) => x - y), h = (s.length - 1) * p, lo = Math.floor(h); return s[lo] + (h - lo) * ((s[lo + 1] == null ? s[lo] : s[lo + 1]) - s[lo]); }; // R type 7
+    S.pooledSD = (a, b) => Math.sqrt((vari(a) + vari(b)) / 2);
+    S.wmean = (x, w) => { let s = 0, t = 0; for (let i = 0; i < x.length; i++) { s += w[i] * x[i]; t += w[i]; } return s / t; };
+
+    // ---- DAGs ----
+    S.dagOrder = (nodes, edges) => { // a topological order; shorter than nodes when the arrows loop
+      const indeg = Object.fromEntries(nodes.map((n) => [n, 0])); edges.forEach(([, b]) => indeg[b]++);
+      const q = nodes.filter((n) => !indeg[n]), out = []; while (q.length) { const n = q.shift(); out.push(n); edges.forEach(([a, b]) => { if (a === n && --indeg[b] === 0) q.push(b); }); } return out;
+    };
+    S.dagParse = (text) => {
+      const nodes = [], edges = [], errors = [], seen = new Set(), add = (n) => { if (!nodes.includes(n)) nodes.push(n); };
+      String(text || "").split(/\r?\n/).forEach((line, li) => {
+        const s = line.replace(/#.*$/, "").trim(); if (!s) return;
+        const parts = s.split(/\s*(?:->|-->|=>)\s*/).map((p) => p.trim());
+        if (parts.length < 2 || parts.some((p) => !p)) { errors.push(`Line ${li + 1} is not an arrow: write cause -> effect (it says "${s}").`); return; }
+        for (let k = 0; k + 1 < parts.length; k++) { const a = parts[k], b = parts[k + 1]; if (a === b) { errors.push(`Line ${li + 1}: ${a} cannot be its own cause.`); continue; } add(a); add(b); const key = a + "\u0001" + b; if (!seen.has(key)) { seen.add(key); edges.push([a, b]); } }
+      });
+      const order = S.dagOrder(nodes, edges); if (order.length < nodes.length) errors.push(`The arrows form a loop through ${nodes.filter((n) => !order.includes(n)).join(", ")}. A causal diagram cannot loop: a cause comes before its effect.`);
+      return { nodes, edges, errors, order };
+    };
+    S.dagChildren = (edges, n) => edges.filter(([a]) => a === n).map(([, b]) => b);
+    S.dagParents = (edges, n) => edges.filter(([, b]) => b === n).map(([a]) => a);
+    S.dagDescendants = (edges, n) => { const out = new Set(), st = [n]; while (st.length) { const x = st.pop(); S.dagChildren(edges, x).forEach((c) => { if (!out.has(c)) { out.add(c); st.push(c); } }); } return [...out]; };
+    // every simple path between x and y, ignoring arrow direction but remembering it: dirs[k] is ">" when the arrow
+    // points from nodes[k] to nodes[k + 1] and "<" when it points back
+    S.dagPaths = (nodes, edges, x, y, cap = 2000) => {
+      const paths = []; let truncated = false;
+      const nb = (n) => edges.flatMap(([a, b]) => (a === n ? [[b, ">"]] : b === n ? [[a, "<"]] : []));
+      const walk = (path, dirs, used) => { if (paths.length >= cap) { truncated = true; return; } const last = path[path.length - 1]; if (last === y) { paths.push({ nodes: path.slice(), dirs: dirs.slice() }); return; } nb(last).forEach(([m, d]) => { if (used.has(m)) return; used.add(m); path.push(m); dirs.push(d); walk(path, dirs, used); path.pop(); dirs.pop(); used.delete(m); }); };
+      if (x !== y && nodes.includes(x) && nodes.includes(y)) walk([x], [], new Set([x]));
+      return { paths, truncated };
+    };
+    // one path read against a conditioning set: a chain or fork node blocks when it is conditioned on; a collider blocks
+    // when neither it nor any of its descendants is conditioned on
+    S.dagPathEval = (path, zset, desc) => {
+      const { nodes: pn, dirs } = path, info = []; let blockedAt = null;
+      for (let k = 1; k + 1 < pn.length; k++) {
+        const m = pn[k], inL = dirs[k - 1] === ">", inR = dirs[k] === "<", type = inL && inR ? "collider" : inL || inR ? "chain" : "fork";
+        const inZ = zset.has(m), dz = (desc[m] || []).filter((d) => zset.has(d)); let blocks, why;
+        if (type === "collider") { blocks = !inZ && !dz.length; why = blocks ? "a collider that is not conditioned on (and none of its descendants is): blocked" : inZ ? "a collider that is conditioned on: opened" : `a collider whose descendant ${dz[0]} is conditioned on: opened`; }
+        else { blocks = inZ; why = blocks ? `a ${type} that is conditioned on: blocked` : `a ${type} that is not conditioned on: open`; }
+        info.push({ node: m, type, inZ, descInZ: dz, blocks, why }); if (blocks && !blockedAt) blockedAt = m;
+      }
+      return { nodes: pn, dirs, info, open: !blockedAt, blockedAt, text: pn.map((n, k) => (k ? ` ${dirs[k - 1] === ">" ? "->" : "<-"} ${n}` : n)).join("") };
+    };
+    S.dSep = (nodes, edges, x, y, Z = []) => {
+      const zset = new Set(Z), desc = {}; nodes.forEach((n) => (desc[n] = S.dagDescendants(edges, n)));
+      const { paths, truncated } = S.dagPaths(nodes, edges, x, y), out = paths.map((p) => S.dagPathEval(p, zset, desc));
+      return { paths: out, separated: out.every((p) => !p.open), nOpen: out.filter((p) => p.open).length, truncated };
+    };
+    // the backdoor criterion: Z has no descendant of the treatment and blocks every path that starts with an arrow into
+    // the treatment. Unobserved variables can never be in Z. Sets are tried smallest first; a set is minimal when no
+    // smaller valid set sits inside it.
+    S.backdoor = (nodes, edges, t, y, unobserved = [], opts = {}) => {
+      const unob = new Set(unobserved), descT = S.dagDescendants(edges, t), descSet = new Set(descT), desc = {}; nodes.forEach((n) => (desc[n] = S.dagDescendants(edges, n)));
+      const all = S.dagPaths(nodes, edges, t, y).paths, back = all.filter((p) => p.dirs[0] === "<").map((p) => S.dagPathEval(p, new Set(), desc));
+      const cands = nodes.filter((n) => n !== t && n !== y && !descSet.has(n) && !unob.has(n));
+      const limit = opts.limit || 4096, maxSize = cands.length > 12 ? 3 : cands.length; let tried = 0, truncated = cands.length > 12;
+      const valid = [], blocksAll = (Z) => { const zs = new Set(Z); return back.every((p) => !S.dagPathEval(p, zs, desc).open); };
+      const combos = (k) => { const out = [], rec = (start, acc) => { if (acc.length === k) { out.push(acc.slice()); return; } for (let i = start; i < cands.length; i++) { acc.push(cands[i]); rec(i + 1, acc); acc.pop(); } }; rec(0, []); return out; };
+      outer: for (let k = 0; k <= maxSize; k++) for (const Z of combos(k)) { if (++tried > limit) { truncated = true; break outer; } if (blocksAll(Z)) valid.push({ Z, minimal: !valid.some((v) => v.minimal && v.Z.every((n) => Z.includes(n))) }); }
+      const unobOnPaths = [...new Set(back.flatMap((p) => p.nodes.slice(1, -1)).filter((n) => unob.has(n)))];
+      return { backdoorPaths: back, candidates: cands, descendants: descT, sets: valid, minimal: valid.filter((v) => v.minimal), none: !valid.length, emptyOK: valid.some((v) => !v.Z.length), truncated, tried, unobservedOnPaths: unobOnPaths };
+    };
+    // a layered picture: x by the longest chain of arrows that reaches a node, y spread within the layer, a few barycenter
+    // sweeps to shorten the arrows; a layer with one node is nudged up or down in turn so a chain is not one flat line
+    S.dagLayout = (nodes, edges) => {
+      const order = S.dagOrder(nodes, edges), layer = {}; order.forEach((n) => { const ps = S.dagParents(edges, n); layer[n] = ps.length ? Math.max(...ps.map((p) => layer[p])) + 1 : 0; }); nodes.forEach((n) => { if (!(n in layer)) layer[n] = 0; });
+      const L = Math.max(0, ...nodes.map((n) => layer[n])), cols = Array.from({ length: L + 1 }, () => []); nodes.forEach((n) => cols[layer[n]].push(n));
+      const pos = {}; cols.forEach((c) => c.forEach((n, i) => (pos[n] = i)));
+      const bary = (n, side) => { const nb = side < 0 ? S.dagParents(edges, n) : S.dagChildren(edges, n); return nb.length ? S.mean(nb.map((m) => pos[m] / Math.max(1, cols[layer[m]].length - 1))) : pos[n] / Math.max(1, cols[layer[n]].length - 1); };
+      for (let sweep = 0; sweep < 3; sweep++) { for (let k = 1; k <= L; k++) { cols[k].sort((a, b) => bary(a, -1) - bary(b, -1) || pos[a] - pos[b]); cols[k].forEach((n, i) => (pos[n] = i)); } for (let k = L - 1; k >= 0; k--) { cols[k].sort((a, b) => bary(a, 1) - bary(b, 1) || pos[a] - pos[b]); cols[k].forEach((n, i) => (pos[n] = i)); } }
+      const xy = {};
+      if (!L) { const perRow = Math.ceil(Math.sqrt(nodes.length)); nodes.forEach((n, i) => (xy[n] = { x: (i % perRow + 0.5) / perRow, y: (Math.floor(i / perRow) + 0.5) / Math.ceil(nodes.length / perRow) })); }
+      else cols.forEach((c, k) => c.forEach((n, i) => (xy[n] = { x: k / L, y: c.length === 1 ? 0.5 + (k % 2 ? 0.14 : -0.14) : (i + 0.5) / c.length })));
+      return { xy, layers: L + 1, rows: Math.max(...cols.map((c) => c.length)), cols };
+    };
+
+    // ---- standardization by groups: the outcome by treatment inside each stratum, then averaged with the strata's
+    // shares of the whole sample. A stratum with only treated or only untreated rows cannot be used (no positivity);
+    // the shares of the usable strata are rescaled to 1 and the card says so.
+    S.standardize = (y, t, keys) => {
+      const n = y.length, groups = {}; keys.forEach((k, i) => { (groups[k] = groups[k] || { key: k, i: [] }).i.push(i); });
+      const rows = Object.values(groups).map((g) => { const i1 = g.i.filter((i) => t[i] === 1), i0 = g.i.filter((i) => t[i] === 0), m1 = i1.length ? S.mean(i1.map((i) => y[i])) : NaN, m0 = i0.length ? S.mean(i0.map((i) => y[i])) : NaN; return { key: g.key, n: g.i.length, n1: i1.length, n0: i0.length, w: g.i.length / n, m1, m0, d: m1 - m0 }; });
+      const used = rows.filter((r) => r.n1 && r.n0), skipped = rows.filter((r) => !(r.n1 && r.n0)), share = used.reduce((s, r) => s + r.w, 0);
+      const m1 = used.reduce((s, r) => s + (r.w / share) * r.m1, 0), m0 = used.reduce((s, r) => s + (r.w / share) * r.m0, 0);
+      const y1 = y.filter((_, i) => t[i] === 1), y0 = y.filter((_, i) => t[i] === 0);
+      return { rows, used, skipped, share, n, crude: { m1: S.mean(y1), m0: S.mean(y0), d: S.mean(y1) - S.mean(y0), n1: y1.length, n0: y0.length }, std: { m1, m0, d: m1 - m0 } };
+    };
+
+    // ---- propensity scores: logistic regression of the treatment on the covariates; inverse probability weights
+    // 1/e for the treated and 1/(1 - e) for the untreated (Hajek: weighted means, weights summing to 1 in each arm);
+    // the effect on the treated with weights 1 for the treated and e/(1 - e) for the untreated; a bootstrap that
+    // refits the propensity model in every resample; balance as standardized mean differences, the before-weighting
+    // pooled SD as the yardstick before and after.
+    S.ipw = (X, t, y, names, { conf = 0.95, reps = 1000, seed = 1 } = {}) => {
+      const fit = S.logistic(X, t, names, conf), ps = fit.fitted, n = y.length;
+      const est = (e, tt, yy) => { let s1 = 0, w1 = 0, s0 = 0, w0 = 0, a0 = 0, aw0 = 0, a1 = 0, c1 = 0; for (let i = 0; i < yy.length; i++) { if (tt[i] === 1) { const w = 1 / e[i]; s1 += w * yy[i]; w1 += w; a1 += yy[i]; c1++; } else { const w = 1 / (1 - e[i]); s0 += w * yy[i]; w0 += w; const wa = e[i] / (1 - e[i]); a0 += wa * yy[i]; aw0 += wa; } } return { m1: s1 / w1, m0: s0 / w0, ate: s1 / w1 - s0 / w0, att: a1 / c1 - a0 / aw0, att0: a0 / aw0 }; };
+      const point = est(ps, t, y), w = t.map((v, i) => (v === 1 ? 1 / ps[i] : 1 / (1 - ps[i])));
+      const r = S.rng(seed), bA = [], bT = []; let failed = 0;
+      for (let b = 0; b < reps; b++) { const idx = Array.from({ length: n }, () => Math.floor(r() * n)); const tb = idx.map((i) => t[i]); if (!tb.includes(1) || !tb.includes(0)) { failed++; continue; } try { const f = S.logistic(idx.map((i) => X[i]), tb, names, conf), e = est(f.fitted, tb, idx.map((i) => y[i])); if (Number.isFinite(e.ate) && Number.isFinite(e.att)) { bA.push(e.ate); bT.push(e.att); } else failed++; } catch (err) { failed++; } }
+      const a = (1 - conf) / 2, boot = bA.length > 20 ? { ateLower: qtl(bA, a), ateUpper: qtl(bA, 1 - a), attLower: qtl(bT, a), attUpper: qtl(bT, 1 - a), reps: bA.length, failed } : { ateLower: NaN, ateUpper: NaN, attLower: NaN, attUpper: NaN, reps: bA.length, failed };
+      const y1 = y.filter((_, i) => t[i] === 1), y0 = y.filter((_, i) => t[i] === 0), crude = S.mean(y1) - S.mean(y0);
+      const balance = names.map((nm, j) => { const x = X.map((row) => row[j]), x1 = x.filter((_, i) => t[i] === 1), x0 = x.filter((_, i) => t[i] === 0), sdp = S.pooledSD(x1, x0) || 1; const wm1 = S.wmean(x1, w.filter((_, i) => t[i] === 1)), wm0 = S.wmean(x0, w.filter((_, i) => t[i] === 0)); return { name: nm, m1: S.mean(x1), m0: S.mean(x0), smd0: (S.mean(x1) - S.mean(x0)) / sdp, wm1, wm0, smd1: (wm1 - wm0) / sdp }; });
+      const ps1 = ps.filter((_, i) => t[i] === 1), ps0 = ps.filter((_, i) => t[i] === 0);
+      return { fit, ps, w, point, crude, boot, balance, n, n1: y1.length, n0: y0.length, extreme: ps.filter((p) => p < 0.01 || p > 0.99).length, maxW: Math.max(...w), psRange: { t1: [Math.min(...ps1), Math.max(...ps1)], t0: [Math.min(...ps0), Math.max(...ps0)] } };
+    };
+    // ---- 1 to 1 nearest-neighbour matching on the propensity score, with replacement: every treated row takes the
+    // untreated row whose score is closest (ties go to the earlier row); an optional caliper in SDs of the score;
+    // the effect on the treated is the mean of the matched differences, with the plain paired SE as a rough guide.
+    S.psMatch = (ps, t, y, X, names, { caliper = null } = {}) => {
+      const i1 = [], i0 = []; t.forEach((v, i) => (v === 1 ? i1 : i0).push(i)); const sdp = S.sd(ps), cal = caliper > 0 ? caliper * sdp : Infinity;
+      const pairs = [], unmatched = [];
+      i1.forEach((i) => { let best = -1, bd = Infinity; i0.forEach((j) => { const d = Math.abs(ps[i] - ps[j]); if (d < bd - 1e-12) { bd = d; best = j; } }); if (best < 0 || bd > cal) unmatched.push(i); else pairs.push({ i, j: best, d: bd }); });
+      const diffs = pairs.map((p) => y[p.i] - y[p.j]), att = diffs.length ? S.mean(diffs) : NaN, se = diffs.length > 1 ? S.sd(diffs) / Math.sqrt(diffs.length) : NaN;
+      const balance = names.map((nm, k) => { const x = X.map((row) => row[k]), x1 = i1.map((i) => x[i]), x0 = i0.map((i) => x[i]), sd = S.pooledSD(x1, x0) || 1, a1 = pairs.map((p) => x[p.i]), a0 = pairs.map((p) => x[p.j]); return { name: nm, m1: S.mean(x1), m0: S.mean(x0), smd0: (S.mean(x1) - S.mean(x0)) / sd, am1: a1.length ? S.mean(a1) : NaN, am0: a0.length ? S.mean(a0) : NaN, smd1: a1.length ? (S.mean(a1) - S.mean(a0)) / sd : NaN }; });
+      return { pairs, unmatched, att, se, df: diffs.length - 1, nTreated: i1.length, nControls: i0.length, nMatched: pairs.length, controlsUsed: new Set(pairs.map((p) => p.j)).size, maxDist: pairs.length ? Math.max(...pairs.map((p) => p.d)) : NaN, caliper: cal === Infinity ? null : cal, balance };
+    };
+    // ---- instrumental variables: the Wald ratio for a 0/1 instrument with no covariates, and two-stage least squares
+    // (first stage t ~ z + W, second stage y ~ fitted t + W) with the standard errors from the residuals that use the
+    // actual treatment, as ivreg does; the first-stage F for the instrument is its t squared.
+    S.iv = (y, t, z, W = [], names = [], conf = 0.95) => {
+      const n = y.length, cov = (i) => (W[i] || []), Xz = t.map((_, i) => [z[i]].concat(cov(i))), Xa = t.map((v, i) => [v].concat(cov(i)));
+      const first = S.ols(Xz, t, ["instrument"].concat(names), conf, { light: true }), reduced = S.ols(Xz, y, ["instrument"].concat(names), conf, { light: true });
+      const Xh = first.fitted.map((v, i) => [v].concat(cov(i))), s2 = S.ols(Xh, y, ["treatment"].concat(names), conf, { light: true }), b = s2.b, p = b.length;
+      const fitted = Xa.map((r) => [1].concat(r).reduce((s, v, k) => s + v * b[k], 0)), resid = y.map((v, i) => v - fitted[i]), sigma2 = resid.reduce((s, e) => s + e * e, 0) / (n - p);
+      const Xh1 = Xh.map((r) => [1].concat(r)), Vi = inv(mul(T(Xh1), Xh1)), se = Vi.map((r, i) => Math.sqrt(sigma2 * r[i])), tv = b.map((v, i) => v / se[i]), df = n - p, pv = tv.map((v) => 2 * (1 - S.pt(Math.abs(v), df))), ts = S.qt(1 - (1 - conf) / 2, df);
+      const firstF = first.t[1] ** 2, ols = S.ols(Xa, y, ["treatment"].concat(names), conf, { light: true });
+      let wald = null;
+      if (!names.length && z.every((v) => v === 0 || v === 1)) { const i1 = z.map((v, i) => (v === 1 ? i : -1)).filter((i) => i >= 0), i0 = z.map((v, i) => (v === 0 ? i : -1)).filter((i) => i >= 0); if (i1.length && i0.length) { const my1 = S.mean(i1.map((i) => y[i])), my0 = S.mean(i0.map((i) => y[i])), mt1 = S.mean(i1.map((i) => t[i])), mt0 = S.mean(i0.map((i) => t[i])); wald = { my1, my0, mt1, mt0, dy: my1 - my0, dt: mt1 - mt0, ratio: (my1 - my0) / (mt1 - mt0), n1: i1.length, n0: i0.length }; } }
+      return { names: ["Intercept", "treatment"].concat(names), b, se, t: tv, p: pv, lower: b.map((v, i) => v - ts * se[i]), upper: b.map((v, i) => v + ts * se[i]), df, n, sigma: Math.sqrt(sigma2), first, reduced, firstF, weak: firstF < 10, ols, wald };
+    };
+    // ---- difference in differences, two groups by two periods: the four means, the change in each group, their
+    // difference, and the same number as the interaction in y ~ group + period + group x period (its SE and t)
+    S.did = (y, g, p, conf = 0.95) => {
+      const cell = (gi, pi) => y.filter((_, i) => g[i] === gi && p[i] === pi), m = {}, ns = {};
+      [["c0", 0, 0], ["c1", 0, 1], ["t0", 1, 0], ["t1", 1, 1]].forEach(([k, gi, pi]) => { const c = cell(gi, pi); m[k] = c.length ? S.mean(c) : NaN; ns[k] = c.length; });
+      const fit = S.ols(y.map((_, i) => [g[i], p[i], g[i] * p[i]]), y, ["group", "period", "group x period"], conf, { light: true });
+      return { means: m, ns, changeT: m.t1 - m.t0, changeC: m.c1 - m.c0, did: (m.t1 - m.t0) - (m.c1 - m.c0), counterfactual: m.t0 + (m.c1 - m.c0), fit, se: fit.se[3], t: fit.t[3], p: fit.p[3], lower: fit.lower[3], upper: fit.upper[3], df: fit.df };
+    };
+    // ---- sharp regression discontinuity: inside the bandwidth, a straight line on each side of the cutoff (distance
+    // from the cutoff as the predictor), the jump is the difference of the two intercepts at the cutoff
+    S.rdd = (y, x, c, h, { above = true, conf = 0.95 } = {}) => {
+      const iT = [], iC = []; x.forEach((v, i) => { const d = v - c; if (Number.isFinite(h) && h > 0 && Math.abs(d) > h) return; ((above ? d >= 0 : d < 0) ? iT : iC).push(i); });
+      if (iT.length < 3 || iC.length < 3) throw new Error(`Too few rows inside the bandwidth: ${iT.length} on the treated side and ${iC.length} on the other. Widen the bandwidth.`);
+      const fitT = S.ols(iT.map((i) => [x[i] - c]), iT.map((i) => y[i]), ["distance from cutoff"], conf, { light: true }), fitC = S.ols(iC.map((i) => [x[i] - c]), iC.map((i) => y[i]), ["distance from cutoff"], conf, { light: true });
+      const jump = fitT.b[0] - fitC.b[0], se = Math.sqrt(fitT.se[0] ** 2 + fitC.se[0] ** 2), df = fitT.df + fitC.df, t = jump / se, p = 2 * (1 - S.pt(Math.abs(t), df)), ts = S.qt(1 - (1 - conf) / 2, df);
+      const all = iT.concat(iC), lo = Math.min(...all.map((i) => x[i])), hi = Math.max(...all.map((i) => x[i])), nb = 20, bins = [];
+      for (let k = 0; k < nb; k++) { const a = lo + ((hi - lo) * k) / nb, b = lo + ((hi - lo) * (k + 1)) / nb; const idx = all.filter((i) => x[i] >= a && (k === nb - 1 ? x[i] <= b : x[i] < b)); if (idx.length) bins.push({ x: S.mean(idx.map((i) => x[i])), y: S.mean(idx.map((i) => y[i])), n: idx.length }); }
+      return { jump, se, t, p, df, lower: jump - ts * se, upper: jump + ts * se, aT: fitT.b[0], aC: fitC.b[0], slopeT: fitT.b[1], slopeC: fitC.b[1], nT: iT.length, nC: iC.length, bins, c, h: Number.isFinite(h) && h > 0 ? h : null, above, xRange: [lo, hi] };
+    };
+    // ---- Manski's no-assumption bounds for a 0/1 outcome: the unseen potential outcomes are filled in with 0 and with 1
+    S.manski = (y, t) => {
+      const n = y.length, i1 = y.filter((_, i) => t[i] === 1), i0 = y.filter((_, i) => t[i] === 0), p1 = i1.length / n, p0 = i0.length / n, m1 = S.mean(i1), m0 = S.mean(i0);
+      const y1 = { lower: p1 * m1, upper: p1 * m1 + p0 }, y0 = { lower: p0 * m0, upper: p0 * m0 + p1 };
+      return { n, n1: i1.length, n0: i0.length, p1, p0, m1, m0, y1, y0, ate: { lower: y1.lower - y0.upper, upper: y1.upper - y0.lower }, naive: m1 - m0 };
+    };
+  }
 })(window.SW);
