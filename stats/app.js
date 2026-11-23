@@ -3539,6 +3539,8 @@
   // and gives back its menu items and the R lines for the Script tool.
   const CAUSAL = window.SWW_CAUSAL ? window.SWW_CAUSAL.install({ dialog, card, table, say, warn, ok, formula, worked, plotDiv, col, D: () => D, needData, src, esc, escA, fmt, sel, selNum, selCat, selAny, levelProblem, fieldErr, addColumn, numCols, catCols, designMatrix, keepComplete, dmNotes, SW, T, downloadText, cond, confField, isNum, activeIdx, announce }) : { items: [], r: {} };
   Object.assign(R_OF, CAUSAL.r);
+  // ================= R page (r.js): real R in the browser through webR =================
+  const RTAB = window.SWW_R ? window.SWW_R.install({ D: () => D, samples: SAMPLES, setView, esc, announce }) : { items: [] };
   function powerR(v) { const sig = v.alpha ? `, sig.level = ${v.alpha}` : "", alt = v.alt && v.alt !== "two" ? `, alternative = ${rStr(v.alt === "greater" || v.alt === "less" ? "greater" : "two.sided")}` : "", want = v.mode === "n" || !v.n ? `power = ${v.pow || 0.8}` : `n = ${v.n}`; const t = v.test || "t2"; if (t === "t1") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}, type = "one.sample"${alt})`]; if (t === "t2") return [`pwr::pwr.t.test(d = ${v.d}, ${want}${sig}${alt})`]; if (t === "prop1") return [`pwr::pwr.p.test(h = pwr::ES.h(${v.p1}, ${v.p0}), ${want}${sig}${alt})`]; if (t === "prop2") return [`pwr::pwr.2p.test(h = pwr::ES.h(${v.p0}, ${v.p1}), ${want}${sig}${alt})`]; if (t === "anova") return [`pwr::pwr.anova.test(k = ${v.k}, f = ${v.d}, ${want}${sig})`]; if (t === "corr") return [`pwr::pwr.r.test(r = ${v.d}, ${want}${sig}${alt})`]; if (t === "chisq") return [`pwr::pwr.chisq.test(w = ${v.d}, df = ${v.k}, ${want}${sig})`]; return ["# see the pwr package"]; }
   const optionLines = (redo) => {
     const out = []; (redo.fields || []).forEach((fd) => { if (!fd || fd.type === "note") return;
@@ -3650,6 +3652,7 @@
     ["Frequencies", [["2 Outcomes: Binomial test", binomialTest], ["N Outcomes: chi-square Goodness of fit", gofUI], ["Contingency Tables: Independent Samples", contTables], null, ["One proportion: z test", onePropZ], ["Two proportions: z test", twoPropsUI]]],
     ["distrACTION", [["Binomial Distribution", binomCalc], ["Custom (discrete x and P(x))", discreteCalc], ["Poisson Distribution", poissonCalc], ["Geometric Distribution", geometricCalc], ["Hypergeometric Distribution", hyperCalc], ["Discrete Uniform", dunifCalc], null, ["Normal Distribution", normalCalc], ["Uniform (continuous)", unifCalc], ["Exponential Distribution", expCalc], ["T-Distribution", tCalc], ["Chi-square and F", chiFCalc], null, ["Sample size for a margin of error", sampleSizeCalc], ["Power and sample size for a test", powerUI]]],
     ["Nonparametric", [["Mann-Whitney U (two groups)", mannWhitneyUI], ["Wilcoxon signed-rank and sign test (paired)", wilcoxonUI], ["Kruskal-Wallis (three or more groups)", kruskalUI], ["Friedman (nonparametric repeated measures)", friedmanUI]]],
+    ["R", RTAB.items],
     ["Learn", [["Coin flips and the law of large numbers", llnUI], ["The Central Limit Theorem", cltUI], ["What a confidence interval means", ciDemoUI], ["What a p-value is", pvalDemoUI], null, ["Mean versus median (click to add values)", meanMedianApplet], ["Regression: outliers and influence", influenceApplet], ["Guess the correlation", guessRApplet], null, ["Sampling distribution simulator", samplingSim], ["Bootstrap: an interval with no formula", bootUI], ["Permutation: a p-value by reshuffling", permUI], ["Bayesian: prior, data, posterior", bayesUI]]],
     ["Advanced", [["Multiple Linear Regression", multRegUI], ["Mixed-Effects Model (nested or repeated data)", mixedUI], ["Mixed-Effects Model for yes/no or counts (glmer)", glmmUI], ["Survey estimates with weights (design-based)", surveyUI], ["Logistic Regression", logitUI], null, ["Count Regression: Poisson and Negative Binomial", countRegUI], ["Multinomial Logistic Regression", multinomUI], ["Ordinal Logistic Regression", ordinalUI], null, ["Variance tests (one SD or two SDs)", varianceUI], ["McNemar test (paired yes or no)", mcnemarUI], ["Cochran-Armitage trend test", trendUI], null, ["Power and Sample Size", powerUI], null, ["Bootstrap confidence interval", bootUI], ["Permutation test", permUI], null, ["Time Series", tsUI], null, ["Principal Component Analysis", pcaUI], ["Exploratory Factor Analysis", efaUI], ["Reliability (Cronbach's alpha)", alphaUI], ["k-means Clustering", kmeansUI], null, ["Survival Analysis: Kaplan-Meier, log-rank, Cox", survivalUI], null, ["Bayesian Inference (conjugate priors)", bayesUI]]],
     ["Results", [["Script: every step, with the R code", scriptUI], null, ["Decimal places shown", () => dialog("Decimal places", [sel("d", "Show numbers to", [["2", "2 decimals"], ["3", "3 decimals"], ["4", "4 decimals (default)"], ["6", "6 decimals"]], String(DEC))], (v) => { DEC = Number(v.d); try { localStorage.setItem("sww_dec", v.d); } catch (e) { } card("Decimal places", `now ${DEC}`, say("Applies to new results. The stored value is always full precision; quote the printed value and say how you rounded.")); }, "Set")],
@@ -4166,22 +4169,23 @@
   // ================= pages =================
   // Data page: the table and its results. distrACTION page (#distraction): inputs card and live results, no table.
   // Learn page (#learn): the demonstrations that need no data. The data stay loaded while another page is open.
-  const PAGES = { distraction: "#outD", learn: "#outL" };
+  const PAGES = { distraction: "#outD", learn: "#outL", r: "#rOut" };
   const LEARN_PAGE = new Set([llnUI, cltUI, ciDemoUI, pvalDemoUI, meanMedianApplet, influenceApplet, guessRApplet, samplingSim, bayesUI]); // everything under Learn that runs with no data (bootstrap and permutation need a data file and stay with the table)
   const DIST_ITEMS = MENU.find((m) => m[0] === "distrACTION")[1].filter(Boolean), LEARN_ITEMS = MENU.find((m) => m[0] === "Learn")[1].filter((it) => it && LEARN_PAGE.has(it[1]));
   const PLAN_ITEMS = new Set([sampleSizeCalc, powerUI]); // on the distrACTION page, but not probability calculators
   function baseTarget() { return PAGES[VIEW] || "#out"; }
-  function pageFor(menuName, fn) { if (menuName === "distrACTION") return "distraction"; if (menuName === "Learn") return LEARN_PAGE.has(fn) ? "learn" : "data"; if (menuName === "Results") return null; return "data"; }
+  function pageFor(menuName, fn) { if (menuName === "distrACTION") return "distraction"; if (menuName === "R") return "r"; if (menuName === "Learn") return LEARN_PAGE.has(fn) ? "learn" : "data"; if (menuName === "Results") return null; return "data"; }
   function setView(name, how) { // how: "push" adds a browser history step, "replace" rewrites it, undefined leaves the address alone
     if (name !== "data" && !Object.prototype.hasOwnProperty.call(PAGES, name)) name = "data"; // any other #hash (even a built-in property name) is the data page
     if (name !== VIEW) dropUndo();
     VIEW = name; TARGET = baseTarget();
-    ["data", "distraction", "learn"].forEach((k) => document.body.classList.toggle("view-" + k, k === name));
+    ["data", "distraction", "learn", "r"].forEach((k) => document.body.classList.toggle("view-" + k, k === name));
     const df = $("#distForm"), open = df.children.length > 0;
     if (name === "learn") $("#toolTitle").textContent = "Learn";
+    else if (name === "r") $("#toolTitle").textContent = "R";
     else if (name === "distraction") $("#toolTitle").textContent = open && df._title ? df._title : "distrACTION";
-    $("#toolNote").textContent = name === "learn" ? "Classroom demonstrations. No data needed." : open && PLAN_ITEMS.has(df._fn) ? "Sample size and power. No data needed." : "Probability calculators. No data needed.";
-    nav.querySelectorAll(".dd").forEach((d) => d.classList.toggle("here", (name === "distraction" && d.dataset.name === "distrACTION") || (name === "learn" && d.dataset.name === "Learn")));
+    $("#toolNote").textContent = name === "r" ? "Real R in your browser. Nothing leaves your device." : name === "learn" ? "Classroom demonstrations. No data needed." : open && PLAN_ITEMS.has(df._fn) ? "Sample size and power. No data needed." : "Probability calculators. No data needed.";
+    nav.querySelectorAll(".dd").forEach((d) => d.classList.toggle("here", (name === "distraction" && d.dataset.name === "distrACTION") || (name === "learn" && d.dataset.name === "Learn") || (name === "r" && d.dataset.name === "R")));
     const want = name === "data" ? location.pathname + location.search : "#" + name;
     if (how && (location.hash || "") !== (name === "data" ? "" : "#" + name)) history[how === "push" ? "pushState" : "replaceState"](null, "", want);
     counts();
